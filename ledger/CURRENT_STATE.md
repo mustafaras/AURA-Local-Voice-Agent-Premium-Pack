@@ -4,8 +4,8 @@ This file is a compact, atomically replaced projection of the append-only ledger
 
 - Phase: Foundation
 - Active milestone: 0
-- Active task: Environment readiness check
-- Last verified commit: Unknown
+- Active task: Environment readiness check / repository published to GitHub
+- Last verified commit: https://github.com/mustafaras/AURA-Local-Voice-Agent-Premium-Pack/commit/ed2c266
 - Build status: Not initialized
 - Test status: Not initialized
 - Known blockers: Active workstation is Windows; AURA requires macOS 26+ with Apple Silicon and Xcode 26+ for local build/test. See `.github/instructions/macos-environment.instructions.md`.
