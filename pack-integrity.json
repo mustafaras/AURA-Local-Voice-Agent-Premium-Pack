@@ -1,0 +1,435 @@
+{
+  "generated_at": "2026-07-23T08:07:44.417508+00:00",
+  "files": [
+    {
+      "path": ".github/agents/architect.agent.md",
+      "sha256": "8377cb75fd821cf7dffd403fd6e77269ee6c9d37849bed431cd9b4687c04ab2d",
+      "bytes": 605
+    },
+    {
+      "path": ".github/agents/audio.agent.md",
+      "sha256": "b0e28533037a08a84e24135fdc6f5b7fbd1a3da4d560c38cdd474721b26a7653",
+      "bytes": 521
+    },
+    {
+      "path": ".github/agents/macos.agent.md",
+      "sha256": "b59a58e4be4e9e7b2c2f5d404671a45ce31012a79361f9a6c1e4ab4d20ae7dc6",
+      "bytes": 589
+    },
+    {
+      "path": ".github/agents/memory.agent.md",
+      "sha256": "5fbe158844f8b22abd83c00dd45d9bbd26a090f8f76f8237b5cc959b706f1e09",
+      "bytes": 550
+    },
+    {
+      "path": ".github/agents/orchestrator.agent.md",
+      "sha256": "fa6e86533f3b8ae84ad2797e096ffd3b885271080868a1607224e4b189ff3284",
+      "bytes": 567
+    },
+    {
+      "path": ".github/agents/qa.agent.md",
+      "sha256": "cb109981121ca42e354a19c48cd42413b0001633b02e8bc2c2a657d54884b668",
+      "bytes": 558
+    },
+    {
+      "path": ".github/agents/security.agent.md",
+      "sha256": "8c79fc5a2461b3001929a8f8d093ea7dc9380f156afb46b6af332d38a8f967e5",
+      "bytes": 552
+    },
+    {
+      "path": ".github/copilot-instructions.md",
+      "sha256": "3d737fe14142f6568bce7b6cc164f8d66668836ced814c23b71252b770308a4a",
+      "bytes": 1494
+    },
+    {
+      "path": ".github/instructions/security.instructions.md",
+      "sha256": "8bcc58e0b6eede29c98005e91a7ef0d1a8423c2c43aef391a74a3437d43b81b1",
+      "bytes": 353
+    },
+    {
+      "path": ".github/instructions/swift.instructions.md",
+      "sha256": "bea89543cdf1d22de5a3e4295dda03fd56162514ed8f59d7b142ae1ae986d7c5",
+      "bytes": 410
+    },
+    {
+      "path": ".github/instructions/tests.instructions.md",
+      "sha256": "86077dd1f1f390249cc8d20f5b128061c500556ee198df25c79e24bccc0ecaee",
+      "bytes": 275
+    },
+    {
+      "path": ".github/prompts/audit-current-change.prompt.md",
+      "sha256": "b09fdd295875fe3c56491338efb9c3da12389c4fa1acabf2cdf88c6c552c8116",
+      "bytes": 186
+    },
+    {
+      "path": ".github/prompts/implement-next-phase.prompt.md",
+      "sha256": "d087dd1d0c68437cbe1e39e6340ca38e05f8cdd120cb396013dc611f598b871b",
+      "bytes": 225
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "9b36b9f60b64d75a17bf4d7ee9e33aecb0fdc3fad38bc16aec28a2ecc4557c97",
+      "bytes": 2498
+    },
+    {
+      "path": "MANIFEST.md",
+      "sha256": "44b52666ceda6e858fa24e093c70375d5719d24acda37cfa89932763c38fa60e",
+      "bytes": 419
+    },
+    {
+      "path": "README.md",
+      "sha256": "38f25e9c5b8603db26bc677d92c164af3ca209d744f8e9762da9ac0760936280",
+      "bytes": 2653
+    },
+    {
+      "path": "docs/00_SYSTEM_VISION.md",
+      "sha256": "e4f4710f46e0dc77923c10affed0c61acb5576ad3a124007ee523faf94f52c60",
+      "bytes": 2547
+    },
+    {
+      "path": "docs/01_MASTER_SPEC.md",
+      "sha256": "3abc30e206db500ba33522146e56a9e0ec977baa4853b2ab2383f196c0c27262",
+      "bytes": 3218
+    },
+    {
+      "path": "docs/architecture/02_ARCHITECTURE.md",
+      "sha256": "b04ea3a72a1e08797ef1e89029c6018ff668c516d3ed180ba3e4f3625f42740b",
+      "bytes": 2371
+    },
+    {
+      "path": "docs/architecture/03_EVENT_SYSTEM.md",
+      "sha256": "0465bc944fcd9e39e040e48ddb6f442aca5a6e4bd44e9c87c513e663b1c51991",
+      "bytes": 1463
+    },
+    {
+      "path": "docs/decisions/ADR_TEMPLATE.md",
+      "sha256": "e21170534c22bfcc0d1a1b21d570babd033790eb9458e8b0c600f5bb3ad10ec0",
+      "bytes": 242
+    },
+    {
+      "path": "docs/operations/31_OBSERVABILITY.md",
+      "sha256": "8818c50150fff706861a8b81b5fa3b4b911d14826b0ca3712045c497ee7b16d0",
+      "bytes": 847
+    },
+    {
+      "path": "docs/operations/32_ERROR_RECOVERY.md",
+      "sha256": "7f1295daf8c28d347552c09417147b4f41542b76210affc885acd87537609bc2",
+      "bytes": 751
+    },
+    {
+      "path": "docs/operations/33_DEPLOYMENT.md",
+      "sha256": "76f5ad0e0edc3801a3e2f85eb34c8f0a8c8c7bab842038eb9c3fc4154eb203ad",
+      "bytes": 879
+    },
+    {
+      "path": "docs/operations/34_ROADMAP.md",
+      "sha256": "f8549e3604daa7b7c9950805441992d9107d91b69bb1a2f557f7a4ad611056c5",
+      "bytes": 1176
+    },
+    {
+      "path": "docs/operations/35_RELEASE_CHECKLIST.md",
+      "sha256": "88e90b1b3ec7431c4818cf891523adbb5f0d4ee3a59d012910fa710c82615fbf",
+      "bytes": 815
+    },
+    {
+      "path": "docs/security/25_PERMISSION_SYSTEM.md",
+      "sha256": "84429614cba4edeba881480d7ef1779e5fc09e9f22849d282375e61e7b8498b2",
+      "bytes": 939
+    },
+    {
+      "path": "docs/security/26_SECURITY_MODEL.md",
+      "sha256": "cc6e2b75391e9a1de82e96d77179b544053dd4f71373b68b8187f95adcfa40b5",
+      "bytes": 1108
+    },
+    {
+      "path": "docs/security/27_PRIVACY_MODEL.md",
+      "sha256": "e20362d01e723a78ab2738aea3aa6a7f89f15c26dbc5821cd9d3b81b879927b8",
+      "bytes": 817
+    },
+    {
+      "path": "docs/security/28_PROMPT_INJECTION_DEFENSE.md",
+      "sha256": "dcbccc247444bec5556f58398033022711fe4ced9df15d82420f91ba0886b01d",
+      "bytes": 1061
+    },
+    {
+      "path": "docs/security/29_SECRET_HANDLING.md",
+      "sha256": "d01a98b202adb17e766208e3970d5e63b204c128e975f7523475ec31642f539d",
+      "bytes": 799
+    },
+    {
+      "path": "docs/security/30_THREAT_MODEL.md",
+      "sha256": "eb7c485de456fa9d9b93fcc4ae3f658057c189449db64e5a2ccf685aff365b60",
+      "bytes": 609
+    },
+    {
+      "path": "docs/subsystems/04_AUDIO_PIPELINE.md",
+      "sha256": "137a1ef85402ab07af56585ef0d82e478746ac38da5b3b51c3ab64342720f485",
+      "bytes": 1348
+    },
+    {
+      "path": "docs/subsystems/05_WAKE_WORD_AND_SPEAKER.md",
+      "sha256": "4f0687f355eba316943796d7802ddb310514705ddf038c5d23fe1ced5ea23ebc",
+      "bytes": 1207
+    },
+    {
+      "path": "docs/subsystems/06_STT_ENGINE.md",
+      "sha256": "fb058b10728e2718824f811450be1c9844fdd8530cf721e3a518a6bbafd4d212",
+      "bytes": 1334
+    },
+    {
+      "path": "docs/subsystems/07_TURN_TAKING_AND_TTS.md",
+      "sha256": "1ccee645a857dc969fd4691e0e75fdf3baf6cdf25f5d5985fdac67444b6271bc",
+      "bytes": 1115
+    },
+    {
+      "path": "docs/subsystems/08_INTENT_ENGINE.md",
+      "sha256": "2dae3b6b0f33663c6b0340fb7e7c00a7da074be1d7f823e5f3e147e5a6597c41",
+      "bytes": 1040
+    },
+    {
+      "path": "docs/subsystems/09_TOOL_ROUTER.md",
+      "sha256": "410965c6571c44e082b1824e9ec09bbe8305ba55252f0235e582776c284dd15b",
+      "bytes": 1049
+    },
+    {
+      "path": "docs/subsystems/10_COMPUTER_USE.md",
+      "sha256": "ff5bbe354f2d1529df72b632802e48a59addd7991687bcf8f1e7a83df244546f",
+      "bytes": 1234
+    },
+    {
+      "path": "docs/subsystems/11_MACOS_ACCESSIBILITY.md",
+      "sha256": "ef21271e0b37b46752ad5123fdefcc2f1a5ec7d0385e427c47615b40427a40a1",
+      "bytes": 1102
+    },
+    {
+      "path": "docs/subsystems/12_SCREEN_CONTEXT.md",
+      "sha256": "51c2bd0cd4f6b12f0bae7280eaaa5ec1fd1576c5c79802f24fbb2eefc6d1112e",
+      "bytes": 1003
+    },
+    {
+      "path": "docs/subsystems/13_VSCODE_CONTROL.md",
+      "sha256": "cf957125fcf68413f02b1e50c83660c67de32a3889c8003894d74a633b01c815",
+      "bytes": 1085
+    },
+    {
+      "path": "docs/subsystems/14_TERMINAL_AND_SHELL.md",
+      "sha256": "af9478970758abefac87c6d202071720c411db67c01970eb50996ae153631a6e",
+      "bytes": 973
+    },
+    {
+      "path": "docs/subsystems/15_AGENT_ORCHESTRATOR.md",
+      "sha256": "72a71cbf6b356d3841d96cf0388da296325d31ac759ecfe7c3361db33bd1120b",
+      "bytes": 1079
+    },
+    {
+      "path": "docs/subsystems/16_MULTI_AGENT_PROTOCOL.md",
+      "sha256": "a3d329a01682d3cd7ed22b182720b00250d8a07a1a66d7e31e21f160adeb9dff",
+      "bytes": 1093
+    },
+    {
+      "path": "docs/subsystems/17_CODEX_CONTROLLER.md",
+      "sha256": "7689d84e0c4b4530e47fa345929b02d8dbd4af4b0cbb7863f545f35054ed48e1",
+      "bytes": 962
+    },
+    {
+      "path": "docs/subsystems/18_CLAUDE_CONTROLLER.md",
+      "sha256": "ca4dd354a72dedecaacb5dd66a88206b3014ea2527c482015bef1d831181c012",
+      "bytes": 919
+    },
+    {
+      "path": "docs/subsystems/19_COPILOT_CONTROLLER.md",
+      "sha256": "ff02907f3cbb04c9019db733cb5d9a9f5c3deb5beeaeb0af307b8e63d12b4fb6",
+      "bytes": 1053
+    },
+    {
+      "path": "docs/subsystems/20_OLLAMA_CONTROLLER.md",
+      "sha256": "b69dbd0791ba4622024e4a299b2ccf36a2d8d77541ba804dcb2c77a3bae2e079",
+      "bytes": 945
+    },
+    {
+      "path": "docs/subsystems/21_MEMORY_ENGINE.md",
+      "sha256": "7907c8a318f641895ef607b8ec2413337f9a7f51a6f47c508056169ef29ad2fe",
+      "bytes": 1058
+    },
+    {
+      "path": "docs/subsystems/22_CONTEXT_RECONSTRUCTION.md",
+      "sha256": "76698156f7f74dc75b700542ff6df80e1313bfd28b003351f9afcc81e97a8fc0",
+      "bytes": 1069
+    },
+    {
+      "path": "docs/subsystems/23_PLUGIN_SYSTEM.md",
+      "sha256": "3294f132bbdcc851c592e47ae3f6914a9055c0e2d359ddb3ad3e0f686a75cecc",
+      "bytes": 861
+    },
+    {
+      "path": "docs/subsystems/24_CONFIGURATION.md",
+      "sha256": "848f8eaf794db2c12b0d3e5ac32feb197adc889dd76373b12d5397b1eaad8d07",
+      "bytes": 791
+    },
+    {
+      "path": "docs/testing/36_TEST_STRATEGY.md",
+      "sha256": "5273588ad2cfa1dd76304b7bb2b30ba7b896c9481495d014caeb96046282383f",
+      "bytes": 938
+    },
+    {
+      "path": "docs/testing/37_ACCEPTANCE_SCENARIOS.md",
+      "sha256": "aab0916ec7f8fbb8e286932db066a73d1c48464bb3dfbb932802bd3155ad3a5c",
+      "bytes": 1174
+    },
+    {
+      "path": "docs/testing/38_PERFORMANCE_BUDGETS.md",
+      "sha256": "ba24ee537d7d101eaa4ecfeaf6510162fea3122e20162f8f4c93ad8cb2b94f4c",
+      "bytes": 744
+    },
+    {
+      "path": "ledger/CURRENT_STATE.md",
+      "sha256": "36ea58db5a8b967de3635d556cbc665b8405d1ef3ba7478b87f6cba366cd0bcc",
+      "bytes": 425
+    },
+    {
+      "path": "ledger/DECISION_INDEX.md",
+      "sha256": "3f8aa27740a57785b4a45c959bc6d948e326c5d163c0ab86da03158440c74244",
+      "bytes": 85
+    },
+    {
+      "path": "ledger/KNOWN_RISKS.md",
+      "sha256": "39bc68ab594e7fd3026fe9918f9661acdcc4ed8624a627eac32e0ca062a75eef",
+      "bytes": 705
+    },
+    {
+      "path": "ledger/PROJECT_LEDGER.md",
+      "sha256": "464fed118588d50aa9fcc12e01a6cd7ba8b96beee3205ca9ce3f142b8304e05a",
+      "bytes": 534
+    },
+    {
+      "path": "prompts/implementation/00_00_BOOTSTRAP.prompt.md",
+      "sha256": "e56120aef56e40e40be88a386bb5a16cc5a2e858c2808a8800b73f7f6be3b02b",
+      "bytes": 1697
+    },
+    {
+      "path": "prompts/implementation/01_01_AUDIO_CORE.prompt.md",
+      "sha256": "be227feecf6894a9654f5b533991e0fe2b2cdb4618e445e22715c4084c44ecf1",
+      "bytes": 1676
+    },
+    {
+      "path": "prompts/implementation/02_02_WAKE_VAD.prompt.md",
+      "sha256": "a968df8efd6feb149306db59296802456b6f211e5aad3592332383fe31a9603b",
+      "bytes": 1638
+    },
+    {
+      "path": "prompts/implementation/03_03_STREAMING_STT.prompt.md",
+      "sha256": "62676f7d664e265778d34bb0df6146e052276b0dd8b8bdc354c316567a43c1e0",
+      "bytes": 1664
+    },
+    {
+      "path": "prompts/implementation/04_04_CONVERSATION.prompt.md",
+      "sha256": "51772466e6c982334e29c185c253451ec4b2267141cb0bb257b4af19a9b53f3b",
+      "bytes": 1633
+    },
+    {
+      "path": "prompts/implementation/05_05_POLICY_ENGINE.prompt.md",
+      "sha256": "85985eee9e1f5a41a3af7b9bda46017090d0c41d2eaa723d19321a22180bb80a",
+      "bytes": 1629
+    },
+    {
+      "path": "prompts/implementation/06_06_NATIVE_MACOS.prompt.md",
+      "sha256": "a18c690543005ce5a7122aeadc5dcda23b5c485c59ce90adcabb43ca4c322beb",
+      "bytes": 1639
+    },
+    {
+      "path": "prompts/implementation/07_07_TYPED_SHELL.prompt.md",
+      "sha256": "146f0fcf5fff2d4dc349056da7727a17195eeb9ab7b86675b4a1b2264dddac10",
+      "bytes": 1640
+    },
+    {
+      "path": "prompts/implementation/08_08_VSCODE_ADAPTER.prompt.md",
+      "sha256": "2ce5cc32b15f2fe9e1c9c527493baa5c7949b59c44754b022c8622c50bff19a3",
+      "bytes": 1617
+    },
+    {
+      "path": "prompts/implementation/09_09_TASK_ENGINE.prompt.md",
+      "sha256": "81d4ab6f089bc69774aeac6f0e8eb3d476b00bf47b8e453b1256ffb7a7571747",
+      "bytes": 1609
+    },
+    {
+      "path": "prompts/implementation/10_10_CODEX_ADAPTER.prompt.md",
+      "sha256": "f5645c09e704b3165bdfd7c418a1b14c955f34cf4f7332a9c61638092597ba89",
+      "bytes": 1664
+    },
+    {
+      "path": "prompts/implementation/11_11_CLAUDE_ADAPTER.prompt.md",
+      "sha256": "87050d7c09bc5fef295cf2049d0c023b4113c8fdb959a241c824a8b49d15af60",
+      "bytes": 1650
+    },
+    {
+      "path": "prompts/implementation/12_12_COPILOT_ADAPTER.prompt.md",
+      "sha256": "c25a84e47cb9bed3a0d1b452e5b68b95fcb5833ebe209d949ef6dce91ee4bb75",
+      "bytes": 1655
+    },
+    {
+      "path": "prompts/implementation/13_13_OLLAMA_ADAPTER.prompt.md",
+      "sha256": "49cb19c045e12f2b6d784fa0faddf51b06f57aaef1768bf6ea5bd484cf88b84c",
+      "bytes": 1633
+    },
+    {
+      "path": "prompts/implementation/14_14_MULTI_AGENT.prompt.md",
+      "sha256": "75b8e2ec104d86811174394567fbe97611429812082036b0f78fb57c950c6aac",
+      "bytes": 1640
+    },
+    {
+      "path": "prompts/implementation/15_15_MEMORY.prompt.md",
+      "sha256": "1c4f1cca9a5b3d9b172c59f0214b915cda4343c74a36432594aa731671e3a50e",
+      "bytes": 1644
+    },
+    {
+      "path": "prompts/implementation/16_16_CONTEXT.prompt.md",
+      "sha256": "c7a7eb68159d8996c0df0367f5782ca27aaf56ef71949e2b85e9aeb9f20bef47",
+      "bytes": 1631
+    },
+    {
+      "path": "prompts/implementation/17_17_SCREEN_CONTEXT.prompt.md",
+      "sha256": "33897495eb213c8ed68303bbe17577e6266604446f2317a16b9b76d9e18ab0df",
+      "bytes": 1646
+    },
+    {
+      "path": "prompts/implementation/18_18_COMPUTER_USE.prompt.md",
+      "sha256": "0802b51565c215ac37ef70b75dfa1465acb49022745e74c50d2a46ee8ab36870",
+      "bytes": 1644
+    },
+    {
+      "path": "prompts/implementation/19_19_SECURITY_HARDENING.prompt.md",
+      "sha256": "85f5dbbaace57b88eaf8971b02ea6f50e9b9a1be34235c1979bb7a37757d0446",
+      "bytes": 1647
+    },
+    {
+      "path": "prompts/implementation/20_20_RELEASE.prompt.md",
+      "sha256": "1590d09d6a931acd3ae96e8c3e1ca537601caa5e85fae6096fe869561e7b257f",
+      "bytes": 1665
+    },
+    {
+      "path": "prompts/review/ARCHITECTURE_REVIEW.prompt.md",
+      "sha256": "14b45e43cec5c9e6dd17face35af51626c80a49b9c6356472e56a53b5668c39f",
+      "bytes": 507
+    },
+    {
+      "path": "prompts/review/RELEASE_REVIEW.prompt.md",
+      "sha256": "28dd36453f3213d7d65250b3ac3ae8ff608f9c21121f3fa27ea80b918ca1cdbc",
+      "bytes": 372
+    },
+    {
+      "path": "prompts/review/SECURITY_REVIEW.prompt.md",
+      "sha256": "358c02b72613c027247080f87c13fc0de0c113e6a2a7617c79defabca821ed80",
+      "bytes": 796
+    },
+    {
+      "path": "skills/anti-amnesia/SKILL.md",
+      "sha256": "8aa40d929070ec90bfc17fdf1e8d0b0b1c7b45a52f23f3df808b707915316d92",
+      "bytes": 770
+    },
+    {
+      "path": "skills/release-readiness/SKILL.md",
+      "sha256": "0848bf52ef111a635d63f07029b7e02e66eb6813af206817dcb7d89586b045ed",
+      "bytes": 346
+    }
+  ]
+}
