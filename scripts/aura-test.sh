@@ -30,7 +30,7 @@ echo "==> Building test targets"
 if [[ -n "$FILTER" ]]; then
     swift build --build-path "$BUILD_PATH" --target "${FILTER}"
 else
-    for target in AuraCoreTests AuraStoreTests AURAIntegrationTests AuraAudioTests AuraAutomationTests AuraAgentTests AuraSTTTests; do
+    for target in AuraCoreTests AuraStoreTests AURAIntegrationTests AuraAudioTests AuraAutomationTests AuraAgentTests AuraSTTTests AuraShellTests; do
         swift build --build-path "$BUILD_PATH" --target "$target"
     done
 fi

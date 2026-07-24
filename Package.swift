@@ -15,7 +15,9 @@ let package = Package(
         .library(name: "AuraAutomation", targets: ["AuraAutomation"]),
         .library(name: "AuraAgent", targets: ["AuraAgent"]),
         .library(name: "AuraStore", targets: ["AuraStore"]),
-        .library(name: "AuraSTT", targets: ["AuraSTT"])
+        .library(name: "AuraSTT", targets: ["AuraSTT"]),
+        .library(name: "AuraPolicy", targets: ["AuraPolicy"]),
+        .library(name: "AuraShell", targets: ["AuraShell"])
     ],
     dependencies: [
     ],
@@ -27,7 +29,8 @@ let package = Package(
                 "AuraAudio",
                 "AuraAutomation",
                 "AuraAgent",
-                "AuraStore"
+                "AuraStore",
+                "AuraPolicy"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
@@ -52,11 +55,15 @@ let package = Package(
             dependencies: ["AuraCore"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("AppKit", .when(platforms: [.macOS])),
+                .linkedFramework("ApplicationServices", .when(platforms: [.macOS]))
             ]
         ),
         .target(
             name: "AuraAgent",
-            dependencies: ["AuraCore"],
+            dependencies: ["AuraCore", "AuraAudio"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
@@ -71,6 +78,20 @@ let package = Package(
         .target(
             name: "AuraSTT",
             dependencies: ["AuraCore", "AuraAudio"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
+        .target(
+            name: "AuraPolicy",
+            dependencies: ["AuraCore", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
+        .target(
+            name: "AuraShell",
+            dependencies: ["AuraCore"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
@@ -110,7 +131,7 @@ let package = Package(
         ),
         .testTarget(
             name: "AuraAgentTests",
-            dependencies: ["AuraAgent"],
+            dependencies: ["AuraAgent", "AuraAudio"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
                 .unsafeFlags([
@@ -142,6 +163,28 @@ let package = Package(
             ]
         ),
         .testTarget(
+            name: "AuraPolicyTests",
+            dependencies: ["AuraPolicy"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
+        .testTarget(
+            name: "AuraShellTests",
+            dependencies: ["AuraShell"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
+        .testTarget(
             name: "AURAIntegrationTests",
             dependencies: [
                 "AURA",
@@ -150,7 +193,9 @@ let package = Package(
                 "AuraSTT",
                 "AuraAutomation",
                 "AuraAgent",
-                "AuraStore"
+                "AuraStore",
+                "AuraPolicy",
+                "AuraShell"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6),

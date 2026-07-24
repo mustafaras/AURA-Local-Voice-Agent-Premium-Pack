@@ -1,10 +1,10 @@
 # AURA Premium Unified Master Implementation Prompt
 
-> **Version:** 1.0.0 — 2026-07-23  
-> **Status:** Normative / Active  
-> **Scope:** Full-stack build of the AURA local-first, privacy-centric macOS voice and computer-use agent.  
-> **Target platform:** macOS 26+ on Apple Silicon (16 GB unified memory profile).  
-> **Primary language:** English with bilingual Turkish/English speech support.  
+> **Version:** 1.0.0 — 2026-07-23
+> **Status:** Normative / Active
+> **Scope:** Full-stack build of the AURA local-first, privacy-centric macOS voice and computer-use agent.
+> **Target platform:** macOS 26+ on Apple Silicon (16 GB unified memory profile).
+> **Primary language:** English with bilingual Turkish/English speech support.
 > **Priority order:** Safety → Correctness → Recoverability → Latency → Convenience.
 
 ---
@@ -61,31 +61,34 @@ You must never:
 
 ### 4.1 Process Topology
 
-| Component | Responsibility |
-|-----------|--------------|
-| `AURA.app` | SwiftUI menu-bar UI, onboarding, settings, live status, confirmations, task views, emergency stop. |
-| `AuraCore` | Event bus, orchestration state machines, policy engine, memory coordination, adapter registry. |
-| `AuraAudio` | Real-time-safe capture, VAD, wake word, speaker verification, streaming STT, TTS scheduling. |
-| `AuraAutomation` | Accessibility access, ScreenCaptureKit, Apple Events, app adapters, input synthesis. |
-| `AuraAgent` | Codex, Claude Code, Copilot, Ollama adapters; PTYs; Git worktrees; budgets; cancellation. |
-| `AuraStore` | SQLite database, append-only event log, encrypted secret references, migrations, retention. |
+| Component          | Responsibility                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------- |
+| `AURA.app`       | SwiftUI menu-bar UI, onboarding, settings, live status, confirmations, task views, emergency stop. |
+| `AuraCore`       | Event bus, orchestration state machines, policy engine, memory coordination, adapter registry.     |
+| `AuraAudio`      | Real-time-safe capture, VAD, wake word, speaker verification, streaming STT, TTS scheduling.       |
+| `AuraAutomation` | Accessibility access, ScreenCaptureKit, Apple Events, app adapters, input synthesis.               |
+| `AuraAgent`      | Codex, Claude Code, Copilot, Ollama adapters; PTYs; Git worktrees; budgets; cancellation.          |
+| `AuraStore`      | SQLite database, append-only event log, encrypted secret references, migrations, retention.        |
 
 Use versioned local IPC contracts. Prefer XPC for privileged/sandboxed components. Commands and events are distinct: commands request; events record facts.
 
 ### 4.2 Core State Machines
 
 **Conversation lifecycle:**
+
 ```
 PASSIVE → WAKE-DETECTED → LISTENING → INTERPRETING → SPEAKING → LISTENING
   ↑__________________________________________| (interruption / timeout / cancellation)
 ```
 
 **Tool execution lifecycle:**
+
 ```
 PROPOSED → POLICY-EVALUATED → AWAITING-CONFIRMATION → EXECUTING → VERIFYING → COMPLETED | FAILED | ROLLED-BACK
 ```
 
 **Agent task lifecycle:**
+
 ```
 CREATED → PREPARING-WORKTREE → RUNNING → AWAITING-INPUT → REVIEWING → VALIDATING → COMPLETED | FAILED | CANCELLED
 ```

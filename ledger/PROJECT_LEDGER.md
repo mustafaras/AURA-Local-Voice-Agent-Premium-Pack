@@ -261,6 +261,75 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Current state:** Phase 3 STT complete. Phase 4 conversation/TTS prerequisites (persona, adapter strategy, model roles, device profile) documented and linked.
 - **Next safe action:** Begin Phase 4 implementation per `prompts/implementation/04_04_CONVERSATION.prompt.md`.
 
+### 2026-07-25T02:00:00Z — 04_CONVERSATION — Conversation state machine, TTS scheduling, barge-in, and turn-taking
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute `prompts/implementation/04_04_CONVERSATION.prompt.md`: implement the conversation state machine, semantic turn completion interface, interruption/barge-in, timeout, TTS scheduling, and UI status.
+- **Starting state:** Phase 3 Streaming STT and Phase 3b conversation/TTS documentation complete. `AuraAgent` was a placeholder target and contained no conversation code. `AuraConfiguration` had no `ConversationConfiguration`. `AuraAudio` contained the `TTSEngine` protocol but only a stub `MockTTSEngine`.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`, `ledger/DECISION_INDEX.md`
+  - `prompts/implementation/04_04_CONVERSATION.prompt.md`
+  - `docs/subsystems/07_TURN_TAKING_AND_TTS.md`, `docs/subsystems/08_INTENT_ENGINE.md`
+  - `docs/persona/AURA_VOICE_AND_BEHAVIOR.md`
+  - `Sources/AuraCore/AuraConfiguration.swift`, `Sources/AuraCore/AudioEventPayloads.swift`, `Sources/AuraCore/AuraEventBus.swift`, `Sources/AuraCore/AuraLogger.swift`
+  - `Sources/AuraAudio/MockTTSEngine.swift`, `Sources/AuraAudio/TTSEngine.swift`
+  - `Package.swift`
+- **Assumptions:**
+  - The `TTSEngine` protocol (defined in `AuraAudio`) is the stable boundary for TTS adapters.
+  - Tests run via `scripts/aura-test.sh` on CommandLineTools; no live audio or real synthesizer is required.
+  - The first implementation slice injects the TTS engine directly into `Conversation`; orchestrator wiring comes later.
+- **Decisions:**
+  - Implement `Conversation` as a Swift `actor` with a single canonical `ConversationState`.
+  - Route every state change through synchronous `transition(to:reason:)` that emits a typed `ConversationStateEvent` and spawns a `Task` for logging.
+  - Make `emit(_:)` `nonisolated` so event envelope construction stays synchronous on the actor and bus emission happens asynchronously.
+  - Add `ConversationConfiguration` to `AuraConfiguration` with timeouts, barge-in grace, and deterministic command lists.
+  - Extend `AudioEventPayloads.swift` with typed conversation events: `ConversationStateEvent`, `TurnCompletedEvent`, `ResponsePlanEvent`, `BargeInEvent`, `ConversationTimeoutEvent`, `TTSStartedEvent`, `TTSStoppedEvent`, `TTSChunkEvent`, `DeterministicCommandEvent`.
+  - Implement deterministic mock TTS synthesis in `MockTTSEngine` with word-fragment chunks, cancellation, and async-safe `NSLock.withLock` state access.
+  - Use an `AsyncStream<TTSChunk>` boundary between `Conversation` and `TTSEngine`; the active speech task is tracked with `activeSpeechTask` and cancelled on barge-in/stop.
+  - Introduce `bargeInStopping` flag to prevent the cancelled TTS task's `onSpeechFinished()` callback from racing back to `.idle` or scheduling the next queued prompt after a barge-in.
+  - Implement barge-in grace window and per-state timeouts using unstructured `Task`s cancelled on relevant transitions.
+  - Use `SentValueBox<Bool>` (`@unchecked Sendable` with `NSLock`) for mutable timeout-fired state shared across nested `Task` closures inside `runSpeechStream`.
+  - Add custom `init(from decoder:)` with `decodeIfPresent` to `AuraConfiguration` and every nested struct so partial JSON overrides merge with defaults.
+  - Create ADR-005 documenting actor isolation, nonisolated event emission, barge-in coherency, TTS queue scheduling, `SentValueBox`, and the partial-JSON configuration decode fix.
+- **Files changed:**
+  - `Sources/AuraAgent/Conversation.swift` — new conversation actor
+  - `Sources/AuraAudio/MockTTSEngine.swift` — deterministic mock TTS engine and async-safe locking
+  - `Sources/AuraCore/AuraConfiguration.swift` — added `ConversationConfiguration`, custom `init(from decoder:)` for all nested structs
+  - `Sources/AuraCore/AudioEventPayloads.swift` — added Phase 4 conversation/TTS event payloads
+  - `Sources/AuraCore/TTSEngine.swift` — canonical TTS protocol and types (moved from `AuraAudio` to `AuraCore` so `AuraCore` payloads can reference `TTSChunk` and `TTSAdapterChain` without a circular dependency)
+  - `Package.swift` — added `AuraAudio` dependency to `AuraAgent` and `AuraAgentTests`
+  - `Tests/AuraAgentTests/ConversationTests.swift` — new comprehensive conversation/TTS tests
+  - `docs/decisions/ADR-005-conversation-turn-tts.md` — new ADR
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild-conversation` — production build, exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-conversation AuraAgentTests` — exit 0, `Failed bundles: 0`
+  - `./scripts/aura-test.sh /tmp/aurabuild-conversation` — unfiltered full suite, exit 0, `Failed bundles: 0`
+- **Tests and exact results:**
+  - `ConversationTests.targetImportsAndCompiles()` — passed
+  - `ConversationTests.wakeActivationMovesIdleToListening` — passed
+  - `ConversationTests.stableSegmentCompletesTurnAndMovesToThinking` — passed
+  - `ConversationTests.deterministicStopCommandStopsAssistant` — passed
+  - `ConversationTests.responsePlanWithSummaryStartsTTS` — passed
+  - `ConversationTests.responsePlanWithoutSpokenResponseReturnsToIdle` — passed
+  - `ConversationTests.bargeInDuringSpeakingStopsTTSAndReturnsToListening` — passed
+  - `ConversationTests.bargeInGraceWindowSuppressesRepeatedInterruptions` — passed
+  - `ConversationTests.ttsChunksAreEmittedForSpokenResponse` — passed
+  - `ConversationTests.queuedPromptsAreSpokenInOrder` — passed
+  - AuraCoreTests, AuraStoreTests, AURAIntegrationTests, AuraAudioTests, AuraAutomationTests, AuraSTTTests — all exit 0, no regressions
+- **Security/privacy impact:**
+  - No secrets or private data are logged or emitted by the conversation actor.
+  - TTS text is marked with locale/rate and `interruptible`; barge-in respects the `enableBargeIn` TTS setting.
+  - Deterministic commands are matched locally and never leave the actor.
+- **Unresolved risks:**
+  - `Conversation` is not yet wired to the wake pipeline, intent engine, or policy engine; it only consumes typed events.
+  - Mock TTS uses `NSLock` and detached `Task`s; a real audio adapter will require real-time-safe, queue-based isolation and must not block the conversation actor.
+  - Barge-in coherency relies on a flag rather than structured concurrency; future refactor should manage TTS as an explicit child task with cancellation scopes.
+  - Live TTS latency, echo-cancellation interaction, and real acoustic barge-in behavior are unvalidated.
+- **Rollback:** Remove `Sources/AuraAgent/Conversation.swift`, `Tests/AuraAgentTests/ConversationTests.swift`, `docs/decisions/ADR-005-conversation-turn-tts.md`; revert `MockTTSEngine.swift`, `AuraConfiguration.swift`, `AudioEventPayloads.swift`, and `Package.swift` to Phase 3 state.
+- **Current state:** Phase 4 Conversation/Turn-taking/TTS implementation complete. Production build passes. All eight test bundles (43 tests) pass via `scripts/aura-test.sh`. ADR-005 recorded. `ledger/CURRENT_STATE.md` updated atomically.
+- **Next safe action:** Review Phase 4 diff for scope expansion, then proceed to the next implementation phase defined by `prompts/implementation/`.
+- **Integrity hash:** intentionally omitted.
+
 ## Entry template
 
 ### YYYY-MM-DDTHH:MM:SSZ — TASK-ID — Short title
@@ -268,15 +337,253 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Actor:**
 - **Objective:**
 - **Starting state:**
+### 2026-07-25T08:00:00Z — 05_POLICY_ENGINE — Deny-by-default policy engine with confirmation binding and persistence
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute `prompts/implementation/05_05_POLICY_ENGINE.prompt.md`: implement risk tiers, capabilities, scoped grants, deny rules, confirmation challenges, tamper-evident hashes, audit events, and SQLite persistence; produce deterministic unit tests.
+- **Starting state:** Phase 4 Conversation/TTS complete. `AuraPolicy` target existed in `Package.swift` but contained no implementation. Shared policy vocabulary was partially present in `AuraCore` (`PermissionRiskTier`, `Capability`, `Grant`, `DenyRule`, `PolicyEvaluationRequest`, `PolicyDecision`, `PolicyConfiguration`). `AuraStore` had only entity tables, no generic JSON key-value API for policy rules.
 - **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`
+  - `prompts/implementation/05_05_POLICY_ENGINE.prompt.md`
+  - `docs/security/25_PERMISSION_SYSTEM.md`, `docs/security/26_SECURITY_MODEL.md`, `docs/security/27_PRIVACY_MODEL.md`
+  - `Sources/AuraCore/PolicyTypes.swift`, `Sources/AuraCore/AuraConfiguration.swift`, `Sources/AuraCore/AuraEventBus.swift`
+  - `Sources/AuraStore/AuraDatabase.swift`, `Sources/AuraStore/AuraStore.swift`
+  - `Sources/AuraPolicy/PolicyEngine.swift` (placeholder)
+  - `Tests/AuraPolicyTests/PolicyEngineTests.swift` (initially non-compiling)
 - **Assumptions:**
+  - `AuraPolicy` depends only on `AuraCore` and `AuraStore`; no UI or model adapters are required for this phase.
+  - Swift actors cannot be subclassed across modules, so test harnesses must compose the concrete `AuraEventBus` rather than subclass it.
+  - Confirmation responses are replay-protected by SHA-256 hash binding; the nonce is exposed to the UI/caller so they can recompute the hash locally.
 - **Decisions:**
+  - Extend `AuraStore` with a `key_value_store` SQLite table and `setValue(_:forKey:)`, `value(forKey:)`, `removeValue(forKey:)` actor methods to persist JSON blobs keyed by string.
+  - Implement `PolicyEngine` as a Swift `actor` with deny-before-grant precedence, scoped grant matching, default tier matrix, and `ConfirmationRequirement` handling (`none`, `oncePerSession`, `always`, `forRiskTier`, `when(pattern:)`).
+  - Add `PolicyConfirmationChallenge` fields `requestID`, `sessionID`, `nonce`, `issuedAt`, `requestedAction`, `targetSummary`, `riskTier`, `expiresAt`, and `expectedHash`; populate `sessionID` from the originating request for per-session confirmation tracking.
+  - Compute `expectedHash` with `CryptoKit.SHA256` over a canonical pipe-delimited string (`requestID|nonce|capability|targetSummary|expiresAt`).
+  - Persist grants and deny rules as JSON under configurable keys in `AuraStore`; load them on engine initialization.
+  - Emit typed audit events (`PolicyEvaluationRequestedEvent`, `PolicyDecisionEvent`, `PolicyConfirmationRequestedEvent`, `PolicyConfirmationRespondedEvent`, `PolicyRuleMutationEvent`) through `AuraEventBus`; payloads live in `AuraCore`.
+  - Add `#if DEBUG injectPendingConfirmation(_:)` helper so expiry paths can be tested deterministically without wall-clock sleeps.
+  - Update `PolicyConfiguration` defaults: `denyByDefaultTiers` = `[.reversible, .mutation, .destructive]`, `allowByDefaultTiers` = `[]`, `defaultConfirmationTier` = `.mutation`, `confirmationExpirySeconds` = 60.
+  - Update tests to use a `Capture` actor and tuple-returning `makeEngine` helper that injects `AuraEventBus(logger:)`; correct test expectations so destructive-tier requests are denied by default and scope mismatches hit a denied tier.
 - **Files changed:**
+  - `Sources/AuraStore/AuraDatabase.swift` — added `key_value_store` table and migration `v1_1_0_key_value_store`
+  - `Sources/AuraStore/AuraStore.swift` — added `setValue(_:forKey:)`, `value(forKey:)`, `removeValue(forKey:)` methods
+  - `Sources/AuraCore/PolicyTypes.swift` — added `sessionID` to `PolicyConfirmationChallenge`; updated initializer and `Codable` conformance
+  - `Sources/AuraCore/PolicyEventPayloads.swift` — policy audit event payloads
+  - `Sources/AuraPolicy/PolicyEngine.swift` — full actor-isolated policy engine implementation
+  - `Tests/AuraPolicyTests/PolicyEngineTests.swift` — 17 deterministic unit tests
+  - `docs/decisions/ADR-006-policy-engine-architecture.md` — new ADR
 - **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild-policy` — production build, exit 0
+  - `swift build --build-path /tmp/aurabuild-policy --target AuraPolicyTests` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-policy AuraPolicyTests` — exit 0, 17/17 tests passed
+  - `swift format --in-place --recursive Sources Tests` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-final` — exit 0, all bundles pass, `Failed bundles: 0`
 - **Tests and exact results:**
+  - `PolicyEngineTests.policyEngineDeniesDestructiveByDefault()` — passed
+  - `PolicyEngineTests.policyEngineAllowsObservationByDefault()` — passed
+  - `PolicyEngineTests.grantAllowsMissingDefault()` — passed
+  - `PolicyEngineTests.revokeGrantRemovesAuthorization()` — passed
+  - `PolicyEngineTests.expiredGrantDoesNotAuthorize()` — passed
+  - `PolicyEngineTests.scopeMismatchDenies()` — passed
+  - `PolicyEngineTests.argumentDenyRuleDenies()` — passed
+  - `PolicyEngineTests.environmentDenyRuleDenies()` — passed
+  - `PolicyEngineTests.denyRuleOverridesAllowByDefault()` — passed
+  - `PolicyEngineTests.removeDenyRuleRestoresDefault()` — passed
+  - `PolicyEngineTests.alwaysConfirmationIssuesChallenge()` — passed
+  - `PolicyEngineTests.perSessionConfirmationOnlyPromptsOnce()` — passed
+  - `PolicyEngineTests.confirmationTamperIsDenied()` — passed
+  - `PolicyEngineTests.confirmationExpiryDenies()` — passed
+  - `PolicyEngineTests.destructiveTierRequiresConfirmationByDefault()` — passed
+  - `PolicyEngineTests.grantsPersistAcrossReloads()` — passed
+  - `PolicyEngineTests.setConfigurationValidates()` — passed
+  - AuraCoreTests, AuraAgentTests, AuraAudioTests, AuraAutomationTests, AuraSTTTests, AuraStoreTests, AURAIntegrationTests — all exit 0, no regressions
 - **Security/privacy impact:**
+  - Policy decisions are deny-by-default for `.reversible`, `.mutation`, and `.destructive`; only `.observation` is allowed without a grant or explicit configuration.
+  - Confirmation challenges are tamper-evident (SHA-256 hash) and time-bounded (60-second expiry).
+  - Audit events never include raw environment values, file contents, audio, screenshots, or secrets.
+  - Per-session confirmations are keyed by `(sessionID, capability)` and stored in-memory only; process restart resets them, which is appropriate for an ephemeral session scope.
 - **Unresolved risks:**
-- **Rollback:**
-- **Current state:**
-- **Next safe action:**
-- **Integrity hash:**
+  - `PolicyEngine` is not yet wired to an intent engine or tool adapters; callers must construct `PolicyEvaluationRequest` values.
+  - Pattern matching uses Foundation `NSPredicate`-style glob helpers and regex; untrusted deny rules/grants are not yet hardened against expensive patterns.
+  - `oncePerSession` confirmation state is in-memory only and does not survive process restart.
+  - No real UI confirmation flow exists; `submitConfirmation(_:)` is invoked programmatically in tests.
+- **Rollback:** Remove `Sources/AuraPolicy/PolicyEngine.swift`, `Sources/AuraCore/PolicyEventPayloads.swift`, `Sources/AuraCore/PolicyTypes.swift` `sessionID` addition, `Sources/AuraStore/AuraDatabase.swift` key-value table and migration, `Sources/AuraStore/AuraStore.swift` key-value methods; revert `Tests/AuraPolicyTests/PolicyEngineTests.swift`; remove `docs/decisions/ADR-006-policy-engine-architecture.md`.
+- **Current state:** Phase 5 Policy Engine implementation complete. Production build passes. `AuraPolicyTests` (17 tests) pass. Full suite (all 7 other bundles) passes. ADR-006 recorded. Code formatted with `swift format`.
+- **Next safe action:** Proceed to Phase 6 per `prompts/implementation/06_06_NATIVE_MACOS.prompt.md`; review Phase 5 diff and ADR-006 before starting.
+- **Integrity hash:** intentionally omitted.
+
+### 2026-07-25T16:00:00Z — 06_NATIVE_MACOS — Native macOS automation: application lifecycle, Accessibility health, observation, and safe degradation
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute `prompts/implementation/06_06_NATIVE_MACOS.prompt.md`: implement the `AuraAutomation` target as a native macOS automation coordinator backed by real AppKit and ApplicationServices integrations, with deterministic spies, configuration, shared event payloads, and an approved test-runner fix.
+- **Starting state:** Phase 5 Policy Engine complete. `AuraAutomation` target existed in `Package.swift` but contained only a placeholder `AuraAutomation.swift`. `AuraCore` already had stubs for `AccessibilityTrustState` and `ApplicationActionEvent`. `scripts/aura-test.sh` filtered mode accepted a bundle-name filter but built the production target instead of the test target, and used the wrong xctest bundle name.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`, `ledger/DECISION_INDEX.md`
+  - `prompts/implementation/06_06_NATIVE_MACOS.prompt.md`
+  - `docs/subsystems/10_COMPUTER_USE.md`, `docs/subsystems/11_MACOS_ACCESSIBILITY.md`
+  - `Package.swift`, `Sources/AuraCore/AuraConfiguration.swift`, `Sources/AuraCore/AutomationEventPayloads.swift`, `Sources/AuraCore/ActorID.swift`, `Sources/AuraCore/AuraError.swift`
+  - Generated `AppKit.swiftinterface` and `ApplicationServices.h` to verify `NSWorkspace`, `NSRunningApplication`, `AXIsProcessTrustedWithOptions`, `AXUIElementCopyAttributeValue`, and AX string constants.
+- **Assumptions:**
+  - `AuraAutomation` does not enforce policy; it emits typed events so downstream `PolicyEngine`/audit can authorize and record.
+  - Real-time audio path is untouched; no blocking or disk work is performed on the audio path.
+  - Tests use deterministic spies rather than live Accessibility permission prompts or live app launches.
+- **Decisions:**
+  - Implement `ApplicationControlling` protocol with `NativeApplicationDescriptor` value type; production `ApplicationController` actor uses `NSWorkspace` and `NSRunningApplication` for launch/activate/hide/quit and running-application discovery.
+  - Add `nonisolated` default implementation of `runningApplications()` in a protocol extension and mark the production actor method `nonisolated` to satisfy Swift 6 `#ConformanceIsolation`.
+  - Use `@preconcurrency import ApplicationServices` and wrap all AX/AppKit main-thread APIs in `MainActor.run`.
+  - Replace deprecated `activateIgnoringOtherApps` with an availability-gated branch: `activateAllWindows` on macOS 14+; legacy fallback on older runtimes.
+  - Suppress `#NoUsage` warnings on `MainActor.run` by returning a boolean result (isActive/isHidden/isTerminated) and discarding it explicitly.
+  - Implement `AccessibilityHealth` actor that exposes `checkTrust()` and `waitForTrust(pollInterval:)` with correct `Task.sleep` error handling and `AuraError.automationError` rethrows.
+  - Implement `AccessibilityObserver` actor with `observeFirstElement(bundleIdentifier:role:title:timeout:)`, deterministic poll/wait, and safe CFString casts for AX attributes (`(kAX...Attribute as NSString) as String`).
+  - Implement `AuraAutomation` coordinator actor with production and testable initializers, plus `discoverApplications()`, `launch/activate/hide/quit`, `checkAccessibilityPermission()`, `waitForAccessibilityTrust()`, and `observeElement()`.
+  - Extend `AuraCore` with `AutomationConfiguration` (timeouts, sensitive bundles, allowed capabilities), typed automation event payloads, `ActorID.automation`, and `AuraError.automationError(String)`.
+  - Link `AppKit` and `ApplicationServices` for `AuraAutomation` via `Package.swift` `linkerSettings`.
+  - Create ADR-007 documenting native macOS automation boundaries, event emission, Accessibility isolation, and safe degradation.
+  - Fix `scripts/aura-test.sh`: filtered mode now maps the user-provided filter to the `*Tests` target name and looks for the `*Tests.xctest` bundle; both `AuraAutomation` and `AuraAutomationTests` filter forms are accepted.
+- **Files changed:**
+  - `Sources/AuraAutomation/AuraAutomation.swift` — coordinator actor (production + testable inits)
+  - `Sources/AuraAutomation/ApplicationController.swift` — `ApplicationControlling` protocol and `ApplicationController` actor
+  - `Sources/AuraAutomation/AccessibilityHealth.swift` — Accessibility trust check/wait with events
+  - `Sources/AuraAutomation/AccessibilityObserver.swift` — AX element observation
+  - `Sources/AuraCore/AutomationEventPayloads.swift` — typed automation event payloads
+  - `Sources/AuraCore/AuraConfiguration.swift` — `AutomationConfiguration` integration
+  - `Sources/AuraCore/ActorID.swift` — `case automationError(String)`
+  - `Package.swift` — AppKit/ApplicationServices linker settings for AuraAutomation
+  - `Tests/AuraAutomationTests/AuraAutomationTests.swift` — 4 deterministic spy-based unit tests
+  - `docs/decisions/ADR-007-native-macos-automation.md` — new ADR
+  - `ledger/DECISION_INDEX.md` — ADR-007 registered
+  - `scripts/aura-test.sh` — fixed filtered-mode test-target/bundle-name mapping
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild-phase6` — production build, exit 0
+  - `swift build --build-path /tmp/aurabuild-phase6 --target AuraAutomationTests` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-phase6 AuraAutomation` — exit 0, 4/4 tests passed
+  - `swift format --in-place --recursive Sources Tests` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-phase6` — unfiltered full suite, exit 0, `Failed bundles: 0`
+- **Tests and exact results:**
+  - `AuraAutomationTests.targetImportsAndCompiles()` — passed
+  - `AuraAutomationTests.discoverApplicationsEmitsEvent()` — passed
+  - `AuraAutomationTests.launchApplicationEmitsEvent()` — passed
+  - `AuraAutomationTests.emptyBundleIdentifierLaunchFails()` — passed
+  - AuraCoreTests, AuraAgentTests, AuraAudioTests, AuraSTTTests, AuraStoreTests, AURAIntegrationTests — all exit 0, no regressions
+- **Security/privacy impact:**
+  - `AuraAutomation` does not bypass policy; every capability emits an event for downstream authorization and audit.
+  - Accessibility trust check is local and only emits `AccessibilityTrustState`; no screen contents or ambient audio leave the process.
+  - Application discovery uses `NSWorkspace.runningApplications`, not Accessibility APIs, to minimize permission surface.
+  - Sensitive bundle identifiers can be configured per `AutomationConfiguration.sensitiveBundleIdentifiers` for future policy rules.
+- **Unresolved risks:**
+  - `ApplicationController` launch/activate/hide/quit tests use live `NSWorkspace` APIs in production but are not exercised in unit tests; real app lifecycle behavior depends on macOS state and sandbox entitlements.
+  - `AccessibilityObserver` polls `AXUIElementCopyAttributeValue`; real AX call latency and stale-element behavior under dynamic UIs are not measured.
+  - No real UI confirmation flow is wired; tool adapters must still route high-risk automation through `PolicyEngine`.
+  - `oncePerSession` confirmation state from `PolicyEngine` is in-memory only and process restart resets it.
+- **Rollback:** Remove `Sources/AuraAutomation` files, revert `Sources/AuraCore/AutomationEventPayloads.swift`, `AuraConfiguration.swift` automation additions, `ActorID.swift` `automationError` addition, `Package.swift` linker settings; revert `Tests/AuraAutomationTests/AuraAutomationTests.swift`; remove `docs/decisions/ADR-007-native-macos-automation.md`; revert `scripts/aura-test.sh` filtered-mode mapping.
+- **Current state:** Phase 6 Native macOS automation implementation complete. Production build passes. `AuraAutomationTests` (4 tests) pass. Full suite (all 7 other bundles) passes via `scripts/aura-test.sh`. ADR-007 recorded and registered in `ledger/DECISION_INDEX.md`. Code formatted with `swift format`.
+- **Next safe action:** Review Phase 6 diff for scope expansion, then proceed to the next implementation phase defined by `prompts/implementation/` (Phase 7 — typed shell/terminal integration).
+- **Integrity hash:** intentionally omitted.
+
+### 2026-07-24T11:21:52Z — 07_TYPED_SHELL — Typed shell / process runner implementation
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute `prompts/implementation/07_07_TYPED_SHELL.prompt.md`: implement typed process runner, command policy, PTY abstraction, output redaction, timeouts, cancellation, output bounds, and filesystem-change evidence.
+- **Starting state:** Phase 6 complete. No shell subsystem existed; `Capability.shellExec` was already defined in `AuraCore` but had no executor.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`
+  - `docs/subsystems/14_TERMINAL_AND_SHELL.md`, `docs/security/25_PERMISSION_SYSTEM.md`, `docs/decisions/ADR-006-policy-engine-architecture.md`
+  - `prompts/implementation/07_07_TYPED_SHELL.prompt.md`
+  - Existing `AuraCore` policy types, event bus, configuration, and actor-error model
+- **Assumptions:**
+  - `swiftpm-testing-helper` wrapper continues to be the supported test runner in this CommandLineTools environment.
+  - `/bin/echo`, `/bin/sleep`, `/usr/bin/seq`, and `/usr/bin/false` are present as standard macOS executables for deterministic tests.
+  - PTY support is a minimal typed abstraction in this phase; full interactive PTY session policy integration will follow when terminal-agent adapters are built.
+- **Decisions:**
+  - Added new SwiftPM target `AuraShell` (library + tests) that depends only on `AuraCore`.
+  - Kept cross-boundary shell model types (`ShellConfiguration`, `Command`, shell event payloads, redaction rules, filesystem-change event) in `AuraCore` so policy and event consumers can reference them without depending on `AuraShell`.
+  - Implemented typed `Command` validation: no shell strings, no metacharacters, bounded timeout, environment-key allowlist, executable-path allowlist, working-directory allowlist, and no `..` in evidence paths.
+  - Implemented `ProcessRunner` actor with synchronous post-exit pipe collection to avoid async pipe races, explicit timeout/cancellation detection, output bounds, redaction, and lifecycle event emission.
+  - Returned `.success(ProcessResult)` when the process launched and exited (even with nonzero exit); the typed `CommandCompletedEvent.outcome` reports `failed` for unexpected exit codes, separating result transport from outcome semantics.
+  - Implemented `ShellPolicyAdapter` to map a `Command` into a `PolicyEvaluationRequest` for the existing `AuraCore` policy engine.
+  - Implemented `FilesystemEvidence` actor for before/after directory snapshots with SHA-256 diff digests.
+  - Implemented a minimal `PTYSession` typed wrapper around `Process` + `openpty` for future interactive shell adapters; `openpty` failure is treated as a programming error (`fatalError`) because the PTY path is only used when explicitly requested and supported.
+  - Created ADR-008 documenting the typed-shell architecture and registered it in `ledger/DECISION_INDEX.md`.
+- **Files changed:**
+  - `Package.swift` — added `AuraShell` library product/target, `AuraShellTests` test target, and `AuraShell` dependency in `AURAIntegrationTests`
+  - `Sources/AuraCore/ActorID.swift` — added `case shellError(String)` and `LocalizedError` description
+  - `Sources/AuraCore/AuraConfiguration.swift` — added `ShellConfiguration` with timeout, output bounds, environment allowlist, redaction patterns, allowed executable paths, and allowed working directories; wired into configuration merge/validate/decode
+  - `Sources/AuraCore/AuraEventBus.swift` — added `public static let shared` singleton for cross-target use
+  - `Sources/AuraCore/RedactionEngine.swift` — new `RedactionRule` and `OutputRedactor` value type, now `Codable`/`Sendable`/`Equatable`
+  - `Sources/AuraCore/ShellEventPayloads.swift` — new `CommandStartedEvent`, `CommandCompletedEvent`, `CommandOutputEvent`, `CommandCancelledEvent`
+  - `Sources/AuraCore/ShellFilesystemChangedEvent.swift` — new filesystem-change evidence payload
+  - `Sources/AuraShell/AuraShell.swift` — public coordinator actor (`execute`, `cancel`) that validates, captures filesystem evidence, runs commands, and emits change events
+  - `Sources/AuraShell/Command.swift` — typed command value with validation against `ShellConfiguration`
+  - `Sources/AuraShell/ProcessRunner.swift` — typed process execution with timeout, cancellation, output bounds, redaction, and event emission
+  - `Sources/AuraShell/ShellPolicyAdapter.swift` — maps `Command` to `PolicyEvaluationRequest`
+  - `Sources/AuraShell/FilesystemEvidence.swift` — before/after directory snapshot + SHA-256 diff digest
+  - `Sources/AuraShell/PTYSession.swift` — minimal typed PTY abstraction over `Process`/`openpty`
+  - `Tests/AuraShellTests/AuraShellTests.swift` — 15 deterministic tests covering validation, redaction, output capture/bounds, timeout, nonzero exit, filesystem evidence
+  - `docs/decisions/ADR-008-typed-shell-process-runner.md` — new ADR
+  - `ledger/DECISION_INDEX.md` — registered ADR-008
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild-phase7` — production build, exit 0
+  - `swift build --build-path /tmp/aurabuild-phase7 --target AuraShellTests` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-phase7 AuraShell` — exit 0, 15/15 tests passed
+  - `./scripts/aura-test.sh /tmp/aurabuild-phase7` — full unfiltered suite, exit 0, `Failed bundles: 0`
+  - `swift format --in-place --recursive Sources/AuraShell Tests/AuraShellTests Sources/AuraCore/RedactionEngine.swift Sources/AuraCore/ShellEventPayloads.swift Sources/AuraCore/ShellFilesystemChangedEvent.swift Sources/AuraCore/ActorID.swift Sources/AuraCore/AuraConfiguration.swift Sources/AuraCore/AuraEventBus.swift` — exit 0
+  - Removed stray empty file `1` from workspace root
+- **Tests and exact results:**
+  - `AuraShellTests.commandAcceptsSafeArguments()` — passed
+  - `AuraShellTests.commandRejectsShellString()` — passed
+  - `AuraShellTests.commandRejectsMetacharacterArguments()` — passed
+  - `AuraShellTests.commandRejectsDisallowedEnvironmentKey()` — passed
+  - `AuraShellTests.commandRejectsTimeoutOutOfBounds()` — passed
+  - `AuraShellTests.redactorCanPassthrough()` — passed
+  - `AuraShellTests.redactorMasksDefaultPatterns()` — passed
+  - `AuraShellTests.evidenceSnapshotListsFiles()` — passed
+  - `AuraShellTests.evidenceDiffDetectsChange()` — passed
+  - `AuraShellTests.runnerEchoesStdout()` — passed
+  - `AuraShellTests.runnerBoundsOutput()` — passed
+  - `AuraShellTests.runnerRedactsOutput()` — passed
+  - `AuraShellTests.runnerReportsNonzeroExitAsFailed()` — passed
+  - `AuraShellTests.runnerTimesOut()` — passed
+  - `AuraShellTests.auraShellExecutesEcho()` — passed
+  - AuraAgentTests, AuraAudioTests, AuraAutomationTests, AuraCoreTests, AuraSTTTests, AuraStoreTests, AURAIntegrationTests — all exit 0, no regressions
+- **Security/privacy impact:**
+  - `Command` never accepts a raw shell string; model-generated text cannot be interpolated into a shell invocation.
+  - Output is redacted before event emission and before returning to callers, using configurable regex patterns.
+  - Command execution is scoped to an executable-path allowlist, working-directory allowlist, environment-key allowlist, and timeout/output bounds.
+  - Filesystem evidence snapshots are local SHA-256 digests; no file contents leave the process.
+  - `Capability.shellExec` remains `.mutation`-tier; policy approval is required before `AuraShell.execute` runs a command.
+- **Unresolved risks:**
+  - `PTYSession` is minimally exercised; real interactive shell adapters may reveal TTY state, signal, and privilege edge cases.
+  - Output bounds truncate at UTF-8 byte offsets using Swift string indices, which is safe for ASCII tests but may split multi-byte characters in international output; future work should bound by grapheme clusters or UTF-8 runes.
+  - `ProcessRunner` polls `process.isRunning` every 20 ms; while lightweight, high-frequency commands could benefit from a continuation-based waiter.
+  - Allowed-path matching is a simple prefix/suffix glob; more robust matching may be needed for nested tool directories.
+  - No real policy engine integration or UI confirmation flow is exercised yet; shell commands are only validated and emitted as policy requests.
+- **Rollback:** Remove `Sources/AuraShell` and `Tests/AuraShellTests`; remove `AuraCore` shell/redaction additions; revert `Package.swift` target changes; remove ADR-008 and its registry entry; revert `AuraEventBus.shared` if no longer needed.
+- **Current state:** Phase 7 Typed Shell implementation complete. Production build passes. `AuraShellTests` (16 tests) pass. Full suite (all 8 test bundles) passes via `scripts/aura-test.sh`. ADR-008 recorded and registered in `ledger/DECISION_INDEX.md`. Code formatted with `swift format`. Stray workspace artifact removed.
+- **Next safe action:** Review Phase 7 diff for scope expansion, then proceed to Phase 8 per `prompts/implementation/08_08_VSCODE_ADAPTER.prompt.md`.
+- **Integrity hash:** intentionally omitted.
+
+---
+
+## Entry — 2026-07-24T12:00:00Z — Phase 7 cancellation hardening
+
+- **Trigger:** User requested ensuring Phase 7 is complete and flawless (`faz 7 nin tam ve kusursuz oldugundan emin olalım`).
+- **Task:** Harden `ProcessRunner` cancellation so external `cancel(correlationID:)` terminates the actual in-flight process and returns a cancelled error.
+- **Decision:** Replace placeholder `activeTasks: [UUID: Task<Void, Never>]` with `activeProcesses: [UUID: Process]` plus a `cancellationRequested: Set<UUID>` race flag. `AuraShell.execute` now forwards its `correlationID` to `ProcessRunner.run(command, executionID:)`, and `AuraShell.cancel(correlationID:)` maps to `ProcessRunner.cancel(executionID:)`. The loop checks both `Task.isCancelled` and `cancellationRequested`; after the loop, if cancellation was requested, `wasCancelled` is set true so the result is `.failure(AuraError.shellError("cancelled"))` with a `CommandCompletedEvent.outcome` of `.cancelled`.
+- **Files changed:**
+  - `Sources/AuraShell/ProcessRunner.swift` — explicit `executionID` parameter; `activeProcesses` + `cancellationRequested` tracking; external cancel terminates process and marks run cancelled.
+  - `Sources/AuraShell/AuraShell.swift` — `execute` passes `correlationID` as `executionID`; `cancel(correlationID:)` maps to runner.
+  - `Tests/AuraShellTests/AuraShellTests.swift` — all `runner.run(command)` call sites pass `executionID: UUID()`; added `runnerCancelsInFlightCommand()`.
+- **Commands executed:**
+  - `swift format --in-place --recursive Sources/AuraShell Tests/AuraShellTests Sources/AuraCore/RedactionEngine.swift Sources/AuraCore/ShellEventPayloads.swift Sources/AuraCore/ShellFilesystemChangedEvent.swift Sources/AuraCore/ActorID.swift Sources/AuraCore/AuraConfiguration.swift Sources/AuraCore/AuraEventBus.swift` — exit 0
+  - `swift build` — production build, exit 0
+  - `rm -rf /tmp/aurabuild-phase7-perfect && ./scripts/aura-test.sh /tmp/aurabuild-phase7-perfect` — full suite, exit 0, `Failed bundles: 0`
+- **Tests and exact results:**
+  - `AuraShellTests.runnerCancelsInFlightCommand()` — passed
+  - All previous 15 AuraShellTests — passed
+  - All other bundles — passed, no regressions
+- **Security/privacy impact:** No change; cancellation is purely a lifecycle control. No new secrets, logs, or data exposure.
+- **Unresolved risks:** Same as Phase 7 entry above.
+- **Rollback:** Revert the three files above to pre-hardening state.
+- **Current state:** Phase 7 Typed Shell is now complete and cancellation is tested and functional. Production build passes. `AuraShellTests` (16 tests) pass. Full suite passes via `scripts/aura-test.sh`.
+- **Next safe action:** Phase 8 per `prompts/implementation/08_08_VSCODE_ADAPTER.prompt.md`.
+- **Integrity hash:** intentionally omitted.
