@@ -2,12 +2,12 @@
 
 This file is a compact, atomically replaced projection of the append-only ledger.
 
-- Phase: Typed shell / process runner complete and cancellation-hardened
-- Active milestone: 7
-- Active task: 07_TYPED_SHELL — completed
-- Last verified commit: 7d72989 — feat(phases-4-7): conversation, policy, native macOS automation, typed shell
+- Phase: VS Code Adapter complete
+- Active milestone: 8
+- Active task: 08_VSCODE_ADAPTER — completed
+- Last verified commit: (pending Phase 8 commit)
 - Build status: Passes (`swift build` with Swift 6.4 CommandLineTools)
-- Test status: Passes via `./scripts/aura-test.sh /tmp/aurabuild-phase7-perfect`; all 9 test bundles pass, including 16 `AuraShellTests` (15 original + 1 new cancellation test) and previously passing AuraAgentTests, AuraAudioTests, AuraAutomationTests, AuraCoreTests, AuraPolicyTests, AuraSTTTests, AuraStoreTests, AURAIntegrationTests
+- Test status: Passes via `./scripts/aura-test.sh /tmp/aurabuild-final`; all 10 test bundles pass, including 13 `AuraVSCodeTests` and previously passing AuraAgentTests, AuraAudioTests, AuraAutomationTests, AuraCoreTests, AuraPolicyTests, AuraSTTTests, AuraShellTests, AuraStoreTests, AURAIntegrationTests
 - Known blockers: None
 - Pending confirmations:
   - Real on-device STT model integration (Speech.framework / ONNX / Core ML) and acoustic WER/latency measurement.
@@ -19,4 +19,5 @@ This file is a compact, atomically replaced projection of the append-only ledger
   - End-to-end confirmation flow from `PolicyEngine` through UI to `AuraAutomation` tool adapters.
   - Real policy-engine authorization wired into `AuraShell.execute` before launching commands.
   - Interactive PTY adapter integrated with terminal-agent and multi-agent protocol.
-- Next safe action: Review Phase 7 diff for scope expansion, then proceed to Phase 8 per `prompts/implementation/08_08_VSCODE_ADAPTER.prompt.md`; read Phase 8 prompt and ADR-008 before starting.
+  - Companion VS Code extension that writes bridge snapshots for live editor/terminal/diagnostics state.
+- Next safe action: Review Phase 8 diff for scope expansion, then proceed to Phase 9 per `prompts/implementation/09_09_CODEX_CONTROLLER.prompt.md`; read Phase 9 prompt and ADR-009 before starting.

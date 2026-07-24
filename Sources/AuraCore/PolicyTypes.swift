@@ -56,6 +56,14 @@ extension Capability {
   public static let systemChangePrivilege = Capability(
     domain: "system", action: "changePrivilege", riskTier: .destructive)
 
+  public static let vscodeOpen = Capability(domain: "vscode", action: "open", riskTier: .reversible)
+  public static let vscodeInjectTerminal = Capability(
+    domain: "vscode", action: "injectTerminal", riskTier: .mutation)
+  public static let vscodeManageExtension = Capability(
+    domain: "vscode", action: "manageExtension", riskTier: .mutation)
+  public static let vscodeObserveState = Capability(
+    domain: "vscode", action: "observeState", riskTier: .observation)
+
   /// Convenience identifier used for pattern matching and event logging.
   public var identifier: String { "\(domain).\(action)" }
 }

@@ -587,3 +587,76 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Current state:** Phase 7 Typed Shell is now complete and cancellation is tested and functional. Production build passes. `AuraShellTests` (16 tests) pass. Full suite passes via `scripts/aura-test.sh`.
 - **Next safe action:** Phase 8 per `prompts/implementation/08_08_VSCODE_ADAPTER.prompt.md`.
 - **Integrity hash:** intentionally omitted.
+
+---
+
+## Entry — 2026-07-28T12:30:00Z — Phase 8 — VS Code Adapter implementation
+
+- **Actor:** GitHub Copilot
+- **Trigger:** User pasted the Phase 8 mission: workspace/repo detection, file/symbol opening, task/test execution, extension bridge for diagnostics/editor state, integrated terminal PTY via typed shell, dirty-editor safety, contract tests, terminal cwd/shell verification before command injection.
+- **Objective:** Execute `prompts/implementation/08_08_VSCODE_ADAPTER.prompt.md`: implement typed VS Code integration via CLI, extension bridge, integrated terminal PTY, and Accessibility fallback.
+- **Starting state:** Phase 7 complete and cancellation-hardened. No VS Code subsystem existed. `AuraShell` and `AuraCore` policy/event types were available.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`
+  - `docs/subsystems/13_VSCODE_CONTROL.md`, `docs/security/25_PERMISSION_SYSTEM.md`, `docs/decisions/ADR-008-typed-shell-process-runner.md`
+  - `prompts/implementation/08_08_VSCODE_ADAPTER.prompt.md`
+  - `/usr/local/bin/code --version` output: 1.130.0
+  - Existing `AuraCore` policy types, event bus, configuration, `AuraShell` typed command/process runner
+- **Assumptions:**
+  - `/usr/local/bin/code` is the supported VS Code CLI path and relevant flags (`--goto`, `--new-window`, `--add`, `--install-extension`, etc.) remain stable.
+  - Companion VS Code extension will be built separately and will write bridge snapshots to a file path configured in `VSCodeConfiguration.bridgeStatePath`.
+  - Tests run via `scripts/aura-test.sh` in the CommandLineTools environment; no real VS Code instance is required for unit tests.
+- **Decisions:**
+  - Added new SwiftPM target `AuraVSCode` (library + tests) depending on `AuraCore` and `AuraShell`.
+  - Added four new policy capabilities to `AuraCore`: `vscodeOpen`, `vscodeInjectTerminal`, `vscodeManageExtension`, `vscodeObserveState`.
+  - Added `VSCodeEventPayloads.swift` in `AuraCore` for cross-subsystem events.
+  - Added `VSCodeConfiguration` to `AuraConfiguration.swift` with CLI path, timeout, bridge path, staleness, terminal verification, dirty-editor confirmation, and allowed terminal shells.
+  - Implemented `VSCodeCommand` typed enum, `VSCodePolicyAdapter`, `VSCodeCLI` (invoking `code` via `AuraShell`), `VSCodeExtensionBridge` protocol + file/Static implementations, `VSCodeTerminalAdapter` (cwd/shell verification + `AuraShell` injection), and `VSCodeAdapter` coordinator with dirty-editor confirmation.
+  - Created ADR-009 documenting the VS Code Adapter architecture.
+- **Files changed:**
+  - `Package.swift` — added `AuraVSCode` library product/target, `AuraVSCodeTests` test target, and `AuraVSCode` dependency in `AURAIntegrationTests`
+  - `Sources/AuraCore/PolicyTypes.swift` — added `Capability.vscodeOpen`, `.vscodeInjectTerminal`, `.vscodeManageExtension`, `.vscodeObserveState`
+  - `Sources/AuraCore/AuraConfiguration.swift` — added `VSCodeConfiguration` and wired it into merge/validate/decode
+  - `Sources/AuraCore/VSCodeEventPayloads.swift` — new typed VS Code event payloads
+  - `Sources/AuraVSCode/VSCodeCommand.swift` — typed command/state value types
+  - `Sources/AuraVSCode/VSCodePolicyAdapter.swift` — policy mapping
+  - `Sources/AuraVSCode/VSCodeCLI.swift` — CLI adapter invoking `/usr/local/bin/code`
+  - `Sources/AuraVSCode/VSCodeExtensionBridge.swift` — bridge protocol + file/Static implementations
+  - `Sources/AuraVSCode/VSCodeTerminalAdapter.swift` — integrated terminal command injection
+  - `Sources/AuraVSCode/VSCodeAdapter.swift` — public coordinator actor
+  - `Tests/AuraVSCodeTests/AuraVSCodeTests.swift` — 13 deterministic tests covering policy, CLI, bridge, dirty-editor confirmation, and adapter workspace detection
+  - `docs/decisions/ADR-009-vscode-adapter.md` — new ADR
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild-vscode --target AuraVSCode` — exit 0
+  - `swift build --build-path /tmp/aurabuild-vscode --target AuraVSCodeTests` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-vscode AuraVSCodeTests` — exit 0, 13/13 tests passed
+  - `./scripts/aura-test.sh /tmp/aurabuild-final` — full suite, exit 0, `Failed bundles: 0`
+- **Tests and exact results:**
+  - `AuraVSCodeTests.policyRequest maps openFile to vscodeOpen capability` — passed
+  - `AuraVSCodeTests.policyRequest maps manageExtension to vscodeManageExtension` — passed
+  - `AuraVSCodeTests.policyRequest maps terminalCommand to vscodeInjectTerminal` — passed
+  - `AuraVSCodeTests.CLI arguments for openFile include --goto with line and column` — passed
+  - `AuraVSCodeTests.CLI arguments for openWorkspace include path` — passed
+  - `AuraVSCodeTests.CLI arguments for openWorkspace newWindow include --new-window` — passed
+  - `AuraVSCodeTests.CLI arguments for manageExtension install` — passed
+  - `AuraVSCodeTests.static bridge returns injected editor state` — passed
+  - `AuraVSCodeTests.file bridge reads snapshot JSON` — passed
+  - `AuraVSCodeTests.file bridge reports unavailable when state path is nil` — passed
+  - `AuraVSCodeTests.AlwaysDeny confirmation rejects` — passed
+  - `AuraVSCodeTests.AlwaysAllow confirmation allows` — passed
+  - `AuraVSCodeTests.adapter activeWorkspace reads bridge editor state` — passed
+  - All previously passing bundles — no regressions
+- **Security/privacy impact:**
+  - All VS Code operations require policy authorization through new least-privilege capabilities.
+  - Terminal injection inherits `AuraShell` typed-command guarantees, executable/working-directory allowlists, output redaction, and filesystem evidence.
+  - Dirty-editor confirmation prevents accidental data loss from model-driven workspace switches.
+  - No editor/terminal/diagnostics state is sent to remote services; state observation is local via file bridge.
+- **Unresolved risks:**
+  - Companion VS Code extension is not yet implemented; live state observation is unavailable until it is built.
+  - VS Code CLI flags may change in future releases; `VSCodeCLI.makeArguments(for:)` is the single adaptation point.
+  - `VSCodeTerminalAdapter` shells/verification logic is unit-tested with doubles; real VS Code terminal CWD/shell reporting will require extension bridge integration.
+  - Accessibility fallback for VS Code control is not implemented in this phase.
+- **Rollback:** Remove `Sources/AuraVSCode` and `Tests/AuraVSCodeTests`; revert `Package.swift` target changes; remove `AuraCore` VSCode policy/configuration/event additions; remove ADR-009.
+- **Current state:** Phase 8 VS Code Adapter implementation complete. Production build passes. `AuraVSCodeTests` (13 tests) pass. Full suite (all 10 test bundles) passes via `scripts/aura-test.sh`. ADR-009 recorded. `ledger/CURRENT_STATE.md` updated atomically.
+- **Next safe action:** Review Phase 8 diff for scope expansion, then proceed to Phase 9 per `prompts/implementation/09_09_CODEX_CONTROLLER.prompt.md`.
+- **Integrity hash:** intentionally omitted.
