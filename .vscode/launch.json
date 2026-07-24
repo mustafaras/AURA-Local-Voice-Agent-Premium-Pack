@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Debug AURA",
+            "target": "AURA",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AURA"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Release AURA",
+            "target": "AURA",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AURA"
+        }
+    ]
+}

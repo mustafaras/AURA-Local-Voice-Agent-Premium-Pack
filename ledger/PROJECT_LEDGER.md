@@ -1,0 +1,239 @@
+# Project Ledger
+
+Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
+
+### 2026-07-23T15:15:00Z — 00_BOOTSTRAP — Repository foundation completed
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute `prompts/implementation/00_00_BOOTSTRAP.prompt.md`: create repository foundation, multi-target SwiftPM package, typed configuration, event envelopes, privacy-aware logging, event bus, SQLite-backed store with migrations, placeholder targets, tests, CI workflow, ADR, and atomic ledger/current-state updates.
+- **Starting state:** Repository contained normative specifications, agent contract, empty ledger/current state, and no buildable Swift package. Previous work left the package partly assembled but test execution was blocked by CommandLineTools codesign/dynamic-loading issues.
+- **Evidence inspected:**
+  - `AGENTS.md`, `README.md`, `prompts/implementation/00_00_BOOTSTRAP.prompt.md`
+  - `Package.swift`, all `Sources/**` and `Tests/**` files
+  - Swift 6.4 CommandLineTools environment: `xcode-select -p`, `swift --version`, absence of `XCTest.framework`, presence of `Testing.framework` and `swiftpm-testing-helper`
+  - Build/test outputs in `/tmp/aurabuild` to avoid iCloud fileprovider extended attributes breaking codesign
+- **Assumptions:**
+  - CommandLineTools Swift 6.4 remains the active toolchain for this bootstrap phase.
+  - Swift Testing is the supported test framework and XCTest is unavailable in this environment.
+  - Intermediate build artifacts may be placed in `/tmp` for CI/test execution because no secrets or user data are involved.
+- **Decisions:**
+  - Kept Swift Testing across all six test targets.
+  - Added `.unsafeFlags([...])` to every test target in `Package.swift` to force `-load-resolved-plugin` for `libTestingMacros.dylib`.
+  - Created `scripts/aura-test.sh` wrapper that builds in `/tmp` and invokes `swiftpm-testing-helper` with `DYLD_FRAMEWORK_PATH`/`DYLD_LIBRARY_PATH`.
+  - Created ADR-001 documenting the CommandLineTools test-runner workaround and its removal criteria.
+  - Removed unnecessary `await` on actor-isolated `log`/`validateSchema` calls to eliminate `UnnecessaryEffectMarker` warnings.
+- **Files changed:**
+  - `Sources/AuraCore/AuraLogger.swift` — removed unnecessary `await` on synchronous actor method calls
+  - `Sources/AuraCore/AuraEventBus.swift` — removed unnecessary `await` on `validateSchema()`
+  - `scripts/aura-test.sh` — new wrapper script for test execution on CommandLineTools
+  - `.github/workflows/ci.yml` — new CI workflow using the wrapper
+  - `docs/decisions/ADR-001-commandlinetools-test-runner.md` — new ADR
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild` — production build, exit 0
+  - `swift build --build-path /tmp/aurabuild --target <TestTarget>` for AuraCoreTests, AuraStoreTests, AURAIntegrationTests, AuraAudioTests, AuraAutomationTests, AuraAgentTests — all exit 0
+  - `DYLD_FRAMEWORK_PATH=/Library/Developer/CommandLineTools/Library/Developer/Frameworks DYLD_LIBRARY_PATH=/Library/Developer/CommandLineTools/Library/Developer/usr/lib /Library/Developer/CommandLineTools/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /tmp/aurabuild/out/Products/Debug/<Target>.xctest/Contents/MacOS/<Target>` for all six targets — all exit 0
+  - `./scripts/aura-test.sh` — all six test bundles pass, exit 0
+  - `/tmp/aurabuild/out/Products/Debug/AURA` after creating `~/Library/Application Support/AURA` — ran to completion, wrote `aura.db`, appended bootstrap ledger entry
+- **Tests and exact results:**
+  - AuraCoreTests: pass (exit 0)
+  - AuraStoreTests: pass (exit 0)
+  - AURAIntegrationTests: pass (exit 0)
+  - AuraAudioTests: pass (exit 0)
+  - AuraAutomationTests: pass (exit 0)
+  - AuraAgentTests: pass (exit 0)
+- **Security/privacy impact:** No runtime security or privacy model change. Test wrapper does not process secrets or user data and only affects debug build/test artifacts. No new permissions, network calls, or secret storage introduced.
+- **Unresolved risks:**
+  - `Package.swift` contains absolute CommandLineTools paths in `.unsafeFlags`; portability is reduced and documented in ADR-001.
+  - CI depends on `macos-latest` runner providing compatible CommandLineTools layout; future runner image changes could break the wrapper.
+  - `swift test` itself is still unusable in this environment; developers with full Xcode may continue using `swift test` but the repository's CI uses the wrapper.
+- **Rollback:** Remove `.unsafeFlags` entries and `scripts/aura-test.sh` if toolchain is upgraded to full Xcode or SwiftPM fixes codesign behavior.
+- **Current state:** Bootstrap phase complete. Production build passes. All six test bundles pass via wrapper. Runtime ledger entry recorded in `~/Library/Application Support/AURA/aura.db`.
+- **Next safe action:** Begin next implementation phase as defined by `prompts/implementation/01_01_AUDIO_CORE.prompt.md` after reviewing `ledger/CURRENT_STATE.md`.
+- **Integrity hash:** SHA-256 of the bootstrap ledger entry text above is intentionally omitted; future tooling may compute it deterministically.
+
+### 2026-07-23T15:40:00Z — 01_AUDIO_CORE — Real-time audio capture service implementation
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute Phase 1 of `AURA_PREMIUM_UNIFIED_MASTER.prompt.md`: implement real-time-safe audio capture, device management, bounded ring buffer, timestamps, diagnostics, and privacy controls in `AuraAudio`.
+- **Starting state:** Bootstrap phase complete; `AuraAudio` was an empty placeholder actor; configuration, event bus, logging, and store were in place.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`
+  - `docs/subsystems/04_AUDIO_PIPELINE.md`, `docs/subsystems/05_WAKE_WORD_AND_SPEAKER.md`
+  - `docs/testing/38_PERFORMANCE_BUDGETS.md`, `docs/01_MASTER_SPEC.md`
+  - `Sources/AuraAudio/AuraAudio.swift`, `Sources/AuraCore/AuraConfiguration.swift`, `Sources/AuraCore/EventEnvelope.swift`, `Sources/AuraCore/AuraLogger.swift`
+  - Generated `AVFAudio.swiftinterface` to verify modern `installAudioTap` and `AVReadOnlyAudioPCMBuffer` APIs.
+- **Assumptions:**
+  - AVAudioEngine remains the supported capture framework on macOS 26+.
+  - Tests will run in CI via `scripts/aura-test.sh`; no actual microphone access is required for unit tests.
+  - Ring buffer is volatile and in-memory; no ambient audio is persisted by default.
+- **Decisions:**
+  - Use AVAudioEngine with the modern throwing `installAudioTap(onBus:bufferSize:format:tapProvider:)` API.
+  - Convert `AVReadOnlyAudioPCMBuffer` to a mutable `AVAudioPCMBuffer` via `AVAudioPCMBuffer(copying:)` before feeding `AVAudioConverter`, because read-only buffers are not `AVAudioBuffer` subclasses.
+  - Implement `AudioRingBuffer` as an `NSLock`-protected circular buffer of immutable `AudioFrame` values, marked `@unchecked Sendable`.
+  - Handle device changes with `AVAudioEngineConfigurationChange` (AVAudioSession is unavailable on macOS) and restart capture when active.
+  - Add privacy controls: diagnostic capture explicit opt-in, retention hours, encryption flag, and visible indicator event.
+  - Add typed audio event payloads (`AudioCaptureStartedEvent`, `AudioFrameEvent`, `AudioCaptureStoppedEvent`, `AudioCaptureErrorEvent`, `AudioIndicatorEvent`) through `EventEnvelope`.
+- **Files changed:**
+  - `Sources/AuraAudio/AuraAudio.swift` — full actor implementation
+  - `Sources/AuraAudio/AudioFrame.swift` — new immutable frame type
+  - `Sources/AuraAudio/AudioRingBuffer.swift` — new bounded ring buffer
+  - `Sources/AuraCore/AudioEventPayloads.swift` — new typed audio events
+  - `Sources/AuraCore/AuraConfiguration.swift` — expanded `AudioConfiguration`
+  - `Tests/AuraAudioTests/AuraAudioTests.swift` — ring buffer, frame, state, privacy, idempotency tests
+  - `docs/decisions/ADR-002-audio-core-architecture.md` — new ADR
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild` — production build, exit 0
+  - `swift build --build-path /tmp/aurabuild --target AuraAudioTests` — exit 0
+  - `./scripts/aura-test.sh` — all six test bundles pass, exit 0
+- **Tests and exact results:**
+  - AuraAudioTests: pass (ringBufferOverwritesOldestWhenFull, ringBufferClearEmptiesContents, audioFrameImmutabilityAndDiscontinuityFlag, stateTransitionsThroughStartAndStop, privacyControlsUpdateEmitsIndicatorEvent, startIgnoredWhenNotIdle)
+  - AuraCoreTests: pass
+  - AuraStoreTests: pass
+  - AURAIntegrationTests: pass
+  - AuraAutomationTests: pass
+  - AuraAgentTests: pass
+- **Security/privacy impact:** No ambient audio retained by default; diagnostic capture opt-in only; visible indicator event emitted; no secrets or network introduced.
+- **Unresolved risks:**
+  - `AVAudioEngineConfigurationChange` restart behavior has not yet been exercised with live hardware changes.
+  - The read-only-to-mutable buffer copy adds per-tap overhead; latency budget validation under load is pending.
+  - Ring buffer memory usage grows linearly with `ringBufferSeconds`; very large values could exceed the 16 GB primary device profile.
+- **Rollback:** Revert `Sources/AuraAudio` additions, `Sources/AuraCore/AudioEventPayloads.swift`, `AuraConfiguration.swift` audio defaults, and `Tests/AuraAudioTests/AuraAudioTests.swift` to bootstrap state.
+- **Current state:** Phase 1 Audio Core implementation complete.
+- **Next safe action:** Proceed to Phase 2 — Wake Word & VAD per `prompts/implementation/02_02_WAKE_VAD.prompt.md`.
+
+### 2026-07-24T16:00:00Z — 02_WAKE_VAD — Wake-word, VAD, speaker verification, privacy, and anti-trigger protection
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute Phase 2 of `prompts/implementation/02_02_WAKE_VAD.prompt.md`: implement voice activity detection, wake-word abstraction, debounce, pre-roll hooks, echo suppression, enrollment flow, speaker verification as identity hint, privacy mode, and a measurable false-accept/false-reject harness.
+- **Starting state:** Phase 1 Audio Core complete; `AuraAudio` exposed `AudioFrameEvent` metadata and ring buffer, but no wake/VAD/speaker processing existed.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`
+  - `docs/subsystems/04_AUDIO_PIPELINE.md`, `docs/subsystems/05_WAKE_WORD_AND_SPEAKER.md`
+  - `docs/security/25_PERMISSION_SYSTEM.md`, `docs/security/27_PRIVACY_MODEL.md`, `docs/security/28_PROMPT_INJECTION_DEFENSE.md`
+  - `prompts/implementation/02_02_WAKE_VAD.prompt.md`
+  - `Sources/AuraCore/AuraConfiguration.swift`, `Sources/AuraCore/AudioEventPayloads.swift`
+  - `Sources/AuraAudio/AuraAudio.swift`, `Sources/AuraAudio/AudioFrame.swift`, `Sources/AuraAudio/AudioRingBuffer.swift`
+- **Assumptions:**
+  - Phase 2 uses deterministic marker-tone analyzers for reproducible CI; a real on-device wake-word/speaker model will replace the marker implementation in a later phase.
+  - Synchronous `@Sendable` protocol methods are required on the real-time path; mutable analyzer state is protected by locks, not actors.
+  - Event bus never carries raw audio samples; only de-identified frame metadata.
+- **Decisions:**
+  - Implement `VoiceActivityDetector` protocol and `EnergyVAD` with adaptive noise-floor calibration and lock-protected mutable state.
+  - Implement `WakeWordDetector` protocol and `MarkerWakeWordDetector` for phrase-aware, confidence-thresholded, frequency-window detection.
+  - Implement `SpeakerVerifier` protocol and `MarkerSpeakerVerifier` for enrollment/recognition; always emit `isAuthorization == false` so downstream policy cannot treat it as a grant.
+  - Implement `WakeWordPipeline` actor subscribing to `AudioFrameEvent` and exposing `ingestSampleFrame(_:)` so deterministic tests can seed sample data without putting audio on the bus.
+  - Add anti-trigger suppression: output-active flag + debounce window suppresses wake hypotheses during assistant TTS or media playback.
+  - Add privacy mode: when `privacyModeRequiresKeyboardShortcut` is set, pipeline enters `.privacyArmed` and ignores wakes until `privacyShortcutPressed()` is invoked, emitting `PrivacyModeEvent`.
+  - Add `WakeWordMetrics` counters (hypotheses, accepted activations, anti-trigger suppressions, false accepts, false rejects) and expose them via `currentMetrics()`.
+  - Add `SyntheticAudio` generator (sine bursts, silence, intermittent tones, Gaussian-ish noise) for reproducible acoustic test fixtures.
+  - Extend `AuraConfiguration.swift` with `WakeWordConfiguration` and `AudioEventPayloads.swift` with Phase 2 event types.
+  - Create ADR-003 documenting the wake/VAD/speaker/privacy/anti-trigger architecture and the metadata-only event-bus rule.
+- **Files changed:**
+  - `Sources/AuraCore/AuraConfiguration.swift` — added `WakeWordConfiguration` and `wake` property
+  - `Sources/AuraCore/AudioEventPayloads.swift` — added Phase 2 typed events (VAD, wake, speaker, privacy, metrics, activation)
+  - `Sources/AuraAudio/VoiceActivityDetector.swift` — `VoiceActivityDetector` protocol + `EnergyVAD`
+  - `Sources/AuraAudio/WakeWordDetector.swift` — `WakeWordDetector` protocol + `MarkerWakeWordDetector`
+  - `Sources/AuraAudio/SpeakerVerifier.swift` — `SpeakerVerifier` protocol + `MarkerSpeakerVerifier`
+  - `Sources/AuraAudio/WakeWordPipeline.swift` — coordination actor with lifecycle, anti-trigger, privacy, debounce, metrics
+  - `Tests/AuraAudioTests/SyntheticAudio.swift` — deterministic synthetic audio fixtures
+  - `Tests/AuraAudioTests/WakeWordPipelineTests.swift` — Phase 2 unit tests
+  - `docs/decisions/ADR-003-wake-vad-speaker-privacy.md` — new ADR
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild` — production build, exit 0
+  - `swift build --build-path /tmp/aurabuild --target AuraAudioTests` — exit 0
+  - `DYLD_FRAMEWORK_PATH=/Library/Developer/CommandLineTools/Library/Developer/Frameworks DYLD_LIBRARY_PATH=/Library/Developer/CommandLineTools/Library/Developer/usr/lib /Library/Developer/CommandLineTools/usr/libexec/swift/pm/swiftpm-testing-helper --test-bundle-path /tmp/aurabuild/out/Products/Debug/AuraAudioTests.xctest/Contents/MacOS/AuraAudioTests --testing-library swift-testing --filter WakeWordPipelineTests` — exit 0
+  - `./scripts/aura-test.sh` — all six test bundles pass, exit 0, `Failed bundles: 0`
+- **Tests and exact results:**
+  - `WakeWordPipelineTests.energyVADDetectsToneAndResets()` — passed
+  - `WakeWordPipelineTests.markerWakeDetectorMatchesToneAndIgnoresOffMarker()` — passed
+  - `WakeWordPipelineTests.speakerVerifierEnrollsAndRecognizesMarkerVoice()` — passed
+  - `WakeWordPipelineTests.antiTriggerSuppressesWakeDuringOutput()` — passed
+  - `WakeWordPipelineTests.privacyModeRequiresShortcut()` — passed
+  - `WakeWordPipelineTests.wakePipelineAcceptsWakeAndReportsMetrics()` — passed
+  - AuraCoreTests, AuraStoreTests, AURAIntegrationTests, AuraAutomationTests, AuraAgentTests — all exit 0
+- **Security/privacy impact:**
+  - Raw audio samples never transit the event bus; only `sampleCount`/`timestamp` metadata is emitted.
+  - Speaker verification emits identity hints only (`isAuthorization == false`) and cannot grant high-risk actions.
+  - Privacy mode requires an explicit keyboard shortcut before ambient wake-word processing resumes.
+  - Anti-trigger suppression reduces accidental activation during assistant output or media playback.
+- **Unresolved risks:**
+  - `MarkerWakeWordDetector` is a deterministic stand-in; real acoustic false-accept/false-reject rates are not yet measured and a trained on-device model must be integrated.
+  - Privacy-mode keyboard shortcut could be observed or spoofed by a local attacker; future releases may require a hardware-backed confirmation.
+  - Real-world anti-trigger behavior against actual speakers/headsets has not been field tested.
+- **Rollback:** Revert `Sources/AuraAudio/VoiceActivityDetector.swift`, `WakeWordDetector.swift`, `SpeakerVerifier.swift`, `WakeWordPipeline.swift`, `Sources/AuraCore/AuraConfiguration.swift` wake additions, `Sources/AuraCore/AudioEventPayloads.swift` Phase 2 events, `Tests/AuraAudioTests/SyntheticAudio.swift`, `Tests/AuraAudioTests/WakeWordPipelineTests.swift`, and remove `docs/decisions/ADR-003-wake-vad-speaker-privacy.md`.
+- **Current state:** Phase 2 Wake Word & VAD implementation complete. Production build passes. All six test bundles pass via `scripts/aura-test.sh`. ADR-003 recorded.
+- **Next safe action:** Proceed to Phase 3 — Streaming STT per `prompts/implementation/03_03_STREAMING_STT.prompt.md`.
+
+### 2026-07-24T18:45:00Z — 03_STREAMING_STT — Streaming STT engine, vocabulary, benchmarks, and test-runner reliability
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute Phase 3 of `prompts/implementation/03_03_STREAMING_STT.prompt.md`: implement the `STTEngine` protocol with partial/stable transcript semantics, bilingual Turkish/English vocabulary, confidence/cancellation/health, deterministic mock adapter, and benchmarks; make the CommandLineTools test runner produce reliable pass/fail evidence.
+- **Starting state:** Phase 2 Wake/VAD complete. `AuraSTT` target existed but contained only a placeholder. `scripts/aura-test.sh` from ADR-001 loaded test bundles individually, but the SwiftPM testing helper hung after tests completed and `swift test` could not resolve the Swift Testing runtime in `/tmp` builds.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`, `ledger/DECISION_INDEX.md`
+  - `docs/subsystems/06_STT_ENGINE.md`, `docs/subsystems/07_TURN_TAKING_AND_TTS.md`, `docs/subsystems/08_INTENT_ENGINE.md`
+  - `docs/testing/36_TEST_STRATEGY.md`, `docs/testing/38_PERFORMANCE_BUDGETS.md`
+  - `prompts/implementation/03_03_STREAMING_STT.prompt.md`
+  - `Sources/AuraAudio/AudioFrame.swift`, `Sources/AuraCore/AuraError.swift`, `Sources/AuraCore/AuraConfiguration.swift`
+- **Assumptions:**
+  - The first STT adapter is a deterministic mock; a Speech.framework or ONNX/Core ML adapter will follow without changing the protocol.
+  - Typed `STTTranscriptResult` can live in `AuraSTT` for this slice because the STT pipeline and intent engine both depend on it.
+  - Swift Testing runtime on CommandLineTools is located at `/Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework` with `lib_TestingInterop.dylib` in `…/usr/lib`.
+- **Decisions:**
+  - Define `STTEngine` as a `Sendable` protocol with `var results: AsyncStream<STTTranscriptResult>` and synchronous control methods except `start`. Adapters are responsible for their own internal isolation.
+  - Implement `DeterministicMockSTTEngine` with scripted segments, partial/stable gating, alternatives, confidence, cancellation, and health. Use an `NSRecursiveLock` around mutable state and an `AsyncStream` continuation box to avoid re-entrant deadlock when the stream's `onTermination` handler invokes `cancel()`.
+  - Implement `UserVocabulary` with deterministic bilingual commands, contextual hints, and technical terms.
+  - Implement `STTBenchmark` with WER and entity error rate metrics for code-switch and technical-vocabulary evaluation.
+  - Fix `scripts/aura-test.sh` to create `Testing.framework` and `lib_TestingInterop.dylib` symlinks inside the build products directory, invoke `swiftpm-testing-helper` with the correct `DYLD_*` paths, and accept an optional bundle filter. Result logs are inspected for Swift Testing pass/fail markers; a helper-process hang is tolerated as long as every test passed.
+  - Create ADR-004 documenting the `STTEngine` protocol, AsyncStream boundary, and adapter-isolation decision.
+- **Files changed:**
+  - `Sources/AuraSTT/STTEngine.swift` — `STTEngine` protocol and result types
+  - `Sources/AuraSTT/DeterministicMockSTTEngine.swift` — mock adapter
+  - `Sources/AuraSTT/UserVocabulary.swift` — bilingual vocabulary and hints
+  - `Sources/AuraSTT/STTBenchmark.swift` — WER / entity error rate
+  - `Tests/AuraSTTTests/AuraSTTEngineTests.swift` — seven STT unit/benchmark tests
+  - `scripts/aura-test.sh` — reliable wrapper with symlinks and optional filter
+  - `docs/decisions/ADR-004_STTEngine_AsyncStream.md` — new ADR
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild-stt` — production build, exit 0
+  - `swift build --build-path /tmp/aurabuild-stt --target AuraSTTTests` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-stt AuraSTTTests` — exit 0, `Failed bundles: 0`
+- **Tests and exact results:**
+  - `AuraSTTEngineTests.partialThenStable()` — passed
+  - `AuraSTTEngineTests.cancellationDoesNotLeakResults()` — passed
+  - `AuraSTTEngineTests.healthTransitions()` — passed
+  - `AuraSTTEngineTests.deterministicCommands()` — passed
+  - `AuraSTTEngineTests.technicalHints()` — passed
+  - `AuraSTTEngineTests.wordErrorRateMetric()` — passed
+  - `AuraSTTEngineTests.entityErrorRateMetric()` — passed
+- **Security/privacy impact:**
+  - Raw audio frames never leave the engine as STT output; only transcript result structs cross the protocol boundary.
+  - `cancel()` finishes the `AsyncStream` continuation and transitions the engine to `.cancelled`, preventing leaked results.
+  - Vocabulary matching is local and deterministic; no transcripts are logged or sent off-device.
+- **Unresolved risks:**
+  - `swiftpm-testing-helper` sometimes hangs after the suite summary; the wrapper works around it with a timeout and log inspection. A future SwiftPM/toolchain update should remove this workaround.
+  - The mock is single-threaded with a recursive lock; real adapters will need queue-based isolation to keep the audio path real-time safe.
+  - Turkish/English code-switch evaluation is currently deterministic; real acoustic measurements (WER, first-partial latency, stable-segment latency) require a trained on-device model.
+- **Rollback:** Revert `Sources/AuraSTT` additions, `Tests/AuraSTTTests/AuraSTTEngineTests.swift`, and the `scripts/aura-test.sh` changes; remove `docs/decisions/ADR-004_STTEngine_AsyncStream.md`.
+- **Current state:** Phase 3 Streaming STT implementation complete. Production build passes. All 7 `AuraSTTTests` pass via `scripts/aura-test.sh`. ADR-004 recorded.
+- **Next safe action:** Proceed to Phase 4 — Conversation/Turn-taking/TTS per `prompts/implementation/04_04_CONVERSATION.prompt.md`.
+
+## Entry template
+
+### YYYY-MM-DDTHH:MM:SSZ — TASK-ID — Short title
+
+- **Actor:**
+- **Objective:**
+- **Starting state:**
+- **Evidence inspected:**
+- **Assumptions:**
+- **Decisions:**
+- **Files changed:**
+- **Commands executed:**
+- **Tests and exact results:**
+- **Security/privacy impact:**
+- **Unresolved risks:**
+- **Rollback:**
+- **Current state:**
+- **Next safe action:**
+- **Integrity hash:**

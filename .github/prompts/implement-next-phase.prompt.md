@@ -1,0 +1,1 @@
+Read `ledger/CURRENT_STATE.md`, determine the next incomplete implementation phase, open its numeric prompt in `prompts/implementation`, and execute only that phase. Stop at its acceptance gate. Do not advance automatically.

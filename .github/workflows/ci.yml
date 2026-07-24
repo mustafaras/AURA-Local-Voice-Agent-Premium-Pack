@@ -1,0 +1,25 @@
+name: AURA CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode / Swift toolchain
+        run: |
+          swift --version
+          xcode-select -p
+
+      - name: Build production targets
+        run: swift build
+
+      - name: Run tests
+        run: ./scripts/aura-test.sh
