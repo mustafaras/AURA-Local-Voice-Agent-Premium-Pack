@@ -218,6 +218,49 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Current state:** Phase 3 Streaming STT implementation complete. Production build passes. All 7 `AuraSTTTests` pass via `scripts/aura-test.sh`. ADR-004 recorded.
 - **Next safe action:** Proceed to Phase 4 — Conversation/Turn-taking/TTS per `prompts/implementation/04_04_CONVERSATION.prompt.md`.
 
+### 2026-07-24T19:00:00Z — 03b_CONVERSATION_PREP — Conversation persona, TTS strategy, device profile, and model roles documented
+
+- **Actor:** GitHub Copilot
+- **Objective:** Integrate the conversation notes from 23 July 2026 into the normative skeleton: device profile, model roles, TTS strategy, and AURA voice/persona. Ensure Phase 4 prompt and system vision reference these constraints.
+- **Starting state:** Phase 3 STT complete. Phase 4 prompt existed but did not include persona, device profile, TTS priority, or model-role constraints. No persona document existed.
+- **Evidence inspected:**
+  - `docs/00_SYSTEM_VISION.md`
+  - `docs/subsystems/07_TURN_TAKING_AND_TTS.md`
+  - `prompts/implementation/04_04_CONVERSATION.prompt.md`
+  - `SESSION_STARTER.md`
+- **Assumptions:**
+  - Conversation notes are authoritative for the voice experience until a future revision supersedes them.
+  - Chatterbox TTS and Dia TTS are local/neural options; macOS system speech is the guaranteed fallback.
+  - Model-role assignments (Kimi/GLM/Qwen3) are planning guidance, not hard-coded runtime dependencies.
+- **Decisions:**
+  - Create `persona/AURA_VOICE_AND_BEHAVIOR.md` as the canonical persona spec.
+  - Update `docs/subsystems/07_TURN_TAKING_AND_TTS.md` with `TTSEngine` adapter priority (Chatterbox → Dia → system) and spoken-output policy references.
+  - Update `docs/00_SYSTEM_VISION.md` with device profile, model stack, and persona references.
+  - Update `prompts/implementation/04_04_CONVERSATION.prompt.md` with conversation date, device profile, persona/TTS constraints, and mandatory persona input.
+  - Update `SESSION_STARTER.md` to conversation-note format with device, model roles, TTS strategy, and persona links.
+  - Update `ledger/CURRENT_STATE.md` to record the documented Phase 4 preparation.
+- **Files changed:**
+  - `persona/AURA_VOICE_AND_BEHAVIOR.md` — new canonical persona document
+  - `docs/subsystems/07_TURN_TAKING_AND_TTS.md` — TTS adapter priority, persona refs
+  - `docs/00_SYSTEM_VISION.md` — device profile, model stack, persona, TTS latency goal
+  - `prompts/implementation/04_04_CONVERSATION.prompt.md` — persona/TTS/device constraints
+  - `SESSION_STARTER.md` — conversation-note header, device, model roles, TTS/persona
+  - `ledger/CURRENT_STATE.md` — recorded prep state and commit link
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild-stt` — production build, exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-stt AuraSTTTests` — exit 0, `Failed bundles: 0`
+- **Tests and exact results:**
+  - All previously passing STT tests remain passing; no code changes were made to production targets.
+- **Security/privacy impact:**
+  - Persona explicitly forbids speaking secrets, tokens, and private data.
+  - TTS adapters default to local; remote TTS requires explicit opt-in.
+- **Unresolved risks:**
+  - Chatterbox and Dia adapters are not yet implemented; the priority list is a design contract.
+  - Real TTS latency and barge-in behavior must be validated with live audio hardware.
+- **Rollback:** Remove `persona/AURA_VOICE_AND_BEHAVIOR.md` and revert the four documentation/prompt edits; restore previous `SESSION_STARTER.md` and `ledger/CURRENT_STATE.md`.
+- **Current state:** Phase 3 STT complete. Phase 4 conversation/TTS prerequisites (persona, adapter strategy, model roles, device profile) documented and linked.
+- **Next safe action:** Begin Phase 4 implementation per `prompts/implementation/04_04_CONVERSATION.prompt.md`.
+
 ## Entry template
 
 ### YYYY-MM-DDTHH:MM:SSZ — TASK-ID — Short title

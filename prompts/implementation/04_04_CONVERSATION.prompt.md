@@ -1,15 +1,37 @@
 # 04_CONVERSATION — Implementation Prompt
 
+> Conversation date: 23 July 2026  
+> Device profile: MacBook Air M5, 16 GB RAM, 512 GB SSD
+
 You are the principal engineer responsible for this phase.
 
 ## Mission
+
 Implement the conversation state machine, semantic turn completion interface, interruption, barge-in, timeout, TTS scheduling, and UI status.
 
+AURA combines natural conversation, tool execution, and coding-agent orchestration. This phase must keep speech fluid while every executed action remains controlled, typed, and test-backed.
+
 ## Mandatory inputs
+
 - `AGENTS.md`
 - `ledger/CURRENT_STATE.md`
 - `ledger/PROJECT_LEDGER.md`
-- all relevant normative specifications
+- `persona/AURA_VOICE_AND_BEHAVIOR.md`
+- `docs/subsystems/07_TURN_TAKING_AND_TTS.md`
+- `docs/subsystems/08_INTENT_ENGINE.md`
+- all other relevant normative specifications
+
+## Persona and TTS constraints
+
+- AURA's spoken persona is warm, smart, calm, and lightly witty.
+- Do not over-explain; do not narrate every internal step.
+- Never speak secrets, tokens, or private data.
+- TTS priority:
+  1. Chatterbox TTS (primary, natural prosody and expression control).
+  2. Dia TTS (experimental, advanced non-verbal expression).
+  3. macOS system speech synthesizer (fallback, always available).
+- All TTS adapters are local by default. A remote TTS adapter may only be used under an explicit user-controlled setting.
+- Barge-in must immediately attenuate or stop queued TTS and preserve the interrupted response in session state.
 
 ## Operating procedure
 1. Inspect the repository and verify the actual starting state.
