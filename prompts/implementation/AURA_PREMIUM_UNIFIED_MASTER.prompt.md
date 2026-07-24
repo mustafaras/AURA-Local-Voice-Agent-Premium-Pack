@@ -566,6 +566,228 @@ This prompt consolidates and supersedes the numeric prompts `00_00_BOOTSTRAP` th
 
 ---
 
+### Phase 21 — Advanced Memory Engine and Provenance Graph
+
+**Mission:** Evolve the memory subsystem from an append-only ledger into a queryable, evidence-linked provenance graph with contradiction resolution, belief revision, and user-controlled forgetting.
+
+**Deliverables:**
+
+- Provenance graph schema: entities (facts, decisions, tasks, utterances, files) as nodes; evidence, derivation, supersession, and conflict as typed edges.
+- `AuraMemory` target with graph store, query planner, and canonicalization rules.
+- Contradiction detection: semantic equality, temporal bounds, source authority, and confidence scoring.
+- Belief revision: auto-deprecate superseded facts; surface conflicts for user resolution when authority is tied.
+- User-controlled forgetting: purpose-limited deletion with audit shadow records; irreversible only for non-audit, non-security classes.
+- Import/export: user-facing JSON-LD or Markdown bundle with integrity hashes.
+
+**Acceptance gate:**
+
+- All facts traceable to evidence or labeled as inferred.
+- Superseded facts remain visible as historical but are excluded from active context.
+- Contradictions escalate to user when safe automatic resolution is impossible.
+- Deletion preserves audit and security records; export is canonical and verifiable.
+- Graph queries used by context reconstruction return deterministically ordered results.
+
+---
+
+### Phase 22 — Deep Context Reconstruction and Reference Resolution
+
+**Mission:** Build multi-hop, evidence-ranked context reconstruction that resolves pronouns, implicit targets, and ambiguous references without leaking destructive intent into weak signals.
+
+**Deliverables:**
+
+- `ContextBuilder` pipeline: utterance parse → intent schema → entity extraction → scope filter → evidence rank → ambiguity check → final bundle.
+- Reference resolution graph: map “it”, “that”, “the file”, “the last one” to candidate entities ranked by scope, recency, authority, and conversational salience.
+- Negative guardrails: destructive-capability candidates require direct evidence or explicit user confirmation; weakly resolved targets are rejected.
+- Cross-session memory injection: load relevant project facts, decisions, and preferences without overloading the model context window.
+- Explainability: every context bundle includes provenance IDs and confidence scores; UI can surface why an item was included.
+
+**Acceptance gate:**
+
+- Adversarial reference-resolution test suite passes (e.g., “delete it” without clear target is rejected/confirmed).
+- Context bundles fit within configured token budgets while retaining necessary facts.
+- Multi-hop lookups (file → task → decision → preference) complete within latency budget.
+- User can inspect and override context inclusions.
+
+---
+
+### Phase 23 — Verified Plugin and Adapter Marketplace
+
+**Mission:** Create a secure, user-controlled plugin and adapter marketplace with manifest validation, signature verification, sandboxing, capability grants, and lifecycle management.
+
+**Deliverables:**
+
+- Plugin manifest schema v1: identity, vendor signature, capabilities, schemas, permissions, supported bundle IDs, network domains, executable deps, migration notes.
+- `AuraPlugins` target: install, enable, disable, quarantine, uninstall, update, and rollback flows.
+- Signature and hash verification using notary-compatible signatures or vendor public keys.
+- Sandboxed execution: plugins run in separate XPC/helper process with filesystem/network/capability allowlists.
+- Capability grant mapping: each plugin capability is translated into AURA policy grants with expiry and revocation.
+- Store integration: plugin state recorded in `AuraStore`; audit log for install/uninstall/capability changes.
+
+**Acceptance gate:**
+
+- Unsigned or tampered plugins are rejected before loading.
+- Plugins cannot escalate privileges beyond their manifest; policy engine enforces grants.
+- Disabled/quarantined plugins cannot emit events or execute actions.
+- Uninstall removes runtime artifacts while preserving audit records.
+- Adversarial tests for manifest spoofing, hash collision, and capability escalation pass.
+
+---
+
+### Phase 24 — Self-Tuning Configuration and Feature-Flag Governance
+
+**Mission:** Implement layered, self-tuning configuration with typed schemas, migration history, feature-flag governance, A/B-safe rollout, and machine-learned local recommendations.
+
+**Deliverables:**
+
+- Configuration engine: secure defaults → machine policy → user settings → project settings → session overrides, with validation and rollback.
+- Feature-flag registry: owner, purpose, expiry, default, per-user/project override, kill switch, and rollback plan.
+- Telemetry-influenced tuning: local, privacy-preserving metrics (latency, error rate, energy, user correction rate) feed recommendation engine; no raw data leaves device.
+- Configuration migration: every schema change has a versioned migrator; migrations are reversible within a compatibility window.
+- Audit and inspection: user can view effective config, diff against defaults, and revoke overrides.
+
+**Acceptance gate:**
+
+- Higher-risk capabilities cannot be weakened by project-level configuration.
+- Feature flags expire or require explicit renewal.
+- Telemetry recommendations are explainable and opt-in.
+- Rollback to previous configuration completes within seconds and survives restart.
+- All configuration changes are logged and user-inspectable.
+
+---
+
+### Phase 25 — Continuous Security, Adversarial Resilience, and Red Team Loop
+
+**Mission:** Establish a continuous security program: automated red-team tests, model-level adversarial probes, supply-chain verification, incident response, and independent review cadence.
+
+**Deliverables:**
+
+- Adversarial test harness: prompt injection, indirect injection, jailbreak attempts, tool-call spoofing, policy bypass, memory poisoning, context-target confusion.
+- Automated red-team runner integrated into CI with failure-as-blocker gates.
+- Model evaluation pipeline: structured-output validation, capability boundary tests, hallucination detection on known project facts.
+- Supply-chain verification: dependency lockfiles, checksums, macro plugin validation, build reproducibility checks.
+- Incident response runbook: detection, containment, evidence preservation, user notification, rollback, post-incident ledger entry.
+- Independent review schedule and findings tracker.
+
+**Acceptance gate:**
+
+- Adversarial test suite runs on every commit; new failures block merge.
+- Red-team findings are triaged into ledger risks or fixed within SLA.
+- No unverified dependency or build tool is used in CI.
+- Incident response runbook is exercised at least once in simulation.
+- Independent security review completed and outstanding findings documented.
+
+---
+
+### Phase 26 — Continuous Operation: Telemetry, Updates, and Field Recovery
+
+**Mission:** Build production-grade operational capabilities: privacy-preserving telemetry, signed delta updates, field diagnostics, recovery modes, and long-term support branches.
+
+**Deliverables:**
+
+- Telemetry pipeline: on-device aggregation, differential privacy where applicable, opt-in crash/diagnostic submission, no raw audio/screenshots/events.
+- Signed delta update mechanism with rollback and downgrade prevention.
+- Field diagnostics: safe-mode boot, log collection without private content, remote support bundle generation under user control.
+- Recovery modes: reset memory, reset grants, factory reset with audit preservation, safe-mode CLI.
+- LTS branch policy: supported versions, security backports, deprecation notices.
+
+**Acceptance gate:**
+
+- Telemetry contains no personally identifiable or sensitive content.
+- Updates are signed, verifiable, and atomic; rollback works on failure.
+- Safe mode allows recovery even when normal UI/CLI is unstable.
+- Factory reset preserves required audit records.
+- LTS policy is documented and enforceable.
+
+---
+
+### Phase 27 — Cross-Device and Shared Workspace Continuity
+
+**Mission:** Extend AURA from a single Mac to a coherent, privacy-preserving multi-device experience with end-to-end encrypted sync and shared workspace contracts.
+
+**Deliverables:**
+
+- End-to-end encrypted sync for memory records, tasks, grants, and configuration; keys derived from user credentials/Keychain; no cloud plaintext.
+- Device pairing via local broadcast + cryptographic challenge; optional manual seed phrase.
+- Shared workspace contract: project-level settings, allowed adapters, policy templates, and memory scope sync across team devices.
+- Conflict resolution for concurrent edits with user adjudication or deterministic tie-breakers.
+- Guest/limited mode: time-bounded, capability-restricted sessions on secondary devices.
+
+**Acceptance gate:**
+
+- Cloud provider cannot decrypt synced data.
+- Pairing is resistant to man-in-the-middle and replay attacks.
+- Workspace conflicts are surfaced, not silently merged.
+- Guest mode cannot escalate to full user capabilities.
+- Sync latency and offline behavior meet usability budget.
+
+---
+
+### Phase 28 — Specialized Agent Personas and Custom Workflows
+
+**Mission:** Allow users and organizations to define safe, scoped agent personas and reusable workflows without weakening the policy engine or introducing hidden privileges.
+
+**Deliverables:**
+
+- Persona schema: identity, purpose, allowed capabilities, denied capabilities, memory scope, voice/behavior profile, model routing rules, budget limits.
+- Workflow engine: declarative step graphs with human-in-the-loop gates, retries, timeouts, and verification hooks.
+- Persona/workflow marketplace: signed, sandboxed packages with policy templates.
+- Audit and revocation: every persona grant is logged; users can disable or constrain personas at any time.
+- Anti-escape: personas cannot redefine policy, grant new capabilities, or bypass confirmation.
+
+**Acceptance gate:**
+
+- Personas operate within explicit capability boundaries.
+- Workflows halt on unmet gates and escalate correctly.
+- Marketplace packages pass plugin security gates.
+- Users can inspect effective persona permissions and history.
+- No persona can author or install another persona autonomously.
+
+---
+
+### Phase 29 — Regulatory and Organizational Governance
+
+**Mission:** Provide enterprise and compliance-grade governance: audit trails, data residency, retention policies, role-based access, and exportable compliance reports.
+
+**Deliverables:**
+
+- Audit trail: immutable, time-ordered log of every policy decision, grant change, action execution, model invocation, and memory mutation.
+- Data residency controls: local-only mode, region-bound sync, configurable retention windows.
+- Role-based administration: device owner, project owner, reviewer, auditor; each with scoped capabilities.
+- Compliance report generator: GDPR/CCPA-style export, deletion logs, consent records, processing-purpose labels.
+- Legal hold and litigation support: preserve records beyond normal retention under explicit authorization.
+
+**Acceptance gate:**
+
+- Audit trail is tamper-evident and exportable.
+- Local-only mode disables all sync and cloud telemetry.
+- Role separation prevents auditor/admin from executing actions.
+- Compliance reports are complete and generated within minutes.
+- Legal hold preserves required records without exposing unrelated data.
+
+---
+
+### Phase 30 — Long-Term Evolution and Open Ecosystem
+
+**Mission:** Ensure AURA remains maintainable, extensible, and trustworthy as the codebase, team, and ecosystem grow.
+
+**Deliverables:**
+
+- Public, versioned SDK and adapter protocol documentation.
+- Community contribution guidelines with DCO/sign-off and security review.
+- Architectural decision record (ADR) culture and periodic review.
+- Deprecation policy: capabilities, APIs, models, and plugins have announced lifecycles.
+- Sustainability: energy/carbon budget, accessibility conformance, localization framework, and inclusive design review.
+
+**Acceptance gate:**
+
+- SDK docs and examples build and pass contract tests.
+- External adapter samples integrate through official protocol gates.
+- Deprecations are announced two minor versions in advance.
+- Accessibility and localization tested for primary markets.
+- Long-term maintainer runbook covers common failures and recovery.
+
+---
+
 ## 7. Cross-Cutting Engineering Standards
 
 ### 7.1 Language and Platform
