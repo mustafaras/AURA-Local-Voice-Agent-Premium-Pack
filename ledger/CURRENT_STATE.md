@@ -5,7 +5,7 @@ This file is a compact, atomically replaced projection of the append-only ledger
 - Phase: Typed shell / process runner complete and cancellation-hardened
 - Active milestone: 7
 - Active task: 07_TYPED_SHELL — completed
-- Last verified commit: working tree (Phase 7 changes not yet committed)
+- Last verified commit: 7d72989 — feat(phases-4-7): conversation, policy, native macOS automation, typed shell
 - Build status: Passes (`swift build` with Swift 6.4 CommandLineTools)
 - Test status: Passes via `./scripts/aura-test.sh /tmp/aurabuild-phase7-perfect`; all 9 test bundles pass, including 16 `AuraShellTests` (15 original + 1 new cancellation test) and previously passing AuraAgentTests, AuraAudioTests, AuraAutomationTests, AuraCoreTests, AuraPolicyTests, AuraSTTTests, AuraStoreTests, AURAIntegrationTests
 - Known blockers: None
