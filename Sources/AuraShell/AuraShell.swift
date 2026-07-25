@@ -60,7 +60,111 @@ public actor AuraShell {
       paths: command.filesystemEvidencePaths
     )
 
-    // Emit filesystem-change evidence events for any directory that changed.
+    await emitFilesystemChanges(
+      correlationID: correlationID,
+      causationID: causationID,
+      actor: actor,
+      before: beforeSnapshots,
+      after: afterSnapshots
+    )
+
+    return result
+  }
+
+  /// Execute a typed command, streaming output lines as they arrive instead
+  /// of buffering until the process exits.
+  ///
+  /// Like `execute()`, this constructs but does not enforce a policy
+  /// decision — that pre-existing gap applies here too. Callers that need
+  /// real authorization (e.g. `CodexAdapter`) must call `PolicyEngine.evaluate`
+  /// themselves before ever reaching this method.
+  public func executeStreaming(
+    command: Command,
+    actor: ActorID,
+    sessionID: UUID,
+    correlationID: UUID,
+    causationID: UUID
+  ) async -> AsyncThrowingStream<ProcessStreamEvent, Error> {
+    do {
+      try command.validate(configuration: configuration)
+    } catch {
+      return AsyncThrowingStream { continuation in
+        continuation.finish(throwing: error)
+      }
+    }
+
+    let beforeSnapshots = await captureEvidence(
+      executionID: correlationID,
+      paths: command.filesystemEvidencePaths
+    )
+
+    let request = policyAdapter.request(
+      command: command,
+      actor: actor,
+      sessionID: sessionID,
+      correlationID: correlationID,
+      causationID: causationID
+    )
+    _ = request
+
+    let innerStream = await runner.runStreaming(command, executionID: correlationID)
+
+    return AsyncThrowingStream { continuation in
+      let forwardingTask = Task {
+        do {
+          for try await event in innerStream {
+            if case .completed = event {
+              let afterSnapshots = await self.captureEvidence(
+                executionID: correlationID,
+                paths: command.filesystemEvidencePaths
+              )
+              await self.emitFilesystemChanges(
+                correlationID: correlationID,
+                causationID: causationID,
+                actor: actor,
+                before: beforeSnapshots,
+                after: afterSnapshots
+              )
+            }
+            continuation.yield(event)
+          }
+          continuation.finish()
+        } catch {
+          continuation.finish(throwing: error)
+        }
+      }
+      continuation.onTermination = { @Sendable _ in
+        forwardingTask.cancel()
+        Task { await self.cancel(correlationID: correlationID) }
+      }
+    }
+  }
+
+  /// Cancel an in-flight execution by correlation ID.
+  public func cancel(correlationID: UUID) async {
+    await runner.cancel(executionID: correlationID)
+  }
+
+  private func captureEvidence(
+    executionID: UUID,
+    paths: [String]
+  ) async -> [FilesystemEvidence.Snapshot] {
+    var snapshots: [FilesystemEvidence.Snapshot] = []
+    for path in paths {
+      let snapshot = await evidence.capture(executionID: executionID, path: path)
+      snapshots.append(snapshot)
+    }
+    return snapshots
+  }
+
+  /// Emit filesystem-change evidence events for any directory that changed.
+  private func emitFilesystemChanges(
+    correlationID: UUID,
+    causationID: UUID,
+    actor: ActorID,
+    before beforeSnapshots: [FilesystemEvidence.Snapshot],
+    after afterSnapshots: [FilesystemEvidence.Snapshot]
+  ) async {
     for (index, before) in beforeSnapshots.enumerated() where index < afterSnapshots.count {
       let after = afterSnapshots[index]
       let digest = await evidence.diffDigest(before: before, after: after)
@@ -87,24 +191,5 @@ public actor AuraShell {
       )
       await AuraEventBus.shared.emit(envelope)
     }
-
-    return result
-  }
-
-  /// Cancel an in-flight execution by correlation ID.
-  public func cancel(correlationID: UUID) async {
-    await runner.cancel(executionID: correlationID)
-  }
-
-  private func captureEvidence(
-    executionID: UUID,
-    paths: [String]
-  ) async -> [FilesystemEvidence.Snapshot] {
-    var snapshots: [FilesystemEvidence.Snapshot] = []
-    for path in paths {
-      let snapshot = await evidence.capture(executionID: executionID, path: path)
-      snapshots.append(snapshot)
-    }
-    return snapshots
   }
 }

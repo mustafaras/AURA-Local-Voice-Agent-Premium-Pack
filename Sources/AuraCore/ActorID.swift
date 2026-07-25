@@ -42,6 +42,9 @@ public enum AuraError: Error, Sendable, Equatable {
   case taskCancelled(UUID)
   case taskExpired(UUID)
   case taskError(String)
+  case codexError(String)
+  case claudeError(String)
+  case copilotError(String)
 }
 
 extension AuraError: LocalizedError {
@@ -81,6 +84,12 @@ extension AuraError: LocalizedError {
       return "Task expired: \(id.uuidString)"
     case .taskError(let detail):
       return "Task error: \(detail)"
+    case .codexError(let detail):
+      return "Codex error: \(detail)"
+    case .claudeError(let detail):
+      return "Claude error: \(detail)"
+    case .copilotError(let detail):
+      return "Copilot error: \(detail)"
     }
   }
 }

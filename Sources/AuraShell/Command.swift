@@ -18,6 +18,26 @@ public struct Command: Codable, Sendable, Equatable {
   public let filesystemEvidencePaths: [String]
   public let redactor: OutputRedactor
 
+  /// Text delivered to the process's standard input, then closed for EOF.
+  ///
+  /// Use this instead of appending free-text (e.g. a model prompt) as a
+  /// positional argument: `validate()` rejects arguments containing shell
+  /// metacharacters (`;`, `|`, `&&`), which ordinary natural-language text
+  /// routinely contains.
+  public let standardInputText: String?
+
+  /// A single free-text value appended as the final argv element, exempt
+  /// from `validate()`'s metacharacter scan.
+  ///
+  /// Some CLIs (verified: GitHub Copilot CLI's `-p`) require a free-text
+  /// value as a genuine CLI argument, not stdin — `standardInputText` alone
+  /// cannot help. `Process`/`execve`-based spawning never invokes a shell to
+  /// interpret argv, so a `;`/`|`/`&&` embedded in a single argv element is
+  /// inert here; `validate()`'s scan over `arguments` is deliberate
+  /// defense-in-depth for a threat model (shell reinterpretation) that does
+  /// not apply to this one designated trailing value.
+  public let trailingArgument: String?
+
   public init(
     executable: String,
     arguments: [String] = [],
@@ -28,7 +48,9 @@ public struct Command: Codable, Sendable, Equatable {
     riskTier: PermissionRiskTier = .mutation,
     ptyRequested: Bool = false,
     filesystemEvidencePaths: [String] = [],
-    redactor: OutputRedactor = .default
+    redactor: OutputRedactor = .default,
+    standardInputText: String? = nil,
+    trailingArgument: String? = nil
   ) {
     self.executable = executable
     self.arguments = arguments
@@ -40,6 +62,14 @@ public struct Command: Codable, Sendable, Equatable {
     self.ptyRequested = ptyRequested
     self.filesystemEvidencePaths = filesystemEvidencePaths
     self.redactor = redactor
+    self.standardInputText = standardInputText
+    self.trailingArgument = trailingArgument
+  }
+
+  /// The full argv array actually passed to the process: `arguments` plus
+  /// `trailingArgument` if set.
+  public var effectiveArguments: [String] {
+    trailingArgument.map { arguments + [$0] } ?? arguments
   }
 
   /// Validate the command against configuration and safety rules.

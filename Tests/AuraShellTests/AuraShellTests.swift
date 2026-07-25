@@ -28,6 +28,22 @@ func commandAcceptsSafeArguments() throws {
 }
 
 @Test
+func commandTrailingArgumentIsExemptFromMetacharacterScan() throws {
+  let command = Command(
+    executable: "/bin/echo", arguments: ["hello"],
+    trailingArgument: "objective; with | shell && metacharacters")
+  try command.validate(configuration: ShellConfiguration())
+  #expect(
+    command.effectiveArguments == ["hello", "objective; with | shell && metacharacters"])
+}
+
+@Test
+func commandEffectiveArgumentsOmitsTrailingArgumentWhenNil() {
+  let command = Command(executable: "/bin/echo", arguments: ["hello"])
+  #expect(command.effectiveArguments == ["hello"])
+}
+
+@Test
 func commandRejectsDisallowedEnvironmentKey() {
   var config = ShellConfiguration()
   config.allowedEnvironmentKeys = ["ALLOWED"]

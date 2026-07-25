@@ -75,6 +75,27 @@ extension Capability {
   public static let taskList = Capability(
     domain: "task", action: "list", riskTier: .observation)
 
+  /// Run the Codex CLI with a workspace-write sandbox (may modify files).
+  public static let agentCodexRun = Capability(
+    domain: "agent", action: "codexRun", riskTier: .destructive)
+  /// Run the Codex CLI with a read-only sandbox (observation only).
+  public static let agentCodexReadOnly = Capability(
+    domain: "agent", action: "codexReadOnly", riskTier: .reversible)
+
+  /// Run the Claude Code CLI with write-capable tools (Bash/Edit/Write).
+  public static let agentClaudeRun = Capability(
+    domain: "agent", action: "claudeRun", riskTier: .destructive)
+  /// Run the Claude Code CLI with read-only tools only.
+  public static let agentClaudeReadOnly = Capability(
+    domain: "agent", action: "claudeReadOnly", riskTier: .reversible)
+
+  /// Run the GitHub Copilot CLI with broad tool approval (`--allow-all-tools`).
+  public static let agentCopilotRun = Capability(
+    domain: "agent", action: "copilotRun", riskTier: .destructive)
+  /// Run the GitHub Copilot CLI with no tools available (conversational only).
+  public static let agentCopilotReadOnly = Capability(
+    domain: "agent", action: "copilotReadOnly", riskTier: .reversible)
+
   /// Convenience identifier used for pattern matching and event logging.
   public var identifier: String { "\(domain).\(action)" }
 }

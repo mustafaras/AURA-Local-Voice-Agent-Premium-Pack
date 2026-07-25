@@ -65,7 +65,7 @@ let package = Package(
         ),
         .target(
             name: "AuraAgent",
-            dependencies: ["AuraCore", "AuraAudio"],
+            dependencies: ["AuraCore", "AuraAudio", "AuraShell", "AuraPolicy", "AuraTasks"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
@@ -133,7 +133,8 @@ let package = Package(
         ),
         .testTarget(
             name: "AuraAgentTests",
-            dependencies: ["AuraAgent", "AuraAudio"],
+            dependencies: ["AuraAgent", "AuraAudio", "AuraShell", "AuraPolicy", "AuraTasks", "AuraStore"],
+            resources: [.copy("Fixtures")],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
                 .unsafeFlags([

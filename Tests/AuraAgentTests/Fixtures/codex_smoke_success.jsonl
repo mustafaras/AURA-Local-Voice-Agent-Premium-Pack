@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"019f9911-9321-7051-9778-2d8e50cd73dc"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Model metadata for `minimax-m3:cloud` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"error","message":"Skill descriptions were shortened to fit the 2% skills context budget. Codex can still see every skill, but some descriptions are shorter. Disable unused skills or plugins to leave more room for the rest."}}
+{"type":"item.completed","item":{"id":"item_2","type":"reasoning","text":"The user wants exactly one word: \"ping\""}}
+{"type":"item.completed","item":{"id":"item_3","type":"agent_message","text":"ping"}}
+{"type":"turn.completed","usage":{"input_tokens":20332,"cached_input_tokens":0,"output_tokens":13,"reasoning_output_tokens":0}}

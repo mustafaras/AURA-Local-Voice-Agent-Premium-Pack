@@ -16,6 +16,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
   public var shell: ShellConfiguration
   public var vscode: VSCodeConfiguration
   public var task: TaskConfiguration
+  public var codex: CodexConfiguration
+  public var claude: ClaudeConfiguration
+  public var copilot: CopilotConfiguration
   public var privacy: PrivacyConfiguration
   public var log: LoggingConfiguration
 
@@ -31,6 +34,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     shell: ShellConfiguration = ShellConfiguration(),
     vscode: VSCodeConfiguration = VSCodeConfiguration(),
     task: TaskConfiguration = TaskConfiguration(),
+    codex: CodexConfiguration = CodexConfiguration(),
+    claude: ClaudeConfiguration = ClaudeConfiguration(),
+    copilot: CopilotConfiguration = CopilotConfiguration(),
     privacy: PrivacyConfiguration = PrivacyConfiguration(),
     log: LoggingConfiguration = LoggingConfiguration()
   ) {
@@ -45,6 +51,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     self.shell = shell
     self.vscode = vscode
     self.task = task
+    self.codex = codex
+    self.claude = claude
+    self.copilot = copilot
     self.privacy = privacy
     self.log = log
   }
@@ -102,6 +111,15 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     task =
       try container.decodeIfPresent(TaskConfiguration.self, forKey: .task)
       ?? TaskConfiguration()
+    codex =
+      try container.decodeIfPresent(CodexConfiguration.self, forKey: .codex)
+      ?? CodexConfiguration()
+    claude =
+      try container.decodeIfPresent(ClaudeConfiguration.self, forKey: .claude)
+      ?? ClaudeConfiguration()
+    copilot =
+      try container.decodeIfPresent(CopilotConfiguration.self, forKey: .copilot)
+      ?? CopilotConfiguration()
     privacy =
       try container.decodeIfPresent(PrivacyConfiguration.self, forKey: .privacy)
       ?? PrivacyConfiguration()
@@ -225,6 +243,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
         queueCapacity: self.task.queueCapacity <= 0
           ? TaskConfiguration().queueCapacity : self.task.queueCapacity
       ),
+      codex: self.codex.mergedWithDefaults(),
+      claude: self.claude.mergedWithDefaults(),
+      copilot: self.copilot.mergedWithDefaults(),
       privacy: PrivacyConfiguration(
         ambientAudioRetentionSeconds: self.privacy.ambientAudioRetentionSeconds < 0
           ? PrivacyConfiguration().ambientAudioRetentionSeconds
@@ -255,6 +276,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     try shell.validate()
     try vscode.validate()
     try task.validate()
+    try codex.validate()
+    try claude.validate()
+    try copilot.validate()
     try privacy.validate()
     try log.validate()
   }
@@ -964,6 +988,596 @@ public struct ShellConfiguration: Codable, Sendable, Equatable {
         "/usr/local/bin/*",
         "/Library/Developer/CommandLineTools/usr/bin/*",
       ]
+    allowedWorkingDirectories =
+      try container.decodeIfPresent(Set<String>.self, forKey: .allowedWorkingDirectories)
+      ?? [
+        "$HOME",
+        "$TMPDIR",
+      ]
+  }
+}
+
+/// Configuration for the Codex CLI adapter.
+///
+/// `codex exec` is always invoked with `-a never` (hardcoded in `CodexArguments`,
+/// never derived from configuration) since non-interactive runs have no TTY to
+/// answer an approval prompt; this configuration only controls sandboxing,
+/// timeouts, output bounds, and soft budgets.
+public struct CodexConfiguration: Codable, Sendable, Equatable {
+  /// Absolute path to the `codex` CLI executable.
+  public var executablePath: String
+
+  /// Default timeout in seconds for a `codex exec` invocation.
+  public var defaultTimeoutSeconds: Double
+
+  /// Hard ceiling on `timeoutSeconds` a caller may request for a single run.
+  public var maxTimeoutSeconds: Double
+
+  /// Maximum bytes captured from combined stdout/stderr for a single run.
+  public var maxOutputBytes: Int
+
+  /// Maximum lines captured from combined stdout/stderr for a single run.
+  public var maxOutputLines: Int
+
+  /// Maximum number of file-change items tolerated before a run is cancelled.
+  public var maxFileWritesPerRun: Int
+
+  /// Soft token budget. `nil` disables token-budget enforcement (default,
+  /// since `usage` field names are unverified pending live observation).
+  public var maxTokensPerRun: Int?
+
+  /// Soft estimated-cost budget in USD. `nil` disables cost enforcement.
+  public var maxEstimatedCostUSD: Double?
+
+  /// Price per token used to estimate cost from observed usage. `nil` means
+  /// cost is never estimated, only raw token counts are reported.
+  public var costPerTokenUSD: Double?
+
+  /// Whether `--ephemeral` (skip session persistence) is passed by default.
+  public var ephemeralByDefault: Bool
+
+  /// Whether `--skip-git-repo-check` is passed by default.
+  public var skipGitRepoCheckByDefault: Bool
+
+  /// Whether `--ignore-user-config` (skip `~/.codex/config.toml`) is passed
+  /// by default, favoring reproducibility over ambient user configuration.
+  public var ignoreUserConfigByDefault: Bool
+
+  /// Directories a run's working directory or `--add-dir` targets must fall
+  /// under.
+  public var allowedWorkingDirectories: Set<String>
+
+  public init(
+    executablePath: String = "/opt/homebrew/bin/codex",
+    defaultTimeoutSeconds: Double = 300.0,
+    maxTimeoutSeconds: Double = 1800.0,
+    maxOutputBytes: Int = 4_194_304,
+    maxOutputLines: Int = 50_000,
+    maxFileWritesPerRun: Int = 20,
+    maxTokensPerRun: Int? = nil,
+    maxEstimatedCostUSD: Double? = nil,
+    costPerTokenUSD: Double? = nil,
+    ephemeralByDefault: Bool = true,
+    skipGitRepoCheckByDefault: Bool = false,
+    ignoreUserConfigByDefault: Bool = true,
+    allowedWorkingDirectories: Set<String> = [
+      "$HOME",
+      "$TMPDIR",
+    ]
+  ) {
+    self.executablePath = executablePath
+    self.defaultTimeoutSeconds = defaultTimeoutSeconds
+    self.maxTimeoutSeconds = maxTimeoutSeconds
+    self.maxOutputBytes = maxOutputBytes
+    self.maxOutputLines = maxOutputLines
+    self.maxFileWritesPerRun = maxFileWritesPerRun
+    self.maxTokensPerRun = maxTokensPerRun
+    self.maxEstimatedCostUSD = maxEstimatedCostUSD
+    self.costPerTokenUSD = costPerTokenUSD
+    self.ephemeralByDefault = ephemeralByDefault
+    self.skipGitRepoCheckByDefault = skipGitRepoCheckByDefault
+    self.ignoreUserConfigByDefault = ignoreUserConfigByDefault
+    self.allowedWorkingDirectories = allowedWorkingDirectories
+  }
+
+  public func validate() throws(AuraError) {
+    guard !executablePath.isEmpty else {
+      throw AuraError.invalidConfiguration("codex executablePath must not be empty")
+    }
+    guard defaultTimeoutSeconds > 0 else {
+      throw AuraError.invalidConfiguration("codex defaultTimeoutSeconds must be positive")
+    }
+    guard maxTimeoutSeconds >= defaultTimeoutSeconds else {
+      throw AuraError.invalidConfiguration(
+        "codex maxTimeoutSeconds must be at least defaultTimeoutSeconds")
+    }
+    guard maxOutputBytes > 0 else {
+      throw AuraError.invalidConfiguration("codex maxOutputBytes must be positive")
+    }
+    guard maxOutputLines > 0 else {
+      throw AuraError.invalidConfiguration("codex maxOutputLines must be positive")
+    }
+    guard maxFileWritesPerRun > 0 else {
+      throw AuraError.invalidConfiguration("codex maxFileWritesPerRun must be positive")
+    }
+    if let maxTokensPerRun {
+      guard maxTokensPerRun > 0 else {
+        throw AuraError.invalidConfiguration("codex maxTokensPerRun must be positive when set")
+      }
+    }
+    if let maxEstimatedCostUSD {
+      guard maxEstimatedCostUSD > 0 else {
+        throw AuraError.invalidConfiguration("codex maxEstimatedCostUSD must be positive when set")
+      }
+    }
+    if let costPerTokenUSD {
+      guard costPerTokenUSD > 0 else {
+        throw AuraError.invalidConfiguration("codex costPerTokenUSD must be positive when set")
+      }
+    }
+    guard !allowedWorkingDirectories.isEmpty else {
+      throw AuraError.invalidConfiguration("codex allowedWorkingDirectories must not be empty")
+    }
+  }
+
+  /// Merge a partial configuration over the hard-coded defaults.
+  public func mergedWithDefaults() -> CodexConfiguration {
+    CodexConfiguration(
+      executablePath: self.executablePath.isEmpty
+        ? CodexConfiguration().executablePath
+        : self.executablePath,
+      defaultTimeoutSeconds: self.defaultTimeoutSeconds <= 0
+        ? CodexConfiguration().defaultTimeoutSeconds
+        : self.defaultTimeoutSeconds,
+      maxTimeoutSeconds: self.maxTimeoutSeconds <= 0
+        ? CodexConfiguration().maxTimeoutSeconds
+        : self.maxTimeoutSeconds,
+      maxOutputBytes: self.maxOutputBytes <= 0
+        ? CodexConfiguration().maxOutputBytes
+        : self.maxOutputBytes,
+      maxOutputLines: self.maxOutputLines <= 0
+        ? CodexConfiguration().maxOutputLines
+        : self.maxOutputLines,
+      maxFileWritesPerRun: self.maxFileWritesPerRun <= 0
+        ? CodexConfiguration().maxFileWritesPerRun
+        : self.maxFileWritesPerRun,
+      maxTokensPerRun: self.maxTokensPerRun,
+      maxEstimatedCostUSD: self.maxEstimatedCostUSD,
+      costPerTokenUSD: self.costPerTokenUSD,
+      ephemeralByDefault: self.ephemeralByDefault,
+      skipGitRepoCheckByDefault: self.skipGitRepoCheckByDefault,
+      ignoreUserConfigByDefault: self.ignoreUserConfigByDefault,
+      allowedWorkingDirectories: self.allowedWorkingDirectories.isEmpty
+        ? CodexConfiguration().allowedWorkingDirectories
+        : self.allowedWorkingDirectories
+    )
+  }
+
+  /// A `ShellConfiguration` scoped to only ever launch the configured Codex
+  /// binary. `ShellConfiguration`'s own defaults do not include
+  /// `/opt/homebrew/bin`, so callers must not widen the shared default
+  /// configuration just to accommodate Codex; a dedicated `AuraShell`
+  /// built from this narrow configuration is used instead.
+  public func derivedShellConfiguration() -> ShellConfiguration {
+    ShellConfiguration(
+      defaultTimeoutSeconds: defaultTimeoutSeconds,
+      maxOutputBytes: maxOutputBytes,
+      maxOutputLines: maxOutputLines,
+      allowedExecutablePaths: [executablePath],
+      allowedWorkingDirectories: allowedWorkingDirectories
+    )
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    executablePath =
+      try container.decodeIfPresent(String.self, forKey: .executablePath)
+      ?? "/opt/homebrew/bin/codex"
+    defaultTimeoutSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .defaultTimeoutSeconds) ?? 300.0
+    maxTimeoutSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .maxTimeoutSeconds) ?? 1800.0
+    maxOutputBytes =
+      try container.decodeIfPresent(Int.self, forKey: .maxOutputBytes) ?? 4_194_304
+    maxOutputLines =
+      try container.decodeIfPresent(Int.self, forKey: .maxOutputLines) ?? 50_000
+    maxFileWritesPerRun =
+      try container.decodeIfPresent(Int.self, forKey: .maxFileWritesPerRun) ?? 20
+    maxTokensPerRun = try container.decodeIfPresent(Int.self, forKey: .maxTokensPerRun)
+    maxEstimatedCostUSD =
+      try container.decodeIfPresent(Double.self, forKey: .maxEstimatedCostUSD)
+    costPerTokenUSD = try container.decodeIfPresent(Double.self, forKey: .costPerTokenUSD)
+    ephemeralByDefault =
+      try container.decodeIfPresent(Bool.self, forKey: .ephemeralByDefault) ?? true
+    skipGitRepoCheckByDefault =
+      try container.decodeIfPresent(Bool.self, forKey: .skipGitRepoCheckByDefault) ?? false
+    ignoreUserConfigByDefault =
+      try container.decodeIfPresent(Bool.self, forKey: .ignoreUserConfigByDefault) ?? true
+    allowedWorkingDirectories =
+      try container.decodeIfPresent(Set<String>.self, forKey: .allowedWorkingDirectories)
+      ?? [
+        "$HOME",
+        "$TMPDIR",
+      ]
+  }
+}
+
+/// Configuration for the Claude Code CLI adapter.
+///
+/// `claude -p` is always invoked with `--permission-mode dontAsk` (hardcoded
+/// in `ClaudeArguments`, never derived from configuration) — the same
+/// reasoning as `CodexConfiguration`: a non-interactive run has no TTY to
+/// answer a permission prompt, so any mode other than the deny-and-continue
+/// one could block forever. This configuration controls tool availability,
+/// hooks/settings scoping, timeouts, output bounds, and budgets.
+public struct ClaudeConfiguration: Codable, Sendable, Equatable {
+  /// Absolute path to the `claude` CLI executable.
+  public var executablePath: String
+
+  /// Default timeout in seconds for a `claude -p` invocation.
+  public var defaultTimeoutSeconds: Double
+
+  /// Hard ceiling on `timeoutSeconds` a caller may request for a single run.
+  public var maxTimeoutSeconds: Double
+
+  /// Maximum bytes captured from combined stdout/stderr for a single run.
+  public var maxOutputBytes: Int
+
+  /// Maximum lines captured from combined stdout/stderr for a single run.
+  public var maxOutputLines: Int
+
+  /// Estimated-cost budget in USD, enforced natively by the CLI via
+  /// `--max-budget-usd` when set. `nil` disables cost enforcement.
+  ///
+  /// Unlike `CodexConfiguration`, there is no `maxFileWritesPerRun`: the
+  /// authorized smoke test ran with `--tools ""`, so `tool_use`/`tool_result`
+  /// content-block field names were never observed and are not fabricated
+  /// here. `.readOnly` tool profile prevents writes by construction (no
+  /// write-capable tool exists in that tier) instead of by counting after
+  /// the fact — see ADR-012.
+  public var maxEstimatedCostUSD: Double?
+
+  /// Whether `--no-session-persistence` is passed by default.
+  public var ephemeralByDefault: Bool
+
+  /// Which settings layers (`user`, `project`, `local`) `--setting-sources`
+  /// loads. Defaults to `["user"]` only — excluding `project`/`local` means
+  /// a target repository's own `.claude/settings.json`/`settings.local.json`
+  /// (where hooks and `.mcp.json`-referenced servers are configured) never
+  /// loads, while the operating user's own trusted `~/.claude/settings.json`
+  /// still does. `--bare` (which also skips OAuth/keychain auth) is
+  /// deliberately not the default; see ADR-012.
+  public var settingSources: Set<String>
+
+  /// Built-in tool names available in the read-only tier (`--tools`).
+  public var readOnlyTools: [String]
+
+  /// Built-in tool names available in the workspace-write tier (`--tools`).
+  public var workspaceWriteTools: [String]
+
+  /// Directories a run's working directory or `--add-dir` targets must fall
+  /// under.
+  public var allowedWorkingDirectories: Set<String>
+
+  public init(
+    executablePath: String = "/opt/homebrew/bin/claude",
+    defaultTimeoutSeconds: Double = 300.0,
+    maxTimeoutSeconds: Double = 1800.0,
+    maxOutputBytes: Int = 4_194_304,
+    maxOutputLines: Int = 50_000,
+    maxEstimatedCostUSD: Double? = nil,
+    ephemeralByDefault: Bool = true,
+    settingSources: Set<String> = ["user"],
+    readOnlyTools: [String] = ["Read", "Grep", "Glob"],
+    workspaceWriteTools: [String] = ["Bash", "Read", "Edit", "Write", "Grep", "Glob"],
+    allowedWorkingDirectories: Set<String> = [
+      "$HOME",
+      "$TMPDIR",
+    ]
+  ) {
+    self.executablePath = executablePath
+    self.defaultTimeoutSeconds = defaultTimeoutSeconds
+    self.maxTimeoutSeconds = maxTimeoutSeconds
+    self.maxOutputBytes = maxOutputBytes
+    self.maxOutputLines = maxOutputLines
+    self.maxEstimatedCostUSD = maxEstimatedCostUSD
+    self.ephemeralByDefault = ephemeralByDefault
+    self.settingSources = settingSources
+    self.readOnlyTools = readOnlyTools
+    self.workspaceWriteTools = workspaceWriteTools
+    self.allowedWorkingDirectories = allowedWorkingDirectories
+  }
+
+  public func validate() throws(AuraError) {
+    guard !executablePath.isEmpty else {
+      throw AuraError.invalidConfiguration("claude executablePath must not be empty")
+    }
+    guard defaultTimeoutSeconds > 0 else {
+      throw AuraError.invalidConfiguration("claude defaultTimeoutSeconds must be positive")
+    }
+    guard maxTimeoutSeconds >= defaultTimeoutSeconds else {
+      throw AuraError.invalidConfiguration(
+        "claude maxTimeoutSeconds must be at least defaultTimeoutSeconds")
+    }
+    guard maxOutputBytes > 0 else {
+      throw AuraError.invalidConfiguration("claude maxOutputBytes must be positive")
+    }
+    guard maxOutputLines > 0 else {
+      throw AuraError.invalidConfiguration("claude maxOutputLines must be positive")
+    }
+    if let maxEstimatedCostUSD {
+      guard maxEstimatedCostUSD > 0 else {
+        throw AuraError.invalidConfiguration("claude maxEstimatedCostUSD must be positive when set")
+      }
+    }
+    guard !readOnlyTools.isEmpty else {
+      throw AuraError.invalidConfiguration("claude readOnlyTools must not be empty")
+    }
+    guard !workspaceWriteTools.isEmpty else {
+      throw AuraError.invalidConfiguration("claude workspaceWriteTools must not be empty")
+    }
+    guard !allowedWorkingDirectories.isEmpty else {
+      throw AuraError.invalidConfiguration("claude allowedWorkingDirectories must not be empty")
+    }
+  }
+
+  /// Merge a partial configuration over the hard-coded defaults.
+  public func mergedWithDefaults() -> ClaudeConfiguration {
+    ClaudeConfiguration(
+      executablePath: self.executablePath.isEmpty
+        ? ClaudeConfiguration().executablePath
+        : self.executablePath,
+      defaultTimeoutSeconds: self.defaultTimeoutSeconds <= 0
+        ? ClaudeConfiguration().defaultTimeoutSeconds
+        : self.defaultTimeoutSeconds,
+      maxTimeoutSeconds: self.maxTimeoutSeconds <= 0
+        ? ClaudeConfiguration().maxTimeoutSeconds
+        : self.maxTimeoutSeconds,
+      maxOutputBytes: self.maxOutputBytes <= 0
+        ? ClaudeConfiguration().maxOutputBytes
+        : self.maxOutputBytes,
+      maxOutputLines: self.maxOutputLines <= 0
+        ? ClaudeConfiguration().maxOutputLines
+        : self.maxOutputLines,
+      maxEstimatedCostUSD: self.maxEstimatedCostUSD,
+      ephemeralByDefault: self.ephemeralByDefault,
+      settingSources: self.settingSources.isEmpty
+        ? ClaudeConfiguration().settingSources
+        : self.settingSources,
+      readOnlyTools: self.readOnlyTools.isEmpty
+        ? ClaudeConfiguration().readOnlyTools
+        : self.readOnlyTools,
+      workspaceWriteTools: self.workspaceWriteTools.isEmpty
+        ? ClaudeConfiguration().workspaceWriteTools
+        : self.workspaceWriteTools,
+      allowedWorkingDirectories: self.allowedWorkingDirectories.isEmpty
+        ? ClaudeConfiguration().allowedWorkingDirectories
+        : self.allowedWorkingDirectories
+    )
+  }
+
+  /// A `ShellConfiguration` scoped to only ever launch the configured Claude
+  /// binary. `ShellConfiguration`'s own defaults do not include
+  /// `/opt/homebrew/bin`, so callers must not widen the shared default
+  /// configuration just to accommodate Claude; a dedicated `AuraShell` built
+  /// from this narrow configuration is used instead.
+  public func derivedShellConfiguration() -> ShellConfiguration {
+    ShellConfiguration(
+      defaultTimeoutSeconds: defaultTimeoutSeconds,
+      maxOutputBytes: maxOutputBytes,
+      maxOutputLines: maxOutputLines,
+      allowedExecutablePaths: [executablePath],
+      allowedWorkingDirectories: allowedWorkingDirectories
+    )
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    executablePath =
+      try container.decodeIfPresent(String.self, forKey: .executablePath)
+      ?? "/opt/homebrew/bin/claude"
+    defaultTimeoutSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .defaultTimeoutSeconds) ?? 300.0
+    maxTimeoutSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .maxTimeoutSeconds) ?? 1800.0
+    maxOutputBytes =
+      try container.decodeIfPresent(Int.self, forKey: .maxOutputBytes) ?? 4_194_304
+    maxOutputLines =
+      try container.decodeIfPresent(Int.self, forKey: .maxOutputLines) ?? 50_000
+    maxEstimatedCostUSD =
+      try container.decodeIfPresent(Double.self, forKey: .maxEstimatedCostUSD)
+    ephemeralByDefault =
+      try container.decodeIfPresent(Bool.self, forKey: .ephemeralByDefault) ?? true
+    settingSources =
+      try container.decodeIfPresent(Set<String>.self, forKey: .settingSources) ?? ["user"]
+    readOnlyTools =
+      try container.decodeIfPresent([String].self, forKey: .readOnlyTools)
+      ?? ["Read", "Grep", "Glob"]
+    workspaceWriteTools =
+      try container.decodeIfPresent([String].self, forKey: .workspaceWriteTools)
+      ?? ["Bash", "Read", "Edit", "Write", "Grep", "Glob"]
+    allowedWorkingDirectories =
+      try container.decodeIfPresent(Set<String>.self, forKey: .allowedWorkingDirectories)
+      ?? [
+        "$HOME",
+        "$TMPDIR",
+      ]
+  }
+}
+
+/// Configuration for the GitHub Copilot CLI adapter.
+///
+/// `copilot -p` (non-interactive mode) always runs with `--disable-builtin-mcps`
+/// (the built-in `github-mcp-server` can create real, team-visible GitHub API
+/// side effects — out of scope for local execution) and never with
+/// `--allow-all`/`--yolo`/`--allow-all-paths`/`--allow-all-urls`/`--remote`/
+/// `--remote-export`/`--share`/`--share-gist` (all unreachable by
+/// construction). See ADR-013.
+public struct CopilotConfiguration: Codable, Sendable, Equatable {
+  /// Absolute path to the `copilot` CLI executable.
+  public var executablePath: String
+
+  /// Default timeout in seconds for a `copilot -p` invocation.
+  public var defaultTimeoutSeconds: Double
+
+  /// Hard ceiling on `timeoutSeconds` a caller may request for a single run.
+  public var maxTimeoutSeconds: Double
+
+  /// Maximum bytes captured from combined stdout/stderr for a single run.
+  public var maxOutputBytes: Int
+
+  /// Maximum lines captured from combined stdout/stderr for a single run.
+  public var maxOutputLines: Int
+
+  /// Soft AI-credit budget, enforced natively by the CLI via
+  /// `--max-ai-credits` when set. `nil` disables credit-budget enforcement.
+  public var maxAICredits: Int?
+
+  /// Maximum number of files the CLI's own `result.usage.codeChanges
+  /// .filesModified` may report before a run is flagged as having exceeded
+  /// its file-write budget. This is a post-hoc observability check (the run
+  /// has already finished by the time the final `result` is known), not a
+  /// live pre-emptive cancel — the CLI does not stream a per-file-write event
+  /// this phase's normalizer decodes.
+  public var maxFileWritesPerRun: Int
+
+  /// Whether repository custom instructions (`.github/copilot-instructions.md`,
+  /// `AGENTS.md`, etc.) are loaded by default. When `true`, `CopilotAdapter`
+  /// still scans them for secret patterns before every run regardless of
+  /// `scanRepositoryInstructionsForSecrets`.
+  public var loadCustomInstructionsByDefault: Bool
+
+  /// Whether repository-customization files are scanned for secret-looking
+  /// content before a run; a match causes the run to be refused.
+  public var scanRepositoryInstructionsForSecrets: Bool
+
+  /// Directories a run's working directory or `--add-dir` targets must fall
+  /// under.
+  public var allowedWorkingDirectories: Set<String>
+
+  public init(
+    executablePath: String = "/opt/homebrew/bin/copilot",
+    defaultTimeoutSeconds: Double = 300.0,
+    maxTimeoutSeconds: Double = 1800.0,
+    maxOutputBytes: Int = 4_194_304,
+    maxOutputLines: Int = 50_000,
+    maxAICredits: Int? = nil,
+    maxFileWritesPerRun: Int = 20,
+    loadCustomInstructionsByDefault: Bool = true,
+    scanRepositoryInstructionsForSecrets: Bool = true,
+    allowedWorkingDirectories: Set<String> = [
+      "$HOME",
+      "$TMPDIR",
+    ]
+  ) {
+    self.executablePath = executablePath
+    self.defaultTimeoutSeconds = defaultTimeoutSeconds
+    self.maxTimeoutSeconds = maxTimeoutSeconds
+    self.maxOutputBytes = maxOutputBytes
+    self.maxOutputLines = maxOutputLines
+    self.maxAICredits = maxAICredits
+    self.maxFileWritesPerRun = maxFileWritesPerRun
+    self.loadCustomInstructionsByDefault = loadCustomInstructionsByDefault
+    self.scanRepositoryInstructionsForSecrets = scanRepositoryInstructionsForSecrets
+    self.allowedWorkingDirectories = allowedWorkingDirectories
+  }
+
+  public func validate() throws(AuraError) {
+    guard !executablePath.isEmpty else {
+      throw AuraError.invalidConfiguration("copilot executablePath must not be empty")
+    }
+    guard defaultTimeoutSeconds > 0 else {
+      throw AuraError.invalidConfiguration("copilot defaultTimeoutSeconds must be positive")
+    }
+    guard maxTimeoutSeconds >= defaultTimeoutSeconds else {
+      throw AuraError.invalidConfiguration(
+        "copilot maxTimeoutSeconds must be at least defaultTimeoutSeconds")
+    }
+    guard maxOutputBytes > 0 else {
+      throw AuraError.invalidConfiguration("copilot maxOutputBytes must be positive")
+    }
+    guard maxOutputLines > 0 else {
+      throw AuraError.invalidConfiguration("copilot maxOutputLines must be positive")
+    }
+    if let maxAICredits {
+      guard maxAICredits > 0 else {
+        throw AuraError.invalidConfiguration("copilot maxAICredits must be positive when set")
+      }
+    }
+    guard maxFileWritesPerRun > 0 else {
+      throw AuraError.invalidConfiguration("copilot maxFileWritesPerRun must be positive")
+    }
+    guard !allowedWorkingDirectories.isEmpty else {
+      throw AuraError.invalidConfiguration("copilot allowedWorkingDirectories must not be empty")
+    }
+  }
+
+  /// Merge a partial configuration over the hard-coded defaults.
+  public func mergedWithDefaults() -> CopilotConfiguration {
+    CopilotConfiguration(
+      executablePath: self.executablePath.isEmpty
+        ? CopilotConfiguration().executablePath
+        : self.executablePath,
+      defaultTimeoutSeconds: self.defaultTimeoutSeconds <= 0
+        ? CopilotConfiguration().defaultTimeoutSeconds
+        : self.defaultTimeoutSeconds,
+      maxTimeoutSeconds: self.maxTimeoutSeconds <= 0
+        ? CopilotConfiguration().maxTimeoutSeconds
+        : self.maxTimeoutSeconds,
+      maxOutputBytes: self.maxOutputBytes <= 0
+        ? CopilotConfiguration().maxOutputBytes
+        : self.maxOutputBytes,
+      maxOutputLines: self.maxOutputLines <= 0
+        ? CopilotConfiguration().maxOutputLines
+        : self.maxOutputLines,
+      maxAICredits: self.maxAICredits,
+      maxFileWritesPerRun: self.maxFileWritesPerRun <= 0
+        ? CopilotConfiguration().maxFileWritesPerRun
+        : self.maxFileWritesPerRun,
+      loadCustomInstructionsByDefault: self.loadCustomInstructionsByDefault,
+      scanRepositoryInstructionsForSecrets: self.scanRepositoryInstructionsForSecrets,
+      allowedWorkingDirectories: self.allowedWorkingDirectories.isEmpty
+        ? CopilotConfiguration().allowedWorkingDirectories
+        : self.allowedWorkingDirectories
+    )
+  }
+
+  /// A `ShellConfiguration` scoped to only ever launch the configured
+  /// Copilot binary. `ShellConfiguration`'s own defaults do not include
+  /// `/opt/homebrew/bin`, so callers must not widen the shared default
+  /// configuration just to accommodate Copilot; a dedicated `AuraShell`
+  /// built from this narrow configuration is used instead.
+  public func derivedShellConfiguration() -> ShellConfiguration {
+    ShellConfiguration(
+      defaultTimeoutSeconds: defaultTimeoutSeconds,
+      maxOutputBytes: maxOutputBytes,
+      maxOutputLines: maxOutputLines,
+      allowedExecutablePaths: [executablePath],
+      allowedWorkingDirectories: allowedWorkingDirectories
+    )
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    executablePath =
+      try container.decodeIfPresent(String.self, forKey: .executablePath)
+      ?? "/opt/homebrew/bin/copilot"
+    defaultTimeoutSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .defaultTimeoutSeconds) ?? 300.0
+    maxTimeoutSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .maxTimeoutSeconds) ?? 1800.0
+    maxOutputBytes =
+      try container.decodeIfPresent(Int.self, forKey: .maxOutputBytes) ?? 4_194_304
+    maxOutputLines =
+      try container.decodeIfPresent(Int.self, forKey: .maxOutputLines) ?? 50_000
+    maxAICredits = try container.decodeIfPresent(Int.self, forKey: .maxAICredits)
+    maxFileWritesPerRun =
+      try container.decodeIfPresent(Int.self, forKey: .maxFileWritesPerRun) ?? 20
+    loadCustomInstructionsByDefault =
+      try container.decodeIfPresent(Bool.self, forKey: .loadCustomInstructionsByDefault) ?? true
+    scanRepositoryInstructionsForSecrets =
+      try container.decodeIfPresent(Bool.self, forKey: .scanRepositoryInstructionsForSecrets)
+      ?? true
     allowedWorkingDirectories =
       try container.decodeIfPresent(Set<String>.self, forKey: .allowedWorkingDirectories)
       ?? [
