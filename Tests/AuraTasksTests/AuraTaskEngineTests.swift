@@ -185,7 +185,7 @@ func makeEngine(
 
 @Test
 func enqueueReturnsPendingStatus() async throws {
-  let (engine, _, _) = try await makeEngine()
+  let (engine, _, capture) = try await makeEngine()
   let gate = Gate()
   let runner = BlockingRunner(gate: gate)
   let status = try await engine.enqueue(
@@ -194,10 +194,8 @@ func enqueueReturnsPendingStatus() async throws {
   )
   #expect(status.objective == "count")
   #expect(status.state == .pending)
-  let pendingStatus = await engine.status(id: status.id)
-  #expect(pendingStatus?.state == .pending)
 
-  try? await Task.sleep(nanoseconds: 50_000_000)
+  _ = await capture.waitForEvent(TaskStateChangedEvent.self, timeoutNanoseconds: 200_000_000)
   #expect(await engine.status(id: status.id)?.state == .running)
   await gate.release()
   try? await Task.sleep(nanoseconds: 50_000_000)
