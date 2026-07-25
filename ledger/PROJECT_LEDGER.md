@@ -1025,3 +1025,93 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Current state:** Phase 10, Phase 11, and Phase 12 all complete and verified locally. Working tree not yet committed (commit/push requires explicit user authorization per AGENTS.md).
 - **Next safe action:** Review the Phase 10 + 11 + 12 diff with the user and, on approval, commit; then proceed to Phase 13 per the roadmap (`prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md`) only when the user next signals to continue.
 - **Integrity hash:** intentionally omitted.
+
+### 2026-07-25T20:55:00Z — 10_CODEX_ADAPTER,11_CLAUDE_ADAPTER,12_COPILOT_ADAPTER — Commit and push authorized
+
+- **Actor:** Claude Sonnet 5 (Claude Code)
+- **Objective:** User explicitly authorized ("pushh commit merge and go next be perfectly apply") committing and pushing the completed, verified Phase 10–12 work, then proceeding to the next phase.
+- **Starting state:** Phase 10, 11, and 12 complete and verified locally per the entries above; working tree on `main`, 1 commit behind nothing (up to date with `origin/main` at `45e6409`), all Phase 10–12 files staged-ready but uncommitted.
+- **Decisions:** Committed all Phase 10–12 source, test, fixture, doc, and ledger files as a single commit (`6e6537a`) rather than three phase-boundary commits — the files most heavily touched (`ActorID.swift`, `PolicyTypes.swift`, `AuraConfiguration.swift`) were edited cumulatively across all three phases in the same working session, and splitting them via partial staging would have been error-prone with no real benefit; the four ledger entries above already provide full per-phase detail. Pushed directly to `origin/main`, matching this repository's established workflow (Phase 8/9 commits also went directly to `main`, no PR). No separate branch existed, so "merge" was satisfied by the direct push — there was nothing to merge.
+- **Commands executed:**
+  - `git add` (59 explicit paths spanning `Sources/AuraAgent/{Codex,Claude,Copilot}*.swift`, `Sources/AuraCore/{ActorID,AuraConfiguration,PolicyTypes,ClaudeEventPayloads,CodexEventPayloads,CopilotEventPayloads}.swift`, `Sources/AuraShell/{AuraShell,Command,ProcessRunner}.swift`, `Tests/AuraAgentTests/{Codex,Claude,Copilot}*.swift` + `Fixtures/`, `Tests/AuraShellTests/{AuraShellTests,ProcessRunnerStreamingTests}.swift`, `docs/decisions/ADR-011/012/013-*.md`, `ledger/{CURRENT_STATE,PROJECT_LEDGER}.md`) — no `git add -A`/`-A` used
+  - `git commit` — created `6e6537a` ("feat(phase-10-12): add Codex, Claude, and GitHub Copilot CLI adapters"), 59 files changed
+  - `git push origin main` — `45e6409..6e6537a main -> main`, succeeded
+- **Security/privacy impact:** None beyond what Phase 10–12's own entries already document; no secrets were staged (verified via the same secret-pattern grep sweep those entries describe, re-run immediately before staging).
+- **Current state:** `origin/main` at `6e6537a`. Working tree clean.
+- **Next safe action:** Proceed to Phase 13 — Ollama Local Model Adapter.
+- **Integrity hash:** intentionally omitted.
+
+### 2026-07-25T21:40:00Z — 13_OLLAMA_ADAPTER — Ollama local model adapter implementation
+
+- **Actor:** Claude Sonnet 5 (Claude Code)
+- **Objective:** Execute Phase 13 (`prompts/implementation/13_13_OLLAMA_ADAPTER.prompt.md`): implement the Ollama model registry, capability routing, structured-output validation, model lifecycle, memory budget, health checks, and degraded mode.
+- **Starting state:** Phase 10–12 committed and pushed as `6e6537a` on `origin/main`. No Ollama-specific code existed. `ollama` CLI/daemon confirmed installed (`ollama version 0.32.3` at `/opt/homebrew/bin/ollama`), `ollama serve` already running and reachable at `http://127.0.0.1:11434`, one local model present (`gemma4:latest`, 9.6 GB) alongside several `:cloud` models.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`
+  - `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §6 (confirmed Phase 13 = Ollama Local Model Adapter), `prompts/implementation/13_13_OLLAMA_ADAPTER.prompt.md`, `docs/subsystems/20_OLLAMA_CONTROLLER.md`
+  - `docs/decisions/ADR-011/012/013-*.md` (architecture surveyed, ultimately not reused directly — see Decisions)
+  - `ollama --help`; real HTTP calls to the already-running local daemon: `GET /api/version`, `GET /api/tags`, `POST /api/show`, `GET /api/ps` (before/after load, before/after `keep_alive: 0` unload), `POST /api/generate` (plain, with a real JSON Schema `format`, and against a nonexistent model for the 404 error shape), `POST /api/chat`
+  - `sysctl -n hw.memsize` (confirmed this machine matches the documented 16 GB target profile)
+- **Assumptions:**
+  - `/api/show`'s `model_info` uses per-architecture dynamic key prefixes (e.g. `gemma4.context_length`) that cannot be consumed generically without guessing; not used anywhere in this implementation (see Decisions).
+  - Both authorized real API calls used trivial, harmless local-only prompts; no external network or account quota was touched at any point in this phase (materially different from Phase 10–12's quota-consuming smoke tests).
+  - Multi-turn session continuation (`/api/generate`'s `context` array) is out of scope, matching the `resume`-scoping precedent set by Codex/Claude/Copilot.
+- **Decisions:**
+  - Determined this phase is architecturally distinct from Phase 10–12: Ollama exposes a local HTTP API, not a CLI to spawn, so the `AdapterProcessExecuting`/`Command`/`ProcessRunner` machinery is not reused; a new `OllamaAPIClient` protocol (+ `URLSessionOllamaAPIClient`) plays the equivalent test-seam role, requiring no new `Package.swift` dependency since `URLSession` is part of Foundation.
+  - Discovered `/api/tags` already reports per-model `capabilities` and `size`, making a separate `/api/show` call unnecessary for the registry; `/api/show`'s dynamic per-architecture `model_info` keys are documented as a known, deliberately-unconsumed gap rather than fabricated.
+  - Discovered a model's local-vs-cloud status is only reliably determined by the real `remote_host` field (present on every `:cloud` model, absent on the genuinely local `gemma4:latest`) — the `:cloud` name suffix is a convention, not a contract. Added `Capability.agentOllamaLocalInference` (`.reversible`) / `.agentOllamaCloudInference` (`.destructive`) to `PolicyTypes.swift`, selected by `OllamaPolicyAdapter` from the routed model's real `isLocal` flag.
+  - Verified `format` (a real JSON Schema object) genuinely constrains `/api/generate` output against the real local `gemma4:latest` model (returned exactly `{"classification":"urgent"}` for a two-label schema). Built `OllamaFormatSchema`, a narrow purpose-built schema type (not a generic JSON-value type) covering exactly the `classification`/`summary` shapes this phase needs; `OllamaStructuredRequest` decodes and independently re-validates every response (e.g. re-checking the returned label is in the caller's requested set) rather than trusting the server-side constraint alone.
+  - Verified `keep_alive` is Ollama's real idle-unload mechanism (`keep_alive: 0` unloads immediately with `done_reason: "unload"`; a positive value leaves the model resident with a real `expires_at` in `/api/ps`) — this phase delegates idle unload to the daemon entirely rather than re-implementing a timer.
+  - Implemented active, pre-emptive memory-budget enforcement in `OllamaAdapter.ensureMemoryBudget`, using real `/api/ps` `size_vram` data: evicts other resident models (oldest-`expires_at`-first, via `keep_alive: 0`) before a new model load if needed, or enters degraded mode if the model still would not fit. This is the one adapter among the four (Codex/Claude/Copilot/Ollama) that can act pre-emptively rather than only observing after the fact, since resident state is queryable before committing to inference.
+  - Added `ProcessInfo.processInfo.thermalState` awareness (a real, already-available Foundation API), injected via a `thermalStateProvider` closure for testability; `.critical` refuses new model loads before routing or policy is evaluated.
+  - Implemented graceful degradation as a caller-supplied deterministic closure (`deterministicFallback`) rather than a bespoke rule engine embedded in the subsystem — reused the precedent `ConversationConfiguration.deterministicStopCommands` already established (caller-owned rules) instead of building a second, competing mechanism. `.reason` (open-ended reasoning) deliberately offers no fallback parameter at all, since no honest deterministic substitute exists for free-form reasoning.
+  - `OllamaModelRegistry.route(capability:allowCloudModels:)` selects deterministically by real fields only (raw `"completion"` capability required; `"thinking"` preferred for `.reasoning`; cloud excluded unless explicitly allowed; smallest `sizeBytes` wins) — callers never name a model, satisfying "routed by capability, not name" structurally.
+  - `OllamaAdapter` has no `cancel(executionID:)` method (unlike the three CLI adapters) — each capability call is a single `async throws` request, not a stream; documented as a genuine architectural difference, not an oversight.
+  - Implemented `Sources/AuraAgent/{OllamaAPIClient,OllamaModelRegistry,OllamaStructuredRequest,OllamaApprovalPresenting,OllamaPolicyAdapter,OllamaAdapter,OllamaTaskRunner}.swift` and `Sources/AuraCore/OllamaEventPayloads.swift`.
+  - Wrote `docs/decisions/ADR-014-ollama-adapter.md`.
+  - Found and fixed a real test-design bug during verification: `OllamaTestFixtures.localModel()`'s default synthetic size initially mirrored the real `gemma4:latest` size (~9.6 GB), exceeding `OllamaConfiguration`'s own conservative 6 GB default budget — causing two "happy path" tests to legitimately hit the (correctly functioning) budget-exceeded path instead of testing success. Fixed by lowering the fixture default to 2 GB.
+- **Files changed:**
+  - `Sources/AuraCore/ActorID.swift` — `AuraError.ollamaError` (`.agentOllama` `ActorID` case already existed from an earlier phase)
+  - `Sources/AuraCore/PolicyTypes.swift` — `Capability.agentOllamaLocalInference`/`agentOllamaCloudInference`
+  - `Sources/AuraCore/AuraConfiguration.swift` — `OllamaConfiguration` (loopback-only `baseURL` validation, `maxResidentModelBytes`, `keepAliveSeconds`, `allowCloudModels`, `thermalAwarenessEnabled`), wired into `AuraConfiguration`
+  - `Sources/AuraCore/OllamaEventPayloads.swift` — new, `ollama.*` audit event payloads
+  - `Sources/AuraAgent/OllamaAPIClient.swift` — new
+  - `Sources/AuraAgent/OllamaModelRegistry.swift` — new
+  - `Sources/AuraAgent/OllamaStructuredRequest.swift` — new
+  - `Sources/AuraAgent/OllamaApprovalPresenting.swift` — new
+  - `Sources/AuraAgent/OllamaPolicyAdapter.swift` — new
+  - `Sources/AuraAgent/OllamaAdapter.swift` — new
+  - `Sources/AuraAgent/OllamaTaskRunner.swift` — new
+  - `Tests/AuraAgentTests/OllamaTestSupport.swift` — new, shared `FakeOllamaAPIClient` + fixture builders
+  - `Tests/AuraAgentTests/OllamaAPIClientTests.swift` — new
+  - `Tests/AuraAgentTests/OllamaModelRegistryTests.swift` — new
+  - `Tests/AuraAgentTests/OllamaStructuredRequestTests.swift` — new
+  - `Tests/AuraAgentTests/OllamaAdapterTests.swift` — new
+  - `Tests/AuraAgentTests/OllamaTaskRunnerTests.swift` — new
+  - `Tests/AuraAgentTests/Fixtures/ollama_{version,tags,ps,generate_structured,error_404}_real.json` — new, real captured local API responses
+  - `docs/decisions/ADR-014-ollama-adapter.md` — new
+- **Commands executed:**
+  - `curl http://localhost:11434/api/version` / `/api/tags` / `/api/ps` / `/api/show` (real, local, no auth/quota) — all exit 0
+  - `curl http://localhost:11434/api/generate -d '{"model":"gemma4:latest","prompt":"...","format":{...enum...}}'` (real, local) — returned `{"classification":"urgent"}`, confirming structured-output enforcement against a real local model
+  - `curl http://localhost:11434/api/generate -d '{"model":"nonexistent-model-xyz:latest",...}'` — HTTP 404, `{"error":"model '...' not found"}`
+  - `swift build --build-path /tmp/aurabuild-final13` — exit 0, zero non-linker warnings
+  - `./scripts/aura-test.sh /tmp/aurabuild-final13` (full default sweep) — 8/8 bundles pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-final13 AuraPolicyTests` — 17/17 pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-final13 AuraTasksTests` — 10/10 pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-final13 AuraVSCodeTests` — 13/13 pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-ollama AuraAgentTests` run 3× consecutively during implementation — 171/171 pass each time, no flakiness
+  - Secret-pattern grep (`sk-`, `AKIA`, `ghp_`/`gh[pousr]_`, PEM private-key headers, JWT shape) across every new Ollama file — no matches
+- **Tests and exact results:**
+  - `AuraAgentTests`: 171/171 pass (130 pre-existing Codex/Claude/Copilot/Conversation tests unmodified + 41 new Ollama tests spanning fixture-based DTO decoding against real captured responses, registry routing rules, structured-request validation and re-validation, adapter policy-gate/health/thermal/memory-budget/degraded-mode behavior, and full `AuraTaskEngine` integration)
+  - `AURAIntegrationTests`, `AuraAudioTests`, `AuraAutomationTests`, `AuraCoreTests`, `AuraSTTTests`, `AuraShellTests`, `AuraStoreTests`, `AuraPolicyTests`, `AuraTasksTests`, `AuraVSCodeTests`: all pass unchanged
+  - Combined total across all 11 bundles: 270 tests, 0 failures
+- **Security/privacy impact:** `OllamaConfiguration.baseURL` is structurally restricted to loopback hosts (`127.0.0.1`/`::1`/`localhost`) by `validate()` — no configuration can point AURA's Ollama traffic off-device. Cloud-proxied inference (`.agentOllamaCloudInference`, `.destructive`) is denied by default and requires an explicit user `Grant`, identical in spirit to the write-capable tiers of the other three adapters. Structured output is independently decoded and re-validated regardless of the server-side `format` constraint. No prompt or completion text appears in any audit event payload. Every real HTTP call made during implementation was local-only and harmless, consuming no external account quota.
+- **Unresolved risks:**
+  - `/api/show`'s deeper `model_info` (per-architecture context length, exact parameter counts) is never consumed — the registry uses only `/api/tags`'s fields, sufficient for this phase but coarser than theoretically possible.
+  - `maxResidentModelBytes`'s 6 GB default is a reasoned starting point, not benchmarked against real concurrent STT/TTS/vision footprints on the documented 16 GB target device (`docs/subsystems/20_OLLAMA_CONTROLLER.md`'s own "benchmark actual target hardware" item remains open).
+  - No successful `assistant`-with-text-content equivalent concern applies here (unlike Copilot) since real successful structured and free-form responses were both actually observed — but multi-turn session continuation remains entirely unimplemented.
+  - Same pre-existing gaps carried from Phase 10–12: `AuraShell.execute`'s policy gap (not applicable to Ollama, which never uses `AuraShell`); `scripts/aura-test.sh`'s default loop omits `AuraPolicyTests`/`AuraTasksTests`/`AuraVSCodeTests`; none of the four adapters are wired into the `AURA` app composition root yet.
+- **Rollback:** Revert this commit; remove `Sources/AuraAgent/Ollama*.swift`, `Sources/AuraCore/OllamaEventPayloads.swift`, `Tests/AuraAgentTests/Ollama*.swift` and `Fixtures/ollama_*_real.json`, `docs/decisions/ADR-014-ollama-adapter.md`; revert `Sources/AuraCore/{ActorID,AuraConfiguration,PolicyTypes}.swift`.
+- **Current state:** Phase 13 Ollama local model adapter implementation complete and verified locally. Working tree not yet committed (commit/push requires explicit user authorization per AGENTS.md).
+- **Next safe action:** Review this diff with the user and, on approval, commit and push; then proceed to Phase 14 — Multi-Agent Orchestration only when the user next signals to continue.
+- **Integrity hash:** intentionally omitted.

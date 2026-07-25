@@ -96,6 +96,16 @@ extension Capability {
   public static let agentCopilotReadOnly = Capability(
     domain: "agent", action: "copilotReadOnly", riskTier: .reversible)
 
+  /// Run inference against a genuinely local Ollama model (no `remote_host`
+  /// on the tag entry) — prompt content never leaves the device.
+  public static let agentOllamaLocalInference = Capability(
+    domain: "agent", action: "ollamaLocalInference", riskTier: .reversible)
+  /// Run inference against an Ollama `:cloud` model whose tag entry reports a
+  /// `remote_host` — the prompt is proxied to Ollama's hosted backend, which
+  /// is external communication / sensitive-data access under this tier.
+  public static let agentOllamaCloudInference = Capability(
+    domain: "agent", action: "ollamaCloudInference", riskTier: .destructive)
+
   /// Convenience identifier used for pattern matching and event logging.
   public var identifier: String { "\(domain).\(action)" }
 }

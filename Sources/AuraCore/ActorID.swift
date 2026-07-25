@@ -45,6 +45,7 @@ public enum AuraError: Error, Sendable, Equatable {
   case codexError(String)
   case claudeError(String)
   case copilotError(String)
+  case ollamaError(String)
 }
 
 extension AuraError: LocalizedError {
@@ -90,6 +91,8 @@ extension AuraError: LocalizedError {
       return "Claude error: \(detail)"
     case .copilotError(let detail):
       return "Copilot error: \(detail)"
+    case .ollamaError(let detail):
+      return "Ollama error: \(detail)"
     }
   }
 }
