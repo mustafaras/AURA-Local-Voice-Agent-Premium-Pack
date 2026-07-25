@@ -5,7 +5,7 @@ This file is a compact, atomically replaced projection of the append-only ledger
 - Phase: Durable Task Engine complete
 - Active milestone: 9
 - Active task: 09_DURABLE_TASK_ENGINE — completed
-- Last verified commit: (pending Phase 9 commit)
+- Last verified commit: 2f720c1 (origin/main)
 - Build status: Passes (`swift build` with Swift 6.4 CommandLineTools)
 - Test status: Passes via `./scripts/aura-test.sh /tmp/aurabuild-final`; all 10 test bundles pass, including 10 `AuraTasksTests`, 13 `AuraVSCodeTests`, and previously passing AuraAgentTests, AuraAudioTests, AuraAutomationTests, AuraCoreTests, AuraPolicyTests, AuraSTTTests, AuraShellTests, AuraStoreTests, AURAIntegrationTests
 - Known blockers: None

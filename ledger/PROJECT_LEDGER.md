@@ -730,3 +730,35 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Current state:** Phase 9 durable task engine implementation complete. All tests pass.
 - **Next safe action:** Begin next implementation phase as defined by the roadmap (Phase 10 — Computer Use / native macOS tool adapters) after reviewing `ledger/CURRENT_STATE.md`.
 - **Integrity hash:** intentionally omitted.
+
+### 2026-07-23T18:55:00Z — 09_DURABLE_TASK_ENGINE — Final verification and race fix
+
+- **Actor:** GitHub Copilot
+- **Objective:** Eliminate remaining nondeterminism in `enqueueReturnsPendingStatus` and confirm Phase 9 is stable across full test suite.
+- **Starting state:** Commit `ec7630a` (origin/main) already contained Phase 9. A fresh run found `enqueueReturnsPendingStatus` could fail because `enqueue` auto-pumps and the task reaches `.running` before the synchronous `.pending` status assertion.
+- **Evidence inspected:**
+  - `Tests/AuraTasksTests/AuraTaskEngineTests.swift` lines 185–210
+  - `Sources/AuraTasks/AuraTaskEngine.swift` pump/enqueue/finish logic
+  - Test outputs from `./scripts/aura-test.sh /tmp/aurabuild AuraTasksTests` and `./scripts/aura-test.sh /tmp/aurabuild-final`
+- **Assumptions:**
+  - Deterministic test seams (`BlockingRunner` + `Gate`) remain valid for actor scheduling under Swift 6.4 strict concurrency.
+  - Event-based synchronization is preferred over `Task.sleep` when asserting transitions in an async engine.
+- **Decisions:**
+  - Replaced the racy synchronous `status(id:)` assertion for `.pending` with `waitForEvent(TaskStateChangedEvent.self)` before asserting `.running`.
+  - Removed the redundant `pendingStatus?.state == .pending` assertion because `enqueue` returns the enqueued status directly and `status(id:)` was already reading from the actor after pump had begun.
+- **Files changed:**
+  - `Tests/AuraTasksTests/AuraTaskEngineTests.swift` — fixed `enqueueReturnsPendingStatus` race
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild --target AuraTasks` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild AuraTasksTests` — 10/10 pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-final` — all 10 bundles pass, 0 failed bundles
+  - `git add Tests/AuraTasksTests/AuraTaskEngineTests.swift && git commit -m "fix(phase-9): eliminate enqueueReturnsPendingStatus race by waiting for TaskStateChangedEvent" && git push` — pushed `2f720c1` to origin/main
+- **Tests and exact results:**
+  - AuraTasksTests: 10/10 pass
+  - Full suite: AuraAgentTests, AuraAudioTests, AuraAutomationTests, AuraCoreTests, AuraPolicyTests, AuraSTTTests, AuraShellTests, AuraStoreTests, AuraTasksTests, AuraVSCodeTests, AURAIntegrationTests: all pass
+- **Security/privacy impact:** None; test-only change, no runtime data flow changes.
+- **Unresolved risks:** Same as prior Phase 9 entry.
+- **Rollback:** `git revert 2f720c1` to restore previous test.
+- **Current state:** Phase 9 durable task engine verified and pushed as commit `2f720c1` on origin/main. Working tree clean.
+- **Next safe action:** Review diff for accidental scope expansion, then proceed to Phase 10 per roadmap.
+- **Integrity hash:** intentionally omitted.
