@@ -64,6 +64,17 @@ extension Capability {
   public static let vscodeObserveState = Capability(
     domain: "vscode", action: "observeState", riskTier: .observation)
 
+  public static let taskEnqueue = Capability(
+    domain: "task", action: "enqueue", riskTier: .reversible)
+  public static let taskCancel = Capability(
+    domain: "task", action: "cancel", riskTier: .reversible)
+  public static let taskResume = Capability(
+    domain: "task", action: "resume", riskTier: .reversible)
+  public static let taskDelete = Capability(
+    domain: "task", action: "delete", riskTier: .destructive)
+  public static let taskList = Capability(
+    domain: "task", action: "list", riskTier: .observation)
+
   /// Convenience identifier used for pattern matching and event logging.
   public var identifier: String { "\(domain).\(action)" }
 }

@@ -15,6 +15,7 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
   public var automation: AutomationConfiguration
   public var shell: ShellConfiguration
   public var vscode: VSCodeConfiguration
+  public var task: TaskConfiguration
   public var privacy: PrivacyConfiguration
   public var log: LoggingConfiguration
 
@@ -29,6 +30,7 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     automation: AutomationConfiguration = AutomationConfiguration(),
     shell: ShellConfiguration = ShellConfiguration(),
     vscode: VSCodeConfiguration = VSCodeConfiguration(),
+    task: TaskConfiguration = TaskConfiguration(),
     privacy: PrivacyConfiguration = PrivacyConfiguration(),
     log: LoggingConfiguration = LoggingConfiguration()
   ) {
@@ -42,6 +44,7 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     self.automation = automation
     self.shell = shell
     self.vscode = vscode
+    self.task = task
     self.privacy = privacy
     self.log = log
   }
@@ -96,6 +99,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     vscode =
       try container.decodeIfPresent(VSCodeConfiguration.self, forKey: .vscode)
       ?? VSCodeConfiguration()
+    task =
+      try container.decodeIfPresent(TaskConfiguration.self, forKey: .task)
+      ?? TaskConfiguration()
     privacy =
       try container.decodeIfPresent(PrivacyConfiguration.self, forKey: .privacy)
       ?? PrivacyConfiguration()
@@ -207,6 +213,18 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
           : self.shell.allowedWorkingDirectories
       ),
       vscode: self.vscode.mergedWithDefaults(),
+      task: TaskConfiguration(
+        defaultMaxRetries: self.task.defaultMaxRetries < 0
+          ? TaskConfiguration().defaultMaxRetries : self.task.defaultMaxRetries,
+        defaultInactivityTimeoutSeconds: self.task.defaultInactivityTimeoutSeconds <= 0
+          ? TaskConfiguration().defaultInactivityTimeoutSeconds : self.task.defaultInactivityTimeoutSeconds,
+        checkpointRetentionDays: self.task.checkpointRetentionDays <= 0
+          ? TaskConfiguration().checkpointRetentionDays : self.task.checkpointRetentionDays,
+        maxConcurrentTasks: self.task.maxConcurrentTasks <= 0
+          ? TaskConfiguration().maxConcurrentTasks : self.task.maxConcurrentTasks,
+        queueCapacity: self.task.queueCapacity <= 0
+          ? TaskConfiguration().queueCapacity : self.task.queueCapacity
+      ),
       privacy: PrivacyConfiguration(
         ambientAudioRetentionSeconds: self.privacy.ambientAudioRetentionSeconds < 0
           ? PrivacyConfiguration().ambientAudioRetentionSeconds
@@ -236,8 +254,71 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     try automation.validate()
     try shell.validate()
     try vscode.validate()
+    try task.validate()
     try privacy.validate()
     try log.validate()
+  }
+}
+
+/// Configuration for the durable task engine.
+public struct TaskConfiguration: Codable, Sendable, Equatable {
+  /// Default maximum number of bounded retries for a recoverable task step.
+  public var defaultMaxRetries: Int
+
+  /// Seconds of inactivity before a running task is automatically paused.
+  public var defaultInactivityTimeoutSeconds: Double
+
+  /// Days to retain checkpoints before they become eligible for eviction.
+  public var checkpointRetentionDays: Int
+
+  /// Maximum number of tasks allowed to run concurrently.
+  public var maxConcurrentTasks: Int
+
+  /// Maximum number of pending tasks in the queue.
+  public var queueCapacity: Int
+
+  public init(
+    defaultMaxRetries: Int = 3,
+    defaultInactivityTimeoutSeconds: Double = 300.0,
+    checkpointRetentionDays: Int = 30,
+    maxConcurrentTasks: Int = 3,
+    queueCapacity: Int = 100
+  ) {
+    self.defaultMaxRetries = defaultMaxRetries
+    self.defaultInactivityTimeoutSeconds = defaultInactivityTimeoutSeconds
+    self.checkpointRetentionDays = checkpointRetentionDays
+    self.maxConcurrentTasks = maxConcurrentTasks
+    self.queueCapacity = queueCapacity
+  }
+
+  public func validate() throws(AuraError) {
+    guard defaultMaxRetries >= 0 else {
+      throw AuraError.invalidConfiguration("task defaultMaxRetries must be non-negative")
+    }
+    guard defaultInactivityTimeoutSeconds > 0 else {
+      throw AuraError.invalidConfiguration("task defaultInactivityTimeoutSeconds must be positive")
+    }
+    guard checkpointRetentionDays > 0 else {
+      throw AuraError.invalidConfiguration("task checkpointRetentionDays must be positive")
+    }
+    guard maxConcurrentTasks > 0 else {
+      throw AuraError.invalidConfiguration("task maxConcurrentTasks must be positive")
+    }
+    guard queueCapacity > 0 else {
+      throw AuraError.invalidConfiguration("task queueCapacity must be positive")
+    }
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    defaultMaxRetries = try container.decodeIfPresent(Int.self, forKey: .defaultMaxRetries) ?? 3
+    defaultInactivityTimeoutSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .defaultInactivityTimeoutSeconds) ?? 300.0
+    checkpointRetentionDays =
+      try container.decodeIfPresent(Int.self, forKey: .checkpointRetentionDays) ?? 30
+    maxConcurrentTasks =
+      try container.decodeIfPresent(Int.self, forKey: .maxConcurrentTasks) ?? 3
+    queueCapacity = try container.decodeIfPresent(Int.self, forKey: .queueCapacity) ?? 100
   }
 }
 

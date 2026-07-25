@@ -18,7 +18,8 @@ let package = Package(
         .library(name: "AuraSTT", targets: ["AuraSTT"]),
         .library(name: "AuraPolicy", targets: ["AuraPolicy"]),
         .library(name: "AuraShell", targets: ["AuraShell"]),
-        .library(name: "AuraVSCode", targets: ["AuraVSCode"])
+        .library(name: "AuraVSCode", targets: ["AuraVSCode"]),
+        .library(name: "AuraTasks", targets: ["AuraTasks"])
     ],
     dependencies: [
     ],
@@ -192,9 +193,27 @@ let package = Package(
                 .swiftLanguageMode(.v6)
             ]
         ),
+        .target(
+            name: "AuraTasks",
+            dependencies: ["AuraCore", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
         .testTarget(
             name: "AuraVSCodeTests",
             dependencies: ["AuraVSCode"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
+        .testTarget(
+            name: "AuraTasksTests",
+            dependencies: ["AuraTasks"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
                 .unsafeFlags([
@@ -215,7 +234,8 @@ let package = Package(
                 "AuraStore",
                 "AuraPolicy",
                 "AuraShell",
-                "AuraVSCode"
+                "AuraVSCode",
+                "AuraTasks"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6),

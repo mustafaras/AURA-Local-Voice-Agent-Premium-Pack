@@ -660,3 +660,73 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Current state:** Phase 8 VS Code Adapter implementation complete. Production build passes. `AuraVSCodeTests` (13 tests) pass. Full suite (all 10 test bundles) passes via `scripts/aura-test.sh`. ADR-009 recorded. `ledger/CURRENT_STATE.md` updated atomically.
 - **Next safe action:** Review Phase 8 diff for scope expansion, then proceed to Phase 9 per `prompts/implementation/09_09_CODEX_CONTROLLER.prompt.md`.
 - **Integrity hash:** intentionally omitted.
+
+### 2026-07-25T10:31:26Z — 09_DURABLE_TASK_ENGINE — Durable task engine implementation
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute `prompts/implementation/09_09_TASK_ENGINE.prompt.md`: implement durable task state, priority queue, checkpoints, cancellation, pause/resume, retry, progress reporting, crash recovery, and restart tests in `AuraTasks`.
+- **Starting state:** Phase 8 (VS Code Adapter) complete and committed as `eaed6cf`. `AuraTasks` did not exist; task lifecycle primitives were absent from `AuraCore`.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`
+  - `docs/subsystems/15_AGENT_ORCHESTRATOR.md`, `docs/testing/37_ACCEPTANCE_SCENARIOS.md`
+  - `prompts/implementation/09_09_TASK_ENGINE.prompt.md`
+  - `Package.swift`, existing `AuraCore`, `AuraStore`, and `AuraShell` code
+  - Swift 6.4 CommandLineTools environment with `Testing.framework`
+- **Assumptions:**
+  - Task runners are cooperative; forcible interruption of a runner that ignores cancellation is out of scope for this phase.
+  - `AuraStore` remains the single persistence backend for task snapshots and checkpoints.
+  - macOS 26+ Apple Silicon target continues; no new entitlements or permissions are required for the engine itself.
+- **Decisions:**
+  - Created `AuraTasks` library target and `AuraTasksTests` test target in `Package.swift`.
+  - Added public `TaskState`, `TaskPriority`, `TaskStatus`, `TaskRequest`, and `TaskConfiguration` to `AuraCore/TaskTypes.swift`.
+  - Added public task event payloads to `AuraCore/TaskEventPayloads.swift`.
+  - Added `Capability.taskEnqueue`, `taskCancel`, `taskResume`, and `taskDelete` to `AuraCore/PolicyTypes.swift`.
+  - Added `TaskConfiguration` to `AuraConfiguration` with safe defaults.
+  - Added `.task` case to `ActorID` in `AuraCore/ActorID.swift`.
+  - Implemented `AuraTaskEngine` actor with `TaskQueue`, `activeRunners`, SQLite-backed `TaskStoreBackend`, and `recoverState()`.
+  - Implemented `AuraTask` as a lock-protected internal aggregate.
+  - Implemented `TaskRunner` protocol and `TaskExecutionContext` actor.
+  - Made `finish(task:state:error:)` idempotent and state-protected so a runner cannot overwrite an explicit `.cancelled` or `.paused` state.
+  - Created ADR-010 documenting the durable task engine architecture and trade-offs.
+- **Files changed:**
+  - `Package.swift` — added `AuraTasks` product/target and `AuraTasksTests` test target
+  - `Sources/AuraCore/ActorID.swift` — added `.task` actor ID
+  - `Sources/AuraCore/AuraConfiguration.swift` — added `TaskConfiguration`
+  - `Sources/AuraCore/PolicyTypes.swift` — added task capabilities
+  - `Sources/AuraCore/TaskTypes.swift` — new public task value types
+  - `Sources/AuraCore/TaskEventPayloads.swift` — new public task event payloads
+  - `Sources/AuraTasks/AuraTaskEngine.swift` — new engine actor
+  - `Sources/AuraTasks/AuraTask.swift` — new internal aggregate
+  - `Sources/AuraTasks/TaskQueue.swift` — new priority queue
+  - `Sources/AuraTasks/TaskRunner.swift` — new runner protocol and context
+  - `Sources/AuraTasks/TaskCheckpoint.swift` — new public checkpoint value
+  - `Sources/AuraTasks/TaskStoreBackend.swift` — new persistence facade
+  - `Tests/AuraTasksTests/AuraTaskEngineTests.swift` — new test bundle
+  - `docs/decisions/ADR-010-durable-task-engine.md` — new ADR
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild --target AuraTasks` — exit 0
+  - `swift build --build-path /tmp/aurabuild --target AuraTasksTests` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild AuraTasksTests` — 10/10 tests pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-final` — all 10 test bundles pass, 0 failed bundles
+- **Tests and exact results:**
+  - AuraTasksTests: pass
+    - `enqueueReturnsPendingStatus`
+    - `queueCapacityRejectsExcessTasks`
+    - `priorityQueueOrdersHighBeforeNormal`
+    - `maxConcurrentTasksLimitsActiveRunners`
+    - `cancellationMovesTaskToCancelled`
+    - `cancelUnknownTaskThrowsNotFound`
+    - `pauseAndResumeRunningTask`
+    - `retryExhaustionFailsTask`
+    - `checkpointPersistsAndCanBeLoaded`
+    - `deleteRemovesTaskAndData`
+  - AuraCoreTests, AuraStoreTests, AuraAudioTests, AuraSTTTests, AuraAgentTests, AuraAutomationTests, AuraShellTests, AuraVSCodeTests, AURAIntegrationTests: all pass
+- **Security/privacy impact:** Task objectives and checkpoints are persisted locally in SQLite; no network or remote service interaction. Event payloads carry only metadata and IDs, not raw audio, screenshots, or secrets.
+- **Unresolved risks:**
+  - Cooperative cancellation: runners that do not respond to `Task.checkCancellation()` or `context.checkCancellation()` cannot be forcibly stopped without cancelling the host task.
+  - `deadline` and `inactivityTimeoutSeconds` are stored and reported but not yet actively enforced by a watchdog.
+  - Crash recovery restores pending/paused tasks; real-world resilience requires exercising recovery with a wider variety of runner failures and checkpoint sizes.
+- **Rollback:** Remove `AuraTasks` target and source directories, revert `Package.swift`, `AuraConfiguration.swift`, `PolicyTypes.swift`, and `ActorID.swift` changes.
+- **Current state:** Phase 9 durable task engine implementation complete. All tests pass.
+- **Next safe action:** Begin next implementation phase as defined by the roadmap (Phase 10 — Computer Use / native macOS tool adapters) after reviewing `ledger/CURRENT_STATE.md`.
+- **Integrity hash:** intentionally omitted.

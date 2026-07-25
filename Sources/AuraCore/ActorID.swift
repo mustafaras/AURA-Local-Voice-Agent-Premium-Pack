@@ -11,6 +11,7 @@ public enum ActorID: String, Codable, Sendable, Equatable, CaseIterable {
   case agentClaude
   case agentCopilot
   case agentOllama
+  case task
   case unknown
 }
 
@@ -34,6 +35,13 @@ public enum AuraError: Error, Sendable, Equatable {
   case ttsAdapterFailed(String)
   case automationError(String)
   case shellError(String)
+  case vscodeError(String)
+  case taskNotFound(UUID)
+  case taskInvalidState(String)
+  case taskQueueFull
+  case taskCancelled(UUID)
+  case taskExpired(UUID)
+  case taskError(String)
 }
 
 extension AuraError: LocalizedError {
@@ -59,6 +67,20 @@ extension AuraError: LocalizedError {
       return "Automation error: \(detail)"
     case .shellError(let detail):
       return "Shell error: \(detail)"
+    case .vscodeError(let detail):
+      return "VS Code error: \(detail)"
+    case .taskNotFound(let id):
+      return "Task not found: \(id.uuidString)"
+    case .taskInvalidState(let detail):
+      return "Task invalid state: \(detail)"
+    case .taskQueueFull:
+      return "Task queue is full"
+    case .taskCancelled(let id):
+      return "Task cancelled: \(id.uuidString)"
+    case .taskExpired(let id):
+      return "Task expired: \(id.uuidString)"
+    case .taskError(let detail):
+      return "Task error: \(detail)"
     }
   }
 }
