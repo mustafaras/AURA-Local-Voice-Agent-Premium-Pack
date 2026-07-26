@@ -106,6 +106,16 @@ extension Capability {
   public static let agentOllamaCloudInference = Capability(
     domain: "agent", action: "ollamaCloudInference", riskTier: .destructive)
 
+  /// Create an isolated `git worktree` for a multi-agent orchestration task.
+  /// A real directory and branch are created on disk, so this is a mutation,
+  /// not merely reversible — matching `Capability.fileWrite`'s tier.
+  public static let agentWorktreeCreate = Capability(
+    domain: "agent", action: "worktreeCreate", riskTier: .mutation)
+  /// Remove a previously created orchestration worktree (`git worktree
+  /// remove`, optionally `--force` over uncommitted changes).
+  public static let agentWorktreeRemove = Capability(
+    domain: "agent", action: "worktreeRemove", riskTier: .mutation)
+
   /// Convenience identifier used for pattern matching and event logging.
   public var identifier: String { "\(domain).\(action)" }
 }

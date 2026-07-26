@@ -11,7 +11,10 @@ public enum ActorID: String, Codable, Sendable, Equatable, CaseIterable {
   case agentClaude
   case agentCopilot
   case agentOllama
+  case orchestrator
   case task
+  case memory
+  case context
   case unknown
 }
 
@@ -46,6 +49,9 @@ public enum AuraError: Error, Sendable, Equatable {
   case claudeError(String)
   case copilotError(String)
   case ollamaError(String)
+  case orchestrationError(String)
+  case memoryError(String)
+  case contextError(String)
 }
 
 extension AuraError: LocalizedError {
@@ -93,6 +99,12 @@ extension AuraError: LocalizedError {
       return "Copilot error: \(detail)"
     case .ollamaError(let detail):
       return "Ollama error: \(detail)"
+    case .orchestrationError(let detail):
+      return "Orchestration error: \(detail)"
+    case .memoryError(let detail):
+      return "Memory error: \(detail)"
+    case .contextError(let detail):
+      return "Context error: \(detail)"
     }
   }
 }

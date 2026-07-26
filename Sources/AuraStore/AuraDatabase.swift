@@ -132,8 +132,43 @@ public actor AuraDatabase {
         );
         """)
 
+    try execute(
+      sql: """
+        CREATE TABLE IF NOT EXISTS memory_records (
+            id TEXT PRIMARY KEY,
+            memory_class TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            statement TEXT NOT NULL,
+            evidence_references TEXT NOT NULL DEFAULT '[]',
+            provenance_json TEXT NOT NULL,
+            confidence REAL NOT NULL,
+            sensitivity TEXT NOT NULL,
+            created_at DATETIME NOT NULL,
+            observed_at DATETIME NOT NULL,
+            retention_json TEXT NOT NULL,
+            supersedes TEXT,
+            project_id TEXT,
+            task_id TEXT,
+            session_id TEXT
+        );
+        """)
+
+    try execute(
+      sql: """
+        CREATE TABLE IF NOT EXISTS memory_conflicts (
+            id TEXT PRIMARY KEY,
+            memory_class TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            existing_record_id TEXT NOT NULL,
+            new_record_id TEXT NOT NULL,
+            detected_at DATETIME NOT NULL,
+            resolution_json TEXT
+        );
+        """)
+
     try recordMigration(version: "v1_0_0_initial")
     try recordMigration(version: "v1_1_0_key_value_store")
+    try recordMigration(version: "v1_2_0_memory_records")
     try enableForeignKeys()
   }
 
@@ -234,6 +269,11 @@ public enum SQLiteValue: Sendable, Equatable {
 
   public var integerValue: Int? {
     if case .integer(let value) = self { return value }
+    return nil
+  }
+
+  public var realValue: Double? {
+    if case .real(let value) = self { return value }
     return nil
   }
 

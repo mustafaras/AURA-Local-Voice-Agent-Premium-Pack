@@ -83,6 +83,92 @@ struct AuraStoreTests {
     #expect(filtered.first?.taskID == "RECENT")
   }
 
+  @Test func storeAppendsAndQueriesMemoryRecord() async throws {
+    let path = temporaryDatabasePath()
+    defer { cleanup(path: path) }
+
+    let store = try await AuraStore(path: path)
+    let record = MemoryRecord(
+      memoryClass: .projectFact,
+      subject: "project.name",
+      statement: "AURA",
+      evidenceReferences: ["README.md"],
+      provenance: .userStated,
+      confidence: 1.0,
+      sensitivity: .internalLevel,
+      retention: .indefinite
+    )
+    try await store.appendMemoryRecord(record)
+
+    let all = try await store.memoryRecords(matching: .all)
+    #expect(all.count == 1)
+    #expect(all.first?.id == record.id)
+    #expect(all.first?.statement == "AURA")
+    #expect(all.first?.evidenceReferences == ["README.md"])
+    #expect(all.first?.provenance == .userStated)
+    #expect(all.first?.retention == .indefinite)
+  }
+
+  @Test func storeMemoryRecordsExcludesSupersededByDefault() async throws {
+    let path = temporaryDatabasePath()
+    defer { cleanup(path: path) }
+
+    let store = try await AuraStore(path: path)
+    let original = MemoryRecord(
+      memoryClass: .projectFact, subject: "project.buildTool", statement: "Make",
+      evidenceReferences: ["doc-1"], provenance: .userStated, confidence: 1.0,
+      sensitivity: .internalLevel, retention: .indefinite)
+    try await store.appendMemoryRecord(original)
+    let correction = MemoryRecord(
+      memoryClass: .projectFact, subject: "project.buildTool", statement: "SwiftPM",
+      evidenceReferences: ["doc-2"], provenance: .userStated, confidence: 1.0,
+      sensitivity: .internalLevel, retention: .indefinite, supersedes: original.id)
+    try await store.appendMemoryRecord(correction)
+
+    let active = try await store.memoryRecords(matching: MemoryQuery(includeSuperseded: false))
+    #expect(active.count == 1)
+    #expect(active.first?.statement == "SwiftPM")
+
+    let all = try await store.memoryRecords(matching: .all)
+    #expect(all.count == 2)
+  }
+
+  @Test func storeDeleteMemoryRecordRemovesRow() async throws {
+    let path = temporaryDatabasePath()
+    defer { cleanup(path: path) }
+
+    let store = try await AuraStore(path: path)
+    let record = MemoryRecord(
+      memoryClass: .userPreference, subject: "user.favoriteColor", statement: "blue",
+      evidenceReferences: ["turn-1"], provenance: .userStated, confidence: 1.0,
+      sensitivity: .sensitive, retention: .indefinite)
+    try await store.appendMemoryRecord(record)
+    try await store.deleteMemoryRecord(id: record.id)
+
+    let all = try await store.memoryRecords(matching: .all)
+    #expect(all.isEmpty)
+  }
+
+  @Test func storeAppendsAndUpdatesMemoryConflictResolution() async throws {
+    let path = temporaryDatabasePath()
+    defer { cleanup(path: path) }
+
+    let store = try await AuraStore(path: path)
+    let conflict = MemoryConflict(
+      memoryClass: .userPreference, subject: "user.favoriteColor", existingRecordID: UUID(),
+      newRecordID: UUID())
+    try await store.appendMemoryConflict(conflict)
+
+    let unresolved = try await store.memoryConflicts(unresolvedOnly: true)
+    #expect(unresolved.count == 1)
+
+    try await store.setMemoryConflictResolution(id: conflict.id, resolution: .supersededExisting)
+    let resolved = try await store.memoryConflicts(unresolvedOnly: true)
+    #expect(resolved.isEmpty)
+    let all = try await store.memoryConflicts()
+    #expect(all.first?.resolution == .supersededExisting)
+  }
+
   private func temporaryDatabasePath() -> String {
     NSTemporaryDirectory().appending(UUID().uuidString).appending(".db")
   }

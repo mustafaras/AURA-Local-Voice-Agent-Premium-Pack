@@ -19,7 +19,9 @@ let package = Package(
         .library(name: "AuraPolicy", targets: ["AuraPolicy"]),
         .library(name: "AuraShell", targets: ["AuraShell"]),
         .library(name: "AuraVSCode", targets: ["AuraVSCode"]),
-        .library(name: "AuraTasks", targets: ["AuraTasks"])
+        .library(name: "AuraTasks", targets: ["AuraTasks"]),
+        .library(name: "AuraMemory", targets: ["AuraMemory"]),
+        .library(name: "AuraContext", targets: ["AuraContext"])
     ],
     dependencies: [
     ],
@@ -201,6 +203,20 @@ let package = Package(
                 .swiftLanguageMode(.v6)
             ]
         ),
+        .target(
+            name: "AuraMemory",
+            dependencies: ["AuraCore", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
+        .target(
+            name: "AuraContext",
+            dependencies: ["AuraCore", "AuraStore", "AuraMemory"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
         .testTarget(
             name: "AuraVSCodeTests",
             dependencies: ["AuraVSCode"],
@@ -215,6 +231,28 @@ let package = Package(
         .testTarget(
             name: "AuraTasksTests",
             dependencies: ["AuraTasks"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
+        .testTarget(
+            name: "AuraMemoryTests",
+            dependencies: ["AuraMemory", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
+        .testTarget(
+            name: "AuraContextTests",
+            dependencies: ["AuraContext", "AuraMemory", "AuraStore"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
                 .unsafeFlags([

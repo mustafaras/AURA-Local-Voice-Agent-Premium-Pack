@@ -20,6 +20,8 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
   public var claude: ClaudeConfiguration
   public var copilot: CopilotConfiguration
   public var ollama: OllamaConfiguration
+  public var worktree: WorktreeConfiguration
+  public var context: ContextConfiguration
   public var privacy: PrivacyConfiguration
   public var log: LoggingConfiguration
 
@@ -39,6 +41,8 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     claude: ClaudeConfiguration = ClaudeConfiguration(),
     copilot: CopilotConfiguration = CopilotConfiguration(),
     ollama: OllamaConfiguration = OllamaConfiguration(),
+    worktree: WorktreeConfiguration = WorktreeConfiguration(),
+    context: ContextConfiguration = ContextConfiguration(),
     privacy: PrivacyConfiguration = PrivacyConfiguration(),
     log: LoggingConfiguration = LoggingConfiguration()
   ) {
@@ -57,6 +61,8 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     self.claude = claude
     self.copilot = copilot
     self.ollama = ollama
+    self.worktree = worktree
+    self.context = context
     self.privacy = privacy
     self.log = log
   }
@@ -126,6 +132,12 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     ollama =
       try container.decodeIfPresent(OllamaConfiguration.self, forKey: .ollama)
       ?? OllamaConfiguration()
+    worktree =
+      try container.decodeIfPresent(WorktreeConfiguration.self, forKey: .worktree)
+      ?? WorktreeConfiguration()
+    context =
+      try container.decodeIfPresent(ContextConfiguration.self, forKey: .context)
+      ?? ContextConfiguration()
     privacy =
       try container.decodeIfPresent(PrivacyConfiguration.self, forKey: .privacy)
       ?? PrivacyConfiguration()
@@ -253,6 +265,8 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
       claude: self.claude.mergedWithDefaults(),
       copilot: self.copilot.mergedWithDefaults(),
       ollama: self.ollama.mergedWithDefaults(),
+      worktree: self.worktree.mergedWithDefaults(),
+      context: self.context.mergedWithDefaults(),
       privacy: PrivacyConfiguration(
         ambientAudioRetentionSeconds: self.privacy.ambientAudioRetentionSeconds < 0
           ? PrivacyConfiguration().ambientAudioRetentionSeconds
@@ -287,6 +301,8 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     try claude.validate()
     try copilot.validate()
     try ollama.validate()
+    try worktree.validate()
+    try context.validate()
     try privacy.validate()
     try log.validate()
   }
@@ -1721,6 +1737,130 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
   }
 }
 
+/// Configuration for `WorktreeManager`'s isolated `git worktree` lifecycle,
+/// used by `MultiAgentOrchestrator` to give each mutable orchestration task
+/// its own working directory.
+public struct WorktreeConfiguration: Codable, Sendable, Equatable {
+  /// Absolute path to the `git` executable.
+  public var gitExecutablePath: String
+
+  /// Default timeout in seconds for a single `git worktree`/`git diff`
+  /// invocation.
+  public var defaultTimeoutSeconds: Double
+
+  /// Branch name prefix for orchestration-created branches; the task ID is
+  /// appended to form the full branch name.
+  public var branchPrefix: String
+
+  /// Name of the directory (relative to a repository's root) under which
+  /// per-task worktrees are created. Operators should add this to the
+  /// repository's `.gitignore`.
+  public var worktreeDirectoryName: String
+
+  /// Directories a repository root or worktree path must fall under.
+  ///
+  /// Unlike `CodexConfiguration.allowedWorkingDirectories` (which is only
+  /// ever compared against a literal repository root), worktree operations
+  /// always operate on nested subdirectories (`<repositoryRoot>/
+  /// <worktreeDirectoryName>/<taskID>`), and `Command.validate`'s own
+  /// allowlist check (`ShellConfiguration.allowedWorkingDirectories`, applied
+  /// via `derivedShellConfiguration()`) is exact-match unless a pattern ends
+  /// in `*`. The defaults here therefore use trailing-wildcard patterns so a
+  /// real project directory anywhere under `$HOME`/`$TMPDIR` — and its
+  /// worktrees — are actually reachable, not just the literal home directory
+  /// itself.
+  public var allowedWorkingDirectories: Set<String>
+
+  public init(
+    gitExecutablePath: String = "/usr/bin/git",
+    defaultTimeoutSeconds: Double = 60.0,
+    branchPrefix: String = "aura/orchestration-",
+    worktreeDirectoryName: String = ".aura-worktrees",
+    allowedWorkingDirectories: Set<String> = [
+      "$HOME/*",
+      "$TMPDIR/*",
+    ]
+  ) {
+    self.gitExecutablePath = gitExecutablePath
+    self.defaultTimeoutSeconds = defaultTimeoutSeconds
+    self.branchPrefix = branchPrefix
+    self.worktreeDirectoryName = worktreeDirectoryName
+    self.allowedWorkingDirectories = allowedWorkingDirectories
+  }
+
+  /// The directory under which per-task worktrees for `repositoryRoot` are
+  /// created: `<repositoryRoot>/<worktreeDirectoryName>`.
+  public func worktreeRoot(for repositoryRoot: String) -> String {
+    (repositoryRoot as NSString).appendingPathComponent(worktreeDirectoryName)
+  }
+
+  public func validate() throws(AuraError) {
+    guard !gitExecutablePath.isEmpty else {
+      throw AuraError.invalidConfiguration("worktree gitExecutablePath must not be empty")
+    }
+    guard defaultTimeoutSeconds > 0 else {
+      throw AuraError.invalidConfiguration("worktree defaultTimeoutSeconds must be positive")
+    }
+    guard !branchPrefix.isEmpty else {
+      throw AuraError.invalidConfiguration("worktree branchPrefix must not be empty")
+    }
+    guard !worktreeDirectoryName.isEmpty else {
+      throw AuraError.invalidConfiguration("worktree worktreeDirectoryName must not be empty")
+    }
+    guard !allowedWorkingDirectories.isEmpty else {
+      throw AuraError.invalidConfiguration("worktree allowedWorkingDirectories must not be empty")
+    }
+  }
+
+  /// A `ShellConfiguration` scoped to only ever launch the configured `git`
+  /// binary, mirroring `CodexConfiguration.derivedShellConfiguration()`.
+  public func derivedShellConfiguration() -> ShellConfiguration {
+    ShellConfiguration(
+      defaultTimeoutSeconds: defaultTimeoutSeconds,
+      allowedExecutablePaths: [gitExecutablePath],
+      allowedWorkingDirectories: allowedWorkingDirectories
+    )
+  }
+
+  /// Merge a partial configuration over the hard-coded defaults.
+  public func mergedWithDefaults() -> WorktreeConfiguration {
+    WorktreeConfiguration(
+      gitExecutablePath: self.gitExecutablePath.isEmpty
+        ? WorktreeConfiguration().gitExecutablePath
+        : self.gitExecutablePath,
+      defaultTimeoutSeconds: self.defaultTimeoutSeconds <= 0
+        ? WorktreeConfiguration().defaultTimeoutSeconds
+        : self.defaultTimeoutSeconds,
+      branchPrefix: self.branchPrefix.isEmpty
+        ? WorktreeConfiguration().branchPrefix
+        : self.branchPrefix,
+      worktreeDirectoryName: self.worktreeDirectoryName.isEmpty
+        ? WorktreeConfiguration().worktreeDirectoryName
+        : self.worktreeDirectoryName,
+      allowedWorkingDirectories: self.allowedWorkingDirectories.isEmpty
+        ? WorktreeConfiguration().allowedWorkingDirectories
+        : self.allowedWorkingDirectories
+    )
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    gitExecutablePath =
+      try container.decodeIfPresent(String.self, forKey: .gitExecutablePath) ?? "/usr/bin/git"
+    defaultTimeoutSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .defaultTimeoutSeconds) ?? 60.0
+    branchPrefix =
+      try container.decodeIfPresent(String.self, forKey: .branchPrefix) ?? "aura/orchestration-"
+    worktreeDirectoryName =
+      try container.decodeIfPresent(String.self, forKey: .worktreeDirectoryName)
+      ?? ".aura-worktrees"
+    allowedWorkingDirectories =
+      try container.decodeIfPresent(Set<String>.self, forKey: .allowedWorkingDirectories) ?? [
+        "$HOME/*", "$TMPDIR/*",
+      ]
+  }
+}
+
 public struct PrivacyConfiguration: Codable, Sendable, Equatable {
   public var ambientAudioRetentionSeconds: Double
   public var screenshotRetentionDays: Int
@@ -1777,5 +1917,219 @@ public struct LoggingConfiguration: Codable, Sendable, Equatable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     minimumLevel = try container.decodeIfPresent(String.self, forKey: .minimumLevel) ?? "info"
     destination = try container.decodeIfPresent(String.self, forKey: .destination) ?? "stderr"
+  }
+}
+
+/// Configuration for `ContextEngine` (Phase 16) — ranking weights, bundle
+/// size budgets, semantic-match threshold, and reference-resolution
+/// guardrails for the destructive-target-on-weak-evidence gate.
+public struct ContextConfiguration: Codable, Sendable, Equatable {
+  /// Ranking weight for scope match (project/task/session). All five
+  /// `rankingWeight*` fields must be non-negative and sum to `1.0`.
+  public var rankingWeightScope: Double
+  /// Ranking weight for recency (exponential decay, see `recencyHalfLifeSeconds`).
+  public var rankingWeightRecency: Double
+  /// Ranking weight for provenance authority (`ContextAuthority`).
+  public var rankingWeightAuthority: Double
+  /// Ranking weight for the candidate's own confidence value.
+  public var rankingWeightConfidence: Double
+  /// Ranking weight for presence of direct evidence references.
+  public var rankingWeightEvidence: Double
+
+  /// Half-life, in seconds, of the recency score's exponential decay.
+  public var recencyHalfLifeSeconds: Double
+
+  /// Maximum number of project-ledger entries considered for a bundle.
+  public var maxLedgerEntries: Int
+  /// Maximum number of individual decisions (drawn from those ledger
+  /// entries) considered for a bundle.
+  public var maxDecisions: Int
+  /// Maximum number of user-preference memory records considered.
+  public var maxPreferences: Int
+  /// Maximum number of semantic-retrieval matches considered.
+  public var maxSemanticMatches: Int
+  /// Maximum number of optional (non-mandatory) items kept in a bundle after
+  /// ranking — the "minimal and sufficient" budget.
+  public var maxBundleItems: Int
+
+  /// Minimum keyword-containment score (see `ContextRanking.containmentScore`)
+  /// for a memory record to count as a semantic-retrieval match.
+  public var semanticMatchMinimumOverlap: Double
+
+  /// Minimum score gap between the top two reference candidates required to
+  /// treat resolution as unambiguous.
+  public var referenceSeparationMargin: Double
+  /// Minimum confidence a guarded-tier reference candidate must have before
+  /// it can auto-resolve.
+  public var referenceGuardedMinimumConfidence: Double
+  /// The lowest `PermissionRiskTier` at which a reference candidate is
+  /// "guarded" — auto-resolution requires an unambiguous top candidate,
+  /// direct evidence, non-inferred authority, in-scope, and confidence at or
+  /// above `referenceGuardedMinimumConfidence`. Below this tier, an
+  /// unambiguous top candidate resolves without the extra evidence checks.
+  public var referenceGuardedTierThreshold: PermissionRiskTier
+
+  public init(
+    rankingWeightScope: Double = 0.30,
+    rankingWeightRecency: Double = 0.25,
+    rankingWeightAuthority: Double = 0.20,
+    rankingWeightConfidence: Double = 0.15,
+    rankingWeightEvidence: Double = 0.10,
+    recencyHalfLifeSeconds: Double = 3600,
+    maxLedgerEntries: Int = 5,
+    maxDecisions: Int = 5,
+    maxPreferences: Int = 5,
+    maxSemanticMatches: Int = 3,
+    maxBundleItems: Int = 12,
+    semanticMatchMinimumOverlap: Double = 0.34,
+    referenceSeparationMargin: Double = 0.12,
+    referenceGuardedMinimumConfidence: Double = 0.85,
+    referenceGuardedTierThreshold: PermissionRiskTier = .mutation
+  ) {
+    self.rankingWeightScope = rankingWeightScope
+    self.rankingWeightRecency = rankingWeightRecency
+    self.rankingWeightAuthority = rankingWeightAuthority
+    self.rankingWeightConfidence = rankingWeightConfidence
+    self.rankingWeightEvidence = rankingWeightEvidence
+    self.recencyHalfLifeSeconds = recencyHalfLifeSeconds
+    self.maxLedgerEntries = maxLedgerEntries
+    self.maxDecisions = maxDecisions
+    self.maxPreferences = maxPreferences
+    self.maxSemanticMatches = maxSemanticMatches
+    self.maxBundleItems = maxBundleItems
+    self.semanticMatchMinimumOverlap = semanticMatchMinimumOverlap
+    self.referenceSeparationMargin = referenceSeparationMargin
+    self.referenceGuardedMinimumConfidence = referenceGuardedMinimumConfidence
+    self.referenceGuardedTierThreshold = referenceGuardedTierThreshold
+  }
+
+  private var rankingWeights: [Double] {
+    [
+      rankingWeightScope, rankingWeightRecency, rankingWeightAuthority, rankingWeightConfidence,
+      rankingWeightEvidence,
+    ]
+  }
+
+  public func validate() throws(AuraError) {
+    guard rankingWeights.allSatisfy({ $0 >= 0 }) else {
+      throw AuraError.invalidConfiguration("context ranking weights must be non-negative")
+    }
+    let sum = rankingWeights.reduce(0, +)
+    guard abs(sum - 1.0) < 0.0001 else {
+      throw AuraError.invalidConfiguration("context ranking weights must sum to 1.0, got \(sum)")
+    }
+    guard recencyHalfLifeSeconds > 0 else {
+      throw AuraError.invalidConfiguration("context recencyHalfLifeSeconds must be positive")
+    }
+    guard maxLedgerEntries > 0 else {
+      throw AuraError.invalidConfiguration("context maxLedgerEntries must be positive")
+    }
+    guard maxDecisions > 0 else {
+      throw AuraError.invalidConfiguration("context maxDecisions must be positive")
+    }
+    guard maxPreferences > 0 else {
+      throw AuraError.invalidConfiguration("context maxPreferences must be positive")
+    }
+    guard maxSemanticMatches > 0 else {
+      throw AuraError.invalidConfiguration("context maxSemanticMatches must be positive")
+    }
+    guard maxBundleItems > 0 else {
+      throw AuraError.invalidConfiguration("context maxBundleItems must be positive")
+    }
+    guard semanticMatchMinimumOverlap > 0, semanticMatchMinimumOverlap <= 1 else {
+      throw AuraError.invalidConfiguration(
+        "context semanticMatchMinimumOverlap must be in (0, 1]")
+    }
+    guard referenceSeparationMargin >= 0 else {
+      throw AuraError.invalidConfiguration("context referenceSeparationMargin must be non-negative")
+    }
+    guard referenceGuardedMinimumConfidence >= 0, referenceGuardedMinimumConfidence <= 1 else {
+      throw AuraError.invalidConfiguration(
+        "context referenceGuardedMinimumConfidence must be in [0, 1]")
+    }
+  }
+
+  /// Merge a partial configuration over the hard-coded defaults. The five
+  /// ranking weights are merged as one group — a partially-overridden weight
+  /// vector cannot preserve the "sums to 1.0" invariant, so any invalid
+  /// (negative, or non-summing-to-1.0) group falls back to the full default
+  /// set together rather than field by field.
+  public func mergedWithDefaults() -> ContextConfiguration {
+    let defaults = ContextConfiguration()
+    let weightsValid =
+      rankingWeights.allSatisfy { $0 >= 0 } && abs(rankingWeights.reduce(0, +) - 1.0) < 0.0001
+    return ContextConfiguration(
+      rankingWeightScope: weightsValid ? rankingWeightScope : defaults.rankingWeightScope,
+      rankingWeightRecency: weightsValid ? rankingWeightRecency : defaults.rankingWeightRecency,
+      rankingWeightAuthority: weightsValid
+        ? rankingWeightAuthority : defaults.rankingWeightAuthority,
+      rankingWeightConfidence: weightsValid
+        ? rankingWeightConfidence : defaults.rankingWeightConfidence,
+      rankingWeightEvidence: weightsValid ? rankingWeightEvidence : defaults.rankingWeightEvidence,
+      recencyHalfLifeSeconds: recencyHalfLifeSeconds <= 0
+        ? defaults.recencyHalfLifeSeconds : recencyHalfLifeSeconds,
+      maxLedgerEntries: maxLedgerEntries <= 0 ? defaults.maxLedgerEntries : maxLedgerEntries,
+      maxDecisions: maxDecisions <= 0 ? defaults.maxDecisions : maxDecisions,
+      maxPreferences: maxPreferences <= 0 ? defaults.maxPreferences : maxPreferences,
+      maxSemanticMatches: maxSemanticMatches <= 0
+        ? defaults.maxSemanticMatches : maxSemanticMatches,
+      maxBundleItems: maxBundleItems <= 0 ? defaults.maxBundleItems : maxBundleItems,
+      semanticMatchMinimumOverlap: (semanticMatchMinimumOverlap <= 0
+        || semanticMatchMinimumOverlap > 1)
+        ? defaults.semanticMatchMinimumOverlap : semanticMatchMinimumOverlap,
+      referenceSeparationMargin: referenceSeparationMargin < 0
+        ? defaults.referenceSeparationMargin : referenceSeparationMargin,
+      referenceGuardedMinimumConfidence: (referenceGuardedMinimumConfidence < 0
+        || referenceGuardedMinimumConfidence > 1)
+        ? defaults.referenceGuardedMinimumConfidence : referenceGuardedMinimumConfidence,
+      referenceGuardedTierThreshold: referenceGuardedTierThreshold
+    )
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let defaults = ContextConfiguration()
+    rankingWeightScope =
+      try container.decodeIfPresent(Double.self, forKey: .rankingWeightScope)
+      ?? defaults.rankingWeightScope
+    rankingWeightRecency =
+      try container.decodeIfPresent(Double.self, forKey: .rankingWeightRecency)
+      ?? defaults.rankingWeightRecency
+    rankingWeightAuthority =
+      try container.decodeIfPresent(Double.self, forKey: .rankingWeightAuthority)
+      ?? defaults.rankingWeightAuthority
+    rankingWeightConfidence =
+      try container.decodeIfPresent(Double.self, forKey: .rankingWeightConfidence)
+      ?? defaults.rankingWeightConfidence
+    rankingWeightEvidence =
+      try container.decodeIfPresent(Double.self, forKey: .rankingWeightEvidence)
+      ?? defaults.rankingWeightEvidence
+    recencyHalfLifeSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .recencyHalfLifeSeconds)
+      ?? defaults.recencyHalfLifeSeconds
+    maxLedgerEntries =
+      try container.decodeIfPresent(Int.self, forKey: .maxLedgerEntries)
+      ?? defaults.maxLedgerEntries
+    maxDecisions =
+      try container.decodeIfPresent(Int.self, forKey: .maxDecisions) ?? defaults.maxDecisions
+    maxPreferences =
+      try container.decodeIfPresent(Int.self, forKey: .maxPreferences) ?? defaults.maxPreferences
+    maxSemanticMatches =
+      try container.decodeIfPresent(Int.self, forKey: .maxSemanticMatches)
+      ?? defaults.maxSemanticMatches
+    maxBundleItems =
+      try container.decodeIfPresent(Int.self, forKey: .maxBundleItems) ?? defaults.maxBundleItems
+    semanticMatchMinimumOverlap =
+      try container.decodeIfPresent(Double.self, forKey: .semanticMatchMinimumOverlap)
+      ?? defaults.semanticMatchMinimumOverlap
+    referenceSeparationMargin =
+      try container.decodeIfPresent(Double.self, forKey: .referenceSeparationMargin)
+      ?? defaults.referenceSeparationMargin
+    referenceGuardedMinimumConfidence =
+      try container.decodeIfPresent(Double.self, forKey: .referenceGuardedMinimumConfidence)
+      ?? defaults.referenceGuardedMinimumConfidence
+    referenceGuardedTierThreshold =
+      try container.decodeIfPresent(PermissionRiskTier.self, forKey: .referenceGuardedTierThreshold)
+      ?? defaults.referenceGuardedTierThreshold
   }
 }
