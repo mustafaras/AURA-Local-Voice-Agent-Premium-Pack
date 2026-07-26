@@ -116,6 +116,39 @@ extension Capability {
   public static let agentWorktreeRemove = Capability(
     domain: "agent", action: "worktreeRemove", riskTier: .mutation)
 
+  /// Read-only computer-use control loop observation (screen/accessibility
+  /// state already gated by `Capability.screenCapture`/`.screenReadText`;
+  /// this capability governs the control loop's own observation bookkeeping).
+  public static let computerUseObserve = Capability(
+    domain: "computerUse", action: "observe", riskTier: .observation)
+  /// A reversible computer-use action step (e.g. navigating, toggling a
+  /// control) that does not mutate persistent state or leave the app.
+  public static let computerUseInteract = Capability(
+    domain: "computerUse", action: "interact", riskTier: .reversible)
+  /// A computer-use action step that mutates local state (e.g. filling or
+  /// submitting a field) without external communication or deletion.
+  public static let computerUseMutate = Capability(
+    domain: "computerUse", action: "mutate", riskTier: .mutation)
+  /// A computer-use action step whose semantic intent is one of the named
+  /// destructive categories (send, publish, purchase, delete, deploy, accept
+  /// legal terms, authenticate) — see
+  /// `ComputerUseSemanticIntent.mandatoryConfirmationIntents`.
+  public static let computerUseDestructiveAct = Capability(
+    domain: "computerUse", action: "destructiveAct", riskTier: .destructive)
+
+  /// Deterministic mapping from a computer-use step's semantic intent to the
+  /// capability it must be evaluated under, mirroring
+  /// `ComputerUseSemanticIntent.riskTier` exactly so a step can never be
+  /// evaluated at a tier lower than the one its own declared intent implies.
+  public static func forComputerUse(intent: ComputerUseSemanticIntent) -> Capability {
+    switch intent.riskTier {
+    case .observation: return .computerUseObserve
+    case .reversible: return .computerUseInteract
+    case .mutation: return .computerUseMutate
+    case .destructive: return .computerUseDestructiveAct
+    }
+  }
+
   /// Convenience identifier used for pattern matching and event logging.
   public var identifier: String { "\(domain).\(action)" }
 }

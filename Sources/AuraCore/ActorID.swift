@@ -16,6 +16,7 @@ public enum ActorID: String, Codable, Sendable, Equatable, CaseIterable {
   case memory
   case context
   case screen
+  case computerUse
   case unknown
 }
 
@@ -54,6 +55,7 @@ public enum AuraError: Error, Sendable, Equatable {
   case memoryError(String)
   case contextError(String)
   case screenCaptureError(String)
+  case computerUseError(String)
 }
 
 extension AuraError: LocalizedError {
@@ -109,6 +111,8 @@ extension AuraError: LocalizedError {
       return "Context error: \(detail)"
     case .screenCaptureError(let detail):
       return "Screen capture error: \(detail)"
+    case .computerUseError(let detail):
+      return "Computer-use error: \(detail)"
     }
   }
 }
