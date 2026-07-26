@@ -8,15 +8,15 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: macos-latest
+    runs-on: [self-hosted, macOS, swift-6.4]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode / Swift toolchain
+      - name: Verify Swift version
         run: |
-          swift --version
           xcode-select -p
+          swift --version
 
       - name: Build production targets
         run: swift build
