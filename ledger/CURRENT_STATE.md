@@ -2,16 +2,21 @@
 
 This file is a compact, atomically replaced projection of the append-only ledger.
 
-- Phase: Context Reconstruction complete
-- Active milestone: 16
-- Active task: 16_CONTEXT — completed
-- Last verified commit: b42e40f (origin/main, Phase 13); Phase 14, Phase 15, and Phase 16 changes present locally, not yet committed
-- Build status: Passes (`swift build --build-path /tmp/aurabuild-context16`, zero non-linker warnings)
-- Test status: Passes via `./scripts/aura-test.sh /tmp/aurabuild-context16`; all 8 default-loop bundles pass, plus `AuraPolicyTests` (17/17), `AuraTasksTests` (10/10), `AuraVSCodeTests` (13/13), `AuraMemoryTests` (17/17), and `AuraContextTests` (20/20, incl. one double-check regression test) run explicitly — 13/13 test bundles pass with zero failures, 342 tests total. `AuraContextTests` (new) and `AuraMemoryTests` each re-run 3× with no flakiness. Note: `AuraAudioTests.startIgnoredWhenNotIdle` is a pre-existing, hardware-timing-dependent flaky test (unrelated to Phase 16 — see 16_CONTEXT double-check ledger entry) that failed once across repeated full-sweep reruns and passed 3/3 in isolation immediately after.
+- Phase: Screen Context and Redaction complete
+- Active milestone: 17
+- Active task: 17_SCREEN_CONTEXT — completed
+- Last verified commit: 49d2fc6 (origin/main, Phases 14-16 pushed). Phase 17 changes (including region-scoping completion) present locally, not yet committed.
+- Build status: Passes (`swift build --build-path /tmp/aurabuild-verify17b`, zero non-linker warnings)
+- Test status: Passes via `./scripts/aura-test.sh /tmp/aurabuild-verify17b`; all 8 default-loop bundles pass, plus `AuraPolicyTests` (17/17), `AuraTasksTests` (10/10), `AuraVSCodeTests` (13/13), `AuraMemoryTests` (17/17), `AuraContextTests` (20/20), and `AuraScreenTests` (36/36, incl. window- and region-scoping) run explicitly — 14/14 test bundles pass with zero failures, 378 tests total. `AuraScreenTests` re-run 3× with no flakiness.
 - Known blockers: None
 - Pending confirmations:
+  - Screen Context: OCR-based redaction (financial data, authentication codes, configured patterns) depends on `Vision`'s text recognition accuracy for real captures — non-OCR-able rendered content would not be caught by those categories; secure-field and sensitive-app exclusions are unaffected since they never depend on recognized text.
+  - Screen Context: `ScreenContextEngine` is not yet wired into any real caller (a live conversation turn, the Phase 18 computer-use control loop) — no subsystem yet actually requests a capture during live operation.
+  - Screen Context: real Screen Recording permission, live display capture, live Vision OCR accuracy, and `SCStreamConfiguration.sourceRect`-based cropped-capture runtime behavior are all unvalidated in this sandboxed environment (no GUI permission grant available); production code is verified against real APIs (SDK header reads plus `swiftc -typecheck` probe compiles) and covered by deterministic-fake unit tests only, matching the Phase 1/2 precedent.
+  - Screen Context: `SCScreenshotManager`'s one-shot capture is used, not a continuous `SCStream` — deliberate (matches "off until actively needed"), but means there is no live-video capture path if a future phase needs one.
+  - Screen Context: region scoping is always a sub-rectangle of an already-approved window, never an independent display rectangle — deliberate (see ADR-018 decision 10), so there is no way to capture a screen region that spans multiple windows/applications.
   - Context Reconstruction: semantic retrieval is deterministic keyword containment (tokenize + overlap score), not embedding-based similarity — will miss a relevant fact phrased with different vocabulary, and can occasionally match on a coincidental shared word. Deferred to Phase 21/22.
-  - `AuraAudioTests.startIgnoredWhenNotIdle` is a pre-existing, hardware-timing-dependent flaky test (its own code comment: "First start may succeed or fail based on hardware") from Phase 1/4–7 — not introduced by or related to Phase 16; a future fix should inject a fake audio backend instead of depending on real hardware start/stop timing.
+  - `AuraAudioTests.startIgnoredWhenNotIdle` is a pre-existing, hardware-timing-dependent flaky test (its own code comment: "First start may succeed or fail based on hardware") from Phase 1/4–7 — not introduced by or related to Phase 16/17; a future fix should inject a fake audio backend instead of depending on real hardware start/stop timing.
   - Context Reconstruction: `ContextEngine` is not yet wired into any real caller (conversation turn, intent engine, dialogue manager) — no subsystem yet calls `reconstruct`/`resolveReference` during a live turn, and turning `.ambiguous`/`.blockedWeakEvidence` into an actual clarifying question or confirmation challenge is a caller responsibility not yet built.
   - Context Reconstruction: `referenceGuardedTierThreshold` defaults to `.mutation` (one tier more conservative than the acceptance gate's literal "destructive" wording) — a deliberate, documented, configurable choice via `ContextConfiguration`, not an oversight.
   - Memory Engine: contradiction detection is a mechanical same-key-different-statement equality check, not semantic/NLP comparison — will miss semantically-contradictory statements phrased differently, and won't catch contradictions across a poorly-chosen subject key. Deferred to Phase 21 (Advanced Memory Engine and Provenance Graph).
@@ -41,10 +46,10 @@ This file is a compact, atomically replaced projection of the append-only ledger
   - Integration of `Conversation`, `PolicyEngine`, wake pipeline, intent engine, and tool adapters into a single orchestrated turn.
   - Live macOS app lifecycle validation with sandboxed entitlements and Accessibility permission prompts.
   - End-to-end confirmation flow from `PolicyEngine` through UI to `AuraAutomation` tool adapters.
-  - Real policy-engine authorization wired into `AuraShell.execute` and `AuraTaskEngine` before launching commands (each backend adapter and `WorktreeManager`/`MultiAgentOrchestrator` perform their own real `PolicyEngine.evaluate` call and do not depend on this).
+  - Real policy-engine authorization wired into `AuraShell.execute` and `AuraTaskEngine` before launching commands (each backend adapter and `WorktreeManager`/`MultiAgentOrchestrator`/`ScreenContextEngine` perform their own real `PolicyEngine.evaluate` call and do not depend on this).
   - Interactive PTY adapter integrated with terminal-agent and multi-agent protocol.
   - Companion VS Code extension that writes bridge snapshots for live editor/terminal/diagnostics state.
   - Active watchdog enforcing `TaskConfiguration.deadline` and `inactivityTimeoutSeconds`.
-  - None of `CodexAdapter`/`CodexTaskRunner`, `ClaudeAdapter`/`ClaudeTaskRunner`, `CopilotAdapter`/`CopilotTaskRunner`, `OllamaAdapter`/`OllamaTaskRunner`, `WorktreeManager`, `MultiAgentOrchestrator`, `MemoryEngine`, or `ContextEngine` is wired into the `AURA` app composition root yet.
-  - `scripts/aura-test.sh`'s default loop still omits `AuraPolicyTests`/`AuraTasksTests`/`AuraVSCodeTests`/`AuraMemoryTests`/`AuraContextTests` (must be run explicitly with a target filter).
-- Next safe action: Review the Phase 14 + 15 + 16 diff with the user; on approval, commit and push. Then proceed to Phase 17 (`prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md`) only when the user next signals to continue.
+  - None of `CodexAdapter`/`CodexTaskRunner`, `ClaudeAdapter`/`ClaudeTaskRunner`, `CopilotAdapter`/`CopilotTaskRunner`, `OllamaAdapter`/`OllamaTaskRunner`, `WorktreeManager`, `MultiAgentOrchestrator`, `MemoryEngine`, `ContextEngine`, or `ScreenContextEngine` is wired into the `AURA` app composition root yet.
+  - `scripts/aura-test.sh`'s default loop still omits `AuraPolicyTests`/`AuraTasksTests`/`AuraVSCodeTests`/`AuraMemoryTests`/`AuraContextTests`/`AuraScreenTests` (must be run explicitly with a target filter).
+- Next safe action: Review the Phase 17 diff with the user; on approval, commit and push. Then proceed to Phase 18 — Computer-Use Control Loop (`prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 18) only when the user next signals to continue.

@@ -21,7 +21,8 @@ let package = Package(
         .library(name: "AuraVSCode", targets: ["AuraVSCode"]),
         .library(name: "AuraTasks", targets: ["AuraTasks"]),
         .library(name: "AuraMemory", targets: ["AuraMemory"]),
-        .library(name: "AuraContext", targets: ["AuraContext"])
+        .library(name: "AuraContext", targets: ["AuraContext"]),
+        .library(name: "AuraScreen", targets: ["AuraScreen"])
     ],
     dependencies: [
     ],
@@ -217,6 +218,19 @@ let package = Package(
                 .swiftLanguageMode(.v6)
             ]
         ),
+        .target(
+            name: "AuraScreen",
+            dependencies: ["AuraCore", "AuraPolicy"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("AppKit", .when(platforms: [.macOS])),
+                .linkedFramework("ApplicationServices", .when(platforms: [.macOS])),
+                .linkedFramework("ScreenCaptureKit", .when(platforms: [.macOS])),
+                .linkedFramework("Vision", .when(platforms: [.macOS]))
+            ]
+        ),
         .testTarget(
             name: "AuraVSCodeTests",
             dependencies: ["AuraVSCode"],
@@ -253,6 +267,17 @@ let package = Package(
         .testTarget(
             name: "AuraContextTests",
             dependencies: ["AuraContext", "AuraMemory", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
+        .testTarget(
+            name: "AuraScreenTests",
+            dependencies: ["AuraScreen", "AuraPolicy"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
                 .unsafeFlags([
