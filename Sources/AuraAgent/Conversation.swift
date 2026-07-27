@@ -34,18 +34,36 @@ public actor Conversation {
   private var currentTurnText: String = ""
   private var currentTurnConfidence: Double = 0
 
+  /// Monotonic clock source used for all latency math in this actor.
+  private let monotonicClock: () -> TimeInterval
+
+  /// Timestamp of the most recent accepted wake activation, measured with
+  /// `monotonicClock`. Nil when not in an active turn.
+  private var wakeStartTime: TimeInterval?
+
+  /// Set to true once the first spoken response plan of the current turn has
+  /// been used to emit a wake-to-ack latency measurement.
+  private var wakeToAckRecorded: Bool = false
+
+  /// Set to true when the current turn carries a deterministic command that
+  /// does not require a remote model, so `onSpeechFinished()` can record the
+  /// simple-command completion latency.
+  private var simpleCommandTurn: Bool = false
+
   public init(
     configuration: ConversationConfiguration,
     ttsConfiguration: TTSConfiguration,
     ttsEngine: any TTSEngine,
     eventBus: AuraEventBus,
-    logger: AuraLogger
+    logger: AuraLogger,
+    monotonicClock: @escaping @Sendable () -> TimeInterval = { CFAbsoluteTimeGetCurrent() }
   ) {
     self.configuration = configuration
     self.ttsConfiguration = ttsConfiguration
     self.ttsEngine = ttsEngine
     self.eventBus = eventBus
     self.logger = logger
+    self.monotonicClock = monotonicClock
   }
 
   // MARK: - Public state transitions
@@ -63,6 +81,9 @@ public actor Conversation {
       to: .listening, reason: privacyMode ? "privacy-mode activation" : "wake-word activation")
     currentTurnText = ""
     currentTurnConfidence = 0
+    wakeStartTime = monotonicClock()
+    wakeToAckRecorded = false
+    simpleCommandTurn = false
     scheduleTimeout(for: .listening, after: configuration.listenTimeoutSeconds)
   }
 
@@ -112,7 +133,15 @@ public actor Conversation {
     await cancelTimeout()
     emit(event)
 
+    // A response plan from a local/no-remote-model intent qualifies this turn
+    // for the simple-command completion latency budget.
+    if event.isSimpleCommand {
+      simpleCommandTurn = true
+    }
+
     if event.hasSpokenResponse, !event.summary.isEmpty {
+      recordWakeToAckLatencyIfNeeded()
+
       let prompt = TTSPrompt(
         text: event.summary,
         locale: ttsConfiguration.defaultLocale,
@@ -134,6 +163,7 @@ public actor Conversation {
         await scheduleNextSpeech()
       }
     } else if speechQueue.isEmpty {
+      recordSimpleCommandCompletionLatencyIfNeeded()
       transition(to: .idle, reason: "response plan has no spoken response")
     }
   }
@@ -262,10 +292,35 @@ public actor Conversation {
       return
     }
     if speechQueue.isEmpty {
+      recordSimpleCommandCompletionLatencyIfNeeded()
       transition(to: .idle, reason: "speech complete")
     } else {
       await scheduleNextSpeech()
     }
+  }
+
+  // MARK: - Latency measurement
+
+  private func recordWakeToAckLatencyIfNeeded() {
+    guard let start = wakeStartTime, !wakeToAckRecorded else { return }
+    let latency = monotonicClock() - start
+    wakeToAckRecorded = true
+    emit(
+      LatencyMeasuredEvent(
+        kind: .wakeToAck,
+        latencySeconds: latency,
+        budgetSeconds: 0.5,
+        isMockEngine: true))
+  }
+
+  private func recordSimpleCommandCompletionLatencyIfNeeded() {
+    guard simpleCommandTurn, let start = wakeStartTime else { return }
+    emit(
+      LatencyMeasuredEvent(
+        kind: .simpleCommandCompletion,
+        latencySeconds: monotonicClock() - start,
+        budgetSeconds: 1.5,
+        isMockEngine: true))
   }
 
   private func stopSpeaking(reason: TTSStopReason) async {
@@ -291,6 +346,7 @@ public actor Conversation {
     }
 
     // Otherwise treat it as a completed turn carrying the command.
+    simpleCommandTurn = true
     let completed = TurnCompletedEvent(
       text: currentTurnText,
       confidence: currentTurnConfidence,

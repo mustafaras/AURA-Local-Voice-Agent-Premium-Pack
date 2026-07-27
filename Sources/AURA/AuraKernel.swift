@@ -32,6 +32,7 @@ actor AuraKernel {
   private var intentDispatchCoordinator: IntentDispatchCoordinator?
   private var conversationEventBridge: ConversationEventBridge?
   private var audioSampleBridge: AudioSampleBridge?
+  private var performanceSampler: PerformanceSampler?
 
   private var shutdownContinuation: CheckedContinuation<Void, Never>?
   private var sigintSource: DispatchSourceSignal?
@@ -142,7 +143,11 @@ actor AuraKernel {
     let conversation = Conversation(
       configuration: configuration.conversation, ttsConfiguration: configuration.tts,
       ttsEngine: MockTTSEngine(), eventBus: eventBus,
-      logger: AuraLogger(subsystem: bundleID, category: "conversation"))
+      logger: AuraLogger(subsystem: bundleID, category: "conversation"),
+      monotonicClock: { CFAbsoluteTimeGetCurrent() })
+
+    let performanceSampler = PerformanceSampler(
+      logger: AuraLogger(subsystem: bundleID, category: "performance"))
 
     intentDispatchCoordinator = IntentDispatchCoordinator(
       intentEngine: intentEngine, toolRouter: toolRouter, conversation: conversation,
@@ -152,6 +157,7 @@ actor AuraKernel {
     audioSampleBridge = AudioSampleBridge(
       audio: audio, wakeWordPipeline: wakeWordPipeline, sttPipeline: sttPipeline,
       eventBus: eventBus)
+    self.performanceSampler = performanceSampler
   }
 
   /// Seed the default grant table — see `docs/decisions/ADR-022-composition
@@ -200,12 +206,13 @@ actor AuraKernel {
   private func startPipeline() async throws(AuraError) {
     guard let taskEngine, let agentTaskRunner, let wakeWordPipeline, let sttPipeline,
       let intentDispatchCoordinator, let conversationEventBridge, let audioSampleBridge,
-      let audio
+      let audio, let performanceSampler
     else {
       throw AuraError.invalidConfiguration("AuraKernel.startPipeline called before construct()")
     }
 
     await taskEngine.start(runner: agentTaskRunner)
+    await performanceSampler.start(on: eventBus)
     await wakeWordPipeline.start()
     try await sttPipeline.start()
     await intentDispatchCoordinator.start()

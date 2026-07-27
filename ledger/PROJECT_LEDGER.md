@@ -1720,3 +1720,81 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Current state:** `origin/main` now at `a402f40`. Phase 19 + INTEGRATION work is public. Ledger current state updated.
 - **Next safe action:** Await user direction (expand intent vocabulary, proceed to Phase 20, or other task).
 - **Integrity hash:** intentionally omitted.
+
+### 2026-07-27T14:30:00Z — 20_RELEASE_READINESS — Phase 20: release-readiness latency instrumentation, deterministic budgets, packaging design, and signed-artifact placeholders
+
+- **Actor:** GitHub Copilot
+- **Objective:** Execute Phase 20 of `AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 20 — Release Readiness: provide measurable evidence for the acceptance gates (median wake-to-acknowledgement latency below 500 ms; median simple-command completion below 1.5 s when no remote model is required; energy budget met; no release without explicit authorization), document the packaging/update mechanism, and create the entitlement/plist/script scaffolding needed for future signing and distribution.
+- **Starting state:** Phase 19 + INTEGRATION work committed and pushed to `origin/main` at `a402f40`; 506 tests across 18 bundles passed in the previous verification. No latency instrumentation existed. No performance budgets were filled. No release resources (entitlements, Info.plist, build/sign scripts) existed. No ADR documented the Phase 20 scope split.
+- **Evidence inspected:**
+  - `AGENTS.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`
+  - `docs/01_MASTER_SPEC.md` acceptance gates, `docs/testing/38_PERFORMANCE_BUDGETS.md`, `docs/operations/35_RELEASE_CHECKLIST.md`, `docs/operations/33_DEPLOYMENT.md`
+  - `Sources/AURA/AuraKernel.swift`, `Sources/AuraAgent/Conversation.swift`, `Sources/AuraCore/AudioEventPayloads.swift`, `Sources/AuraCore/PerformanceSampler.swift`, `Sources/AuraAutomation/{AccessibilityHealth,AuraAutomation}.swift`
+  - `Tests/AuraAgentTests/ConversationTests.swift`, `Tests/AuraAutomationTests/AuraAutomationTests.swift`, `Tests/AURAIntegrationTests/EndToEndPipelineTests.swift`
+- **Assumptions:**
+  - Real on-device wake-word, STT, and TTS models are not yet integrated, so the acceptance-gate evidence must be mock-engine-derived and honestly labeled as such.
+  - Real Accessibility/Screen-Recording permission UX cannot be exercised deterministically in this sandboxed/CommandLineTools environment.
+  - App-bundle codesign and `notarytool` notarization require a Developer ID certificate that is not available in this workspace, so packaging remains design + placeholder scripts only.
+  - No release is performed without explicit user authorization.
+- **Decisions:**
+  - Added `LatencyMeasuredEvent` to `Sources/AuraCore/AudioEventPayloads.swift` with `kind` (`wakeToAck`, `simpleCommandCompletion`), `latencySeconds`, `budgetSeconds`, and `isMockEngine` fields.
+  - Added `PerformanceSampler` actor in `Sources/AuraCore/PerformanceSampler.swift` that subscribes to `LatencyMeasuredEvent`, `WakeWordMetricsEvent`, and `OllamaHealthCheckEvent` and produces a `SystemHealthSnapshot` with median/worst latency values and mock-engine derivation flag.
+  - Wired `PerformanceSampler` into `AuraKernel.startPipeline()` so production event aggregation starts before the audio pipeline.
+  - Added deterministic latency measurement fields and emission methods to `Conversation` (`wakeStartTime`, `wakeToAckRecorded`, `simpleCommandTurn`, `recordWakeToAckLatencyIfNeeded()`, `recordSimpleCommandCompletionLatencyIfNeeded()`). `isMockEngine` is hardcoded `true` because the only engines on the current data path are `MockTTSEngine` and `DeterministicMockSTTEngine`.
+  - Added `AccessibilityHealthChecking` protocol and refactored `AuraAutomation` to depend on `any AccessibilityHealthChecking`, enabling deterministic permission-state tests. Added `AccessibilityHealthSpy` test actor.
+  - Added `AuraAutomation` denied/granted Accessibility permission tests that assert the correct `AccessibilityPermissionEvent` is emitted.
+  - Filled `docs/testing/38_PERFORMANCE_BUDGETS.md` with mock-engine-derived budget rows, TBD real-device rows, measurement methodology, and the Phase 20 release gate.
+  - Created `Resources/AURA.entitlements` with hardened-runtime/macOS entitlements (accessibility, microphone, screen-recording, scoped file access; network and code-injection disabled) and `Resources/AURA-Info.plist` with privacy usage descriptions and `LSUIElement`.
+  - Created placeholder scripts: `scripts/build-app-bundle.sh`, `scripts/codesign-adhoc.sh`, `scripts/verify-signature.sh` — all made executable. These build, ad-hoc sign, and verify `AURA.app` locally; no release or notarization is performed.
+  - Created `docs/operations/UPDATE_MECHANISM.md` with a privacy-first, fail-closed, user-controlled update design, helper trust model, and deferred checklist.
+  - Created `docs/decisions/ADR-023-release-readiness-latency.md` documenting the decision to split Phase 20 into verifiable instrumentation+budget work now and packaging/signing/release work later, and explicitly rejecting the alternatives of claiming mock-engine results as real-world proof or performing an unauthorized release.
+- **Files changed:**
+  - `Sources/AuraCore/AudioEventPayloads.swift` — added `LatencyMeasuredEvent`
+  - `Sources/AuraCore/PerformanceSampler.swift` — new actor + `LatencySample`, `SystemHealthSnapshot`
+  - `Sources/AuraCore/AtomicBox.swift` — minor addition (concurrency helper)
+  - `Sources/AURA/AuraKernel.swift` — constructs and starts `PerformanceSampler`
+  - `Sources/AuraAgent/Conversation.swift` — latency fields and emission methods
+  - `Sources/AuraAutomation/AccessibilityHealth.swift` — added `AccessibilityHealthChecking` protocol
+  - `Sources/AuraAutomation/AuraAutomation.swift` — inject `any AccessibilityHealthChecking`; forward `pollInterval`
+  - `Sources/AuraIntent/IntentDispatchCoordinator.swift` — set `ResponsePlanEvent.isSimpleCommand` on local/no-remote-model paths
+  - `Tests/AuraAgentTests/ConversationTests.swift` — added `EventBoxClock` and three latency tests (wake-to-ack, simple-command completion, non-simple plan)
+  - `Tests/AuraAutomationTests/AuraAutomationTests.swift` — added `AccessibilityHealthSpy` and denied/granted permission event tests
+  - `Tests/AURAIntegrationTests/EndToEndPipelineTests.swift` — added release-readiness simple-command budget test and latency assertions
+  - `docs/testing/38_PERFORMANCE_BUDGETS.md` — filled mock-engine budgets and release gate
+  - `docs/decisions/ADR-023-release-readiness-latency.md` — new ADR
+  - `docs/operations/UPDATE_MECHANISM.md` — new design document
+  - `Resources/AURA.entitlements` — new
+  - `Resources/AURA-Info.plist` — new
+  - `scripts/build-app-bundle.sh` — new, executable
+  - `scripts/codesign-adhoc.sh` — new, executable
+  - `scripts/verify-signature.sh` — new, executable
+- **Commands executed:**
+  - `swift build --build-path /tmp/aurabuild` — exit 0, production build passes
+  - `./scripts/aura-test.sh /tmp/aurabuild` — default 8-bundle loop, all pass, 0 failures
+  - Per-bundle counts: `AURAIntegrationTests` 7/7, `AuraAgentTests` 205/205, `AuraAudioTests` 12/12, `AuraAutomationTests` 6/6, `AuraCoreTests` 7/7, `AuraSTTTests` 7/7, `AuraShellTests` 23/23, `AuraStoreTests` 8/8 — 275 tests total in default loop. (The remaining 10 bundles from the prior full 18-bundle sweep were not re-run this session; no changes touched their code paths, and the default loop includes all Phase 20-modified targets.)
+  - `chmod +x scripts/build-app-bundle.sh scripts/codesign-adhoc.sh scripts/verify-signature.sh`
+- **Tests and exact results:**
+  - `ConversationTests.wakeToAckLatencyMeasured` — passes; asserts 0.200 s wake-to-ack latency on deterministic clock, `isMockEngine == true`, `budgetSeconds == 0.5`.
+  - `ConversationTests.simpleCommandCompletionLatencyMeasured` — passes; asserts completion event emitted after mock TTS, `isMockEngine == true`, `budgetSeconds == 1.5`.
+  - `ConversationTests.nonSimpleResponsePlanOmitsCompletionLatency` — passes; confirms only simple-command plans trigger the completion latency event.
+  - `AuraAutomationTests.checkAccessibilityPermissionEmitsDeniedEventOnCleanInstall` — passes; deterministic `.denied` path emits one `AccessibilityPermissionEvent`.
+  - `AuraAutomationTests.checkAccessibilityPermissionEmitsGrantedEventWhenTrusted` — passes; deterministic `.granted` path emits one `AccessibilityPermissionEvent`.
+  - `AURAIntegrationTests.endToEndPipelineCompletesSimpleCommandUnderBudget` — passes; mock-engine "activate safari" path records wake-to-ack < 0.5 s and simple-command completion < 1.5 s.
+- **Security/privacy impact:**
+  - No network entitlement is enabled (`com.apple.security.network.client/server` are `false`); `AURA.app` remains offline by default.
+  - Camera entitlement is explicitly disabled with a denied-usage description.
+  - Code-injection/debugging hardened-runtime flags are disabled for release builds.
+  - Update mechanism is fail-closed: helper has no Accessibility/microphone/screen-recording access, agent retains `network.client = false`, staged artifacts are validated before installation, and rollback keeps the previous bundle until success.
+  - No secrets, ambient audio, screenshots, or user data appear in new files, scripts, or ledger entry.
+- **Unresolved risks:**
+  - Real-device latency budgets remain **TBD**; current evidence is mock-engine only, honestly documented.
+  - Real Accessibility/Screen-Recording permission behavior is not validated in this environment.
+  - Energy budget cannot be measured without real on-device models and target hardware.
+  - Codesign/notarization placeholders are not executed against a real Developer ID certificate; no release artifact exists.
+  - Update mechanism is design-only; the XPC helper, metadata endpoint, and install assistant are deferred.
+  - `AuraKernel` still uses `MockTTSEngine` and `DeterministicMockSTTEngine` on the real launch path, so the product cannot speak or transcribe real speech.
+  - The full 18-bundle regression sweep from the INTEGRATION entry was not re-run this session; only the default 8-bundle loop was verified.
+- **Rollback:** Revert all files listed above; remove `Resources/AURA.entitlements`, `Resources/AURA-Info.plist`, the three scripts, `docs/decisions/ADR-023-release-readiness-latency.md`, `docs/operations/UPDATE_MECHANISM.md`, and the `docs/testing/38_PERFORMANCE_BUDGETS.md` edits.
+- **Current state:** Phase 20 implementation complete. Mock-engine acceptance-gate evidence passes in CI. Packaging/update scaffolding and ADR in place. No release performed. Working tree has uncommitted Phase 20 changes.
+- **Next safe action:** Review the Phase 20 diff with the user; on explicit go-ahead, commit and push. Then await user direction for the next phase/task.
+- **Integrity hash:** intentionally omitted.

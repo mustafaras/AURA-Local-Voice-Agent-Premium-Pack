@@ -10,6 +10,10 @@ public actor AtomicBox<T: Sendable> {
 
   public var value: T { storage }
 
+  public func setValue(_ newValue: T) {
+    storage = newValue
+  }
+
   public func mutate(_ newValue: T) {
     storage = newValue
   }

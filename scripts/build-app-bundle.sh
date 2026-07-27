@@ -1,0 +1,39 @@
+#!/bin/zsh
+set -euo pipefail
+
+# Build AURA.app from the SwiftPM executable target.
+# This script is a Phase 20 release-readiness placeholder.
+# It builds the executable and assembles a .app bundle structure;
+# signing is performed separately by scripts/codesign-adhoc.sh.
+
+SCRIPT_DIR="$(cd "$(dirname "${(%):-%N}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BUILD_DIR="${BUILD_DIR:-$REPO_ROOT/.build/release-app}"
+APP_NAME="AURA"
+BUNDLE_ID="ai.aura.local.agent"
+
+# Clean previous bundle
+rm -rf "$BUILD_DIR/$APP_NAME.app"
+
+# Build the SwiftPM executable in release mode.
+# We use swift build directly because swiftpm-testing-helper is only needed for tests.
+swift build \
+  -c release \
+  --product "$APP_NAME" \
+  --build-path "$BUILD_DIR/swiftpm"
+
+# Assemble .app bundle
+CONTENTS="$BUILD_DIR/$APP_NAME.app/Contents"
+MACOS_DIR="$CONTENTS/MacOS"
+RESOURCES_DIR="$CONTENTS/Resources"
+mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
+
+# Copy executable
+cp "$BUILD_DIR/swiftpm/release/$APP_NAME" "$MACOS_DIR/$APP_NAME"
+
+# Copy entitlements and Info.plist for the bundle build.
+cp "$REPO_ROOT/Resources/$APP_NAME-Info.plist" "$CONTENTS/Info.plist"
+cp "$REPO_ROOT/Resources/$APP_NAME.entitlements" "$RESOURCES_DIR/$APP_NAME.entitlements"
+
+echo "Built $BUILD_DIR/$APP_NAME.app"
+echo "Next step: ./scripts/codesign-adhoc.sh $BUILD_DIR/$APP_NAME.app"

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Accessibility: required for application control, secure-field detection, and UI observation. -->
+    <key>com.apple.security.accessibility</key>
+    <true/>
+
+    <!-- Screen Recording: required for screen context and computer-use control loop. -->
+    <key>com.apple.security.screen-recording</key>
+    <true/>
+
+    <!-- Microphone: required for wake-word, STT, and voice interaction. -->
+    <key>com.apple.security.device.microphone</key>
+    <true/>
+
+    <!-- Camera: explicitly disabled; AURA does not use the camera. -->
+    <key>com.apple.security.device.camera</key>
+    <false/>
+
+    <!-- Files and bookmarks: scoped to user-selected directories only. -->
+    <key>com.apple.security.files.bookmarks.app-scope</key>
+    <true/>
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+
+    <!-- Networking: disabled by default. Any network access must be justified in ADR-020. -->
+    <key>com.apple.security.network.client</key>
+    <false/>
+    <key>com.apple.security.network.server</key>
+    <false/>
+
+    <!-- Code injection / debugging: disabled for release builds. -->
+    <key>com.apple.security.cs.debugger</key>
+    <false/>
+    <key>com.apple.security.cs.allow-jit</key>
+    <false/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <false/>
+    <key>com.apple.security.cs.disable-library-validation</key>
+    <false/>
+
+    <!-- Runtime exceptions: none enabled. Add only with security review and ADR. -->
+</dict>
+</plist>

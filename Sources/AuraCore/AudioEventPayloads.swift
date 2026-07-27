@@ -367,10 +367,22 @@ public struct ResponsePlanEvent: EventPayload {
   public let summary: String
   public let hasSpokenResponse: Bool
 
-  public init(planID: String, summary: String, hasSpokenResponse: Bool) {
+  /// True when the plan is the result of a local, no-remote-model intent
+  /// (e.g. `appActivate`, `appTerminate`, or `shellExecute`). `Conversation`
+  /// uses this flag to decide whether the current turn qualifies for the
+  /// simple-command completion latency budget.
+  public let isSimpleCommand: Bool
+
+  public init(
+    planID: String,
+    summary: String,
+    hasSpokenResponse: Bool,
+    isSimpleCommand: Bool = false
+  ) {
     self.planID = planID
     self.summary = summary
     self.hasSpokenResponse = hasSpokenResponse
+    self.isSimpleCommand = isSimpleCommand
   }
 }
 
@@ -435,6 +447,42 @@ public struct STTCancelledEvent: EventPayload {
   public static let eventType = "stt.cancelled"
 
   public init() {}
+}
+
+/// Emitted when a latency-sensitive milestone is measured by the conversation
+/// state machine. Both `wakeToAck` and `simpleCommandCompletion` are measured
+/// from the accepted wake activation time so the numbers remain comparable.
+public struct LatencyMeasuredEvent: EventPayload {
+  public static let eventType = "performance.latency.measured"
+
+  public enum Kind: String, Codable, Sendable, Equatable {
+    /// Wake-word activation to first response-plan emission (acknowledgement).
+    case wakeToAck
+
+    /// Wake-word activation to end of spoken response for a deterministic
+    /// command that needs no remote model.
+    case simpleCommandCompletion
+  }
+
+  public let kind: Kind
+  public let latencySeconds: Double
+  public let budgetSeconds: Double
+  public let isMockEngine: Bool
+  public let measuredAt: Date
+
+  public init(
+    kind: Kind,
+    latencySeconds: Double,
+    budgetSeconds: Double,
+    isMockEngine: Bool,
+    measuredAt: Date = Date()
+  ) {
+    self.kind = kind
+    self.latencySeconds = latencySeconds
+    self.budgetSeconds = budgetSeconds
+    self.isMockEngine = isMockEngine
+    self.measuredAt = measuredAt
+  }
 }
 
 /// Emitted when the STT engine health changes or is polled.

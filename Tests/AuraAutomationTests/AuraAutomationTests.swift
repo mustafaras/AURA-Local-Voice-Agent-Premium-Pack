@@ -3,6 +3,24 @@ import AuraCore
 import Foundation
 import Testing
 
+/// Collects event payloads from the event bus in a thread-safe way for test inspection.
+private final class EventBox: @unchecked Sendable {
+  private let lock = NSLock()
+  private var payloads: [any EventPayload] = []
+
+  func append(_ payload: any EventPayload) {
+    lock.lock()
+    defer { lock.unlock() }
+    payloads.append(payload)
+  }
+
+  var events: [any EventPayload] {
+    lock.lock()
+    defer { lock.unlock() }
+    return payloads
+  }
+}
+
 @Suite("Native macOS automation coordinator")
 struct AuraAutomationTests {
 
@@ -47,9 +65,98 @@ struct AuraAutomationTests {
       try await automation.launchApplication(bundleIdentifier: "")
     }
   }
+
+  @Test func checkAccessibilityPermissionEmitsDeniedEventOnCleanInstall() async {
+    let spy = AccessibilityHealthSpy(injectedState: .denied)
+    let logger = AuraLogger(subsystem: "ai.aura.tests", category: "AccessibilityPermissionTests", minimumLevel: .debug)
+    let eventBus = AuraEventBus(logger: logger)
+    let box = EventBox()
+    await eventBus.subscribe(AccessibilityPermissionEvent.self) { envelope in
+      box.append(envelope.payload)
+    }
+    let automation = AuraAutomation(
+      config: AutomationConfiguration(),
+      applicationController: ApplicationControllerSpy(),
+      accessibilityHealth: spy,
+      accessibilityObserver: AccessibilityObserverSpy(),
+      eventBus: eventBus
+    )
+
+    let state = await automation.checkAccessibilityPermission()
+
+    #expect(state == .denied)
+    let captured = box.events.compactMap { $0 as? AccessibilityPermissionEvent }
+    #expect(captured.count == 1)
+    #expect(captured.first?.state == .denied)
+    #expect(captured.first?.source == "AuraAutomation.AccessibilityHealth")
+  }
+
+  @Test func checkAccessibilityPermissionEmitsGrantedEventWhenTrusted() async {
+    let spy = AccessibilityHealthSpy(injectedState: .granted)
+    let logger = AuraLogger(subsystem: "ai.aura.tests", category: "AccessibilityPermissionTests", minimumLevel: .debug)
+    let eventBus = AuraEventBus(logger: logger)
+    let box = EventBox()
+    await eventBus.subscribe(AccessibilityPermissionEvent.self) { envelope in
+      box.append(envelope.payload)
+    }
+    let automation = AuraAutomation(
+      config: AutomationConfiguration(),
+      applicationController: ApplicationControllerSpy(),
+      accessibilityHealth: spy,
+      accessibilityObserver: AccessibilityObserverSpy(),
+      eventBus: eventBus
+    )
+
+    let state = await automation.checkAccessibilityPermission()
+
+    #expect(state == .granted)
+    let captured = box.events.compactMap { $0 as? AccessibilityPermissionEvent }
+    #expect(captured.count == 1)
+    #expect(captured.first?.state == .granted)
+  }
 }
 
 // MARK: - Test doubles
+
+final actor AccessibilityHealthSpy: AccessibilityHealthChecking {
+  var injectedState: AccessibilityTrustState = .denied
+  var emitCallCount = 0
+  var lastEventBus: AuraEventBus?
+
+  init(injectedState: AccessibilityTrustState = .denied) {
+    self.injectedState = injectedState
+  }
+
+  func checkTrust() async -> AccessibilityTrustState {
+    return injectedState
+  }
+
+  func waitForTrust(pollInterval: TimeInterval) async throws(AuraError) {
+    if injectedState != .granted {
+      throw AuraError.automationError("Accessibility trust denied")
+    }
+  }
+
+  func emitPermissionEvent(into bus: AuraEventBus?) async {
+    emitCallCount += 1
+    lastEventBus = bus
+    let payload = AccessibilityPermissionEvent(
+      source: "AuraAutomation.AccessibilityHealth",
+      state: injectedState,
+      timestamp: Date()
+    )
+    let envelope = EventEnvelope(
+      correlationID: UUID(),
+      causationID: UUID(),
+      actor: ActorID.automation,
+      sensitivity: .internalLevel,
+      payload: payload
+    )
+    if let bus {
+      await bus.emit(envelope)
+    }
+  }
+}
 
 final class ApplicationControllerSpy: ApplicationControlling, @unchecked Sendable {
   nonisolated(unsafe) var runningApplicationsCallCount = 0

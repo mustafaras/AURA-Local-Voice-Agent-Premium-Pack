@@ -9,7 +9,7 @@ import Foundation
 public actor AuraAutomation {
   private let config: AutomationConfiguration
   private let applicationController: ApplicationControlling
-  private let accessibilityHealth: AccessibilityHealth
+  private let accessibilityHealth: any AccessibilityHealthChecking
   private let accessibilityObserver: AccessibilityObserving
   private let bus: AuraEventBus?
   private let logger: AuraLogger
@@ -27,7 +27,7 @@ public actor AuraAutomation {
     self.bus = eventBus
     self.logger = logger
     self.applicationController = ApplicationController(logger: logger)
-    self.accessibilityHealth = AccessibilityHealth(logger: logger)
+    self.accessibilityHealth = AccessibilityHealth(logger: logger) as any AccessibilityHealthChecking
     self.accessibilityObserver = AccessibilityObserver(logger: logger)
   }
 
@@ -35,7 +35,7 @@ public actor AuraAutomation {
   public init(
     config: AutomationConfiguration,
     applicationController: ApplicationControlling,
-    accessibilityHealth: AccessibilityHealth,
+    accessibilityHealth: any AccessibilityHealthChecking,
     accessibilityObserver: AccessibilityObserving,
     eventBus: AuraEventBus? = nil,
     logger: AuraLogger = AuraLogger(
@@ -110,8 +110,8 @@ public actor AuraAutomation {
   }
 
   /// Wait for Accessibility to become trusted.
-  public func waitForAccessibilityTrust() async throws(AuraError) {
-    try await accessibilityHealth.waitForTrust()
+  public func waitForAccessibilityTrust(pollInterval: TimeInterval = 1.0) async throws(AuraError) {
+    try await accessibilityHealth.waitForTrust(pollInterval: pollInterval)
   }
 
   /// Observe an accessible element in the target application.

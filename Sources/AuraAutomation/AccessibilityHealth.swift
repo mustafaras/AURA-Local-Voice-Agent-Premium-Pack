@@ -2,8 +2,16 @@
 import AuraCore
 import Foundation
 
+/// Abstracts Accessibility permission checks so production code and tests can use
+/// a single interface without importing ApplicationServices directly.
+public protocol AccessibilityHealthChecking: Sendable {
+  func checkTrust() async -> AccessibilityTrustState
+  func waitForTrust(pollInterval: TimeInterval) async throws(AuraError)
+  func emitPermissionEvent(into bus: AuraEventBus?) async
+}
+
 /// Provides synchronous and async checks of Accessibility permission state.
-public actor AccessibilityHealth {
+public actor AccessibilityHealth: AccessibilityHealthChecking {
   private let logger: AuraLogger
   private var lastState: AccessibilityTrustState
   private var continuation: CheckedContinuation<Void, Never>?

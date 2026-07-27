@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+
+    <key>CFBundleExecutable</key>
+    <string>AURA</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>ai.aura.local.agent</string>
+
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <key>CFBundleName</key>
+    <string>AURA</string>
+
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+
+    <key>CFBundleVersion</key>
+    <string>1</string>
+
+    <key>LSMinimumSystemVersion</key>
+    <string>27.0</string>
+
+    <key>LSUIElement</key>
+    <true/>
+
+    <!-- Privacy descriptions: shown in permission dialogs. -->
+    <key>NSAccessibilityUsageDescription</key>
+    <string>AURA needs Accessibility access to control applications and observe UI elements on your behalf. No data leaves your device.</string>
+
+    <key>NSCameraUsageDescription</key>
+    <string>AURA does not use the camera. This key is present only to satisfy App Store validation and is paired with a denied entitlement.</string>
+
+    <key>NSMicrophoneUsageDescription</key>
+    <string>AURA needs microphone access to listen for the wake word and transcribe your commands locally. Audio is not sent to remote services.</string>
+
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>AURA needs Screen Recording access to understand screen context for computer-use tasks. Captured frames are processed on-device and redacted before any model use.</string>
+
+    <!-- Hardened runtime: required for notarization and distribution. -->
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.productivity</string>
+</dict>
+</plist>
