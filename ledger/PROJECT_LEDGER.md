@@ -2,6 +2,58 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-27T09:49:34Z — TTS_SYSTEM_FALLBACK — On-device System TTS adapter wired into AuraKernel
+
+- **Actor:** GitHub Copilot
+- **Objective:** Begin the on-device TTS roadmap by implementing a production fallback `SystemTTSEngine` using macOS `AVSpeechSynthesizer`, and wire it into the `AuraKernel` composition root so `Conversation` uses real speech synthesis instead of `MockTTSEngine`.
+- **Starting state:** `AuraKernel.construct()` instantiated `MockTTSEngine()` directly. `Sources/AuraAudio` had no `TTSEngine` implementation. `TTSEngine` protocol, `TTSPrompt`, `TTSChunk`, and `TTSHealth` were already defined in `AuraCore`.
+- **Evidence inspected:**
+  - `Sources/AuraCore/TTSEngine.swift` — protocol, types, `TTSAdapterChain`
+  - `Sources/AuraCore/AuraConfiguration.swift` — `TTSConfiguration` shape
+  - `Sources/AuraAudio/AuraAudio.swift` — existing `AVFoundation` linkage
+  - `Sources/AURA/AuraKernel.swift` — composition root and `Conversation` construction
+  - `Tests/AuraAgentTests/ConversationTests.swift` — `Conversation` still uses `MockTTSEngine` in unit tests
+  - `Tests/AuraAudioTests/WakeWordPipelineTests.swift` — existing audio tests and pre-existing flakiness baseline
+- **Assumptions:**
+  - `AVSpeechSynthesizer` is available on macOS 26+ and sufficient as a privacy-first, on-device fallback.
+  - Higher-priority neural adapters (Chatterbox, Dia) will be added later behind the same `TTSEngine` protocol.
+  - `AuraAudioTests.WakeWordPipelineTests` flakiness is pre-existing and unrelated to TTS; it is documented, not fixed, in this task.
+- **Decisions:**
+  - Created `Sources/AuraAudio/SystemTTSEngine.swift` conforming to `TTSEngine`, isolating `AVSpeechSynthesizer` on a serial dispatch queue and streaming `TTSChunk.progress`/`.complete` markers.
+  - Added `private static func makeTTSEngine(adapterChain:logger:)` in `AuraKernel` that tries adapters in configured priority order (`system`, `mock`, with `chatterbox`/`dia` logged as not-yet-implemented) and falls back to `SystemTTSEngine`.
+  - Replaced the hard-coded `MockTTSEngine()` in `AuraKernel` with `await Self.makeTTSEngine(...)`.
+  - Added `Tests/AuraAudioTests/SystemTTSEngineTests.swift` covering `start`, `speak`, `stopSpeaking`, `pause`/`resume`, `health`, and `engineID`.
+  - Updated `ledger/CURRENT_STATE.md` to reflect the new active task and known flakiness.
+- **Files changed:**
+  - `Sources/AuraAudio/SystemTTSEngine.swift` — new
+  - `Sources/AURA/AuraKernel.swift` — added `makeTTSEngine` and replaced mock TTS construction
+  - `Tests/AuraAudioTests/SystemTTSEngineTests.swift` — new
+  - `ledger/CURRENT_STATE.md` — updated active task, build/test status, next safe action
+  - `ledger/PROJECT_LEDGER.md` — this entry
+- **Commands executed:**
+  - `swift build --target AuraAudio --build-path /tmp/aurabuild-tts` — exit 0
+  - `swift build --target AURA --build-path /tmp/aurabuild-tts` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-tts AURAIntegrationTests` — 7/7 pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-tts AuraAgentTests` — 205/205 pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-tts AuraAudioTests` — `SystemTTSEngine` suite 6/6 pass; `WakeWordPipelineTests` shows pre-existing flakiness (see notes)
+- **Tests and exact results:**
+  - `AURAIntegrationTests`: pass (exit 0)
+  - `AuraAgentTests`: pass (exit 0)
+  - `SystemTTSEngine` suite (`startReportsReadyWhenVoicesExist`, `healthAfterStartIsReady`, `speakEmitsProgressAndComplete`, `stopSpeakingInterruptsStream`, `pauseAndResumeAreIdempotent`, `engineIDIsSystem`): 6/6 pass
+  - `AuraAudioTests` bundle: `SystemTTSEngine` suite passes; `WakeWordPipelineTests` flaky on `antiTriggerSuppressesWakeDuringOutput()` in this environment (pre-existing on `main`)
+- **Security/privacy impact:**
+  - System TTS keeps all synthesis on-device; no text leaves the machine.
+  - No network entitlement or remote endpoint is introduced.
+  - `TTSPrompt` text must still be sanitized by callers; the engine does not redact content.
+- **Unresolved risks:**
+  - `SystemTTSEngine` does not yet implement real pause/resume state machines; it is best-effort via `AVSpeechSynthesizer`.
+  - Long-running `speak` streams may retain the synthesizer delegate longer than necessary if the consumer cancels; termination handling is conservative.
+  - `AuraAudioTests` wake-pipeline tests are flaky in this environment; root cause not investigated.
+- **Rollback:** Revert `AuraKernel.swift` to instantiate `MockTTSEngine()` and remove `SystemTTSEngine.swift`/`SystemTTSEngineTests.swift`.
+- **Current state:** On-device System TTS fallback is implemented, builds, and is wired into `AuraKernel`. Integration and agent tests pass. Unit tests for the new engine pass. Ready for Chatterbox research or user-selected next step.
+- **Next safe action:** User direction required: continue TTS roadmap with Chatterbox/Dia research, fix `WakeWordPipelineTests` flakiness, or switch to another task.
+- **Integrity hash:** intentionally omitted.
+
 ### 2026-07-23T15:15:00Z — 00_BOOTSTRAP — Repository foundation completed
 
 - **Actor:** GitHub Copilot

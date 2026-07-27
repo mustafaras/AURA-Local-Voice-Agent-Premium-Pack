@@ -140,9 +140,13 @@ actor AuraKernel {
       logger: AuraLogger(subsystem: bundleID, category: "stt"))
     self.sttPipeline = sttPipeline
 
+    let ttsEngine = await Self.makeTTSEngine(
+      adapterChain: configuration.tts.adapterChain,
+      logger: AuraLogger(subsystem: bundleID, category: "tts"))
+
     let conversation = Conversation(
       configuration: configuration.conversation, ttsConfiguration: configuration.tts,
-      ttsEngine: MockTTSEngine(), eventBus: eventBus,
+      ttsEngine: ttsEngine, eventBus: eventBus,
       logger: AuraLogger(subsystem: bundleID, category: "conversation"),
       monotonicClock: { CFAbsoluteTimeGetCurrent() })
 
@@ -180,6 +184,47 @@ actor AuraKernel {
       Grant(capability: .agentClaudeRun, patterns: [.any], confirmationRequirement: .always))
     try await policyEngine.issueGrant(
       Grant(capability: .agentCopilotRun, patterns: [.any], confirmationRequirement: .always))
+  }
+
+  /// Build the configured TTS engine chain. The chain currently supports
+  /// `system` (macOS `AVSpeechSynthesizer`) and `mock` for tests. Higher-
+  /// priority neural adapters (chatterbox, dia) are not yet implemented;
+  /// when requested and unavailable, this factory falls back to `system`.
+  private static func makeTTSEngine(
+    adapterChain: TTSAdapterChain, logger: AuraLogger
+  ) async -> any TTSEngine {
+    for adapterID in adapterChain.adapterIDs {
+      switch adapterID {
+      case "system":
+        let engine = SystemTTSEngine()
+        do {
+          let health = try await engine.start()
+          if health.ready {
+            await logger.info("TTS adapter ready: \(engine.engineID)", actor: .audio)
+            return engine
+          }
+        } catch {
+          await logger.warning("TTS adapter \(adapterID) failed: \(error)", actor: .audio)
+        }
+      case "mock":
+        let engine = MockTTSEngine()
+        do {
+          let health = try await engine.start()
+          if health.ready { return engine }
+        } catch {
+          await logger.warning("TTS adapter \(adapterID) failed: \(error)", actor: .audio)
+        }
+      default:
+        await logger.warning(
+          "TTS adapter \(adapterID) not implemented; skipping", actor: .audio)
+      }
+    }
+    // Fail-closed fallback: system TTS must always be available on macOS.
+    await logger.warning(
+      "All configured TTS adapters unavailable; falling back to system", actor: .audio)
+    let fallback = SystemTTSEngine()
+    _ = try? await fallback.start()
+    return fallback
   }
 
   /// No real STT engine exists yet — `Sources/AuraSTT` has only
