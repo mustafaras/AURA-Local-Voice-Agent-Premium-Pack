@@ -11,3 +11,6 @@
 | ADR-007 | Accepted | Native macOS automation: application lifecycle, Accessibility health, observation, stale-element handling, and safe degradation | 2026-07-25 | — |
 | ADR-008 | Accepted | Typed shell / process runner: typed `Command`, policy adapter, output bounds/redaction, cancellation, timeout, filesystem evidence, and PTY abstraction | 2026-07-26 | — |
 | ADR-019 | Accepted | Computer-use control loop: bounded observe-plan-policy-act-verify, accessibility-preferred anchoring, emergency stop, no-progress detection, mandatory-confirmation destructive-action blocking | 2026-07-26 | — |
+| ADR-020 | Accepted | Security hardening: threat model, provenance-based prompt-injection defense, Keychain secret store, Ed25519-verified plugin manifests with policy-gated lifecycle, canonical secret-pattern library, deny-by-default network allowlist | 2026-07-26 | — |
+| ADR-021 | Accepted | Intent Engine and Tool Router: closed v1 intent vocabulary, deterministic rule-based classifier, policy-gated dispatch with mandatory-confirmation guard, single multiplexing coding-agent task runner | 2026-07-27 | — |
+| ADR-022 | Accepted | Composition root and end-to-end wiring: `AuraKernel` dependency-ordered construction, audio-sample and conversation-event bridges, default grant table, real binary run verification | 2026-07-27 | — |

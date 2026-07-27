@@ -232,6 +232,15 @@ public actor AuraAudio {
     ringBuffer.snapshot()
   }
 
+  /// The most recently captured frame, or `nil` before capture has produced
+  /// any. `AudioFrameEvent` (the bus event `handleCapturedBuffer` emits
+  /// after appending to the ring buffer) intentionally carries no sample
+  /// data of its own; a subscriber that needs the real samples for a given
+  /// frame calls this immediately after observing the event.
+  public func latestFrame() -> AudioFrame? {
+    ringBuffer.latest()
+  }
+
   /// Total frames captured during the current or most recent session.
   public func capturedFrameCount() -> UInt64 {
     totalFrames

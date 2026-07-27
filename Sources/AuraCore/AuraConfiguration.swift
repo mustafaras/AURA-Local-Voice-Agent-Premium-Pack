@@ -26,6 +26,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
   public var computerUse: ComputerUseConfiguration
   public var privacy: PrivacyConfiguration
   public var log: LoggingConfiguration
+  public var security: SecurityConfiguration
+  public var plugins: PluginConfiguration
+  public var intent: IntentEngineConfiguration
 
   public init(
     app: AppConfiguration = AppConfiguration(),
@@ -48,7 +51,10 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     screen: ScreenContextConfiguration = ScreenContextConfiguration(),
     computerUse: ComputerUseConfiguration = ComputerUseConfiguration(),
     privacy: PrivacyConfiguration = PrivacyConfiguration(),
-    log: LoggingConfiguration = LoggingConfiguration()
+    log: LoggingConfiguration = LoggingConfiguration(),
+    security: SecurityConfiguration = SecurityConfiguration(),
+    plugins: PluginConfiguration = PluginConfiguration(),
+    intent: IntentEngineConfiguration = IntentEngineConfiguration()
   ) {
     self.app = app
     self.audio = audio
@@ -71,6 +77,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     self.computerUse = computerUse
     self.privacy = privacy
     self.log = log
+    self.security = security
+    self.plugins = plugins
+    self.intent = intent
   }
 
   /// Default configuration for bootstrap and tests.
@@ -156,6 +165,15 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     log =
       try container.decodeIfPresent(LoggingConfiguration.self, forKey: .log)
       ?? LoggingConfiguration()
+    security =
+      try container.decodeIfPresent(SecurityConfiguration.self, forKey: .security)
+      ?? SecurityConfiguration()
+    plugins =
+      try container.decodeIfPresent(PluginConfiguration.self, forKey: .plugins)
+      ?? PluginConfiguration()
+    intent =
+      try container.decodeIfPresent(IntentEngineConfiguration.self, forKey: .intent)
+      ?? IntentEngineConfiguration()
   }
 
   /// Merge a partial configuration over the hard-coded defaults.
@@ -294,7 +312,10 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
           ? LoggingConfiguration().minimumLevel : self.log.minimumLevel,
         destination: self.log.destination.isEmpty
           ? LoggingConfiguration().destination : self.log.destination
-      )
+      ),
+      security: self.security.mergedWithDefaults(),
+      plugins: self.plugins.mergedWithDefaults(),
+      intent: self.intent.mergedWithDefaults()
     )
   }
 
@@ -321,6 +342,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     try computerUse.validate()
     try privacy.validate()
     try log.validate()
+    try security.validate()
+    try plugins.validate()
+    try intent.validate()
   }
 }
 
@@ -2383,5 +2407,245 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
     referenceGuardedTierThreshold =
       try container.decodeIfPresent(PermissionRiskTier.self, forKey: .referenceGuardedTierThreshold)
       ?? defaults.referenceGuardedTierThreshold
+  }
+}
+
+/// Configuration for `AuraSecurity` (Phase 19) — the Keychain-backed secret
+/// store, the deterministic prompt-injection classifier, and the outbound
+/// network domain allowlist. `Ollama`'s own network egress is governed
+/// separately and more strictly by `OllamaConfiguration.allowedLoopbackHosts`
+/// (a host-family restriction, not a domain list); `networkAllowlist` here
+/// is for any future non-loopback network capability.
+public struct SecurityConfiguration: Codable, Sendable, Equatable {
+  /// Keychain service name secrets are stored under. Namespaced by the app
+  /// bundle identifier so a Keychain search never leaks across apps.
+  public var secretKeychainServiceName: String
+
+  /// Host allowlist for outbound network requests evaluated through
+  /// `NetworkAllowlist`. Deny-by-default: empty means no host is allowed.
+  /// A leading `*.` matches any subdomain (e.g. `*.githubusercontent.com`).
+  public var networkAllowlist: Set<String>
+
+  /// Whether `PromptInjectionClassifier` is consulted at all. `false` only
+  /// for narrow diagnostic scenarios; production defaults to `true`.
+  public var injectionClassifierEnabled: Bool
+
+  /// Cumulative matched-rule severity at or above which a classification is
+  /// `.blocked` rather than merely `.suspicious`.
+  public var injectionBlockSeverityThreshold: Int
+
+  public init(
+    secretKeychainServiceName: String = "ai.aura.local.secrets",
+    networkAllowlist: Set<String> = [],
+    injectionClassifierEnabled: Bool = true,
+    injectionBlockSeverityThreshold: Int = 3
+  ) {
+    self.secretKeychainServiceName = secretKeychainServiceName
+    self.networkAllowlist = networkAllowlist
+    self.injectionClassifierEnabled = injectionClassifierEnabled
+    self.injectionBlockSeverityThreshold = injectionBlockSeverityThreshold
+  }
+
+  public func validate() throws(AuraError) {
+    guard !secretKeychainServiceName.isEmpty else {
+      throw AuraError.invalidConfiguration("security secretKeychainServiceName must not be empty")
+    }
+    guard injectionBlockSeverityThreshold > 0 else {
+      throw AuraError.invalidConfiguration(
+        "security injectionBlockSeverityThreshold must be positive")
+    }
+  }
+
+  /// Merge a partial configuration over the hard-coded defaults.
+  public func mergedWithDefaults() -> SecurityConfiguration {
+    SecurityConfiguration(
+      secretKeychainServiceName: self.secretKeychainServiceName.isEmpty
+        ? SecurityConfiguration().secretKeychainServiceName
+        : self.secretKeychainServiceName,
+      networkAllowlist: self.networkAllowlist,
+      injectionClassifierEnabled: self.injectionClassifierEnabled,
+      injectionBlockSeverityThreshold: self.injectionBlockSeverityThreshold <= 0
+        ? SecurityConfiguration().injectionBlockSeverityThreshold
+        : self.injectionBlockSeverityThreshold
+    )
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let defaults = SecurityConfiguration()
+    secretKeychainServiceName =
+      try container.decodeIfPresent(String.self, forKey: .secretKeychainServiceName)
+      ?? defaults.secretKeychainServiceName
+    networkAllowlist =
+      try container.decodeIfPresent(Set<String>.self, forKey: .networkAllowlist)
+      ?? defaults.networkAllowlist
+    injectionClassifierEnabled =
+      try container.decodeIfPresent(Bool.self, forKey: .injectionClassifierEnabled)
+      ?? defaults.injectionClassifierEnabled
+    injectionBlockSeverityThreshold =
+      try container.decodeIfPresent(Int.self, forKey: .injectionBlockSeverityThreshold)
+      ?? defaults.injectionBlockSeverityThreshold
+  }
+}
+
+/// Configuration for `AuraPlugins` (Phase 19) — the plugin manifest
+/// verifier and lifecycle registry. `trustedVendorPublicKeysBase64` is
+/// deny-by-default (empty): a vendor must be explicitly added before any of
+/// its plugins can pass `PluginVerifier`, matching the deny-by-default
+/// posture used everywhere else in the policy engine.
+public struct PluginConfiguration: Codable, Sendable, Equatable {
+  /// Vendor display name → base64-encoded 32-byte raw Curve25519 (Ed25519)
+  /// signing public key. A plugin manifest's `vendorName` must have a key
+  /// here for its signature to ever verify.
+  public var trustedVendorPublicKeysBase64: [String: String]
+
+  /// Store key under which the plugin registry's lifecycle state is
+  /// persisted, mirroring `PolicyConfiguration.grantStoreKey`'s convention.
+  public var registryStoreKey: String
+
+  public init(
+    trustedVendorPublicKeysBase64: [String: String] = [:],
+    registryStoreKey: String = "aura.plugins.registry"
+  ) {
+    self.trustedVendorPublicKeysBase64 = trustedVendorPublicKeysBase64
+    self.registryStoreKey = registryStoreKey
+  }
+
+  public func validate() throws(AuraError) {
+    guard !registryStoreKey.isEmpty else {
+      throw AuraError.invalidConfiguration("plugins registryStoreKey must not be empty")
+    }
+    for (vendor, keyBase64) in trustedVendorPublicKeysBase64 {
+      guard !vendor.isEmpty else {
+        throw AuraError.invalidConfiguration("plugins trustedVendorPublicKeysBase64 has an empty vendor name")
+      }
+      guard let data = Data(base64Encoded: keyBase64), data.count == 32 else {
+        throw AuraError.invalidConfiguration(
+          "plugins trustedVendorPublicKeysBase64[\(vendor)] must be a base64-encoded 32-byte Curve25519 public key"
+        )
+      }
+    }
+  }
+
+  /// Merge a partial configuration over the hard-coded defaults.
+  public func mergedWithDefaults() -> PluginConfiguration {
+    PluginConfiguration(
+      trustedVendorPublicKeysBase64: self.trustedVendorPublicKeysBase64,
+      registryStoreKey: self.registryStoreKey.isEmpty
+        ? PluginConfiguration().registryStoreKey
+        : self.registryStoreKey
+    )
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let defaults = PluginConfiguration()
+    trustedVendorPublicKeysBase64 =
+      try container.decodeIfPresent([String: String].self, forKey: .trustedVendorPublicKeysBase64)
+      ?? defaults.trustedVendorPublicKeysBase64
+    registryStoreKey =
+      try container.decodeIfPresent(String.self, forKey: .registryStoreKey)
+      ?? defaults.registryStoreKey
+  }
+}
+
+/// Configuration for `IntentEngine`/`ToolRouter` (`AuraIntent`) — the
+/// classifier's confidence gate, the default coding-agent backend/working
+/// directory a `.codingAgentRun` intent uses, and the conservative
+/// destructive-shell pattern denylist `ToolRouter` checks before a
+/// `.shellExecute` intent is allowed to remain at that (non-destructive)
+/// tier.
+public struct IntentEngineConfiguration: Codable, Sendable, Equatable {
+  /// Below this classification confidence, an intent is forced to
+  /// `.unknown`/`isAmbiguous` regardless of what the classifier proposed.
+  public var minimumClassificationConfidence: Double
+
+  /// Which `AgentBackendTaskRunner`-registered backend a `.codingAgentRun`
+  /// intent uses when the utterance does not name one explicitly.
+  public var defaultCodingAgentBackend: String
+
+  /// Working directory a `.codingAgentRun` task is enqueued against when
+  /// the utterance does not name one explicitly.
+  public var defaultCodingAgentWorkingDirectory: String
+
+  /// Regex patterns that, when matched against a shell intent's executable
+  /// plus arguments, escalate it from `.shellExecute` to `.shellDestructive`
+  /// (`Capability.shellExecDestructive`, no grant seeded by default). A
+  /// deliberately small, conservative, defense-in-depth list — never the
+  /// only thing standing between a shell intent and execution, since plain
+  /// `.shellExecute` already requires `.always` confirmation by default.
+  public var destructiveShellPatterns: [String]
+
+  public init(
+    minimumClassificationConfidence: Double = 0.6,
+    defaultCodingAgentBackend: String = "codex",
+    defaultCodingAgentWorkingDirectory: String = "$HOME",
+    destructiveShellPatterns: [String] = [
+      "rm\\s+-[a-zA-Z]*[rf][a-zA-Z]*[rf]",
+      "diskutil\\s+(erase|reformat|partitionDisk)",
+      "dd\\s+.*of=/dev/",
+      ":\\(\\)\\s*\\{\\s*:\\|:&\\s*\\}\\s*;\\s*:",
+    ]
+  ) {
+    self.minimumClassificationConfidence = minimumClassificationConfidence
+    self.defaultCodingAgentBackend = defaultCodingAgentBackend
+    self.defaultCodingAgentWorkingDirectory = defaultCodingAgentWorkingDirectory
+    self.destructiveShellPatterns = destructiveShellPatterns
+  }
+
+  public func validate() throws(AuraError) {
+    guard minimumClassificationConfidence >= 0, minimumClassificationConfidence <= 1 else {
+      throw AuraError.invalidConfiguration(
+        "intent minimumClassificationConfidence must be in [0, 1]")
+    }
+    guard !defaultCodingAgentBackend.isEmpty else {
+      throw AuraError.invalidConfiguration("intent defaultCodingAgentBackend must not be empty")
+    }
+    guard !defaultCodingAgentWorkingDirectory.isEmpty else {
+      throw AuraError.invalidConfiguration(
+        "intent defaultCodingAgentWorkingDirectory must not be empty")
+    }
+    for pattern in destructiveShellPatterns {
+      guard !pattern.isEmpty else {
+        throw AuraError.invalidConfiguration(
+          "intent destructiveShellPatterns must not contain empty patterns")
+      }
+    }
+  }
+
+  /// Merge a partial configuration over the hard-coded defaults.
+  public func mergedWithDefaults() -> IntentEngineConfiguration {
+    IntentEngineConfiguration(
+      minimumClassificationConfidence: (self.minimumClassificationConfidence < 0
+        || self.minimumClassificationConfidence > 1)
+        ? IntentEngineConfiguration().minimumClassificationConfidence
+        : self.minimumClassificationConfidence,
+      defaultCodingAgentBackend: self.defaultCodingAgentBackend.isEmpty
+        ? IntentEngineConfiguration().defaultCodingAgentBackend
+        : self.defaultCodingAgentBackend,
+      defaultCodingAgentWorkingDirectory: self.defaultCodingAgentWorkingDirectory.isEmpty
+        ? IntentEngineConfiguration().defaultCodingAgentWorkingDirectory
+        : self.defaultCodingAgentWorkingDirectory,
+      destructiveShellPatterns: self.destructiveShellPatterns.isEmpty
+        ? IntentEngineConfiguration().destructiveShellPatterns
+        : self.destructiveShellPatterns
+    )
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let defaults = IntentEngineConfiguration()
+    minimumClassificationConfidence =
+      try container.decodeIfPresent(Double.self, forKey: .minimumClassificationConfidence)
+      ?? defaults.minimumClassificationConfidence
+    defaultCodingAgentBackend =
+      try container.decodeIfPresent(String.self, forKey: .defaultCodingAgentBackend)
+      ?? defaults.defaultCodingAgentBackend
+    defaultCodingAgentWorkingDirectory =
+      try container.decodeIfPresent(String.self, forKey: .defaultCodingAgentWorkingDirectory)
+      ?? defaults.defaultCodingAgentWorkingDirectory
+    destructiveShellPatterns =
+      try container.decodeIfPresent([String].self, forKey: .destructiveShellPatterns)
+      ?? defaults.destructiveShellPatterns
   }
 }

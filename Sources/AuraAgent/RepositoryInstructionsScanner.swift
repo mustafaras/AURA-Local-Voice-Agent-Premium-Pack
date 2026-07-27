@@ -24,17 +24,11 @@ public enum RepositoryInstructionsScanner {
     }
   }
 
-  /// Broader than `OutputRedactor.default`: this scans files a repository
-  /// controls (potentially untrusted), not live command output, so it also
-  /// checks common provider token prefixes and private-key headers.
-  private static let secretDetector = OutputRedactor(patterns: [
-    "\\b[0-9a-fA-F]{40}\\b",
-    "sk-[a-zA-Z0-9]{20,}",
-    "gh[pousr]_[A-Za-z0-9]{20,}",
-    "AKIA[0-9A-Z]{16}",
-    "-----BEGIN (RSA|EC|OPENSSH|PGP|DSA) PRIVATE KEY-----",
-    "eyJ[A-Za-z0-9_-]*\\.eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]*",
-  ])
+  /// Sourced from the same canonical `SecretPatternLibrary` used by
+  /// `OutputRedactor.default` and `SecretScanner` (`AuraSecurity`) — see
+  /// that type for why the list covers named secret shapes only, not a
+  /// generic key=value heuristic.
+  private static let secretDetector = OutputRedactor(patterns: SecretPatternLibrary.patterns)
 
   private static let candidateRelativeFiles: [String] = [
     ".github/copilot-instructions.md",

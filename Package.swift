@@ -23,7 +23,10 @@ let package = Package(
         .library(name: "AuraMemory", targets: ["AuraMemory"]),
         .library(name: "AuraContext", targets: ["AuraContext"]),
         .library(name: "AuraScreen", targets: ["AuraScreen"]),
-        .library(name: "AuraComputerUse", targets: ["AuraComputerUse"])
+        .library(name: "AuraComputerUse", targets: ["AuraComputerUse"]),
+        .library(name: "AuraSecurity", targets: ["AuraSecurity"]),
+        .library(name: "AuraPlugins", targets: ["AuraPlugins"]),
+        .library(name: "AuraIntent", targets: ["AuraIntent"])
     ],
     dependencies: [
     ],
@@ -33,10 +36,16 @@ let package = Package(
             dependencies: [
                 "AuraCore",
                 "AuraAudio",
+                "AuraSTT",
                 "AuraAutomation",
                 "AuraAgent",
+                "AuraShell",
                 "AuraStore",
-                "AuraPolicy"
+                "AuraPolicy",
+                "AuraTasks",
+                "AuraMemory",
+                "AuraContext",
+                "AuraIntent"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
@@ -255,6 +264,63 @@ let package = Package(
                 ])
             ]
         ),
+        .target(
+            name: "AuraSecurity",
+            dependencies: ["AuraCore", "AuraPolicy", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("Security", .when(platforms: [.macOS]))
+            ]
+        ),
+        .target(
+            name: "AuraPlugins",
+            dependencies: ["AuraCore", "AuraPolicy", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
+        .testTarget(
+            name: "AuraSecurityTests",
+            dependencies: ["AuraSecurity", "AuraPolicy", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
+        .testTarget(
+            name: "AuraPluginsTests",
+            dependencies: ["AuraPlugins", "AuraPolicy", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
+        .target(
+            name: "AuraIntent",
+            dependencies: ["AuraCore", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraContext"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
+        .testTarget(
+            name: "AuraIntentTests",
+            dependencies: ["AuraIntent", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
         .testTarget(
             name: "AuraVSCodeTests",
             dependencies: ["AuraVSCode"],
@@ -323,7 +389,10 @@ let package = Package(
                 "AuraPolicy",
                 "AuraShell",
                 "AuraVSCode",
-                "AuraTasks"
+                "AuraTasks",
+                "AuraMemory",
+                "AuraContext",
+                "AuraIntent"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6),

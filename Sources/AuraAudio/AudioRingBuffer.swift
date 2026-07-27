@@ -71,6 +71,21 @@ public final class AudioRingBuffer: @unchecked Sendable {
     lock.withLock { frameCount }
   }
 
+  /// The most recently appended frame, or `nil` if nothing has been
+  /// written yet. Used by `AuraAudio.latestFrame()` to bridge real capture
+  /// output to downstream consumers (`WakeWordPipeline`/`STTPipeline`)
+  /// whose own `AudioFrameEvent` subscription carries no sample data.
+  public func latest() -> AudioFrame? {
+    lock.withLock {
+      guard !storage.isEmpty else { return nil }
+      if storage.count < capacity {
+        return storage.last
+      }
+      let lastWrittenIndex = (writeIndex - 1 + capacity) % capacity
+      return storage[lastWrittenIndex]
+    }
+  }
+
   /// Remove all stored frames.
   public func clear() {
     lock.withLock {

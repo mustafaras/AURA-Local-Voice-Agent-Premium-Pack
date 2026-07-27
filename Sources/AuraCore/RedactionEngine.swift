@@ -46,12 +46,10 @@ public struct OutputRedactor: Codable, Sendable, Equatable {
     return output
   }
 
-  /// Convenience redactor that replaces common secret shapes.
-  public static let `default` = OutputRedactor(patterns: [
-    "\\b[0-9a-fA-F]{40}\\b",  // hex SHA-1 / token-like strings
-    "sk-[a-zA-Z0-9]{48}",  // OpenAI-style secret key prefix
-    "eyJ[A-Za-z0-9_-]*\\.eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]*",  // JWT
-  ])
+  /// Convenience redactor that replaces common secret shapes, sourced from
+  /// the single canonical `SecretPatternLibrary` shared with
+  /// `RepositoryInstructionsScanner` and `SecretScanner` (`AuraSecurity`).
+  public static let `default` = OutputRedactor(patterns: SecretPatternLibrary.patterns)
 
   /// Redactor that replaces nothing. Useful in tests that need raw output.
   public static let passthrough = OutputRedactor(rules: [])

@@ -149,6 +149,77 @@ extension Capability {
     }
   }
 
+  /// Store a secret value in the platform secure store (Keychain). Writing
+  /// a new credential is sensitive-data access, matching `PermissionRiskTier
+  /// .destructive`'s own doc comment ("...or sensitive-data access").
+  public static let secretStore = Capability(
+    domain: "secret", action: "store", riskTier: .destructive)
+  /// Retrieve a previously stored secret value. Reading a credential back
+  /// out is equally sensitive as writing it — never a lower tier.
+  public static let secretRetrieve = Capability(
+    domain: "secret", action: "retrieve", riskTier: .destructive)
+  /// Remove a stored secret. Deleting a credential reference is reversible
+  /// only in the sense that a new one can be stored again; it does not
+  /// itself expose or mutate other data, so it is scoped one tier below
+  /// store/retrieve.
+  public static let secretDelete = Capability(
+    domain: "secret", action: "delete", riskTier: .mutation)
+
+  /// Accept a new plugin manifest into the registry after signature/hash
+  /// verification. Installing new code is destructive-tier: it introduces a
+  /// new authority surface the policy engine must subsequently gate.
+  public static let pluginInstall = Capability(
+    domain: "plugin", action: "install", riskTier: .destructive)
+  /// Enable a previously installed, disabled plugin.
+  public static let pluginEnable = Capability(
+    domain: "plugin", action: "enable", riskTier: .mutation)
+  /// Disable an enabled plugin. Reversible: re-enabling restores prior state.
+  public static let pluginDisable = Capability(
+    domain: "plugin", action: "disable", riskTier: .reversible)
+  /// Quarantine a plugin, blocking it from obtaining grants or emitting
+  /// events regardless of its enabled/disabled state. A protective action,
+  /// not a destructive one — it only removes authority, never grants it.
+  public static let pluginQuarantine = Capability(
+    domain: "plugin", action: "quarantine", riskTier: .reversible)
+  /// Permanently remove a plugin's registry entry and revoke its grants.
+  public static let pluginUninstall = Capability(
+    domain: "plugin", action: "uninstall", riskTier: .mutation)
+
+  /// A plain conversational turn with no tool dispatch. `.observation`
+  /// tier — always allowed by default, never denied or confirmed.
+  public static let intentConverse = Capability(
+    domain: "intent", action: "converse", riskTier: .observation)
+  /// A shell command matched a conservative destructive-pattern denylist
+  /// (`IntentSemanticCategory.shellDestructive`). Distinct from `.shellExec`
+  /// so a grant scoped to ordinary shell execution can never silently cover
+  /// a recognized-destructive command too.
+  public static let shellExecDestructive = Capability(
+    domain: "shell", action: "execDestructive", riskTier: .destructive)
+
+  /// Deterministic mapping from a classified intent's semantic category to
+  /// the capability `ToolRouter` evaluates, mirroring `Capability
+  /// .forComputerUse(intent:)` exactly.
+  ///
+  /// `.codingAgentRun` maps to `.intentConverse` — a placeholder the router
+  /// never actually acts on. The real authorization for a coding-agent run
+  /// happens inside the chosen CLI adapter (`CodexAdapter`/`ClaudeAdapter`/
+  /// `CopilotAdapter`), which already calls `PolicyEngine.evaluate` with
+  /// its own `agentCodexRun`/`agentClaudeRun`/`agentCopilotRun` capability
+  /// before running. Mapping `.codingAgentRun` to a second, real capability
+  /// here would create a redundant, out-of-band evaluation the adapter has
+  /// no way to know about; the placeholder makes that explicit instead of
+  /// silently implying the router itself gates this category.
+  public static func forIntent(_ category: IntentSemanticCategory) -> Capability {
+    switch category {
+    case .converse: return .intentConverse
+    case .appActivate: return .appActivate
+    case .appTerminate: return .appTerminate
+    case .shellExecute: return .shellExec
+    case .shellDestructive: return .shellExecDestructive
+    case .codingAgentRun, .unknown: return .intentConverse
+    }
+  }
+
   /// Convenience identifier used for pattern matching and event logging.
   public var identifier: String { "\(domain).\(action)" }
 }
