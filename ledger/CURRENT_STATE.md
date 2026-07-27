@@ -2,10 +2,10 @@
 
 This file is a compact, atomically replaced projection of the append-only ledger.
 
-- Phase: Release Readiness (Phase 20) implementation complete; not yet committed
+- Phase: Release Readiness (Phase 20) complete; committed and pushed
 - Active milestone: 20_RELEASE_READINESS
-- Active task: Awaiting user review of Phase 20 diff before commit/push
-- Last verified commit: `a402f40` ("feat(phase-19,integration): security hardening, composition root, intent engine/tool router"), pushed to `origin/main` on 2026-07-27.
+- Active task: None — Phase 20 work committed and pushed
+- Last verified commit: `3262d64` ("feat(phase-20): release-readiness latency budgets, deterministic instrumentation, packaging design, signed-artifact placeholders"), pushed to `origin/main` on 2026-07-27.
 - Build status: Passes (`swift build --build-path /tmp/aurabuild`, zero errors, zero non-linker warnings)
 - Test status: Passes via `./scripts/aura-test.sh /tmp/aurabuild`; all 8 default-loop bundles pass with zero failures — 275 tests total. Phase 20-modified targets included in the default loop: `AURAIntegrationTests` 7/7, `AuraAgentTests` 205/205, `AuraAudioTests` 12/12, `AuraAutomationTests` 6/6, `AuraCoreTests` 7/7, `AuraSTTTests` 7/7, `AuraShellTests` 23/23, `AuraStoreTests` 8/8. The remaining 10 bundles from the prior 18-bundle sweep were not re-run this session because no changes touched their code paths.
 - Known blockers: None
@@ -18,4 +18,4 @@ This file is a compact, atomically replaced projection of the append-only ledger
   - **Accessibility permission tests are deterministic.** `AuraAutomation` now depends on `any AccessibilityHealthChecking`; `AccessibilityHealthSpy` allows granted/denied states to be tested without real `AXIsProcessTrustedWithOptions` side effects.
   - **No network entitlement is enabled.** `com.apple.security.network.client` and `com.apple.security.network.server` are `false` in `Resources/AURA.entitlements`; `AURA.app` is offline by default. Camera access is explicitly disabled with a denied-usage description. Code injection/debugging hardened-runtime flags are disabled for release builds.
   - **Unresolved risks carried forward from Phase 19/INTEGRATION unchanged:** no real on-device STT/TTS/wake-word; `AuraKernel` launch path still uses `MockTTSEngine` and `DeterministicMockSTTEngine` placeholder; `AuraScreen`/`AuraComputerUse`/`AuraSecurity`/`AuraPlugins`/`AuraVSCode`/`WorktreeManager`/`MultiAgentOrchestrator` remain unconstructed by `AuraKernel`; real Accessibility/Screen-Recording UX not validated in this sandboxed environment; `swiftpm-testing-helper` hang workaround in `scripts/aura-test.sh` should be removed after a toolchain fix; `scripts/aura-test.sh`'s default loop omits the 10 non-Phase-20 bundles (run explicitly with a target filter).
-- Next safe action: User review. Options: (1) approve commit/push of Phase 20; (2) request changes; (3) authorize a follow-on phase/task of the user's choosing. No release without explicit authorization.
+- Next safe action: User direction required. Options: (1) implement real acoustic wake-word + STT + TTS/Chatterbox so AURA can actually hear and speak; (2) proceed to Phase 21 — Advanced Memory Engine and Provenance Graph; (3) another task of the user's choosing. No release without explicit authorization.

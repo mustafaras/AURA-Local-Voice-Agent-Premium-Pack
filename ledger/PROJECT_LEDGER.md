@@ -1795,6 +1795,6 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - `AuraKernel` still uses `MockTTSEngine` and `DeterministicMockSTTEngine` on the real launch path, so the product cannot speak or transcribe real speech.
   - The full 18-bundle regression sweep from the INTEGRATION entry was not re-run this session; only the default 8-bundle loop was verified.
 - **Rollback:** Revert all files listed above; remove `Resources/AURA.entitlements`, `Resources/AURA-Info.plist`, the three scripts, `docs/decisions/ADR-023-release-readiness-latency.md`, `docs/operations/UPDATE_MECHANISM.md`, and the `docs/testing/38_PERFORMANCE_BUDGETS.md` edits.
-- **Current state:** Phase 20 implementation complete. Mock-engine acceptance-gate evidence passes in CI. Packaging/update scaffolding and ADR in place. No release performed. Working tree has uncommitted Phase 20 changes.
-- **Next safe action:** Review the Phase 20 diff with the user; on explicit go-ahead, commit and push. Then await user direction for the next phase/task.
-- **Integrity hash:** intentionally omitted.
+- **Current state:** Phase 20 implementation complete, committed, and pushed to `origin/main` at `3262d64`. Mock-engine acceptance-gate evidence passes in CI. Packaging/update scaffolding and ADR in place. No release performed.
+- **Next safe action:** Await user direction for the next phase/task. Options: (1) implement real acoustic wake-word + STT + TTS/Chatterbox (see `docs/subsystems/07_TURN_TAKING_AND_TTS.md`) so AURA can actually hear and speak; (2) proceed to Phase 21 — Advanced Memory Engine and Provenance Graph; (3) another task of the user's choosing.
+- **Integrity hash:** SHA-256 intentionally omitted.
