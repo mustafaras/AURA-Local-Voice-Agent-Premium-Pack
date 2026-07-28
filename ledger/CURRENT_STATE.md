@@ -3,9 +3,9 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live Git and command evidence on 2026-07-28.
 
-- Phase: Phase 23 Verified Plugin and Adapter Marketplace implementation complete; authorized commit/push sequence pending
+- Phase: Phase 23 Verified Plugin and Adapter Marketplace implementation committed locally; authorized push and remote verification pending
 - Active milestone: 20_RELEASE_READINESS → TTS_ROADMAP (parked) → 03_STREAMING_STT → 21_PROVENANCE_GRAPH_MEMORY → 22_DEEP_CONTEXT_RECONSTRUCTION → 23_VERIFIED_PLUGIN_MARKETPLACE
-- Verified base: `HEAD == origin/main == 8115eba0d1944e4d83ea8bccd7d5719b6deafe36`.
+- Local implementation commit: `HEAD == 8afdbf2b56b8003148508b0bbd8ae49ca389fefa`; `origin/main == 8115eba0d1944e4d83ea8bccd7d5719b6deafe36` until the authorized push.
 - Implemented:
   - Signed manifest schema v1 with vendor/key identity, Ed25519 signature, SHA-256 payload binding, schemas, scoped permissions, bundle/domain/dependency allowlists, migration notes, and restrictive legacy decoding.
   - Vendor/key-ID trust, exact actor-scoped expiring grants, revocation, and explicit denial when a plugin has no active matching grant.
@@ -32,4 +32,4 @@ Projection refreshed from live Git and command evidence on 2026-07-28.
   - The artifact root must be deliberately located where the sandboxed helper can read it.
   - Filesystem, store, and policy lifecycle changes use compensating operations rather than a distributed transaction.
 - Release status: No release, notarization, deployment, or public marketplace publication performed or authorized.
-- Next safe action: Commit and push the Phase 23 implementation and evidence state, verify the remote hash, then begin Phase 24 — Self-Tuning Configuration and Feature-Flag Governance from the verified clean revision.
+- Next safe action: Commit this implementation-hash record and atomic projection, push both Phase 23 commits, verify `HEAD == origin/main == git ls-remote`, then begin Phase 24 — Self-Tuning Configuration and Feature-Flag Governance from the verified clean revision.
