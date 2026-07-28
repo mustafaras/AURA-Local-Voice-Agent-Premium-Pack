@@ -1,7 +1,7 @@
-# AURA Conversation Notes / Session Starter
+# AURA Session Starter — Phase 21: Advanced Memory Engine and Provenance Graph
 
-> Conversation date: 23 July 2026  
-> Compact hand-off for the next agent / next chat. Read this first, then `AGENTS.md` and `ledger/CURRENT_STATE.md`.
+> Conversation date: 28 July 2026  
+> Read this first, then `AGENTS.md` and `ledger/CURRENT_STATE.md`.
 
 ## Project
 
@@ -11,16 +11,16 @@
 - **Platform:** macOS 26+ on Apple Silicon
 - **Language:** Swift 6.4
 - **Toolchain:** `/Library/Developer/CommandLineTools` (no full Xcode on this machine)
-- **Package:** SwiftPM package `AURA` with targets `AURA`, `AuraCore`, `AuraAudio`, `AuraAutomation`, `AuraAgent`, `AuraStore`, `AuraSTT`, and matching test targets.
+- **Package:** SwiftPM package `AURA` with many modular targets.
 
-## Current State (as of latest chat)
+## Current State (as of this session)
 
-- **Phase completed:** Phase 3 — Streaming STT
-- **Active milestone:** 3
-- **Last verified commit on `main`:** `b0401da`
-- **Next safe action:** Phase 4 — Conversation/Turn-taking/TTS per `prompts/implementation/04_04_CONVERSATION.prompt.md`
+- **Phase completed:** Phase 20 — Release Readiness; plus gap-filled Phase 03 Streaming STT (native Speech.framework adapter, Chatterbox TTS boundary, latency tests, ADRs)
+- **Active milestone:** Phase 21
+- **Last verified commit on `main`:** `acded28`
+- **Next safe action:** Implement Phase 21 — Advanced Memory Engine and Provenance Graph per `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 21.
 - **Build status:** `swift build --build-path /tmp/aurabuild-stt` passes
-- **Test status:** `./scripts/aura-test.sh /tmp/aurabuild-stt AuraSTTTests` passes (7/7); earlier six test bundles also pass
+- **Test status:** `./scripts/aura-test.sh /tmp/aurabuild-stt AuraSTTTests` passes; earlier bundles also pass
 - **Known blockers:** None
 
 ## Core vision
@@ -58,7 +58,10 @@ All TTS output flows through the spoken-output policy in `persona/AURA_VOICE_AND
 4. `ledger/DECISION_INDEX.md` — ADR index
 5. `README.md` — project overview
 6. `persona/AURA_VOICE_AND_BEHAVIOR.md` — voice and behavior persona
-7. `prompts/implementation/04_04_CONVERSATION.prompt.md` — next phase prompt
+7. `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 21 — this phase's master spec
+8. `docs/decisions/ADR-016-memory-engine.md` — prior memory ADR
+9. `docs/subsystems/21_MEMORY_ENGINE.md` — subsystem specification
+10. `Sources/AuraMemory/MemoryEngine.swift` — current stub
 
 ## Critical toolchain facts
 
@@ -75,17 +78,46 @@ All TTS output flows through the spoken-output policy in `persona/AURA_VOICE_AND
 - `ADR-002` — Real-time audio core architecture
 - `ADR-003` — Wake/VAD/speaker/privacy/anti-trigger
 - `ADR-004` — Streaming STT `STTEngine` protocol, `AsyncStream`, Sendable adapters, recursive-lock mock
+- `ADR-016` — Memory engine
+- `ADR-020` — Security hardening
+- `ADR-021` — Intent engine / tool router
+- `ADR-022` — Composition root wiring
+- `ADR-024` — Chatterbox on-device TTS
+- `ADR-025` — Native Speech.framework STT adapter
 
 ## Unresolved risks
 
-- Real on-device STT model not yet integrated.
-- Turkish/English code-switch only deterministically validated.
+- `MemoryEngine` is implemented but has no real caller.
+- Real acoustic wake-word, on-device neural STT, and Chatterbox TTS inference are not yet integrated.
+- `AuraScreen`/`AuraComputerUse`/`AuraSecurity`/`AuraPlugins`/`AuraVSCode`/`WorktreeManager`/`MultiAgentOrchestrator` remain unconstructed by `AuraKernel`.
 - `swiftpm-testing-helper` may hang after suite summary (handled by wrapper timeout).
-- Test mock uses recursive lock; real adapter needs queue-based isolation.
 
 ## What to do next
 
 1. Read `AGENTS.md` startup sequence.
 2. Read `ledger/CURRENT_STATE.md` and `ledger/PROJECT_LEDGER.md` (latest entry).
-3. Read `prompts/implementation/04_04_CONVERSATION.prompt.md`.
-4. Implement Phase 4, run `./scripts/aura-test.sh`, update ledgers and ADRs.
+3. Read `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 21.
+4. Read `docs/subsystems/21_MEMORY_ENGINE.md` and `docs/decisions/ADR-016-memory-engine.md`.
+5. Inspect current `Sources/AuraMemory/MemoryEngine.swift` and pick the first real caller (suggested: `IntentEngine`).
+6. Split `MemoryEngine` into provenance graph modules, implement graph schema, persistence, contradiction detection, belief revision, and user-controlled forgetting.
+7. Wire the first caller and add integration tests.
+8. Run `./scripts/aura-test.sh AuraMemoryTests` and affected caller tests.
+9. Write `docs/decisions/ADR-026-provenance-graph-memory.md`.
+10. Append entry to `ledger/PROJECT_LEDGER.md` and atomically update `ledger/CURRENT_STATE.md`.
+
+## Phase 21 acceptance criteria
+
+- Provenance graph schema supports `fact`, `decision`, `task`, `utterance`, `file`, `preference` nodes and `evidenceFor`, `derivedFrom`, `supersedes`, `conflictsWith`, `confirms`, `denies` edges.
+- `AuraMemory` target is split into `ProvenanceGraph`, `GraphQuery`, `ContradictionDetector`, `BeliefRevision`, and the public `MemoryEngine` facade.
+- Nodes and edges are persisted in `AuraStore` with append-only semantics.
+- Deletion is user-controlled, leaves an audit shadow record, and never hard-deletes.
+- At least one real caller writes and reads memory through `MemoryEngine`.
+- All tests pass; no regressions in other bundles.
+- ADR-026 and ledger current state are written.
+
+## Out of scope for Phase 21
+
+- JSON-LD/Markdown import-export (defer until schema stabilizes).
+- Multi-hop context reconstruction (Phase 22).
+- Plugin marketplace (Phase 23).
+- Cross-device sync (Phase 27).
