@@ -14,10 +14,11 @@
 
 ## Verified handoff
 
-- Phase 23 implementation is complete in the working tree and its authorized
-  evidence-backed commit/push sequence is the immediate safe action.
-- Verified base before those commits:
-  `HEAD == origin/main == 8115eba0d1944e4d83ea8bccd7d5719b6deafe36`.
+- Phase 23 implementation and state commits are remotely verified.
+- Verified remote state before the final closing-evidence commit:
+  `HEAD == origin/main == git ls-remote == df18fae305c94bdadf958bbe709e3328f17a4801`.
+- Phase 23 implementation commit:
+  `8afdbf2b56b8003148508b0bbd8ae49ca389fefa`.
 - Phase 23 evidence:
   - `AuraPluginsTests` 37/37 pass.
   - Default full suite 356/356 pass; 393 combined targeted/full tests.
@@ -68,7 +69,8 @@ privacy-preserving recommendations.
 
 ## First safe action
 
-1. Finish and remotely verify the Phase 23 commits; require a clean tree.
+1. Confirm the final closing-evidence commit is remotely verified and require a
+   clean tree.
 2. Re-read the live Phase 24 specification at
    `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md`.
 3. Inspect configuration schemas, `AuraStore`, policy risk controls, migrations,

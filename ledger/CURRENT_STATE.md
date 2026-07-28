@@ -3,9 +3,10 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live Git and command evidence on 2026-07-28.
 
-- Phase: Phase 23 Verified Plugin and Adapter Marketplace implementation committed locally; authorized push and remote verification pending
+- Phase: Phase 23 Verified Plugin and Adapter Marketplace complete and remotely verified
 - Active milestone: 20_RELEASE_READINESS → TTS_ROADMAP (parked) → 03_STREAMING_STT → 21_PROVENANCE_GRAPH_MEMORY → 22_DEEP_CONTEXT_RECONSTRUCTION → 23_VERIFIED_PLUGIN_MARKETPLACE
-- Local implementation commit: `HEAD == 8afdbf2b56b8003148508b0bbd8ae49ca389fefa`; `origin/main == 8115eba0d1944e4d83ea8bccd7d5719b6deafe36` until the authorized push.
+- Verified remote state before the final closing-evidence commit: `HEAD == origin/main == git ls-remote == df18fae305c94bdadf958bbe709e3328f17a4801`.
+- Phase 23 commits: `8afdbf2b56b8003148508b0bbd8ae49ca389fefa` (implementation) and `df18fae305c94bdadf958bbe709e3328f17a4801` (implementation-hash state record).
 - Implemented:
   - Signed manifest schema v1 with vendor/key identity, Ed25519 signature, SHA-256 payload binding, schemas, scoped permissions, bundle/domain/dependency allowlists, migration notes, and restrictive legacy decoding.
   - Vendor/key-ID trust, exact actor-scoped expiring grants, revocation, and explicit denial when a plugin has no active matching grant.
@@ -32,4 +33,4 @@ Projection refreshed from live Git and command evidence on 2026-07-28.
   - The artifact root must be deliberately located where the sandboxed helper can read it.
   - Filesystem, store, and policy lifecycle changes use compensating operations rather than a distributed transaction.
 - Release status: No release, notarization, deployment, or public marketplace publication performed or authorized.
-- Next safe action: Commit this implementation-hash record and atomic projection, push both Phase 23 commits, verify `HEAD == origin/main == git ls-remote`, then begin Phase 24 — Self-Tuning Configuration and Feature-Flag Governance from the verified clean revision.
+- Next safe action: Publish and verify the final closing-evidence commit, then begin Phase 24 — Self-Tuning Configuration and Feature-Flag Governance from the clean verified revision.
