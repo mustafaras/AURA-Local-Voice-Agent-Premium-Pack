@@ -2,6 +2,48 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-28T12:26:26Z — PHASE23_VERIFIED_PLUGIN_MARKETPLACE_STARTED — Verified marketplace implementation started
+
+- **Actor:** Codex
+- **Objective:** Implement the user-authorized Phase 23 verified plugin and adapter marketplace: signed schema-v1 manifests, trusted vendor keys, content verification, versioned runtime artifacts, install/enable/disable/quarantine/uninstall/update/rollback, time-bounded capability grants and revocation, a separate-process runtime boundary with allowlists, durable plugin audit records, adversarial tests, documentation, and evidence-backed commits/pushes.
+- **Starting state:** `HEAD == origin/main == 37ff2992bf459d7d7faf0ea8038d90e691a80d51`; the working tree is clean. Phase 22 implementation and state commits are present on the verified remote. Phase 19 provides a real SHA-256/Ed25519 verifier, a deny-by-default local vendor registry, lifecycle transitions, generic-store persistence, and 29 passing `AuraPluginsTests`, but deliberately defers distribution, update/rollback, runtime XPC/helper isolation, vendor key identity/rotation, versioned artifact cleanup, and marketplace audit storage.
+- **Evidence inspected:** `README.md`; `AGENTS.md`; `ledger/CURRENT_STATE.md`; newest `ledger/PROJECT_LEDGER.md`; Phase 23 in `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md`; `docs/subsystems/23_PLUGIN_SYSTEM.md`; ADR-020 and the threat model; `Package.swift`; `Resources/AURA.entitlements`; `scripts/build-app-bundle.sh`; current `AuraPlugins`, `AuraPolicy`, `AuraStore`, configuration, and all plugin tests; live Git local/remote revisions.
+- **Baseline command and exact result:** `./scripts/aura-test.sh /tmp/aurabuild-phase23-baseline AuraPluginsTests` passed 29/29 tests with zero failed bundles. Production and plugin test targets built successfully; only known CommandLineTools linker search-path warnings were emitted.
+- **Assumptions:**
+  - Schema v1 uses Ed25519 vendor signatures over a deterministic canonical payload and SHA-256 content digests; the signing algorithm and vendor key ID are explicit and signed.
+  - Marketplace sources are local/user-configured in Phase 23; no network entitlement, automatic remote download, Developer ID notarization, or public vendor directory is inferred.
+  - Executable plugin code is never loaded into the AURA process. Runtime requests cross an injected separate-helper boundary; production fails closed when a verified helper is unavailable.
+  - Filesystem, application, network, command, argument, environment, and declared capability allowlists are evaluated before dispatch and revalidated in the helper request envelope.
+  - Existing Phase 19 persisted records must decode safely; missing Phase 23 fields receive restrictive defaults, not broadened authority.
+- **Risks:**
+  - The existing registry maps an empty `requiredPermissions` array to `[.any]`; Phase 23 must remove this implicit privilege expansion and reject grants that cannot be represented narrowly.
+  - Application-layer allowlists are not a substitute for a kernel sandbox. A production helper must be separately signed/sandboxed and attest its protocol; missing or mismatched helper identity must deny execution.
+  - Artifact installation/update/rollback spans filesystem, policy, and store operations without a distributed transaction. Each flow must order operations for recoverability and clean up partial artifacts/grants on failure.
+  - Vendor-name-only trust permits ambiguous key rotation; schema v1 must bind vendor identity to an explicit key ID.
+  - A manifest signature must cover every authority-bearing field, including permissions, schemas, domains, dependencies, grant lifetime, entrypoint, and migration notes.
+- **Architectural decision check:** No conflict found. ADR-020 explicitly records the Phase 19 foundation and defers sandboxed execution, marketplace-scale vendor identity, distribution, and update/rollback to Phase 23. Existing policy, event-envelope, store, least-privilege, local-first, and no-remote-data decisions remain authoritative.
+- **Acceptance criteria:**
+  - Unsigned, malformed, wrong-key, spoofed, hash-mismatched, or field-tampered packages are rejected before artifact activation or loading.
+  - Manifest schema v1 contains identity, vendor/key/signature metadata, capabilities, input/output schemas, permission/resource allowlists, supported bundle IDs, network domains, executable dependencies, entrypoint, grant expiry, migration notes, and content hash; all authority-bearing fields are signed.
+  - Install, enable, disable, quarantine, uninstall, update, and rollback are policy-gated, persistent, recoverable, and append durable audit entries.
+  - Grants exactly reflect declared capabilities and scoped permissions, expire, and are revoked on update/rollback/uninstall; no empty-to-`.any` expansion or undeclared-capability execution is possible.
+  - Only enabled plugins may dispatch or emit runtime-originated events. Disabled, installed-only, quarantined, and uninstalled plugins fail before contacting the helper.
+  - Runtime artifacts are installed version-wise, verified again before dispatch/rollback, removed on uninstall, and audit history remains queryable.
+  - The production runtime boundary uses a separate AURA-owned helper protocol and fails closed when helper verification, protocol negotiation, resource allowlists, or sandbox attestation fail.
+  - Adversarial manifest spoofing, digest substitution/collision-style mismatch, capability escalation, runtime-state bypass, artifact tamper, update/rollback, expiry/revocation, persistence, and audit tests pass.
+  - Formatting, warnings-as-errors static build, relevant unit/integration/full tests, diff/scope review, documentation, migration notes, ledger/state updates, commits, pushes, and remote-hash verification are completed. No release or deployment is performed.
+- **Current state:** In progress; no Phase 23 implementation source files have changed yet.
+- **Next safe action:** Replace implicit broad grants with validated schema-v1 scoped grants, add versioned artifact/audit storage, then build the fail-closed helper boundary and lifecycle update/rollback flows.
+
+### 2026-07-28T12:26:26Z — PHASE22_REMOTE_PUSH_VERIFIED — Phase 22 commits verified on origin
+
+- **Actor:** Codex
+- **Objective:** Close the prior state record with direct evidence that both user-authorized Phase 22 commits reached `origin/main`.
+- **Commands and exact evidence:** `git push origin main` reported `58fb9be..37ff299`; subsequent `git fetch origin`, `git rev-parse HEAD`, `git rev-parse origin/main`, and `git ls-remote origin refs/heads/main` all resolved to `37ff2992bf459d7d7faf0ea8038d90e691a80d51`.
+- **Commits:** `520b71c feat(phase-22): deep context reconstruction and reference resolution`; `37ff299 docs(ledger): record Phase 22 implementation commit`.
+- **Safety:** No force push, history rewrite, release, or deployment. The working tree was clean after verification.
+- **Current state:** Phase 22 is committed and remotely verified; Phase 23 may begin from the clean verified revision.
+
 ### 2026-07-28T12:22:23Z — PHASE22_COMMIT_TIMESTAMP_CORRECTION — Correct commit-entry timestamp
 
 - **Actor:** Codex
