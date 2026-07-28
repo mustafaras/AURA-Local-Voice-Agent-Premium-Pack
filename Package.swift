@@ -305,14 +305,14 @@ let package = Package(
         ),
         .target(
             name: "AuraIntent",
-            dependencies: ["AuraCore", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraContext"],
+            dependencies: ["AuraCore", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraContext", "AuraMemory"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
         ),
         .testTarget(
             name: "AuraIntentTests",
-            dependencies: ["AuraIntent", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraStore"],
+            dependencies: ["AuraIntent", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraStore", "AuraMemory"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
                 .unsafeFlags([

@@ -20,18 +20,28 @@ TESTING_LIB="/Library/Developer/CommandLineTools/Library/Developer/usr/lib"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+strip_build_xattrs() {
+    # iCloud / Finder extended attributes break ad-hoc codesign. Strip them
+    # from every file and directory under the build path so SwiftPM can sign
+    # freshly produced test bundles.
+    find "$BUILD_PATH" -exec xattr -c {} + 2>/dev/null || true
+}
+
 echo "==> Cleaning build path: $BUILD_PATH"
 rm -rf "$BUILD_PATH"
 
 echo "==> Building production targets"
 swift build --build-path "$BUILD_PATH"
+strip_build_xattrs
 
 echo "==> Building test targets"
 if [[ -n "$FILTER" ]]; then
     swift build --build-path "$BUILD_PATH" --target "${FILTER}"
+    strip_build_xattrs
 else
-    for target in AuraCoreTests AuraStoreTests AURAIntegrationTests AuraAudioTests AuraAutomationTests AuraAgentTests AuraSTTTests AuraShellTests; do
+    for target in AuraCoreTests AuraStoreTests AURAIntegrationTests AuraAudioTests AuraAutomationTests AuraAgentTests AuraSTTTests AuraShellTests AuraMemoryTests AuraIntentTests; do
         swift build --build-path "$BUILD_PATH" --target "$target"
+        strip_build_xattrs
     done
 fi
 
@@ -45,6 +55,8 @@ run_bundle() {
     local bundle="$1"
     local name=$(basename "$bundle" .xctest)
     local log="$BUILD_PATH/out/Products/Debug/$name.log"
+    local binary="$bundle/Contents/MacOS/$name"
+
     echo "=== $name ==="
     perl -e 'alarm shift; exec @ARGV' 60 \
     env DYLD_FRAMEWORK_PATH="$TESTING_FRAMEWORK" \

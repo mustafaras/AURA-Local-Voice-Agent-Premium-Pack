@@ -1,5 +1,6 @@
 import AuraCore
 import AuraContext
+import AuraMemory
 import Foundation
 
 /// One classifier's raw output before `IntentEngine` applies the
@@ -183,19 +184,25 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
 public actor IntentEngine {
   private let classifier: any UtteranceClassifying
   private let contextEngine: ContextEngine?
+  private let memoryEngine: MemoryEngine?
   private let configuration: IntentEngineConfiguration
   private let eventBus: AuraEventBus
+  private let sessionID: UUID
 
   public init(
     classifier: any UtteranceClassifying,
     contextEngine: ContextEngine? = nil,
+    memoryEngine: MemoryEngine? = nil,
     configuration: IntentEngineConfiguration = IntentEngineConfiguration(),
-    eventBus: AuraEventBus
+    eventBus: AuraEventBus,
+    sessionID: UUID = UUID()
   ) {
     self.classifier = classifier
     self.contextEngine = contextEngine
+    self.memoryEngine = memoryEngine
     self.configuration = configuration
     self.eventBus = eventBus
+    self.sessionID = sessionID
   }
 
   /// Classify one completed conversational turn into a `TypedIntent`.
@@ -233,7 +240,76 @@ public actor IntentEngine {
         isAmbiguous: intent.isAmbiguous, riskTier: intent.riskTier),
       correlationID: correlationID, causationID: causationID)
 
+    await persistIntentAsMemory(intent, correlationID: correlationID, causationID: causationID)
+
     return intent
+  }
+
+  /// Persist the classified intent as a working-conversation memory record,
+  /// with a provenance graph node linking it back to the turn and to any
+  /// evidence already present in memory. Memory persistence is best-effort:
+  /// a failure here is logged as an event but never blocks intent routing.
+  private func persistIntentAsMemory(
+    _ intent: TypedIntent,
+    correlationID: UUID,
+    causationID: UUID
+  ) async {
+    guard let memoryEngine = memoryEngine else { return }
+
+    let statement: String
+    if intent.slots.isEmpty {
+      statement = "classified intent: \(intent.kind) — \"\(intent.normalizedUtterance)\""
+    } else {
+      let slots = intent.slots.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
+      statement = "classified intent: \(intent.kind) — \"\(intent.normalizedUtterance)\" [\(slots)]"
+    }
+
+    let draft = MemoryRecordDraft(
+      memoryClass: .workingConversation,
+      subject: "intent:\(intent.id)",
+      statement: statement,
+      evidenceReferences: [intent.turnCorrelationID.uuidString],
+      provenance: .systemDerived(source: .intent),
+      confidence: intent.classificationConfidence,
+      sensitivity: .internalLevel,
+      retention: .sessionScoped,
+      scope: MemoryScope(sessionID: sessionID)
+    )
+
+    do {
+      let outcome = try await memoryEngine.append(
+        draft, actor: .intent, sessionID: sessionID, correlationID: correlationID)
+      let record: MemoryRecord
+      switch outcome {
+      case .recorded(let r): record = r
+      case .recordedWithConflict(let r, _): record = r
+      }
+
+      _ = try? await memoryEngine.annotate(
+        recordID: record.id,
+        nodeKind: .decision,
+        label: "IntentEngine classified turn \(correlationID) as \(intent.kind)",
+        authority: authority(for: .systemDerived(source: .intent)),
+        confidence: intent.classificationConfidence,
+        actor: .intent,
+        correlationID: correlationID
+      )
+    } catch {
+      await emit(
+        IntentMemoryFailedEvent(
+          intentID: intent.id, turnCorrelationID: correlationID, reason: String(describing: error)
+        ),
+        correlationID: correlationID, causationID: causationID)
+    }
+  }
+
+  private func authority(for provenance: MemoryProvenance) -> ProvenanceAuthority {
+    switch provenance {
+    case .userStated: return .userStated
+    case .observed: return .derivedTool
+    case .inferred: return .inferred
+    case .systemDerived: return .derivedTool
+    }
   }
 
   private func emit<P: EventPayload>(_ payload: P, correlationID: UUID, causationID: UUID) async {

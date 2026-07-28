@@ -2,10 +2,10 @@ import AuraCore
 import AuraStore
 import Foundation
 
-/// Coordinates AURA's append-only memory: writing records, projecting
-/// current state, detecting and recording contradictions, enforcing
-/// retention, and giving the user inspection/export/correction/deletion of
-/// non-audit memory.
+/// Coordinates AURA's append-only memory and its provenance graph: writing
+/// records, projecting current state, detecting and recording
+/// contradictions, enforcing retention, and giving the user
+/// inspection/export/correction/deletion of non-audit memory.
 ///
 /// `MemoryEngine` never mutates or overwrites a `MemoryRecord` once
 /// appended — `AuraStore.appendMemoryRecord`/`deleteMemoryRecord` are the
@@ -16,10 +16,81 @@ import Foundation
 public actor MemoryEngine {
   private let store: AuraStore
   private let eventBus: AuraEventBus
+  private let provenanceGraph: ProvenanceGraph
+  private let graphQuery: GraphQueryEngine
+  private let contradictionDetector: ContradictionDetector
+  private let beliefRevision: BeliefRevision
 
   public init(store: AuraStore, eventBus: AuraEventBus = .shared) {
     self.store = store
     self.eventBus = eventBus
+    self.provenanceGraph = ProvenanceGraph(store: store, eventBus: eventBus)
+    self.graphQuery = GraphQueryEngine(store: store)
+    self.contradictionDetector = ContradictionDetector(store: store)
+    self.beliefRevision = BeliefRevision(store: store, graphQuery: graphQuery)
+  }
+
+  // MARK: - Provenance graph
+
+  /// Append a provenance node and/or edges for a record in a single call.
+  /// Returns the created node so callers can continue graph traversal by node ID.
+  @discardableResult
+  public func annotate(
+    recordID: UUID,
+    nodeKind: ProvenanceNodeKind,
+    label: String,
+    authority: ProvenanceAuthority,
+    confidence: Double,
+    outgoingEdges: [(ProvenanceEdgeKind, UUID)] = [],
+    actor: ActorID = .memory,
+    correlationID: UUID = UUID()
+  ) async throws(AuraError) -> ProvenanceNode {
+    let node = try await provenanceGraph.appendNode(
+      kind: nodeKind, recordID: recordID, label: label, authority: authority,
+      confidence: confidence, actor: actor, correlationID: correlationID)
+    for (edgeKind, targetID) in outgoingEdges {
+      _ = try await provenanceGraph.appendEdge(
+        kind: edgeKind, sourceID: node.id, targetID: targetID, actor: actor,
+        correlationID: correlationID)
+    }
+    return node
+  }
+
+  /// Query the provenance graph for a memory record.
+  public func provenance(
+    for recordID: UUID,
+    kinds: Set<ProvenanceNodeKind> = Set(ProvenanceNodeKind.allCases),
+    edgeKinds: Set<ProvenanceEdgeKind> = Set(ProvenanceEdgeKind.allCases),
+    maxDepth: Int = 3
+  ) async throws(AuraError) -> ProvenanceSubgraph {
+    try await graphQuery.subgraph(
+      for: recordID,
+      query: ProvenanceGraphQuery(
+        rootRecordID: recordID, kinds: kinds, edgeKinds: edgeKinds, maxDepth: maxDepth,
+        includeInactive: false))
+  }
+
+  /// Query the provenance graph starting from a specific provenance node.
+  public func provenance(
+    forNodeID nodeID: UUID,
+    kinds: Set<ProvenanceNodeKind> = Set(ProvenanceNodeKind.allCases),
+    edgeKinds: Set<ProvenanceEdgeKind> = Set(ProvenanceEdgeKind.allCases),
+    maxDepth: Int = 3
+  ) async throws(AuraError) -> ProvenanceSubgraph {
+    try await graphQuery.subgraph(
+      rootNodeID: nodeID,
+      query: ProvenanceGraphQuery(
+        rootRecordID: nil, kinds: kinds, edgeKinds: edgeKinds, maxDepth: maxDepth,
+        includeInactive: false))
+  }
+
+  /// Return the active belief set computed from the provenance graph.
+  public func activeBeliefs(
+    memoryClass: MemoryClass? = nil,
+    subject: String? = nil,
+    scope: MemoryScope? = nil
+  ) async throws(AuraError) -> [ProvenanceBelief] {
+    try await beliefRevision.activeBeliefs(memoryClass: memoryClass, subject: subject, scope: scope)
   }
 
   // MARK: - Append
@@ -65,19 +136,44 @@ public actor MemoryEngine {
         supersedes: record.supersedes),
       actor: actor, correlationID: correlationID, causationID: correlationID)
 
+    let node = try await provenanceGraph.appendNode(
+      kind: nodeKind(for: record.memoryClass),
+      recordID: record.id,
+      label: "[\(record.memoryClass)] \(record.subject): \(record.statement)",
+      authority: authority(for: record.provenance),
+      confidence: record.confidence,
+      actor: actor,
+      correlationID: correlationID)
+
+    if let supersedesID = draft.supersedes {
+      let targetNodes = try await graphQuery.nodes(for: supersedesID)
+      guard let targetNode = targetNodes.first else {
+        throw AuraError.memoryError(
+          "cannot supersede record \(supersedesID): no provenance node found")
+      }
+      _ = try await provenanceGraph.appendEdge(
+        kind: .supersedes, sourceID: node.id, targetID: targetNode.id, actor: actor,
+        correlationID: correlationID)
+    }
+
+    for evidenceReference in record.evidenceReferences {
+      if let evidenceRecordID = UUID(uuidString: evidenceReference) {
+        let evidenceNodes = try await graphQuery.nodes(for: evidenceRecordID)
+        let evidenceNodeID = evidenceNodes.first?.id ?? evidenceRecordID
+        _ = try await provenanceGraph.appendEdge(
+          kind: .evidenceFor, sourceID: evidenceNodeID, targetID: node.id, actor: actor,
+          correlationID: correlationID)
+      }
+    }
+
     // An explicit supersession is a deliberate correction, never a surprise
     // contradiction — skip conflict detection.
     guard draft.supersedes == nil else {
       return .recorded(record)
     }
 
-    let candidates = try await store.memoryRecords(
-      matching: MemoryQuery(
-        memoryClass: draft.memoryClass, subject: draft.subject, includeSuperseded: false))
-    let sameScope = candidates.filter { $0.scope == draft.scope }
-    guard
-      let conflicting = sameScope.first(where: { $0.id != record.id && $0.statement != record.statement })
-    else {
+    let conflicting = try await contradictionDetector.detect(draft: draft, excludingRecordID: record.id)
+    guard let conflicting else {
       return .recorded(record)
     }
 
@@ -85,6 +181,13 @@ public actor MemoryEngine {
       memoryClass: draft.memoryClass, subject: draft.subject, existingRecordID: conflicting.id,
       newRecordID: record.id)
     try await store.appendMemoryConflict(conflict)
+
+    let conflictingNodes = try await graphQuery.nodes(for: conflicting.id)
+    let conflictingNodeID = conflictingNodes.first?.id ?? conflicting.id
+    _ = try await provenanceGraph.appendEdge(
+      kind: .conflictsWith, sourceID: node.id, targetID: conflictingNodeID, actor: actor,
+      correlationID: correlationID)
+
     await emit(
       MemoryConflictDetectedEvent(
         conflictID: conflict.id, memoryClass: conflict.memoryClass,
@@ -258,12 +361,32 @@ public actor MemoryEngine {
       throw AuraError.memoryError("audit/security records cannot be deleted by users")
     }
 
+    let nodes = try await graphQuery.nodes(for: id)
+    let primaryNodeID = nodes.first?.id ?? id
+    try await store.appendProvenanceShadow(
+      recordID: id, nodeID: primaryNodeID, reason: reason, actor: actor)
+
     try await store.deleteMemoryRecord(id: id)
     await emit(
       MemoryDeletedEvent(recordID: id, memoryClass: existing.memoryClass, reason: reason),
       actor: actor, correlationID: UUID(), causationID: UUID())
     return MemoryDeletionReceipt(recordID: id, memoryClass: existing.memoryClass, reason: reason)
   }
+
+  /// Return all non-audit records plus their associated provenance subgraph
+  /// in a single export bundle.
+  public func exportWithProvenance() async throws(AuraError) -> MemoryProvenanceExport {
+    let bundle = try await export()
+    var entries: [MemoryProvenanceExport.Entry] = []
+    entries.reserveCapacity(bundle.records.count)
+    for record in bundle.records {
+      let subgraph = try await provenance(for: record.id)
+      entries.append(
+        MemoryProvenanceExport.Entry(record: record, subgraph: subgraph))
+    }
+    return MemoryProvenanceExport(recordsWithProvenance: entries, conflicts: bundle.conflicts)
+  }
+
 
   // MARK: - Retention enforcement
 
@@ -304,6 +427,15 @@ public actor MemoryEngine {
     }
     return purged
   }
+
+  /// Return the current-state projection expressed as active beliefs with
+  /// explicit provenance lineage.
+  public func currentBeliefs(
+    memoryClass: MemoryClass? = nil, subject: String? = nil, scope: MemoryScope? = nil
+  ) async throws(AuraError) -> [ProvenanceBelief] {
+    try await activeBeliefs(memoryClass: memoryClass, subject: subject, scope: scope)
+  }
+
 
   // MARK: - Validation
 
@@ -346,6 +478,35 @@ public actor MemoryEngine {
     ].joined(separator: "\u{1F}")
   }
 
+  private func nodeKind(for memoryClass: MemoryClass) -> ProvenanceNodeKind {
+    switch memoryClass {
+    case .userPreference: return .preference
+    case .taskState: return .task
+    case .proceduralKnowledge: return .decision
+    case .sessionSummary, .workingConversation: return .utterance
+    case .ephemeralAudio: return .file
+    case .projectFact: return .fact
+    case .auditSecurity: return .fact
+    }
+  }
+
+  private func authority(for provenance: MemoryProvenance) -> ProvenanceAuthority {
+    switch provenance {
+    case .userStated: return .userStated
+    case .observed(let source), .systemDerived(let source):
+      switch source {
+      case .policy: return .derivedPolicy
+      case .user: return .userConfirmed
+      case .system, .audio, .screen, .automation, .memory,
+           .agentCodex, .agentClaude, .agentCopilot, .agentOllama,
+           .orchestrator, .task, .context, .computerUse, .security,
+           .plugin, .intent, .unknown:
+        return .derivedTool
+      }
+    case .inferred: return .inferred
+    }
+  }
+
   private func emit<Payload: EventPayload>(
     _ payload: Payload,
     actor: ActorID,
@@ -360,5 +521,29 @@ public actor MemoryEngine {
       payload: payload
     )
     await eventBus.emit(envelope)
+  }
+}
+
+// MARK: - New export bundle with provenance
+
+/// A user export bundle that carries provenance subgraphs alongside each
+/// memory record. This is produced by `MemoryEngine.exportWithProvenance()`.
+public struct MemoryProvenanceExport: Sendable, Equatable, Codable {
+  public struct Entry: Sendable, Equatable, Codable {
+    public let record: MemoryRecord
+    public let subgraph: ProvenanceSubgraph
+
+    public init(record: MemoryRecord, subgraph: ProvenanceSubgraph) {
+      self.record = record
+      self.subgraph = subgraph
+    }
+  }
+
+  public let recordsWithProvenance: [Entry]
+  public let conflicts: [MemoryConflict]
+
+  public init(recordsWithProvenance: [Entry], conflicts: [MemoryConflict]) {
+    self.recordsWithProvenance = recordsWithProvenance
+    self.conflicts = conflicts
   }
 }

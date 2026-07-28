@@ -166,9 +166,65 @@ public actor AuraDatabase {
         );
         """)
 
+    try execute(
+      sql: """
+        CREATE TABLE IF NOT EXISTS provenance_nodes (
+            id TEXT PRIMARY KEY,
+            kind TEXT NOT NULL,
+            record_id TEXT NOT NULL,
+            label TEXT NOT NULL,
+            created_at DATETIME NOT NULL,
+            authority INTEGER NOT NULL,
+            confidence REAL NOT NULL
+        );
+        """)
+
+    try execute(
+      sql: """
+        CREATE TABLE IF NOT EXISTS provenance_edges (
+            id TEXT PRIMARY KEY,
+            kind TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            target_id TEXT NOT NULL,
+            created_at DATETIME NOT NULL,
+            correlation_id TEXT NOT NULL
+        );
+        """)
+
+    try execute(
+      sql: """
+        CREATE INDEX IF NOT EXISTS idx_provenance_nodes_record_id
+        ON provenance_nodes(record_id);
+        """)
+
+    try execute(
+      sql: """
+        CREATE INDEX IF NOT EXISTS idx_provenance_edges_source
+        ON provenance_edges(source_id);
+        """)
+
+    try execute(
+      sql: """
+        CREATE INDEX IF NOT EXISTS idx_provenance_edges_target
+        ON provenance_edges(target_id);
+        """)
+
+    try execute(
+      sql: """
+        CREATE TABLE IF NOT EXISTS provenance_shadows (
+            id TEXT PRIMARY KEY,
+            record_id TEXT NOT NULL,
+            node_id TEXT NOT NULL,
+            shadowed_at DATETIME NOT NULL,
+            reason TEXT NOT NULL,
+            actor TEXT NOT NULL
+        );
+        """)
+
     try recordMigration(version: "v1_0_0_initial")
     try recordMigration(version: "v1_1_0_key_value_store")
     try recordMigration(version: "v1_2_0_memory_records")
+    try recordMigration(version: "v1_3_0_provenance_graph")
     try enableForeignKeys()
   }
 

@@ -112,7 +112,8 @@ actor AuraKernel {
       configuration: configuration.intent)
     let intentEngine = IntentEngine(
       classifier: RuleBasedUtteranceClassifier(), contextEngine: context,
-      configuration: configuration.intent, eventBus: eventBus)
+      memoryEngine: memory, configuration: configuration.intent, eventBus: eventBus,
+      sessionID: sessionID)
 
     let audio = AuraAudio(
       configuration: configuration.audio, eventBus: eventBus,

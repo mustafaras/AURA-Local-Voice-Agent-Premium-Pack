@@ -28,6 +28,22 @@ public struct IntentClassifiedEvent: EventPayload {
   }
 }
 
+/// Emitted when `IntentEngine` fails to persist a classified intent to
+/// `MemoryEngine`. This is diagnostic only; it does not block routing.
+public struct IntentMemoryFailedEvent: EventPayload {
+  public static let eventType = "intent.memory.failed"
+
+  public let intentID: UUID
+  public let turnCorrelationID: UUID
+  public let reason: String
+
+  public init(intentID: UUID, turnCorrelationID: UUID, reason: String) {
+    self.intentID = intentID
+    self.turnCorrelationID = turnCorrelationID
+    self.reason = reason
+  }
+}
+
 /// Emitted when `ToolRouter` (`AuraIntent`) selects a tool contract for a
 /// classified intent, before evaluating policy.
 public struct IntentPlanGeneratedEvent: EventPayload {

@@ -2,6 +2,75 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-08-06T12:00:00Z — PHASE21_PROVENANCE_GRAPH_MEMORY — Advanced Memory Engine and Provenance Graph with intent-to-memory wiring
+
+- **Actor:** GitHub Copilot
+- **Objective:** Implement Phase 21 by evolving `AuraMemory` from an append-only ledger into a queryable provenance graph with contradiction detection, belief revision, user-controlled deletion shadows, and real `IntentEngine` integration.
+- **Starting state:** `AuraStore` had `memory_records` and `memory_conflicts` tables but no provenance graph. `MemoryEngine` supported append-only records, current-state projection, conflict detection, retention enforcement, and user inspect/export/correct/delete, but had no graph APIs. `IntentEngine` emitted `IntentClassifiedEvent` but did not persist intents as memory records or annotate their provenance. `AuraKernel` did not inject `MemoryEngine` into `IntentEngine`.
+- **Assumptions:**
+  - SQLite is sufficient for the v1 provenance edge-list model; a separate graph database is unnecessary complexity.
+  - Provenance labels and evidence references must stay privacy-safe: no raw audio, screenshots, secrets, or private documents.
+  - The CommandLineTools-only toolchain cannot run `swift test` directly; `./scripts/aura-test.sh` is the required runner.
+  - The workspace's `build` directory is on an iCloud-synced Desktop path and intermittently acquires `com.apple.FinderInfo` / `com.apple.fileprovider.fpfs#P` extended attributes that break SwiftPM ad-hoc codesign; the validated build path is `/tmp/aurabuild`.
+- **Decisions:**
+  - Added `provenance_nodes`, `provenance_edges`, and `provenance_shadows` tables to `AuraStore` with append-only semantics.
+  - Created `Sources/AuraMemory/ProvenanceGraph.swift` as the writer, `Sources/AuraMemory/GraphQueryEngine.swift` for deterministic BFS traversal, `Sources/AuraMemory/ContradictionDetector.swift` for active-record conflict detection, and `Sources/AuraMemory/BeliefRevision.swift` for authority/confidence tie-breaking.
+  - Defined `ProvenanceNodeKind`, `ProvenanceEdgeKind`, `ProvenanceAuthority`, `ProvenanceBelief`, `ProvenanceGraphQuery`, and `ProvenanceSubgraph` in `Sources/AuraCore/ProvenanceTypes.swift`.
+  - `MemoryEngine.append()` auto-creates a provenance node, `evidenceFor` edges for UUID evidence references, and `supersedes` edges when `draft.supersedes` is set.
+  - `MemoryEngine.append()` skips contradiction detection for supersession appends and appends a `conflictsWith` provenance edge when a contradiction is detected.
+  - `MemoryEngine.deleteRecord()` appends a `provenance_shadows` row and rejects audit-class records.
+  - `MemoryEngine.annotate()` returns the created `ProvenanceNode` and `MemoryEngine.provenance(forNodeID:)` enables subgraph queries starting from arbitrary nodes.
+  - `GraphQueryEngine.subgraph()` deduplicates directed edges when traversing both outgoing and incoming adjacency using a `collectedEdgeIDs` set.
+  - `IntentEngine` now accepts an optional `MemoryEngine?` and `sessionID`; after classification it persists a `.workingConversation` memory record with `.systemDerived(source: .intent)` provenance and annotates a `.decision` provenance node.
+  - Memory persistence failures in `IntentEngine` emit `IntentMemoryFailedEvent` but never block intent routing.
+  - Added `AuraMemory` dependency to `AuraIntent` and `AuraIntentTests` in `Package.swift`.
+  - Updated `AuraKernel.construct()` to build `MemoryEngine` first and inject it into `IntentEngine`.
+  - Added `Tests/AuraMemoryTests/MemoryEngineTests.swift` Phase 21 tests (provenance nodes, evidence edges, supersession edges, conflict edges, shadows, active beliefs, authority tie-breaking, annotation API).
+  - Added `Tests/AuraIntentTests/IntentEngineMemoryTests.swift` covering intent-to-memory persistence, session scoping, provenance annotation, and best-effort failure handling.
+  - Updated `scripts/aura-test.sh` to build `AuraMemoryTests` and `AuraIntentTests` in the default full-suite loop, and to strip iCloud extended attributes after each SwiftPM build step.
+  - Created `docs/decisions/ADR-026-provenance-graph-memory.md` documenting the schema, semantics, authority ranking, intent wiring, and test evidence.
+- **Files changed:**
+  - `Sources/AuraCore/ProvenanceTypes.swift` — new
+  - `Sources/AuraMemory/ProvenanceGraph.swift` — new
+  - `Sources/AuraMemory/GraphQueryEngine.swift` — new
+  - `Sources/AuraMemory/ContradictionDetector.swift` — new
+  - `Sources/AuraMemory/BeliefRevision.swift` — new
+  - `Sources/AuraStore/AuraStore.swift` — added `provenance_nodes`/`provenance_edges`/`provenance_shadows` persistence and queries
+  - `Sources/AuraMemory/MemoryEngine.swift` — integrated provenance graph, added `annotate` return value and `provenance(forNodeID:)`
+  - `Sources/AuraIntent/IntentEngine.swift` — imported `AuraMemory`, added `memoryEngine`/`sessionID` injection, `persistIntentAsMemory()`, and `authority(for:)` mapping
+  - `Sources/AuraCore/IntentEventPayloads.swift` — added `IntentMemoryFailedEvent`
+  - `Sources/AURA/AuraKernel.swift` — injects `MemoryEngine` into `IntentEngine`
+  - `Package.swift` — added `AuraMemory` to `AuraIntent` and `AuraIntentTests` target dependencies
+  - `Tests/AuraMemoryTests/MemoryEngineTests.swift` — expanded with Phase 21 tests
+  - `Tests/AuraIntentTests/IntentEngineMemoryTests.swift` — new
+  - `scripts/aura-test.sh` — added `AuraMemoryTests`/`AuraIntentTests` to default loop and recursive xattr stripping after builds
+  - `docs/decisions/ADR-026-provenance-graph-memory.md` — new
+  - `ledger/CURRENT_STATE.md` — atomically updated
+  - `ledger/PROJECT_LEDGER.md` — this entry
+- **Commands executed:**
+  - `./scripts/aura-test.sh /tmp/aurabuild AuraMemoryTests` — 25/25 pass
+  - `./scripts/aura-test.sh /tmp/aurabuild AuraIntentTests` — 27/27 pass
+  - `./scripts/aura-test.sh` (default `/tmp/aurabuild` full suite) — all bundles pass across `AURAIntegrationTests`, `AuraAgentTests`, `AuraAudioTests`, `AuraAutomationTests`, `AuraCoreTests`, `AuraIntentTests`, `AuraMemoryTests`, `AuraSTTTests`, `AuraShellTests`, `AuraStoreTests`
+- **Tests and exact results:**
+  - `AuraMemoryTests`: 25/25 pass (`memoryEngineAppendCreatesProvenanceNode`, `memoryEngineAppendsFactWithEvidence`, `memoryEngineEvidenceReferenceCreatesEvidenceForEdge`, `memoryEngineSupersessionCreatesProvenanceEdge`, `memoryEngineSupersessionSkipsConflictDetection`, `memoryEngineContradictionCreatesConflictsWithEdge`, `memoryEngineAnnotateAddsNodeAndEdges`, `memoryEngineActiveBeliefsRespectAuthorityTieBreaker`, `memoryEngineActiveBeliefsExcludeShadowedRecords`, and 16 others)
+  - `AuraIntentTests`: 27/27 pass including the three new intent-memory tests (`intentEngineAppendsWorkingConversationRecordForClassifiedIntent`, `intentEngineSessionScopeIsolatesRecords`, `intentEngineAnnotatesProvenanceForClassifiedIntent`)
+  - Full suite: 10/10 bundles pass with default `/tmp/aurabuild` build path
+- **Security/privacy impact:**
+  - Provenance labels contain intent kind and normalized utterance but never ambient audio, screenshots, secrets, or private documents.
+  - Evidence references are stored as opaque strings; UUID references are resolved to existing provenance nodes when available.
+  - User deletion appends a shadow record; audit-class records cannot be deleted through the public API.
+  - Graph data remains local in the same SQLite store with existing retention and encryption boundaries.
+- **Unresolved risks:**
+  - The workspace `build` path is on an iCloud-synced Desktop and remains unreliable for SwiftPM codesign due to reappearing Finder/fileprovider extended attributes. The default `/tmp/aurabuild` path is the supported build path.
+  - `AuraAudioTests` `firstChunkLatencyIsUnderBudget()` is wall-clock dependent and occasionally exceeds its 2 s budget when the machine is under heavy parallel load; the test passes reliably in isolation.
+  - Graph queries currently load all nodes and edges into memory before BFS; this is bounded by retention enforcement but may need a lazy adjacency cursor for very large graphs.
+  - Legacy memory records created before this change have no provenance nodes; they remain accessible through legacy queries but are not included in graph-based active beliefs until back-filled.
+  - Real-device STT/TTS latency and wake-word accuracy remain unvalidated; end-to-end latency evidence is still synthetic.
+- **Rollback:** Revert `AuraStore` to the pre-provenance schema, remove `Sources/AuraMemory/*Graph*`/`BeliefRevision`/`ContradictionDetector` files, remove `Sources/AuraCore/ProvenanceTypes.swift`, revert `IntentEngine` to not depend on `AuraMemory`, and remove the new tests.
+- **Current state:** Phase 21 is functionally complete. Provenance graph schema, memory engine integration, contradiction/belief logic, user deletion shadows, and intent-to-memory wiring are implemented and passing tests. No blockers for Phase 22.
+- **Next safe action:** User direction required: (1) proceed to Phase 22 (deep context reconstruction and reference resolution); (2) authorize commit/push of this working tree; (3) address the workspace build-path iCloud issue; (4) pick another task.
+- **Integrity hash:** intentionally omitted.
+
 ### 2026-08-05T14:00:00Z — PHASE03_STREAMING_STT — Native Speech.framework STT adapter, protocol alignment, and unit tests
 
 - **Actor:** GitHub Copilot
