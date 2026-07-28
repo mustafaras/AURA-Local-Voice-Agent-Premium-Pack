@@ -8,6 +8,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${(%):-%N}")" && pwd)"
 APP_PATH="${1:-$SCRIPT_DIR/../.build/release-app/AURA.app}"
 ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AURA.entitlements"
+HELPER_ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AuraPluginHost.entitlements"
+HELPER_PATH="$APP_PATH/Contents/Helpers/AuraPluginHost.app"
 
 if [[ ! -d "$APP_PATH" ]]; then
   echo "App bundle not found: $APP_PATH"
@@ -15,11 +17,21 @@ if [[ ! -d "$APP_PATH" ]]; then
   exit 1
 fi
 
-echo "Signing $APP_PATH with entitlements $ENTITLEMENTS"
+if [[ ! -d "$HELPER_PATH" ]]; then
+  echo "Plugin helper not found: $HELPER_PATH"
+  exit 1
+fi
 
+echo "Signing isolated plugin helper with $HELPER_ENTITLEMENTS"
 codesign \
   --force \
-  --deep \
+  --sign "-" \
+  --entitlements "$HELPER_ENTITLEMENTS" \
+  "$HELPER_PATH"
+
+echo "Signing $APP_PATH with entitlements $ENTITLEMENTS"
+codesign \
+  --force \
   --sign "-" \
   --entitlements "$ENTITLEMENTS" \
   "$APP_PATH"

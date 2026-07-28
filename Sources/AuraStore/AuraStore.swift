@@ -100,6 +100,60 @@ public actor AuraStore: LedgerBackend {
     )
   }
 
+  /// Append an immutable plugin security audit record.
+  public func appendPluginAudit(_ record: PluginAuditRecord) async throws(AuraError) {
+    try await database.run(
+      sql: """
+        INSERT INTO plugin_audit_records (
+            id, timestamp, plugin_id, version, action, actor, outcome, detail, correlation_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        """,
+      arguments: [
+        .text(record.id.uuidString),
+        .text(formatDate(record.timestamp)),
+        .text(record.pluginID),
+        .text(record.version),
+        .text(record.action),
+        .text(record.actor.rawValue),
+        .text(record.outcome),
+        .text(record.detail),
+        .text(record.correlationID.uuidString),
+      ])
+  }
+
+  /// Read a plugin's durable audit history in chronological order.
+  public func pluginAuditRecords(pluginID: String, limit: Int = 500) async throws(AuraError)
+    -> [PluginAuditRecord]
+  {
+    guard !pluginID.isEmpty, limit > 0 else {
+      throw AuraError.invalidConfiguration("pluginID must not be empty and limit must be positive")
+    }
+    let rows = try await database.query(
+      sql: """
+        SELECT * FROM plugin_audit_records
+        WHERE plugin_id = ?
+        ORDER BY datetime(timestamp) ASC
+        LIMIT ?;
+        """,
+      arguments: [.text(pluginID), .integer(limit)])
+    return rows.compactMap { row in
+      guard
+        let id = UUID(uuidString: row["id"]?.text ?? ""),
+        let correlationID = UUID(uuidString: row["correlation_id"]?.text ?? "")
+      else { return nil }
+      return PluginAuditRecord(
+        id: id,
+        timestamp: parseDate(row["timestamp"]),
+        pluginID: row["plugin_id"]?.text ?? "",
+        version: row["version"]?.text ?? "",
+        action: row["action"]?.text ?? "",
+        actor: ActorID(rawValue: row["actor"]?.text ?? "system") ?? .system,
+        outcome: row["outcome"]?.text ?? "",
+        detail: row["detail"]?.text ?? "",
+        correlationID: correlationID)
+    }
+  }
+
   /// Append a ledger entry to the persistent store.
   public func append(_ entry: ProjectLedgerEntry) async throws(AuraError) {
     try await database.run(
@@ -235,8 +289,7 @@ public actor AuraStore: LedgerBackend {
 
   /// Query memory records, optionally filtered by class/subject/scope and
   /// whether to include records that some other record `supersedes`.
-  public func memoryRecords(matching query: MemoryQuery) async throws(AuraError) -> [MemoryRecord]
-  {
+  public func memoryRecords(matching query: MemoryQuery) async throws(AuraError) -> [MemoryRecord] {
     var clauses: [String] = []
     var arguments: [SQLiteValue] = []
 
@@ -263,7 +316,8 @@ public actor AuraStore: LedgerBackend {
       }
     }
     if !query.includeSuperseded {
-      clauses.append("id NOT IN (SELECT supersedes FROM memory_records WHERE supersedes IS NOT NULL)")
+      clauses.append(
+        "id NOT IN (SELECT supersedes FROM memory_records WHERE supersedes IS NOT NULL)")
     }
 
     let whereClause = clauses.isEmpty ? "" : "WHERE " + clauses.joined(separator: " AND ")
@@ -370,7 +424,8 @@ public actor AuraStore: LedgerBackend {
     conflicts.reserveCapacity(rows.count)
     for row in rows {
       guard let memoryClass = MemoryClass(rawValue: row["memory_class"]?.text ?? "") else {
-        throw AuraError.memoryError("unknown memory_class in conflict row \(row["id"]?.text ?? "?")")
+        throw AuraError.memoryError(
+          "unknown memory_class in conflict row \(row["id"]?.text ?? "?")")
       }
       var resolution: MemoryConflictResolution?
       if let resolutionJSON = row["resolution_json"]?.text {
@@ -467,25 +522,28 @@ public actor AuraStore: LedgerBackend {
       arguments.append(contentsOf: kinds.map { .text($0.rawValue) })
     }
     let whereClause = clauses.isEmpty ? "" : "WHERE " + clauses.joined(separator: " AND ")
-    let sql = "SELECT * FROM provenance_nodes \(whereClause) ORDER BY datetime(created_at) ASC, id ASC;"
+    let sql =
+      "SELECT * FROM provenance_nodes \(whereClause) ORDER BY datetime(created_at) ASC, id ASC;"
     let rows = try await database.query(sql: sql, arguments: arguments)
     var nodes: [ProvenanceNode] = []
     for row in rows {
       guard let kind = ProvenanceNodeKind(rawValue: row["kind"]?.text ?? "") else {
         throw AuraError.memoryError("unknown provenance node kind")
       }
-      guard let authority = ProvenanceAuthority(rawValue: row["authority"]?.integerValue ?? 0) else {
+      guard let authority = ProvenanceAuthority(rawValue: row["authority"]?.integerValue ?? 0)
+      else {
         throw AuraError.memoryError("unknown provenance authority")
       }
-      nodes.append(ProvenanceNode(
-        id: UUID(uuidString: row["id"]?.text ?? "") ?? UUID(),
-        kind: kind,
-        recordID: UUID(uuidString: row["record_id"]?.text ?? "") ?? UUID(),
-        label: row["label"]?.text ?? "",
-        createdAt: parseDate(row["created_at"]),
-        authority: authority,
-        confidence: row["confidence"]?.realValue ?? 0
-      ))
+      nodes.append(
+        ProvenanceNode(
+          id: UUID(uuidString: row["id"]?.text ?? "") ?? UUID(),
+          kind: kind,
+          recordID: UUID(uuidString: row["record_id"]?.text ?? "") ?? UUID(),
+          label: row["label"]?.text ?? "",
+          createdAt: parseDate(row["created_at"]),
+          authority: authority,
+          confidence: row["confidence"]?.realValue ?? 0
+        ))
     }
     return nodes
   }
@@ -533,21 +591,23 @@ public actor AuraStore: LedgerBackend {
       arguments.append(contentsOf: kinds.map { .text($0.rawValue) })
     }
     let whereClause = clauses.isEmpty ? "" : "WHERE " + clauses.joined(separator: " AND ")
-    let sql = "SELECT * FROM provenance_edges \(whereClause) ORDER BY datetime(created_at) ASC, id ASC;"
+    let sql =
+      "SELECT * FROM provenance_edges \(whereClause) ORDER BY datetime(created_at) ASC, id ASC;"
     let rows = try await database.query(sql: sql, arguments: arguments)
     var edges: [ProvenanceEdge] = []
     for row in rows {
       guard let kind = ProvenanceEdgeKind(rawValue: row["kind"]?.text ?? "") else {
         throw AuraError.memoryError("unknown provenance edge kind")
       }
-      edges.append(ProvenanceEdge(
-        id: UUID(uuidString: row["id"]?.text ?? "") ?? UUID(),
-        kind: kind,
-        sourceID: UUID(uuidString: row["source_id"]?.text ?? "") ?? UUID(),
-        targetID: UUID(uuidString: row["target_id"]?.text ?? "") ?? UUID(),
-        createdAt: parseDate(row["created_at"]),
-        correlationID: UUID(uuidString: row["correlation_id"]?.text ?? "") ?? UUID()
-      ))
+      edges.append(
+        ProvenanceEdge(
+          id: UUID(uuidString: row["id"]?.text ?? "") ?? UUID(),
+          kind: kind,
+          sourceID: UUID(uuidString: row["source_id"]?.text ?? "") ?? UUID(),
+          targetID: UUID(uuidString: row["target_id"]?.text ?? "") ?? UUID(),
+          createdAt: parseDate(row["created_at"]),
+          correlationID: UUID(uuidString: row["correlation_id"]?.text ?? "") ?? UUID()
+        ))
     }
     return edges
   }

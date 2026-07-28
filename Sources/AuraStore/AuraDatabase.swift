@@ -221,10 +221,32 @@ public actor AuraDatabase {
         );
         """)
 
+    try execute(
+      sql: """
+        CREATE TABLE IF NOT EXISTS plugin_audit_records (
+            id TEXT PRIMARY KEY,
+            timestamp DATETIME NOT NULL,
+            plugin_id TEXT NOT NULL,
+            version TEXT NOT NULL,
+            action TEXT NOT NULL,
+            actor TEXT NOT NULL,
+            outcome TEXT NOT NULL,
+            detail TEXT NOT NULL DEFAULT '',
+            correlation_id TEXT NOT NULL
+        );
+        """)
+
+    try execute(
+      sql: """
+        CREATE INDEX IF NOT EXISTS idx_plugin_audit_plugin_timestamp
+        ON plugin_audit_records(plugin_id, timestamp);
+        """)
+
     try recordMigration(version: "v1_0_0_initial")
     try recordMigration(version: "v1_1_0_key_value_store")
     try recordMigration(version: "v1_2_0_memory_records")
     try recordMigration(version: "v1_3_0_provenance_graph")
+    try recordMigration(version: "v1_4_0_plugin_audit")
     try enableForeignKeys()
   }
 

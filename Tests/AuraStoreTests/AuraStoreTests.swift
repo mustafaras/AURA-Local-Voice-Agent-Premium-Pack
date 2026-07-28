@@ -169,6 +169,31 @@ struct AuraStoreTests {
     #expect(all.first?.resolution == .supersededExisting)
   }
 
+  @Test func storeAppendsImmutablePluginAuditHistory() async throws {
+    let path = temporaryDatabasePath()
+    defer { cleanup(path: path) }
+
+    let store = try await AuraStore(path: path)
+    let correlationID = UUID()
+    let record = PluginAuditRecord(
+      pluginID: "com.example.plugin",
+      version: "1.0.0",
+      action: "install",
+      actor: .user,
+      outcome: "success",
+      correlationID: correlationID)
+    try await store.appendPluginAudit(record)
+
+    let records = try await store.pluginAuditRecords(pluginID: "com.example.plugin")
+    #expect(records.count == 1)
+    #expect(records.first?.id == record.id)
+    #expect(records.first?.action == record.action)
+    #expect(records.first?.outcome == record.outcome)
+    #expect(
+      abs((records.first?.timestamp ?? .distantPast).timeIntervalSince(record.timestamp)) < 0.001)
+    #expect(records.first?.correlationID == correlationID)
+  }
+
   private func temporaryDatabasePath() -> String {
     NSTemporaryDirectory().appending(UUID().uuidString).appending(".db")
   }

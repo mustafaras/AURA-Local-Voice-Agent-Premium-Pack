@@ -1,75 +1,97 @@
-> **Status:** Normative specification  
-> **Target:** macOS 26+ on Apple Silicon, with graceful degradation where practical  
-> **Primary device profile:** Apple Silicon, 16 GB unified memory  
-> **Language:** English  
-> **Priority order:** Safety → Correctness → Recoverability → Latency → Convenience
-
+> **Status:** Normative specification
+> **Target:** macOS 26+ on Apple Silicon
+> **Priority:** Safety → Correctness → Recoverability → Latency → Convenience
 
 # Plugin and Adapter System
 
-## Plugin manifest
-- ID and semantic version
-- vendor and signature
-- capabilities
-- schemas
-- required permissions
-- supported application bundle IDs
-- network domains
-- executable dependencies
-- migration requirements
-- audit level
+## Manifest schema v1
 
-## Security
-- Plugins are untrusted until explicitly installed and approved.
-- Validate signatures and hashes.
-- Run with the minimum possible process and filesystem permissions.
-- No dynamic code download without user action.
-- Provide disable, quarantine, and uninstall workflows.
+`PluginManifest` binds these fields into deterministic sorted JSON before
+Ed25519 verification:
 
-## Implementation (Phase 19 — verification and lifecycle foundation)
+- schema version, reverse-DNS identity, and semantic version;
+- vendor display name, vendor key ID, and signing algorithm;
+- capability identities including risk tiers;
+- input and output JSON schemas;
+- resource permissions, supported application bundle IDs, and network domains;
+- executable dependencies and relative entrypoint;
+- grant lifetime, migration notes, audit level, and payload SHA-256.
 
-This phase implements the manifest schema, cryptographic verification, and
-policy-gated lifecycle registry — the foundation Phase 23 ("Verified Plugin
-and Adapter Marketplace") extends into a full marketplace with
-download/distribution, sandboxed XPC/helper execution, and update/rollback
-flows. There is deliberately no `execute` method anywhere in this phase's
-code: no plugin runtime exists yet, only verified, policy-gated bookkeeping
-a future runtime would consult.
+Capabilities require at least one explicit scoped permission. `.any` is
+invalid for a plugin manifest; an empty list is never broadened. Vendor trust
+is keyed by normalized vendor name plus the signed key ID.
 
-- `PluginManifest` (`Sources/AuraPlugins/PluginManifest.swift`): id, version,
-  vendor name, `[Capability]`, `[ResourcePattern]` required permissions,
-  supported bundle IDs, network domains, executable dependencies, migration
-  notes, audit level, SHA-256 content hash, and a base64 Ed25519 signature
-  over a canonical, order-independent `signedPayload`.
-- `PluginVerifier` (`Sources/AuraPlugins/PluginVerifier.swift`): structural
-  validity → content-hash integrity (`CryptoKit.SHA256`) → vendor trust
-  (`PluginTrustRegistry`, deny-by-default) → Ed25519 signature validity
-  (`CryptoKit.Curve25519.Signing`, verified via a real `swiftc -typecheck`
-  probe compile before use, matching the project's established API
-  verification discipline). Each stage is checked in order so a caller
-  always learns the *first* real problem, not a downstream symptom.
-- `PluginTrustRegistry` (`Sources/AuraPlugins/PluginTrustRegistry.swift`):
-  local, operator-configured vendor-name → public-key trust list
-  (`PluginConfiguration.trustedVendorPublicKeysBase64`) — not a connection
-  to any external PKI or marketplace directory; that remains Phase 23 scope.
-- `PluginRegistry` (`Sources/AuraPlugins/PluginRegistry.swift`): an actor
-  implementing install (verify, then map each declared capability onto a
-  scoped `Grant` via `PolicyEngine.issueGrant`) / enable / disable /
-  quarantine (one-way; no `unquarantine`) / uninstall (revokes every issued
-  grant, retains the record for audit). Every transition is itself a
-  `PolicyEngine.evaluate` call against a new `Capability.pluginInstall`/
-  `.pluginEnable`/`.pluginDisable`/`.pluginQuarantine`/`.pluginUninstall` —
-  a plugin cannot change its own lifecycle state merely by being asked to.
-  `isActionable(pluginID:)` is `true` only for `.enabled` plugins —
-  `.installed` (verified but never explicitly enabled), `.disabled`,
-  `.quarantined`, and `.uninstalled` are all non-actionable by construction.
+## Verification and local catalog
 
-**Adversarial tests** (`Tests/AuraPluginsTests/PluginVerifierTests.swift`):
-vendor-name spoofing (trust registry has the vendor but under a *different*
-real key), tampered/bundle-swapped content (hash mismatch), forged signature
-from an attacker-controlled key, and post-signing capability escalation (a
-manifest mutated to add capabilities after the vendor signed the narrower
-original) are all rejected. `Tests/AuraPluginsTests/PluginRegistryTests.swift`
-proves quarantine blocks re-enabling, uninstall revokes grants while
-preserving the audit record, and a plugin's issued grant genuinely
-authorizes its declared capability end-to-end through a real `PolicyEngine`.
+`PluginVerifier` executes structural validation, real SHA-256 comparison,
+trusted-key lookup, then Ed25519 verification before artifact activation.
+`PluginMarketplace` accepts packages only from a source the user approved.
+Catalog presence grants no authority: install still passes policy,
+verification, artifact, grant, persistence, and audit gates. Phase 23 adds no
+network entitlement or automatic remote download.
+
+## Artifacts and lifecycle
+
+`PluginArtifactStore` writes immutable-mode, versioned payloads below one
+configured root, resolves symlinks, and rehashes before enable, execute, or
+rollback. `PluginRegistry` implements:
+
+- install into non-actionable `.installed`;
+- explicit enable and disable;
+- one-way quarantine with immediate grant revocation;
+- update only to a higher semantic version with the same ID/vendor/key;
+- rollback only to a retained, locally rehashed version;
+- uninstall with grant revocation and artifact removal while retaining
+  lifecycle and immutable audit records.
+
+Update and rollback create replacement grants and durable state before
+revoking old grants. Persistence failure restores the old projection and
+revokes the replacement grants. Both transitions return to `.disabled`.
+
+## Capability grants
+
+Each capability becomes a `Grant` with the manifest's exact patterns,
+`subjectActor == .plugin`, a signed lifetime-derived expiry, and a purpose
+bound to plugin ID/version. A plugin actor without a matching active grant is
+denied before the application's default tier matrix, so expiry or revocation
+cannot become implicit default authority. Execution repeats lifecycle, capability,
+allowlist, policy, artifact hash, helper protocol, nonce, and sandbox checks.
+Only `.enabled` can reach the helper or create runtime-success audit.
+
+## Separate helper boundary
+
+`AuraPluginHost` is embedded as
+`Contents/Helpers/AuraPluginHost.app/Contents/MacOS/AuraPluginHost`, with a
+signed `CFBundleIdentifier` required by App Sandbox. It checks its own
+`com.apple.security.app-sandbox` entitlement through the installed SDK's
+`SecTaskCreateFromSelf`/`SecTaskCopyValueForEntitlement` APIs and refuses to
+run without it. Its entitlement file denies network, microphone, and camera.
+The app pins the helper SHA-256 before launch. Both sides validate protocol,
+nonce, manifest identity, capability, target allowlists, and payload hash.
+Execution has bounded input/output and a 30-second timeout. Missing,
+unpinned, unsandboxed, wrong-protocol, or non-attesting helpers fail closed.
+
+`build-app-bundle.sh` embeds the helper. `codesign-adhoc.sh` signs it first
+with restrictive entitlements, then signs the app without `--deep`, avoiding
+propagation of the app's broader microphone/screen entitlements.
+
+## Persistence and migration
+
+Lifecycle projections remain in `aura.plugins.registry`. Missing Phase 23
+record fields decode to restrictive empty values. Migration
+`v1_4_0_plugin_audit` adds append-only `plugin_audit_records`; records retain
+correlation IDs but no raw plugin payload.
+
+## Tests and evidence boundary
+
+`Phase23MarketplaceTests.swift` covers broad/implicit permission rejection,
+key/migration spoofing, actor-scoped expiring grants, state-based runtime
+denial, artifact tamper, update/rollback/uninstall, audit retention, and
+source approval. Existing verifier tests cover bundle substitution, wrong
+keys, capability/risk mutation, and permission widening.
+
+The local packaging gate builds and ad-hoc signs a nested helper application,
+verifies both signatures strictly, verifies the helper's restrictive
+entitlements, and executes its sandbox self-attestation successfully. Developer
+ID/notarized distribution and end-to-end execution of a real third-party signed
+payload remain release evidence; they are not claimed by source tests.

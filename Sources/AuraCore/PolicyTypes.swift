@@ -184,6 +184,15 @@ extension Capability {
   /// Permanently remove a plugin's registry entry and revoke its grants.
   public static let pluginUninstall = Capability(
     domain: "plugin", action: "uninstall", riskTier: .mutation)
+  /// Replace an installed plugin with a newly verified version.
+  public static let pluginUpdate = Capability(
+    domain: "plugin", action: "update", riskTier: .destructive)
+  /// Restore a previously verified, locally retained plugin version.
+  public static let pluginRollback = Capability(
+    domain: "plugin", action: "rollback", riskTier: .destructive)
+  /// Cross the isolated plugin-runtime boundary for one declared action.
+  public static let pluginExecute = Capability(
+    domain: "plugin", action: "execute", riskTier: .mutation)
 
   /// A plain conversational turn with no tool dispatch. `.observation`
   /// tier — always allowed by default, never denied or confirmed.
@@ -287,6 +296,9 @@ public struct Grant: Codable, Sendable, Equatable, Identifiable {
   public let createdAt: Date
   public let expiresAt: Date?
   public let issuer: ActorID
+  /// Optional actor this grant authorizes. `nil` preserves legacy
+  /// actor-agnostic grants; plugin-issued grants always set `.plugin`.
+  public let subjectActor: ActorID?
   public let purpose: String
 
   public init(
@@ -297,6 +309,7 @@ public struct Grant: Codable, Sendable, Equatable, Identifiable {
     createdAt: Date = Date(),
     expiresAt: Date? = nil,
     issuer: ActorID = .user,
+    subjectActor: ActorID? = nil,
     purpose: String = ""
   ) {
     self.id = id
@@ -306,6 +319,7 @@ public struct Grant: Codable, Sendable, Equatable, Identifiable {
     self.createdAt = createdAt
     self.expiresAt = expiresAt
     self.issuer = issuer
+    self.subjectActor = subjectActor
     self.purpose = purpose
   }
 }

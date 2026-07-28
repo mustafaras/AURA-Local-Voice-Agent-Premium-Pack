@@ -113,7 +113,8 @@ func quarantineBlocksSubsequentEnable() async throws {
   _ = try await registry.install(manifest: fixture.manifest, bundleData: fixture.bundleData)
   try await registry.enable(pluginID: fixture.manifest.id)
 
-  try await registry.quarantine(pluginID: fixture.manifest.id, reason: "suspicious behavior detected")
+  try await registry.quarantine(
+    pluginID: fixture.manifest.id, reason: "suspicious behavior detected")
   #expect(await registry.isActionable(pluginID: fixture.manifest.id) == false)
 
   await #expect(throws: AuraError.self) {
@@ -192,7 +193,9 @@ func installIssuedGrantActuallyAuthorizesTheDeclaredCapability() async throws {
 
   let decision = await engine.evaluate(
     PolicyEvaluationRequest(
-      capability: .appActivate, actor: .plugin, sessionID: UUID(), correlationID: UUID(),
+      capability: .appActivate, actor: .plugin,
+      target: PolicyTarget(directoryPath: "/tmp/aura-plugin-tests"),
+      sessionID: UUID(), correlationID: UUID(),
       causationID: UUID()))
   guard case .allow = decision else {
     Issue.record("expected the plugin's issued grant to allow appActivate, got \(decision)")

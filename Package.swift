@@ -10,6 +10,7 @@ let package = Package(
     ],
     products: [
         .executable(name: "AURA", targets: ["AURA"]),
+        .executable(name: "AuraPluginHost", targets: ["AuraPluginHost"]),
         .library(name: "AuraCore", targets: ["AuraCore"]),
         .library(name: "AuraAudio", targets: ["AuraAudio"]),
         .library(name: "AuraAutomation", targets: ["AuraAutomation"]),
@@ -279,6 +280,16 @@ let package = Package(
             dependencies: ["AuraCore", "AuraPolicy", "AuraStore"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
+            ]
+        ),
+        .executableTarget(
+            name: "AuraPluginHost",
+            dependencies: ["AuraCore", "AuraPlugins"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("Security", .when(platforms: [.macOS]))
             ]
         ),
         .testTarget(

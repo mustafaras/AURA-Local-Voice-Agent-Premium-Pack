@@ -54,7 +54,10 @@ public struct PluginVerifier: Sendable {
       return .hashMismatch
     }
 
-    guard let publicKey = trustRegistry.publicKey(forVendor: manifest.vendorName) else {
+    guard
+      let publicKey = trustRegistry.publicKey(
+        forVendor: manifest.vendorName, keyID: manifest.vendorKeyID)
+    else {
       return .untrustedVendor
     }
 

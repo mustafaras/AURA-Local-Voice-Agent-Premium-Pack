@@ -19,3 +19,4 @@
 | ADR-025 | Accepted | Native Speech.framework STT adapter with required on-device recognition | 2026-08-05 | — |
 | ADR-026 | Accepted | Provenance graph integration for memory, contradiction detection, belief revision, and intent lineage | 2026-08-06 | — |
 | ADR-027 | Accepted | Deep context reconstruction: bounded builder pipeline, reference graph, cross-session provenance, inspection/override, live intent integration | 2026-07-28 | — |
+| ADR-028 | Accepted | Verified plugin marketplace: schema-v1 authority binding, actor-scoped expiring grants, versioned artifacts, durable audit, and digest-pinned sandbox helper | 2026-07-28 | — |

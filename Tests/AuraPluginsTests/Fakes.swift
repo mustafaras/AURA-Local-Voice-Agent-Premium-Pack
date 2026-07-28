@@ -20,27 +20,35 @@ enum PluginFixtures {
   /// a hand-typed fixture, so `PluginVerifier` exercises real cryptography.
   static func makeSignedManifest(
     id: String = "com.example.testplugin",
+    version: String = "1.0.0",
     vendorName: String = "ExampleVendor",
     capabilities: [Capability] = [.fileRead],
-    requiredPermissions: [ResourcePattern] = [],
+    requiredPermissions: [ResourcePattern]? = nil,
     bundleContent: String = "plugin bundle payload"
   ) -> SignedPluginFixture {
     let privateKey = Curve25519.Signing.PrivateKey()
     let bundleData = Data(bundleContent.utf8)
     let hashHex = SHA256.hash(data: bundleData).compactMap { String(format: "%02x", $0) }.joined()
 
+    let permissions =
+      requiredPermissions
+      ?? (capabilities.isEmpty
+        ? [] : [.directory("/tmp/aura-plugin-tests", recursive: true)])
     let unsigned = PluginManifest(
-      id: id, version: "1.0.0", vendorName: vendorName, capabilities: capabilities,
-      requiredPermissions: requiredPermissions,
+      id: id, version: version, vendorName: vendorName, capabilities: capabilities,
+      requiredPermissions: permissions,
       contentHashSHA256Hex: hashHex,
       signatureBase64: Data(repeating: 0, count: 64).base64EncodedString())
     let signature = try! privateKey.signature(for: unsigned.signedPayload)
     let signed = PluginManifest(
       id: unsigned.id, version: unsigned.version, vendorName: unsigned.vendorName,
-      capabilities: unsigned.capabilities, requiredPermissions: unsigned.requiredPermissions,
+      vendorKeyID: unsigned.vendorKeyID, signingAlgorithm: unsigned.signingAlgorithm,
+      capabilities: unsigned.capabilities, inputSchemas: unsigned.inputSchemas,
+      outputSchemas: unsigned.outputSchemas, requiredPermissions: unsigned.requiredPermissions,
       supportedApplicationBundleIDs: unsigned.supportedApplicationBundleIDs,
       networkDomains: unsigned.networkDomains,
       executableDependencies: unsigned.executableDependencies,
+      entrypoint: unsigned.entrypoint, grantLifetimeSeconds: unsigned.grantLifetimeSeconds,
       migrationNotes: unsigned.migrationNotes, auditLevel: unsigned.auditLevel,
       contentHashSHA256Hex: unsigned.contentHashSHA256Hex,
       signatureBase64: signature.base64EncodedString())
@@ -73,7 +81,9 @@ func makeTestStore() async throws -> AuraStore {
 /// exists to exercise.
 func makeTestPolicyEngine(
   store: AuraStore? = nil,
-  allowByDefaultTiers: Set<PermissionRiskTier> = [.observation, .reversible, .mutation, .destructive],
+  allowByDefaultTiers: Set<PermissionRiskTier> = [
+    .observation, .reversible, .mutation, .destructive,
+  ],
   grantPluginLifecycleCapabilities: Bool = true
 ) async throws(AuraError) -> PolicyEngine {
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraPluginsTests", category: "bus"))
@@ -85,6 +95,7 @@ func makeTestPolicyEngine(
   if grantPluginLifecycleCapabilities {
     for capability in [
       Capability.pluginInstall, .pluginEnable, .pluginDisable, .pluginQuarantine, .pluginUninstall,
+      .pluginUpdate, .pluginRollback,
     ] {
       try await engine.issueGrant(
         Grant(capability: capability, patterns: [.any], confirmationRequirement: .none))

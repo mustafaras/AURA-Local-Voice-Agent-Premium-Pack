@@ -21,19 +21,29 @@ swift build \
   -c release \
   --product "$APP_NAME" \
   --build-path "$BUILD_DIR/swiftpm"
+swift build \
+  -c release \
+  --product "AuraPluginHost" \
+  --build-path "$BUILD_DIR/swiftpm"
 
 # Assemble .app bundle
 CONTENTS="$BUILD_DIR/$APP_NAME.app/Contents"
 MACOS_DIR="$CONTENTS/MacOS"
 RESOURCES_DIR="$CONTENTS/Resources"
-mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
+HELPER_APP="$CONTENTS/Helpers/AuraPluginHost.app"
+HELPER_CONTENTS="$HELPER_APP/Contents"
+HELPER_MACOS="$HELPER_CONTENTS/MacOS"
+mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$HELPER_MACOS"
 
 # Copy executable
 cp "$BUILD_DIR/swiftpm/release/$APP_NAME" "$MACOS_DIR/$APP_NAME"
+cp "$BUILD_DIR/swiftpm/release/AuraPluginHost" "$HELPER_MACOS/AuraPluginHost"
+cp "$REPO_ROOT/Resources/AuraPluginHost-Info.plist" "$HELPER_CONTENTS/Info.plist"
 
 # Copy entitlements and Info.plist for the bundle build.
 cp "$REPO_ROOT/Resources/$APP_NAME-Info.plist" "$CONTENTS/Info.plist"
 cp "$REPO_ROOT/Resources/$APP_NAME.entitlements" "$RESOURCES_DIR/$APP_NAME.entitlements"
+cp "$REPO_ROOT/Resources/AuraPluginHost.entitlements" "$RESOURCES_DIR/AuraPluginHost.entitlements"
 
 echo "Built $BUILD_DIR/$APP_NAME.app"
 echo "Next step: ./scripts/codesign-adhoc.sh $BUILD_DIR/$APP_NAME.app"

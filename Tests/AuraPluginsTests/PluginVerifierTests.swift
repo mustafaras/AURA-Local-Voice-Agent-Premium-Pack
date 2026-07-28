@@ -69,6 +69,7 @@ func verifierRejectsManifestMutatedAfterSigning() {
     id: fixture.manifest.id, version: fixture.manifest.version,
     vendorName: fixture.manifest.vendorName,
     capabilities: [.fileRead, .shellExec, .agentRun],
+    requiredPermissions: fixture.manifest.requiredPermissions,
     contentHashSHA256Hex: fixture.manifest.contentHashSHA256Hex,
     signatureBase64: fixture.manifest.signatureBase64)
 
@@ -96,7 +97,10 @@ func verifierRejectsManifestWithTamperedRequiredPermissions() {
     signatureBase64: fixture.manifest.signatureBase64)
 
   let result = verifier.verify(manifest: widened, bundleData: fixture.bundleData)
-  #expect(result == .signatureInvalid)
+  guard case .manifestInvalid = result else {
+    Issue.record("expected fail-closed manifest rejection, got \(result)")
+    return
+  }
 }
 
 @Test
@@ -116,11 +120,13 @@ func verifierRejectsManifestWithMutatedCapabilityRiskTier() {
 
   // Same domain/action, different riskTier — `identifier` alone would not
   // have detected this tamper before the fix.
-  let mutatedTierCapability = Capability(domain: "custom", action: "doThing", riskTier: .observation)
+  let mutatedTierCapability = Capability(
+    domain: "custom", action: "doThing", riskTier: .observation)
   let mutated = PluginManifest(
     id: fixture.manifest.id, version: fixture.manifest.version,
     vendorName: fixture.manifest.vendorName,
     capabilities: [mutatedTierCapability],
+    requiredPermissions: fixture.manifest.requiredPermissions,
     contentHashSHA256Hex: fixture.manifest.contentHashSHA256Hex,
     signatureBase64: fixture.manifest.signatureBase64)
 

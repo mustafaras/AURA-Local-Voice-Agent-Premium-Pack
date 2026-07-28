@@ -3,20 +3,33 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live Git and command evidence on 2026-07-28.
 
-- Phase: Phase 23 Verified Plugin and Adapter Marketplace in progress
+- Phase: Phase 23 Verified Plugin and Adapter Marketplace implementation complete; authorized commit/push sequence pending
 - Active milestone: 20_RELEASE_READINESS → TTS_ROADMAP (parked) → 03_STREAMING_STT → 21_PROVENANCE_GRAPH_MEMORY → 22_DEEP_CONTEXT_RECONSTRUCTION → 23_VERIFIED_PLUGIN_MARKETPLACE
-- Active task: Implement schema-v1 verification, lifecycle update/rollback, versioned artifacts, scoped expiring grants, durable audit, and a fail-closed separate-helper runtime boundary.
-- Verified base: `HEAD == origin/main == 37ff2992bf459d7d7faf0ea8038d90e691a80d51`.
-- Phase 22 remote evidence: `git push origin main` advanced `58fb9be..37ff299`; local `HEAD`, `origin/main`, and `git ls-remote` all matched the full `37ff2992bf459d7d7faf0ea8038d90e691a80d51` hash.
-- Baseline test: `./scripts/aura-test.sh /tmp/aurabuild-phase23-baseline AuraPluginsTests` passes 29/29, zero failed bundles.
-- Current Phase 23 findings:
-  - Phase 19 already verifies real SHA-256 payload hashes and Ed25519 signatures and gates lifecycle transitions through `PolicyEngine`.
-  - Empty `requiredPermissions` currently expands to `[.any]`; Phase 23 must remove that authority escalation.
-  - Vendor trust is keyed only by display name; schema v1 needs a signed key ID.
-  - Update, rollback, versioned artifact cleanup, durable audit tables, and a separate-process execution path are absent by explicit Phase 19 design.
-  - Existing app entitlements disable client/server networking. Phase 23 will not silently broaden them.
-- Known environment constraint: Use `/tmp/aurabuild*`; Desktop/iCloud extended attributes can break SwiftPM ad-hoc codesign. CommandLineTools linker search-path warnings remain non-fatal.
-- Safety boundary: No plugin executable is loaded in the AURA process. Runtime must fail closed if helper identity/protocol/sandbox attestation or manifest allowlist checks fail.
-- Pending evidence: Phase 23 implementation, adversarial tests, warnings-as-errors build, full test suite, artifact/helper packaging validation, diff review, completion ledger/state, commits/pushes, and remote-hash verification.
-- Release status: No release, notarization, deployment, or public marketplace publication is authorized.
-- Next safe action: Implement restrictive schema-v1 validation and grants, then versioned artifact/audit storage and helper-process runtime dispatch.
+- Verified base: `HEAD == origin/main == 8115eba0d1944e4d83ea8bccd7d5719b6deafe36`.
+- Implemented:
+  - Signed manifest schema v1 with vendor/key identity, Ed25519 signature, SHA-256 payload binding, schemas, scoped permissions, bundle/domain/dependency allowlists, migration notes, and restrictive legacy decoding.
+  - Vendor/key-ID trust, exact actor-scoped expiring grants, revocation, and explicit denial when a plugin has no active matching grant.
+  - Versioned artifact installation, update, rollback, quarantine, uninstall, digest revalidation, executable-mode enforcement, and path/symlink containment.
+  - Separate digest-pinned `AuraPluginHost` process with protocol/nonce/sandbox attestation, sanitized environment, bounded output collection, timeout, and repeated capability/target/hash checks.
+  - Durable append-only plugin audit storage in `AuraStore` via migration `v1_4_0_plugin_audit`.
+  - User-approved local marketplace sources; no implicit remote catalog or network entitlement.
+- Verified evidence:
+  - `AuraPluginsTests`: 37/37 pass.
+  - Default full suite: 356/356 pass across 10 bundles; combined targeted/full evidence is 393 tests.
+  - `AuraPluginHost` product and `AURA` target build with `-warnings-as-errors`; only known CommandLineTools linker search-path warnings remain.
+  - Final app packaging, ad-hoc signing, strict signature checks, helper entitlement checks, and live helper sandbox self-attestation pass.
+  - Final packaged app CDHash: `714da2b8f5c4e3b1f6777f8689ef7d20ada6e8ae`.
+- Acceptance gate: Passed for the implemented local marketplace boundary. Unsigned/tampered/spoofed packages are rejected; grants cannot exceed signed scoped declarations; inactive plugins cannot reach runtime; uninstall removes artifacts while retaining audit history; adversarial spoofing, digest mismatch, and escalation tests pass.
+- Resolved during validation:
+  - Bare-helper packaging crashed because App Sandbox could not obtain a bundle identifier; the helper is now a nested application bundle with a fixed identifier and independent signature.
+  - One audit timestamp test incorrectly required exact floating-point equality after ISO-8601 persistence; production fields were correct and the test now uses a sub-millisecond tolerance.
+  - A system-TTS latency test exceeded its threshold only while multiple heavy builds ran concurrently; the required final suite was rerun serially and passed.
+- Unresolved release/integration risks:
+  - No public vendor PKI or remote marketplace catalog exists; sources and trust keys are user-controlled local configuration.
+  - The v1 helper denies network at the OS entitlement layer even if a manifest declares domains.
+  - Developer ID/notarized distribution and end-to-end execution of a real third-party signed payload remain release evidence; only the ad-hoc signed sandbox self-attestation is verified here.
+  - `AuraKernel` does not yet construct the plugin runtime or expose a marketplace UI; the complete runtime factory is configuration-driven.
+  - The artifact root must be deliberately located where the sandboxed helper can read it.
+  - Filesystem, store, and policy lifecycle changes use compensating operations rather than a distributed transaction.
+- Release status: No release, notarization, deployment, or public marketplace publication performed or authorized.
+- Next safe action: Commit and push the Phase 23 implementation and evidence state, verify the remote hash, then begin Phase 24 — Self-Tuning Configuration and Feature-Flag Governance from the verified clean revision.

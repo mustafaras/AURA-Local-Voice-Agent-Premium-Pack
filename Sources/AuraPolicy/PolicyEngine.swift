@@ -88,7 +88,21 @@ public actor PolicyEngine {
       return decision
     }
 
-    // 3. Fall back to default tier matrix.
+    // 3. Third-party plugin actors never inherit the application's default
+    // tier matrix. Their authority exists only through an active,
+    // actor-scoped grant, so expiry/revocation cannot fall through to a
+    // permissive application default.
+    if request.actor == .plugin {
+      let decision: PolicyDecision = .deny(
+        reason: "Plugin actor has no matching active grant",
+        auditID: auditID
+      )
+      await emitDecision(
+        request, decision: decision, targetSummary: targetSummary, auditID: auditID)
+      return decision
+    }
+
+    // 4. Fall back to default tier matrix.
     if configuration.denyByDefaultTiers.contains(request.capability.riskTier) {
       let decision: PolicyDecision = .deny(
         reason: "No matching grant and tier \(request.capability.riskTier) is denied by default",
@@ -237,6 +251,7 @@ public actor PolicyEngine {
     let now = Date()
     return grants.first { grant in
       guard grant.capability == request.capability else { return false }
+      guard grant.subjectActor == nil || grant.subjectActor == request.actor else { return false }
       if let expiresAt = grant.expiresAt, now >= expiresAt { return false }
       return patternsSatisfied(request: request, patterns: grant.patterns)
     }

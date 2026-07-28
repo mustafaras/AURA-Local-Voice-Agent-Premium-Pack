@@ -10,10 +10,15 @@ import Foundation
 /// to any external PKI or vendor directory, matching this phase's explicit
 /// scope (Phase 23 owns marketplace-scale vendor discovery/distribution).
 public struct PluginTrustRegistry: Sendable {
-  private let keysByVendor: [String: Curve25519.Signing.PublicKey]
+  private let keysByVendorAndID: [String: Curve25519.Signing.PublicKey]
 
   public init(keysByVendor: [String: Curve25519.Signing.PublicKey]) {
-    self.keysByVendor = keysByVendor
+    self.keysByVendorAndID = Dictionary(
+      uniqueKeysWithValues: keysByVendor.map { ("\(Self.normalized($0.key))#default", $0.value) })
+  }
+
+  public init(keysByVendorAndID: [String: Curve25519.Signing.PublicKey]) {
+    self.keysByVendorAndID = keysByVendorAndID
   }
 
   /// Build the registry from `PluginConfiguration.trustedVendorPublicKeysBase64`.
@@ -29,12 +34,25 @@ public struct PluginTrustRegistry: Sendable {
       guard let data = Data(base64Encoded: base64),
         let key = try? Curve25519.Signing.PublicKey(rawRepresentation: data)
       else { continue }
-      keys[vendor] = key
+      keys["\(Self.normalized(vendor))#default"] = key
     }
-    self.keysByVendor = keys
+    for (vendorAndKeyID, base64) in configuration.trustedVendorPublicKeysByKeyIDBase64 {
+      guard let separator = vendorAndKeyID.lastIndex(of: "#"),
+        let data = Data(base64Encoded: base64),
+        let key = try? Curve25519.Signing.PublicKey(rawRepresentation: data)
+      else { continue }
+      let vendor = String(vendorAndKeyID[..<separator])
+      let keyID = String(vendorAndKeyID[vendorAndKeyID.index(after: separator)...])
+      keys["\(Self.normalized(vendor))#\(keyID)"] = key
+    }
+    self.keysByVendorAndID = keys
   }
 
-  public func publicKey(forVendor vendor: String) -> Curve25519.Signing.PublicKey? {
-    keysByVendor[vendor]
+  public func publicKey(forVendor vendor: String, keyID: String) -> Curve25519.Signing.PublicKey? {
+    keysByVendorAndID["\(Self.normalized(vendor))#\(keyID)"]
+  }
+
+  private static func normalized(_ vendor: String) -> String {
+    vendor.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
   }
 }
