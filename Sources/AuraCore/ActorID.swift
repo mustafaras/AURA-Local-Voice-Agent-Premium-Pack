@@ -62,6 +62,7 @@ public enum AuraError: Error, Sendable, Equatable {
   case securityError(String)
   case pluginError(String)
   case intentError(String)
+  case permissionDenied(String)
 }
 
 extension AuraError: LocalizedError {
@@ -125,6 +126,8 @@ extension AuraError: LocalizedError {
       return "Plugin error: \(detail)"
     case .intentError(let detail):
       return "Intent error: \(detail)"
+    case .permissionDenied(let detail):
+      return "Permission denied: \(detail)"
     }
   }
 }

@@ -54,7 +54,7 @@ public actor STTPipeline {
   }
 
   /// Start listening for wake activations and audio frames.
-  public func start() async throws(AuraError) {
+  public func start() async throws {
     guard state == .idle else { return }
     let health = try await engine.start()
     await logger.info("STT engine \(engine.engineID) started: \(health.status)", actor: .audio)

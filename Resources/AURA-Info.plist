@@ -42,6 +42,9 @@
     <key>NSMicrophoneUsageDescription</key>
     <string>AURA needs microphone access to listen for the wake word and transcribe your commands locally. Audio is not sent to remote services.</string>
 
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>AURA uses on-device speech recognition to transcribe your commands. No audio leaves your device.</string>
+
     <key>NSScreenCaptureUsageDescription</key>
     <string>AURA needs Screen Recording access to understand screen context for computer-use tasks. Captured frames are processed on-device and redacted before any model use.</string>
 

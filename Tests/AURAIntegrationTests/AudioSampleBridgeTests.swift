@@ -46,7 +46,7 @@ final class RecordingSTTEngine: STTEngine, @unchecked Sendable {
     self.continuation = continuation
   }
 
-  func start() async throws(AuraError) -> STTHealth {
+  func start() async throws -> STTHealth {
     STTHealth(ready: true, status: "ready", detail: "recording engine")
   }
 

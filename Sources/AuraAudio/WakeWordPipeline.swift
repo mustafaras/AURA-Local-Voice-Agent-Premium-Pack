@@ -82,8 +82,15 @@ public actor WakeWordPipeline {
   public func start() async {
     guard subscriptionTask == nil else { return }
     state = privacyMode ? .privacyArmed : .listening
-    subscriptionTask = Task { [weak self] in
-      await self?.consumeFrameEvents()
+    await eventBus.subscribe(AudioFrameEvent.self) { [weak self] envelope in
+      guard let self = self, !Task.isCancelled else { return }
+      await self.handleFrameEvent(envelope.payload)
+    }
+    subscriptionTask = Task {
+      // Keep the task alive while subscribed; the handler closure is invoked by the bus.
+      while !Task.isCancelled {
+        try? await Task.sleep(nanoseconds: 100_000_000)
+      }
     }
     await logger.info("Wake-word pipeline started", actor: .audio)
   }
@@ -141,18 +148,7 @@ public actor WakeWordPipeline {
     state
   }
 
-  // MARK: - Event consumption
-
-  private func consumeFrameEvents() async {
-    await eventBus.subscribe(AudioFrameEvent.self) { [weak self] envelope in
-      guard let self = self, !Task.isCancelled else { return }
-      await self.handleFrameEvent(envelope.payload)
-    }
-    // Keep the task alive while subscribed; the handler closure is invoked by the bus.
-    while !Task.isCancelled {
-      try? await Task.sleep(nanoseconds: 100_000_000)
-    }
-  }
+  // MARK: - Event handling
 
   private func handleFrameEvent(_ event: AudioFrameEvent) async {
     guard state == .listening || state == .activated || state == .speakerVerifying else { return }

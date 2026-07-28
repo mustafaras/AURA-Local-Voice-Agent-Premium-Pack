@@ -65,7 +65,7 @@ public final class DeterministicMockSTTEngine: STTEngine, @unchecked Sendable {
     return try block()
   }
 
-  public func start() async throws(AuraError) -> STTHealth {
+  public func start() async throws -> STTHealth {
     guard !script.isEmpty else {
       throw AuraError.invalidConfiguration("mock STT script must not be empty")
     }

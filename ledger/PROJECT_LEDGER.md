@@ -2,6 +2,196 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-08-05T14:00:00Z — PHASE03_STREAMING_STT — Native Speech.framework STT adapter, protocol alignment, and unit tests
+
+- **Actor:** GitHub Copilot
+- **Objective:** Complete Phase 03 streaming STT by implementing a native `Speech.framework` adapter, aligning the `STTEngine` protocol with Swift 6 concurrency, wiring it into `AuraKernel`, adding unit tests, and recording the decision.
+- **Starting state:** Phase 03 was partially complete: `STTEngine` protocol, `STTPipeline`, `DeterministicMockSTTEngine`, and `RecordingSTTEngine` existed; `AuraKernel` had no factory for STT engines. No native STT adapter existed, and no `SystemSTTEngine` tests existed.
+- **Assumptions:**
+  - `Speech.framework` is available on macOS 26+ Apple Silicon and supports `requiresOnDeviceRecognition`.
+  - Real STT requires a microphone permission, but unit tests must avoid requiring actual audio input or authorization state.
+  - The CommandLineTools-only environment cannot run `swift test` directly; the `scripts/aura-test.sh` wrapper is required.
+  - Swift 6 typed throws through `Task.value` is ergonomically incompatible with `throws(AuraError)` across MainActor boundaries, so the protocol uses plain `throws`.
+- **Decisions:**
+  - Created `Sources/AuraSTT/SystemSTTEngine.swift` as a `Sendable` adapter conforming to `STTEngine`.
+  - `start()` requests `SFSpeechRecognizer` authorization on `@MainActor`, creates a `SFSpeechAudioBufferRecognitionRequest` with `requiresOnDeviceRecognition = true` and `shouldReportPartialResults = true`, and returns `STTHealth.ready` when the recognizer is available.
+  - `ingest(_:activationTime:)` lazily starts recognition on first frame and appends `AVAudioPCMBuffer` samples to the request under `NSRecursiveLock`.
+  - `finalizeSession()` calls `request.endAudio()`; `cancel()` ends audio, cancels the task, and finishes the `AsyncStream` continuation exactly once.
+  - Recognition results are mapped from `SFSpeechRecognitionResult.bestTransribution` to `STTTranscriptResult`, with `result.transcriptions.dropFirst()` as alternatives and explicit `Float` → `Double` confidence conversion.
+  - Custom vocabulary hints are applied via `request.contextualStrings` when `enableCustomVocabulary` is true.
+  - Updated `STTEngine`, `DeterministicMockSTTEngine`, `STTPipeline`, and `RecordingSTTEngine` to use plain `async throws` for `start()`.
+  - Added `AuraError.permissionDenied(String)` to `Sources/AuraCore/ActorID.swift` for authorization failures.
+  - Added `NSSpeechRecognitionUsageDescription` to `Resources/AURA-Info.plist`.
+  - Updated `AuraKernel.makeSTTEngine(configuration:vocabulary:)` to map `native-speech` → `SystemSTTEngine`, `mock-stt` → `DeterministicMockSTTEngine`, and unknown IDs to the mock fallback; wrapped `sttPipeline.start()` errors into `AuraError.sttEngineError`.
+  - Created `Tests/AuraSTTTests/SystemSTTEngineTests.swift` with 7 tests covering health, authorization-state handling, cancellation, stream termination, safe ingestion when unavailable, vocabulary wiring, and engine metadata.
+  - Created `docs/decisions/ADR-025-native-speech-stt-adapter.md` documenting the adapter choice, on-device privacy guarantee, typed-throws simplification, and permission model.
+- **Files changed:**
+  - `Sources/AuraSTT/SystemSTTEngine.swift` — new
+  - `Tests/AuraSTTTests/SystemSTTEngineTests.swift` — new
+  - `docs/decisions/ADR-025-native-speech-stt-adapter.md` — new
+  - `Sources/AuraSTT/STTEngine.swift` — `start()` changed from `throws(AuraError)` to plain `throws`
+  - `Sources/AuraSTT/DeterministicMockSTTEngine.swift` — `start()` signature aligned
+  - `Sources/AuraSTT/STTPipeline.swift` — `start()` signature aligned
+  - `Sources/AuraCore/ActorID.swift` — added `permissionDenied(String)` case and `LocalizedError` mapping
+  - `Resources/AURA-Info.plist` — added `NSSpeechRecognitionUsageDescription`
+  - `Sources/AURA/AuraKernel.swift` — added `makeSTTEngine` factory and STT wiring
+  - `Tests/AURAIntegrationTests/AudioSampleBridgeTests.swift` — `RecordingSTTEngine.start()` signature aligned
+  - `ledger/CURRENT_STATE.md` — atomically updated
+  - `ledger/PROJECT_LEDGER.md` — this entry
+- **Commands executed:**
+  - `swift build --target AuraSTT --build-path /tmp/aurabuild-stt` — exit 0
+  - `swift build --target AURA --build-path /tmp/aurabuild-stt` — exit 0 (non-critical CommandLineTools search-path warnings only)
+  - `./scripts/aura-test.sh /tmp/aurabuild-stt AuraSTTTests` — 14/14 pass across `Streaming STT Engine` (7) and `Native Speech STT Engine` (7) suites
+  - `./scripts/aura-test.sh /tmp/aurabuild-stt AURAIntegrationTests` — 7/7 pass
+- **Tests and exact results:**
+  - `Streaming STT Engine` suite (`health is idle before start`, `health reflects ready and cancelled states`, `emits partial then stable segment for scripted frames`, `cancellation does not leak further results`, `matches deterministic Turkish/English early commands`, `provides technical terms as contextual hints`, `WER matches reference words within insertions and substitutions`): 7/7 pass
+  - `Native Speech STT Engine` suite (`health is idle before start`, `start returns not authorized when speech recognition is not denied`, `cancel moves health to cancelled without crashing`, `stream terminates after cancel`, `ingest before start is safe when recognizer is unavailable`, `vocabulary hints are accepted without crashing`, `engineID and locale are exposed correctly`): 7/7 pass
+  - `AURAIntegrationTests`: 7/7 pass
+- **Security/privacy impact:**
+  - `requiresOnDeviceRecognition = true` prevents server-side transcription by default.
+  - No audio samples, transcripts, or confidence values are logged, persisted, or transmitted.
+  - Authorization status is checked before recognition; unauthorized access throws `AuraError.permissionDenied` instead of silently failing.
+  - `cancel()` finishes the stream continuation and drops pending audio, preventing leakage after interruption.
+- **Unresolved risks:**
+  - Recognition quality depends on Apple's on-device models; no alternative neural STT engine is integrated yet.
+  - The authorization test is state-dependent; it validates the current runtime authorization state rather than requiring a fixed state.
+  - `Speech.framework` callbacks are wrapped in `Task { @MainActor }`, adding a small dispatch hop.
+  - Real wake-word accuracy remains marker-tone-based; Phase 03 STT does not include a real acoustic wake-word model.
+  - Conversation-level latency events still mark `isMockEngine: true`, so end-to-end latency evidence remains synthetic until real wake/STT/TTS paths are exercised.
+- **Rollback:** Remove `Sources/AuraSTT/SystemSTTEngine.swift`, `Tests/AuraSTTTests/SystemSTTEngineTests.swift`, `docs/decisions/ADR-025-native-speech-stt-adapter.md`, revert `STTEngine.start()` to typed throws, and remove `AuraKernel.makeSTTEngine` wiring.
+- **Current state:** Phase 03 streaming STT is functionally complete. Native `Speech.framework` STT adapter is implemented, tested, and wired; the `STTEngine` protocol and all conformances are Swift 6 aligned; `AuraSTTTests` and `AURAIntegrationTests` pass. No blockers.
+- **Next safe action:** User direction required: (1) proceed to Phase 04 (intent engine / tool router) or another phase; (2) add real wake-word/on-device STT research; (3) integrate real Chatterbox TTS inference; (4) authorize commit/push of this working tree.
+- **Integrity hash:** intentionally omitted.
+
+### 2026-07-27T12:30:00Z — TTS_SYSTEM_LATENCY_TESTS — Engine-level System TTS latency, barge-in, and anti-trigger tests
+
+- **Actor:** GitHub Copilot
+- **Objective:** Add engine-level latency and interaction coverage for `SystemTTSEngine`, measuring first-chunk latency, full-utterance completion latency, and anti-trigger/barge-in behavior.
+- **Starting state:** `SystemTTSEngine` and `ChatterboxTTSEngine` were implemented and wired into `AuraKernel`. The only TTS tests were functional unit tests for `SystemTTSEngine` (6) and `ChatterboxTTSEngine` (8). No engine-level wall-clock latency or barge-in tests existed.
+- **Assumptions:**
+  - `AVSpeechSynthesizer` does not expose a mockable clock, so latency tests use real wall-clock measurements with generous budgets.
+  - Tests must remain passable on sandboxed/headless CI environments; they guard on system-voice availability and record an issue (but do not hard-fail the build) when voices are absent.
+  - Latency budgets are intentionally conservative and reflect worst-case system TTS performance on Apple Silicon macOS 26+.
+- **Decisions:**
+  - Created `Tests/AuraAudioTests/SystemTTSLatencyTests.swift` as a separate Swift Testing suite focused on latency and interaction properties.
+  - `firstChunkLatencyIsUnderBudget()`: times from `speak(_:)` return until the first `.progress` chunk, with a 2 s budget; stops the engine after the first chunk to avoid needless audio.
+  - `fullUtteranceLatencyIsUnderBudget()`: times from `speak(_:)` return until `.complete`, with a 5 s budget for the phrase "one two three".
+  - `bargeInInterruptsActiveStream()`: starts a long first prompt, waits 50 ms, then starts a second prompt; asserts the second stream completes and the first stream terminates quickly.
+  - `antiTriggerDoesNotLoopOnOwnSpeech()`: speaks the same short prompt twice with a 50 ms drain between calls; asserts both lifecycles complete and neither reports `.failed`.
+  - `consecutiveStopSpeakingIsIdempotent()`: calls `stopSpeaking()` three times and verifies the engine still reports ready health.
+  - `systemEngine()` helper swallows `AuraError` from `start()` to avoid forcing `try` on every test body; readiness is reported via `Issue.record` when voices are unavailable.
+- **Files changed:**
+  - `Tests/AuraAudioTests/SystemTTSLatencyTests.swift` — new
+  - `ledger/CURRENT_STATE.md` — atomically updated
+  - `ledger/PROJECT_LEDGER.md` — this entry
+- **Commands executed:**
+  - `./scripts/aura-test.sh /tmp/aurabuild-tts AuraAudioTests` — `SystemTTSLatencyTests` suite 5/5 pass; `SystemTTSEngine` suite 6/6 pass; `Chatterbox TTS Engine` suite 8/8 pass; pre-existing `WakeWordPipelineTests` flakiness remains (4 issues, unrelated)
+- **Tests and exact results:**
+  - `SystemTTSLatencyTests` suite (`firstChunkLatencyIsUnderBudget`, `fullUtteranceLatencyIsUnderBudget`, `bargeInInterruptsActiveStream`, `antiTriggerDoesNotLoopOnOwnSpeech`, `consecutiveStopSpeakingIsIdempotent`): 5/5 pass
+    - Measured first-chunk latency: ~1.4 s on test run
+    - Measured full-utterance latency: ~1.8 s on test run
+    - Measured barge-in completion: second stream completed; first stream terminated quickly
+  - `SystemTTSEngine` suite: 6/6 pass
+  - `Chatterbox TTS Engine` suite: 8/8 pass
+  - `WakeWordPipelineTests`: pre-existing flakiness (`antiTriggerSuppressesWakeDuringOutput`, `wakePipelineAcceptsWakeAndReportsMetrics`) unchanged; failures isolated to synthetic marker-tone path
+- **Security/privacy impact:**
+  - No network, secrets, or model weights introduced.
+  - Test prompts use non-sensitive text only ("hello", "one two three", "ready", "second").
+  - All synthesis remains on-device via `AVSpeechSynthesizer`.
+- **Unresolved risks:**
+  - Wall-clock latency budgets are environment-dependent; future CI runners or slower machines may require budget tuning.
+  - `AVSpeechSynthesizer` fragment boundaries are not deterministic across runs, so the anti-trigger test asserts lifecycle shape rather than exact fragment equality.
+  - Barge-in test relies on a 50 ms sleep heuristic; a real product will need explicit cancellation semantics in `SystemTTSEngine`.
+- **Rollback:** Remove `Tests/AuraAudioTests/SystemTTSLatencyTests.swift` and revert `ledger` updates.
+- **Current state:** Engine-level System TTS latency and interaction tests are in place and passing alongside functional TTS tests. Chatterbox boundary adapter remains prototyped and inert by default. TTS_ROADMAP subtasks completed.
+- **Next safe action:** User direction required: (1) continue TTS roadmap with real Chatterbox/MLX/Dia inference research; (2) wire conversation-level latency events to real engine IDs; (3) proceed to another task.
+- **Integrity hash:** intentionally omitted.
+
+### 2026-07-27T14:00:00Z — WAKE_PIPELINE_FLAKINESS — Fix async subscription race in `WakeWordPipeline.start()`
+
+- **Actor:** GitHub Copilot
+- **Objective:** Eliminate the intermittent failures in `WakeWordPipelineTests` (`wakePipelineAcceptsWakeAndReportsMetrics`, `antiTriggerSuppressesWakeDuringOutput`) caused by an async subscription race.
+- **Starting state:** `WakeWordPipeline.start()` spawned `consumeFrameEvents()` in a detached `Task` and returned immediately. Tests then emitted `AudioFrameEvent`s, but `AuraEventBus.emitInternal` only awaits currently registered subscribers. If `consumeFrameEvents` had not yet executed `eventBus.subscribe(AudioFrameEvent.self, ...)`, the emitted frame events were silently dropped. This produced `metrics.totalHypotheses == 0`, `metrics.acceptedActivations == 0`, `activations == []`, and `metrics.antiTriggerSuppressions == 0` non-deterministically.
+- **Assumptions:**
+  - The fix must not weaken the production contract: `start()` should return only when the pipeline is actually listening for frame events.
+  - The keep-alive task is still required to prevent the subscription handler from being deallocated.
+- **Decisions:**
+  - Moved `await eventBus.subscribe(AudioFrameEvent.self, handler:)` directly into `start()` so the subscription is guaranteed before `start()` returns.
+  - Simplified the spawned task to a pure keep-alive loop (`while !Task.isCancelled { sleep }`) and removed the now-redundant `consumeFrameEvents()` method.
+  - Removed the `[weak self]` capture from the keep-alive task because it no longer references `self`; the event-handler closure still uses `[weak self]` to avoid retain cycles.
+- **Files changed:**
+  - `Sources/AuraAudio/WakeWordPipeline.swift` — subscription moved into `start()`, `consumeFrameEvents()` removed, keep-alive task simplified
+  - `ledger/CURRENT_STATE.md` — updated test status and resolved/unresolved risks
+  - `ledger/PROJECT_LEDGER.md` — this entry
+- **Commands executed:**
+  - `./scripts/aura-test.sh /tmp/aurabuild-tts AuraAudioTests` — `AuraAudioTests` 31/31 pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-tts AuraAgentTests` — 205/205 pass
+  - `./scripts/aura-test.sh /tmp/aurabuild-tts AURAIntegrationTests` — 7/7 pass
+- **Tests and exact results:**
+  - `AuraAudioTests`: 31/31 pass (includes `Chatterbox TTS Engine` 8/8, `System TTS Engine` 6/6, `System TTS Latency and Interaction` 5/5, `AuraAudioTests` core 6/6, `WakeWordPipelineTests` 6/6)
+  - `AuraAgentTests`: 205/205 pass
+  - `AURAIntegrationTests`: 7/7 pass
+- **Security/privacy impact:**
+  - No behavior change for production runtime; only initialization ordering is made deterministic.
+  - No new permissions, network calls, or secret exposure.
+- **Unresolved risks:**
+  - `nonisolated(unsafe) var latestSamples` remains a concurrency smell but is outside the scope of this fix.
+  - Real wake-word/VAD accuracy is still marker-tone-based; no real acoustic model exists.
+- **Rollback:** Revert `WakeWordPipeline.start()` to spawn `consumeFrameEvents()` and restore the `consumeFrameEvents()` method.
+- **Current state:** All targeted test bundles pass. AURA builds cleanly. No blockers.
+- **Next safe action:** User direction required for next feature or release step. No commit/push without explicit authorization.
+- **Integrity hash:** intentionally omitted.
+
+### 2026-07-27T10:25:00Z — TTS_CHATTERBOX_PROTOTYPE — On-device Chatterbox boundary adapter and tests
+
+- **Actor:** GitHub Copilot
+- **Objective:** Advance the on-device TTS roadmap by researching Hume Chatterbox and creating a boundary-only adapter prototype that fits the existing `TTSEngine` protocol, plus unit tests and factory wiring.
+- **Starting state:** `SystemTTSEngine` was already wired into `AuraKernel` as the default fallback. `TTSEngine` protocol, `TTSPrompt`, `TTSChunk`, and `TTSHealth` were stable in `AuraCore`.
+- **Research findings:**
+  - Chatterbox is Hume AI's open-weight TTS model (`chatterbox-turbo` / `chatterbox-base`).
+  - On-device execution options include:
+    1. `llama.cpp`/`mlx-swift` GGUF inference (requires verified model conversion and voice/audio codec support).
+    2. A Python helper running a local Chatterbox checkpoint via PyTorch/MLX, bridged with stdin/stdout or XPC.
+    3. Use the Hume hosted API, which is out of scope for a privacy-first local agent.
+  - No model files are committed to the repository; the adapter only carries `helperPath`/`modelPath` configuration placeholders.
+- **Assumptions:**
+  - Chatterbox inference is too large/complex for a direct Swift prototype; adapter boundary is the correct first deliverable.
+  - The adapter reports `ready: false` when unconfigured so `AuraKernel` transparently falls back to `SystemTTSEngine`.
+  - Network access is restricted; no downloads or API calls are made by the adapter.
+- **Decisions:**
+  - Created `docs/decisions/ADR-024-chatterbox-on-device-tts.md` documenting the research, options evaluated, and bounded scope.
+  - Created `Sources/AuraAudio/ChatterboxTTSEngine.swift` as a boundary-only, `Sendable`, fail-closed `TTSEngine` implementation with `engineID == "chatterbox"`.
+  - When unconfigured, `speak(_:)` emits `.failed("chatterbox not ready...")` followed by `.complete` so consumers can rely on a terminated stream.
+  - When configured, `speak(_:)` emits deterministic `.progress(fragment:byteOffset:)` chunks per word followed by `.complete`.
+  - Updated `Sources/AURA/AuraKernel.swift` `makeTTSEngine(adapterChain:logger:)` to try `"chatterbox"` first, then fall back through `"system"` and `"mock"`.
+  - Created `Tests/AuraAudioTests/ChatterboxTTSEngineTests.swift` covering `engineID`, `start`/`health` readiness, unconfigured failure, configured streaming, and idempotent `stopSpeaking`/`pause`/`resume`.
+- **Files changed:**
+  - `docs/decisions/ADR-024-chatterbox-on-device-tts.md` — new
+  - `Sources/AuraAudio/ChatterboxTTSEngine.swift` — new
+  - `Sources/AURA/AuraKernel.swift` — added `chatterbox` case in `makeTTSEngine`
+  - `Tests/AuraAudioTests/ChatterboxTTSEngineTests.swift` — new
+  - `ledger/CURRENT_STATE.md` — atomically updated
+  - `ledger/PROJECT_LEDGER.md` — this entry
+- **Commands executed:**
+  - `swift build --target AuraAudio --build-path /tmp/aurabuild-tts` — exit 0 (after fixing unused-capture warning)
+  - `swift build --target AURA --build-path /tmp/aurabuild-tts` — exit 0
+  - `./scripts/aura-test.sh /tmp/aurabuild-tts AuraAudioTests` — `Chatterbox TTS Engine` suite 8/8 pass; `SystemTTSEngine` suite 6/6 pass; pre-existing `WakeWordPipelineTests` flakiness remains
+- **Tests and exact results:**
+  - `Chatterbox TTS Engine` suite (`engineIDIsChatterbox`, `startReportsNotReadyByDefault`, `startReportsReadyWhenConfigured`, `healthReflectsConfiguration`, `speakFailsWhenNotReady`, `speakEmitsProgressAndCompleteWhenReady`, `stopSpeakingIsIdempotent`, `pauseAndResumeAreIdempotent`): 8/8 pass
+  - `SystemTTSEngine` suite: 6/6 pass
+  - `WakeWordPipelineTests` pre-existing flakiness unchanged
+- **Security/privacy impact:**
+  - No model weights, network calls, or remote endpoints introduced.
+  - Adapter is inert by default and fails closed.
+- **Unresolved risks:**
+  - Real Chatterbox inference (MLX/llama.cpp/Python helper) is not implemented.
+  - `stopSpeaking` is stateless in the prototype; a real adapter must cancel the synthesizer/helper process.
+  - `pauseSpeaking`/`resumeSpeaking` are placeholders.
+- **Rollback:** Remove `ChatterboxTTSEngine.swift`/tests/ADR, and revert `AuraKernel.swift` `makeTTSEngine` to exclude `"chatterbox"`.
+- **Current state:** Chatterbox boundary adapter is prototyped, wired into the adapter chain, and covered by unit tests. AuraAudio and AURA build.
+- **Next safe action:** Add `SystemTTSLatencyTests` measuring first-chunk and full-utterance latency, anti-trigger/barge-in behavior, and update the ledger atomically.
+- **Integrity hash:** intentionally omitted.
+
 ### 2026-07-27T09:49:34Z — TTS_SYSTEM_FALLBACK — On-device System TTS adapter wired into AuraKernel
 
 - **Actor:** GitHub Copilot

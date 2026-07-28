@@ -100,7 +100,7 @@ public protocol STTEngine: Sendable {
   var locale: Locale { get }
 
   /// Start the engine, reporting initial health.
-  func start() async throws(AuraError) -> STTHealth
+  func start() async throws -> STTHealth
 
   /// Submit one audio frame. Results are returned through `results`.
   /// `activationTime` is the monotonic timestamp when the wake activation

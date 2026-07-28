@@ -135,8 +135,10 @@ actor AuraKernel {
     let vocabulary = UserVocabulary(
       deterministicCommands: Dictionary(
         uniqueKeysWithValues: deterministicPhrases.map { ($0, $0) }))
+    let sttEngine = Self.makeSTTEngine(
+      configuration: configuration.stt, vocabulary: vocabulary)
     let sttPipeline = STTPipeline(
-      engine: Self.placeholderSTTEngine(), vocabulary: vocabulary, eventBus: eventBus,
+      engine: sttEngine, vocabulary: vocabulary, eventBus: eventBus,
       logger: AuraLogger(subsystem: bundleID, category: "stt"))
     self.sttPipeline = sttPipeline
 
@@ -186,15 +188,29 @@ actor AuraKernel {
       Grant(capability: .agentCopilotRun, patterns: [.any], confirmationRequirement: .always))
   }
 
-  /// Build the configured TTS engine chain. The chain currently supports
-  /// `system` (macOS `AVSpeechSynthesizer`) and `mock` for tests. Higher-
-  /// priority neural adapters (chatterbox, dia) are not yet implemented;
-  /// when requested and unavailable, this factory falls back to `system`.
+  /// Build the configured TTS engine chain. The chain supports `chatterbox`
+  /// (boundary-only prototype), `system` (macOS `AVSpeechSynthesizer`), and
+  /// `mock` for tests. Higher-priority neural adapters (`dia`) are not yet
+  /// implemented; when requested and unavailable, this factory falls back to
+  /// the next configured adapter and ultimately to `system`.
   private static func makeTTSEngine(
     adapterChain: TTSAdapterChain, logger: AuraLogger
   ) async -> any TTSEngine {
     for adapterID in adapterChain.adapterIDs {
       switch adapterID {
+      case "chatterbox":
+        let engine = ChatterboxTTSEngine()
+        do {
+          let health = try await engine.start()
+          if health.ready {
+            await logger.info("TTS adapter ready: \(engine.engineID)", actor: .audio)
+            return engine
+          }
+          await logger.info(
+            "TTS adapter \(adapterID) not ready; trying next", actor: .audio)
+        } catch {
+          await logger.warning("TTS adapter \(adapterID) failed: \(error)", actor: .audio)
+        }
       case "system":
         let engine = SystemTTSEngine()
         do {
@@ -227,21 +243,35 @@ actor AuraKernel {
     return fallback
   }
 
-  /// No real STT engine exists yet — `Sources/AuraSTT` has only
-  /// `DeterministicMockSTTEngine`. A single generic placeholder segment
-  /// lets `STTPipeline.start()` succeed (it requires a non-empty script);
-  /// it only ever fires after a real wake-word activation, which itself
-  /// requires the synthetic marker tone `MarkerWakeWordDetector` listens
-  /// for — an ordinary spoken launch never triggers it. This is not an
-  /// auto-playing demo; it is the honest, already-documented consequence of
-  /// "no real STT integration yet" (`ledger/CURRENT_STATE.md`), made
-  /// unavoidable to face once the pipeline is actually wired together. Real
-  /// STT integration is explicit future work.
-  private static func placeholderSTTEngine() -> any STTEngine {
-    DeterministicMockSTTEngine(
-      script: [
-        DeterministicMockSTTEngine.MockSegment(text: "hello", expectedFrameCount: 1)
-      ])
+  /// Build the configured STT engine. Supports `native-speech` for on-device
+  /// `Speech.framework` streaming recognition, `mock-stt` for deterministic
+  /// tests, and the legacy placeholder as a final fallback. The locale and
+  /// vocabulary are taken from `STTConfiguration`.
+  private static func makeSTTEngine(
+    configuration: STTConfiguration,
+    vocabulary: UserVocabulary
+  ) -> any STTEngine {
+    switch configuration.engineID {
+    case "native-speech":
+      return SystemSTTEngine(
+        locale: Locale(identifier: configuration.locale),
+        vocabulary: vocabulary,
+        enableCustomVocabulary: configuration.enableCustomVocabulary)
+    case "mock-stt":
+      return DeterministicMockSTTEngine(
+        engineID: "mock-stt",
+        locale: Locale(identifier: configuration.locale),
+        script: [
+          DeterministicMockSTTEngine.MockSegment(text: "hello", expectedFrameCount: 1)
+        ])
+    default:
+      return DeterministicMockSTTEngine(
+        engineID: "fallback-mock-stt",
+        locale: Locale(identifier: configuration.locale),
+        script: [
+          DeterministicMockSTTEngine.MockSegment(text: "hello", expectedFrameCount: 1)
+        ])
+    }
   }
 
   // MARK: - Start / stop (subscribe-before-publish ordering)
@@ -259,7 +289,11 @@ actor AuraKernel {
     await taskEngine.start(runner: agentTaskRunner)
     await performanceSampler.start(on: eventBus)
     await wakeWordPipeline.start()
-    try await sttPipeline.start()
+    do {
+      try await sttPipeline.start()
+    } catch {
+      throw AuraError.sttEngineError("STT pipeline failed to start: \(error.localizedDescription)")
+    }
     await intentDispatchCoordinator.start()
     await conversationEventBridge.start()
     await audioSampleBridge.start()
