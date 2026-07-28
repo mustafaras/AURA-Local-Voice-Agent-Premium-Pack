@@ -15,8 +15,9 @@
 ## Verified handoff
 
 - Phase 23 implementation and state commits are remotely verified.
-- Verified remote state before the final closing-evidence commit:
-  `HEAD == origin/main == git ls-remote == df18fae305c94bdadf958bbe709e3328f17a4801`.
+- Verified closing-evidence commit:
+  `d9896539f1b8c6d94f077fe8948820f4a019b5e8` matched local `HEAD`,
+  `origin/main`, and `git ls-remote` after its fast-forward push.
 - Phase 23 implementation commit:
   `8afdbf2b56b8003148508b0bbd8ae49ca389fefa`.
 - Phase 23 evidence:
@@ -69,13 +70,11 @@ privacy-preserving recommendations.
 
 ## First safe action
 
-1. Confirm the final closing-evidence commit is remotely verified and require a
-   clean tree.
-2. Re-read the live Phase 24 specification at
+1. Re-read the live Phase 24 specification at
    `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md`.
-3. Inspect configuration schemas, `AuraStore`, policy risk controls, migrations,
+2. Inspect configuration schemas, `AuraStore`, policy risk controls, migrations,
    tests, ADR index, and threat-model entry 12.
-4. Append a Phase 24 start entry with objective, assumptions, risks, acceptance
+3. Append a Phase 24 start entry with objective, assumptions, risks, acceptance
    criteria, and architectural conflict check before editing source.
 
 ## Known open risks
