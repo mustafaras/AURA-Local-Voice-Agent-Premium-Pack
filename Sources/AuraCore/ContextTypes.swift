@@ -64,6 +64,7 @@ public enum ContextSourceID: Codable, Sendable, Equatable, Hashable {
   case projectLedgerEntry(entryID: UUID)
   case decision(entryID: UUID, index: Int)
   case memoryRecord(recordID: UUID)
+  case provenanceNode(nodeID: UUID)
 }
 
 // MARK: - Active workspace snapshot
@@ -136,6 +137,14 @@ public struct ContextItem: Sendable, Equatable, Identifiable, ContextRankable {
   /// Composite rank score assigned by `ContextRanking`; `0` for mandatory
   /// items that were never scored (they are never competing for budget).
   public let score: Double
+  /// Provenance graph nodes that explain this item's lineage. Empty for
+  /// transient sources (the utterance, conversation state, and live
+  /// workspace) that have no persisted graph node.
+  public let provenanceNodeIDs: [UUID]
+  /// Stable, inspectable explanation of why the item survived ranking and
+  /// budgeting. Phase 22 surfaces this programmatically; a visual inspector
+  /// may render it later without changing the context contract.
+  public let inclusionReason: String
 
   public init(
     id: UUID = UUID(),
@@ -147,7 +156,9 @@ public struct ContextItem: Sendable, Equatable, Identifiable, ContextRankable {
     observedAt: Date,
     hasDirectEvidence: Bool,
     scopeMatch: Bool,
-    score: Double = 0
+    score: Double = 0,
+    provenanceNodeIDs: [UUID] = [],
+    inclusionReason: String = "mandatory live context"
   ) {
     self.id = id
     self.stage = stage
@@ -159,13 +170,27 @@ public struct ContextItem: Sendable, Equatable, Identifiable, ContextRankable {
     self.hasDirectEvidence = hasDirectEvidence
     self.scopeMatch = scopeMatch
     self.score = score
+    self.provenanceNodeIDs = provenanceNodeIDs
+    self.inclusionReason = inclusionReason
   }
 
   public func withScore(_ newScore: Double) -> ContextItem {
     ContextItem(
       id: id, stage: stage, sourceID: sourceID, summary: summary, authority: authority,
       confidence: confidence, observedAt: observedAt, hasDirectEvidence: hasDirectEvidence,
-      scopeMatch: scopeMatch, score: newScore)
+      scopeMatch: scopeMatch, score: newScore, provenanceNodeIDs: provenanceNodeIDs,
+      inclusionReason: inclusionReason)
+  }
+
+  public func withExplainability(
+    provenanceNodeIDs: [UUID],
+    inclusionReason: String
+  ) -> ContextItem {
+    ContextItem(
+      id: id, stage: stage, sourceID: sourceID, summary: summary, authority: authority,
+      confidence: confidence, observedAt: observedAt, hasDirectEvidence: hasDirectEvidence,
+      scopeMatch: scopeMatch, score: score, provenanceNodeIDs: provenanceNodeIDs,
+      inclusionReason: inclusionReason)
   }
 }
 
@@ -218,6 +243,14 @@ public struct ReferenceCandidate: Sendable, Equatable, Identifiable, ContextRank
   public let observedAt: Date
   public let hasDirectEvidence: Bool
   public let scopeMatch: Bool
+  /// Entity category used by reference phrases such as "the file".
+  public let entityKind: ReferenceEntityKind
+  /// Turn-local prominence (0...1), independent from wall-clock recency.
+  /// Direct mentions and active selections should be more salient than
+  /// background context, but salience never bypasses guarded evidence.
+  public let conversationalSalience: Double
+  /// Provenance nodes supporting the candidate.
+  public let provenanceNodeIDs: [UUID]
 
   public init(
     id: UUID = UUID(),
@@ -228,7 +261,10 @@ public struct ReferenceCandidate: Sendable, Equatable, Identifiable, ContextRank
     confidence: Double,
     observedAt: Date,
     hasDirectEvidence: Bool,
-    scopeMatch: Bool
+    scopeMatch: Bool,
+    entityKind: ReferenceEntityKind = .unknown,
+    conversationalSalience: Double = 0.5,
+    provenanceNodeIDs: [UUID] = []
   ) {
     self.id = id
     self.sourceID = sourceID
@@ -239,7 +275,20 @@ public struct ReferenceCandidate: Sendable, Equatable, Identifiable, ContextRank
     self.observedAt = observedAt
     self.hasDirectEvidence = hasDirectEvidence
     self.scopeMatch = scopeMatch
+    self.entityKind = entityKind
+    self.conversationalSalience = min(max(conversationalSalience, 0), 1)
+    self.provenanceNodeIDs = provenanceNodeIDs
   }
+}
+
+public enum ReferenceEntityKind: String, Codable, Sendable, Equatable, CaseIterable {
+  case file
+  case application
+  case task
+  case decision
+  case preference
+  case conversationItem
+  case unknown
 }
 
 /// Outcome of resolving a reference against a set of candidates.

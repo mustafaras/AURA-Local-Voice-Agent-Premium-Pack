@@ -1,36 +1,37 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
+Projection refreshed from live Git and command evidence on 2026-07-28.
 
-- Phase: Phase 21 Advanced Memory Engine and Provenance Graph complete; awaiting user direction for next phase
-- Active milestone: 20_RELEASE_READINESS → TTS_ROADMAP (TTS work parked) → 03_STREAMING_STT → 21_PROVENANCE_GRAPH_MEMORY
-- Active task: None — Phase 21 provenance graph, memory engine integration, contradiction/belief logic, user deletion shadows, and intent-to-memory wiring are implemented, tested, and documented.
-- Last verified commit: working tree relative to `69c6c90` ("docs(ledger): post-push atomic state update for Phase 20 release readiness"), pushed to `origin/main` on 2026-07-27. Phase 21 changes are not yet committed.
-- Build status: Passes (`swift build --target AURA --build-path /tmp/aurabuild`, zero errors, zero non-linker warnings)
-- Test status: Passes via `./scripts/aura-test.sh /tmp/aurabuild` for the full suite: `AURAIntegrationTests` 7/7, `AuraAgentTests` 205/205, `AuraAudioTests` 31/31, `AuraAutomationTests` 6/6, `AuraCoreTests` 7/7, `AuraIntentTests` 27/27, `AuraMemoryTests` 25/25, `AuraSTTTests` 14/14, `AuraShellTests` 23/23, `AuraStoreTests` 8/8. The previously flaky `WakeWordPipelineTests` remain deterministic.
+- Phase: Phase 22 Deep Context Reconstruction and Reference Resolution complete; awaiting user direction
+- Active milestone: 20_RELEASE_READINESS → TTS_ROADMAP (parked) → 03_STREAMING_STT → 21_PROVENANCE_GRAPH_MEMORY → 22_DEEP_CONTEXT_RECONSTRUCTION
+- Active task: None — Phase 22 implementation, adversarial tests, documentation, and evidence review are complete in the working tree.
+- Last verified commit: `58fb9be` on `main`, equal to `origin/main`. Phase 22 changes are not committed or pushed.
+- Build status: Passes `swift build --target AURA --build-path /tmp/aurabuild-phase22-static -Xswiftc -warnings-as-errors`; only CommandLineTools linker search-path warnings are emitted.
+- Test status:
+  - Full default 10-bundle run passes via `./scripts/aura-test.sh /tmp/aurabuild-phase22-full`: 355 tests total (`AURAIntegrationTests` 7, `AuraAgentTests` 205, `AuraAudioTests` 31, `AuraAutomationTests` 6, `AuraCoreTests` 7, `AuraIntentTests` 29, `AuraMemoryTests` 25, `AuraSTTTests` 14, `AuraShellTests` 23, `AuraStoreTests` 8).
+  - Phase-specific `AuraContextTests` passes 30/30 on the final reviewed source via `/tmp/aurabuild-phase22-postreview`.
+  - Targeted `AuraIntentTests` 29/29 and `AURAIntegrationTests` 7/7 also passed in isolated pre-full-suite runs.
 - Known blockers: None
 - Pending confirmations:
-  - **Phase 21 is implemented but not committed.** The diff is ready for review; the user must explicitly authorize commit/push and is the only one who can authorize a release.
-  - **Workspace build path is environment-limited.** The Desktop/iCloud-synced `build` directory intermittently acquires `com.apple.FinderInfo` / `com.apple.fileprovider.fpfs#P` extended attributes that break SwiftPM ad-hoc codesign. The validated, supported build path is `/tmp/aurabuild` (the script default).
-  - **Real STT requires microphone + speech-recognition permissions.** `NSSpeechRecognitionUsageDescription` is present in `Resources/AURA-Info.plist`, and `SystemSTTEngine` fails closed with `AuraError.permissionDenied` when authorization is denied or restricted. These permissions can only be exercised on a real macOS device, not in this sandboxed CommandLineTools workspace.
-  - **Latency acceptance-gate evidence is mock-engine-derived only.** `Conversation` emits `LatencyMeasuredEvent` for `wakeToAck` (budget 0.5 s) and `simpleCommandCompletion` (budget 1.5 s) on the deterministic `MockTTSEngine`/`DeterministicMockSTTEngine` path; `PerformanceSampler` aggregates these into `SystemHealthSnapshot`. Tests pass under deterministic clocks, but real-device wake-word/STT/TTS performance is still TBD and documented as such in `docs/testing/38_PERFORMANCE_BUDGETS.md`.
-  - **Energy budget remains TBD.** No real on-device models or target hardware exist in this workspace, so energy/thermal claims are not made.
-  - **Packaging is design + placeholder scripts only.** `Resources/AURA.entitlements`, `Resources/AURA-Info.plist`, `scripts/build-app-bundle.sh`, `scripts/codesign-adhoc.sh`, and `scripts/verify-signature.sh` are in place and executable. They produce and ad-hoc sign a local `AURA.app`; no Developer ID certificate, `notarytool`, or distribution step is performed. `scripts/verify-signature.sh` currently validates the placeholder `AURA.app` only after `build-app-bundle.sh` is run.
-  - **Update mechanism is documented but not implemented.** `docs/operations/UPDATE_MECHANISM.md` specifies a privacy-first, fail-closed, user-controlled XPC-helper design with signature/notarization validation and rollback. The helper, metadata endpoint, approval flow, and install assistant are deferred until a signed release exists.
-  - **Accessibility permission tests are deterministic.** `AuraAutomation` now depends on `any AccessibilityHealthChecking`; `AccessibilityHealthSpy` allows granted/denied states to be tested without real `AXIsProcessTrustedWithOptions` side effects.
-  - **No network entitlement is enabled.** `com.apple.security.network.client` and `com.apple.security.network.server` are `false` in `Resources/AURA.entitlements`; `AURA.app` is offline by default. Camera access is explicitly disabled with a denied-usage description. Code injection/debugging hardened-runtime flags are disabled for release builds.
-  - **Resolved in this working tree (Phase 21):**
-    - `AuraStore` gained `provenance_nodes`, `provenance_edges`, and `provenance_shadows` tables.
-    - `Sources/AuraCore/ProvenanceTypes.swift` defines typed provenance nodes, edges, authorities, beliefs, queries, and subgraphs.
-    - `Sources/AuraMemory` now contains `ProvenanceGraph`, `GraphQueryEngine`, `ContradictionDetector`, and `BeliefRevision`.
-    - `MemoryEngine` auto-creates provenance nodes, `evidenceFor` edges, `supersedes` edges, and `conflictsWith` edges; deletion appends shadow rows; `annotate()` returns the created node; `provenance(forNodeID:)` supports node-rooted subgraph queries.
-    - `IntentEngine` imports `AuraMemory`, accepts optional `MemoryEngine`/`sessionID`, persists classified intents as `.workingConversation` records with `.systemDerived(source: .intent)` provenance, annotates `.decision` nodes, and emits `IntentMemoryFailedEvent` on best-effort failures without blocking routing.
-    - `AuraKernel` injects `MemoryEngine` into `IntentEngine`.
-    - `Package.swift` adds `AuraMemory` to `AuraIntent` and `AuraIntentTests`.
-    - `Tests/AuraMemoryTests/MemoryEngineTests.swift` covers Phase 21 behavior with 25 passing tests.
-    - `Tests/AuraIntentTests/IntentEngineMemoryTests.swift` covers intent-to-memory wiring with 3 new passing tests.
-    - `scripts/aura-test.sh` now builds `AuraMemoryTests` and `AuraIntentTests` in the default full-suite loop and strips iCloud extended attributes after each SwiftPM build step.
-    - `docs/decisions/ADR-026-provenance-graph-memory.md` records the architecture, semantics, authority ranking, and validation evidence.
-  - **Resolved in earlier working trees (still in effect):** Native `Speech.framework` streaming STT adapter `SystemSTTEngine` implemented and wired into `AuraKernel`. Engine-level `SystemTTSEngine` latency and interaction tests now exist (`SystemTTSLatencyTests`). The previously flaky `WakeWordPipelineTests` are now deterministic. `AuraKernel` no longer uses `MockTTSEngine` as the default TTS; `SystemTTSEngine` is wired in via a priority-aware `makeTTSEngine` factory with a fail-closed `ChatterboxTTSEngine` boundary adapter at the top of the chain.
-  - **Unresolved risks carried forward:** no real on-device STT or wake-word; real Chatterbox neural inference is not implemented; `AuraScreen`/`AuraComputerUse`/`AuraSecurity`/`AuraPlugins`/`AuraVSCode`/`WorktreeManager`/`MultiAgentOrchestrator` remain unconstructed by `AuraKernel`; real Accessibility/Screen-Recording UX not validated in this sandboxed environment; `swiftpm-testing-helper` hang workaround in `scripts/aura-test.sh` should be removed after a toolchain fix; `Conversation` latency events still hardcode `isMockEngine: true`, so conversation-level latency evidence remains synthetic; workspace `build` path remains unreliable on iCloud-synced Desktop; legacy memory records have no provenance nodes and are excluded from graph-based active beliefs until back-filled.
-- Next safe action: User direction required. Options: (1) proceed to Phase 22 (deep context reconstruction and reference resolution); (2) authorize commit/push of this working tree; (3) address the workspace build-path iCloud issue; (4) pick another task. No release without explicit authorization.
+  - **Phase 22 is implemented but not committed.** Commit/push requires explicit user authorization; release remains separately user-authorized.
+  - **Workspace build path remains environment-limited.** Use `/tmp/aurabuild*`; Desktop/iCloud extended attributes can break SwiftPM ad-hoc codesign.
+  - **Real-device speech evidence remains incomplete.** Native on-device STT is wired, but real wake-word accuracy, Chatterbox neural inference, energy/thermal budgets, and conversation-level real-engine latency remain unvalidated.
+  - **Packaging/update work remains scaffolding/design.** No Developer ID signing, notarization, distribution, or release was performed.
+- Resolved in Phase 22:
+  - Added typed `ContextBuilder` pipeline traces for utterance parse → intent schema → entity extraction → scope filter → evidence rank → ambiguity check → final bundle.
+  - Added an inspectable reference-resolution graph with entity-kind matching and conversational salience.
+  - Mutation/destructive candidates still require direct evidence, non-inferred authority, scope match, and configured confidence; exact UUID-bound explicit confirmation is supported but does not grant policy permission.
+  - Added cross-session memory injection and bounded provenance traversal (`maxGraphDepth`, `maxGraphItems`) supporting tested file → task → decision → preference lookup.
+  - Added hard estimated-token budgeting, fail-closed mandatory-context overflow, secret/non-injectable override rejection, per-turn inclusion/exclusion controls, provenance IDs, confidence, score, token cost, and inclusion reasons.
+  - `AuraKernel` now constructs `ContextBuilder`; `IntentEngine` calls it for every completed turn before memory persistence/routing, exposes `inspectLastContext()`, and treats retrieval failure as audited best-effort.
+  - Added `DeepContextBuiltEvent` and `DeepContextBuildFailedEvent`.
+  - Added ADR-027, updated subsystem documentation, repaired ADR-023 through ADR-027 decision-index rows, and refreshed `SESSION_STARTER.md`.
+- Unresolved Phase 22 risks:
+  - Live `IntentEngine` builds currently have no active-workspace/reference-candidate provider, so cross-session injection is live but candidate-based pronoun resolution is exercised through the public API/tests rather than a real spoken action path.
+  - There is no visual inspection or confirmation UI; the Phase 22 surface is programmatic.
+  - Provenance graph traversal materializes retained nodes/edges in memory; the tested small fixture meets the 250 ms default lookup budget, but no large-store performance claim is made.
+  - Token budgeting uses a conservative local UTF-8 estimate rather than a model-specific tokenizer.
+  - Legacy memory records without provenance nodes remain retrievable but cannot provide graph-expanded lineage until back-filled.
+  - `AuraScreen`/`AuraComputerUse`/`AuraSecurity`/`AuraPlugins`/`AuraVSCode`/`WorktreeManager`/`MultiAgentOrchestrator` remain unconstructed by `AuraKernel`.
+- Next safe action: Review the Phase 22 diff. On explicit user direction, either (1) commit/push the verified working tree, or (2) proceed to Phase 23 Verified Plugin and Adapter Marketplace after re-reading its specification and inspecting the existing Phase 19 plugin-security foundation. No release without explicit authorization.

@@ -312,7 +312,7 @@ let package = Package(
         ),
         .testTarget(
             name: "AuraIntentTests",
-            dependencies: ["AuraIntent", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraStore", "AuraMemory"],
+            dependencies: ["AuraIntent", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraStore", "AuraMemory", "AuraContext"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
                 .unsafeFlags([

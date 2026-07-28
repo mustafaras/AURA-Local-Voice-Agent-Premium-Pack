@@ -14,3 +14,8 @@
 | ADR-020 | Accepted | Security hardening: threat model, provenance-based prompt-injection defense, Keychain secret store, Ed25519-verified plugin manifests with policy-gated lifecycle, canonical secret-pattern library, deny-by-default network allowlist | 2026-07-26 | — |
 | ADR-021 | Accepted | Intent Engine and Tool Router: closed v1 intent vocabulary, deterministic rule-based classifier, policy-gated dispatch with mandatory-confirmation guard, single multiplexing coding-agent task runner | 2026-07-27 | — |
 | ADR-022 | Accepted | Composition root and end-to-end wiring: `AuraKernel` dependency-ordered construction, audio-sample and conversation-event bridges, default grant table, real binary run verification | 2026-07-27 | — |
+| ADR-023 | Accepted | Release readiness: latency instrumentation, deterministic mock budgets, packaging/update boundary, no unauthorized release | 2026-07-27 | — |
+| ADR-024 | Accepted | On-device Chatterbox TTS research and fail-closed boundary prototype | 2026-07-27 | — |
+| ADR-025 | Accepted | Native Speech.framework STT adapter with required on-device recognition | 2026-08-05 | — |
+| ADR-026 | Accepted | Provenance graph integration for memory, contradiction detection, belief revision, and intent lineage | 2026-08-06 | — |
+| ADR-027 | Accepted | Deep context reconstruction: bounded builder pipeline, reference graph, cross-session provenance, inspection/override, live intent integration | 2026-07-28 | — |

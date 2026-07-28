@@ -9,8 +9,8 @@ import AuraCore
 /// vocabulary (`IntentKind`): converse, appActivate, appTerminate,
 /// shellExecute, codingAgentRun. Expanding the vocabulary, swapping the
 /// rule-based classifier for a real NLU/LLM classifier, and wiring
-/// `ContextEngine.resolveReference` for pronoun slots are explicitly
-/// deferred follow-ups, not attempted here.
+/// Phase 22 now invokes `ContextBuilder` for every completed turn before
+/// routing; expanding the closed action vocabulary remains separate work.
 public enum AuraIntent {
   public static let version = "1.0.0"
 }

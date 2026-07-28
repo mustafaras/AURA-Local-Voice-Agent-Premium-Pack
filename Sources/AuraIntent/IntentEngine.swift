@@ -1,5 +1,5 @@
-import AuraCore
 import AuraContext
+import AuraCore
 import AuraMemory
 import Foundation
 
@@ -83,11 +83,15 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
     if let result = classifyAppCommand(
       normalized, prefixes: Self.activatePrefixes, kind: .appActivate,
       category: .appActivate)
-    { return result }
+    {
+      return result
+    }
     if let result = classifyAppCommand(
       normalized, prefixes: Self.terminatePrefixes, kind: .appTerminate,
       category: .appTerminate)
-    { return result }
+    {
+      return result
+    }
     if let result = classifyShellCommand(normalized) { return result }
 
     // No command pattern matched: treat as plain conversation. This is the
@@ -183,26 +187,35 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
 /// inspectable execution plan) are `ToolRouter`'s responsibility.
 public actor IntentEngine {
   private let classifier: any UtteranceClassifying
-  private let contextEngine: ContextEngine?
+  private let contextBuilder: ContextBuilder?
   private let memoryEngine: MemoryEngine?
   private let configuration: IntentEngineConfiguration
   private let eventBus: AuraEventBus
   private let sessionID: UUID
+  private var lastContextResult: DeepContextResult?
 
   public init(
     classifier: any UtteranceClassifying,
     contextEngine: ContextEngine? = nil,
+    contextBuilder: ContextBuilder? = nil,
     memoryEngine: MemoryEngine? = nil,
     configuration: IntentEngineConfiguration = IntentEngineConfiguration(),
     eventBus: AuraEventBus,
     sessionID: UUID = UUID()
   ) {
     self.classifier = classifier
-    self.contextEngine = contextEngine
     self.memoryEngine = memoryEngine
     self.configuration = configuration
     self.eventBus = eventBus
     self.sessionID = sessionID
+    if let contextBuilder {
+      self.contextBuilder = contextBuilder
+    } else if let contextEngine, let memoryEngine {
+      self.contextBuilder = ContextBuilder(
+        engine: contextEngine, memory: memoryEngine, eventBus: eventBus)
+    } else {
+      self.contextBuilder = nil
+    }
   }
 
   /// Classify one completed conversational turn into a `TypedIntent`.
@@ -240,9 +253,42 @@ public actor IntentEngine {
         isAmbiguous: intent.isAmbiguous, riskTier: intent.riskTier),
       correlationID: correlationID, causationID: causationID)
 
+    await reconstructContext(
+      for: intent, correlationID: correlationID, causationID: causationID)
     await persistIntentAsMemory(intent, correlationID: correlationID, causationID: causationID)
 
     return intent
+  }
+
+  /// The most recent inspectable Phase 22 result for this session. It is
+  /// turn-local runtime state, not a second persistence system.
+  public func inspectLastContext() -> DeepContextResult? {
+    lastContextResult
+  }
+
+  private func reconstructContext(
+    for intent: TypedIntent,
+    correlationID: UUID,
+    causationID: UUID
+  ) async {
+    guard let contextBuilder else { return }
+    let schema = ContextIntentSchema(
+      name: intent.semanticCategory.rawValue,
+      capability: Capability.forIntent(intent.semanticCategory),
+      confidence: intent.classificationConfidence,
+      entityHints: intent.slots.map(\.value))
+    do {
+      lastContextResult = try await contextBuilder.build(
+        DeepContextRequest(
+          utterance: intent.rawUtterance, sessionID: sessionID,
+          conversationState: .thinking, intent: schema,
+          scope: MemoryScope(sessionID: sessionID)),
+        actor: .intent, correlationID: correlationID)
+    } catch {
+      await emit(
+        DeepContextBuildFailedEvent(sessionID: sessionID, reason: String(describing: error)),
+        correlationID: correlationID, causationID: causationID)
+    }
   }
 
   /// Persist the classified intent as a working-conversation memory record,

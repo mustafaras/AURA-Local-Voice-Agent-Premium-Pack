@@ -31,22 +31,27 @@ public struct ReferenceResolver: Sendable, Equatable {
   public func resolve(
     reference: String,
     candidates: [ReferenceCandidate],
-    referenceDate: Date = Date()
+    referenceDate: Date = Date(),
+    explicitlyConfirmedTargetID: UUID? = nil
   ) -> ReferenceResolution {
-    guard !candidates.isEmpty else { return .none }
+    let resolutionGraph = graph(
+      reference: reference, candidates: candidates, referenceDate: referenceDate,
+      explicitlyConfirmedTargetID: explicitlyConfirmedTargetID)
+    guard !resolutionGraph.nodes.isEmpty else { return .none }
+    if let confirmed = resolutionGraph.nodes.first(where: \.explicitlyConfirmed) {
+      return .resolved(confirmed.candidate)
+    }
 
-    // Keep each candidate paired with its score throughout — no separate
-    // by-ID lookup table, so nothing depends on candidate IDs being unique.
-    let scored = candidates
-      .map { ($0, ContextRanking.score($0, referenceDate: referenceDate, configuration: configuration)) }
-      .sorted { $0.1 > $1.1 }
-    let ranked = scored.map(\.0)
+    let lexicalMatches = resolutionGraph.nodes.filter(\.lexicalMatch)
+    let scored = lexicalMatches.isEmpty ? resolutionGraph.nodes : lexicalMatches
+    let ranked = scored.map(\.candidate)
 
     let unambiguous: Bool
     if scored.count == 1 {
       unambiguous = true
     } else {
-      unambiguous = (scored[0].1 - scored[1].1) >= configuration.referenceSeparationMargin
+      unambiguous =
+        (scored[0].score - scored[1].score) >= configuration.referenceSeparationMargin
     }
 
     guard unambiguous else {
@@ -65,6 +70,49 @@ public struct ReferenceResolver: Sendable, Equatable {
       && top.confidence >= configuration.referenceGuardedMinimumConfidence
 
     return strongEvidence ? .resolved(top) : .blockedWeakEvidence(top)
+  }
+
+  /// Build the inspectable Phase 22 reference graph. Candidate rank combines
+  /// the Phase 16 evidence score with conversational salience and a
+  /// deterministic lexical-kind boost. Neither boost can bypass the guarded
+  /// evidence/confirmation check in `resolve`.
+  public func graph(
+    reference: String,
+    candidates: [ReferenceCandidate],
+    referenceDate: Date = Date(),
+    explicitlyConfirmedTargetID: UUID? = nil
+  ) -> ReferenceResolutionGraph {
+    let requestedKind = entityKind(for: reference)
+    let nodes = candidates.map { candidate -> ReferenceGraphNode in
+      let lexicalMatch = requestedKind == nil || candidate.entityKind == requestedKind
+      let evidenceScore = ContextRanking.score(
+        candidate, referenceDate: referenceDate, configuration: configuration)
+      let lexicalBoost = lexicalMatch ? 0.05 : 0
+      let salienceBoost =
+        configuration.referenceSalienceWeight * candidate.conversationalSalience
+      return ReferenceGraphNode(
+        candidate: candidate,
+        score: evidenceScore + lexicalBoost + salienceBoost,
+        lexicalMatch: lexicalMatch,
+        explicitlyConfirmed: explicitlyConfirmedTargetID == candidate.id)
+    }.sorted {
+      if $0.score != $1.score { return $0.score > $1.score }
+      if $0.candidate.observedAt != $1.candidate.observedAt {
+        return $0.candidate.observedAt > $1.candidate.observedAt
+      }
+      return $0.candidate.id.uuidString < $1.candidate.id.uuidString
+    }
+    return ReferenceResolutionGraph(reference: reference, nodes: nodes)
+  }
+
+  private func entityKind(for reference: String) -> ReferenceEntityKind? {
+    let normalized = reference.lowercased()
+    if normalized.contains("file") || normalized.contains("document") { return .file }
+    if normalized.contains("app") || normalized.contains("application") { return .application }
+    if normalized.contains("task") || normalized.contains("job") { return .task }
+    if normalized.contains("decision") { return .decision }
+    if normalized.contains("preference") || normalized.contains("setting") { return .preference }
+    return nil
   }
 
   private func isGuarded(_ candidate: ReferenceCandidate) -> Bool {

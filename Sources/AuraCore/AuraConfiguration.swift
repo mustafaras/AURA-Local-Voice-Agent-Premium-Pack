@@ -2244,6 +2244,19 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
   /// above `referenceGuardedMinimumConfidence`. Below this tier, an
   /// unambiguous top candidate resolves without the extra evidence checks.
   public var referenceGuardedTierThreshold: PermissionRiskTier
+  /// Additional Phase 22 reference-graph weight for turn-local
+  /// conversational salience. It supplements (and never bypasses) the five
+  /// evidence-ranking dimensions.
+  public var referenceSalienceWeight: Double
+  /// Hard estimated-token ceiling for a final deep-context bundle.
+  public var maxTokenBudget: Int
+  /// Maximum provenance hops followed from any included memory record.
+  public var maxGraphDepth: Int
+  /// Maximum graph-derived context nodes admitted across the whole bundle.
+  public var maxGraphItems: Int
+  /// Measured local lookup budget. Exceeding it is reported in the result
+  /// and audit event; no claim of meeting the budget is made unless tested.
+  public var lookupLatencyBudgetSeconds: Double
 
   public init(
     rankingWeightScope: Double = 0.30,
@@ -2260,7 +2273,12 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
     semanticMatchMinimumOverlap: Double = 0.34,
     referenceSeparationMargin: Double = 0.12,
     referenceGuardedMinimumConfidence: Double = 0.85,
-    referenceGuardedTierThreshold: PermissionRiskTier = .mutation
+    referenceGuardedTierThreshold: PermissionRiskTier = .mutation,
+    referenceSalienceWeight: Double = 0.15,
+    maxTokenBudget: Int = 1_024,
+    maxGraphDepth: Int = 4,
+    maxGraphItems: Int = 12,
+    lookupLatencyBudgetSeconds: Double = 0.25
   ) {
     self.rankingWeightScope = rankingWeightScope
     self.rankingWeightRecency = rankingWeightRecency
@@ -2277,6 +2295,11 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
     self.referenceSeparationMargin = referenceSeparationMargin
     self.referenceGuardedMinimumConfidence = referenceGuardedMinimumConfidence
     self.referenceGuardedTierThreshold = referenceGuardedTierThreshold
+    self.referenceSalienceWeight = referenceSalienceWeight
+    self.maxTokenBudget = maxTokenBudget
+    self.maxGraphDepth = maxGraphDepth
+    self.maxGraphItems = maxGraphItems
+    self.lookupLatencyBudgetSeconds = lookupLatencyBudgetSeconds
   }
 
   private var rankingWeights: [Double] {
@@ -2308,6 +2331,22 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
     }
     guard maxSemanticMatches > 0 else {
       throw AuraError.invalidConfiguration("context maxSemanticMatches must be positive")
+    }
+    guard referenceSalienceWeight >= 0 else {
+      throw AuraError.invalidConfiguration("context referenceSalienceWeight must be non-negative")
+    }
+    guard maxTokenBudget > 0 else {
+      throw AuraError.invalidConfiguration("context maxTokenBudget must be positive")
+    }
+    guard maxGraphDepth >= 0 else {
+      throw AuraError.invalidConfiguration("context maxGraphDepth must be non-negative")
+    }
+    guard maxGraphItems >= 0 else {
+      throw AuraError.invalidConfiguration("context maxGraphItems must be non-negative")
+    }
+    guard lookupLatencyBudgetSeconds > 0 else {
+      throw AuraError.invalidConfiguration(
+        "context lookupLatencyBudgetSeconds must be positive")
     }
     guard maxBundleItems > 0 else {
       throw AuraError.invalidConfiguration("context maxBundleItems must be positive")
@@ -2358,7 +2397,14 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
       referenceGuardedMinimumConfidence: (referenceGuardedMinimumConfidence < 0
         || referenceGuardedMinimumConfidence > 1)
         ? defaults.referenceGuardedMinimumConfidence : referenceGuardedMinimumConfidence,
-      referenceGuardedTierThreshold: referenceGuardedTierThreshold
+      referenceGuardedTierThreshold: referenceGuardedTierThreshold,
+      referenceSalienceWeight: referenceSalienceWeight < 0
+        ? defaults.referenceSalienceWeight : referenceSalienceWeight,
+      maxTokenBudget: maxTokenBudget <= 0 ? defaults.maxTokenBudget : maxTokenBudget,
+      maxGraphDepth: maxGraphDepth < 0 ? defaults.maxGraphDepth : maxGraphDepth,
+      maxGraphItems: maxGraphItems < 0 ? defaults.maxGraphItems : maxGraphItems,
+      lookupLatencyBudgetSeconds: lookupLatencyBudgetSeconds <= 0
+        ? defaults.lookupLatencyBudgetSeconds : lookupLatencyBudgetSeconds
     )
   }
 
@@ -2407,6 +2453,18 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
     referenceGuardedTierThreshold =
       try container.decodeIfPresent(PermissionRiskTier.self, forKey: .referenceGuardedTierThreshold)
       ?? defaults.referenceGuardedTierThreshold
+    referenceSalienceWeight =
+      try container.decodeIfPresent(Double.self, forKey: .referenceSalienceWeight)
+      ?? defaults.referenceSalienceWeight
+    maxTokenBudget =
+      try container.decodeIfPresent(Int.self, forKey: .maxTokenBudget) ?? defaults.maxTokenBudget
+    maxGraphDepth =
+      try container.decodeIfPresent(Int.self, forKey: .maxGraphDepth) ?? defaults.maxGraphDepth
+    maxGraphItems =
+      try container.decodeIfPresent(Int.self, forKey: .maxGraphItems) ?? defaults.maxGraphItems
+    lookupLatencyBudgetSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .lookupLatencyBudgetSeconds)
+      ?? defaults.lookupLatencyBudgetSeconds
   }
 }
 

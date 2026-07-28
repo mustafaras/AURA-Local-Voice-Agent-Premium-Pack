@@ -1,4 +1,4 @@
-# AURA Session Starter — Phase 22: Deep Context Reconstruction and Reference Resolution
+# AURA Session Starter — Phase 23: Verified Plugin and Adapter Marketplace
 
 > Conversation date: 28 July 2026  
 > Read this first, then `AGENTS.md` and `ledger/CURRENT_STATE.md`.
@@ -15,12 +15,12 @@
 
 ## Current State (as of this session)
 
-- **Phase completed:** Phase 21 — Advanced Memory Engine and Provenance Graph (provenance nodes/edges/shadows, intent-to-memory wiring, 25 AuraMemoryTests + 27 AuraIntentTests, ADR-026)
-- **Active milestone:** Phase 22
-- **Last verified commit on `main`:** `f83f053`
-- **Next safe action:** Implement Phase 22 — Deep Context Reconstruction and Reference Resolution per `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 22.
-- **Build status:** `swift build --target AURA --build-path /tmp/aurabuild` passes
-- **Test status:** All 10 test bundles pass via `./scripts/aura-test.sh /tmp/aurabuild` (AuraMemoryTests 25/25, AuraIntentTests 27/27, AuraCoreTests 7/7, AuraStoreTests 8/8, AuraAutomationTests 6/6, AuraShellTests 23/23, AuraSTTTests 14/14, AuraAudioTests 31/31, AuraAgentTests 205/205, AURAIntegrationTests 7/7)
+- **Phase completed:** Phase 22 — Deep Context Reconstruction and Reference Resolution (`ContextBuilder`, reference graph, token/graph budgets, cross-session provenance injection, inspection/override API, live `IntentEngine` caller, ADR-027)
+- **Active milestone:** Awaiting user direction; Phase 23 is the next numbered phase
+- **Last verified commit on `main`:** `58fb9be` (Phase 22 working tree is not committed)
+- **Next safe action:** Review the Phase 22 diff; on explicit user direction, either commit/push it or implement Phase 23 per `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 23.
+- **Build status:** `swift build --target AURA --build-path /tmp/aurabuild-phase22-static -Xswiftc -warnings-as-errors` passes (CommandLineTools linker search-path warnings only)
+- **Test status:** Default 10-bundle suite passes (355 tests); `AuraContextTests` 30/30, `AuraIntentTests` 29/29, and `AURAIntegrationTests` 7/7 pass
 - **Known blockers:** None
 
 ## Core vision
@@ -58,13 +58,13 @@ All TTS output flows through the spoken-output policy in `persona/AURA_VOICE_AND
 4. `ledger/DECISION_INDEX.md` — ADR index
 5. `README.md` — project overview
 6. `persona/AURA_VOICE_AND_BEHAVIOR.md` — voice and behavior persona
-7. `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 21 — this phase's master spec
-8. `docs/decisions/ADR-016-memory-engine.md` — prior memory ADR
-9. `docs/subsystems/21_MEMORY_ENGINE.md` — subsystem specification
-10. `Sources/AuraContext/ContextEngine.swift` — current Phase 16 implementation
-11. `Sources/AuraMemory/MemoryEngine.swift` — provenance-graph integration completed in Phase 21
-12. `docs/subsystems/22_CONTEXT_RECONSTRUCTION.md` — subsystem specification
-13. `docs/decisions/ADR-017-context-reconstruction.md` — prior context-reconstruction ADR
+7. `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 23 — next phase's master spec
+8. `docs/subsystems/22_CONTEXT_RECONSTRUCTION.md` — completed context subsystem specification
+9. `docs/decisions/ADR-027-deep-context-reconstruction.md` — Phase 22 decision
+10. `Sources/AuraContext/ContextBuilder.swift` — completed Phase 22 pipeline
+11. `Sources/AuraContext/ReferenceResolver.swift` — reference graph and guarded resolution
+12. `Sources/AuraMemory/MemoryEngine.swift` — provenance graph query facade
+13. `Sources/AuraPlugins/` and `docs/decisions/ADR-020-security-hardening.md` — existing plugin-security foundation to inspect before Phase 23
 
 ## Critical toolchain facts
 
@@ -88,49 +88,29 @@ All TTS output flows through the spoken-output policy in `persona/AURA_VOICE_AND
 - `ADR-024` — Chatterbox on-device TTS
 - `ADR-025` — Native Speech.framework STT adapter
 - `ADR-026` — Provenance graph memory engine
+- `ADR-027` — Deep context reconstruction and reference resolution
 
 ## Unresolved risks
 
-- `ContextEngine` (Phase 16 minimal context reconstruction) exists but has no real caller during a live conversation turn; Phase 22 must integrate it with `IntentEngine`/`Conversation` while preserving safety invariants.
-- Reference resolution guardrails (`.ambiguous`, `.blockedWeakEvidence`) are tested in isolation but not yet exercised end-to-end in a spoken turn.
+- Phase 22 exposes reference resolution and inspection programmatically; no real confirmation/inspection UI exists yet.
+- Live `IntentEngine` context builds currently have no active-workspace/reference-candidate provider, so typed graph resolution is exercised through the API/tests while cross-session memory injection is live.
+- Provenance graph traversal still materializes retained nodes/edges in memory; large-store profiling and lazy adjacency queries remain future work.
 - Real acoustic wake-word, on-device neural STT, and Chatterbox TTS inference are not yet integrated.
 - `AuraScreen`/`AuraComputerUse`/`AuraSecurity`/`AuraPlugins`/`AuraVSCode`/`WorktreeManager`/`MultiAgentOrchestrator` remain unconstructed by `AuraKernel`.
 - `swiftpm-testing-helper` may hang after suite summary (handled by wrapper timeout).
 
 ## What to do next
 
-1. Read `AGENTS.md` startup sequence.
-2. Read `ledger/CURRENT_STATE.md` and `ledger/PROJECT_LEDGER.md` (latest entry).
-3. Read `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 21.
-4. Read `docs/subsystems/21_MEMORY_ENGINE.md` and `docs/decisions/ADR-016-memory-engine.md`.
-5. Inspect current `Sources/AuraContext/ContextEngine.swift` and existing `Sources/AuraMemory/MemoryEngine.swift`.
-6. Design the Phase 22 `ContextBuilder` pipeline: utterance parse → intent schema → entity extraction → scope filter → evidence rank → ambiguity check → final bundle.
-7. Implement reference resolution graph: rank candidates by scope, recency, authority, and conversational salience; map pronouns and implicit targets safely.
-8. Add negative guardrails: destructive/mutation candidates require direct evidence or explicit confirmation; weakly resolved targets are rejected/ambiguous.
-9. Wire `ContextEngine` as the first real caller of `MemoryEngine` for cross-session memory injection; keep token budget and latency constraints.
-10. Add adversarial reference-resolution tests and context-bundle tests.
-11. Run `./scripts/aura-test.sh /tmp/aurabuild AuraContextTests` and all affected bundles.
-12. Write `docs/decisions/ADR-027-deep-context-reconstruction.md`.
-13. Append entry to `ledger/PROJECT_LEDGER.md` and atomically update `ledger/CURRENT_STATE.md`.
+1. Read `AGENTS.md`, `ledger/CURRENT_STATE.md`, and the newest `ledger/PROJECT_LEDGER.md` entry.
+2. Confirm the live Git status and whether the user wants the Phase 22 working tree committed/pushed or wants Phase 23 implemented without committing.
+3. For Phase 23, read the master prompt §Phase 23, current `AuraPlugins` implementation/tests, ADR-020, threat model, policy grants, store schema, and plugin manifest types.
+4. Record Phase 23 objective, assumptions, risks, and acceptance criteria in the ledger before editing.
+5. Preserve Phase 22 safety boundaries: plugin content cannot become trusted context merely through recency/salience, and plugin actions cannot bypass policy.
 
-## Phase 22 acceptance criteria
+## Phase 23 headline acceptance gate
 
-- `ContextBuilder` pipeline assembles the smallest sufficient bundle: utterance → intent schema → entity extraction → scope filter → evidence rank → ambiguity check → final bundle.
-- Reference resolution graph resolves pronouns/implicit targets (`it`, `that`, `the file`, `the last one`) by scope, recency, authority, and conversational salience.
-- Negative guardrails prevent destructive/mutation targets from resolving on weak evidence; ambiguous or weakly supported references surface `.ambiguous` or `.blockedWeakEvidence` outcomes.
-- Cross-session memory injection loads relevant project facts, decisions, and preferences without exceeding token budget.
-- Every context bundle includes provenance IDs and confidence scores; explainability is testable.
-- `ContextEngine` becomes a real caller of `MemoryEngine` and/or provenance graph queries.
-- Adversarial reference-resolution test suite passes (e.g., “delete it” without clear target is rejected/confirmed).
-- Context bundles fit within configured token budgets while retaining necessary facts.
-- Multi-hop lookups (file → task → decision → preference) complete within latency budget.
-- User can inspect and override context inclusions.
-- All tests pass; no regressions in other bundles.
-- ADR-027 and ledger current state are written.
-
-## Out of scope for Phase 22
-
-- Embedding-based semantic retrieval (keep deterministic keyword containment; upgrade in later phase).
-- Real UI for context inspection (expose programmatic API/tests now).
-- Plugin marketplace (Phase 23).
-- Cross-device sync (Phase 27).
+- Unsigned/tampered plugins are rejected before loading.
+- Plugins cannot exceed declared capabilities or policy grants.
+- Disabled/quarantined plugins cannot emit events or execute.
+- Uninstall preserves audit records.
+- Manifest spoofing, hash collision, and capability-escalation adversarial tests pass.

@@ -79,6 +79,9 @@ actor AuraKernel {
     let memory = MemoryEngine(store: store, eventBus: eventBus)
     let context = ContextEngine(
       store: store, memory: memory, eventBus: eventBus, configuration: configuration.context)
+    let contextBuilder = ContextBuilder(
+      engine: context, memory: memory, eventBus: eventBus,
+      configuration: configuration.context)
 
     let taskEngine = await AuraTaskEngine(
       store: store, eventBus: eventBus, configuration: configuration.task)
@@ -112,7 +115,8 @@ actor AuraKernel {
       configuration: configuration.intent)
     let intentEngine = IntentEngine(
       classifier: RuleBasedUtteranceClassifier(), contextEngine: context,
-      memoryEngine: memory, configuration: configuration.intent, eventBus: eventBus,
+      contextBuilder: contextBuilder, memoryEngine: memory,
+      configuration: configuration.intent, eventBus: eventBus,
       sessionID: sessionID)
 
     let audio = AuraAudio(

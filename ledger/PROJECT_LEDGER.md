@@ -2,6 +2,109 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-28T11:39:23Z — PHASE22_POST_REVIEW_VALIDATION — Final source-state context regression
+
+- **Actor:** Codex
+- **Objective:** Record final-source verification after removing one unreachable duplicate confirmation check during diff review.
+- **Starting state:** `PHASE22_CONTEXT_RECONSTRUCTION_COMPLETED` had already recorded the complete implementation and full-suite evidence; the only subsequent Swift change removed a branch made unreachable by the earlier exact-confirmation return.
+- **Command executed:** `./scripts/aura-test.sh /tmp/aurabuild-phase22-postreview AuraContextTests AuraIntentTests AURAIntegrationTests`. The runner accepts one bundle filter, so it executed `AuraContextTests`; the additional arguments were ignored.
+- **Exact result:** `AuraContextTests` 30/30 pass on the final reviewed source, zero failures, including all Phase 22 adversarial, budget, multi-hop, override, configuration, and privacy cases.
+- **Current state:** The completion entry's 355-test full-suite evidence remains valid for the behavior-preserving cleanup, and the directly affected final bundle is independently green.
+- **Next safe action:** User review; no commit/push/release without explicit authorization.
+
+### 2026-07-28T11:39:23Z — PHASE22_CONTEXT_RECONSTRUCTION_COMPLETED — Bounded deep context pipeline and live intent integration
+
+- **Actor:** Codex
+- **Objective:** Complete the started `PHASE22_CONTEXT_RECONSTRUCTION_STARTED` task with a deterministic deep-context builder, safe reference graph, cross-session provenance injection, explainability/override APIs, live turn integration, adversarial tests, ADR-027, and evidence-backed state documentation.
+- **Starting state:** See the paired started entry below. Live Git was clean at `HEAD == origin/main == 58fb9be`; Phase 16 context reconstruction and Phase 21 provenance storage existed, but no Phase 22 builder or live context caller existed and `CURRENT_STATE.md` incorrectly described Phase 21 as uncommitted.
+- **Evidence inspected:** All startup authorities and task specifications recorded in the started entry; current `ContextEngine`, `ReferenceResolver`, context/core types and configuration; `MemoryEngine`, `GraphQueryEngine`, provenance schema; `IntentEngine`, `IntentDispatchCoordinator`, `AuraKernel`; package/test runner; existing context, memory, intent, and integration tests; live Git status/log/revisions; complete Phase 22 diff and `git diff --check`.
+- **Decisions:**
+  - Composed Phase 16 through a new `ContextBuilder` instead of replacing its tested retrieval logic.
+  - Defined dependency-neutral Phase 22 schemas/traces/inspection models in `AuraCore` so `AuraContext` does not depend on `AuraIntent`.
+  - Added a typed reference graph ranked by the existing five evidence dimensions plus lexical entity kind and conversational salience; lexical matches narrow explicit-kind ambiguity checks.
+  - Kept the mutation-tier hard gate: salience never bypasses direct evidence, non-inferred authority, scope, or confidence. Explicit confirmation resolves only the exact candidate UUID and does not grant policy permission.
+  - Expanded relevant memory records through bounded `MemoryEngine.provenance` queries, producing source/provenance IDs and a tested file → task → decision → preference chain.
+  - Added a hard conservative token estimate. Mandatory live context is retained or the build fails closed; optional candidates are admitted by explicit inclusion then evidence score.
+  - Made overrides per-turn/non-persistent, scope-bound, token-bound, and unable to inject secret or non-context memory classes.
+  - Constructed `ContextBuilder` in `AuraKernel`; `IntentEngine` runs it before intent memory persistence/routing, exposes `inspectLastContext()`, and emits a failure event without blocking classification.
+  - Recorded per-build token/latency evidence but made no large-store or real-device performance claim.
+  - Added ADR-027, expanded the subsystem specification, repaired missing ADR-023–ADR-026 decision-index rows while adding ADR-027, refreshed the next-session starter, and atomically refreshed current state from live evidence.
+- **Files changed:**
+  - `Sources/AuraCore/DeepContextTypes.swift` — new pipeline, request/result, graph, inspection, and override types
+  - `Sources/AuraContext/ContextBuilder.swift` — new Phase 22 actor
+  - `Sources/AuraContext/ReferenceResolver.swift` — graph ranking, lexical-kind filtering, salience, and UUID-bound confirmation
+  - `Sources/AuraCore/ContextTypes.swift` — provenance/inclusion metadata and richer reference candidates
+  - `Sources/AuraCore/AuraConfiguration.swift` — token, graph, salience, and latency fields with validation/default merge/partial decode
+  - `Sources/AuraCore/ContextEventPayloads.swift` — deep-context success/failure events
+  - `Sources/AuraIntent/IntentEngine.swift` and `Sources/AuraIntent/AuraIntent.swift` — live best-effort caller and inspection API
+  - `Sources/AURA/AuraKernel.swift` — composition-root builder construction/injection
+  - `Package.swift` — direct `AuraContext` dependency for intent integration tests
+  - `Tests/AuraContextTests/ContextBuilderTests.swift` — new adversarial/budget/multi-hop/override/config/privacy tests
+  - `Tests/AuraIntentTests/IntentEngineContextTests.swift` — new live-caller and fail-open-classification tests
+  - `docs/decisions/ADR-027-deep-context-reconstruction.md` — new
+  - `docs/subsystems/22_CONTEXT_RECONSTRUCTION.md` — Phase 22 implementation contract
+  - `ledger/DECISION_INDEX.md`, `ledger/CURRENT_STATE.md`, `ledger/PROJECT_LEDGER.md`, `SESSION_STARTER.md` — authority/state/handoff updates
+- **Commands executed and evidence:**
+  - `swift format lint` across new/modified Phase 22 Swift files — no Phase 22 diagnostics; `git diff --check` — clean.
+  - `swift build --target AuraContext --build-path /tmp/aurabuild-phase22` — pass after adding partial-decode initialization for all new fields.
+  - `swift build --target AURA --build-path /tmp/aurabuild-phase22` — pass.
+  - `swift build --target AURA --build-path /tmp/aurabuild-phase22-static -Xswiftc -warnings-as-errors` — pass; CommandLineTools linker search-path warnings only.
+  - `./scripts/aura-test.sh /tmp/aurabuild-phase22-final-context AuraContextTests` — 30/30 pass.
+  - `./scripts/aura-test.sh /tmp/aurabuild-phase22-intent AuraIntentTests` — 29/29 pass.
+  - `./scripts/aura-test.sh /tmp/aurabuild-phase22-integration AURAIntegrationTests` — 7/7 pass.
+  - `./scripts/aura-test.sh /tmp/aurabuild-phase22-full` — all default 10 bundles pass, 355 tests total.
+- **Tests and exact results:**
+  - `AuraContextTests`: 30/30, including weak destructive rejection, strong ambiguity, exact confirmation binding, lexical/salience guard, token overflow fail-closed, budget truncation, file → task → decision → preference traversal under the 250 ms fixture budget, provenance explainability, per-turn include/exclude, partial config decode, and secret/non-injectable override rejection.
+  - Default full suite: `AURAIntegrationTests` 7/7, `AuraAgentTests` 205/205, `AuraAudioTests` 31/31, `AuraAutomationTests` 6/6, `AuraCoreTests` 7/7, `AuraIntentTests` 29/29, `AuraMemoryTests` 25/25, `AuraSTTTests` 14/14, `AuraShellTests` 23/23, `AuraStoreTests` 8/8 — 355/355.
+  - Combined relevant evidence including separately-run `AuraContextTests`: 385 passing tests, zero failures.
+- **Security/privacy impact:**
+  - No remote service, network entitlement, ambient audio, screenshot, secret, or raw private document transmission was added.
+  - Secret and non-injectable memory records cannot enter through Phase 22 overrides.
+  - Context has no grant/execute authority; `PolicyEngine` and `ToolRouter` remain mandatory.
+  - Mutation/destructive resolution fails closed on ambiguity, weak evidence, inference, low confidence, or scope mismatch.
+- **Unresolved risks:**
+  - Live turns currently have no active-workspace/reference-candidate provider, so cross-session injection is live but candidate-based reference resolution is exercised through the programmatic API/tests rather than a real spoken action.
+  - Inspection/confirmation is programmatic only; no visual UI exists.
+  - Graph queries still materialize retained nodes/edges; only a bounded small fixture was measured below the 250 ms default budget.
+  - Token counts are conservative UTF-8 estimates, not model-specific tokenizer results.
+  - Legacy memory without provenance nodes cannot produce graph-expanded lineage until back-filled.
+  - Previously recorded real-device speech, energy, packaging, update, and composition-root gaps remain.
+- **Rollback:** Remove the two new source files and two new test files; revert the Phase 22 additions in `ContextTypes`, configuration, context events, resolver, intent engine, kernel, package manifest, subsystem docs, ADR/index/state/starter. No schema rollback is required.
+- **Current state:** Phase 22 acceptance criteria are met in the working tree. The builder is bounded/explainable, reference guardrails are adversarially tested, cross-session provenance is live in `IntentEngine`, the build passes warnings-as-errors, and all relevant/default tests pass.
+- **Next safe action:** User review. Commit/push only with explicit authorization; otherwise Phase 23 is the next numbered phase after reading its specification and the existing plugin-security foundation. No release was performed.
+- **Integrity hash:** intentionally omitted.
+
+### 2026-07-28T11:10:34Z — PHASE22_CONTEXT_RECONSTRUCTION_STARTED — Deep context reconstruction implementation started
+
+- **Actor:** Codex
+- **Objective:** Implement Phase 22 from `AURA_PREMIUM_UNIFIED_MASTER.prompt.md`: a deterministic `ContextBuilder` pipeline, graph-backed reference resolution, cross-session memory injection, token/latency budgets, explainable provenance/confidence, user inspection/override APIs, live Intent Engine integration, adversarial tests, ADR-027, and atomic state documentation.
+- **Starting state:** `HEAD` and `origin/main` both resolve to `58fb9be`; Phase 21 is committed at `f83f053` and the working tree is clean. Phase 16 already provides `ContextEngine.reconstruct`, composite ranking, a flat `ReferenceResolver`, and 20 isolated `AuraContextTests`. Phase 21 provides `MemoryEngine` provenance nodes/edges and bounded graph queries, but `IntentEngine` does not call `ContextEngine` during classification. `ledger/CURRENT_STATE.md` is stale because it still describes Phase 21 as uncommitted relative to `69c6c90`.
+- **Evidence inspected:** `README.md`; `AGENTS.md`; `ledger/CURRENT_STATE.md`; `ledger/PROJECT_LEDGER.md`; `ledger/DECISION_INDEX.md`; `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 22; `docs/subsystems/22_CONTEXT_RECONSTRUCTION.md`; ADR-016, ADR-017, and ADR-026; `Package.swift`; current `AuraCore`, `AuraContext`, `AuraMemory`, `AuraIntent`, `AuraKernel`, and related tests; live Git status/log/revisions.
+- **Assumptions:**
+  - Phase 22 retains deterministic keyword/entity matching; embedding retrieval remains out of scope.
+  - Token use is estimated locally and conservatively; no remote tokenizer or model call is introduced.
+  - Programmatic inspection/override APIs satisfy the current phase; a visual UI remains out of scope.
+  - Existing permission and confirmation engines remain authoritative; context reconstruction may block or mark a reference ambiguous but may never authorize an action.
+  - The required test runner is `./scripts/aura-test.sh` with a `/tmp` build path; direct `swift test` is unsupported here.
+- **Risks:**
+  - Cross-session graph traversal could over-include stale or unrelated memory unless scope, provenance, confidence, and token caps are enforced at every inclusion point.
+  - Salience could overpower evidence and silently redirect a mutating/destructive reference; guarded actions therefore require direct evidence or an explicit confirmation marker regardless of rank.
+  - Live Intent Engine integration must remain best-effort for context failures so retrieval cannot make ordinary intent classification unavailable.
+  - Graph traversal currently loads the retained graph into memory; Phase 22 must bound depth, results, tokens, and measured duration without claiming large-scale performance not exercised here.
+  - Existing Phase 16 APIs and tests must remain source-compatible.
+- **Architectural decision check:** No conflict found. ADR-017 explicitly reserves the advanced multi-hop builder and live integration for Phase 22; ADR-026 explicitly prepares the provenance graph for Phase 22 queries. ADR-021 records the current missing caller as a limitation to be resolved.
+- **Acceptance criteria:**
+  - Pipeline stages are inspectable in order: utterance parse → intent schema → entity extraction → scope filter → evidence rank → ambiguity check → final bundle.
+  - Pronouns and implicit targets (`it`, `that`, `the file`, `the last one`) resolve through a reference graph ranked by scope, recency, authority, and conversational salience.
+  - Mutating/destructive targets never resolve from weak evidence; ambiguous targets surface typed `.ambiguous` or `.blockedWeakEvidence` outcomes unless explicit confirmation is supplied.
+  - Cross-session project facts, decisions, and preferences are injected through `MemoryEngine`/provenance queries within configured token and graph-depth budgets.
+  - Every included item exposes source/provenance IDs, confidence, score, and an inclusion reason; callers can inspect and override inclusions without mutating memory.
+  - `IntentEngine` makes a real best-effort context-builder call for live completed turns.
+  - Adversarial, budget, multi-hop, override, explainability, context, intent, and integration tests pass; formatting/static analysis/build/full relevant test suite are executed and inspected.
+  - ADR-027, subsystem documentation, decision index, append-only completion evidence, and `CURRENT_STATE.md` are updated. No commit, push, release, or deploy occurs without explicit authorization.
+- **Current state:** In progress; no implementation files changed yet.
+- **Next safe action:** Implement typed Phase 22 context models and the bounded builder/reference graph, then integrate it into `IntentEngine` and add tests.
+
 ### 2026-08-06T12:00:00Z — PHASE21_PROVENANCE_GRAPH_MEMORY — Advanced Memory Engine and Provenance Graph with intent-to-memory wiring
 
 - **Actor:** GitHub Copilot

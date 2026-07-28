@@ -66,3 +66,48 @@ public struct ReferenceResolutionEvent: EventPayload {
     self.resolvedAt = resolvedAt
   }
 }
+
+/// Audit/latency summary for one complete Phase 22 builder invocation.
+public struct DeepContextBuiltEvent: EventPayload {
+  public static let eventType = "context.deep.built"
+
+  public let sessionID: UUID
+  public let itemCount: Int
+  public let estimatedTokenCount: Int
+  public let tokenBudget: Int
+  public let elapsedSeconds: Double
+  public let latencyBudgetSeconds: Double
+  public let metLatencyBudget: Bool
+
+  public init(
+    sessionID: UUID,
+    itemCount: Int,
+    estimatedTokenCount: Int,
+    tokenBudget: Int,
+    elapsedSeconds: Double,
+    latencyBudgetSeconds: Double,
+    metLatencyBudget: Bool
+  ) {
+    self.sessionID = sessionID
+    self.itemCount = itemCount
+    self.estimatedTokenCount = estimatedTokenCount
+    self.tokenBudget = tokenBudget
+    self.elapsedSeconds = elapsedSeconds
+    self.latencyBudgetSeconds = latencyBudgetSeconds
+    self.metLatencyBudget = metLatencyBudget
+  }
+}
+
+public struct DeepContextBuildFailedEvent: EventPayload {
+  public static let eventType = "context.deep.failed"
+
+  public let sessionID: UUID
+  public let reason: String
+  public let failedAt: Date
+
+  public init(sessionID: UUID, reason: String, failedAt: Date = Date()) {
+    self.sessionID = sessionID
+    self.reason = reason
+    self.failedAt = failedAt
+  }
+}
