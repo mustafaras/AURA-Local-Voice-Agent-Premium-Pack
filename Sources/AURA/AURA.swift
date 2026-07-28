@@ -1,36 +1,25 @@
-import AuraCore
-import AuraStore
-import Foundation
+import SwiftUI
 
 @main
-struct AURA {
-  static func main() async {
-    do {
-      let config = AuraConfiguration.default
-      try config.validate()
+struct AURAApp: App {
+  @StateObject private var model = AuraAppModel()
 
-      let logger = AuraLogger(
-        subsystem: config.app.bundleIdentifier,
-        category: "bootstrap",
-        minimumLevel: .info
-      )
+  var body: some Scene {
+    WindowGroup("AURA") {
+      AuraMenuView(model: model)
+    }
+    .defaultSize(width: 430, height: 720)
 
-      let storeURL = FileManager.default
-        .urls(for: .applicationSupportDirectory, in: .userDomainMask)
-        .first?
-        .appendingPathComponent("AURA", isDirectory: true)
-        .appendingPathComponent("aura.db")
+    MenuBarExtra {
+      AuraMenuView(model: model)
+    } label: {
+      Label("AURA — \(model.status.title)", systemImage: model.status.symbolName)
+        .accessibilityLabel("AURA status: \(model.status.title)")
+    }
+    .menuBarExtraStyle(.window)
 
-      let storePath = storeURL?.path ?? NSTemporaryDirectory().appending("aura.db")
-      let store = try await AuraStore(path: storePath)
-      let eventBus = AuraEventBus(logger: logger)
-      await logger.info("AURA bootstrap complete; starting composition root", actor: .system)
-
-      let kernel = AuraKernel(configuration: config, store: store, eventBus: eventBus, logger: logger)
-      try await kernel.run()
-    } catch {
-      print("AURA failed to start: \(error)")
-      exit(1)
+    Settings {
+      AuraSettingsView(model: model)
     }
   }
 }

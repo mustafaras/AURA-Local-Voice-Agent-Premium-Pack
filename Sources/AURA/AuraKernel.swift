@@ -1,15 +1,20 @@
 import AuraAgent
 import AuraAudio
 import AuraAutomation
+import AuraComputerUse
 import AuraContext
 import AuraCore
 import AuraIntent
 import AuraMemory
+import AuraPlugins
 import AuraPolicy
 import AuraSTT
+import AuraScreen
+import AuraSecurity
 import AuraShell
 import AuraStore
 import AuraTasks
+import AuraVSCode
 import Dispatch
 import Foundation
 
@@ -22,6 +27,7 @@ actor AuraKernel {
   private let store: AuraStore
   private let eventBus: AuraEventBus
   private let logger: AuraLogger
+  private let confirmationPresenter: any AuraConfirmationPresenting
 
   private var policyEngine: PolicyEngine?
   private var taskEngine: AuraTaskEngine?
@@ -33,32 +39,96 @@ actor AuraKernel {
   private var conversationEventBridge: ConversationEventBridge?
   private var audioSampleBridge: AudioSampleBridge?
   private var performanceSampler: PerformanceSampler?
+  private var emergencyStop: EmergencyStopController?
+  private var screenEngine: ScreenContextEngine?
+  private var computerUseLoop: ComputerUseControlLoop?
+  private var vscodeAdapter: VSCodeAdapter?
+  private var pluginRegistry: PluginRegistry?
+  private var ollamaAdapter: OllamaAdapter?
+  private var worktreeManager: WorktreeManager?
+  private var multiAgentOrchestrator: MultiAgentOrchestrator?
+  private var secretScanner: SecretScanner?
+  private var injectionClassifier: PromptInjectionClassifier?
+  private var networkAllowlist: NetworkAllowlist?
+  private var started = false
+  private var sttStarted = false
 
   private var shutdownContinuation: CheckedContinuation<Void, Never>?
   private var sigintSource: DispatchSourceSignal?
   private var sigtermSource: DispatchSourceSignal?
 
   init(
-    configuration: AuraConfiguration, store: AuraStore, eventBus: AuraEventBus, logger: AuraLogger
+    configuration: AuraConfiguration,
+    store: AuraStore,
+    eventBus: AuraEventBus,
+    logger: AuraLogger,
+    confirmationPresenter: any AuraConfirmationPresenting = SafeDenyConfirmationPresenter()
   ) {
     self.configuration = configuration
     self.store = store
     self.eventBus = eventBus
     self.logger = logger
+    self.confirmationPresenter = confirmationPresenter
   }
 
   /// Construct every subsystem, start the pipeline, and block until a
   /// shutdown signal (SIGINT/SIGTERM) is received.
   func run() async throws(AuraError) {
-    try await construct()
-    try await startPipeline()
+    try await start()
     installSignalHandlers()
-    await logger.info(
-      "AuraKernel running; wake pipeline armed", actor: .system)
     await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
       self.shutdownContinuation = continuation
     }
+    await stop()
+  }
+
+  func start() async throws(AuraError) {
+    guard !started else { return }
+    try await construct()
+    try await startPipeline()
+    started = true
+    await logger.info("AuraKernel running; push-to-talk ready", actor: .system)
+  }
+
+  func stop() async {
+    guard started else { return }
     await shutdownPipeline()
+    started = false
+  }
+
+  func startSpeechRecognition() async throws(AuraError) {
+    guard started, let sttPipeline else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    guard !sttStarted else { return }
+    do {
+      try await sttPipeline.start()
+      sttStarted = true
+    } catch {
+      throw AuraError.sttEngineError(
+        "STT pipeline failed to start: \(error.localizedDescription)")
+    }
+  }
+
+  func activatePushToTalk() async throws(AuraError) {
+    guard sttStarted else {
+      throw AuraError.permissionDenied("Speech recognition permission is required")
+    }
+    let envelope = EventEnvelope(
+      correlationID: UUID(),
+      causationID: UUID(),
+      actor: .user,
+      sensitivity: .sensitive,
+      payload: WakeActivationEvent(isActive: true, privacyMode: false))
+    await eventBus.emit(envelope)
+  }
+
+  func triggerEmergencyStop() async {
+    await emergencyStop?.trigger(source: .ui, reason: "User activated emergency stop")
+  }
+
+  func resetEmergencyStop() async {
+    await emergencyStop?.reset(actor: .user)
   }
 
   // MARK: - Construction (dependency order)
@@ -90,11 +160,14 @@ actor AuraKernel {
 
     let sessionID = UUID()
     let codexAdapter = CodexAdapter(
-      configuration: configuration.codex, policyEngine: policyEngine, eventBus: eventBus)
+      configuration: configuration.codex, policyEngine: policyEngine,
+      approvalPresenter: confirmationPresenter, eventBus: eventBus)
     let claudeAdapter = ClaudeAdapter(
-      configuration: configuration.claude, policyEngine: policyEngine, eventBus: eventBus)
+      configuration: configuration.claude, policyEngine: policyEngine,
+      approvalPresenter: confirmationPresenter, eventBus: eventBus)
     let copilotAdapter = CopilotAdapter(
-      configuration: configuration.copilot, policyEngine: policyEngine, eventBus: eventBus)
+      configuration: configuration.copilot, policyEngine: policyEngine,
+      approvalPresenter: confirmationPresenter, eventBus: eventBus)
     let agentTaskRunner = AgentBackendTaskRunner(
       codex: CodexTaskRunner(
         adapter: codexAdapter, sessionID: sessionID,
@@ -108,10 +181,67 @@ actor AuraKernel {
     )
     self.agentTaskRunner = agentTaskRunner
 
+    let emergencyStop = EmergencyStopController(eventBus: eventBus)
+    self.emergencyStop = emergencyStop
+    let secureFieldDetector = AccessibilitySecureFieldDetector()
+    let screenEngine = ScreenContextEngine(
+      windowSource: ScreenCaptureKitWindowSource(),
+      textRecognizer: VisionTextRecognizer(),
+      secureFieldDetector: secureFieldDetector,
+      policyEngine: policyEngine,
+      eventBus: eventBus,
+      configuration: configuration.screen,
+      assistantBundleIdentifier: bundleID,
+      screenshotRetentionDays: configuration.privacy.screenshotRetentionDays)
+    self.screenEngine = screenEngine
+    computerUseLoop = ComputerUseControlLoop(
+      screenEngine: screenEngine,
+      policyEngine: policyEngine,
+      actionExecutor: AXCGEventActionExecutor(emergencyStop: emergencyStop),
+      modalDetector: AccessibilityModalDialogDetector(),
+      secureFieldDetector: secureFieldDetector,
+      emergencyStop: emergencyStop,
+      eventBus: eventBus,
+      configuration: configuration.computerUse)
+    vscodeAdapter = VSCodeAdapter(
+      configuration: configuration.vscode,
+      shell: shell,
+      bridge: VSCodeFileBridge(statePath: configuration.vscode.bridgeStatePath))
+    secretScanner = SecretScanner()
+    injectionClassifier = PromptInjectionClassifier(configuration: configuration.security)
+    networkAllowlist = NetworkAllowlist(configuration: configuration.security)
+
+    let verifier = PluginVerifier(
+      trustRegistry: PluginTrustRegistry(configuration: configuration.plugins))
+    let runtimeComponents = try? PluginRuntimeFactory.make(configuration: configuration.plugins)
+    pluginRegistry = try await PluginRegistry(
+      verifier: verifier,
+      policyEngine: policyEngine,
+      store: store,
+      eventBus: eventBus,
+      artifactStore: runtimeComponents?.artifactStore,
+      runtimeHost: runtimeComponents?.runtimeHost,
+      configuration: configuration.plugins)
+    ollamaAdapter = try? OllamaAdapter(
+      configuration: configuration.ollama,
+      policyEngine: policyEngine,
+      approvalPresenter: confirmationPresenter,
+      eventBus: eventBus)
+    let worktreeManager = WorktreeManager(
+      configuration: configuration.worktree,
+      policyEngine: policyEngine,
+      eventBus: eventBus)
+    self.worktreeManager = worktreeManager
+    multiAgentOrchestrator = MultiAgentOrchestrator(
+      worktreeManager: worktreeManager,
+      policyEngine: policyEngine,
+      validationShell: shell,
+      eventBus: eventBus)
+
     let toolRouter = ToolRouter(
       policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
       agentTaskRunner: agentTaskRunner, registry: .defaultRegistry(),
-      confirmationPresenter: IntentAlwaysDenyConfirmationPresenter(), eventBus: eventBus,
+      confirmationPresenter: confirmationPresenter, eventBus: eventBus,
       configuration: configuration.intent)
     let intentEngine = IntentEngine(
       classifier: RuleBasedUtteranceClassifier(), contextEngine: context,
@@ -167,7 +297,7 @@ actor AuraKernel {
       conversation: conversation, eventBus: eventBus)
     audioSampleBridge = AudioSampleBridge(
       audio: audio, wakeWordPipeline: wakeWordPipeline, sttPipeline: sttPipeline,
-      eventBus: eventBus)
+      eventBus: eventBus, enableWakeDetection: false)
     self.performanceSampler = performanceSampler
   }
 
@@ -296,8 +426,12 @@ actor AuraKernel {
     await wakeWordPipeline.start()
     do {
       try await sttPipeline.start()
+      sttStarted = true
     } catch {
-      throw AuraError.sttEngineError("STT pipeline failed to start: \(error.localizedDescription)")
+      sttStarted = false
+      await logger.warning(
+        "Speech recognition unavailable until onboarding completes: \(error.localizedDescription)",
+        actor: .system)
     }
     await intentDispatchCoordinator.start()
     await conversationEventBridge.start()
@@ -309,6 +443,7 @@ actor AuraKernel {
     await audio?.stop()
     await wakeWordPipeline?.stop()
     await sttPipeline?.stop()
+    sttStarted = false
     await taskEngine?.shutdown()
     await logger.info("AuraKernel shutdown complete", actor: .system)
   }

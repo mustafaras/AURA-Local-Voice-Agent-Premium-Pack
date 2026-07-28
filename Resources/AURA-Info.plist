@@ -30,7 +30,7 @@
     <string>27.0</string>
 
     <key>LSUIElement</key>
-    <true/>
+    <false/>
 
     <!-- Privacy descriptions: shown in permission dialogs. -->
     <key>NSAccessibilityUsageDescription</key>
@@ -40,7 +40,7 @@
     <string>AURA does not use the camera. This key is present only to satisfy App Store validation and is paired with a denied entitlement.</string>
 
     <key>NSMicrophoneUsageDescription</key>
-    <string>AURA needs microphone access to listen for the wake word and transcribe your commands locally. Audio is not sent to remote services.</string>
+    <string>AURA needs microphone access to transcribe commands locally after you activate Push to Talk. Audio is not sent to remote services.</string>
 
     <key>NSSpeechRecognitionUsageDescription</key>
     <string>AURA uses on-device speech recognition to transcribe your commands. No audio leaves your device.</string>

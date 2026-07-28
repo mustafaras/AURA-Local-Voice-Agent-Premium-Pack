@@ -2,7 +2,7 @@
 
 
 > **Status:** Normative specification  
-> **Target:** macOS 26+ on Apple Silicon, with graceful degradation where practical  
+> **Target:** macOS 27+ on Apple Silicon, with graceful degradation where practical
 > **Primary device profile:** Apple Silicon, 16 GB unified memory  
 > **Language:** English  
 > **Priority order:** Safety → Correctness → Recoverability → Latency → Convenience
@@ -65,7 +65,7 @@ Protocol-driven subsystems, strict interfaces, dependency injection, generated s
 
 ## Required deliverables
 
-- Signed SwiftUI menu-bar application.
+- Signed SwiftUI dashboard application with a retained menu-bar control.
 - Local background service with launch-at-login support.
 - Audio, policy, memory, task, and automation services.
 - Application adapters for Finder, VS Code, Terminal, browser, Codex, Claude Code, and Ollama.

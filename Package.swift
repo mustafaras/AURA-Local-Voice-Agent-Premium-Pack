@@ -46,10 +46,23 @@ let package = Package(
                 "AuraTasks",
                 "AuraMemory",
                 "AuraContext",
-                "AuraIntent"
+                "AuraIntent",
+                "AuraComputerUse",
+                "AuraScreen",
+                "AuraSecurity",
+                "AuraPlugins",
+                "AuraVSCode"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("SwiftUI", .when(platforms: [.macOS])),
+                .linkedFramework("AppKit", .when(platforms: [.macOS])),
+                .linkedFramework("AVFoundation", .when(platforms: [.macOS])),
+                .linkedFramework("Speech", .when(platforms: [.macOS])),
+                .linkedFramework("ApplicationServices", .when(platforms: [.macOS])),
+                .linkedFramework("CoreGraphics", .when(platforms: [.macOS]))
             ]
         ),
         .target(

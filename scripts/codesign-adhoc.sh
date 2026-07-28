@@ -26,6 +26,7 @@ echo "Signing isolated plugin helper with $HELPER_ENTITLEMENTS"
 codesign \
   --force \
   --sign "-" \
+  --options runtime \
   --entitlements "$HELPER_ENTITLEMENTS" \
   "$HELPER_PATH"
 
@@ -33,6 +34,7 @@ echo "Signing $APP_PATH with entitlements $ENTITLEMENTS"
 codesign \
   --force \
   --sign "-" \
+  --options runtime \
   --entitlements "$ENTITLEMENTS" \
   "$APP_PATH"
 

@@ -1,5 +1,5 @@
 > **Status:** Design document — implementation pending
-> **Target:** macOS 26+ on Apple Silicon
+> **Target:** macOS 27+ on Apple Silicon
 > **Priority order:** Safety → Correctness → Recoverability → Latency → Convenience
 
 # AURA Update Mechanism
@@ -24,7 +24,7 @@ This document describes the planned software-update design for AURA. The current
 ```
 ┌─────────────────────────────────────┐
 │           AURA agent                │
-│  (no network client entitlement)    │
+│  (policy-gated network access)      │
 └──────────────┬──────────────────────┘
                │ 1. poll availability
                │    via XPC to helper
@@ -78,7 +78,11 @@ These scripts intentionally do not perform network operations, do not distribute
 ## Security considerations
 
 - The helper must run with no Accessibility, microphone, or screen-recording entitlements.
-- The agent itself must retain `network.client = false` so a prompt-injection or compromised model cannot exfiltrate data or pull arbitrary updates.
+- The current main process is intentionally not App Sandbox enabled because
+  native Accessibility and CLI integrations have not yet moved behind
+  structured helpers. Its network restrictions are policy/allowlist controls,
+  not kernel enforcement. A future update helper must be separately sandboxed,
+  domain-pinned, and incapable of widening the main process's grants.
 - Downloaded artifacts are staged in `~/Library/Caches/ai.aura.local.agent/updates/` with `O_EXCL`/`0700` permissions and validated before any installation step.
 - Rollback: the install assistant keeps the previous bundle at `AURA.app.previous` until the new version launches successfully.
 

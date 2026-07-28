@@ -1,4 +1,4 @@
-# AURA Session Starter — Phase 24: Self-Tuning Configuration and Feature-Flag Governance
+# AURA Session Starter — Runtime/UI Remediation Handoff Before Phase 24
 
 > Conversation date: 28 July 2026  
 > Read `AGENTS.md`, `ledger/CURRENT_STATE.md`, and the newest
@@ -8,24 +8,36 @@
 
 - Path: `/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack`
 - Remote: `https://github.com/mustafaras/AURA-Local-Voice-Agent-Premium-Pack`
-- Platform: macOS 26+ on Apple Silicon; Swift 6.4; CommandLineTools
+- Platform: macOS 27+ on Apple Silicon; Swift 6.4; CommandLineTools
 - Test command: `./scripts/aura-test.sh /tmp/<unique-build-path> [bundle-filter]`
 - Do not use plain `swift test` in this environment.
 
 ## Verified handoff
 
-- Phase 23 implementation and state commits are remotely verified.
+- Phase 23 implementation and state commits are remotely verified. The
+  subsequent runtime/UI and TCC/signing remediation is implemented and locally
+  verified; its commit/push is the current closing operation.
 - Verified closing-evidence commit:
   `d9896539f1b8c6d94f077fe8948820f4a019b5e8` matched local `HEAD`,
   `origin/main`, and `git ls-remote` after its fast-forward push.
 - Phase 23 implementation commit:
   `8afdbf2b56b8003148508b0bbd8ae49ca389fefa`.
-- Phase 23 evidence:
-  - `AuraPluginsTests` 37/37 pass.
-  - Default full suite 356/356 pass; 393 combined targeted/full tests.
-  - `AuraPluginHost` and `AURA` warnings-as-errors builds pass.
-  - Final nested-helper app packaging, ad-hoc signing, strict signature and
-    entitlement verification, and live sandbox self-attestation pass.
+- Current remediation evidence:
+  - All 18 bundles pass, 580/580 tests; LLVM line coverage is 70.63% against
+    the enforced 70% CI ratchet.
+  - `AURA` warnings-as-errors build and changed-file Swift formatting pass.
+  - SwiftUI dashboard/menu-bar/Settings UI, explicit permission onboarding,
+    push-to-talk, confirmations, runtime/task status, and emergency stop are
+    implemented.
+  - A clean-profile packaged app remains alive without prior Speech permission,
+    creates `aura.db` under a `0700` directory, and passes Hardened Runtime
+    signing/helper sandbox verification.
+  - The installed `/Applications/AURA.app` completed live TCC onboarding:
+    Microphone, Speech Recognition, Accessibility, and Screen Recording all
+    report Granted. Push to Talk reached a bounded listening timeout without a
+    permission failure.
+  - Final locally packaged CDHash:
+    `0fa87108af0d47aef7fc19455b64042ecac5d6b3`.
 - No release, deployment, notarization, or public marketplace publication was
   performed.
 
@@ -70,17 +82,18 @@ privacy-preserving recommendations.
 
 ## First safe action
 
-1. Re-read the live Phase 24 specification at
-   `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md`.
-2. Inspect configuration schemas, `AuraStore`, policy risk controls, migrations,
-   tests, ADR index, and threat-model entry 12.
-3. Append a Phase 24 start entry with objective, assumptions, risks, acceptance
-   criteria, and architectural conflict check before editing source.
+1. Preserve the pre-existing `.vscode/launch.json` change and review the
+   remediation diff.
+2. Complete the user-authorized normal commit/push and verify local, tracking,
+   and transport refs agree.
+3. Start Phase 24 only after that verified state, then follow the normal ledger
+   start sequence.
 
 ## Known open risks
 
 - Developer ID/notarized third-party plugin execution is not yet release-tested.
-- No public vendor PKI, remote marketplace catalog, or marketplace UI exists.
-- `AuraKernel` does not yet construct the plugin runtime.
+- No public vendor PKI or remote marketplace catalog exists.
+- Main-process network confinement is policy-based until Accessibility and CLI
+  execution move behind least-privilege helpers.
 - Real acoustic wake-word, neural STT, and Chatterbox inference remain
   unintegrated.

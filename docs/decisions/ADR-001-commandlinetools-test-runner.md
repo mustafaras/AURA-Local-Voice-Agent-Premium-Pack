@@ -8,7 +8,7 @@
 
 ## Context
 
-The AURA repository targets macOS 26+ and is built with Swift 6.4. During bootstrap the active toolchain was the Apple CommandLineTools (no full Xcode app):
+The AURA repository targets macOS 27+ and is built with Swift 6.4. During bootstrap the active toolchain was the Apple CommandLineTools (no full Xcode app):
 
 - `swift-driver version: 1.168.5 Apple Swift version 6.4`
 - Target: `arm64-apple-macosx27.0.0`

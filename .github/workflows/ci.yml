@@ -22,4 +22,7 @@ jobs:
         run: swift build
 
       - name: Run tests
-        run: ./scripts/aura-test.sh
+        env:
+          AURA_ENABLE_COVERAGE: "1"
+          AURA_COVERAGE_MIN: "70"
+        run: ./scripts/aura-test.sh /tmp/aurabuild-ci

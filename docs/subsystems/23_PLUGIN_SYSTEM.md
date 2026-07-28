@@ -1,5 +1,5 @@
 > **Status:** Normative specification
-> **Target:** macOS 26+ on Apple Silicon
+> **Target:** macOS 27+ on Apple Silicon
 > **Priority:** Safety → Correctness → Recoverability → Latency → Convenience
 
 # Plugin and Adapter System

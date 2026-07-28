@@ -1,9 +1,10 @@
-@testable import AURA
 import AuraAudio
 import AuraCore
 import AuraSTT
 import Foundation
 import Testing
+
+@testable import AURA
 
 /// Confirms `AudioSampleBridge` actually bridges captured samples to
 /// `WakeWordPipeline`/`STTPipeline`'s `ingestSampleFrame(_:)` seam — the gap
@@ -171,4 +172,39 @@ func audioSampleBridgeNeverForwardsRealSamplesOnSequenceIndexMismatch() async th
     frames.allSatisfy { $0.samples.isEmpty },
     "expected no real-sample frame to reach the engine when the bridge's sequence index check fails"
   )
+}
+
+@Test
+func audioSampleBridgeDisablesSyntheticWakeDetectionButStillForwardsSTTSamples() async throws {
+  let fixture = makeFixture()
+  let bridge = AudioSampleBridge(
+    audio: fixture.audio, wakeWordPipeline: fixture.wakeWordPipeline,
+    sttPipeline: fixture.sttPipeline, eventBus: fixture.bus, enableWakeDetection: false)
+
+  await bridge.start()
+  await fixture.wakeWordPipeline.start()
+  try await fixture.sttPipeline.start()
+  await fixture.bus.emit(
+    EventEnvelope(
+      correlationID: UUID(), causationID: UUID(), actor: .audio, sensitivity: .internalLevel,
+      payload: WakeActivationEvent(isActive: true, privacyMode: false)))
+  await fixture.bus.emit(
+    EventEnvelope(
+      correlationID: UUID(), causationID: UUID(), actor: .audio, sensitivity: .internalLevel,
+      payload: AudioFrameEvent(
+        sampleCount: fixture.knownFrame.samples.count, timestamp: fixture.knownFrame.timestamp,
+        sequenceIndex: fixture.knownFrame.sequenceIndex, isDiscontinuity: false)))
+
+  var attempts = 0
+  while fixture.engine.ingestedFrames().allSatisfy({ $0.samples.isEmpty }), attempts < 25 {
+    try await Task.sleep(nanoseconds: 20_000_000)
+    attempts += 1
+  }
+
+  #expect(
+    fixture.engine.ingestedFrames().contains { $0.samples == fixture.knownFrame.samples },
+    "push-to-talk STT must retain real audio samples when synthetic wake detection is disabled")
+  let wakeMetrics = await fixture.wakeWordPipeline.currentMetrics()
+  #expect(wakeMetrics.totalHypotheses == 0)
+  #expect(wakeMetrics.acceptedActivations == 0)
 }

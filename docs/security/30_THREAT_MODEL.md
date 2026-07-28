@@ -1,5 +1,5 @@
 > **Status:** Normative specification
-> **Target:** macOS 26+ on Apple Silicon, with graceful degradation where practical
+> **Target:** macOS 27+ on Apple Silicon, with graceful degradation where practical
 > **Primary device profile:** Apple Silicon, 16 GB unified memory
 > **Language:** English
 > **Priority order:** Safety → Correctness → Recoverability → Latency → Convenience

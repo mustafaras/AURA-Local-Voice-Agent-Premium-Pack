@@ -15,7 +15,7 @@ Key requirements:
 - Audio and models must stay on-device (privacy-first default).
 - The engine must conform to the existing `STTEngine` protocol and integrate with `STTPipeline` without changing the audio or intent contracts.
 - It must expose partial results for responsiveness, stable segments for intent execution, alternatives/confidence for ranking, and cancellation for wake/interruption.
-- It must be usable on macOS 26+ Apple Silicon with the toolchain available in this workspace (CommandLineTools only, no XCTest runtime via `swift test`).
+- It must be usable on macOS 27+ Apple Silicon with the toolchain available in this workspace (CommandLineTools only, no XCTest runtime via `swift test`).
 - It must fail closed when permissions or availability checks fail.
 
 ## Decision

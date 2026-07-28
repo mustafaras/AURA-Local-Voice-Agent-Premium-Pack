@@ -2,7 +2,7 @@
 
 
 > **Status:** Normative specification  
-> **Target:** macOS 26+ on Apple Silicon  
+> **Target:** macOS 27+ on Apple Silicon
 > **Primary device profile:** MacBook Air M5, 16 GB RAM, 512 GB SSD  
 > **Language:** English (with Turkish/English code-switch support)  
 > **Priority order:** Safety → Correctness → Recoverability → Latency → Convenience

@@ -20,10 +20,36 @@ fi
 
 echo "=== Signature verification ==="
 codesign -dv --verbose=4 "$APP_PATH"
+SIGNATURE_DETAILS="$(codesign -dv --verbose=4 "$APP_PATH" 2>&1)"
+if [[ "$SIGNATURE_DETAILS" != *"runtime"* ]]; then
+  echo "Main app is not signed with Hardened Runtime"
+  exit 1
+fi
 
 echo ""
 echo "=== Entitlements ==="
 codesign -d --entitlements :- "$APP_PATH" 2>/dev/null | plutil -p -
+MAIN_PLIST="$(mktemp -t aura-main-entitlements)"
+codesign -d --entitlements :- "$APP_PATH" 2>/dev/null > "$MAIN_PLIST"
+if [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.security.app-sandbox' "$MAIN_PLIST" 2>/dev/null || echo false)" == "true" ]]; then
+  echo "Main app unexpectedly enables App Sandbox; CLI/Accessibility helper migration is incomplete"
+  rm -f "$MAIN_PLIST"
+  exit 1
+fi
+for invalid_capability in \
+  com.apple.security.accessibility \
+  com.apple.security.screen-recording \
+  com.apple.security.device.microphone \
+  com.apple.security.files.bookmarks.app-scope \
+  com.apple.security.files.user-selected.read-write; do
+  if /usr/libexec/PlistBuddy -c "Print :$invalid_capability" "$MAIN_PLIST" >/dev/null 2>&1; then
+    echo "Main app contains unsupported entitlement $invalid_capability"
+    rm -f "$MAIN_PLIST"
+    exit 1
+  fi
+done
+rm -f "$MAIN_PLIST"
+echo "Main app sandbox: intentionally disabled; TCC and policy enforce protected capabilities"
 
 echo ""
 echo "=== Designated requirement ==="

@@ -25,16 +25,18 @@ actor AudioSampleBridge {
   private let wakeWordPipeline: WakeWordPipeline
   private let sttPipeline: STTPipeline
   private let eventBus: AuraEventBus
+  private let enableWakeDetection: Bool
   private var subscribed = false
 
   init(
     audio: AuraAudio, wakeWordPipeline: WakeWordPipeline, sttPipeline: STTPipeline,
-    eventBus: AuraEventBus
+    eventBus: AuraEventBus, enableWakeDetection: Bool = true
   ) {
     self.audio = audio
     self.wakeWordPipeline = wakeWordPipeline
     self.sttPipeline = sttPipeline
     self.eventBus = eventBus
+    self.enableWakeDetection = enableWakeDetection
   }
 
   /// Subscribe to `AudioFrameEvent`. Must be called before `AuraAudio
@@ -51,7 +53,9 @@ actor AudioSampleBridge {
     guard let frame = await audio.latestFrame(), frame.sequenceIndex == event.sequenceIndex else {
       return
     }
-    await wakeWordPipeline.ingestSampleFrame(frame)
+    if enableWakeDetection {
+      await wakeWordPipeline.ingestSampleFrame(frame)
+    }
     await sttPipeline.ingestSampleFrame(frame)
   }
 }

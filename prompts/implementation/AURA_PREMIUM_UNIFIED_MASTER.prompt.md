@@ -3,7 +3,7 @@
 > **Version:** 1.0.0 — 2026-07-23
 > **Status:** Normative / Active
 > **Scope:** Full-stack build of the AURA local-first, privacy-centric macOS voice and computer-use agent.
-> **Target platform:** macOS 26+ on Apple Silicon (16 GB unified memory profile).
+> **Target platform:** macOS 27+ on Apple Silicon (16 GB unified memory profile).
 > **Primary language:** English with bilingual Turkish/English speech support.
 > **Priority order:** Safety → Correctness → Recoverability → Latency → Convenience.
 
@@ -794,7 +794,7 @@ This prompt consolidates and supersedes the numeric prompts `00_00_BOOTSTRAP` th
 
 - Swift 6+ with strict concurrency enabled.
 - Explicit `actor`, `Sendable`, and isolation annotations.
-- macOS 26+ APIs verified from Apple documentation; provide graceful degradation where practical.
+- macOS 27+ APIs verified from Apple documentation; provide graceful degradation where practical.
 - Avoid blocking the real-time audio path with allocation, disk I/O, network calls, or model loading.
 
 ### 7.2 Code Quality
