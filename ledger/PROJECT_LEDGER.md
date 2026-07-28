@@ -2,6 +2,24 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-28T12:22:23Z — PHASE22_COMMIT_TIMESTAMP_CORRECTION — Correct commit-entry timestamp
+
+- **Actor:** Codex
+- **Correction:** The immediately following `PHASE22_IMPLEMENTATION_COMMITTED` heading used an unverified `2026-07-28T11:45:00Z` timestamp. The verified UTC time observed with `date -u` while recording this correction is `2026-07-28T12:22:23Z`. The commit hash, command, file counts, and all other evidence in that entry are unchanged.
+- **Reason:** Ledger timestamps must come from command evidence, not estimation. The inaccurate heading is preserved because ledger history is append-only.
+
+### 2026-07-28T11:45:00Z — PHASE22_IMPLEMENTATION_COMMITTED — Verified Phase 22 implementation commit created
+
+- **Actor:** Codex
+- **Objective:** Create the user-authorized Phase 22 implementation commit only after rechecking the staged scope, formatting, whitespace, secret-shaped literals, build/test evidence, and live base revision.
+- **Starting state:** `HEAD == origin/main == 58fb9be`; the Phase 22 working tree contained exactly the 18 staged implementation/test/documentation/ledger files recorded in `PHASE22_CONTEXT_RECONSTRUCTION_COMPLETED`.
+- **Pre-commit evidence:** `git diff --check` and `git diff --cached --check` clean; Phase 22 Swift format lint clean; targeted secret-shaped-literal scan returned no findings; final Phase 22 tests/build evidence remains the completed and post-review entries immediately below.
+- **Command executed:** `git commit -m "feat(phase-22): deep context reconstruction and reference resolution"`.
+- **Exact result:** Commit `520b71c` created on `main`; 18 files changed, 1,576 insertions, 104 deletions, including five new files. No push had occurred at the time this fact was recorded.
+- **Security/recoverability:** No history rewrite, amend, force-push, release, or deploy. The implementation commit is locally recoverable and based directly on `58fb9be`.
+- **Current state:** Phase 22 implementation is committed. This append-only entry and the atomic current-state projection will be committed separately, then both commits pushed and remote hash verified.
+- **Next safe action:** Commit this state record, push both commits to `origin/main`, and confirm local/remote equality before Phase 23 edits.
+
 ### 2026-07-28T11:39:23Z — PHASE22_POST_REVIEW_VALIDATION — Final source-state context regression
 
 - **Actor:** Codex

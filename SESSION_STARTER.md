@@ -17,8 +17,8 @@
 
 - **Phase completed:** Phase 22 — Deep Context Reconstruction and Reference Resolution (`ContextBuilder`, reference graph, token/graph budgets, cross-session provenance injection, inspection/override API, live `IntentEngine` caller, ADR-027)
 - **Active milestone:** Awaiting user direction; Phase 23 is the next numbered phase
-- **Last verified commit on `main`:** `58fb9be` (Phase 22 working tree is not committed)
-- **Next safe action:** Review the Phase 22 diff; on explicit user direction, either commit/push it or implement Phase 23 per `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 23.
+- **Last verified implementation commit on local `main`:** `520b71c` (Phase 22; remote verification pending post-commit state push)
+- **Next safe action:** Push and verify the Phase 22 implementation/state commits, then implement Phase 23 per `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §Phase 23.
 - **Build status:** `swift build --target AURA --build-path /tmp/aurabuild-phase22-static -Xswiftc -warnings-as-errors` passes (CommandLineTools linker search-path warnings only)
 - **Test status:** Default 10-bundle suite passes (355 tests); `AuraContextTests` 30/30, `AuraIntentTests` 29/29, and `AURAIntegrationTests` 7/7 pass
 - **Known blockers:** None
