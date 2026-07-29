@@ -16,10 +16,10 @@
 
 - Phase 23 implementation and state commits are remotely verified. The
   subsequent runtime/UI, TCC/signing, Push-to-Talk, and Chatterbox V3
-  remediation is implemented, locally verified, and committed as
-  `4ffa2139f38ba343707d3c8b393be11259851265` on
-  `feature/native-voice-chatterbox-v3`; its user-authorized push/merge is the
-  current closing operation.
+  remediation is implemented and remotely verified: implementation commit
+  `4ffa2139f38ba343707d3c8b393be11259851265`, feature evidence commit
+  `b635b59fd64359d9d3f9a918890bb239161b76f1`, and no-fast-forward merge
+  `e2d7396319c0431b17164284d83ca76624a04e31`.
 - Verified closing-evidence commit:
   `d9896539f1b8c6d94f077fe8948820f4a019b5e8` matched local `HEAD`,
   `origin/main`, and `git ls-remote` after its fast-forward push.
@@ -97,10 +97,10 @@ privacy-preserving recommendations.
 ## First safe action
 
 1. Preserve the pre-existing `.vscode/launch.json` change.
-2. Complete the user-authorized feature-branch push/merge and verify
-   local, tracking, and transport refs agree.
-3. Start Phase 24 only after that verified state, then follow the normal ledger
-   start sequence.
+2. Let the pinned model download finish and complete the explicit live voice
+   gates below.
+3. Start Phase 24 only after the user's next instruction, then follow the
+   normal ledger start sequence.
 
 ## Known open risks
 

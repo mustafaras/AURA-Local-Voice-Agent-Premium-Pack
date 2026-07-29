@@ -2,6 +2,41 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-29T07:52:11Z — LOCAL_VOICE_MERGED_AND_REMOTE_VERIFIED — Feature and main refs agree with transport
+
+- **Actor:** Codex.
+- **Objective:** Complete the explicitly authorized clean feature push,
+  no-fast-forward merge, `main` push, and independent remote-ref verification.
+- **Feature evidence:** pushed
+  `feature/native-voice-chatterbox-v3` at
+  `b635b59fd64359d9d3f9a918890bb239161b76f1`; local branch, tracking ref, and
+  `git ls-remote` transport ref were byte-for-byte equal.
+- **Merge evidence:** fetched `origin`, proved local `main == origin/main` at
+  base `209cff5435dd557d013f7def9702c91f17ff62a7`, and created explicit
+  no-fast-forward merge commit
+  `e2d7396319c0431b17164284d83ca76624a04e31`
+  (`merge: verified native voice and Chatterbox V3`).
+- **Post-merge verification:** the merged tree passed a fresh
+  `swift build --target AURA -Xswiftc -warnings-as-errors`; only the documented
+  CommandLineTools linker search-path warnings appeared. Four Python
+  integrity/reference tests passed again, and `git diff --check` passed.
+- **Main transport evidence:** pushed `main` from `209cff5` to `e2d7396`, then
+  fetched and proved local `main`, `origin/main`, and `git ls-remote
+  refs/heads/main` all equal
+  `e2d7396319c0431b17164284d83ca76624a04e31`.
+- **Scope/recoverability:** `.vscode/launch.json` remains the sole uncommitted
+  user-owned modification. The feature branch remains available locally and
+  remotely as an audit/rollback aid; it was not destructively deleted.
+- **Release boundary:** no release, deployment, notarization, public plugin
+  publication, TCC mutation, or application launch occurred during Git
+  closure. AURA remains closed.
+- **Open gates:** the pinned model download is still active; model manifest,
+  diagnostic neural inference, consented female reference, human listening,
+  and Screen Recording consent remain open.
+- **Next safe action:** publish this state-record update, verify the final
+  `main` transport equality once more, then await the live acceptance window
+  or the user's instruction to begin Phase 24.
+
 ### 2026-07-29T07:49:49Z — LOCAL_VOICE_IMPLEMENTATION_COMMITTED — Verified feature commit created
 
 - **Actor:** Codex.
