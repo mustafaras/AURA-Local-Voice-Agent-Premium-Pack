@@ -52,6 +52,7 @@ actor AuraKernel {
   private var networkAllowlist: NetworkAllowlist?
   private var started = false
   private var sttStarted = false
+  private var audioStarted = false
 
   private var shutdownContinuation: CheckedContinuation<Void, Never>?
   private var sigintSource: DispatchSourceSignal?
@@ -97,16 +98,21 @@ actor AuraKernel {
   }
 
   func startSpeechRecognition() async throws(AuraError) {
-    guard started, let sttPipeline else {
+    guard started, let sttPipeline, let audio else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
     }
-    guard !sttStarted else { return }
-    do {
-      try await sttPipeline.start()
-      sttStarted = true
-    } catch {
-      throw AuraError.sttEngineError(
-        "STT pipeline failed to start: \(error.localizedDescription)")
+    if !sttStarted {
+      do {
+        try await sttPipeline.start()
+        sttStarted = true
+      } catch {
+        throw AuraError.sttEngineError(
+          "STT pipeline failed to start: \(error.localizedDescription)")
+      }
+    }
+    if !audioStarted {
+      try await audio.start()
+      audioStarted = true
     }
   }
 
@@ -279,6 +285,7 @@ actor AuraKernel {
 
     let ttsEngine = await Self.makeTTSEngine(
       adapterChain: configuration.tts.adapterChain,
+      preferredSystemVoiceIdentifier: configuration.tts.preferredSystemVoiceIdentifier,
       logger: AuraLogger(subsystem: bundleID, category: "tts"))
 
     let conversation = Conversation(
@@ -297,7 +304,12 @@ actor AuraKernel {
       conversation: conversation, eventBus: eventBus)
     audioSampleBridge = AudioSampleBridge(
       audio: audio, wakeWordPipeline: wakeWordPipeline, sttPipeline: sttPipeline,
-      eventBus: eventBus, enableWakeDetection: false)
+      eventBus: eventBus, enableWakeDetection: false,
+      pushToTalkFinalizer: PushToTalkSessionFinalizer(
+        vad: EnergyVAD(silenceFrames: configuration.conversation.silenceEndFrames),
+        eventBus: eventBus,
+        maxDurationSeconds: min(
+          7, max(1, configuration.conversation.listenTimeoutSeconds - 2))))
     self.performanceSampler = performanceSampler
   }
 
@@ -323,18 +335,25 @@ actor AuraKernel {
       Grant(capability: .agentCopilotRun, patterns: [.any], confirmationRequirement: .always))
   }
 
-  /// Build the configured TTS engine chain. The chain supports `chatterbox`
-  /// (boundary-only prototype), `system` (macOS `AVSpeechSynthesizer`), and
-  /// `mock` for tests. Higher-priority neural adapters (`dia`) are not yet
-  /// implemented; when requested and unavailable, this factory falls back to
-  /// the next configured adapter and ultimately to `system`.
+  /// Build the configured TTS engine chain. Chatterbox V3 runs in a separate,
+  /// local helper and owns a female system fallback, so warm-up or runtime
+  /// failure never leaves the conversation voiceless.
   private static func makeTTSEngine(
-    adapterChain: TTSAdapterChain, logger: AuraLogger
+    adapterChain: TTSAdapterChain,
+    preferredSystemVoiceIdentifier: String,
+    logger: AuraLogger
   ) async -> any TTSEngine {
     for adapterID in adapterChain.adapterIDs {
       switch adapterID {
       case "chatterbox":
-        let engine = ChatterboxTTSEngine()
+        let helperScriptPath = Bundle.main.resourceURL?
+          .appendingPathComponent("Chatterbox/chatterbox_helper.py")
+          .path
+        let fallback = SystemTTSEngine(
+          preferredVoiceIdentifier: preferredSystemVoiceIdentifier)
+        let engine = ChatterboxTTSEngine(
+          configuration: .installed(helperScriptPath: helperScriptPath),
+          fallback: fallback)
         do {
           let health = try await engine.start()
           if health.ready {
@@ -347,7 +366,8 @@ actor AuraKernel {
           await logger.warning("TTS adapter \(adapterID) failed: \(error)", actor: .audio)
         }
       case "system":
-        let engine = SystemTTSEngine()
+        let engine = SystemTTSEngine(
+          preferredVoiceIdentifier: preferredSystemVoiceIdentifier)
         do {
           let health = try await engine.start()
           if health.ready {
@@ -373,7 +393,8 @@ actor AuraKernel {
     // Fail-closed fallback: system TTS must always be available on macOS.
     await logger.warning(
       "All configured TTS adapters unavailable; falling back to system", actor: .audio)
-    let fallback = SystemTTSEngine()
+    let fallback = SystemTTSEngine(
+      preferredVoiceIdentifier: preferredSystemVoiceIdentifier)
     _ = try? await fallback.start()
     return fallback
   }
@@ -414,9 +435,9 @@ actor AuraKernel {
   /// Every event-bus subscriber must be registered before `audio.start()`
   /// — `AuraEventBus` does not replay history to a late subscriber.
   private func startPipeline() async throws(AuraError) {
-    guard let taskEngine, let agentTaskRunner, let wakeWordPipeline, let sttPipeline,
+    guard let taskEngine, let agentTaskRunner, let wakeWordPipeline,
       let intentDispatchCoordinator, let conversationEventBridge, let audioSampleBridge,
-      let audio, let performanceSampler
+      let performanceSampler
     else {
       throw AuraError.invalidConfiguration("AuraKernel.startPipeline called before construct()")
     }
@@ -424,26 +445,22 @@ actor AuraKernel {
     await taskEngine.start(runner: agentTaskRunner)
     await performanceSampler.start(on: eventBus)
     await wakeWordPipeline.start()
-    do {
-      try await sttPipeline.start()
-      sttStarted = true
-    } catch {
-      sttStarted = false
-      await logger.warning(
-        "Speech recognition unavailable until onboarding completes: \(error.localizedDescription)",
-        actor: .system)
-    }
     await intentDispatchCoordinator.start()
     await conversationEventBridge.start()
     await audioSampleBridge.start()
-    try await audio.start()
   }
 
   private func shutdownPipeline() async {
-    await audio?.stop()
+    if audioStarted {
+      await audio?.stop()
+      audioStarted = false
+    }
+    await audioSampleBridge?.stop()
     await wakeWordPipeline?.stop()
-    await sttPipeline?.stop()
-    sttStarted = false
+    if sttStarted {
+      await sttPipeline?.stop()
+      sttStarted = false
+    }
     await taskEngine?.shutdown()
     await logger.info("AuraKernel shutdown complete", actor: .system)
   }

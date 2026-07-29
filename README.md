@@ -59,11 +59,43 @@ open /tmp/aura-app/AURA.app
 The app creates its private Application Support directory on first launch and
 does not prompt for microphone or Speech Recognition access until the user
 selects **Enable Voice Permissions**. A trained acoustic wake-word model is not
-bundled; use the visible **Push to Talk** action. Command-Shift-Escape is the
+bundled; use the visible **Push to Talk** action, speak, then pause briefly.
+macOS consent sheets are secure system UI: select **Allow** for Microphone and
+then Speech Recognition when they appear; AURA cannot grant these itself.
+The turn closes after detected speech followed by configured silence, with a
+bounded fallback before the conversation deadline. Command-Shift-Escape is the
 global emergency-stop shortcut.
 
+### Optional local Chatterbox V3 voice
+
+AURA speaks immediately with the local female Turkish Yelda system voice.
+For higher-quality local neural speech, install the exact pinned Chatterbox
+Multilingual V3 runtime and model snapshot:
+
+```sh
+./scripts/install-chatterbox-runtime.sh
+```
+
+This creates a Python 3.11 environment and model cache under
+`~/Library/Application Support/AURA`; model weights are not added to the
+repository or app bundle. Installation requires network access, but runtime
+synthesis is forced offline.
+
+Neural production speech is consent-gated. Place an owned or explicitly
+consented female Turkish WAV at:
+
+```text
+~/Library/Application Support/AURA/Voices/aura-female-reference.wav
+```
+
+Do not use another person's recording without explicit consent. AURA does not
+upload this file and will remain on Yelda if the file, runtime, model manifest,
+or helper is unavailable. The reference must be 3–30 seconds of clean PCM WAV,
+mono or stereo, at 16–48 kHz. A human-listened Turkish turn is still required
+before accepting a reference recording for regular use.
+
 Run all 18 test bundles with coverage. The enforced line-coverage ratchet is
-70%, against the currently measured 70.63% baseline:
+70%, against the currently measured 70.12% result:
 
 ```sh
 AURA_ENABLE_COVERAGE=1 ./scripts/aura-test.sh /tmp/aurabuild
@@ -73,9 +105,16 @@ For a local installed smoke test, build and sign first, replace any prior
 development copy at `/Applications/AURA.app`, then open the app and select
 **Enable Voice Permissions**. Microphone and Speech Recognition consent are
 requested directly by AURA. Accessibility and Screen Recording are granted in
-System Settings when those policy-gated features are needed. The development
-signature uses Hardened Runtime with the audio-input entitlement; Accessibility
-and Screen Recording are TCC services, not code-signing entitlements.
+System Settings when those policy-gated features are needed; their explicit
+request buttons register AURA with the corresponding macOS privacy service
+before opening manual settings as a fallback. On a provisioned
+development Mac, the signing script reuses the locally trusted
+`AURA Stable Local Signing` Keychain identity so the app's designated
+requirement stays stable across rebuilds and TCC grants can persist. Other
+machines fall back to ad-hoc signing. This local identity is not Developer ID
+or notarization. The signature uses Hardened Runtime with the audio-input
+entitlement; Accessibility and Screen Recording are TCC services, not
+code-signing entitlements.
 
 ## Core design principle
 

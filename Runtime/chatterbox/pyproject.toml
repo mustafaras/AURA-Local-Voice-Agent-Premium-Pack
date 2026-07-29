@@ -1,0 +1,13 @@
+[project]
+name = "aura-chatterbox-runtime"
+version = "0.1.0"
+description = "Pinned local-only Chatterbox Multilingual V3 runtime for AURA"
+requires-python = "==3.11.*"
+dependencies = [
+  "chatterbox-tts",
+  "resemble-perth",
+]
+
+[tool.uv.sources]
+chatterbox-tts = { git = "https://github.com/resemble-ai/chatterbox.git", rev = "5de7a54aa4e5e2baadb0182dde554908b48b85c2" }
+resemble-perth = { git = "https://github.com/resemble-ai/Perth.git", rev = "ce86c49d029f42272c1902eccb675556b9ed2330" }

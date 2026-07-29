@@ -86,6 +86,16 @@ public final class AudioRingBuffer: @unchecked Sendable {
     }
   }
 
+  /// Return the retained frame with the requested capture sequence index.
+  ///
+  /// Event consumers use this instead of `latest()` because the producer may
+  /// append a newer frame before an asynchronous subscriber handles the event.
+  public func frame(sequenceIndex: UInt64) -> AudioFrame? {
+    lock.withLock {
+      storage.first { $0.sequenceIndex == sequenceIndex }
+    }
+  }
+
   /// Remove all stored frames.
   public func clear() {
     lock.withLock {

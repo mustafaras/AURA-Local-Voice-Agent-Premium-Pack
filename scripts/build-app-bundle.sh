@@ -34,6 +34,7 @@ HELPER_APP="$CONTENTS/Helpers/AuraPluginHost.app"
 HELPER_CONTENTS="$HELPER_APP/Contents"
 HELPER_MACOS="$HELPER_CONTENTS/MacOS"
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$HELPER_MACOS"
+mkdir -p "$RESOURCES_DIR/Chatterbox"
 
 # Copy executable
 cp "$BUILD_DIR/swiftpm/release/$APP_NAME" "$MACOS_DIR/$APP_NAME"
@@ -44,6 +45,8 @@ cp "$REPO_ROOT/Resources/AuraPluginHost-Info.plist" "$HELPER_CONTENTS/Info.plist
 cp "$REPO_ROOT/Resources/$APP_NAME-Info.plist" "$CONTENTS/Info.plist"
 cp "$REPO_ROOT/Resources/$APP_NAME.entitlements" "$RESOURCES_DIR/$APP_NAME.entitlements"
 cp "$REPO_ROOT/Resources/AuraPluginHost.entitlements" "$RESOURCES_DIR/AuraPluginHost.entitlements"
+cp "$REPO_ROOT/Runtime/chatterbox/chatterbox_helper.py" \
+  "$RESOURCES_DIR/Chatterbox/chatterbox_helper.py"
 
 echo "Built $BUILD_DIR/$APP_NAME.app"
 echo "Next step: ./scripts/codesign-adhoc.sh $BUILD_DIR/$APP_NAME.app"

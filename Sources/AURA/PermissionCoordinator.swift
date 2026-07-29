@@ -67,6 +67,13 @@ enum PermissionCoordinator {
     return snapshot()
   }
 
+  static func requestScreenRecordingPermission() -> PermissionSnapshot {
+    if !CGPreflightScreenCaptureAccess() {
+      _ = CGRequestScreenCaptureAccess()
+    }
+    return snapshot()
+  }
+
   @MainActor
   static func openPrivacySettings(anchor: String) {
     guard

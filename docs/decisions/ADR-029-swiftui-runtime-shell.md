@@ -42,6 +42,11 @@ challenge surface existed.
    Recognition are requested through their native APIs and usage descriptions;
    Accessibility and Screen Recording remain user-controlled TCC services and
    are not represented by fabricated code-signing entitlements.
+10. Push to Talk is a bounded one-shot turn. Voice capture begins only after
+    voice permissions are granted, ends after observed speech followed by
+    configured VAD silence, and has a hard deadline below the conversation
+    timeout. Native STT keeps an engine-lifetime result stream so final
+    callbacks and consecutive turns are not dropped.
 
 ## Consequences
 

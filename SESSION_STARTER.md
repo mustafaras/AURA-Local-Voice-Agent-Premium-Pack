@@ -1,6 +1,6 @@
-# AURA Session Starter — Runtime/UI Remediation Handoff Before Phase 24
+# AURA Session Starter — Verified Voice Remediation Handoff Before Phase 24
 
-> Conversation date: 28 July 2026  
+> Conversation date: 29 July 2026
 > Read `AGENTS.md`, `ledger/CURRENT_STATE.md`, and the newest
 > `ledger/PROJECT_LEDGER.md` entry before changing files.
 
@@ -15,15 +15,16 @@
 ## Verified handoff
 
 - Phase 23 implementation and state commits are remotely verified. The
-  subsequent runtime/UI and TCC/signing remediation is implemented and locally
-  verified; its commit/push is the current closing operation.
+  subsequent runtime/UI, TCC/signing, Push-to-Talk, and Chatterbox V3
+  remediation is implemented and locally verified; its user-authorized
+  feature-branch commit/push/merge is the current closing operation.
 - Verified closing-evidence commit:
   `d9896539f1b8c6d94f077fe8948820f4a019b5e8` matched local `HEAD`,
   `origin/main`, and `git ls-remote` after its fast-forward push.
 - Phase 23 implementation commit:
   `8afdbf2b56b8003148508b0bbd8ae49ca389fefa`.
 - Current remediation evidence:
-  - All 18 bundles pass, 580/580 tests; LLVM line coverage is 70.63% against
+  - All 18 bundles pass, 587/587 tests; LLVM line coverage is 70.12% against
     the enforced 70% CI ratchet.
   - `AURA` warnings-as-errors build and changed-file Swift formatting pass.
   - SwiftUI dashboard/menu-bar/Settings UI, explicit permission onboarding,
@@ -32,12 +33,23 @@
   - A clean-profile packaged app remains alive without prior Speech permission,
     creates `aura.db` under a `0700` directory, and passes Hardened Runtime
     signing/helper sandbox verification.
-  - The installed `/Applications/AURA.app` completed live TCC onboarding:
-    Microphone, Speech Recognition, Accessibility, and Screen Recording all
-    report Granted. Push to Talk reached a bounded listening timeout without a
-    permission failure.
+  - The stable local signing identity preserves the app's designated
+    requirement across rebuilds. Microphone and Speech Recognition grants
+    persist; Accessibility is enabled; Screen Recording still requires the
+    user's secure macOS consent.
+  - Push to Talk now closes after speech followed by VAD silence or a bounded
+    fallback, preserves native final callbacks, supports consecutive turns,
+    copies callback-owned PCM before async delivery, forwards each exact real
+    frame once, and never routes recognition errors as user intent. A live
+    human-voice response check is pending.
+  - Female Turkish Yelda is the immediate local fallback. The process-isolated
+    Chatterbox Multilingual V3 adapter, pinned Python 3.11.15 environment,
+    offline runtime mode, integrity manifest enforcement, private WAV
+    containment, and consent-bound reference-audio gate are implemented.
+    The official 3.21 GB snapshot is still downloading; no neural benchmark or
+    accepted female production voice is claimed yet.
   - Final locally packaged CDHash:
-    `0fa87108af0d47aef7fc19455b64042ecac5d6b3`.
+    `d7a5b529e63b0377682d1192504952542fc5d30a`.
 - No release, deployment, notarization, or public marketplace publication was
   performed.
 
@@ -84,8 +96,8 @@ privacy-preserving recommendations.
 
 1. Preserve the pre-existing `.vscode/launch.json` change and review the
    remediation diff.
-2. Complete the user-authorized normal commit/push and verify local, tracking,
-   and transport refs agree.
+2. Complete the user-authorized feature-branch commit/push/merge and verify
+   local, tracking, and transport refs agree.
 3. Start Phase 24 only after that verified state, then follow the normal ledger
    start sequence.
 
@@ -95,5 +107,7 @@ privacy-preserving recommendations.
 - No public vendor PKI or remote marketplace catalog exists.
 - Main-process network confinement is policy-based until Accessibility and CLI
   execution move behind least-privilege helpers.
-- Real acoustic wake-word, neural STT, and Chatterbox inference remain
-  unintegrated.
+- Real acoustic wake-word and neural STT remain unintegrated. Chatterbox V3 is
+  integrated but cannot pass its live inference gate until the pinned snapshot
+  download, hash manifest, diagnostic benchmark, consented female reference,
+  and human listening test finish.

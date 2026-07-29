@@ -1,5 +1,5 @@
-import AuraCore
 import AVFoundation
+import AuraCore
 import Foundation
 
 /// A macOS system speech-synthesis adapter using `AVSpeechSynthesizer`.
@@ -14,12 +14,16 @@ import Foundation
 public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
   public let engineID: String = "system"
 
-  private let synthesizerQueue = DispatchQueue(label: "ai.aura.systemtts.synthesizer", qos: .userInitiated)
+  private let synthesizerQueue = DispatchQueue(
+    label: "ai.aura.systemtts.synthesizer", qos: .userInitiated)
+  private let preferredVoiceIdentifier: String?
   private let lock = NSRecursiveLock()
   private var isRunning = false
   private var currentBox: UnsafeContinuationBox?
 
-  public init() {}
+  public init(preferredVoiceIdentifier: String? = nil) {
+    self.preferredVoiceIdentifier = preferredVoiceIdentifier
+  }
 
   public func start() async throws(AuraError) -> TTSHealth {
     let voices = AVSpeechSynthesisVoice.speechVoices()
@@ -30,7 +34,7 @@ public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
     return TTSHealth(
       ready: true,
       status: "ready",
-      detail: "System TTS ready with \(voices.count) voices")
+      detail: voiceHealthDetail(voices: voices))
   }
 
   public func speak(_ prompt: TTSPrompt) -> AsyncStream<TTSChunk> {
@@ -108,12 +112,84 @@ public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
 
   private func makeUtterance(prompt: TTSPrompt) -> AVSpeechUtterance {
     let utterance = AVSpeechUtterance(string: prompt.text)
-    let locale = prompt.locale.isEmpty ? "en-US" : prompt.locale
-    utterance.voice = AVSpeechSynthesisVoice(language: locale)
-      ?? AVSpeechSynthesisVoice(language: "en-US")
-    utterance.rate = Float(clamp(prompt.rate, 0.5...2.0))
-    utterance.pitchMultiplier = 1.0
+    let locale = prompt.locale.isEmpty ? "tr-TR" : prompt.locale
+    utterance.voice = Self.bestVoice(
+      for: locale,
+      preferredIdentifier: preferredVoiceIdentifier,
+      voices: AVSpeechSynthesisVoice.speechVoices())
+    utterance.rate = Self.systemRate(forMultiplier: prompt.rate)
+    utterance.pitchMultiplier = Float(clamp(0.98 + (prompt.emphasis * 0.04), 0.8...1.2))
+    utterance.preUtteranceDelay = 0.03
+    utterance.postUtteranceDelay = 0.06
     return utterance
+  }
+
+  /// Select the highest-quality installed local voice for a BCP-47 locale.
+  /// An explicit identifier wins when installed; otherwise exact locale,
+  /// language-family match, and finally English fallback are ranked by
+  /// platform quality and stable identifier.
+  static func bestVoice(
+    for locale: String,
+    preferredIdentifier: String? = nil,
+    voices: [AVSpeechSynthesisVoice] = AVSpeechSynthesisVoice.speechVoices()
+  ) -> AVSpeechSynthesisVoice? {
+    if let preferredIdentifier,
+      let preferred = voices.first(where: { $0.identifier == preferredIdentifier })
+    {
+      return preferred
+    }
+
+    let normalizedLocale = locale.replacingOccurrences(of: "_", with: "-").lowercased()
+    let language = normalizedLocale.split(separator: "-").first.map(String.init) ?? normalizedLocale
+
+    func ranked(_ candidates: [AVSpeechSynthesisVoice]) -> AVSpeechSynthesisVoice? {
+      candidates.sorted {
+        if $0.quality.rawValue != $1.quality.rawValue {
+          return $0.quality.rawValue > $1.quality.rawValue
+        }
+        return $0.identifier.localizedStandardCompare($1.identifier) == .orderedAscending
+      }.first
+    }
+
+    let exact = voices.filter {
+      $0.language.replacingOccurrences(of: "_", with: "-").lowercased() == normalizedLocale
+    }
+    if let voice = ranked(exact) { return voice }
+
+    let sameLanguage = voices.filter {
+      $0.language.replacingOccurrences(of: "_", with: "-").lowercased()
+        .hasPrefix("\(language)-")
+    }
+    if let voice = ranked(sameLanguage) { return voice }
+
+    return ranked(
+      voices.filter {
+        $0.language.replacingOccurrences(of: "_", with: "-").lowercased() == "en-us"
+      })
+  }
+
+  /// Convert the public multiplier contract (1.0 = normal) into
+  /// AVFoundation's absolute rate scale (0.5 = platform normal).
+  static func systemRate(forMultiplier multiplier: Double) -> Float {
+    let boundedMultiplier = clamp(multiplier, 0.5...2.0)
+    let scaled = Double(AVSpeechUtteranceDefaultSpeechRate) * boundedMultiplier
+    return Float(
+      clamp(
+        scaled,
+        Double(
+          AVSpeechUtteranceMinimumSpeechRate)...Double(
+            AVSpeechUtteranceMaximumSpeechRate)))
+  }
+
+  private func voiceHealthDetail(voices: [AVSpeechSynthesisVoice]) -> String {
+    guard
+      let selected = Self.bestVoice(
+        for: "tr-TR", preferredIdentifier: preferredVoiceIdentifier, voices: voices)
+    else {
+      return "System TTS ready with \(voices.count) voices"
+    }
+    return
+      "System TTS ready with \(selected.name) (\(selected.language), quality \(selected.quality.rawValue))"
   }
 
   public func stopSpeaking() async {
@@ -149,7 +225,9 @@ public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
     return TTSHealth(
       ready: running && !voices.isEmpty,
       status: running ? "ready" : "idle",
-      detail: "System TTS \(running ? "running" : "idle") with \(voices.count) voices")
+      detail: running
+        ? voiceHealthDetail(voices: voices)
+        : "System TTS idle with \(voices.count) voices")
   }
 }
 
@@ -179,7 +257,8 @@ private final class SystemTTSDelegate: NSObject, AVSpeechSynthesizerDelegate, @u
     // No-op: delegate is set after synthesizer creation.
   }
 
-  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {}
+  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance)
+  {}
 
   func speechSynthesizer(
     _ synthesizer: AVSpeechSynthesizer,
@@ -191,12 +270,14 @@ private final class SystemTTSDelegate: NSObject, AVSpeechSynthesizerDelegate, @u
     onSpeakRange(fragment, characterRange.length)
   }
 
-  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance)
+  {
     onFinish(true, nil)
     self.synthesizer = nil
   }
 
-  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance)
+  {
     onCancel()
     self.synthesizer = nil
   }

@@ -1,7 +1,9 @@
-import AuraAudio
+import AVFoundation
 import AuraCore
 import Foundation
 import Testing
+
+@testable import AuraAudio
 
 /// Unit tests for the on-device macOS System TTS fallback adapter.
 ///
@@ -78,5 +80,41 @@ struct SystemTTSEngineTests {
   @Test func engineIDIsSystem() {
     let engine = SystemTTSEngine()
     #expect(engine.engineID == "system")
+  }
+
+  @Test func normalMultiplierMapsToPlatformDefaultRate() {
+    #expect(
+      SystemTTSEngine.systemRate(forMultiplier: 1.0)
+        == AVSpeechUtteranceDefaultSpeechRate)
+    #expect(
+      SystemTTSEngine.systemRate(forMultiplier: 0.5)
+        < SystemTTSEngine.systemRate(forMultiplier: 1.0))
+    #expect(
+      SystemTTSEngine.systemRate(forMultiplier: 2.0)
+        > SystemTTSEngine.systemRate(forMultiplier: 1.0))
+  }
+
+  @Test func bestTurkishVoiceUsesHighestInstalledQuality() {
+    let voices = AVSpeechSynthesisVoice.speechVoices().filter {
+      $0.language.replacingOccurrences(of: "_", with: "-").lowercased() == "tr-tr"
+    }
+    guard !voices.isEmpty else { return }
+
+    let selected = SystemTTSEngine.bestVoice(for: "tr-TR", voices: voices)
+    #expect(selected != nil)
+    #expect(selected?.quality.rawValue == voices.map(\.quality.rawValue).max())
+  }
+
+  @Test func explicitFemaleYeldaPreferenceOverridesQualityRanking() {
+    let voices = AVSpeechSynthesisVoice.speechVoices()
+    let yeldaID = "com.apple.voice.compact.tr-TR.Yelda"
+    guard voices.contains(where: { $0.identifier == yeldaID }) else { return }
+
+    let selected = SystemTTSEngine.bestVoice(
+      for: "tr-TR",
+      preferredIdentifier: yeldaID,
+      voices: voices)
+
+    #expect(selected?.identifier == yeldaID)
   }
 }

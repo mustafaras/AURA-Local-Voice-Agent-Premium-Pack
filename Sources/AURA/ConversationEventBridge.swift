@@ -2,7 +2,7 @@ import AuraAgent
 import AuraCore
 import Foundation
 
-/// Bridges `WakeActivationEvent`/`STTStableSegmentEvent`/`STTPartialEvent`
+/// Bridges wake, transcript, and STT-health events
 /// (all emitted on the event bus by `WakeWordPipeline`/`STTPipeline`) into
 /// `Conversation`'s direct actor methods.
 ///
@@ -39,6 +39,10 @@ actor ConversationEventBridge {
     }
     await eventBus.subscribe(STTPartialEvent.self) { [weak self] envelope in
       await self?.conversation.partialTranscriptReceived(envelope.payload)
+    }
+    await eventBus.subscribe(STTHealthEvent.self) { [weak self] envelope in
+      guard !envelope.payload.ready else { return }
+      await self?.conversation.recognitionFailed(detail: envelope.payload.detail)
     }
   }
 }

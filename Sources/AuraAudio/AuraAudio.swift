@@ -2,6 +2,17 @@ import AVFoundation
 import AuraCore
 import Foundation
 
+/// Owns a callback-local PCM copy while it crosses into `AuraAudio` actor
+/// isolation. The buffer is immutable after construction and consumed only by
+/// the actor.
+private final class CapturedPCMBuffer: @unchecked Sendable {
+  let value: AVAudioPCMBuffer
+
+  init(_ value: AVAudioPCMBuffer) {
+    self.value = value
+  }
+}
+
 /// Real-time audio capture service for AURA.
 ///
 /// Responsibilities:
@@ -172,8 +183,11 @@ public actor AuraAudio {
         format: inputFormat
       ) { [weak self] buffer, time in
         guard let self = self else { return }
+        // The tap-owned buffer is valid only for the duration of this
+        // callback. Copy it before crossing the actor boundary.
+        let captureBuffer = CapturedPCMBuffer(AVAudioPCMBuffer(copying: buffer))
         Task {
-          await self.handleCapturedBuffer(buffer, time: time, converter: converter)
+          await self.handleCapturedBuffer(captureBuffer, time: time, converter: converter)
         }
       }
 
@@ -241,6 +255,11 @@ public actor AuraAudio {
     ringBuffer.latest()
   }
 
+  /// Return a retained frame by its capture sequence index.
+  public func frame(sequenceIndex: UInt64) -> AudioFrame? {
+    ringBuffer.frame(sequenceIndex: sequenceIndex)
+  }
+
   /// Total frames captured during the current or most recent session.
   public func capturedFrameCount() -> UInt64 {
     totalFrames
@@ -249,16 +268,18 @@ public actor AuraAudio {
   // MARK: - Tap handling
 
   private func handleCapturedBuffer(
-    _ buffer: AVReadOnlyAudioPCMBuffer,
+    _ captured: CapturedPCMBuffer,
     time: AVAudioTime,
     converter: AVAudioConverter
   ) async {
     guard state == .running else { return }
+    let captureBuffer = captured.value
 
     let now = monotonicClock()
     var isDiscontinuity = false
     if lastTapTimestamp > 0 {
-      let expectedInterval = Double(buffer.frameLength) / configuration.sampleRate
+      let expectedInterval =
+        Double(captureBuffer.frameLength) / captureBuffer.format.sampleRate
       let actualInterval = now - lastTapTimestamp
       if actualInterval > expectedInterval * 2 {
         isDiscontinuity = true
@@ -280,15 +301,16 @@ public actor AuraAudio {
       return
     }
 
-    // Copy the read-only tap buffer into a mutable AVAudioPCMBuffer so that
-    // AVAudioConverter's input block can vend it. The copy is local and
-    // short-lived; it avoids retaining the realtime buffer past the callback.
-    let captureBuffer = AVAudioPCMBuffer(copying: buffer)
-
     var error: NSError?
+    var suppliedInput = false
     let status = converter.convert(to: outputBuffer, error: &error) {
       (_: AVAudioPacketCount, outStatus: UnsafeMutablePointer<AVAudioConverterInputStatus>)
         -> AVAudioBuffer? in
+      guard !suppliedInput else {
+        outStatus.pointee = .noDataNow
+        return nil
+      }
+      suppliedInput = true
       outStatus.pointee = .haveData
       return captureBuffer
     }
@@ -302,7 +324,7 @@ public actor AuraAudio {
       return
     }
 
-    guard status == .haveData || status == .endOfStream,
+    guard status != .error, outputBuffer.frameLength > 0,
       let floatChannelData = outputBuffer.floatChannelData
     else {
       return
