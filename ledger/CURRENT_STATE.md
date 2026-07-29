@@ -7,9 +7,12 @@ Projection refreshed from live repository and command evidence on 2026-07-29.
   Push-to-Talk/native-audio repair, stable local signing, natural Turkish TTS,
   explicit Screen Recording onboarding, and the local Chatterbox V3 adapter are
   implemented and under final live acceptance; Phase 24 not started.
-- Git state: `HEAD == origin/main == 209cff5435dd557d013f7def9702c91f17ff62a7`.
-  The voice/permission repair is uncommitted. The pre-existing
-  `.vscode/launch.json` change remains outside scope.
+- Git state: verified voice implementation commit
+  `4ffa2139f38ba343707d3c8b393be11259851265` is on
+  `feature/native-voice-chatterbox-v3`; `origin/main` remains
+  `209cff5435dd557d013f7def9702c91f17ff62a7` pending the authorized push and
+  no-fast-forward merge. The pre-existing `.vscode/launch.json` change remains
+  outside scope.
 - Product lifecycle:
   - Native SwiftUI dashboard window, retained menu-bar control, and Settings
     scene.
@@ -108,7 +111,8 @@ Projection refreshed from live repository and command evidence on 2026-07-29.
     perceptual voice/persona judgment, remains deferred until the evening.
   - Real acoustic wake-word model, Developer ID signing/notarization, public plugin vendor PKI/catalog, and real third-party payload execution remain unavailable external-material/release gates.
   - The main-process Accessibility/CLI privileges should ultimately move behind least-privilege helpers before claiming OS-enforced network confinement.
-- Release status: No repair commit/push, release, deploy, notarization, or
+- Release status: the repair is locally committed on its feature branch;
+  push and merge remain in progress. No release, deploy, notarization, or
   public marketplace publication was performed. The stable-signed local
   package was replaced with a verified rollback backup under `/tmp`; AURA was
   left closed.

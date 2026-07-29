@@ -2,6 +2,33 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-29T07:49:49Z — LOCAL_VOICE_IMPLEMENTATION_COMMITTED — Verified feature commit created
+
+- **Actor:** Codex.
+- **Objective:** Create the authorized implementation commit without including
+  user-owned editor configuration or external neural runtime artifacts.
+- **Starting state:** `feature/native-voice-chatterbox-v3` based exactly on
+  `origin/main` commit `209cff5435dd557d013f7def9702c91f17ff62a7`;
+  intended voice/runtime/test/documentation files staged, with
+  `.vscode/launch.json` deliberately unstaged.
+- **Final pre-commit evidence:** staged diff check and strict Swift formatting
+  passed; Python sources passed `py_compile`; the four Python
+  integrity/reference tests passed; shell syntax and `uv lock --check` passed.
+  Existing fresh-path logs contain 18 passing Swift bundles and 587/587 tests;
+  LLVM line coverage is 70.12%.
+- **Commit evidence:** created
+  `4ffa2139f38ba343707d3c8b393be11259851265`
+  (`feat(voice): complete native speech path and local Chatterbox V3`), 44
+  files changed, 4,607 insertions, and 385 deletions.
+- **Scope evidence:** after commit, `.vscode/launch.json` is the only worktree
+  modification. No model weights, reference audio, generated audio, runtime
+  virtual environment, native binary, certificate, or secret was committed.
+- **Open gates:** model transfer/manifest/diagnostic inference, consented female
+  reference capture, human-listened Turkish acceptance, and Screen Recording
+  consent remain open and are not represented as complete.
+- **Current state:** implementation commit exists only on the local feature
+  branch; push and no-fast-forward merge are the next authorized actions.
+
 ### 2026-07-29T07:45:05Z — LOCAL_VOICE_SHIP_AUTHORIZED — Feature-branch commit, push, and merge approved
 
 - **Actor:** User + Codex.
