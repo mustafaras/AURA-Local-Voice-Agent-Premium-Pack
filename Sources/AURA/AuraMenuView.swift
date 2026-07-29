@@ -194,6 +194,9 @@ struct AuraSettingsView: View {
         Button("Request Accessibility Access") {
           model.requestAccessibilityPermission()
         }
+        Button("Request Screen Recording Access") {
+          model.requestScreenRecordingPermission()
+        }
         Button("Open Microphone Settings") { model.openMicrophoneSettings() }
         Button("Open Speech Recognition Settings") { model.openSpeechSettings() }
         Button("Open Accessibility Settings") { model.openAccessibilitySettings() }

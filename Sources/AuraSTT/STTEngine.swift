@@ -107,11 +107,13 @@ public protocol STTEngine: Sendable {
   /// began; engines use it to compute first-partial latency.
   func ingest(_ frame: AudioFrame, activationTime: TimeInterval) async
 
-  /// Signal end of user speech. The engine may finalize remaining segments.
+  /// Signal end of one user-speech session. The engine may finalize remaining
+  /// segments, but must keep `results` usable for later sessions.
   func finalizeSession() async
 
   /// Cancel the current session immediately. Must stop emitting results and
-  /// reset state.
+  /// reset session state. This does not end the engine-lifetime `results`
+  /// sequence; consumers cancel their own iterator when shutting down.
   func cancel() async
 
   /// Async sequence of transcription results. Implementations are responsible

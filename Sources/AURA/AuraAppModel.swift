@@ -94,6 +94,10 @@ final class AuraAppModel: ObservableObject {
     permissions = PermissionCoordinator.requestAccessibilityPermission()
   }
 
+  func requestScreenRecordingPermission() {
+    permissions = PermissionCoordinator.requestScreenRecordingPermission()
+  }
+
   func pushToTalk() {
     Task {
       guard permissions.speechReady else {
@@ -191,6 +195,7 @@ final class AuraAppModel: ObservableObject {
       try await kernel.start()
       permissions = PermissionCoordinator.snapshot()
       if permissions.speechReady {
+        try await kernel.startSpeechRecognition()
         status = .idle
         statusDetail = "Ready — use Push to Talk"
       } else {

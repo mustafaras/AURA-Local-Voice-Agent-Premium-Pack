@@ -11,18 +11,8 @@ import Testing
 /// this phase closed: `AudioFrameEvent` carries no sample data itself, and
 /// nothing called `ingestSampleFrame` in production before this phase.
 ///
-/// A precise test requires distinguishing the bridge's contribution from
-/// `STTPipeline`'s own pre-existing, independent `AudioFrameEvent`
-/// subscription (`STTPipeline.handleAudioFrame`, `Sources/AuraSTT/
-/// STTPipeline.swift`) — which *also* calls `engine.ingest(_:)` on every
-/// frame event, but always with an empty-`samples` placeholder frame built
-/// only from the event's metadata. `DeterministicMockSTTEngine` cannot
-/// distinguish real samples from that placeholder (it only counts `ingest`
-/// calls), so a test using it alone cannot tell whether the bridge's own
-/// forwarding ever actually ran. `RecordingSTTEngine` below records every
-/// ingested frame's real content instead, making the bridge's contribution
-/// directly observable: only the bridge's `ingestSampleFrame(_:)` path ever
-/// delivers a frame with non-empty `samples`.
+/// `RecordingSTTEngine` records every ingested frame's real content so the
+/// bridge's contribution is directly observable.
 ///
 /// Deliberately does not depend on live `AVAudioEngine` capture timing:
 /// this project's own precedent (`AuraAudioTests.startIgnoredWhenNotIdle`,
@@ -31,7 +21,7 @@ import Testing
 /// backend instead. `AuraAudio.init(ringBuffer:)` already accepts an
 /// externally-constructed `AudioRingBuffer`, so a known frame is seeded
 /// there and a matching `AudioFrameEvent` is emitted directly — this still
-/// exercises the real, production `AudioSampleBridge`/`AuraAudio.latestFrame
+/// exercises the real, production `AudioSampleBridge`/`AuraAudio.frame
 /// ()` seam via `@testable import`, just without waiting on real hardware.
 final class RecordingSTTEngine: STTEngine, @unchecked Sendable {
   let engineID = "recording-stt"
@@ -149,10 +139,8 @@ func audioSampleBridgeNeverForwardsRealSamplesOnSequenceIndexMismatch() async th
       correlationID: UUID(), causationID: UUID(), actor: .audio, sensitivity: .internalLevel,
       payload: WakeActivationEvent(isActive: true, privacyMode: false)))
 
-  // sequenceIndex 999 does not match the seeded frame's index (7) — the
-  // bridge's staleness check must skip forwarding. STTPipeline's own,
-  // separate direct AudioFrameEvent subscription still fires (it doesn't
-  // depend on the bridge), but only ever with an empty-samples placeholder.
+  // sequenceIndex 999 does not match the seeded frame's index (7), so the
+  // bridge must skip forwarding.
   await fixture.bus.emit(
     EventEnvelope(
       correlationID: UUID(), causationID: UUID(), actor: .audio, sensitivity: .internalLevel,
@@ -160,18 +148,7 @@ func audioSampleBridgeNeverForwardsRealSamplesOnSequenceIndexMismatch() async th
         sampleCount: fixture.knownFrame.samples.count, timestamp: fixture.knownFrame.timestamp,
         sequenceIndex: 999, isDiscontinuity: false)))
 
-  var attempts = 0
-  while fixture.engine.ingestedFrames().isEmpty, attempts < 25 {
-    try await Task.sleep(nanoseconds: 20_000_000)
-    attempts += 1
-  }
-
-  let frames = fixture.engine.ingestedFrames()
-  #expect(!frames.isEmpty, "expected STTPipeline's own direct subscription to still fire")
-  #expect(
-    frames.allSatisfy { $0.samples.isEmpty },
-    "expected no real-sample frame to reach the engine when the bridge's sequence index check fails"
-  )
+  #expect(fixture.engine.ingestedFrames().isEmpty)
 }
 
 @Test

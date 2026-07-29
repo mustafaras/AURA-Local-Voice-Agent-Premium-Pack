@@ -10,6 +10,16 @@
 ## Design
 Define an `STTEngine` protocol supporting partials, stable segments, language hypotheses, timestamps, confidence, cancellation, and model health.
 
+`results` is engine-lifetime, not single-turn. Finalizing one speech session
+must preserve the sequence for later Push-to-Talk turns. A final native Speech
+callback remains valid after `endAudio()` and is the only result authorized to
+enter intent routing; adapter errors are health events, never user utterances.
+
+The AVFoundation tap must copy callback-owned PCM before crossing an async or
+actor boundary. Conversion vends that owned input once. Downstream consumers
+resolve the retained frame by exact sequence index and submit only that real,
+non-empty sample frame to STT; metadata-only placeholder audio is forbidden.
+
 ## Engine strategy
 - Primary local engine optimized for Apple Silicon.
 - Secondary lightweight fallback for degraded mode.

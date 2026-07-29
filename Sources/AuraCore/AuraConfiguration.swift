@@ -218,6 +218,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
           ? TTSConfiguration().defaultLocale : self.tts.defaultLocale,
         defaultRate: self.tts.defaultRate <= 0
           ? TTSConfiguration().defaultRate : self.tts.defaultRate,
+        preferredSystemVoiceIdentifier: self.tts.preferredSystemVoiceIdentifier.isEmpty
+          ? TTSConfiguration().preferredSystemVoiceIdentifier
+          : self.tts.preferredSystemVoiceIdentifier,
         enableBargeIn: self.tts.enableBargeIn,
         enableAntiTrigger: self.tts.enableAntiTrigger
       ),
@@ -676,6 +679,9 @@ public struct TTSConfiguration: Codable, Sendable, Equatable {
   /// Default speech rate. Must be positive.
   public var defaultRate: Double
 
+  /// Explicit local system voice used when the neural adapter is unavailable.
+  public var preferredSystemVoiceIdentifier: String
+
   /// Whether user speech detected during assistant speech stops the assistant.
   public var enableBargeIn: Bool
 
@@ -684,14 +690,16 @@ public struct TTSConfiguration: Codable, Sendable, Equatable {
 
   public init(
     adapterChain: TTSAdapterChain = TTSAdapterChain(),
-    defaultLocale: String = "en-US",
-    defaultRate: Double = 1.0,
+    defaultLocale: String = "tr-TR",
+    defaultRate: Double = 0.92,
+    preferredSystemVoiceIdentifier: String = "com.apple.voice.compact.tr-TR.Yelda",
     enableBargeIn: Bool = true,
     enableAntiTrigger: Bool = true
   ) {
     self.adapterChain = adapterChain
     self.defaultLocale = defaultLocale
     self.defaultRate = defaultRate
+    self.preferredSystemVoiceIdentifier = preferredSystemVoiceIdentifier
     self.enableBargeIn = enableBargeIn
     self.enableAntiTrigger = enableAntiTrigger
   }
@@ -711,8 +719,11 @@ public struct TTSConfiguration: Codable, Sendable, Equatable {
     adapterChain =
       try container.decodeIfPresent(TTSAdapterChain.self, forKey: .adapterChain)
       ?? TTSAdapterChain()
-    defaultLocale = try container.decodeIfPresent(String.self, forKey: .defaultLocale) ?? "en-US"
-    defaultRate = try container.decodeIfPresent(Double.self, forKey: .defaultRate) ?? 1.0
+    defaultLocale = try container.decodeIfPresent(String.self, forKey: .defaultLocale) ?? "tr-TR"
+    defaultRate = try container.decodeIfPresent(Double.self, forKey: .defaultRate) ?? 0.92
+    preferredSystemVoiceIdentifier =
+      try container.decodeIfPresent(String.self, forKey: .preferredSystemVoiceIdentifier)
+      ?? "com.apple.voice.compact.tr-TR.Yelda"
     enableBargeIn = try container.decodeIfPresent(Bool.self, forKey: .enableBargeIn) ?? true
     enableAntiTrigger = try container.decodeIfPresent(Bool.self, forKey: .enableAntiTrigger) ?? true
   }

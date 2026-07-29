@@ -53,12 +53,13 @@ public actor STTPipeline {
     resultStreamTask?.cancel()
   }
 
-  /// Start listening for wake activations and audio frames.
+  /// Start listening for wake activations and engine results.
   public func start() async throws {
     guard state == .idle else { return }
     let health = try await engine.start()
     await logger.info("STT engine \(engine.engineID) started: \(health.status)", actor: .audio)
     await subscribeToEvents()
+    startConsumingResults()
     state = .activated
   }
 
@@ -86,10 +87,6 @@ public actor STTPipeline {
       guard let self = self, !Task.isCancelled else { return }
       await self.handleWakeActivation(envelope.payload)
     }
-    await eventBus.subscribe(AudioFrameEvent.self) { [weak self] envelope in
-      guard let self = self, !Task.isCancelled else { return }
-      await self.handleAudioFrame(envelope.payload)
-    }
   }
 
   private func handleWakeActivation(_ event: WakeActivationEvent) async {
@@ -99,7 +96,6 @@ public actor STTPipeline {
       state = .transcribing
       metrics.firstPartialLatencySeconds = 0
       await logger.info("STT session started", actor: .audio)
-      startConsumingResults()
     } else {
       guard state == .transcribing else { return }
       state = .finalizing
@@ -107,23 +103,7 @@ public actor STTPipeline {
     }
   }
 
-  private func handleAudioFrame(_ event: AudioFrameEvent) async {
-    guard state == .transcribing else { return }
-    // Forward only metadata; the engine will receive real sample data from
-    // the realtime path via `ingestSampleFrame(_:)` in a later phase. For
-    // now, create a placeholder frame so the engine can drive progress from
-    // frame indices and timestamps.
-    let frame = AudioFrame(
-      samples: [],
-      timestamp: event.timestamp,
-      sequenceIndex: event.sequenceIndex,
-      isDiscontinuity: event.isDiscontinuity
-    )
-    await engine.ingest(frame, activationTime: activationTime)
-  }
-
-  /// Ingest a frame with real sample data from the realtime audio path. Tests
-  /// seed this directly; the audio service calls it in production.
+  /// Ingest a frame with real sample data from the realtime audio path.
   public func ingestSampleFrame(_ frame: AudioFrame) async {
     guard state == .transcribing else { return }
     await engine.ingest(frame, activationTime: activationTime)
@@ -142,9 +122,26 @@ public actor STTPipeline {
   }
 
   private func handleResult(_ result: STTTranscriptResult) async {
+    if result.metadata["error"] == "true" {
+      state = .activated
+      await eventBus.emit(
+        EventEnvelope(
+          correlationID: UUID(),
+          causationID: result.resultID,
+          actor: .audio,
+          sensitivity: .internalLevel,
+          payload: STTHealthEvent(ready: false, status: "error", detail: result.text)))
+      return
+    }
+
     if result.isStable {
+      guard !result.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        state = .activated
+        return
+      }
       metrics.stableSegmentsEmitted += 1
       metrics.lastStableLatencySeconds = monotonicClock() - activationTime
+      state = .activated
       await emitStableSegmentEvent(result)
     } else {
       metrics.partialsEmitted += 1

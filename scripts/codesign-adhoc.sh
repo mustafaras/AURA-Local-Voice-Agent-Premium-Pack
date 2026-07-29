@@ -1,15 +1,27 @@
 #!/bin/zsh
 set -euo pipefail
 
-# Ad-hoc code-sign AURA.app for local distribution and notarization prep.
-# This script is a Phase 20 release-readiness placeholder.
-# A real Developer ID certificate must be configured for App Store / notarized distribution.
+# Code-sign AURA.app for local development.
+# Prefer the stable, locally trusted Keychain identity so TCC grants survive
+# rebuilds. Fall back to ad-hoc signing on machines where that identity has not
+# been provisioned. A real Developer ID certificate is still required for
+# notarized distribution.
 
 SCRIPT_DIR="$(cd "$(dirname "${(%):-%N}")" && pwd)"
 APP_PATH="${1:-$SCRIPT_DIR/../.build/release-app/AURA.app}"
 ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AURA.entitlements"
 HELPER_ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AuraPluginHost.entitlements"
 HELPER_PATH="$APP_PATH/Contents/Helpers/AuraPluginHost.app"
+LOCAL_IDENTITY="AURA Stable Local Signing"
+SIGNING_IDENTITY="${AURA_CODESIGN_IDENTITY:-}"
+
+if [[ -z "$SIGNING_IDENTITY" ]]; then
+  if security find-identity -v -p codesigning | grep -Fq "\"$LOCAL_IDENTITY\""; then
+    SIGNING_IDENTITY="$LOCAL_IDENTITY"
+  else
+    SIGNING_IDENTITY="-"
+  fi
+fi
 
 if [[ ! -d "$APP_PATH" ]]; then
   echo "App bundle not found: $APP_PATH"
@@ -22,20 +34,20 @@ if [[ ! -d "$HELPER_PATH" ]]; then
   exit 1
 fi
 
-echo "Signing isolated plugin helper with $HELPER_ENTITLEMENTS"
+echo "Signing isolated plugin helper with identity '$SIGNING_IDENTITY' and $HELPER_ENTITLEMENTS"
 codesign \
   --force \
-  --sign "-" \
+  --sign "$SIGNING_IDENTITY" \
   --options runtime \
   --entitlements "$HELPER_ENTITLEMENTS" \
   "$HELPER_PATH"
 
-echo "Signing $APP_PATH with entitlements $ENTITLEMENTS"
+echo "Signing $APP_PATH with identity '$SIGNING_IDENTITY' and entitlements $ENTITLEMENTS"
 codesign \
   --force \
-  --sign "-" \
+  --sign "$SIGNING_IDENTITY" \
   --options runtime \
   --entitlements "$ENTITLEMENTS" \
   "$APP_PATH"
 
-echo "Ad-hoc signing complete."
+echo "Local signing complete."

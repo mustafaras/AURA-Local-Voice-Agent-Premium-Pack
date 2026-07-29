@@ -1,6 +1,6 @@
+import AVFoundation
 import AuraAudio
 import AuraCore
-import AVFoundation
 import Foundation
 import Speech
 
@@ -34,6 +34,7 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
   private enum State {
     case idle
     case streaming(
+      sessionID: UUID,
       request: SFSpeechAudioBufferRecognitionRequest,
       task: SFSpeechRecognitionTask,
       streamState: StreamState
@@ -86,6 +87,10 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
 
   public var results: AsyncStream<STTTranscriptResult> { stream }
 
+  deinit {
+    unsafeContinuation.finish()
+  }
+
   // MARK: - STTEngine
 
   public func start() async throws -> STTHealth {
@@ -110,10 +115,12 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
     switch status {
     case .notDetermined:
       throw AuraError.permissionDenied(
-        "Speech recognition authorization not determined; request authorization before starting STT")
+        "Speech recognition authorization not determined; request authorization before starting STT"
+      )
     case .denied:
       throw AuraError.permissionDenied(
-        "Speech recognition authorization denied; enable in System Settings > Privacy & Security > Speech Recognition")
+        "Speech recognition authorization denied; enable in System Settings > Privacy & Security > Speech Recognition"
+      )
     case .restricted:
       throw AuraError.permissionDenied(
         "Speech recognition authorization restricted on this device")
@@ -139,7 +146,7 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
   public func ingest(_ frame: AudioFrame, activationTime: TimeInterval) async {
     withLock {
       switch stateValue {
-      case .idle:
+      case .idle, .finalized, .cancelled:
         do {
           try startRecognition(activationTime: activationTime)
         } catch {
@@ -152,7 +159,8 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
         break
       }
 
-      guard case .streaming(let request, let task, var streamState) = stateValue else {
+      guard case .streaming(let sessionID, let request, let task, var streamState) = stateValue
+      else {
         return
       }
 
@@ -165,30 +173,28 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
       }
 
       request.append(buffer)
-      stateValue = .streaming(request: request, task: task, streamState: streamState)
+      stateValue = .streaming(
+        sessionID: sessionID, request: request, task: task, streamState: streamState)
     }
   }
 
   public func finalizeSession() async {
     withLock {
-      guard case .streaming(let request, let task, let streamState) = stateValue else {
+      guard case .streaming(_, let request, _, _) = stateValue else {
         return
       }
       request.endAudio()
-      stateValue = .finalized(streamState)
-      _ = task
     }
   }
 
   public func cancel() async {
     withLock {
-      if case .streaming(let request, let task, _) = stateValue {
+      if case .streaming(_, let request, let task, _) = stateValue {
         request.endAudio()
         task.cancel()
       }
       stateValue = .cancelled
     }
-    unsafeContinuation.finish()
   }
 
   public func health() -> STTHealth {
@@ -215,18 +221,28 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
 
     var streamState = StreamState()
     streamState.activationTime = activationTime
+    let sessionID = UUID()
 
     let task = recognizer.recognitionTask(with: request) { [weak self] result, error in
       guard let self else { return }
-      self.handleRecognitionResult(result, error: error)
+      self.handleRecognitionResult(result, error: error, sessionID: sessionID)
     }
 
-    stateValue = .streaming(request: request, task: task, streamState: streamState)
+    stateValue = .streaming(
+      sessionID: sessionID, request: request, task: task, streamState: streamState)
   }
 
-  private func handleRecognitionResult(_ result: SFSpeechRecognitionResult?, error: Error?) {
+  private func handleRecognitionResult(
+    _ result: SFSpeechRecognitionResult?,
+    error: Error?,
+    sessionID: UUID
+  ) {
     withLock {
-      guard case .streaming(let request, let task, var streamState) = stateValue else {
+      guard
+        case .streaming(
+          let currentSessionID, let request, let task, var streamState) = stateValue,
+        currentSessionID == sessionID
+      else {
         return
       }
 
@@ -235,12 +251,13 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
         unsafeContinuation.yield(
           makeErrorResult(text: mapped.localizedDescription)
         )
-        stateValue = .cancelled
+        stateValue = .finalized(streamState)
         return
       }
 
       guard let result = result else {
-        stateValue = .streaming(request: request, task: task, streamState: streamState)
+        stateValue = .streaming(
+          sessionID: sessionID, request: request, task: task, streamState: streamState)
         return
       }
       let transcription = result.bestTranscription
@@ -264,10 +281,10 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
       unsafeContinuation.yield(mapped)
 
       if result.isFinal {
-        unsafeContinuation.finish()
         stateValue = .finalized(streamState)
       } else {
-        stateValue = .streaming(request: request, task: task, streamState: streamState)
+        stateValue = .streaming(
+          sessionID: sessionID, request: request, task: task, streamState: streamState)
       }
     }
   }
@@ -285,7 +302,8 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
     let confidenceSum = segments.reduce(0.0) { $0 + Double($1.confidence) }
     let confidence = confidenceSum / max(1.0, Double(segments.count))
 
-    let alternatives: [STTAlternative] = allTranscriptions
+    let alternatives: [STTAlternative] =
+      allTranscriptions
       .dropFirst()
       .prefix(3)
       .map { alt in
@@ -297,7 +315,8 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
 
     let firstSegment = segments.first
     let audioStartTime = firstSegment?.timestamp ?? activationTime
-    let audioEndTime = (firstSegment?.timestamp ?? 0)
+    let audioEndTime =
+      (firstSegment?.timestamp ?? 0)
       + (firstSegment?.duration ?? 0)
 
     return STTTranscriptResult(
@@ -323,13 +342,15 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
       case 1:
         return AuraError.permissionDenied("Speech recognition denied by user or system policy")
       case 2:
-        return AuraError.sttEngineError("Speech recognition unavailable for locale \(locale.identifier)")
+        return AuraError.sttEngineError(
+          "Speech recognition unavailable for locale \(locale.identifier)")
       case 4:
         return AuraError.sttEngineError("Speech recognition request was cancelled")
       case 7:
         return AuraError.sttEngineError("No speech detected")
       default:
-        return AuraError.sttEngineError("Speech recognition error \(nsError.code): \(nsError.localizedDescription)")
+        return AuraError.sttEngineError(
+          "Speech recognition error \(nsError.code): \(nsError.localizedDescription)")
       }
     }
     return AuraError.sttEngineError(error.localizedDescription)
@@ -343,7 +364,10 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
       interleaved: false
     )
     guard let format else { return nil }
-    guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(samples.count)) else {
+    guard
+      let buffer = AVAudioPCMBuffer(
+        pcmFormat: format, frameCapacity: AVAudioFrameCount(samples.count))
+    else {
       return nil
     }
     buffer.frameLength = AVAudioFrameCount(samples.count)

@@ -2,6 +2,200 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-29T07:49:49Z — LOCAL_VOICE_IMPLEMENTATION_COMMITTED — Verified feature commit created
+
+- **Actor:** Codex.
+- **Objective:** Create the authorized implementation commit without including
+  user-owned editor configuration or external neural runtime artifacts.
+- **Starting state:** `feature/native-voice-chatterbox-v3` based exactly on
+  `origin/main` commit `209cff5435dd557d013f7def9702c91f17ff62a7`;
+  intended voice/runtime/test/documentation files staged, with
+  `.vscode/launch.json` deliberately unstaged.
+- **Final pre-commit evidence:** staged diff check and strict Swift formatting
+  passed; Python sources passed `py_compile`; the four Python
+  integrity/reference tests passed; shell syntax and `uv lock --check` passed.
+  Existing fresh-path logs contain 18 passing Swift bundles and 587/587 tests;
+  LLVM line coverage is 70.12%.
+- **Commit evidence:** created
+  `4ffa2139f38ba343707d3c8b393be11259851265`
+  (`feat(voice): complete native speech path and local Chatterbox V3`), 44
+  files changed, 4,607 insertions, and 385 deletions.
+- **Scope evidence:** after commit, `.vscode/launch.json` is the only worktree
+  modification. No model weights, reference audio, generated audio, runtime
+  virtual environment, native binary, certificate, or secret was committed.
+- **Open gates:** model transfer/manifest/diagnostic inference, consented female
+  reference capture, human-listened Turkish acceptance, and Screen Recording
+  consent remain open and are not represented as complete.
+- **Current state:** implementation commit exists only on the local feature
+  branch; push and no-fast-forward merge are the next authorized actions.
+
+### 2026-07-29T07:45:05Z — LOCAL_VOICE_SHIP_AUTHORIZED — Feature-branch commit, push, and merge approved
+
+- **Actor:** User + Codex.
+- **Authorization:** The user explicitly requested a clean commit, push, and
+  merge for the completed native voice, permission, Chatterbox V3, persona,
+  tests, documentation, and state-record work.
+- **Live base evidence:** after `git fetch --prune origin`,
+  `HEAD == origin/main == 209cff5435dd557d013f7def9702c91f17ff62a7`;
+  neither side has unmerged commits.
+- **Scope boundary:** preserve and exclude the pre-existing user-owned
+  `.vscode/launch.json` modification. External model weights, caches, runtime
+  environment, reference audio, generated WAV files, and local signing
+  material must never enter Git.
+- **Planned history:** create short-lived
+  `feature/native-voice-chatterbox-v3`, commit the verified implementation and
+  evidence, push and verify the branch, merge to `main` with an explicit merge
+  commit, push `main`, fetch, and compare local, tracking, and transport hashes.
+- **Open product gates remain truthful:** the official 3.21 GB model snapshot
+  is still transferring, its integrity manifest and neural benchmark are not
+  yet available, the owned/consented female reference WAV is absent, and the
+  human-listened Turkish acceptance turn remains open.
+
+### 2026-07-29T07:32:29Z — FEMALE_CHATTERBOX_V3_IMPLEMENTED_DOWNLOAD_PENDING — Code and deterministic gates complete; external model transfer open
+
+- **Objective evidence:** replaced the Chatterbox boundary stub with a real
+  local Multilingual V3 adapter. AURA now starts female Turkish Yelda
+  immediately, warms a separate persistent helper, uses bounded JSON over
+  stdin/stdout, validates private regular WAV output, removes it after
+  playback, and fails back to Yelda on every neural failure.
+- **Supply-chain evidence:** `Runtime/chatterbox/uv.lock` pins official
+  Chatterbox commit `5de7a54aa4e5e2baadb0182dde554908b48b85c2` and Perth commit
+  `ce86c49d029f42272c1902eccb675556b9ed2330`. Model installation pins
+  `ResembleAI/chatterbox` revision
+  `5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18`, restricts the file set, records
+  SHA-256 and byte length, and the runtime recomputes both before loading.
+- **Consent/privacy evidence:** neural production readiness requires
+  `Voices/aura-female-reference.wav`; the helper restricts it to a regular,
+  non-symlink, 3–30 second PCM WAV, mono/stereo, 16–48 kHz. No reference is
+  bundled or present. Transcript transport is local stdin and Hugging Face is
+  forced offline during runtime.
+- **Persona evidence:** `persona/AURA_VOICE_AND_BEHAVIOR.md` now permits one
+  concise dry-witted line while prohibiting attacks on identity, appearance,
+  vulnerability, protected traits, and consequential mistakes; humor is off
+  for high-stakes contexts.
+- **Build/static evidence:** warnings-as-errors Swift build completed;
+  changed Swift files pass strict `swift format lint`; Python sources pass
+  `py_compile`; shell sources pass `zsh -n`; `git diff --check` passes.
+- **Test evidence:** the final coverage-enabled repository gate passed all 18
+  bundles, 587/587 tests. `AuraAudioTests` passed 33/33. The Python
+  integrity/reference suite passed 4/4. A live incomplete-snapshot probe exited
+  1 with a bounded `fatal` JSON message before model import. A separate
+  coverage-enabled run measured 70.12% LLVM line coverage, meeting the 70%
+  ratchet.
+- **Package evidence:** the release app contains a byte-identical helper
+  (`bc0bd0f2adc5b65705266714e74a10760ed3005448e42c7b67c9d3f3a3a031a3`),
+  passes stable local signing and strict/deep validation, and has CDHash
+  `d7a5b529e63b0377682d1192504952542fc5d30a`.
+- **Installed runtime evidence:** external Python 3.11.15 environment imports
+  pinned Chatterbox 0.1.7, Torch/Torchaudio 2.6.0, and reports MPS built and
+  available. It occupies approximately 1.2 GB.
+- **Open gate:** the official 3.21 GB model snapshot is still downloading
+  without a Hugging Face token and has not produced
+  `AURA_MODEL_MANIFEST.json`. Therefore real V3 load, latency, memory, and WAV
+  evidence do not yet exist. The owned/consented female reference and
+  human-listened Turkish acceptance turn are also absent.
+- **Next safe action:** allow the resumable pinned download to finish, inspect
+  the generated manifest, run a non-accepted default-voice diagnostic
+  benchmark, then wait for the owned/consented female reference before product
+  voice acceptance.
+- **Local install evidence:** the previously running AURA process accepted
+  `SIGTERM`; the old package was moved to
+  `/tmp/AURA-pre-chatterbox-20260729T0741Z.app`; the new package was installed
+  at `/Applications/AURA.app` and reverified with the same stable designated
+  requirement and CDHash. AURA was left closed.
+- **Outward actions:** no commit, push, release, deploy, notarization, public
+  publication, or TCC mutation performed. One recoverable local app replacement
+  was performed within the approved voice change.
+
+### 2026-07-29T07:15:00Z — FEMALE_CHATTERBOX_V3_STARTED — Authorized local neural voice and witty persona
+
+- **Actor:** Codex
+- **Objective:** Replace the unintended male Kaan default with a female Turkish fallback immediately, implement a real local Chatterbox Multilingual V3 synthesis path outside the AURA process, and refine AURA's persona into respectful dry wit with bounded, non-abusive teasing.
+- **User authorization:** The user explicitly approved the proposed two-stage approach: Yelda as the temporary female system fallback, a real local Chatterbox Multilingual V3 helper as the intended primary voice, an owned/consented female reference voice, and persona safety boundaries.
+- **Starting evidence:** The target Mac is Apple Silicon with 16 GiB unified memory and 175 GiB free disk. Installed Turkish voices are premium neural male Kaan (`quality=2`) and compact female Yelda (`quality=1`). The current deterministic quality ranking therefore selects Kaan. `ChatterboxTTSEngine` is a boundary-only stub that emits textual progress markers and synthesizes no audio; `AuraKernel` constructs it without helper/model configuration and correctly falls back to System TTS.
+- **Upstream evidence:** Official Resemble AI documentation describes Chatterbox Multilingual V3 as a 500M-parameter model supporting Turkish and reference-audio voice conditioning. PyPI `chatterbox-tts` 0.1.7 requires Python 3.10+ but is developed/tested on Python 3.11; the host default Python 3.14 is therefore not an acceptable runtime. The model/package are MIT licensed, while any reference voice requires separate ownership or explicit consent.
+- **Architecture decision check:** This work intentionally supersedes ADR-024's “adapter-only prototype” decision under new user authorization. Model weights and the Python environment remain outside the repository. Text crosses only a local process pipe, never argv or a network API. The Swift adapter must fail closed to Yelda when the helper, model, reference voice, health check, or playback path is unavailable.
+- **Assumptions:** A dedicated Python 3.11 environment may be provisioned under AURA Application Support. The helper may use PyTorch MPS only after a live capability check and may fall back to CPU for correctness. No existing Apple voice is cloned. Until an owned/consented female Turkish reference clip is supplied and perceptually approved, Chatterbox is not represented as the accepted female production voice.
+- **Risks:** First model download is large; 16 GiB unified memory may constrain latency or coexistence with other models. PyTorch/MPS compatibility can fail despite installation. A non-streaming first implementation may exceed conversational latency. Voice conditioning can inherit accent, pacing, noise, and identity from the reference. Excessive humor can become disrespectful or unsafe in serious contexts.
+- **Acceptance criteria:** System fallback deterministically selects Yelda by explicit identifier; persona tests/documentation encode respectful dry wit, context-aware humor suppression, and bans on protected/humiliating targets; helper input is bounded JSON over stdin and never argv/network; output is validated local WAV with bounded size and cleanup; stop/pause/resume work without audio leakage; missing helper/model/reference or failed health falls back to Yelda; pinned Python 3.11 environment and model provenance are recorded; relevant unit/integration, formatting, warnings-as-errors, package/signature, latency, memory, and restart gates pass; human female-voice/naturalness approval remains explicit.
+- **Authority boundary:** The user authorized local runtime/model installation and the persona/voice change. No unlicensed voice cloning, remote inference, commit, push, release, notarization, or publication is inferred.
+- **Next safe action:** Add explicit Yelda selection and persona constraints with tests, then replace the stub with a process-isolated, test-injectable helper protocol before installing the external runtime.
+
+### 2026-07-29T06:55:00Z — NATURAL_TTS_FULL_REGRESSION_GATE_PASSED — 18 bundles, 588 tests
+
+- **Actor:** Codex
+- **Correction/addition to:** `NATURAL_TTS_AND_STABLE_TCC_AUTOMATED_GATE_PASSED`.
+- **Full regression evidence:** `./scripts/aura-test.sh /tmp/aurabuild-natural-full-final` rebuilt production and every test product from a fresh build path, then passed all 18 bundles and 588/588 tests with zero failed bundles. This supersedes the earlier 584-test historical count for the current working tree. The output contains only the known non-fatal CommandLineTools linker search-path warnings.
+- **Remaining live boundary:** The complete automated gate does not substitute for Screen Recording secure consent or the deferred human-spoken/perceptual voice test. Those two live gates remain unchanged.
+- **Next safe action:** Invoke AURA Settings → **Request Screen Recording Access** when the app window is visible, approve macOS consent, restart if requested, refresh status, and perform the human voice acceptance turn in the evening.
+
+### 2026-07-29T06:45:00Z — NATURAL_TTS_AND_STABLE_TCC_AUTOMATED_GATE_PASSED — Screen and human acceptance remain explicit
+
+- **Actor:** Codex
+- **Objective:** Close the automated and local-install portions of `NATURAL_TTS_AND_STABLE_TCC_STARTED` without representing an unavailable human-perceptual test or an ungranted TCC service as complete.
+- **TTS implementation:** The system fallback now defaults to `tr-TR`, ranks exact-locale installed voices by AVFoundation quality with deterministic identifier tie-breaking, and selects the installed premium neural Kaan voice ahead of compact Yelda on the target Mac. Public rate multipliers are mapped around `AVSpeechUtteranceDefaultSpeechRate`; the default multiplier is `0.92`. Bounded emphasis pitch and small local pre/post delays improve phrasing. Transcript and synthesized audio remain on-device.
+- **Permission/signing implementation:** A locally trusted Keychain identity named `AURA Stable Local Signing` signs the main app and isolated helper with their existing Hardened Runtime entitlements. The signing script retains an ad-hoc fallback for unprovisioned Macs and does not represent this identity as Developer ID or notarization. Screen Recording onboarding now calls the SDK-documented `CGRequestScreenCaptureAccess` API through an explicit Settings button instead of only opening an unregistered privacy pane.
+- **Identity evidence:** Keychain reports exactly one valid code-signing identity, SHA-1 `25F0F2E4D61E97D67E108FF539953EC9C1D6AEA3`. Two independently signed package copies produced the same designated requirement: `identifier "ai.aura.local.agent" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"`. Both passed `codesign --verify --deep --strict`. The installed app has CDHash `6c0ec16e17aba33bb79961544671fd7bd8bcd02f`, `runtime` flags, and authority `AURA Stable Local Signing`. Failed provisional `AURA Local Development` certificate/key artifacts were removed; the stable identity was reverified.
+- **Permission evidence:** Old ad-hoc TCC records for the exact AURA bundle were reset once. Microphone and Speech Recognition were granted to the stable identity, and both remained usable after a subsequent same-identity rebuild/reinstall. Accessibility was shown enabled for AURA in System Settings. Screen Recording was intentionally reset; the old row disappeared as expected, and the corrected installed app now exposes the supported explicit request action. The final click/secure macOS response and post-restart screen preflight remain pending because the window-control service stopped returning visible windows during the final UI step.
+- **Automated evidence:** Scoped strict `swift format lint`, `git diff --check`, and a complete warnings-as-errors build passed. `AuraAudioTests` passed 34/34, `AuraCoreTests` 7/7, `AuraAgentTests` 205/205, and `AURAIntegrationTests` 16/16; integration passed again after the Screen Recording request correction. Release build, stable signing, strict main/helper validation, and installed-package verification passed. Known CommandLineTools linker search-path warnings remain non-fatal and unchanged.
+- **Recoverability:** The superseded ad-hoc package and the intermediate stable package were moved recoverably to `~/.Trash/AURA-ad-hoc-before-stable-signing-2026-07-29.app` and `~/.Trash/AURA-stable-before-screen-request-2026-07-29.app`. No Trash was emptied.
+- **Live boundary:** Human judgment of the Kaan voice and one human-spoken Push-to-Talk transcript-to-response turn are explicitly deferred until the evening. Screen Recording is not claimed granted until the user invokes **Request Screen Recording Access**, accepts macOS consent, restarts AURA if requested, and AURA reports Granted.
+- **Repository/release state:** All repair and natural-voice work remains uncommitted at `HEAD == origin/main == 209cff5435dd557d013f7def9702c91f17ff62a7`. The user's pre-existing `.vscode/launch.json` change remains preserved and outside scope. No commit, push, release, deploy, notarization, or publication occurred.
+- **Next safe action:** Bring AURA Settings forward, select **Request Screen Recording Access**, allow it in macOS, restart AURA if prompted, and refresh permission status. In the evening, run one normal human-spoken Push-to-Talk turn and judge transcript stability plus voice naturalness before closing live acceptance.
+
+### 2026-07-29T00:00:00Z — NATURAL_TTS_AND_STABLE_TCC_STARTED — Persistent local identity and premium Turkish voice
+
+- **Actor:** Codex
+- **Objective:** Preserve the user's current AURA permissions across subsequent local rebuilds and replace the robotic system-speech configuration with the highest-quality installed Turkish voice and correctly scaled natural prosody; defer only the explicitly unavailable human-spoken acceptance turn until the evening.
+- **Starting evidence:** `/Applications/AURA.app` is running and reports `Idle — Ready`, Microphone Granted, Speech Recognition Granted, Accessibility Denied, and Screen Recording Denied. The installed ad-hoc package has CDHash `4e0bfc059bc4d858d011327849eaa2c165018353`. `security find-identity -v -p codesigning` reports zero valid signing identities, so a rebuild changes the ad-hoc CDHash and may invalidate TCC grants. The installed voice inventory contains compact Yelda variants and premium neural Turkish voice `com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium`.
+- **Root-cause evidence:** `TTSConfiguration.defaultLocale` is `en-US` even though STT and the user's interaction language are Turkish. `TTSPrompt.rate` is documented as a multiplier with `1.0` meaning normal, but `SystemTTSEngine` assigns it directly to `AVSpeechUtterance.rate`; the platform's normal default is `0.5`, so the configured value produces an unnaturally fast delivery.
+- **Assumptions:** The highest-quality installed, on-device voice is preferred; no model, transcript, or voice data may leave the Mac. A local self-signed code-signing identity may be created only for AURA development signing and reused for future builds. macOS TCC consent remains user-controlled and cannot be silently granted.
+- **Risks:** Changing the signing identity one final time invalidates current grants and requires one explicit regrant. A local certificate is not Developer ID, notarization, or public-distribution trust. Voice quality depends on installed system assets. Neural Chatterbox remains a nonfunctional boundary prototype and must not be represented as active.
+- **Architectural decision check:** No conflict found with ADR-005, ADR-024, ADR-025, or ADR-029. This work corrects the existing system-fallback implementation and development signing lifecycle without enabling remote TTS, weakening policy, or claiming a neural adapter that is not implemented.
+- **Acceptance criteria:** Premium `tr-TR` voice wins deterministically over compact voices; rate multiplier `1.0` maps to `AVSpeechUtteranceDefaultSpeechRate`; fallback remains deterministic when the premium voice is absent; TTS unit/integration and warnings-as-errors gates pass; a reusable local signing identity produces the same designated requirement across rebuilds; the signed installed app passes strict validation and retains its permissions after a same-identity rebuild/relaunch; Accessibility and Screen Recording are explicitly granted by the user; raw speech remains local; documentation and paired state records are current.
+- **Authority boundary:** The user explicitly authorized persistent permissions and a more advanced voice. No commit, push, release, notarization, or public distribution is inferred.
+- **Next safe action:** Implement testable voice ranking and rate mapping, then create and validate the scoped local signing identity before replacing the installed package.
+
+### 2026-07-28T18:32:00Z — LIVE_AUDIO_BUFFER_REPAIR_VERIFIED — Installed package awaiting secure TCC consent
+
+- **Actor:** Codex
+- **Objective:** Diagnose the user's real spoken-turn `listening timeout` after the earlier finalization repair, correct the native capture/STT transport defects, expose the concrete recognition failure, and install a newly verified package without overstating live acceptance.
+- **Root cause evidence:** `AuraAudio` crossed the AVFoundation tap callback before copying its callback-owned PCM buffer, so downstream conversion could read a buffer whose valid lifetime had ended. The converter input block could also vend the same input repeatedly. Separately, `STTPipeline` ingested an empty placeholder for every `AudioFrameEvent` before `AudioSampleBridge` delivered the real frame, and the bridge discarded an event whenever a newer frame became `latest` first.
+- **Implementation:** The tap now makes an owned immutable PCM copy inside the callback, conversion supplies that input exactly once and accepts non-empty output when the converter reports input exhaustion, and discontinuity timing uses the capture format sample rate. `AudioRingBuffer`/`AuraAudio` provide exact sequence lookup; `AudioSampleBridge` uses it; `STTPipeline` no longer sends empty placeholder audio. `ConversationEventBridge` now maps failed `STTHealthEvent`s into a bounded conversation error, so native Speech failures replace the generic later timeout in the UI.
+- **Tests:** Added retained-sequence lookup and STT-health-to-conversation-error coverage. Scoped strict formatting and the warnings-as-errors build passed. `AuraAudioTests` passed 32/32 on rerun (the first run had one unrelated wall-clock System TTS latency excursion: 2.754 s against 2.0 s); `AuraSTTTests` passed 14/14; `AURAIntegrationTests` passed 16/16.
+- **Package evidence:** Release build, Hardened Runtime ad-hoc signing, strict main/helper signature validation, restrictive helper entitlement checks, and live helper sandbox attestation passed. `/Applications/AURA.app` was replaced with CDHash `4e0bfc059bc4d858d011327849eaa2c165018353`; the superseded package was moved recoverably to `~/.Trash/AURA-pre-live-audio-buffer-fix-20260728.app`.
+- **Live boundary:** The new ad-hoc identity reset Microphone and Speech Recognition to Not requested. AURA's explicit onboarding opened the secure macOS Microphone consent dialog. That secure TCC dialog requires the user's physical **Allow** action; automation did not bypass it. Speech Recognition consent and one human-spoken response turn therefore remain pending.
+- **Security/privacy:** No raw audio was logged, persisted, or exported. Diagnostics used frame/control-flow inspection and privacy-safe status only. TCC remains user controlled.
+- **Repository state:** Repair files remain uncommitted at `HEAD == origin/main == 209cff5435dd557d013f7def9702c91f17ff62a7`; the user's pre-existing `.vscode/launch.json` modification remains preserved and outside scope. No commit, push, release, deploy, notarization, or publication occurred.
+- **Next safe action:** The user clicks **Allow** on the visible Microphone dialog and then **Allow** on Speech Recognition, presses **Push to Talk**, speaks normally, and pauses. Record the resulting stable transcript/response or concrete surfaced STT error before claiming completion.
+
+### 2026-07-28T18:04:00Z — PUSH_TO_TALK_FINALIZATION_AUTOMATED_GATE_PASSED — Human voice acceptance pending
+
+- **Actor:** Codex
+- **Objective:** Record the evidence produced after `PUSH_TO_TALK_FINALIZATION_REPAIR_STARTED` without overstating the remaining live human-speech gate.
+- **Implementation:** Added `PushToTalkSessionFinalizer`, which arms only for explicit activation, analyzes volatile real frames with configured `EnergyVAD`, emits exactly one inactive activation after speech plus silence, and enforces a seven-second-or-shorter fallback below the conversation deadline. Voice capture is now deferred until both native voice permissions are ready, preventing clean-TCC startup from blocking in `AVAudioEngine.inputNode`.
+- **Native STT correction:** `SystemSTTEngine` keeps an engine-lifetime result stream, preserves session identity, accepts the asynchronous final callback after `endAudio()`, ignores stale-session callbacks, and can start another session after finalization/cancellation. `STTPipeline` consumes results once for its lifetime, returns to activated after stable output, filters empty text, and translates adapter errors to `STTHealthEvent` instead of authorized user utterances.
+- **Regression-safety correction:** A pre-existing computer-use test assumed Accessibility was always denied and generated a real center-screen click when the test runner was trusted. It now uses an Accessibility-only anchor against a nonexistent application, proving a typed failure without generating input under either TCC state.
+- **Targeted evidence:** `AURAIntegrationTests` passed 15/15, including speech→silence single-finalization, hard deadline, two consecutive finalized turns, and STT error isolation. `AuraSTTTests` passed 14/14 after the protocol/test contract was corrected from single-use stream termination to engine-lifetime results.
+- **Full evidence:** `AURA_ENABLE_COVERAGE=1 ./scripts/aura-test.sh /tmp/aurabuild-ptt-repair-full-final` passed all 18 bundles and 584/584 tests. LLVM reported `TOTAL ... Lines 21052 ... Missed Lines 6111 ... Cover 70.97%`, satisfying the enforced 70% ratchet. Changed Swift formatting, warnings-as-errors AURA build, and `git diff --check` passed.
+- **Package/clean-start evidence:** The release app build, Hardened Runtime ad-hoc signing, strict main/helper signature validation, restrictive helper entitlements, and live helper sandbox attestation passed. `/Applications/AURA.app` was replaced with CDHash `a1c1bc47e4abd2418367be684fc50ebb63071d8d`; the prior package was moved recoverably to `~/.Trash/AURA-pre-permission-defer-20260728.app`. With permissions reset by the new ad-hoc identity, the app reached `Restricted — Complete voice permission onboarding` instead of blocking in CoreAudio. Microphone and Speech Recognition were then granted successfully.
+- **Live evidence boundary:** A system `say` utterance did not feed back into the microphone and therefore ended as a silent-session listening timeout; it is not valid evidence for or against human speech recognition. The installed app remains open for the user to press Push to Talk, speak normally, and pause.
+- **Repository state:** Repair files and this evidence remain uncommitted at `HEAD == origin/main == 209cff5435dd557d013f7def9702c91f17ff62a7`. The user's `.vscode/launch.json` modification remains preserved and outside scope. No commit, push, release, deploy, notarization, or publication was performed.
+- **Next safe action:** Obtain one human-spoken stable transcript→intent→system-TTS response on the installed package. If it passes, append completion evidence and review the scoped diff; if it fails, capture the visible state and diagnose the native audio/STT leg without weakening privacy or permission boundaries.
+
+### 2026-07-28T17:47:00Z — PUSH_TO_TALK_FINALIZATION_REPAIR_STARTED — Live voice-response defect reproduced and bounded repair authorized
+
+- **Actor:** Codex
+- **Objective:** Repair the user-reported defect where AURA accepts all four TCC grants and enters Push to Talk but reaches `listening timeout` without a spoken response; prove stable transcript, intent, and TTS handoff for repeatable local turns.
+- **Starting state:** `HEAD == origin/main == 209cff5435dd557d013f7def9702c91f17ff62a7`. The only pre-existing working-tree change is the user's `.vscode/launch.json` addition, which remains outside scope and must be preserved.
+- **Reproduction evidence:** The installed `/Applications/AURA.app` is running with Microphone, Speech Recognition, Accessibility, and Screen Recording all Granted, while the accessibility status reports `Restricted. listening timeout`. Source inspection shows `activatePushToTalk()` emits only `WakeActivationEvent(isActive: true)`; no production path emits the matching inactive event needed by `STTPipeline` to call `finalizeSession()`. Native `SystemSTTEngine.finalizeSession()` also changes state before the asynchronous final Speech callback, causing that callback to fail its streaming-state guard; the result stream is then permanently finished, preventing repeat turns.
+- **Assumptions:** Push to Talk remains a single explicit user action. Real audio frames may end the turn only after speech has been observed followed by configured VAD silence; a bounded fallback must end the capture before the conversation listening deadline. Raw audio remains volatile and is neither stored nor logged.
+- **Risks:** Premature silence detection can truncate speech; an unbounded turn recreates the timeout defect; duplicate end events can race; stale native Speech callbacks can contaminate a later session; treating recognition errors as user text could incorrectly reach the intent engine.
+- **Architectural decision check:** No conflict found with ADR-025 or ADR-029. The repair completes their existing native on-device STT and one-local-turn Push-to-Talk contracts without enabling the synthetic marker wake detector or broadening permissions.
+- **Acceptance criteria:** A real-sample speech→silence sequence emits exactly one inactive activation and finalizes STT before the listening deadline; a hard fallback closes silent/noisy sessions; the native final callback remains consumable after `endAudio`; two consecutive Push-to-Talk turns can each emit a stable segment; recognition failures cannot be routed as user intent; targeted integration/STT tests, full 18-bundle regression, coverage ratchet, warnings-as-errors, packaging/signature checks, and a live installed-app voice-response test pass before any completion claim.
+- **Authority boundary:** The user authorized implementation with “yap”. No commit, push, release, deploy, notarization, or publication is inferred from this repair request.
+- **Next safe action:** Add a VAD-bounded Push-to-Talk session finalizer, make native STT sessions reusable without dropping the final callback, add adversarial/repeat-turn tests, then run the full gate.
+
 ### 2026-07-28T17:40:00Z — RUNTIME_UI_TCC_SIGNING_CORRECTION_COMPLETED — Native consent and Hardened Runtime evidence verified
 
 - **Actor:** Codex

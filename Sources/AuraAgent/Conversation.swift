@@ -126,6 +126,13 @@ public actor Conversation {
     await logger.debug("Partial transcript: \(event.text)", actor: .audio)
   }
 
+  /// End the active listening turn with the concrete local STT failure.
+  public func recognitionFailed(detail: String) async {
+    guard state == .listening || state == .interrupted else { return }
+    await cancelTimeout()
+    transition(to: .error, reason: detail)
+  }
+
   /// Call when the intent engine has produced a response plan. The plan may
   /// or may not include a spoken response. If it does, the TTS queue is scheduled.
   public func responsePlanReceived(_ event: ResponsePlanEvent) async {

@@ -31,6 +31,16 @@ struct AuraAudioTests {
     #expect(buffer.snapshot().isEmpty)
   }
 
+  @Test func ringBufferFindsRetainedFrameBySequenceIndex() {
+    let buffer = AudioRingBuffer(capacity: 3)
+    buffer.append(AudioFrame(samples: [1.0], timestamp: 1.0, sequenceIndex: 1))
+    buffer.append(AudioFrame(samples: [2.0], timestamp: 2.0, sequenceIndex: 2))
+    buffer.append(AudioFrame(samples: [3.0], timestamp: 3.0, sequenceIndex: 3))
+
+    #expect(buffer.frame(sequenceIndex: 2)?.samples == [2.0])
+    #expect(buffer.frame(sequenceIndex: 99) == nil)
+  }
+
   @Test func audioFrameImmutabilityAndDiscontinuityFlag() {
     let frame = AudioFrame(
       samples: [0.5, -0.5],

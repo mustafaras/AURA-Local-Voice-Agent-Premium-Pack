@@ -72,8 +72,8 @@ struct SystemSTTEngineTests {
     #expect(health.status == "cancelled")
   }
 
-  @Test("stream terminates after cancel")
-  func streamTerminatesAfterCancel() async {
+  @Test("cancel stops the session without emitting a stable result")
+  func cancelStopsSessionWithoutStableResult() async {
     let engine = SystemSTTEngine(
       engineID: "native-speech-test",
       locale: Locale(identifier: "en-GB"),
@@ -91,6 +91,7 @@ struct SystemSTTEngineTests {
     // Give the subscription a moment to register before cancellation.
     try? await Task.sleep(nanoseconds: 10_000_000)
     await engine.cancel()
+    task.cancel()
     await task.value
 
     #expect(box.results.isEmpty || box.results.allSatisfy { !$0.isStable })
@@ -126,6 +127,7 @@ struct SystemSTTEngineTests {
     // Allow the engine's MainActor dispatch to complete.
     try? await Task.sleep(nanoseconds: 100_000_000)
     await engine.cancel()
+    task.cancel()
     await task.value
 
     // The only required invariant: the adapter does not crash or leak a

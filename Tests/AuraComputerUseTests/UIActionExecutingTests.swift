@@ -4,13 +4,11 @@ import Foundation
 import Testing
 
 // The real `AXCGEventActionExecutor`/`AccessibilityModalDialogDetector`
-// cannot exercise live Accessibility resolution or CGEvent delivery in this
-// sandboxed CommandLineTools environment (no granted Accessibility
-// permission, likely no real display) — matching the established Phase 1/2/
-// 6/17 precedent of "real, header-verified API, safe-degradation tested,
-// live-hardware validation deferred." These tests only prove the executor
-// degrades safely (a typed error, never a crash or hang) rather than
-// silently pretending to succeed.
+// must not exercise live Accessibility resolution or CGEvent delivery from a
+// test process. The host may or may not grant Accessibility to the runner, so
+// failure-path tests use a nonexistent application plus an Accessibility-only
+// anchor: an untrusted process fails at the trust gate, while a trusted process
+// fails before input generation because the target application is absent.
 
 @Test
 func waitActionSucceedsWithoutRequiringAccessibilityTrust() async throws {
@@ -22,17 +20,20 @@ func waitActionSucceedsWithoutRequiringAccessibilityTrust() async throws {
 }
 
 @Test
-func clickActionDegradesSafelyWithoutAccessibilityTrust() async {
+func clickActionDegradesSafelyWithoutGeneratingInput() async {
   let executor = AXCGEventActionExecutor(emergencyStop: EmergencyStopController(eventBus: .shared))
   await #expect(throws: AuraError.self) {
     _ = try await executor.execute(
-      .click, anchor: UIAnchor(fallbackNormalizedX: 0.5, fallbackNormalizedY: 0.5),
-      applicationBundleIdentifier: "com.example.app", windowFrameX: 0, windowFrameY: 0,
+      .click, anchor: UIAnchor(accessibilityRole: "AXButton"),
+      applicationBundleIdentifier: "invalid.aura.tests.nonexistent", windowFrameX: 0,
+      windowFrameY: 0,
       windowFrameWidth: 800, windowFrameHeight: 600)
   }
 }
 
-@Test("The real executor refuses to generate input while emergency stop is active, independent of any caller checking first")
+@Test(
+  "The real executor refuses to generate input while emergency stop is active, independent of any caller checking first"
+)
 func executorItselfRefusesInputWhileEmergencyStopped() async throws {
   let emergencyStop = EmergencyStopController(eventBus: .shared)
   await emergencyStop.trigger(source: .keyboard, reason: "panic")
