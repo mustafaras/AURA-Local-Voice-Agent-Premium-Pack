@@ -4,11 +4,12 @@ This file is a compact, atomically replaced projection of the append-only ledger
 Projection refreshed from live repository and command evidence on 2026-07-30.
 
 - Phase: Phase 25 adversarial safety harness and red-team evaluation suite is
-  implemented, verified, and closed. Phase 24 layered configuration remains
-  uncommitted at `HEAD == origin/main == 1ad8a4061eaad4b87e684861ea3eaf6bd99d2819`.
+  implemented, verified, and closed. Phase 24 layered configuration is
+  committed and pushed at `HEAD == origin/main == ba9842f`.
   The 20-phase implementation roadmap (`prompts/implementation/00_00` through
-  `20_20_RELEASE`) is complete; remaining work is release gates, not new
-  numbered phases.
+  `20_20_RELEASE`) is complete; remaining work is release gates and optional
+  master-prompt phases 26–30, not new numbered phases within the original 0–20
+  roadmap.
 - Chatterbox V3 model download: completed 2026-07-30. The pinned snapshot from
   `ResembleAI/chatterbox` revision `5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18`
   (multilingual-v3) is present under
@@ -32,14 +33,15 @@ Projection refreshed from live repository and command evidence on 2026-07-30.
     `Sources/AuraCore/ResidualRiskRegistry.swift`.
   - `PromptInjectionClassifier` extended with a deterministic non-English
     instruction-override rule.
-- Git state: Phase 24 and Phase 25 work remain uncommitted at
-  `HEAD == origin/main == 1ad8a4061eaad4b87e684861ea3eaf6bd99d2819`.
-- Next safe action: The 20-phase roadmap is complete. Pending release gates are
-  consented reference audio / human listening (deferred by user choice),
-  Screen Recording consent, Developer ID signing/notarization, public plugin PKI,
-  real acoustic wake-word model, and main-process Accessibility/CLI privilege
-  separation. No new numbered phase remains. Proceed only after explicit user
-  instruction (e.g., commit Phase 24–25 changes, or tackle the next open gate).
+- Git state: Phase 24 and Phase 25 changes are committed and pushed to
+  `origin/main` at `ba9842f`. The pre-existing `.vscode/launch.json` change
+  remains outside scope and is not part of Phase 24.
+- Next safe action: Pending release gates are consented reference audio /
+  human listening (deferred by user choice), Screen Recording consent,
+  Developer ID signing/notarization, public plugin PKI, real acoustic wake-word
+  model, and main-process Accessibility/CLI privilege separation. Optionally
+  begin master-prompt Phase 26 (Continuous Operation: telemetry, signed updates,
+  field recovery, LTS) after explicit user authorization.
 
   The earlier voice implementation
   `4ffa2139f38ba343707d3c8b393be11259851265` and evidence commit

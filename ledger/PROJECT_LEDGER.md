@@ -2,6 +2,27 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-30T15:00:00Z — POST_COMMIT_LEDGER_RECONCILIATION — Phase 24–25 pushed, ADR-033 accepted, Phase 26 option surfaced
+
+- **Actor:** Codex.
+- **Objective result:** After the user authorized and the Phase 24–25 commit/push completed (`ba9842f`), reconcile the ledger files and decision index so they no longer describe the work as uncommitted. Surface the optional next implementation phase from `AURA_PREMIUM_UNIFIED_MASTER.prompt.md`: Phase 26 — Continuous Operation.
+- **Implementation:**
+  - Updated `ledger/CURRENT_STATE.md` to show `HEAD == origin/main == ba9842f` and removed "Phase 24 remains uncommitted" language.
+  - Updated `SESSION_STARTER.md` title and "Current phase" section to reflect committed/pushed state.
+  - Changed `ADR-033` status from `Draft` to `Accepted` in `ledger/DECISION_INDEX.md`.
+  - Refreshed the most recent `PROJECT_LEDGER.md` entry's "Next safe action" to point to remaining release gates and optional Phase 26.
+- **Verification evidence:**
+  - `git log --oneline -1` reports `ba9842f (HEAD -> main, origin/main, origin/HEAD) feat(config,governance): Phase 24 layered configuration engine and Phase 25 adversarial safety harness`.
+  - `git status --short` shows only the pre-existing `.vscode/launch.json` modification outside phase scope.
+- **Files changed:** `ledger/CURRENT_STATE.md`, `SESSION_STARTER.md`, `ledger/DECISION_INDEX.md`, and this ledger entry.
+- **Acceptance criteria verdict:**
+  - Ledger state matches actual Git state. **Met.**
+  - ADR-033 reflects accepted status. **Met.**
+  - Phase 26 option is documented as the optional next implementation phase. **Met.**
+- **Open gates:** Same release gates as before (reference audio deferred, Screen Recording consent, signing/notarization, plugin PKI, wake-word model, privilege separation). Optional next implementation phase: master-prompt Phase 26.
+- **Authority boundary:** No release, deployment, notarization, application install/launch, TCC mutation, or reference-audio recording is authorized.
+- **Next safe action:** Obtain explicit authorization to begin Phase 26 implementation, or tackle the next open release gate.
+
 ### 2026-07-30T14:15:00Z — REFERENCE_AUDIO_GATE_DEFERRED_AND_COVERAGE_GATE_PASSED — 20 phases complete, release gates remain
 
 - **Actor:** Codex.
@@ -18,9 +39,9 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - Reference-audio and human-listening gates documented as deferred by user choice, with no impersonation claim. **Met.**
   - Full coverage gate passes after TTS latency stabilized. **Met.**
   - Roadmap phase inventory shows all 20 implementation phases complete. **Met.**
-- **Open gates:** Owned/consented bounded female reference WAV and human listening test (deferred), Screen Recording consent, Developer ID signing/notarization, public plugin vendor PKI, real acoustic wake-word model, and main-process Accessibility/CLI privilege separation.
+- **Open gates:** Owned/consented bounded female reference WAV and human listening test (deferred), Screen Recording consent, Developer ID signing/notarization, public plugin vendor PKI, real acoustic wake-word model, and main-process Accessibility/CLI privilege separation. Optional next implementation phase: master-prompt Phase 26 — Continuous Operation.
 - **Authority boundary:** No commit, push, merge, release, deployment, notarization, application install/launch, TCC mutation, or reference-audio recording is authorized.
-- **Next safe action:** Obtain explicit user authorization to commit the uncommitted Phase 24–25 changes, or proceed to the next open release gate (Screen Recording consent, signing/notarization, wake-word model, etc.).
+- **Next safe action:** Pending release gates remain; optionally begin master-prompt Phase 26 (telemetry, signed updates, field recovery, LTS) after explicit user authorization.
 
 ### 2026-07-30T13:30:00Z — CHATTERBOX_LIVE_SYNTHESIS_BENCHMARK_CPU — first offline Turkish neural WAV, MPS stalled
 
