@@ -2,6 +2,23 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-30T15:05:00Z — SESSION_STARTER_HEAD_SHA_CORRECTION — actual HEAD is a116332
+
+- **Actor:** Copilot.
+- **Objective result:** Correct the stale `ba9842f` HEAD reference in `SESSION_STARTER.md` and the contradictory uncommitted-release line in `ledger/CURRENT_STATE.md`.
+- **Implementation:**
+  - Updated `SESSION_STARTER.md` title, last-commit badge, and current-phase line to `a116332`.
+  - Updated `ledger/CURRENT_STATE.md` release-status paragraph to say Phase 24 and Phase 25 are committed and pushed at `HEAD == origin/main == a116332`.
+- **Verification evidence:**
+  - `git log --oneline -1` reports `a116332 (HEAD -> main, origin/main, origin/HEAD) docs(state): reconcile post-commit state and refresh session starter`.
+- **Files changed:** `SESSION_STARTER.md`, `ledger/CURRENT_STATE.md`, and this ledger entry.
+- **Acceptance criteria verdict:**
+  - Session starter references the actual HEAD commit. **Met.**
+  - Current state no longer claims phases are uncommitted. **Met.**
+- **Open gates:** Same as previous entry.
+- **Authority boundary:** No release, deployment, notarization, application install/launch, TCC mutation, or reference-audio recording is authorized.
+- **Next safe action:** Same as previous entry; obtain explicit authorization before Phase 26 or any release gate.
+
 ### 2026-07-30T15:00:00Z — POST_COMMIT_LEDGER_RECONCILIATION — Phase 24–25 pushed, ADR-033 accepted, Phase 26 option surfaced
 
 - **Actor:** Codex.

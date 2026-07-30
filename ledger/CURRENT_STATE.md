@@ -192,10 +192,10 @@ Projection refreshed from live repository and command evidence on 2026-07-30.
   - Real acoustic wake-word model, Developer ID signing/notarization, public plugin vendor PKI/catalog, and real third-party payload execution remain unavailable external-material/release gates.
   - The main-process Accessibility/CLI privileges should ultimately move behind least-privilege helpers before claiming OS-enforced network confinement.
 - Release status: the earlier voice repair is committed, feature-pushed,
-  merged, and remotely verified. Phase 24 and Phase 25 are not committed. No
-  release, deploy, notarization, public marketplace publication, application
-  install/launch, or TCC mutation was performed. A verified Phase 24 package
-  exists only under
+  merged, and remotely verified. Phase 24 and Phase 25 are committed and
+  pushed at `HEAD == origin/main == a116332`. No release, deploy,
+  notarization, public marketplace publication, application install/launch, or
+  TCC mutation was performed. A verified Phase 24 package exists only under
   `/tmp`; AURA remains closed.
 - Next safe action: Implement the `AuraAdversarialTests` target scaffold, add
   the first deterministic eval cases (prompt injection, tool spoofing, policy

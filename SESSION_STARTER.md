@@ -1,7 +1,7 @@
 # AURA Session Starter — Phases 0–25 Committed; Chatterbox Model Verified
 
 > Conversation date: 30 July 2026
-> Last commit: `ba9842f` — `feat(config,governance): Phase 24 layered configuration engine and Phase 25 adversarial safety harness`
+> Last commit: `a116332` — `docs(state): reconcile post-commit state and refresh session starter`
 > Read `AGENTS.md`, `ledger/CURRENT_STATE.md`, and the newest `ledger/PROJECT_LEDGER.md` entry before changing files.
 
 ## Repository
@@ -15,7 +15,7 @@
 
 ## Current phase: Phases 0–25 committed and pushed; release gates and optional Phase 26 remain
 
-- `HEAD == origin/main == ba9842f`.
+- `HEAD == origin/main == a116332`.
 - Phase 24 (layered configuration governance) and Phase 25 (adversarial safety
   harness) are implemented, verified, committed, and pushed.
 - The 20-phase implementation roadmap (`prompts/implementation/00_00` through
