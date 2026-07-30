@@ -25,3 +25,4 @@
 | ADR-031 | Accepted | Local Chatterbox Multilingual V3 with consent-bound female voice and Yelda fallback | 2026-07-29 | ADR-024; TTS-selection portion of ADR-030 |
 | ADR-032 | Accepted | Layered self-tuning configuration, non-weakening project governance, reversible migrations, durable rollback, and expiring feature flags | 2026-07-29 | — |
 | ADR-033 | Accepted | Adversarial safety and red-team harness: deterministic eval target, failure-as-blocker CI, incident response, and independent review schedule | 2026-07-30 | — |
+| ADR-034 | In Progress | Accessibility and CLI privilege separation behind least-privilege sandbox helpers for OS-enforced network confinement | 2026-07-30 | — |

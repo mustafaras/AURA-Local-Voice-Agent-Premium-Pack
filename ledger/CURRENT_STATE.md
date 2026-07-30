@@ -8,8 +8,12 @@ Projection refreshed from live repository and command evidence on 2026-07-30.
   committed and pushed at `HEAD == origin/main == ba9842f`.
   The 20-phase implementation roadmap (`prompts/implementation/00_00` through
   `20_20_RELEASE`) is complete; remaining work is release gates and optional
-  master-prompt phases 26–30, not new numbered phases within the original 0–20
-  roadmap.
+  master-prompt phases 26–30.
+  ADR-034 (Accessibility/CLI privilege separation) is **In Progress**.
+  Milestone 1 is complete: `AuraAutomationHelper` and `AuraShellHelper` sandboxed
+  executables, shared `AuraCore` IPC types, helper entitlements, and updated
+  build/sign/verify scripts all build and self-attest. Milestone 2 (protocol
+  boundary, in-process fallback, and `AuraKernel` selection) is pending.
 - Chatterbox V3 model download: completed 2026-07-30. The pinned snapshot from
   `ResembleAI/chatterbox` revision `5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18`
   (multilingual-v3) is present under
@@ -33,15 +37,17 @@ Projection refreshed from live repository and command evidence on 2026-07-30.
     `Sources/AuraCore/ResidualRiskRegistry.swift`.
   - `PromptInjectionClassifier` extended with a deterministic non-English
     instruction-override rule.
-- Git state: Phase 24 and Phase 25 changes are committed and pushed to
-  `origin/main` at `ba9842f`. The pre-existing `.vscode/launch.json` change
-  remains outside scope and is not part of Phase 24.
-- Next safe action: Pending release gates are consented reference audio /
-  human listening (deferred by user choice), Screen Recording consent,
-  Developer ID signing/notarization, public plugin PKI, real acoustic wake-word
-  model, and main-process Accessibility/CLI privilege separation. Optionally
-  begin master-prompt Phase 26 (Continuous Operation: telemetry, signed updates,
-  field recovery, LTS) after explicit user authorization.
+- Git state: Phase 24 and Phase 25 changes remain committed and pushed to
+  `origin/main == ba9842f`. ADR-034 milestone-1 changes are local-only. The
+  `.vscode/launch.json` change is now part of ADR-034 because it adds launch
+  configurations for the new helper executable targets.
+- Next safe action: Continue ADR-034 milestone 2 (protocol boundary and
+  `AuraKernel` selection). Pending release gates otherwise remain consented
+  reference audio / human listening (deferred by user choice), Screen Recording
+  consent, Developer ID signing/notarization, public plugin PKI, real acoustic
+  wake-word model, and completing main-process Accessibility/CLI privilege
+  separation. Optionally begin master-prompt Phase 26 after explicit user
+  authorization.
 
   The earlier voice implementation
   `4ffa2139f38ba343707d3c8b393be11259851265` and evidence commit
@@ -87,8 +93,14 @@ Projection refreshed from live repository and command evidence on 2026-07-30.
     stable bounded rollout. Local aggregate recommendations are opt-in,
     explainable, and never auto-applied.
 - Security boundary:
-  - `AuraPluginHost` remains a separately signed, restrictive App Sandbox helper with live self-attestation.
-  - The main app is intentionally unsandboxed while Accessibility and CLI execution remain in-process. Main-process network controls are policy/allowlist controls, not OS sandbox enforcement.
+  - `AuraPluginHost`, `AuraAutomationHelper`, and `AuraShellHelper` are
+    separately packaged, App Sandbox entitled helpers with network denied and
+    live self-attestation (`--attest-only` prints `sandbox-ok`).
+  - The main app remains intentionally non-sandboxed while Accessibility and
+    CLI execution remain in-process. Main-process network controls are
+    policy/allowlist controls, not OS sandbox enforcement. ADR-034 milestone 1
+    delivers the helper executables; milestone 2 will add the protocol boundary
+    and switch `AuraKernel` to use the helper-backed path when configured.
   - Local packages prefer the trusted `AURA Stable Local Signing` Keychain
     identity and retain Hardened Runtime plus the existing least-privilege
     entitlements. The stable designated requirement preserves TCC identity
@@ -116,8 +128,12 @@ Projection refreshed from live repository and command evidence on 2026-07-30.
   - `AURA_ENABLE_COVERAGE=1 AURA_COVERAGE_MIN=70 ./scripts/aura-test.sh` passes
     all 19 + 1 bundles and reports `TOTAL line coverage 70.23%` with
     `PASSED: line coverage 70.23% meets 70%`.
-  - Strict changed-file formatting, `git diff --check`, shell syntax, package
-    parsing, plist lint, and a warnings-as-errors `AURA` build pass.
+  - ADR-034 milestone 1: `swift build --product AuraAutomationHelper --product
+    AuraShellHelper` succeeds; `AURA_ENABLE_COVERAGE=0
+    ./scripts/aura-test.sh /tmp/aurabuild-adr034-smoke` passes all 20 bundles;
+    `./scripts/build-app-bundle.sh` packages the new helpers into
+    `AURA.app/Contents/Helpers/`; `zsh -n` passes for the three modified shell
+    scripts; `git diff --check` passes.
   - Phase 24 release app/helper packaging, stable local signing, and deep/strict
     verification pass under `/tmp`. Main package CDHash:
     `988b4cc89093eadb46c1df21d5f4a98029ba0989`.
@@ -192,11 +208,12 @@ Projection refreshed from live repository and command evidence on 2026-07-30.
   - Real acoustic wake-word model, Developer ID signing/notarization, public plugin vendor PKI/catalog, and real third-party payload execution remain unavailable external-material/release gates.
   - The main-process Accessibility/CLI privileges should ultimately move behind least-privilege helpers before claiming OS-enforced network confinement.
 - Release status: the earlier voice repair is committed, feature-pushed,
-  merged, and remotely verified. Phase 24 and Phase 25 are committed and
-  pushed at `HEAD == origin/main == a116332`. No release, deploy,
-  notarization, public marketplace publication, application install/launch, or
-  TCC mutation was performed. A verified Phase 24 package exists only under
-  `/tmp`; AURA remains closed.
+  merged, and remotely verified. Phase 24 and Phase 25 are committed locally
+  at `HEAD == bdc1ccd`; `origin/main == a116332` because the most recent push
+  failed with a 403 network error. No release, deploy, notarization, public
+  marketplace publication, application install/launch, or TCC mutation was
+  performed. A verified Phase 24 package exists only under `/tmp`; AURA remains
+  closed.
 - Next safe action: Implement the `AuraAdversarialTests` target scaffold, add
   the first deterministic eval cases (prompt injection, tool spoofing, policy
   bypass, memory poisoning, structured-output abuse, capability-boundary

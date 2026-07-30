@@ -11,6 +11,8 @@ let package = Package(
     products: [
         .executable(name: "AURA", targets: ["AURA"]),
         .executable(name: "AuraPluginHost", targets: ["AuraPluginHost"]),
+        .executable(name: "AuraAutomationHelper", targets: ["AuraAutomationHelper"]),
+        .executable(name: "AuraShellHelper", targets: ["AuraShellHelper"]),
         .library(name: "AuraCore", targets: ["AuraCore"]),
         .library(name: "AuraAudio", targets: ["AuraAudio"]),
         .library(name: "AuraAutomation", targets: ["AuraAutomation"]),
@@ -72,6 +74,10 @@ let package = Package(
             dependencies: [],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("CryptoKit", .when(platforms: [.macOS])),
+                .linkedFramework("Security", .when(platforms: [.macOS]))
             ]
         ),
         .target(
@@ -300,6 +306,26 @@ let package = Package(
         .executableTarget(
             name: "AuraPluginHost",
             dependencies: ["AuraCore", "AuraPlugins"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("Security", .when(platforms: [.macOS]))
+            ]
+        ),
+        .executableTarget(
+            name: "AuraAutomationHelper",
+            dependencies: ["AuraCore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("Security", .when(platforms: [.macOS]))
+            ]
+        ),
+        .executableTarget(
+            name: "AuraShellHelper",
+            dependencies: ["AuraCore"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ],

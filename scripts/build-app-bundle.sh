@@ -25,6 +25,14 @@ swift build \
   -c release \
   --product "AuraPluginHost" \
   --build-path "$BUILD_DIR/swiftpm"
+swift build \
+  -c release \
+  --product "AuraAutomationHelper" \
+  --build-path "$BUILD_DIR/swiftpm"
+swift build \
+  -c release \
+  --product "AuraShellHelper" \
+  --build-path "$BUILD_DIR/swiftpm"
 
 # Assemble .app bundle
 CONTENTS="$BUILD_DIR/$APP_NAME.app/Contents"
@@ -33,18 +41,30 @@ RESOURCES_DIR="$CONTENTS/Resources"
 HELPER_APP="$CONTENTS/Helpers/AuraPluginHost.app"
 HELPER_CONTENTS="$HELPER_APP/Contents"
 HELPER_MACOS="$HELPER_CONTENTS/MacOS"
-mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$HELPER_MACOS"
+AUTOMATION_HELPER_APP="$CONTENTS/Helpers/AuraAutomationHelper.app"
+AUTOMATION_HELPER_CONTENTS="$AUTOMATION_HELPER_APP/Contents"
+AUTOMATION_HELPER_MACOS="$AUTOMATION_HELPER_CONTENTS/MacOS"
+SHELL_HELPER_APP="$CONTENTS/Helpers/AuraShellHelper.app"
+SHELL_HELPER_CONTENTS="$SHELL_HELPER_APP/Contents"
+SHELL_HELPER_MACOS="$SHELL_HELPER_CONTENTS/MacOS"
+mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$HELPER_MACOS" "$AUTOMATION_HELPER_MACOS" "$SHELL_HELPER_MACOS"
 mkdir -p "$RESOURCES_DIR/Chatterbox"
 
 # Copy executable
 cp "$BUILD_DIR/swiftpm/release/$APP_NAME" "$MACOS_DIR/$APP_NAME"
 cp "$BUILD_DIR/swiftpm/release/AuraPluginHost" "$HELPER_MACOS/AuraPluginHost"
+cp "$BUILD_DIR/swiftpm/release/AuraAutomationHelper" "$AUTOMATION_HELPER_MACOS/AuraAutomationHelper"
+cp "$BUILD_DIR/swiftpm/release/AuraShellHelper" "$SHELL_HELPER_MACOS/AuraShellHelper"
 cp "$REPO_ROOT/Resources/AuraPluginHost-Info.plist" "$HELPER_CONTENTS/Info.plist"
+cp "$REPO_ROOT/Resources/AuraAutomationHelper-Info.plist" "$AUTOMATION_HELPER_CONTENTS/Info.plist"
+cp "$REPO_ROOT/Resources/AuraShellHelper-Info.plist" "$SHELL_HELPER_CONTENTS/Info.plist"
 
 # Copy entitlements and Info.plist for the bundle build.
 cp "$REPO_ROOT/Resources/$APP_NAME-Info.plist" "$CONTENTS/Info.plist"
 cp "$REPO_ROOT/Resources/$APP_NAME.entitlements" "$RESOURCES_DIR/$APP_NAME.entitlements"
 cp "$REPO_ROOT/Resources/AuraPluginHost.entitlements" "$RESOURCES_DIR/AuraPluginHost.entitlements"
+cp "$REPO_ROOT/Resources/AuraAutomationHelper.entitlements" "$RESOURCES_DIR/AuraAutomationHelper.entitlements"
+cp "$REPO_ROOT/Resources/AuraShellHelper.entitlements" "$RESOURCES_DIR/AuraShellHelper.entitlements"
 cp "$REPO_ROOT/Runtime/chatterbox/chatterbox_helper.py" \
   "$RESOURCES_DIR/Chatterbox/chatterbox_helper.py"
 

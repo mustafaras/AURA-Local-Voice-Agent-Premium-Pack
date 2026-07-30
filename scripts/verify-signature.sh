@@ -7,16 +7,56 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${(%):-%N}")" && pwd)"
 APP_PATH="${1:-$SCRIPT_DIR/../.build/release-app/AURA.app}"
-HELPER_PATH="$APP_PATH/Contents/Helpers/AuraPluginHost.app"
+
+function verify_helper() {
+  local helper_name="$1"
+  local helper_path="$APP_PATH/Contents/Helpers/${helper_name}.app"
+  local helper_executable="$helper_path/Contents/MacOS/$helper_name"
+
+  if [[ ! -d "$helper_path" ]]; then
+    echo "$helper_name not found: $helper_path"
+    exit 1
+  fi
+
+  echo ""
+  echo "=== $helper_name sandbox ==="
+  codesign --verify --strict "$helper_path"
+  local helper_plist
+  helper_plist="$(mktemp -t aura-${helper_name:l}-entitlements)"
+  codesign -d --entitlements :- "$helper_path" 2>/dev/null > "$helper_plist"
+  if [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.security.app-sandbox' "$helper_plist")" != "true" ]]; then
+    echo "$helper_name is not App Sandbox entitled"
+    exit 1
+  fi
+  for capability in \
+    com.apple.security.network.client \
+    com.apple.security.network.server \
+    com.apple.security.device.microphone \
+    com.apple.security.device.camera; do
+    value="$(/usr/libexec/PlistBuddy -c "Print :$capability" "$helper_plist" 2>/dev/null || echo false)"
+    if [[ "$value" == "true" ]]; then
+      echo "$helper_name unexpectedly has $capability"
+      exit 1
+    fi
+  done
+  local attestation
+  attestation="$("$helper_executable" --attest-only)"
+  if [[ "$attestation" != "sandbox-ok" ]]; then
+    echo "$helper_name did not complete sandbox self-attestation"
+    exit 1
+  fi
+  echo "$helper_name OK"
+  rm -f "$helper_plist"
+}
 
 if [[ ! -d "$APP_PATH" ]]; then
   echo "App bundle not found: $APP_PATH"
   exit 1
 fi
-if [[ ! -d "$HELPER_PATH" ]]; then
-  echo "Plugin helper not found: $HELPER_PATH"
-  exit 1
-fi
+
+verify_helper "AuraPluginHost"
+verify_helper "AuraAutomationHelper"
+verify_helper "AuraShellHelper"
 
 echo "=== Signature verification ==="
 codesign -dv --verbose=4 "$APP_PATH"
@@ -58,33 +98,6 @@ codesign -d -r- "$APP_PATH"
 echo ""
 echo "=== Strict validation ==="
 codesign --verify --deep --strict "$APP_PATH"
-
-echo ""
-echo "=== Plugin helper sandbox ==="
-codesign --verify --strict "$HELPER_PATH"
-HELPER_PLIST="$(mktemp -t aura-plugin-helper-entitlements)"
-trap 'rm -f "$HELPER_PLIST"' EXIT
-codesign -d --entitlements :- "$HELPER_PATH" 2>/dev/null > "$HELPER_PLIST"
-if [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.security.app-sandbox' "$HELPER_PLIST")" != "true" ]]; then
-  echo "Plugin helper is not App Sandbox entitled"
-  exit 1
-fi
-for capability in \
-  com.apple.security.network.client \
-  com.apple.security.network.server \
-  com.apple.security.device.microphone \
-  com.apple.security.device.camera; do
-  value="$(/usr/libexec/PlistBuddy -c "Print :$capability" "$HELPER_PLIST" 2>/dev/null || echo false)"
-  if [[ "$value" == "true" ]]; then
-    echo "Plugin helper unexpectedly has $capability"
-    exit 1
-  fi
-done
-attestation="$("$HELPER_PATH/Contents/MacOS/AuraPluginHost" --attest-only)"
-if [[ "$attestation" != "sandbox-ok" ]]; then
-  echo "Plugin helper did not complete sandbox self-attestation"
-  exit 1
-fi
 
 echo ""
 echo "Signature OK: $APP_PATH"

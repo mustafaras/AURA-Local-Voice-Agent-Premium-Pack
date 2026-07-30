@@ -11,7 +11,11 @@ SCRIPT_DIR="$(cd "$(dirname "${(%):-%N}")" && pwd)"
 APP_PATH="${1:-$SCRIPT_DIR/../.build/release-app/AURA.app}"
 ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AURA.entitlements"
 HELPER_ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AuraPluginHost.entitlements"
+AUTOMATION_HELPER_ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AuraAutomationHelper.entitlements"
+SHELL_HELPER_ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AuraShellHelper.entitlements"
 HELPER_PATH="$APP_PATH/Contents/Helpers/AuraPluginHost.app"
+AUTOMATION_HELPER_PATH="$APP_PATH/Contents/Helpers/AuraAutomationHelper.app"
+SHELL_HELPER_PATH="$APP_PATH/Contents/Helpers/AuraShellHelper.app"
 LOCAL_IDENTITY="AURA Stable Local Signing"
 SIGNING_IDENTITY="${AURA_CODESIGN_IDENTITY:-}"
 
@@ -34,6 +38,16 @@ if [[ ! -d "$HELPER_PATH" ]]; then
   exit 1
 fi
 
+if [[ ! -d "$AUTOMATION_HELPER_PATH" ]]; then
+  echo "Automation helper not found: $AUTOMATION_HELPER_PATH"
+  exit 1
+fi
+
+if [[ ! -d "$SHELL_HELPER_PATH" ]]; then
+  echo "Shell helper not found: $SHELL_HELPER_PATH"
+  exit 1
+fi
+
 echo "Signing isolated plugin helper with identity '$SIGNING_IDENTITY' and $HELPER_ENTITLEMENTS"
 codesign \
   --force \
@@ -41,6 +55,22 @@ codesign \
   --options runtime \
   --entitlements "$HELPER_ENTITLEMENTS" \
   "$HELPER_PATH"
+
+echo "Signing automation helper with identity '$SIGNING_IDENTITY' and $AUTOMATION_HELPER_ENTITLEMENTS"
+codesign \
+  --force \
+  --sign "$SIGNING_IDENTITY" \
+  --options runtime \
+  --entitlements "$AUTOMATION_HELPER_ENTITLEMENTS" \
+  "$AUTOMATION_HELPER_PATH"
+
+echo "Signing shell helper with identity '$SIGNING_IDENTITY' and $SHELL_HELPER_ENTITLEMENTS"
+codesign \
+  --force \
+  --sign "$SIGNING_IDENTITY" \
+  --options runtime \
+  --entitlements "$SHELL_HELPER_ENTITLEMENTS" \
+  "$SHELL_HELPER_PATH"
 
 echo "Signing $APP_PATH with identity '$SIGNING_IDENTITY' and entitlements $ENTITLEMENTS"
 codesign \

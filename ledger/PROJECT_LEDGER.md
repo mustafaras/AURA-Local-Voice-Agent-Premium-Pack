@@ -2,6 +2,81 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-07-30T18:00:00Z — ADR-034_MILESTONE_1_HELPERS_PACKAGE_SIGN — two sandboxed helpers build and self-attest
+
+- **Actor:** Copilot.
+- **Objective result:** Complete milestone 1 of ADR-034: add `AuraAutomationHelper` and `AuraShellHelper` executable targets, shared IPC types in `AuraCore`, helper entitlements/Info.plists, package them in `AURA.app/Contents/Helpers/`, and update signing/verification scripts.
+- **Implementation:**
+  - Created `Sources/AuraCore/HelperIPC.swift` with `HelperIPCProtocol.version = 1`, typed request/response headers, `HelperKind`, `HelperIPCError`, sandbox self-attestation utilities, SHA-256 helper integrity, and a bounded `HelperOutputCollector`.
+  - Created `Sources/AuraAutomationHelper/main.swift` and `Sources/AuraShellHelper/main.swift`, each fail-closed on missing sandbox and supporting `--attest-only`.
+  - Created `Resources/AuraAutomationHelper.entitlements`, `Resources/AuraShellHelper.entitlements`, `Resources/AuraAutomationHelper-Info.plist`, and `Resources/AuraShellHelper-Info.plist` with App Sandbox enabled, network denied, and `LSBackgroundOnly`.
+  - Updated `Package.swift` to declare the two executable products/targets and link `CryptoKit` and `Security` with `AuraCore`.
+  - Updated `scripts/build-app-bundle.sh` to build and copy the two helpers into `Contents/Helpers/`.
+  - Updated `scripts/codesign-adhoc.sh` to sign both helpers before the main app.
+  - Updated `scripts/verify-signature.sh` with a `verify_helper` function that asserts App Sandbox, denies network/client/server/mic/camera, and runs `--attest-only` for all three helpers.
+  - Accepted the auto-generated `.vscode/launch.json` entries for the new executable targets.
+- **Verification evidence:**
+  - `zsh -n` passes for all three modified shell scripts.
+  - `swift build --product AuraAutomationHelper --product AuraShellHelper` succeeds with only pre-existing linker search-path warnings.
+  - `AURA_ENABLE_COVERAGE=0 ./scripts/aura-test.sh /tmp/aurabuild-adr034-smoke` builds and runs all 20 test bundles; `Done. Failed bundles: 0`.
+  - `./scripts/build-app-bundle.sh` produces `AURA.app` containing `Contents/Helpers/AuraAutomationHelper.app` and `Contents/Helpers/AuraShellHelper.app` with executables and Info.plists.
+  - `git diff --check` passes.
+- **Files changed:** `Package.swift`, `Sources/AuraCore/HelperIPC.swift`, `Sources/AuraAutomationHelper/main.swift`, `Sources/AuraShellHelper/main.swift`, `Resources/AuraAutomationHelper.entitlements`, `Resources/AuraShellHelper.entitlements`, `Resources/AuraAutomationHelper-Info.plist`, `Resources/AuraShellHelper-Info.plist`, `scripts/build-app-bundle.sh`, `scripts/codesign-adhoc.sh`, `scripts/verify-signature.sh`, `.vscode/launch.json`, `docs/decisions/ADR-034-cli-ax-privilege-separation.md`, `ledger/DECISION_INDEX.md`, this ledger entry, and `ledger/CURRENT_STATE.md`.
+- **Acceptance criteria verdict:**
+  - Two helper executable targets build and self-attest. **Met.**
+  - Helper entitlements enable App Sandbox and deny network client/server. **Met.**
+  - Build/sign/verify scripts package and attest the helpers. **Met.**
+  - Existing tests still pass with no regressions. **Met.**
+- **Open gates:** Milestone 2 remains: refactor `AuraAutomation`/`AuraShell` behind a protocol boundary with in-process fallback and helper-backed implementations, then update `AuraKernel` selection. The release gate for main-process Accessibility/CLI privilege separation is still in progress.
+- **Authority boundary:** No commit, push, merge, release, deployment, notarization, application install/launch, TCC mutation, or reference-audio recording is authorized. Push remains blocked by earlier 403 failure.
+- **Next safe action:** Begin milestone 2: define `AutomationBackend` and `ShellBackend` protocols, implement in-process and helper-backed concrete types, and update `AuraKernel` to construct based on configuration.
+
+
+
+- **Actor:** Copilot.
+- **Objective:** Implement ADR-034: move Accessibility (`AuraAutomation`) and typed shell/PTY execution (`AuraShell`) out of the main `AURA` process and into two separate App Sandbox helpers (`AuraAutomationHelper` and `AuraShellHelper`) with network denied, so the main app can eventually enable OS-enforced network confinement.
+- **Assumptions:**
+  - `AuraPluginHost` is the proven helper pattern to copy (stdin/stdout JSON IPC, sandbox self-attestation, hash/signature verification, restricted child environment).
+  - The main app will remain non-sandboxed during the migration; App Sandbox for the main app is only enabled after the helper-backed path is the default.
+  - Existing in-process implementations stay available as a fallback until the acceptance gate passes.
+  - The user authorizes changes to `Package.swift`, helper entitlements, build scripts, and the composition root, but does not authorize release, notarization, TCC mutation, or push.
+- **Risks:**
+  - Helper IPC may introduce latency in shell/AX paths; must be bounded and measured.
+  - Build/sign/verify scripts must correctly package and attest two new helpers; any regression breaks the release bundle.
+  - Strict concurrency refactoring across process boundaries may surface new warnings or races.
+  - Tests must continue to pass with ≥70% line coverage; helper tests must not require live Accessibility permission or network access.
+- **Acceptance criteria:**
+  1. ADR-034 drafted and referenced in `ledger/DECISION_INDEX.md` as `Draft`. **Met now; will move to `Accepted` when implementation is verified.**
+  2. Two new helper executable targets (`AuraAutomationHelper`, `AuraShellHelper`) build and self-attest (`--attest-only` prints `sandbox-ok`).
+  3. Helper entitlements enable App Sandbox and deny network client/server.
+  4. Main app retains in-process fallback; helper path is selectable via configuration or build setting.
+  5. `scripts/verify-signature.sh` asserts helper sandbox and main-app absence of Accessibility/shell entitlements once migration completes.
+  6. Existing `AuraAutomationTests` and `AuraShellTests` still pass.
+  7. Full repository `AURA_ENABLE_COVERAGE=1 AURA_COVERAGE_MIN=70 ./scripts/aura-test.sh` passes.
+  8. Strict changed-file formatting, `swift format lint`, `git diff --check`, and warnings-as-errors build pass.
+- **Open gates:** Same as before, plus the new privilege-separation gate is now in-progress rather than unstarted.
+- **Authority boundary:** No commit, push, merge, release, deployment, notarization, application install/launch, TCC mutation, or reference-audio recording is authorized. Push remains blocked by earlier 403 failure.
+- **Next safe action:** Add `AuraAutomationHelper` and `AuraShellHelper` executable targets plus shared IPC types, then wire in-process fallback and helper-backed implementations behind a protocol boundary.
+
+### 2026-07-30T15:12:00Z — LOCAL_HEAD_BDC1CCD_AND_PUSH_BLOCKED — state correction committed, origin sync failed with 403
+
+- **Actor:** Copilot.
+- **Objective result:** Record the new local HEAD after committing the state correction, and document that the push to `origin/main` was blocked by a network/proxy 403 error.
+- **Implementation:**
+  - Committed the `a116332` correction as `bdc1ccd`.
+  - Attempted `git push origin main`; it failed with `fatal: unable to access 'https://github.com/mustafaras/AURA-Local-Voice-Agent-Premium-Pack.git/': CONNECT tunnel failed, response 403`.
+  - Updated `SESSION_STARTER.md` and `ledger/CURRENT_STATE.md` to show `HEAD == bdc1ccd` and `origin/main == a116332`.
+- **Verification evidence:**
+  - `git log --oneline -1` reports `bdc1ccd (HEAD -> main) docs(state): correct HEAD reference and ledger state to a116332`.
+  - `git status --short` shows only the pre-existing `.vscode/launch.json` modification.
+- **Files changed:** `SESSION_STARTER.md`, `ledger/CURRENT_STATE.md`, and this ledger entry.
+- **Acceptance criteria verdict:**
+  - Local commit correctly records the state fix. **Met.**
+  - Push failure is documented without claiming success. **Met.**
+- **Open gates:** Same as previous entry.
+- **Authority boundary:** No release, deployment, notarization, application install/launch, TCC mutation, or reference-audio recording is authorized. Push is deferred due to network failure.
+- **Next safe action:** Retry `git push origin main` once network access is available, or proceed with a local-only next work item (Phase 26 planning or a release-gate analysis).
+
 ### 2026-07-30T15:05:00Z — SESSION_STARTER_HEAD_SHA_CORRECTION — actual HEAD is a116332
 
 - **Actor:** Copilot.

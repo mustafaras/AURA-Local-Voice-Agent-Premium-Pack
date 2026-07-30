@@ -1,7 +1,7 @@
 # AURA Session Starter — Phases 0–25 Committed; Chatterbox Model Verified
 
 > Conversation date: 30 July 2026
-> Last commit: `a116332` — `docs(state): reconcile post-commit state and refresh session starter`
+> Last commit: `bdc1ccd` — `docs(state): correct HEAD reference and ledger state to a116332`
 > Read `AGENTS.md`, `ledger/CURRENT_STATE.md`, and the newest `ledger/PROJECT_LEDGER.md` entry before changing files.
 
 ## Repository
@@ -13,9 +13,10 @@
 - Coverage gate: `AURA_ENABLE_COVERAGE=1 AURA_COVERAGE_MIN=70 ./scripts/aura-test.sh /tmp/<unique-build-path>`
 - Do not use plain `swift test` in this environment.
 
-## Current phase: Phases 0–25 committed and pushed; release gates and optional Phase 26 remain
+## Current phase: Phases 0–25 committed locally; sync to origin blocked; release gates and optional Phase 26 remain
 
-- `HEAD == origin/main == a116332`.
+- `HEAD == bdc1ccd`; `origin/main == a116332` (push failed with 403; see
+  ledger).
 - Phase 24 (layered configuration governance) and Phase 25 (adversarial safety
   harness) are implemented, verified, committed, and pushed.
 - The 20-phase implementation roadmap (`prompts/implementation/00_00` through

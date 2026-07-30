@@ -19,6 +19,66 @@
             "target": "AURA",
             "configuration": "release",
             "preLaunchTask": "swift: Build Release AURA"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Debug AuraPluginHost",
+            "target": "AuraPluginHost",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AuraPluginHost"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Release AuraPluginHost",
+            "target": "AuraPluginHost",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AuraPluginHost"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Debug AuraAutomationHelper",
+            "target": "AuraAutomationHelper",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AuraAutomationHelper"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Release AuraAutomationHelper",
+            "target": "AuraAutomationHelper",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AuraAutomationHelper"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Debug AuraShellHelper",
+            "target": "AuraShellHelper",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AuraShellHelper"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Release AuraShellHelper",
+            "target": "AuraShellHelper",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AuraShellHelper"
         }
     ]
 }
