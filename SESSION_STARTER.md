@@ -1,7 +1,7 @@
 # AURA Session Starter — Phases 0–25 Committed; Chatterbox Model Verified
 
 > Conversation date: 30 July 2026
-> Last commit: `bdc1ccd` — `docs(state): correct HEAD reference and ledger state to a116332`
+> Last commit: `14cb0bd` — `feat(security): ADR-034 milestone 1 — AuraAutomationHelper and AuraShellHelper sandboxed executables with IPC types, entitlements, and build/sign/verify script updates`
 > Read `AGENTS.md`, `ledger/CURRENT_STATE.md`, and the newest `ledger/PROJECT_LEDGER.md` entry before changing files.
 
 ## Repository
@@ -13,19 +13,25 @@
 - Coverage gate: `AURA_ENABLE_COVERAGE=1 AURA_COVERAGE_MIN=70 ./scripts/aura-test.sh /tmp/<unique-build-path>`
 - Do not use plain `swift test` in this environment.
 
-## Current phase: Phases 0–25 committed locally; sync to origin blocked; release gates and optional Phase 26 remain
+## Current phase: Phases 0–25 committed and pushed; ADR-034 milestone 1 local; release gates and optional Phase 26 remain
 
-- `HEAD == bdc1ccd`; `origin/main == a116332` (push failed with 403; see
-  ledger).
+- `HEAD == 14cb0bd`; `origin/main == a116332` (push failed with 403; see
+  ledger). ADR-034 milestone 1 is committed locally only.
 - Phase 24 (layered configuration governance) and Phase 25 (adversarial safety
   harness) are implemented, verified, committed, and pushed.
+- ADR-034 (Accessibility/CLI privilege separation) is **In Progress**.
+  Milestone 1 complete: `AuraAutomationHelper` and `AuraShellHelper` sandboxed
+  helpers, shared `AuraCore` IPC types, entitlements, Info.plists, and updated
+  build/sign/verify scripts. Milestone 2 (protocol boundary, in-process fallback,
+  and `AuraKernel` selection) is the next safe action.
 - The 20-phase implementation roadmap (`prompts/implementation/00_00` through
   `20_20_RELEASE`) is complete. The unified master prompt additionally
   defines optional phases 26–30; Phase 26 (Continuous Operation: telemetry,
   signed updates, field recovery, LTS) is the next optional implementation
   phase if the user authorizes it.
-- Pre-existing `.vscode/launch.json` user modification remains outside every
-  phase scope.
+- `.vscode/launch.json` now includes launch configurations for
+  `AuraPluginHost`, `AuraAutomationHelper`, and `AuraShellHelper` as part of
+  ADR-034.
 
 ## Verified Phase 25 handoff
 
