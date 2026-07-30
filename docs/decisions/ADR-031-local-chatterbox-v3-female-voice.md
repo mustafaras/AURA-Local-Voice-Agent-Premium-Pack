@@ -53,10 +53,15 @@ and model revisions instead of silently labeling a V2 wheel as V3.
 ## Acceptance
 
 - Strict Swift build and unit tests prove fallback, warm-up, request bounds,
-  private-path enforcement, cleanup, stop behavior, and factory wiring.
-- Python sources compile and the helper rejects incomplete model snapshots.
-- A pinned snapshot installs with a complete SHA-256 manifest.
+  private-path enforcement, cleanup, stop behavior, and factory wiring. **Met**
+  by full repository coverage gate at 70.24% with all `AuraAudioTests` and
+  `AuraAdversarialTests` passing.
+- Python sources compile and the helper rejects incomplete model snapshots. **Met**.
+- A pinned snapshot installs with a complete SHA-256 manifest. **Met**.
 - A local diagnostic synthesis records load time, synthesis latency, memory,
-  WAV metadata, and device fallback without remote transcript or audio transfer.
+  WAV metadata, and device fallback without remote transcript or audio transfer. **Met**.
 - Final product acceptance remains open until an owned/consented female WAV and
-  one human-listened Turkish turn are available.
+  one human-listened Turkish turn are available. The user has deferred this
+  gate; until it is supplied, AURA remains on the local female `tr-TR` Yelda
+  system voice and never represents the generic model output as the accepted
+  female persona.

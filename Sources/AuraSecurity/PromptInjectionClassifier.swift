@@ -120,6 +120,9 @@ public struct PromptInjectionClassifier: Sendable {
       id: "instructionOverride.forget", category: "instructionOverride", severity: .medium,
       pattern: "forget (everything|what) (you were|i) (told|said)"),
     InjectionRule(
+      id: "instructionOverride.nonEnglishIgnore", category: "instructionOverride", severity: .medium,
+      pattern: "(ignorez|ignorer|ignora|ignoriere|ignoriert|игнорируйте|無視)\\s.*(instructions|instrucciones|istruzioni|anweisungen|инструкции|命令|指示)"),
+    InjectionRule(
       id: "roleHijack.youAreNow", category: "roleHijack", severity: .high,
       pattern: "you are now (a|an) "),
     InjectionRule(

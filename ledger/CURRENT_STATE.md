@@ -1,22 +1,59 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-07-29.
+Projection refreshed from live repository and command evidence on 2026-07-30.
 
-- Phase: Phase 0–23 runtime/UI remediation is committed and remotely verified;
-  Push-to-Talk/native-audio repair, stable local signing, natural Turkish TTS,
-  explicit Screen Recording onboarding, and the local Chatterbox V3 adapter are
-  implemented and under final live acceptance; Phase 24 not started.
-- Git state: voice implementation
+- Phase: Phase 25 adversarial safety harness and red-team evaluation suite is
+  implemented, verified, and closed. Phase 24 layered configuration remains
+  uncommitted at `HEAD == origin/main == 1ad8a4061eaad4b87e684861ea3eaf6bd99d2819`.
+  The 20-phase implementation roadmap (`prompts/implementation/00_00` through
+  `20_20_RELEASE`) is complete; remaining work is release gates, not new
+  numbered phases.
+- Chatterbox V3 model download: completed 2026-07-30. The pinned snapshot from
+  `ResembleAI/chatterbox` revision `5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18`
+  (multilingual-v3) is present under
+  `~/Library/Application Support/AURA/chatterbox-model` (~3.5 GB, 6 files).
+  `AURA_MODEL_MANIFEST.json` was generated and all SHA-256 hashes were verified
+  against the manifest.
+- Live neural-synthesis diagnostic benchmark: completed 2026-07-30 on CPU.
+  First offline Turkish WAV synthesized at
+  `~/Library/Application Support/AURA/chatterbox-test-output/98578148-80db-4965-8402-7d0bf52762a1.wav`
+  (24 kHz mono IEEE Float, 266 KB, 68,160 frames, ~8,268 ms synthesis time).
+  MPS sampling stalled at ~10% on this host session; CPU fallback succeeded.
+- Phase 25 deliverables:
+  - New `Tests/AuraAdversarialTests` Swift Testing target with `Fakes.swift` and
+    nine eval files: 61/61 tests pass.
+  - `scripts/aura-test.sh` default loop builds and runs the new bundle.
+  - `AURA_ENABLE_COVERAGE=1 AURA_COVERAGE_MIN=70 ./scripts/aura-test.sh` reports
+    `line coverage 70.24% meets 70%` (re-run on 2026-07-30 after TTS latency
+    stabilized).
+  - New ops docs: `docs/operations/ADVERSARIAL_INCIDENT_RESPONSE.md` and
+    `docs/operations/SECURITY_REVIEW_SCHEDULE.md`, referenced from ADR-033 and
+    `Sources/AuraCore/ResidualRiskRegistry.swift`.
+  - `PromptInjectionClassifier` extended with a deterministic non-English
+    instruction-override rule.
+- Git state: Phase 24 and Phase 25 work remain uncommitted at
+  `HEAD == origin/main == 1ad8a4061eaad4b87e684861ea3eaf6bd99d2819`.
+- Next safe action: The 20-phase roadmap is complete. Pending release gates are
+  consented reference audio / human listening (deferred by user choice),
+  Screen Recording consent, Developer ID signing/notarization, public plugin PKI,
+  real acoustic wake-word model, and main-process Accessibility/CLI privilege
+  separation. No new numbered phase remains. Proceed only after explicit user
+  instruction (e.g., commit Phase 24–25 changes, or tackle the next open gate).
+
+  The earlier voice implementation
   `4ffa2139f38ba343707d3c8b393be11259851265` and evidence commit
   `b635b59fd64359d9d3f9a918890bb239161b76f1` were pushed on
   `feature/native-voice-chatterbox-v3`, then merged by explicit no-fast-forward
   commit `e2d7396319c0431b17164284d83ca76624a04e31`. Local `main`,
   `origin/main`, and the transport ref were equal at that merge commit. The
-  pre-existing `.vscode/launch.json` change remains outside scope.
+  pre-existing `.vscode/launch.json` change remains outside scope and is not
+  part of Phase 24.
 - Product lifecycle:
   - Native SwiftUI dashboard window, retained menu-bar control, and Settings
     scene.
+  - Settings includes user-controlled local recommendation opt-in, effective
+    configuration inspection, changed-value/source display, and audit count.
   - Clean-profile `0700` Application Support bootstrap before `AuraStore`.
   - Missing Speech/microphone authorization is recoverable and never triggers a startup prompt.
   - Explicit voice onboarding, push-to-talk, status, recent tasks, runtime warnings, confirmations, settings/privacy links, and visible/global emergency stop.
@@ -39,6 +76,14 @@ Projection refreshed from live repository and command evidence on 2026-07-29.
   - Core audio/STT/intent/conversation/task pipeline remains wired.
   - Implemented Screen, Computer Use, Security, Plugin, VS Code, Ollama, worktree, and multi-agent services are constructed behind existing policy, permission, trust, and configuration gates.
   - Confirmation challenges use one nonce/hash/expiry-bound UI presenter and deny on missing UI, dismissal, timeout, shutdown, or overlap.
+  - `AuraConfig.ConfigurationEngine` is constructed before policy/runtime
+    services and persists one versioned state envelope through `AuraStore`.
+  - Configuration resolution is secure defaults → machine policy → user →
+    project → session. Project/session settings cannot weaken registered
+    security bounds; session overrides expire on restart.
+  - Feature flags are owner/purpose/expiry/rollback/kill-switch governed with
+    stable bounded rollout. Local aggregate recommendations are opt-in,
+    explainable, and never auto-applied.
 - Security boundary:
   - `AuraPluginHost` remains a separately signed, restrictive App Sandbox helper with live self-attestation.
   - The main app is intentionally unsandboxed while Accessibility and CLI execution remain in-process. Main-process network controls are policy/allowlist controls, not OS sandbox enforcement.
@@ -57,6 +102,25 @@ Projection refreshed from live repository and command evidence on 2026-07-29.
   - Neural speech is consent-gated: without an owned/consented bounded PCM
     female reference WAV, AURA remains on Yelda.
 - Verified evidence:
+  - `AuraConfigTests` passes 17/17. Tests cover atomic persistence failure,
+    restart-surviving rollback, ephemeral session expiry, forward/reverse
+    migration, non-weakening project/machine policy, flag expiry/kill switch,
+    stable rollout, and explicit recommendation acceptance.
+  - Phase 25 `AuraAdversarialTests` passes 61/61 tests, including prompt
+    injection (multi-language and authority-boundary), tool spoofing, policy
+    bypass/deny precedence, memory poisoning with seeded baseline, structured
+    output, plugin supply-chain tampering, configuration non-weakening, and
+    residual-risk registry references.
+  - `AURA_ENABLE_COVERAGE=1 AURA_COVERAGE_MIN=70 ./scripts/aura-test.sh` passes
+    all 19 + 1 bundles and reports `TOTAL line coverage 70.23%` with
+    `PASSED: line coverage 70.23% meets 70%`.
+  - Strict changed-file formatting, `git diff --check`, shell syntax, package
+    parsing, plist lint, and a warnings-as-errors `AURA` build pass.
+  - Phase 24 release app/helper packaging, stable local signing, and deep/strict
+    verification pass under `/tmp`. Main package CDHash:
+    `988b4cc89093eadb46c1df21d5f4a98029ba0989`.
+  - Current-run Phase 24 line coverage is at least 80.00% per new source file;
+    `ConfigurationEngine` is 80.83%.
   - Changed Swift files pass strict `swift format lint`; the repository diff
     passes `git diff --check`.
   - `AURA` passes a fresh warnings-as-errors build after the permission/TTS
@@ -97,26 +161,42 @@ Projection refreshed from live repository and command evidence on 2026-07-29.
     CoreAudio. Deterministic tests prove one-shot finalization, hard timeout,
     consecutive turns, and error isolation.
   - Main/helper plists pass `plutil -lint`.
+  - Phase 24 closure: `AURA_ENABLE_COVERAGE=1 ./scripts/aura-test.sh
+    /tmp/aurabuild-phase24-final` passed all 19 Swift Testing bundles with
+    70.11% line coverage (≥70% ratchet).
+- Phase 25 closure: `AURA_ENABLE_COVERAGE=1 AURA_COVERAGE_MIN=70
+    ./scripts/aura-test.sh /tmp/aurabuild` passed all 20 Swift Testing bundles
+    with 70.23% line coverage (≥70% ratchet).
 - Manual/release gates still open:
+  - The post-Phase-24 19-bundle run now passes all 19 bundles with 70.11% line
+    coverage. The transient `AVSpeechSynthesizer` callback stall recovered
+    without a system service restart; no test or timeout was weakened.
   - Real `CGEvent`, VoiceOver reading order, contrast, Dynamic Type, and live
     screen-content behavior still require release-hardware validation.
   - Screen Recording was reset from the old ad-hoc identity and is not yet
     granted to the stable identity. The installed app now provides a supported
     explicit request button; its secure consent and post-restart preflight
     remain required.
-  - The pinned 3.21 GB Chatterbox V3 model snapshot is still downloading from
-    the official Hugging Face revision. No integrity manifest or real neural
-    synthesis claim exists until that download and hashing finish.
-  - The owned/consented female reference WAV is absent. One human-spoken
-    Push-to-Talk to stable transcript to spoken response turn, including
-    perceptual voice/persona judgment, remains deferred until the evening.
+  - ✅ The pinned ~3.5 GB Chatterbox V3 model snapshot downloaded from the
+    official Hugging Face revision `5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18`
+    and `AURA_MODEL_MANIFEST.json` was generated with SHA-256 bindings.
+  - ✅ Live neural-synthesis diagnostic benchmark completed on CPU (MPS stalled
+    at ~10% on this host session; CPU fallback succeeded). WAV is valid
+    24 kHz mono IEEE Float, 266 KB, 68,160 frames, ~8,268 ms synthesis time.
+  - ⏸️ Owned/consented bounded female reference WAV and one human-listened
+    Turkish turn are deferred by user choice. AURA remains fail-closed on the
+    local female `tr-TR` Yelda system voice until an owned/consented reference
+    is supplied.
   - Real acoustic wake-word model, Developer ID signing/notarization, public plugin vendor PKI/catalog, and real third-party payload execution remain unavailable external-material/release gates.
   - The main-process Accessibility/CLI privileges should ultimately move behind least-privilege helpers before claiming OS-enforced network confinement.
-- Release status: the repair is committed, feature-pushed, merged, and remotely
-  verified. No release, deploy, notarization, or public marketplace publication
-  was performed. The stable-signed local package was replaced with a verified
-  rollback backup under `/tmp`; AURA was left closed.
-- Next safe action: Let the pinned model download finish, verify its generated
-  SHA-256 manifest, and run one non-accepted diagnostic synthesis/benchmark.
-  Then add an owned/consented female PCM WAV and complete one human-listened
-  Turkish turn. Screen Recording consent remains a separate secure UI gate.
+- Release status: the earlier voice repair is committed, feature-pushed,
+  merged, and remotely verified. Phase 24 and Phase 25 are not committed. No
+  release, deploy, notarization, public marketplace publication, application
+  install/launch, or TCC mutation was performed. A verified Phase 24 package
+  exists only under
+  `/tmp`; AURA remains closed.
+- Next safe action: Implement the `AuraAdversarialTests` target scaffold, add
+  the first deterministic eval cases (prompt injection, tool spoofing, policy
+  bypass, memory poisoning, structured-output abuse, capability-boundary
+  violation), then run the full repository coverage gate. Do not commit, push,
+  merge, or release without explicit authorization.

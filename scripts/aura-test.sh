@@ -53,8 +53,8 @@ else
         AuraCoreTests AuraStoreTests AURAIntegrationTests AuraAudioTests \
         AuraAutomationTests AuraAgentTests AuraSTTTests AuraPolicyTests \
         AuraShellTests AuraComputerUseTests AuraSecurityTests AuraPluginsTests \
-        AuraIntentTests AuraVSCodeTests AuraTasksTests AuraMemoryTests \
-        AuraContextTests AuraScreenTests; do
+        AuraIntentTests AuraConfigTests AuraVSCodeTests AuraTasksTests AuraMemoryTests \
+        AuraContextTests AuraScreenTests AuraAdversarialTests; do
         swift build "${BUILD_ARGS[@]}" --target "$target"
         strip_build_xattrs
     done

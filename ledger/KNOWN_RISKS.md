@@ -5,3 +5,4 @@
 | R-001 | Continuous microphone access may undermine trust if state is unclear. | High | Product architecture | Persistent visual indicator, local processing, emergency stop, zero default retention. | Unassigned | Open |
 | R-002 | UI automation may act on stale or incorrect targets. | High | Computer-use architecture | Freshness checks, target identity validation, atomic steps, confirmations. | Unassigned | Open |
 | R-003 | Multiple local models may exceed 16 GB memory. | Medium | Target hardware | Resource scheduler, model unload, lightweight defaults, benchmarks. | Unassigned | Open |
+| R-004 | Chatterbox MPS inference may stall during sampling on some host sessions. | Medium | 2026-07-30 live benchmark: MPS progress halted at ~10% while CPU completed. | Default to `cpu` if MPS stall is detected; add per-synthesis watchdog; retain CPU fallback in `ChatterboxTTSEngine.Configuration`. | AuraAudio | Open |

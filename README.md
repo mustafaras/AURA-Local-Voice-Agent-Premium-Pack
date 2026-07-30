@@ -21,6 +21,8 @@ A production-oriented implementation pack for a continuously available, privacy-
 - Deterministic tool routing and computer-use fallback.
 - Codex, Claude Code, GitHub Copilot, and local model orchestration.
 - Append-only anti-amnesia ledger and context reconstruction.
+- Layered typed configuration, expiring feature flags, local tuning
+  recommendations, inspection, and restart-safe rollback.
 - Permission, privacy, audit, and threat models.
 - Testing, release, observability, recovery, and deployment specifications.
 - Ordered implementation prompts for coding agents.
@@ -94,7 +96,7 @@ or helper is unavailable. The reference must be 3–30 seconds of clean PCM WAV,
 mono or stereo, at 16–48 kHz. A human-listened Turkish turn is still required
 before accepting a reference recording for regular use.
 
-Run all 18 test bundles with coverage. The enforced line-coverage ratchet is
+Run all 19 test bundles with coverage. The enforced line-coverage ratchet is
 70%, against the currently measured 70.12% result:
 
 ```sh

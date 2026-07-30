@@ -27,7 +27,8 @@ let package = Package(
         .library(name: "AuraComputerUse", targets: ["AuraComputerUse"]),
         .library(name: "AuraSecurity", targets: ["AuraSecurity"]),
         .library(name: "AuraPlugins", targets: ["AuraPlugins"]),
-        .library(name: "AuraIntent", targets: ["AuraIntent"])
+        .library(name: "AuraIntent", targets: ["AuraIntent"]),
+        .library(name: "AuraConfig", targets: ["AuraConfig"])
     ],
     dependencies: [
     ],
@@ -51,6 +52,7 @@ let package = Package(
                 "AuraScreen",
                 "AuraSecurity",
                 "AuraPlugins",
+                "AuraConfig",
                 "AuraVSCode"
             ],
             swiftSettings: [
@@ -334,6 +336,46 @@ let package = Package(
                 .swiftLanguageMode(.v6)
             ]
         ),
+        .target(
+            name: "AuraConfig",
+            dependencies: ["AuraCore", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
+        ),
+        .testTarget(
+            name: "AuraConfigTests",
+            dependencies: ["AuraConfig", "AuraStore"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
+        .testTarget(
+            name: "AuraAdversarialTests",
+            dependencies: [
+                "AuraSecurity",
+                "AuraPolicy",
+                "AuraIntent",
+                "AuraMemory",
+                "AuraContext",
+                "AuraAgent",
+                "AuraPlugins",
+                "AuraConfig",
+                "AuraStore",
+                "AuraCore"
+            ],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
         .testTarget(
             name: "AuraIntentTests",
             dependencies: ["AuraIntent", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraStore", "AuraMemory", "AuraContext"],
@@ -416,7 +458,8 @@ let package = Package(
                 "AuraTasks",
                 "AuraMemory",
                 "AuraContext",
-                "AuraIntent"
+                "AuraIntent",
+                "AuraConfig"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6),

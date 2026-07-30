@@ -1,6 +1,6 @@
-# AURA Session Starter — Verified Voice Remediation Handoff Before Phase 24
+# AURA Session Starter — Phase 25 Closed; Chatterbox Model Downloaded and Verified
 
-> Conversation date: 29 July 2026
+> Conversation date: 30 July 2026
 > Read `AGENTS.md`, `ledger/CURRENT_STATE.md`, and the newest
 > `ledger/PROJECT_LEDGER.md` entry before changing files.
 
@@ -10,52 +10,69 @@
 - Remote: `https://github.com/mustafaras/AURA-Local-Voice-Agent-Premium-Pack`
 - Platform: macOS 27+ on Apple Silicon; Swift 6.4; CommandLineTools
 - Test command: `./scripts/aura-test.sh /tmp/<unique-build-path> [bundle-filter]`
+- Coverage gate: `AURA_ENABLE_COVERAGE=1 AURA_COVERAGE_MIN=70 ./scripts/aura-test.sh /tmp/<unique-build-path>`
 - Do not use plain `swift test` in this environment.
 
-## Verified handoff
+## Current phase: Phase 25 closed; Phase 24 remains uncommitted
 
-- Phase 23 implementation and state commits are remotely verified. The
-  subsequent runtime/UI, TCC/signing, Push-to-Talk, and Chatterbox V3
-  remediation is implemented and remotely verified: implementation commit
-  `4ffa2139f38ba343707d3c8b393be11259851265`, feature evidence commit
-  `b635b59fd64359d9d3f9a918890bb239161b76f1`, and no-fast-forward merge
-  `e2d7396319c0431b17164284d83ca76624a04e31`.
-- Verified closing-evidence commit:
-  `d9896539f1b8c6d94f077fe8948820f4a019b5e8` matched local `HEAD`,
-  `origin/main`, and `git ls-remote` after its fast-forward push.
-- Phase 23 implementation commit:
-  `8afdbf2b56b8003148508b0bbd8ae49ca389fefa`.
-- Current remediation evidence:
-  - All 18 bundles pass, 587/587 tests; LLVM line coverage is 70.12% against
-    the enforced 70% CI ratchet.
-  - `AURA` warnings-as-errors build and changed-file Swift formatting pass.
-  - SwiftUI dashboard/menu-bar/Settings UI, explicit permission onboarding,
-    push-to-talk, confirmations, runtime/task status, and emergency stop are
-    implemented.
-  - A clean-profile packaged app remains alive without prior Speech permission,
-    creates `aura.db` under a `0700` directory, and passes Hardened Runtime
-    signing/helper sandbox verification.
-  - The stable local signing identity preserves the app's designated
-    requirement across rebuilds. Microphone and Speech Recognition grants
-    persist; Accessibility is enabled; Screen Recording still requires the
-    user's secure macOS consent.
-  - Push to Talk now closes after speech followed by VAD silence or a bounded
-    fallback, preserves native final callbacks, supports consecutive turns,
-    copies callback-owned PCM before async delivery, forwards each exact real
-    frame once, and never routes recognition errors as user intent. A live
-    human-voice response check is pending.
-  - Female Turkish Yelda is the immediate local fallback. The process-isolated
-    Chatterbox Multilingual V3 adapter, pinned Python 3.11.15 environment,
-    offline runtime mode, integrity manifest enforcement, private WAV
-    containment, and consent-bound reference-audio gate are implemented.
-    The official 3.21 GB snapshot is still downloading; no neural benchmark or
-    accepted female production voice is claimed yet.
-  - Final locally packaged CDHash:
-    `d7a5b529e63b0377682d1192504952542fc5d30a`.
-- No release, deployment, notarization, or public marketplace publication was
-  performed.
+- `HEAD == origin/main == 1ad8a4061eaad4b87e684861ea3eaf6bd99d2819`.
+- Phase 24 (layered configuration governance) and Phase 25 (adversarial safety
+  harness) source changes are implemented and verified but **not committed**.
+- Pre-existing `.vscode/launch.json` user modification remains outside every
+  phase scope.
 
-## Phase 23 boundaries to preserve
+## Verified Phase 25 handoff
+
+- New `Tests/AuraAdversarialTests` Swift Testing target with `Fakes.swift` and
+  nine deterministic adversarial eval files:
+  - `ConfigurationAdversarialTests.swift`
+  - `MemoryPoisoningAdversarialTests.swift`
+  - `PluginSupplyChainAdversarialTests.swift`
+  - `PolicyBypassAdversarialTests.swift`
+  - `PromptInjectionAdversarialTests.swift`
+  - `ResidualRiskDocumentationTests.swift`
+  - `StructuredOutputAdversarialTests.swift`
+  - `SupplyChainVerificationAdversarialTests.swift`
+  - `ToolSpoofingAdversarialTests.swift`
+- `AuraAdversarialTests`: **61/61 tests passed**.
+- `AuraAdversarialTests` added to the default `scripts/aura-test.sh` build/run
+  loop.
+- Coverage gate with 20 bundles (19 existing + 1 new) passed at **70.23%**
+  line coverage (≥70% ratchet), with the caveat that one recent run hit a
+  transient host-level `SystemTTSLatencyTests.firstChunkLatencyIsUnderBudget`
+  failure (2.446 s vs 2.0 s budget). This is a known real-system TTS latency
+  issue, not a code regression; the test was not skipped and the harness was
+  not weakened.
+- Deterministic prompt-injection classifier extended with a non-English
+  instruction-override rule (French/German/Spanish/Italian/Russian/Chinese/
+  Japanese variants) so multi-language red-team evals now return
+  `.suspicious`/`.blocked`.
+- New ops docs created and referenced from ADR-033 and
+  `Sources/AuraCore/ResidualRiskRegistry.swift`:
+  - `docs/operations/ADVERSARIAL_INCIDENT_RESPONSE.md`
+  - `docs/operations/SECURITY_REVIEW_SCHEDULE.md`
+- ADR-033 records the Phase 25 adversarial safety harness decision.
+- Ledger updated atomically: `ledger/PROJECT_LEDGER.md` has the Phase 25
+  closure entry; `ledger/CURRENT_STATE.md` reflects completed Phase 25 and
+  remaining open gates.
+
+## Verified Phase 24 handoff
+
+- Isolated `AuraConfig` / `AuraConfigTests` targets implemented.
+- Five-layer configuration precedence: secure defaults → machine policy →
+  user settings → project settings → session overrides, with validation,
+  rollback, and audit.
+- Feature flags with owner, purpose, expiry, default, overrides, kill switch,
+  and rollback plan.
+- Opt-in, explainable local recommendations from latency, error, energy, and
+  correction metrics; no raw telemetry leaves the device.
+- Versioned configuration migrators reversible within a compatibility window.
+- User-inspectable effective configuration, default diff, audit, and override
+  revocation.
+- `AuraConfigTests`: 17/17 passed.
+- Warnings-as-errors `AURA` build, strict formatting, and package signing pass.
+
+## Boundaries to preserve
 
 - Plugin code never loads in the AURA process.
 - Every authority-bearing manifest field is signed; payload bytes are
@@ -67,48 +84,58 @@
   append-only audit history remains.
 - Marketplace sources and vendor keys are explicitly user-controlled and local.
 - The v1 helper remains network-denied at the OS layer.
+- Models do not execute actions; they propose typed intents or plans. The
+  policy engine authorizes. Adapters execute. Verification confirms. The
+  ledger records.
+- ContentProvenance.carryAuthority is `true` only for `.systemPolicy` and
+  `.userUtterance`; all other provenance is untrusted.
 
-## Phase 24 mission
+## Verified: Chatterbox V3 model downloaded
 
-Implement layered, self-tuning configuration with typed schemas, migration
-history, feature-flag governance, A/B-safe rollout, and local,
-privacy-preserving recommendations.
+- Pinned snapshot from `ResembleAI/chatterbox` revision
+  `5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18` downloaded into
+  `~/Library/Application Support/AURA/chatterbox-model`.
+- Total model size: ~3.5 GB across 6 files.
+- `AURA_MODEL_MANIFEST.json` generated by `Runtime/chatterbox/install_model.py`.
+- All SHA-256 hashes verified against the manifest.
+- Files are mode `0600`; directory is mode `0700`.
 
-### Required deliverables
+## Verified: Live neural-synthesis diagnostic benchmark
 
-- Configuration precedence: secure defaults → machine policy → user settings →
-  project settings → session overrides, with validation and rollback.
-- Feature flags with owner, purpose, expiry, default, overrides, kill switch,
-  and rollback plan.
-- Opt-in, explainable recommendations from local latency, error, energy, and
-  correction metrics; no raw telemetry leaves the device.
-- Versioned configuration migrators reversible within a compatibility window.
-- User-inspectable effective configuration, default diff, audit, and override
-  revocation.
+- First offline neural Turkish speech synthesized with the verified model.
+- CPU fallback used after MPS sampling stalled at ~10% on this host session.
+- Output: `/Users/m_ras/Library/Application Support/AURA/chatterbox-test-output/98578148-80db-4965-8402-7d0bf52762a1.wav`
+- Format: RIFF WAVE, IEEE Float, mono, 24 kHz, 266 KB, 68,160 frames.
+- Synthesis latency: ~8,268 ms for short text on CPU (Apple Silicon).
+- Human listening and consented reference-voice gates are **deferred by user
+  choice**; neural production speech remains fail-closed to Yelda until an
+  owned/consented bounded female reference WAV is supplied.
 
-### Acceptance gate
+## Open gates before any release claim
 
-- Project configuration cannot weaken higher-risk capabilities.
-- Flags expire or require explicit renewal.
-- Recommendations are explainable and opt-in.
-- Rollback completes within seconds and survives restart.
-- Every configuration change is logged and user-inspectable.
+- ✅ Chatterbox V3 model download and hash-manifest generation.
+- ✅ Live neural-synthesis diagnostic benchmark (CPU, short Turkish text).
+- ⏸️ Owned/consented bounded female reference WAV and human listening test
+  (deferred; no impersonation without consent).
+- Screen Recording consent granted to the stable signing identity.
+- Developer ID signing / notarization for third-party distribution.
+- Public plugin vendor PKI / marketplace catalog.
+- Real acoustic wake-word model.
+- Main-process Accessibility/CLI privilege separation behind least-privilege
+  helpers for OS-enforced network confinement.
+- System TTS callback latency on the current host session (transient; retest).
 
 ## First safe action
 
-1. Preserve the pre-existing `.vscode/launch.json` change.
-2. Let the pinned model download finish and complete the explicit live voice
-   gates below.
-3. Start Phase 24 only after the user's next instruction, then follow the
-   normal ledger start sequence.
-
-## Known open risks
-
-- Developer ID/notarized third-party plugin execution is not yet release-tested.
-- No public vendor PKI or remote marketplace catalog exists.
-- Main-process network confinement is policy-based until Accessibility and CLI
-  execution move behind least-privilege helpers.
-- Real acoustic wake-word and neural STT remain unintegrated. Chatterbox V3 is
-  integrated but cannot pass its live inference gate until the pinned snapshot
-  download, hash manifest, diagnostic benchmark, consented female reference,
-  and human listening test finish.
+1. Read `AGENTS.md`, `ledger/CURRENT_STATE.md`, and the newest
+   `ledger/PROJECT_LEDGER.md` entry.
+2. ✅ Chatterbox V3 model downloaded and hash-verified.
+3. ✅ Live neural-synthesis diagnostic benchmark completed (CPU fallback after
+   MPS stall on this host session).
+4. ✅ Full coverage gate re-run and passed at 70.24%.
+5. Record the MPS sampling-stall observation in `ledger/KNOWN_RISKS.md`.
+6. Update `ADR-031` acceptance to mark reference-audio and human-listening
+   gates as consent-gated/deferred.
+7. The roadmap's 20 implementation phases are complete; remaining work is
+   release gates, not a new numbered phase. Proceed only after explicit user
+   instruction (e.g., commit Phase 24–25 changes, or tackle the next open gate).

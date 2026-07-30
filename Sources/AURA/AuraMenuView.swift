@@ -207,9 +207,35 @@ struct AuraSettingsView: View {
         Text("Speech recognition and system speech synthesis remain on device.")
         Text("Plugin execution remains isolated in the verified helper process.")
       }
+      Section("Configuration Governance") {
+        Toggle(
+          "Local tuning recommendations",
+          isOn: Binding(
+            get: { model.localRecommendationsEnabled },
+            set: { model.setLocalRecommendationsEnabled($0) }))
+        Text(
+          "Uses bounded aggregate metrics only. Recommendations are never applied automatically."
+        )
+        .foregroundStyle(.secondary)
+        LabeledContent(
+          "Effective keys", value: "\(model.effectiveConfiguration.count)")
+        LabeledContent(
+          "Audit records", value: "\(model.configurationAuditCount)")
+        ForEach(
+          model.effectiveConfiguration.filter(\.differsFromDefault).prefix(8),
+          id: \.key
+        ) { entry in
+          LabeledContent(entry.key, value: entry.value.displayValue)
+            .accessibilityLabel(
+              "\(entry.key), \(entry.value.displayValue), from \(entry.sourceLayer.rawValue)")
+        }
+        Button("Refresh Configuration Inspection") {
+          model.refreshConfigurationInspection()
+        }
+      }
     }
     .formStyle(.grouped)
     .padding()
-    .frame(width: 560, height: 430)
+    .frame(width: 620, height: 600)
   }
 }

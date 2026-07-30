@@ -2,6 +2,7 @@ import AuraAgent
 import AuraAudio
 import AuraAutomation
 import AuraComputerUse
+import AuraConfig
 import AuraContext
 import AuraCore
 import AuraIntent
@@ -39,6 +40,7 @@ actor AuraKernel {
   private var conversationEventBridge: ConversationEventBridge?
   private var audioSampleBridge: AudioSampleBridge?
   private var performanceSampler: PerformanceSampler?
+  private var configurationEngine: ConfigurationEngine?
   private var emergencyStop: EmergencyStopController?
   private var screenEngine: ScreenContextEngine?
   private var computerUseLoop: ComputerUseControlLoop?
@@ -137,10 +139,35 @@ actor AuraKernel {
     await emergencyStop?.reset(actor: .user)
   }
 
+  func configurationInspection() async -> ConfigurationInspection? {
+    await configurationEngine?.inspect()
+  }
+
+  func configurationAuditRecords() async -> [ConfigurationAuditRecord] {
+    await configurationEngine?.auditRecords() ?? []
+  }
+
+  func setLocalRecommendationsEnabled(_ enabled: Bool) async throws(AuraError) {
+    guard let configurationEngine else {
+      throw AuraError.invalidConfiguration("configuration governance is not started")
+    }
+    let result = try await configurationEngine.apply(
+      ConfigurationPatch(
+        layer: .userSettings,
+        values: ["privacy.localRecommendationsEnabled": .boolean(enabled)],
+        source: "AURA Settings"),
+      actor: .user)
+    guard result.accepted else {
+      throw AuraError.invalidConfiguration(result.warnings.joined(separator: "; "))
+    }
+  }
+
   // MARK: - Construction (dependency order)
 
   private func construct() async throws(AuraError) {
     let bundleID = configuration.app.bundleIdentifier
+    configurationEngine = try await ConfigurationEngine.load(
+      store: AuraStoreConfigurationStateStore(store: store))
 
     let policyEngine = try await PolicyEngine(
       configuration: configuration.policy, eventBus: eventBus, store: store)

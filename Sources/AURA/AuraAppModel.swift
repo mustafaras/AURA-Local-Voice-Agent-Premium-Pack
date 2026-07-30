@@ -1,4 +1,5 @@
 import AppKit
+import AuraConfig
 import AuraCore
 import AuraStore
 import Foundation
@@ -48,6 +49,9 @@ final class AuraAppModel: ObservableObject {
   @Published private(set) var runtimeWarnings: [String] = [
     "Acoustic wake-word model unavailable; use Push to Talk."
   ]
+  @Published private(set) var effectiveConfiguration: [EffectiveConfigurationEntry] = []
+  @Published private(set) var configurationAuditCount = 0
+  @Published private(set) var localRecommendationsEnabled = false
 
   private let confirmationPresenter = UIConfirmationPresenter()
   private let emergencyShortcutMonitor = EmergencyShortcutMonitor()
@@ -156,6 +160,31 @@ final class AuraAppModel: ObservableObject {
     PermissionCoordinator.openPrivacySettings(anchor: "ScreenCapture")
   }
 
+  func refreshConfigurationInspection() {
+    Task {
+      guard let kernel else { return }
+      if let inspection = await kernel.configurationInspection() {
+        effectiveConfiguration = inspection.entries
+        localRecommendationsEnabled =
+          inspection.entries.first(where: {
+            $0.key == "privacy.localRecommendationsEnabled"
+          })?.value == .boolean(true)
+      }
+      configurationAuditCount = await kernel.configurationAuditRecords().count
+    }
+  }
+
+  func setLocalRecommendationsEnabled(_ enabled: Bool) {
+    Task {
+      do {
+        try await kernel?.setLocalRecommendationsEnabled(enabled)
+        refreshConfigurationInspection()
+      } catch {
+        setError("Configuration change failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
   func quit() {
     resolveConfirmation(accepted: false)
     emergencyShortcutMonitor.stop()
@@ -193,6 +222,7 @@ final class AuraAppModel: ObservableObject {
         confirmationPresenter: confirmationPresenter)
       self.kernel = kernel
       try await kernel.start()
+      refreshConfigurationInspection()
       permissions = PermissionCoordinator.snapshot()
       if permissions.speechReady {
         try await kernel.startSpeechRecognition()
