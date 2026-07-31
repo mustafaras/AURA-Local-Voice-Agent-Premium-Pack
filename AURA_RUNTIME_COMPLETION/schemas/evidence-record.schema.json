@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.local/schemas/runtime-completion/evidence-record.schema.json",
+  "title": "AURA Runtime Completion Evidence Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "track_id",
+    "timestamp",
+    "evidence_type",
+    "repository_commit",
+    "procedure",
+    "result",
+    "verdict",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "id": { "type": "string", "pattern": "^EV-[A-Za-z0-9._-]+$" },
+    "track_id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL)$" },
+    "session_id": { "type": ["string", "null"], "maxLength": 128 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "evidence_type": {
+      "enum": [
+        "static_analysis",
+        "unit_test",
+        "contract_test",
+        "integration_test",
+        "system_test",
+        "adversarial_test",
+        "live_hardware",
+        "manual_review",
+        "external_verification",
+        "build_artifact",
+        "release_artifact"
+      ]
+    },
+    "repository_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "branch": { "type": ["string", "null"], "maxLength": 255 },
+    "procedure": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "command": { "type": ["string", "null"], "maxLength": 4000 },
+    "environment": {
+      "type": "object",
+      "additionalProperties": { "type": ["string", "number", "boolean", "null"] },
+      "maxProperties": 50
+    },
+    "exit_code": { "type": ["integer", "null"], "minimum": -255, "maximum": 255 },
+    "result": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "verdict": { "enum": ["passed", "failed", "blocked", "inconclusive"] },
+    "artifact_paths": {
+      "type": "array",
+      "maxItems": 100,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    },
+    "artifact_hashes": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "pattern": "^[A-Fa-f0-9]{32,128}$" },
+      "maxProperties": 100
+    },
+    "limitations": { "type": "string", "maxLength": 3000 },
+    "supports_gate_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 50,
+      "items": { "type": "string", "pattern": "^GATE-[A-Za-z0-9._-]+$" }
+    }
+  }
+}

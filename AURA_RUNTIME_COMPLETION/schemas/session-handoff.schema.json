@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.local/schemas/runtime-completion/session-handoff.schema.json",
+  "title": "AURA Runtime Completion Session Handoff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "updated_at",
+    "session_id",
+    "last_verified_commit",
+    "active_prompt",
+    "summary",
+    "completed",
+    "files_changed",
+    "evidence_ids",
+    "blockers",
+    "open_decisions",
+    "next_action",
+    "required_first_reads"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "session_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "last_verified_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "active_prompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "file", "state", "step"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL)$" },
+        "file": { "type": "string", "pattern": "^prompts/runtime_completion/.+\\.prompt\\.md$" },
+        "state": { "enum": ["pending", "ready", "in_progress", "blocked", "completed", "skipped", "superseded"] },
+        "step": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "summary": { "type": "string", "minLength": 1, "maxLength": 2500 },
+    "completed": {
+      "type": "array",
+      "maxItems": 30,
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "files_changed": {
+      "type": "array",
+      "maxItems": 200,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "evidence_ids": {
+      "type": "array",
+      "maxItems": 50,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^EV-[A-Za-z0-9._-]+$" }
+    },
+    "tests": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "result"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "result": { "enum": ["passed", "failed", "blocked", "not_run"] },
+          "evidence_id": { "type": ["string", "null"], "pattern": "^EV-[A-Za-z0-9._-]+$" }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 30,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    },
+    "open_decisions": {
+      "type": "array",
+      "maxItems": 30,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    },
+    "risks": {
+      "type": "array",
+      "maxItems": 30,
+      "items": { "type": "string", "pattern": "^RISK-[A-Za-z0-9._-]+$" }
+    },
+    "next_action": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "required_first_reads": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "notes": { "type": "string", "maxLength": 1500 }
+  }
+}

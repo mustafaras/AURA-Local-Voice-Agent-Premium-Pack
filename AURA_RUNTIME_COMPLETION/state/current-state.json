@@ -1,0 +1,257 @@
+{
+  "$schema": "../../schemas/runtime_completion/program-state.schema.json",
+  "schema_version": "1.0.0",
+  "program_version": "1.0.0",
+  "updated_at": "2026-07-31T12:11:00Z",
+  "session_id": null,
+  "repository": {
+    "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
+    "default_branch": "main",
+    "active_branch": null,
+    "verified_head": "27edd2ced7d6f7ae66de86c9e7e2b16380bd2e15",
+    "remote_head": "27edd2ced7d6f7ae66de86c9e7e2b16380bd2e15",
+    "working_tree_state": "unknown",
+    "user_owned_changes": [
+      ".vscode/launch.json was historically reported as a user-owned local modification; verify rather than assume it still exists."
+    ]
+  },
+  "program_status": "planned",
+  "active_prompt": {
+    "id": "BOOTSTRAP",
+    "file": "prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md",
+    "state": "ready",
+    "step": "Verify live repository state, validate the prompt program, reconcile legacy status claims, and make R0 ready.",
+    "started_at": null,
+    "blocked_by": []
+  },
+  "tracks": [
+    {
+      "id": "R0",
+      "name": "Repository Truth and Governance Repair",
+      "state": "pending",
+      "dependencies": [],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-STATE-CONTRADICTION", "RISK-TOOLCHAIN-PREVIEW"]
+    },
+    {
+      "id": "R1",
+      "name": "Runtime Integration Spine and Trace Correctness",
+      "state": "pending",
+      "dependencies": ["R0"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-DISCONNECTED-RUNTIME", "RISK-FALSE-SUCCESS", "RISK-CONFIRMATION-RESUME"]
+    },
+    {
+      "id": "R2",
+      "name": "Bilingual NLU and Dialogue",
+      "state": "pending",
+      "dependencies": ["R1"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-ENGLISH-ONLY-INTENT", "RISK-CANNED-CONVERSATION"]
+    },
+    {
+      "id": "R3",
+      "name": "Capability Registry and Typed Planner",
+      "state": "pending",
+      "dependencies": ["R2"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-CLOSED-TOOL-ROUTER"]
+    },
+    {
+      "id": "R4",
+      "name": "Computer-Use Productization",
+      "state": "pending",
+      "dependencies": ["R3"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER"]
+    },
+    {
+      "id": "R5",
+      "name": "Browser, Mail, Calendar, and Contacts Adapters",
+      "state": "pending",
+      "dependencies": ["R3"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-MISSING-PRODUCTIVITY-ADAPTERS", "RISK-INDIRECT-PROMPT-INJECTION"]
+    },
+    {
+      "id": "R6",
+      "name": "VS Code and Coding-Agent Completion",
+      "state": "pending",
+      "dependencies": ["R3"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-VSCODE-POLICY-NOT-ENFORCED", "RISK-BRIDGE-INCOMPLETE"]
+    },
+    {
+      "id": "R7",
+      "name": "Wake Word, STT/TTS Routing, and Resource Governor",
+      "state": "pending",
+      "dependencies": ["R2"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-NO-REAL-WAKE-WORD", "RISK-MODEL-MEMORY-PRESSURE", "RISK-NEURAL-TTS-LATENCY"]
+    },
+    {
+      "id": "R8",
+      "name": "Memory, Personalization, and Explainability",
+      "state": "pending",
+      "dependencies": ["R2", "R3"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-MEMORY-NOT-PRODUCTIZED"]
+    },
+    {
+      "id": "R9",
+      "name": "Product UI, Accessibility, and Onboarding",
+      "state": "pending",
+      "dependencies": ["R4", "R5", "R6", "R7", "R8"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-CONTROL-PANEL-NOT-ASSISTANT-UI"]
+    },
+    {
+      "id": "R10",
+      "name": "Security and Privilege Separation",
+      "state": "pending",
+      "dependencies": ["R4", "R5", "R6"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-MAIN-PROCESS-PRIVILEGE-CONCENTRATION", "RISK-NETWORK-ALLOWLIST-INCOMPLETE"]
+    },
+    {
+      "id": "R11",
+      "name": "Release Engineering and Continuous Operations",
+      "state": "pending",
+      "dependencies": ["R9", "R10"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-NOT-NOTARIZED", "RISK-NO-SIGNED-UPDATER", "RISK-NO-LAUNCH-AT-LOGIN"]
+    },
+    {
+      "id": "R12",
+      "name": "Beta Validation and Release Candidate",
+      "state": "pending",
+      "dependencies": ["R11"],
+      "started_at": null,
+      "completed_at": null,
+      "evidence_ids": [],
+      "open_risk_ids": ["RISK-NO-INDEPENDENT-BETA-EVIDENCE"]
+    }
+  ],
+  "authority": {
+    "edit": false,
+    "install_dependencies": false,
+    "download_models": false,
+    "mutate_permissions": false,
+    "launch_or_install_app": false,
+    "commit": false,
+    "push": false,
+    "merge": false,
+    "sign_or_notarize": false,
+    "release_or_deploy": false,
+    "source": "No standing authority is carried across sessions. Populate from the current user's explicit instruction before execution."
+  },
+  "release_gates": [
+    {
+      "id": "GATE-TRUTHFUL-BILINGUAL-LOOP",
+      "name": "One truthful bilingual assistant loop",
+      "state": "open",
+      "required_for": "development",
+      "evidence_ids": [],
+      "waiver_reason": null
+    },
+    {
+      "id": "GATE-COMPUTER-USE-LIVE",
+      "name": "Bounded live computer-use validation",
+      "state": "open",
+      "required_for": "internal_beta",
+      "evidence_ids": [],
+      "waiver_reason": null
+    },
+    {
+      "id": "GATE-PRODUCTIVITY-ADAPTERS",
+      "name": "Read-first browser, mail, and calendar workflows",
+      "state": "open",
+      "required_for": "internal_beta",
+      "evidence_ids": [],
+      "waiver_reason": null
+    },
+    {
+      "id": "GATE-PRIVILEGE-SEPARATION",
+      "name": "Least-privilege helper separation",
+      "state": "open",
+      "required_for": "external_beta",
+      "evidence_ids": [],
+      "waiver_reason": null
+    },
+    {
+      "id": "GATE-ACCESSIBILITY-LOCALIZATION",
+      "name": "VoiceOver, keyboard, contrast, and Turkish/English localization",
+      "state": "open",
+      "required_for": "external_beta",
+      "evidence_ids": [],
+      "waiver_reason": null
+    },
+    {
+      "id": "GATE-DEVELOPER-ID-NOTARIZATION",
+      "name": "Developer ID signing, notarization, and clean-machine Gatekeeper validation",
+      "state": "open",
+      "required_for": "external_beta",
+      "evidence_ids": [],
+      "waiver_reason": null
+    },
+    {
+      "id": "GATE-SIGNED-UPDATES-RECOVERY",
+      "name": "Signed updates, rollback, safe mode, recovery, and uninstall",
+      "state": "open",
+      "required_for": "release",
+      "evidence_ids": [],
+      "waiver_reason": null
+    },
+    {
+      "id": "GATE-BETA-SLOS",
+      "name": "Beta reliability and safety SLOs",
+      "state": "open",
+      "required_for": "release",
+      "evidence_ids": [],
+      "waiver_reason": null
+    },
+    {
+      "id": "GATE-REFERENCE-VOICE",
+      "name": "Owned and consented neural reference voice with human listening acceptance",
+      "state": "open",
+      "required_for": "release",
+      "evidence_ids": [],
+      "waiver_reason": "Optional if the release uses only the local Apple system voice and clearly excludes neural voice cloning."
+    },
+    {
+      "id": "GATE-REAL-WAKE-WORD",
+      "name": "Real local acoustic wake-word model",
+      "state": "open",
+      "required_for": "release",
+      "evidence_ids": [],
+      "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
+    }
+  ],
+  "last_evidence_ids": [],
+  "blockers": [],
+  "next_action": "Run prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md in a fresh authorized engineering session."
+}
