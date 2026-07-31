@@ -1,0 +1,71 @@
+{
+  "$schema": "../../schemas/runtime_completion/session-handoff.schema.json",
+  "schema_version": "1.0.0",
+  "updated_at": "2026-07-31T12:11:00Z",
+  "session_id": "PROGRAM-SEED-2026-07-31",
+  "last_verified_commit": "27edd2ced7d6f7ae66de86c9e7e2b16380bd2e15",
+  "active_prompt": {
+    "id": "BOOTSTRAP",
+    "file": "prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md",
+    "state": "ready",
+    "step": "Verify live repository state and initialize the runtime-completion execution baseline."
+  },
+  "summary": "The repository-grounded master plan has been converted into a new ordered Runtime Completion Program. The historical 0–25 prompts remain untouched. The new program begins with a fresh-session bootstrap because legacy current-state prose is long and internally contradictory. No implementation track has started.",
+  "completed": [
+    "Created the master recovery/integration/delivery plan.",
+    "Defined the new R0–R12 execution sequence and final acceptance stage.",
+    "Seeded machine-readable program state and an audited capability matrix.",
+    "Established anti-amnesia, evidence, ledger, schema, and shared execution contracts."
+  ],
+  "files_changed": [
+    "docs/roadmap/AURA_FULLY_OPERATIONAL_ASSISTANT_MASTER_PLAN.md",
+    "prompts/runtime_completion/README.md",
+    "prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md",
+    "prompts/runtime_completion/prompt-manifest.json",
+    "schemas/runtime_completion/program-state.schema.json",
+    "schemas/runtime_completion/session-handoff.schema.json",
+    "schemas/runtime_completion/evidence-record.schema.json",
+    "schemas/runtime_completion/capability-matrix.schema.json",
+    "schemas/runtime_completion/prompt-manifest.schema.json",
+    "ledger/runtime_completion/current-state.json",
+    "ledger/runtime_completion/capability-matrix.json",
+    "anti_amnesia/runtime_completion/README.md",
+    "anti_amnesia/runtime_completion/READ_FIRST.md",
+    "anti_amnesia/runtime_completion/KNOWN_FACTS.md",
+    "anti_amnesia/runtime_completion/ACTIVE_CONTEXT.md",
+    "anti_amnesia/runtime_completion/session-handoff.json"
+  ],
+  "evidence_ids": [],
+  "tests": [
+    {
+      "name": "Runtime-completion JSON/schema validation",
+      "result": "not_run",
+      "evidence_id": null
+    },
+    {
+      "name": "Live repository reconciliation",
+      "result": "not_run",
+      "evidence_id": null
+    }
+  ],
+  "blockers": [],
+  "open_decisions": [
+    "Pin and document the exact supported Swift/Xcode/macOS development and release baselines during R0.",
+    "Select the branch/PR and commit authority for the first implementation session from explicit user instruction."
+  ],
+  "risks": [
+    "RISK-STATE-CONTRADICTION",
+    "RISK-TOOLCHAIN-PREVIEW",
+    "RISK-DISCONNECTED-RUNTIME"
+  ],
+  "next_action": "Start a fresh authorized session with prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md. Validate live state, schemas, prompt dependencies, and user authority before any feature edit.",
+  "required_first_reads": [
+    "AGENTS.md",
+    "prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md",
+    "ledger/runtime_completion/current-state.json",
+    "anti_amnesia/runtime_completion/session-handoff.json",
+    "anti_amnesia/runtime_completion/READ_FIRST.md",
+    "prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md"
+  ],
+  "notes": "No standing implementation, dependency-installation, model-download, TCC, commit, push, merge, signing, notarization, or release authority is carried into the next session."
+}
