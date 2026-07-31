@@ -1,0 +1,260 @@
+{
+  "$schema": "../../schemas/runtime_completion/context-index.schema.json",
+  "schema_version": "1.0.0",
+  "updated_at": "2026-07-31T12:11:00Z",
+  "global_budget": {
+    "startup_max_words": 6000,
+    "handoff_max_words": 1800,
+    "active_context_max_words": 1400
+  },
+  "tiers": [
+    {
+      "id": "T0",
+      "name": "Mandatory startup context",
+      "load_rule": "Always load in a fresh session before any edit. Keep this set stable and small.",
+      "files": [
+        "AGENTS.md",
+        "prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md",
+        "ledger/runtime_completion/current-state.json",
+        "anti_amnesia/runtime_completion/session-handoff.json",
+        "anti_amnesia/runtime_completion/READ_FIRST.md"
+      ]
+    },
+    {
+      "id": "T1",
+      "name": "Active prompt context",
+      "load_rule": "Load the active prompt, relevant capability entries, direct production files, direct tests, and accepted ADRs named by the prompt.",
+      "files": [
+        "prompts/runtime_completion/prompt-manifest.json",
+        "ledger/runtime_completion/capability-matrix.json",
+        "ledger/runtime_completion/EVIDENCE_INDEX.md",
+        "ledger/runtime_completion/RISK_REGISTER.md",
+        "ledger/runtime_completion/DECISION_REGISTER.md"
+      ]
+    },
+    {
+      "id": "T2",
+      "name": "Conditional architecture and history",
+      "load_rule": "Load only to resolve a material architecture question, verify a historical claim, or investigate a regression.",
+      "files": [
+        "docs/roadmap/AURA_FULLY_OPERATIONAL_ASSISTANT_MASTER_PLAN.md",
+        "anti_amnesia/runtime_completion/KNOWN_FACTS.md",
+        "anti_amnesia/runtime_completion/ACTIVE_CONTEXT.md",
+        "ledger/runtime_completion/PROGRAM_LEDGER.md",
+        "ledger/PROJECT_LEDGER.md",
+        "ledger/CURRENT_STATE.md",
+        "SESSION_STARTER.md",
+        "docs/decisions"
+      ]
+    },
+    {
+      "id": "T3",
+      "name": "External and bulky evidence",
+      "load_rule": "Load only the exact official documentation, command output, logs, recordings, screenshots, or artifacts needed for the current gate. Summarize and index; do not retain bulky content in context.",
+      "files": [
+        "official platform documentation",
+        "installed tool help and version output",
+        "build/test logs",
+        "release artifacts",
+        "live hardware evaluation artifacts"
+      ]
+    }
+  ],
+  "phase_context": [
+    {
+      "prompt_id": "BOOTSTRAP",
+      "required": [
+        "prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md",
+        "prompts/runtime_completion/prompt-manifest.json",
+        "schemas/runtime_completion",
+        "ledger/runtime_completion/current-state.json",
+        "anti_amnesia/runtime_completion/session-handoff.json"
+      ],
+      "conditional": [
+        "ledger/CURRENT_STATE.md",
+        "SESSION_STARTER.md",
+        "ledger/PROJECT_LEDGER.md",
+        "Package.swift",
+        ".github/workflows/ci.yml"
+      ],
+      "avoid_by_default": ["all Sources", "all Tests", "full historical ledger"]
+    },
+    {
+      "prompt_id": "R0",
+      "required": [
+        "prompts/runtime_completion/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
+        "ledger/runtime_completion",
+        "anti_amnesia/runtime_completion",
+        "AGENTS.md",
+        "Package.swift",
+        ".github/workflows/ci.yml"
+      ],
+      "conditional": ["legacy state files", "toolchain instructions", "decision index"],
+      "avoid_by_default": ["unrelated production modules", "full model/test implementation"]
+    },
+    {
+      "prompt_id": "R1",
+      "required": [
+        "prompts/runtime_completion/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
+        "Sources/AURA/AuraKernel.swift",
+        "Sources/AuraIntent/IntentDispatchCoordinator.swift",
+        "Sources/AuraIntent/ToolRouter.swift",
+        "Sources/AuraAgent/Conversation.swift",
+        "Sources/AuraPolicy",
+        "direct integration tests"
+      ],
+      "conditional": ["AuraEventBus", "AuraStore", "TaskEngine", "confirmation presenter", "relevant ADRs"],
+      "avoid_by_default": ["browser/mail/calendar design", "release packaging"]
+    },
+    {
+      "prompt_id": "R2",
+      "required": [
+        "prompts/runtime_completion/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
+        "Sources/AuraIntent",
+        "Sources/AuraAgent/OllamaAdapter.swift",
+        "Sources/AuraContext",
+        "direct intent/dialogue/model tests"
+      ],
+      "conditional": ["language/STT metadata", "memory APIs", "official Ollama API docs"],
+      "avoid_by_default": ["computer-use executor internals", "release scripts"]
+    },
+    {
+      "prompt_id": "R3",
+      "required": [
+        "prompts/runtime_completion/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md",
+        "Sources/AuraIntent",
+        "Sources/AuraPolicy",
+        "Sources/AuraCore/IntentPolicyTypes.swift",
+        "tool adapter contracts",
+        "direct registry/planner tests"
+      ],
+      "conditional": ["memory/context", "task engine", "screen/VS Code adapter interfaces"],
+      "avoid_by_default": ["full UI implementation", "release docs"]
+    },
+    {
+      "prompt_id": "R4",
+      "required": [
+        "prompts/runtime_completion/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
+        "Sources/AuraComputerUse",
+        "Sources/AuraScreen",
+        "Sources/AuraPolicy",
+        "direct computer-use/screen tests"
+      ],
+      "conditional": ["Accessibility official docs", "ScreenCaptureKit official docs", "model planner schema", "UI confirmation"] ,
+      "avoid_by_default": ["mail/calendar adapters", "signing pipeline"]
+    },
+    {
+      "prompt_id": "R5",
+      "required": [
+        "prompts/runtime_completion/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
+        "Sources/AuraSecurity",
+        "Sources/AuraPolicy",
+        "network and secret handling",
+        "direct adapter tests"
+      ],
+      "conditional": ["official browser APIs", "official Gmail/Google/Apple APIs", "OAuth docs", "Keychain docs", "computer-use fallback"] ,
+      "avoid_by_default": ["coding-agent internals", "neural TTS"]
+    },
+    {
+      "prompt_id": "R6",
+      "required": [
+        "prompts/runtime_completion/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
+        "Sources/AuraVSCode",
+        "Sources/AuraAgent",
+        "Sources/AuraTasks",
+        "Sources/AuraShell",
+        "direct coding/VS Code/task tests"
+      ],
+      "conditional": ["current official CLI help", "VS Code extension API docs", "worktree manager", "policy ADRs"],
+      "avoid_by_default": ["browser/mail source", "release updater"]
+    },
+    {
+      "prompt_id": "R7",
+      "required": [
+        "prompts/runtime_completion/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
+        "Sources/AuraAudio",
+        "Sources/AuraSTT",
+        "Sources/AuraAgent/Conversation.swift",
+        "voice configuration",
+        "direct audio/STT/TTS integration tests"
+      ],
+      "conditional": ["candidate wake-word/STT official docs", "model manifests", "performance artifacts", "human evaluation protocol"],
+      "avoid_by_default": ["mail/calendar source", "plugin marketplace"]
+    },
+    {
+      "prompt_id": "R8",
+      "required": [
+        "prompts/runtime_completion/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md",
+        "Sources/AuraMemory",
+        "Sources/AuraContext",
+        "Sources/AuraStore",
+        "direct memory/context tests"
+      ],
+      "conditional": ["dialogue engine", "privacy settings", "retention docs", "relevant ADRs"],
+      "avoid_by_default": ["audio internals", "release signing"]
+    },
+    {
+      "prompt_id": "R9",
+      "required": [
+        "prompts/runtime_completion/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
+        "Sources/AURA",
+        "runtime health/task/capability/model/memory interfaces",
+        "UI tests and accessibility protocols"
+      ],
+      "conditional": ["Apple accessibility/HIG docs", "localization resources", "live VoiceOver evidence"],
+      "avoid_by_default": ["deep adapter implementation unless fixing a surfaced contract"]
+    },
+    {
+      "prompt_id": "R10",
+      "required": [
+        "prompts/runtime_completion/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
+        "docs/security/30_THREAT_MODEL.md",
+        "Sources/AuraSecurity",
+        "Sources/AuraPolicy",
+        "Sources/AuraPlugins",
+        "entitlements and helper boundaries",
+        "adversarial tests"
+      ],
+      "conditional": ["XPC docs", "Keychain/OAuth docs", "network clients", "independent review findings"],
+      "avoid_by_default": ["cosmetic UI work", "unrelated performance tuning"]
+    },
+    {
+      "prompt_id": "R11",
+      "required": [
+        "prompts/runtime_completion/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md",
+        "build/sign/package scripts",
+        "Info.plists and entitlements",
+        "update/recovery docs",
+        "CI configuration"
+      ],
+      "conditional": ["official Apple signing/notarization/ServiceManagement docs", "update framework docs", "clean-machine evidence"],
+      "avoid_by_default": ["new product features"]
+    },
+    {
+      "prompt_id": "R12",
+      "required": [
+        "prompts/runtime_completion/13_R12_BETA_VALIDATION_AND_RC.prompt.md",
+        "SLO definitions",
+        "all open release gates",
+        "risk register",
+        "evidence index",
+        "release candidate artifacts"
+      ],
+      "conditional": ["beta telemetry aggregates", "incident reports", "security/accessibility reviews"],
+      "avoid_by_default": ["unapproved scope expansion", "new optional ecosystem features"]
+    },
+    {
+      "prompt_id": "FINAL",
+      "required": [
+        "prompts/runtime_completion/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
+        "current state",
+        "capability matrix",
+        "risk register",
+        "evidence index",
+        "release checklist and artifacts"
+      ],
+      "conditional": ["full master plan", "README/docs cleanup", "legacy state migration"],
+      "avoid_by_default": ["new features", "waiving failed gates without explicit authority"]
+    }
+  ]
+}
