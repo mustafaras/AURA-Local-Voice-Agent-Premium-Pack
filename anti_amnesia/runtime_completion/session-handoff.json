@@ -1,64 +1,107 @@
 {
   "$schema": "../../schemas/runtime_completion/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-07-31T12:11:00Z",
+  "updated_at": "2026-07-31T12:49:00Z",
   "session_id": "PROGRAM-SEED-2026-07-31",
-  "last_verified_commit": "27edd2ced7d6f7ae66de86c9e7e2b16380bd2e15",
+  "last_verified_commit": "4c6eca4aff371f6bb52f540f396a491b176862f1",
   "active_prompt": {
     "id": "BOOTSTRAP",
     "file": "prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md",
     "state": "ready",
-    "step": "Verify live repository state and initialize the runtime-completion execution baseline."
+    "step": "Verify live repository state, validate all program JSON/schema references and prompt dependencies, reconcile legacy status claims, record current authority, and make R0 ready only if the baseline is truthful."
   },
-  "summary": "The repository-grounded master plan has been converted into a new ordered Runtime Completion Program. The historical 0–25 prompts remain untouched. The new program begins with a fresh-session bootstrap because legacy current-state prose is long and internally contradictory. No implementation track has started.",
+  "summary": "Runtime Completion Program v1.0.0 is installed as a separate professional implementation suite. It contains an ordered BOOTSTRAP, R0–R12, FINAL, and mandatory SESSION CLOSEOUT sequence; compact anti-amnesia files; machine-readable state, capability, manifest, handoff, and context JSON; JSON Schemas; and separate append-only ledger, evidence, decision, and risk records. The historical 0–25 prompt sequence remains untouched. No product implementation track has started.",
   "completed": [
-    "Created the master recovery/integration/delivery plan.",
-    "Defined the new R0–R12 execution sequence and final acceptance stage.",
-    "Seeded machine-readable program state and an audited capability matrix.",
-    "Established anti-amnesia, evidence, ledger, schema, and shared execution contracts."
+    "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
+    "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
+    "Created a token-aware anti-amnesia system with a five-file minimum startup set plus the active prompt.",
+    "Created schema-backed program state, capability matrix, prompt manifest, context index, session handoff, and evidence-record contracts.",
+    "Created separate append-only program ledger, decision register, risk register, and evidence index.",
+    "Seeded an audited capability matrix that distinguishes implementation, runtime registration, user reachability, and evidence level.",
+    "Verified through GitHub comparison that the suite added 38 files without modifying or deleting pre-existing files."
   ],
   "files_changed": [
-    "docs/roadmap/AURA_FULLY_OPERATIONAL_ASSISTANT_MASTER_PLAN.md",
+    "anti_amnesia/runtime_completion/ACTIVE_CONTEXT.md",
+    "anti_amnesia/runtime_completion/KNOWN_FACTS.md",
+    "anti_amnesia/runtime_completion/README.md",
+    "anti_amnesia/runtime_completion/READ_FIRST.md",
+    "anti_amnesia/runtime_completion/context-index.json",
+    "anti_amnesia/runtime_completion/session-handoff.json",
+    "ledger/runtime_completion/DECISION_REGISTER.md",
+    "ledger/runtime_completion/EVIDENCE_INDEX.md",
+    "ledger/runtime_completion/PROGRAM_LEDGER.md",
+    "ledger/runtime_completion/README.md",
+    "ledger/runtime_completion/RISK_REGISTER.md",
+    "ledger/runtime_completion/capability-matrix.json",
+    "ledger/runtime_completion/current-state.json",
+    "prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md",
+    "prompts/runtime_completion/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
+    "prompts/runtime_completion/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
+    "prompts/runtime_completion/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
+    "prompts/runtime_completion/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md",
+    "prompts/runtime_completion/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
+    "prompts/runtime_completion/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
+    "prompts/runtime_completion/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
+    "prompts/runtime_completion/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
+    "prompts/runtime_completion/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md",
+    "prompts/runtime_completion/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
+    "prompts/runtime_completion/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
+    "prompts/runtime_completion/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md",
+    "prompts/runtime_completion/13_R12_BETA_VALIDATION_AND_RC.prompt.md",
+    "prompts/runtime_completion/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
+    "prompts/runtime_completion/15_SESSION_CLOSEOUT.prompt.md",
     "prompts/runtime_completion/README.md",
     "prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md",
     "prompts/runtime_completion/prompt-manifest.json",
-    "schemas/runtime_completion/program-state.schema.json",
-    "schemas/runtime_completion/session-handoff.schema.json",
-    "schemas/runtime_completion/evidence-record.schema.json",
     "schemas/runtime_completion/capability-matrix.schema.json",
+    "schemas/runtime_completion/context-index.schema.json",
+    "schemas/runtime_completion/evidence-record.schema.json",
+    "schemas/runtime_completion/program-state.schema.json",
     "schemas/runtime_completion/prompt-manifest.schema.json",
-    "ledger/runtime_completion/current-state.json",
-    "ledger/runtime_completion/capability-matrix.json",
-    "anti_amnesia/runtime_completion/README.md",
-    "anti_amnesia/runtime_completion/READ_FIRST.md",
-    "anti_amnesia/runtime_completion/KNOWN_FACTS.md",
-    "anti_amnesia/runtime_completion/ACTIVE_CONTEXT.md",
-    "anti_amnesia/runtime_completion/session-handoff.json"
+    "schemas/runtime_completion/session-handoff.schema.json"
   ],
   "evidence_ids": [],
   "tests": [
     {
-      "name": "Runtime-completion JSON/schema validation",
+      "name": "GitHub branch comparison and file inventory",
+      "result": "passed",
+      "evidence_id": null
+    },
+    {
+      "name": "Key manifest/state/handoff/final-prompt fetch verification",
+      "result": "passed",
+      "evidence_id": null
+    },
+    {
+      "name": "Standards-compliant JSON Schema validation",
       "result": "not_run",
       "evidence_id": null
     },
     {
-      "name": "Live repository reconciliation",
+      "name": "Live local repository/toolchain reconciliation",
+      "result": "not_run",
+      "evidence_id": null
+    },
+    {
+      "name": "AURA production build and test suite",
       "result": "not_run",
       "evidence_id": null
     }
   ],
   "blockers": [],
   "open_decisions": [
-    "Pin and document the exact supported Swift/Xcode/macOS development and release baselines during R0.",
-    "Select the branch/PR and commit authority for the first implementation session from explicit user instruction."
+    "Pin and document exact supported Swift, Xcode, macOS SDK, deployment target, Python, model, and CLI baselines in R0.",
+    "Choose the implementation branch/PR strategy and record explicit commit/push/merge authority in the next session.",
+    "Choose production wake-word, fallback STT, browser, mail, calendar, OAuth, XPC/helper, and updater technologies only after official verification in their owning tracks."
   ],
   "risks": [
     "RISK-STATE-CONTRADICTION",
     "RISK-TOOLCHAIN-PREVIEW",
-    "RISK-DISCONNECTED-RUNTIME"
+    "RISK-DISCONNECTED-RUNTIME",
+    "RISK-FALSE-SUCCESS",
+    "RISK-CONFIRMATION-RESUME"
   ],
-  "next_action": "Start a fresh authorized session with prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md. Validate live state, schemas, prompt dependencies, and user authority before any feature edit.",
+  "next_action": "Open a fresh authorized engineering session and execute prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md. Do not begin R0 or product code until repository state, authority, JSON/schema structure, prompt dependencies, toolchain, and legacy contradictions are reconciled.",
   "required_first_reads": [
     "AGENTS.md",
     "prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md",
@@ -67,5 +110,5 @@
     "anti_amnesia/runtime_completion/READ_FIRST.md",
     "prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md"
   ],
-  "notes": "No standing implementation, dependency-installation, model-download, TCC, commit, push, merge, signing, notarization, or release authority is carried into the next session."
+  "notes": "No standing implementation, dependency-installation, model-download, TCC, app-install/launch, commit, push, merge, signing, notarization, release, or deployment authority carries into the next session. Full schema validation and live repository reconciliation are intentionally the first BOOTSTRAP tasks."
 }
