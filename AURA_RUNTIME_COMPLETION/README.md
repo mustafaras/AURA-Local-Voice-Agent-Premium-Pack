@@ -58,6 +58,27 @@ AURA_RUNTIME_COMPLETION/
     └── context-index.schema.json
 ```
 
+## Scope boundary
+
+`AURA_RUNTIME_COMPLETION/` is a delivery-program and governance directory, not a production source-code directory.
+
+Files allowed here:
+
+- plans and implementation prompts;
+- compact session context and handoff records;
+- machine-readable state and capability records;
+- ledgers, decisions, risks, and evidence indexes;
+- JSON Schemas that govern this program.
+
+Files that must not be placed here:
+
+- Swift production source code;
+- test implementation code;
+- application resources or binaries;
+- build outputs, downloaded models, generated logs, recordings, or release artifacts.
+
+Production implementation belongs under repository-root `Sources/`. Test implementation belongs under `Tests/`. Existing project documentation and ADRs remain under `docs/`. Build and operational automation remains under `scripts/` or the repository's established tooling directories.
+
 ## Source-of-truth order
 
 1. live repository and command/runtime evidence;
@@ -69,9 +90,21 @@ AURA_RUNTIME_COMPLETION/
 7. `MASTER_PLAN.md`;
 8. legacy prose and historical phase records.
 
+## Canonical master plan
+
+The only canonical runtime-completion master plan is:
+
+```text
+AURA_RUNTIME_COMPLETION/MASTER_PLAN.md
+```
+
+Do not create or maintain a second copy under `docs/roadmap/` or another repository directory.
+
 ## Compatibility links
 
-The previous locations under `prompts/runtime_completion`, `ledger/runtime_completion`, `anti_amnesia/runtime_completion`, `schemas/runtime_completion`, and the old master-plan path are retained only as repository symlinks to this canonical directory. New documentation and code must use `AURA_RUNTIME_COMPLETION/...` paths.
+The previous locations under `prompts/runtime_completion`, `ledger/runtime_completion`, `anti_amnesia/runtime_completion`, and `schemas/runtime_completion` are retained temporarily as repository symlinks to this canonical directory. New documentation, prompts, and state records must use `AURA_RUNTIME_COMPLETION/...` paths.
+
+These compatibility links should be removed during R0 after all internal references have been migrated and verified.
 
 ## Completion rule
 
