@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.local/schemas/runtime-completion/capability-matrix.schema.json",
+  "title": "AURA Runtime Completion Capability Matrix",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "updated_at", "repository_commit", "capabilities"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "repository_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "domain",
+          "implementation_state",
+          "runtime_state",
+          "user_path_state",
+          "verification_state",
+          "risk_tier",
+          "owning_track"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{2,127}$" },
+          "name": { "type": "string", "minLength": 3, "maxLength": 200 },
+          "domain": {
+            "enum": [
+              "app",
+              "voice",
+              "dialogue",
+              "intent",
+              "model",
+              "filesystem",
+              "shell",
+              "browser",
+              "mail",
+              "calendar",
+              "contacts",
+              "screen",
+              "computer_use",
+              "vscode",
+              "coding_agent",
+              "task",
+              "memory",
+              "configuration",
+              "plugin",
+              "security",
+              "release",
+              "operations"
+            ]
+          },
+          "implementation_state": {
+            "enum": ["missing", "planned", "partial", "implemented", "deprecated", "not_applicable"]
+          },
+          "runtime_state": {
+            "enum": ["not_constructed", "constructed_inactive", "registered_disabled", "registered_degraded", "registered_ready", "unknown"]
+          },
+          "user_path_state": {
+            "enum": ["none", "test_only", "developer_only", "manual", "ui_reachable", "voice_reachable", "fully_reachable"]
+          },
+          "verification_state": {
+            "enum": ["none", "unit_only", "integration_simulated", "system_tested", "live_verified", "release_verified"]
+          },
+          "risk_tier": { "enum": ["observation", "reversible", "mutation", "destructive", "restricted"] },
+          "owning_track": { "type": "string", "pattern": "^R(0|1|2|3|4|5|6|7|8|9|10|11|12)$" },
+          "production_files": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+          },
+          "test_files": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+          },
+          "dependencies": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{2,127}$" }
+          },
+          "open_gaps": {
+            "type": "array",
+            "maxItems": 30,
+            "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+          },
+          "evidence_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^EV-[A-Za-z0-9._-]+$" }
+          },
+          "notes": { "type": "string", "maxLength": 2000 }
+        }
+      }
+    }
+  }
+}
