@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.local/schemas/runtime-completion/context-index.schema.json",
+  "title": "AURA Runtime Completion Context Index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "updated_at", "global_budget", "tiers", "phase_context"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "global_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startup_max_words", "handoff_max_words", "active_context_max_words"],
+      "properties": {
+        "startup_max_words": { "type": "integer", "minimum": 500, "maximum": 15000 },
+        "handoff_max_words": { "type": "integer", "minimum": 100, "maximum": 5000 },
+        "active_context_max_words": { "type": "integer", "minimum": 100, "maximum": 5000 }
+      }
+    },
+    "tiers": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "load_rule", "files"],
+        "properties": {
+          "id": { "enum": ["T0", "T1", "T2", "T3"] },
+          "name": { "type": "string", "minLength": 3, "maxLength": 100 },
+          "load_rule": { "type": "string", "minLength": 5, "maxLength": 1000 },
+          "files": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+          }
+        }
+      }
+    },
+    "phase_context": {
+      "type": "array",
+      "minItems": 15,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["prompt_id", "required", "conditional", "avoid_by_default"],
+        "properties": {
+          "prompt_id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL)$" },
+          "required": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+          },
+          "conditional": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+          },
+          "avoid_by_default": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+          }
+        }
+      }
+    }
+  }
+}
