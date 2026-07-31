@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.local/schemas/runtime-completion/program-state.schema.json",
+  "title": "AURA Runtime Completion Program State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "program_version",
+    "updated_at",
+    "repository",
+    "program_status",
+    "active_prompt",
+    "tracks",
+    "authority",
+    "release_gates",
+    "next_action"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "program_version": { "type": "string", "pattern": "^1\\.[0-9]+\\.[0-9]+$" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "session_id": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9._:-]{1,128}$" },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["full_name", "default_branch", "verified_head", "working_tree_state"],
+      "properties": {
+        "full_name": { "const": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack" },
+        "default_branch": { "type": "string", "minLength": 1 },
+        "active_branch": { "type": ["string", "null"] },
+        "verified_head": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "remote_head": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" },
+        "working_tree_state": { "enum": ["unknown", "clean", "dirty_expected", "dirty_unexpected"] },
+        "user_owned_changes": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "program_status": {
+      "enum": [
+        "planned",
+        "in_progress",
+        "blocked",
+        "beta_validation",
+        "release_candidate_verified",
+        "released",
+        "suspended"
+      ]
+    },
+    "active_prompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "file", "state", "step"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL)$" },
+        "file": { "type": "string", "pattern": "^prompts/runtime_completion/.+\\.prompt\\.md$" },
+        "state": { "$ref": "#/$defs/workState" },
+        "step": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "started_at": { "type": ["string", "null"], "format": "date-time" },
+        "blocked_by": {
+          "type": "array",
+          "maxItems": 50,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "tracks": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "state", "dependencies", "evidence_ids"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^R(0|1|2|3|4|5|6|7|8|9|10|11|12)$" },
+          "name": { "type": "string", "minLength": 3, "maxLength": 160 },
+          "state": { "$ref": "#/$defs/workState" },
+          "dependencies": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^R(0|1|2|3|4|5|6|7|8|9|10|11|12)$" }
+          },
+          "started_at": { "type": ["string", "null"], "format": "date-time" },
+          "completed_at": { "type": ["string", "null"], "format": "date-time" },
+          "evidence_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "maxItems": 500,
+            "items": { "type": "string", "pattern": "^EV-[A-Za-z0-9._-]+$" }
+          },
+          "open_risk_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^RISK-[A-Za-z0-9._-]+$" }
+          }
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edit",
+        "install_dependencies",
+        "download_models",
+        "mutate_permissions",
+        "launch_or_install_app",
+        "commit",
+        "push",
+        "merge",
+        "sign_or_notarize",
+        "release_or_deploy"
+      ],
+      "properties": {
+        "edit": { "type": "boolean" },
+        "install_dependencies": { "type": "boolean" },
+        "download_models": { "type": "boolean" },
+        "mutate_permissions": { "type": "boolean" },
+        "launch_or_install_app": { "type": "boolean" },
+        "commit": { "type": "boolean" },
+        "push": { "type": "boolean" },
+        "merge": { "type": "boolean" },
+        "sign_or_notarize": { "type": "boolean" },
+        "release_or_deploy": { "type": "boolean" },
+        "source": { "type": "string", "maxLength": 1000 }
+      }
+    },
+    "release_gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "state", "required_for"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^GATE-[A-Za-z0-9._-]+$" },
+          "name": { "type": "string", "minLength": 3, "maxLength": 200 },
+          "state": { "enum": ["open", "in_progress", "passed", "waived", "blocked", "not_applicable"] },
+          "required_for": { "enum": ["development", "internal_beta", "external_beta", "release"] },
+          "evidence_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^EV-[A-Za-z0-9._-]+$" }
+          },
+          "waiver_reason": { "type": ["string", "null"], "maxLength": 2000 }
+        }
+      }
+    },
+    "last_evidence_ids": {
+      "type": "array",
+      "maxItems": 50,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^EV-[A-Za-z0-9._-]+$" }
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 50,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    },
+    "next_action": { "type": "string", "minLength": 1, "maxLength": 2000 }
+  },
+  "$defs": {
+    "workState": {
+      "enum": ["pending", "ready", "in_progress", "blocked", "completed", "skipped", "superseded"]
+    }
+  }
+}
