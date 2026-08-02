@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-02T12:31:58Z",
+  "updated_at": "2026-08-02T14:34:36Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
-  "last_verified_commit": "041b0d7ca8f09e11a250abd92f0ec071e1ff34c4",
+  "last_verified_commit": "62f96da3c14b1def80764a259377638142876ccc",
   "active_prompt": {
-    "id": "R0",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
+    "id": "R1",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
     "state": "ready",
-    "step": "Begin repository-truth and governance work from the reconciled canonical state; preserve the verified test and runtime evidence."
+    "step": "Inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing."
   },
-  "summary": "Runtime Completion Program v1.0.0 is installed and its bootstrap baseline is reconciled. The sequential Swift test runner and serialized system-TTS latency suite are verified; the full suite passes 20 bundles and 665 tests, the release app bundle builds, and a clean-home executable smoke stays alive under a bounded watchdog. The historical 0–25 prompt sequence remains untouched. R0 is ready; product implementation tracks remain governed by the ordered program.",
+  "summary": "R0 Repository Truth and Governance Repair is complete. A standard-library repository validator, toolchain manifest/ADR, legacy-state pointers, capability audit, CI governance job, and deterministic validator tests are in place. The validator passes locally; no product source was changed. R1 is ready.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -18,7 +18,10 @@
     "Created schema-backed program state, capability matrix, prompt manifest, context index, session handoff, and evidence-record contracts.",
     "Created separate append-only program ledger, decision register, risk register, and evidence index.",
     "Seeded an audited capability matrix that distinguishes implementation, runtime registration, user reachability, and evidence level.",
-    "Verified through GitHub comparison that the suite added 38 files without modifying or deleting pre-existing files."
+    "Verified through GitHub comparison that the suite added 38 files without modifying or deleting pre-existing files.",
+    "Re-ran the strict BOOTSTRAP preflight: live repository, JSON/schema, manifest/dependency/reference, authority, and toolchain evidence are recorded; legacy stale prose is explicitly assigned to R0.",
+    "Confirmed that the ordered manifest intentionally contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is mandatory but outside the ordered implementation manifest.",
+    "Completed R0 with scripts/validate_runtime_completion.py, 13 deterministic governance tests, toolchain-manifest.json, TOOLCHAIN.md, ADR-045, CI governance ordering, capability-matrix audit, and synchronized decision/evidence records."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
@@ -59,56 +62,93 @@
     "AURA_RUNTIME_COMPLETION/schemas/program-state.schema.json",
     "AURA_RUNTIME_COMPLETION/schemas/prompt-manifest.schema.json",
     "AURA_RUNTIME_COMPLETION/schemas/session-handoff.schema.json"
+    ,"AURA_RUNTIME_COMPLETION/schemas/toolchain-manifest.schema.json"
+    ,"AURA_RUNTIME_COMPLETION/state/toolchain-manifest.json"
+    ,"TOOLCHAIN.md"
+    ,"docs/decisions/ADR-045-toolchain-release-pipeline.md"
+    ,"scripts/validate_runtime_completion.py"
+    ,"scripts/tests/test_validate_runtime_completion.py"
+    ,".github/workflows/ci.yml"
+    ,"ledger/DECISION_INDEX.md"
   ],
-  "evidence_ids": [],
+  "evidence_ids": [
+    "EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01",
+    "EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01",
+    "EV-BOOTSTRAP-20260802-TOOLCHAIN-INVENTORY-01",
+    "EV-R0-20260802-FULL-SUITE-01",
+    "EV-R0-20260802-FULL-SUITE-RERUN-01",
+    "EV-R0-20260802-APP-SMOKE-01",
+    "EV-R0-20260802-CAPABILITY-AUDIT-01",
+    "EV-R0-20260802-STATE-VALIDATOR-01",
+    "EV-R0-20260802-TOOLCHAIN-MANIFEST-01",
+    "EV-R0-20260802-CI-CONFIG-01",
+    "EV-R0-20260802-LEGACY-REDIRECT-01",
+    "EV-R0-20260802-TODO-AUDIT-01",
+    "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01"
+  ],
   "tests": [
     {
       "name": "GitHub branch comparison and file inventory",
       "result": "passed",
-      "evidence_id": null
+      "evidence_id": "EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01"
     },
     {
       "name": "Key manifest/state/handoff/final-prompt fetch verification",
       "result": "passed",
-      "evidence_id": null
+      "evidence_id": "EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01"
     },
     {
       "name": "Standards-compliant JSON Schema validation",
-      "result": "not_run",
-      "evidence_id": null
+      "result": "passed",
+      "evidence_id": "EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01"
     },
     {
       "name": "Live local repository/toolchain reconciliation",
-      "result": "not_run",
-      "evidence_id": null
+      "result": "passed",
+      "evidence_id": "EV-BOOTSTRAP-20260802-TOOLCHAIN-INVENTORY-01"
     },
     {
       "name": "AURA production build and test suite",
       "result": "passed",
-      "evidence_id": null
+      "evidence_id": "EV-R0-20260802-FULL-SUITE-RERUN-01"
+    },
+    {
+      "name": "R0 governance validator and deterministic negative tests",
+      "result": "passed",
+      "evidence_id": "EV-R0-20260802-STATE-VALIDATOR-01"
+    },
+    {
+      "name": "CI YAML, shell syntax, and Python syntax validation",
+      "result": "passed",
+      "evidence_id": "EV-R0-20260802-CI-CONFIG-01"
     }
   ],
   "blockers": [],
   "open_decisions": [
-    "Pin and document exact supported Swift, Xcode, macOS SDK, deployment target, Python, model, and CLI baselines in R0.",
-    "Choose the implementation branch/PR strategy and record explicit commit/push/merge authority in the next session.",
-    "Choose production wake-word, fallback STT, browser, mail, calendar, OAuth, XPC/helper, and updater technologies only after official verification in their owning tracks."
+    "Complete the R1 trace/confirmation architecture and retain the R0 validator as a pre-edit gate.",
+    "Verify current APIs and backend contracts only in the owning R1/R2/R3 tracks.",
+    "Resolve the CommandLineTools-only limitation with full Xcode/CI evidence before making release claims."
   ],
   "risks": [
-    "RISK-STATE-CONTRADICTION",
     "RISK-TOOLCHAIN-PREVIEW",
     "RISK-DISCONNECTED-RUNTIME",
     "RISK-FALSE-SUCCESS",
     "RISK-CONFIRMATION-RESUME"
   ],
-  "next_action": "Execute AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md from the reconciled baseline. Keep signing, notarization, release, and real wake-word gates open until separately evidenced.",
+  "next_action": "Execute AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md. First action: inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
     "AURA_RUNTIME_COMPLETION/context/READ_FIRST.md",
-    "AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md"
+    "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+    "Sources/AURA/AuraKernel.swift",
+    "Sources/AURA/AuraAppModel.swift",
+    "Sources/AuraCore/EventEnvelope.swift",
+    "Sources/AuraAgent/Conversation.swift"
   ],
-  "notes": "No standing implementation, dependency-installation, model-download, TCC, app-install/launch, commit, push, merge, signing, notarization, release, or deployment authority carries into the next session. Full schema validation and live repository reconciliation are intentionally the first BOOTSTRAP tasks."
+  "notes": "Current user explicitly authorized commit, push, and merge for this R0 session. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045."
 }

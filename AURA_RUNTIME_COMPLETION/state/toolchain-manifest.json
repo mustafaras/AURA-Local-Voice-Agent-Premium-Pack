@@ -1,0 +1,80 @@
+{
+  "$schema": "../schemas/toolchain-manifest.schema.json",
+  "schema_version": "1.0.0",
+  "updated_at": "2026-08-02T14:20:00Z",
+  "repository_commit": "62f96da3c14b1def80764a259377638142876ccc",
+  "supported": {
+    "development": {
+      "os": "macOS 27+",
+      "architecture": "arm64",
+      "swift": "Swift 6.4",
+      "sdk": "macOS SDK 27.0+",
+      "deployment_target": "macOS 27",
+      "xcode_required": false,
+      "strategy": "CommandLineTools-compatible local development uses scripts/aura-test.sh; full Xcode is preferred when available."
+    },
+    "release": {
+      "os": "macOS 27+",
+      "architecture": "arm64",
+      "swift": "Swift 6.4 with supported Xcode release",
+      "sdk": "macOS SDK 27.0+",
+      "deployment_target": "macOS 27",
+      "xcode_required": true,
+      "strategy": "Use full Xcode, Developer ID signing, notarization, Gatekeeper validation, and the exact packaged artifact."
+    }
+  },
+  "observed": {
+    "macos_version": "27.0",
+    "architecture": "arm64",
+    "hardware_profile": "Apple Silicon MacBook Air; 16 GiB unified memory profile",
+    "developer_directory": "/Library/Developer/CommandLineTools",
+    "swift_version": "Apple Swift 6.4 (swiftlang-6.4.0.27.1 clang-2100.3.27.1)",
+    "sdk_version": "27.0",
+    "xcodebuild_available": false,
+    "xcodebuild_version": null,
+    "python_system": "3.14.6",
+    "python_venv": "3.14.6",
+    "python_chatterbox": "3.11.15",
+    "git_version": "2.54.0",
+    "github_remote_probe": "passed",
+    "swift_format_available": false
+  },
+  "required_cli": [
+    { "name": "swift", "required": true, "validation": "swift --version" },
+    { "name": "xcrun", "required": true, "validation": "xcrun --sdk macosx --show-sdk-version" },
+    { "name": "git", "required": true, "validation": "git --version" },
+    { "name": "python3", "required": true, "validation": "python3 --version" },
+    { "name": "perl", "required": true, "validation": "perl --version" },
+    { "name": "xattr", "required": true, "validation": "xattr -h" },
+    { "name": "xcodebuild", "required": false, "validation": "xcodebuild -version" },
+    { "name": "swift-format", "required": false, "validation": "swift-format --version" }
+  ],
+  "python": {
+    "system": "Python 3.14.6 is observed but is not the Chatterbox runtime.",
+    "repository_validation": "Python standard library only; no network installation is required.",
+    "chatterbox": "Runtime/chatterbox is installed with Python 3.11.15 under AURA Application Support."
+  },
+  "models": {
+    "chatterbox_source_revision": "5de7a54aa4e5e2baadb0182dde554908b48b85c2",
+    "chatterbox_model_revision": "5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18",
+    "manifest_policy": "Runtime requires AURA_MODEL_MANIFEST.json and recomputes SHA-256 and byte length before loading; model weights remain outside git."
+  },
+  "validation": {
+    "script": "scripts/validate_runtime_completion.py",
+    "command": "python3 scripts/validate_runtime_completion.py --ci",
+    "ci_workflow": ".github/workflows/ci.yml",
+    "release_command": "python3 scripts/validate_runtime_completion.py --release"
+  },
+  "compatibility_policy": {
+    "development": "Swift 6.4, arm64, and macOS SDK 27.0 are the observed supported baseline; lower versions fail validation until separately audited.",
+    "release": "Full Xcode, Developer ID, notarization, and clean-machine Gatekeeper evidence are mandatory; local/ad-hoc signing is not release evidence.",
+    "projection_commits": "verified_head identifies the audited code/evidence baseline. A later HEAD is allowed only when the descendant diff contains projection-only files; state-only commits must not change product claims without a new audit.",
+    "deprecation": "When Swift, SDK, Python, model, or CLI baselines change, update this manifest and ADR-045, rerun the validator, and append evidence before changing CI."
+  },
+  "limitations": [
+    "The observed host has CommandLineTools but no active Xcode/xcodebuild.",
+    "swift-format is not installed on the observed host.",
+    "No CI workflow run was observed during this local validation; workflow configuration is not CI execution evidence.",
+    "The Package.swift deployment target remains macOS 27 because no availability audit supports lowering it."
+  ]
+}

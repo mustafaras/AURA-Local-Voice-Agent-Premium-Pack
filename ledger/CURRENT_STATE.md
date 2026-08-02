@@ -3,6 +3,14 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-07-30.
 
+## Canonical State Notice — 2026-08-02
+
+The authoritative current state is
+`AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
+origin/main == 62f96da3c14b1def80764a259377638142876ccc`. This legacy projection
+is retained for historical compatibility; the older status sections below are
+not authoritative and R0 must replace or redirect them deterministically.
+
 ## Latest Verification Snapshot — 2026-08-02
 
 - Code revision `20571de` contains the verified sequential Swift test runner and serialized system-TTS latency suite.

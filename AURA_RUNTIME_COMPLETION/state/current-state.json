@@ -2,29 +2,27 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-02T12:31:58Z",
+  "updated_at": "2026-08-02T14:34:36Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "041b0d7ca8f09e11a250abd92f0ec071e1ff34c4",
-    "remote_head": "041b0d7ca8f09e11a250abd92f0ec071e1ff34c4",
-    "working_tree_state": "clean",
+    "verified_head": "62f96da3c14b1def80764a259377638142876ccc",
+    "remote_head": "62f96da3c14b1def80764a259377638142876ccc",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
-      "Legacy prompt directories (prompts/implementation/*, prompts/review/*) and the prompts/runtime_completion compatibility symlink are staged for deletion as intentional consolidation into AURA_RUNTIME_COMPLETION/.",
-      "Root-level runtime_completion/ directory removed.",
-      "Root compatibility symlinks removed: anti_amnesia/runtime_completion, ledger/runtime_completion, schemas/runtime_completion. Internal references have been migrated to AURA_RUNTIME_COMPLETION/context/, AURA_RUNTIME_COMPLETION/state/, and AURA_RUNTIME_COMPLETION/schemas/.",
-      "scripts/aura-test.sh now builds test targets sequentially, preserves per-target failures, and rejects incomplete test bundles.",
-      "System TTS latency tests use the installed Swift Testing serialized suite trait; latency budgets and assertions remain unchanged."
+      "No unrelated user-owned changes were present at bootstrap start.",
+      "The current dirty state consists only of authorized R0 governance/toolchain/CI and state projection edits; no product source is modified.",
+      "The ordered manifest contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is a mandatory out-of-manifest session procedure documented by prompts/README.md."
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R0",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
+    "id": "R1",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
     "state": "ready",
-    "step": "Begin repository-truth and governance work from the reconciled canonical state; preserve the verified test and runtime evidence.",
+    "step": "Inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing.",
     "started_at": "2026-08-02T14:10:00Z",
     "blocked_by": []
   },
@@ -32,17 +30,17 @@
     {
       "id": "R0",
       "name": "Repository Truth and Governance Repair",
-      "state": "ready",
+      "state": "completed",
       "dependencies": [],
       "started_at": null,
-      "completed_at": null,
-      "evidence_ids": ["EV-BOOTSTRAP-20260802-STATE-RECONCILE-01", "EV-BOOTSTRAP-20260802-SCHEMA-VALIDATE-01", "EV-R0-20260802-FULL-SUITE-01", "EV-R0-20260802-APP-SMOKE-01"],
+      "completed_at": "2026-08-02T14:26:47Z",
+      "evidence_ids": ["EV-BOOTSTRAP-20260802-STATE-RECONCILE-01", "EV-BOOTSTRAP-20260802-SCHEMA-VALIDATE-01", "EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01", "EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01", "EV-BOOTSTRAP-20260802-TOOLCHAIN-INVENTORY-01", "EV-R0-20260802-FULL-SUITE-01", "EV-R0-20260802-FULL-SUITE-RERUN-01", "EV-R0-20260802-APP-SMOKE-01", "EV-R0-20260802-CAPABILITY-AUDIT-01", "EV-R0-20260802-STATE-VALIDATOR-01", "EV-R0-20260802-TOOLCHAIN-MANIFEST-01", "EV-R0-20260802-CI-CONFIG-01", "EV-R0-20260802-LEGACY-REDIRECT-01", "EV-R0-20260802-TODO-AUDIT-01"],
       "open_risk_ids": ["RISK-TOOLCHAIN-PREVIEW"]
     },
     {
       "id": "R1",
       "name": "Runtime Integration Spine and Trace Correctness",
-      "state": "pending",
+      "state": "ready",
       "dependencies": ["R0"],
       "started_at": null,
       "completed_at": null,
@@ -162,16 +160,16 @@
   ],
   "authority": {
     "edit": true,
-    "install_dependencies": true,
-    "download_models": true,
-    "mutate_permissions": true,
-    "launch_or_install_app": true,
+    "install_dependencies": false,
+    "download_models": false,
+    "mutate_permissions": false,
+    "launch_or_install_app": false,
     "commit": true,
     "push": true,
-    "merge": false,
+    "merge": true,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "User explicitly authorized: all yes keep going (2026-08-02). This grants state-file edits, root-cleanup edits, dependency/model install, permission interaction, app launch, commit and push. Merge, sign/notarize, and release/deploy remain excluded until separately authorized."
+    "source": "Current user instruction: push commit merge and check all todos (2026-08-02). This authorizes repository edits, commit, push, and merge operations for R0. Dependency installation, model download, TCC/permission mutation, app launch/install, signing, notarization, release, and deployment remain unauthorized."
   },
   "release_gates": [
     {
@@ -255,7 +253,7 @@
       "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
     }
   ],
-  "last_evidence_ids": ["EV-R0-20260802-FULL-SUITE-01", "EV-R0-20260802-APP-SMOKE-01", "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01"],
+  "last_evidence_ids": ["EV-R0-20260802-STATE-VALIDATOR-01", "EV-R0-20260802-TOOLCHAIN-MANIFEST-01", "EV-R0-20260802-CI-CONFIG-01", "EV-R0-20260802-CAPABILITY-AUDIT-01", "EV-R0-20260802-LEGACY-REDIRECT-01", "EV-R0-20260802-TODO-AUDIT-01", "EV-R0-20260802-FULL-SUITE-RERUN-01", "EV-R0-20260802-APP-SMOKE-01"],
   "blockers": [],
-  "next_action": "Start AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md; the baseline build, full test suite, package build, and bounded startup smoke are verified, while signing, notarization, and release gates remain open."
+  "next_action": "Start AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md. First action: inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing."
 }

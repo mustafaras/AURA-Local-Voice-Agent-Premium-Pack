@@ -3202,3 +3202,25 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - `git diff --check` and shell syntax checks passed.
 - **Limitations:** `swift-format` is unavailable. The smoke test did not sign, notarize, mutate TCC permissions, or claim microphone, Screen Recording, GUI, real wake-word, or release validation.
 - **Next safe action:** Begin R0 from `AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md`.
+
+### 2026-08-02T14:26:47Z — R0_GOVERNANCE_REPAIR_COMPLETED — validator, toolchain contract, CI gate, and capability audit
+
+- **Actor:** Copilot.
+- **Objective result:** Completed R0 repository-truth and governance repair without modifying product source.
+- **Implementation:** Added standard-library `scripts/validate_runtime_completion.py`; 13 deterministic tests under `scripts/tests/`; machine-readable toolchain manifest/schema; human `TOOLCHAIN.md`; accepted ADR-045; CI governance job before Swift build/test; capability-matrix audit; and canonical legacy-state pointers.
+- **Verification:** `python3 scripts/validate_runtime_completion.py --ci` passed; 13/13 validator tests passed; Ruby parsed `.github/workflows/ci.yml`; `zsh -n scripts/*.sh`; Python `py_compile`; and `git diff --check` passed.
+- **Evidence:** `EV-R0-20260802-STATE-VALIDATOR-01`, `EV-R0-20260802-TOOLCHAIN-MANIFEST-01`, `EV-R0-20260802-CI-CONFIG-01`, `EV-R0-20260802-CAPABILITY-AUDIT-01`, `EV-R0-20260802-LEGACY-REDIRECT-01`.
+- **Limitations:** No actual GitHub Actions run was observed. The host lacks full Xcode/`xcodebuild` and `swift-format`; release validation remains blocked by those gates. No install, model download, TCC mutation, app launch, signing, notarization, release, or deployment occurred.
+- **State transition:** R0 is `completed`; R1 is `ready`. The next exact action is recorded in `AURA_RUNTIME_COMPLETION/context/session-handoff.json`.
+
+### 2026-08-02T14:15:06Z — BOOTSTRAP_STRICT_GATE_RECONCILED — canonical state and required evidence repaired
+
+- **Actor:** Copilot.
+- **Prompt:** `BOOTSTRAP` (`AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md`).
+- **Verified commit:** `62f96da3c14b1def80764a259377638142876ccc` on `main`; `origin/main` matched at capture.
+- **Result:** Re-ran the prompt’s live repository, authority, schema/manifest, dependency, legacy-status, and toolchain preflight. Corrected the state/handoff head from stale `041b0d7` to live `62f96da`; recorded the current session’s edit-only authority; added canonical-state pointers to legacy status files; and recorded the three required bootstrap evidence IDs.
+- **Validation:** Five JSON documents pass `jsonschema` 4.26.0; 15 ordered implementation prompts and the mandatory out-of-manifest `15_SESSION_CLOSEOUT.prompt.md` pass existence/order/dependency checks; required reads/references/identifier formats pass; live remote probe returns `62f96da`; toolchain inventory records macOS 27.0 arm64, Swift 6.4, SDK 27.0, Python 3.14.6/Chatterbox Python 3.11.15, Git 2.54.0, and the CommandLineTools limitation.
+- **Evidence:** `EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01`, `EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01`, `EV-BOOTSTRAP-20260802-TOOLCHAIN-INVENTORY-01`.
+- **Limitations:** No Xcode `xcodebuild` or `swift-format` is available on this host; R0 owns the durable toolchain/CI contract. No product source was changed. No commit or push was performed in this session.
+- **Acceptance:** BOOTSTRAP gate **passed**; R0 remains ready. Historical append-only entries were preserved, and the remaining legacy projection work is explicitly assigned to R0.
+- **Next safe action:** Execute `AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md` and inspect the canonical state, capability/evidence/risk registers, decision index, `Package.swift`, CI workflow, and build/signing scripts before editing.

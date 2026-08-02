@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.local/schemas/runtime-completion/toolchain-manifest.schema.json",
+  "title": "AURA Toolchain Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "updated_at",
+    "repository_commit",
+    "supported",
+    "observed",
+    "required_cli",
+    "python",
+    "models",
+    "validation",
+    "compatibility_policy",
+    "limitations"
+  ],
+  "properties": {
+    "$schema": { "type": "string", "const": "../schemas/toolchain-manifest.schema.json" },
+    "schema_version": { "const": "1.0.0" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "repository_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "supported": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["development", "release"],
+      "properties": {
+        "development": { "$ref": "#/$defs/profile" },
+        "release": { "$ref": "#/$defs/profile" }
+      }
+    },
+    "observed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "macos_version",
+        "architecture",
+        "hardware_profile",
+        "developer_directory",
+        "swift_version",
+        "sdk_version",
+        "xcodebuild_available",
+        "xcodebuild_version",
+        "python_system",
+        "python_venv",
+        "python_chatterbox",
+        "git_version",
+        "github_remote_probe",
+        "swift_format_available"
+      ],
+      "properties": {
+        "macos_version": { "type": "string", "minLength": 1 },
+        "architecture": { "type": "string", "const": "arm64" },
+        "hardware_profile": { "type": "string", "minLength": 1 },
+        "developer_directory": { "type": "string", "minLength": 1 },
+        "swift_version": { "type": "string", "minLength": 1 },
+        "sdk_version": { "type": "string", "minLength": 1 },
+        "xcodebuild_available": { "type": "boolean" },
+        "xcodebuild_version": { "type": ["string", "null"] },
+        "python_system": { "type": "string", "minLength": 1 },
+        "python_venv": { "type": "string", "minLength": 1 },
+        "python_chatterbox": { "type": "string", "minLength": 1 },
+        "git_version": { "type": "string", "minLength": 1 },
+        "github_remote_probe": { "enum": ["passed", "failed", "not_run"] },
+        "swift_format_available": { "type": "boolean" }
+      }
+    },
+    "required_cli": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "required", "validation"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "required": { "type": "boolean" },
+          "validation": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "python": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "repository_validation", "chatterbox"],
+      "properties": {
+        "system": { "type": "string", "minLength": 1 },
+        "repository_validation": { "type": "string", "minLength": 1 },
+        "chatterbox": { "type": "string", "minLength": 1 }
+      }
+    },
+    "models": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chatterbox_source_revision", "chatterbox_model_revision", "manifest_policy"],
+      "properties": {
+        "chatterbox_source_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "chatterbox_model_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "manifest_policy": { "type": "string", "minLength": 1 }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["script", "command", "ci_workflow", "release_command"],
+      "properties": {
+        "script": { "type": "string", "minLength": 1 },
+        "command": { "type": "string", "minLength": 1 },
+        "ci_workflow": { "type": "string", "minLength": 1 },
+        "release_command": { "type": "string", "minLength": 1 }
+      }
+    },
+    "compatibility_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["development", "release", "projection_commits", "deprecation"],
+      "properties": {
+        "development": { "type": "string", "minLength": 1 },
+        "release": { "type": "string", "minLength": 1 },
+        "projection_commits": { "type": "string", "minLength": 1 },
+        "deprecation": { "type": "string", "minLength": 1 }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "architecture", "swift", "sdk", "deployment_target", "xcode_required", "strategy"],
+      "properties": {
+        "os": { "type": "string", "minLength": 1 },
+        "architecture": { "type": "string", "const": "arm64" },
+        "swift": { "type": "string", "minLength": 1 },
+        "sdk": { "type": "string", "minLength": 1 },
+        "deployment_target": { "type": "string", "minLength": 1 },
+        "xcode_required": { "type": "boolean" },
+        "strategy": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

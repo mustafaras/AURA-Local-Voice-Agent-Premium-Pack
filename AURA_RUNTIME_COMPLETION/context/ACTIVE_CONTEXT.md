@@ -1,9 +1,18 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `BOOTSTRAP`  
-> **Current program state:** Planned  
-> **Audited baseline:** `27edd2ced7d6f7ae66de86c9e7e2b16380bd2e15`
+> **Current prompt:** `R1`
+> **Current program state:** In progress; R1 ready
+> **Audited baseline:** `62f96da3c14b1def80764a259377638142876ccc`
+
+## Canonical status
+
+The strict BOOTSTRAP preflight and R0 governance repair are complete. Canonical machine state is in
+`AURA_RUNTIME_COMPLETION/state/current-state.json`; the ordered manifest has
+15 implementation prompts and `15_SESSION_CLOSEOUT.prompt.md` remains the
+mandatory out-of-manifest session procedure. Legacy status prose is historical
+compatibility context and is guarded by the R0 validator. R1 now owns runtime
+integration and trace correctness.
 
 ## Why this program exists
 
@@ -27,9 +36,9 @@ The immediate program must:
 
 ## Immediate next action
 
-Run `AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md` in an authorized fresh engineering session.
+Run `AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md`.
 
-That session must verify the live repository and reconcile the machine state before implementing R0. It must not start Phase 26 or any optional historical roadmap phase merely because older prose names it as the next action.
+The first action is to inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing. Do not start Phase 26 or any optional historical roadmap phase merely because older prose names it as the next action.
 
 ## Current major risks
 

@@ -4,6 +4,16 @@
 > Last commit: `14cb0bd` — `feat(security): ADR-034 milestone 1 — AuraAutomationHelper and AuraShellHelper sandboxed executables with IPC types, entitlements, and build/sign/verify script updates`
 > Read `AGENTS.md`, `ledger/CURRENT_STATE.md`, and the newest `ledger/PROJECT_LEDGER.md` entry before changing files.
 
+## Canonical State Notice — 2026-08-02
+
+This starter is a historical compatibility document. Use
+`AURA_RUNTIME_COMPLETION/state/current-state.json` and
+`AURA_RUNTIME_COMPLETION/context/session-handoff.json` as the authoritative
+state. Live `HEAD == origin/main == 62f96da3c14b1def80764a259377638142876ccc`;
+the active prompt is R0 and the next action is repository-truth/governance
+repair. The historical HEAD, phase, and push claims below are not current
+state.
+
 ## Repository
 
 - Path: `/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack`

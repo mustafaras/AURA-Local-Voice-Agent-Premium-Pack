@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-07-31T12:11:00Z",
-  "repository_commit": "27edd2ced7d6f7ae66de86c9e7e2b16380bd2e15",
+  "updated_at": "2026-08-02T14:20:00Z",
+  "repository_commit": "62f96da3c14b1def80764a259377638142876ccc",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -137,7 +137,7 @@
       "test_files": ["Tests/AuraAudioTests", "Runtime/chatterbox/tests"],
       "dependencies": ["voice.tts_system"],
       "open_gaps": ["MPS stall, CPU latency, resource contention, consented reference audio, and human listening gate."],
-      "evidence_ids": [],
+      "evidence_ids": ["EV-R7-20260730-CHATTERBOX-CPU-01"],
       "notes": "Must fail closed to system TTS when gates are unmet."
     },
     {
@@ -521,7 +521,7 @@
       "implementation_state": "partial",
       "runtime_state": "registered_disabled",
       "user_path_state": "developer_only",
-      "verification_state": "system_tested",
+      "verification_state": "integration_simulated",
       "risk_tier": "restricted",
       "owning_track": "R11",
       "production_files": ["scripts/build-app-bundle.sh", "scripts/codesign-adhoc.sh", "Resources/AURA-Info.plist"],
