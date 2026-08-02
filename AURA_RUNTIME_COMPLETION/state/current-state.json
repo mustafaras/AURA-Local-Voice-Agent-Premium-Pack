@@ -2,27 +2,29 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-02T14:10:00Z",
+  "updated_at": "2026-08-02T12:29:50Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "55734a78922214a8929d0c624573de7ed08092ab",
-    "remote_head": "55734a78922214a8929d0c624573de7ed08092ab",
+    "verified_head": "20571dee89e7c7616757239c2717b07b5e2ee297",
+    "remote_head": "de9be878e5e52f7ae9d2572bd5435b86748cf1e3",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "Legacy prompt directories (prompts/implementation/*, prompts/review/*) and the prompts/runtime_completion compatibility symlink are staged for deletion as intentional consolidation into AURA_RUNTIME_COMPLETION/.",
       "Root-level runtime_completion/ directory removed.",
-      "Root compatibility symlinks removed: anti_amnesia/runtime_completion, ledger/runtime_completion, schemas/runtime_completion. Internal references have been migrated to AURA_RUNTIME_COMPLETION/context/, AURA_RUNTIME_COMPLETION/state/, and AURA_RUNTIME_COMPLETION/schemas/."
+      "Root compatibility symlinks removed: anti_amnesia/runtime_completion, ledger/runtime_completion, schemas/runtime_completion. Internal references have been migrated to AURA_RUNTIME_COMPLETION/context/, AURA_RUNTIME_COMPLETION/state/, and AURA_RUNTIME_COMPLETION/schemas/.",
+      "scripts/aura-test.sh now builds test targets sequentially, preserves per-target failures, and rejects incomplete test bundles.",
+      "System TTS latency tests use the installed Swift Testing serialized suite trait; latency budgets and assertions remain unchanged."
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "BOOTSTRAP",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md",
-    "state": "in_progress",
-    "step": "Reconcile live repository state, update canonical paths in JSON/manifest/context, validate schema integrity, record authority, and mark R0 ready if all bootstrap gates pass.",
+    "id": "R0",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
+    "state": "ready",
+    "step": "Begin repository-truth and governance work from the reconciled canonical state; preserve the verified test and runtime evidence.",
     "started_at": "2026-08-02T14:10:00Z",
     "blocked_by": []
   },
@@ -34,7 +36,7 @@
       "dependencies": [],
       "started_at": null,
       "completed_at": null,
-      "evidence_ids": ["EV-BOOTSTRAP-20260802-STATE-RECONCILE-01", "EV-BOOTSTRAP-20260802-SCHEMA-VALIDATE-01"],
+      "evidence_ids": ["EV-BOOTSTRAP-20260802-STATE-RECONCILE-01", "EV-BOOTSTRAP-20260802-SCHEMA-VALIDATE-01", "EV-R0-20260802-FULL-SUITE-01", "EV-R0-20260802-APP-SMOKE-01"],
       "open_risk_ids": ["RISK-TOOLCHAIN-PREVIEW"]
     },
     {
@@ -104,7 +106,7 @@
       "dependencies": ["R2"],
       "started_at": null,
       "completed_at": null,
-      "evidence_ids": [],
+      "evidence_ids": ["EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01"],
       "open_risk_ids": ["RISK-NO-REAL-WAKE-WORD", "RISK-MODEL-MEMORY-PRESSURE", "RISK-NEURAL-TTS-LATENCY"]
     },
     {
@@ -253,7 +255,7 @@
       "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
     }
   ],
-  "last_evidence_ids": [],
+  "last_evidence_ids": ["EV-R0-20260802-FULL-SUITE-01", "EV-R0-20260802-APP-SMOKE-01", "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01"],
   "blockers": [],
-  "next_action": "Run AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md in a fresh authorized engineering session."
+  "next_action": "Start AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md; the baseline build, full test suite, package build, and bounded startup smoke are verified, while signing, notarization, and release gates remain open."
 }

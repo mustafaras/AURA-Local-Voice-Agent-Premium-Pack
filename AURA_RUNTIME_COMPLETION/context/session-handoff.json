@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-02T14:10:00Z",
+  "updated_at": "2026-08-02T12:29:50Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
-  "last_verified_commit": "55734a78922214a8929d0c624573de7ed08092ab",
+  "last_verified_commit": "20571dee89e7c7616757239c2717b07b5e2ee297",
   "active_prompt": {
-    "id": "BOOTSTRAP",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md",
-    "state": "in_progress",
-    "step": "Reconcile legacy paths, validate schema integrity, record authority, and mark R0 ready when the baseline is truthful."
+    "id": "R0",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
+    "state": "ready",
+    "step": "Begin repository-truth and governance work from the reconciled canonical state; preserve the verified test and runtime evidence."
   },
-  "summary": "Runtime Completion Program v1.0.0 is installed as a separate professional implementation suite. It contains an ordered BOOTSTRAP, R0–R12, FINAL, and mandatory SESSION CLOSEOUT sequence; compact anti-amnesia files; machine-readable state, capability, manifest, handoff, and context JSON; JSON Schemas; and separate append-only ledger, evidence, decision, and risk records. The historical 0–25 prompt sequence remains untouched. No product implementation track has started.",
+  "summary": "Runtime Completion Program v1.0.0 is installed and its bootstrap baseline is reconciled. The sequential Swift test runner and serialized system-TTS latency suite are verified; the full suite passes 20 bundles and 665 tests, the release app bundle builds, and a clean-home executable smoke stays alive under a bounded watchdog. The historical 0–25 prompt sequence remains untouched. R0 is ready; product implementation tracks remain governed by the ordered program.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -84,7 +84,7 @@
     },
     {
       "name": "AURA production build and test suite",
-      "result": "not_run",
+      "result": "passed",
       "evidence_id": null
     }
   ],
@@ -101,7 +101,7 @@
     "RISK-FALSE-SUCCESS",
     "RISK-CONFIRMATION-RESUME"
   ],
-  "next_action": "Open a fresh authorized engineering session and execute AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md. Do not begin R0 or product code until repository state, authority, JSON/schema structure, prompt dependencies, toolchain, and legacy contradictions are reconciled.",
+  "next_action": "Execute AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md from the reconciled baseline. Keep signing, notarization, release, and real wake-word gates open until separately evidenced.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",

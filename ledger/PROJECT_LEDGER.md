@@ -3186,3 +3186,19 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Current state:** Phase 20 implementation complete, committed, and pushed to `origin/main` at `3262d64`. Mock-engine acceptance-gate evidence passes in CI. Packaging/update scaffolding and ADR in place. No release performed.
 - **Next safe action:** Await user direction for the next phase/task. Options: (1) implement real acoustic wake-word + STT + TTS/Chatterbox (see `docs/subsystems/07_TURN_TAKING_AND_TTS.md`) so AURA can actually hear and speak; (2) proceed to Phase 21 — Advanced Memory Engine and Provenance Graph; (3) another task of the user's choosing.
 - **Integrity hash:** SHA-256 intentionally omitted.
+
+### 2026-08-02T12:29:50Z — R0_BASELINE_VERIFIED — reliable full test execution and app startup smoke
+
+- **Actor:** Copilot.
+- **Objective result:** The CommandLineTools test path is now reliable enough to run the full repository suite, the observed system-TTS latency flake is isolated without weakening its assertion, and the release app bundle has a bounded startup smoke result.
+- **Code commit:** `20571dee89e7c7616757239c2717b07b5e2ee297` (`test: stabilize full Swift test execution`).
+- **Implementation:**
+  - Changed `scripts/aura-test.sh` from one large multi-target SwiftPM invocation to sequential target builds with per-target failure accounting and incomplete-bundle detection.
+  - Added Swift Testing `.serialized` to `SystemTTSLatencyTests`; the 2.0-second first-chunk and 5.0-second full-utterance budgets remain unchanged.
+- **Verification evidence:**
+  - `./scripts/aura-test.sh /tmp/aura-full-after-audio`: 20 bundles, 665 tests, 0 failed bundles, exit code 0.
+  - `BUILD_DIR=/tmp/aura-app-after ./scripts/build-app-bundle.sh`: exit code 0; AURA and all three helper apps packaged.
+  - Unsigned executable startup from a workspace-local bundle with isolated `HOME`: remained alive for 12 seconds until watchdog exit 142; no crash output.
+  - `git diff --check` and shell syntax checks passed.
+- **Limitations:** `swift-format` is unavailable. The smoke test did not sign, notarize, mutate TCC permissions, or claim microphone, Screen Recording, GUI, real wake-word, or release validation.
+- **Next safe action:** Begin R0 from `AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md`.

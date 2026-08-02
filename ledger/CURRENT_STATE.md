@@ -3,6 +3,14 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-07-30.
 
+## Latest Verification Snapshot — 2026-08-02
+
+- Code revision `20571de` contains the verified sequential Swift test runner and serialized system-TTS latency suite.
+- Full repository validation passes: 20 test bundles, 665 tests, 0 failed bundles. The release `AURA.app` bundle and PluginHost/AutomationHelper/ShellHelper payloads also build successfully under `/tmp/aura-app-after`.
+- An unsigned AURA executable launched from a workspace-local bundle with an isolated `HOME` and stayed alive for the 12-second watchdog window without crash output. This is a bounded startup smoke only; it does not prove signing, TCC, GUI, microphone, Screen Recording, real wake-word, or release behavior.
+- `git diff --check` and shell syntax checks pass. `swift-format` is unavailable on this host.
+- Next safe action: begin R0 repository-truth and governance work from `AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md`; signing, notarization, and release gates remain open.
+
 - Phase: Phase 25 adversarial safety harness and red-team evaluation suite is
   implemented, verified, and closed. Phase 24 layered configuration is
   committed and pushed at `HEAD == origin/main == ba9842f`.

@@ -99,3 +99,22 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - Full schema and live repository validation. **Deferred to BOOTSTRAP by design.**
   - Product implementation and final AURA operation. **Not started; governed by R0–R12 and FINAL.**
 - **Next safe action:** Run `AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md` in a fresh authorized engineering session, validate all JSON/schema references and live repository state, then begin R0 only if the baseline is truthful.
+
+### 2026-08-02T12:29:50Z — R0_BASELINE_VERIFIED — full test runner, package build, and startup smoke corrected
+
+- **Actor:** GitHub Copilot engineering session.
+- **Session ID:** `AURA-BOOTSTRAP-2026-08-02`.
+- **Verified code commit:** `20571dee89e7c7616757239c2717b07b5e2ee297` on `main`; the runtime-state projection is intentionally dirty while this closeout is recorded.
+- **Objective:** Finish the bootstrap verification needed before R0: make the Swift test runner reliable in the CommandLineTools environment, remove the observed system-TTS latency flake without weakening its assertion, build the release app bundle, and perform a bounded startup smoke.
+- **Changes:**
+  - `scripts/aura-test.sh` now builds test targets sequentially, continues to collect isolated build failures, tracks only successfully built targets, and rejects missing test executables.
+  - `Tests/AuraAudioTests/SystemTTSLatencyTests.swift` marks the AVSpeechSynthesizer latency suite as serialized using the installed Swift Testing trait; the 2.0-second budget remains unchanged.
+- **Verification:**
+  - Focused `AuraAudioTests`: 33/33 passed.
+  - Full runner: 20/20 bundles and 665/665 tests passed; exit code 0.
+  - `BUILD_DIR=/tmp/aura-app-after ./scripts/build-app-bundle.sh`: exit code 0; main AURA plus PluginHost, AutomationHelper, and ShellHelper packaged.
+  - Clean-home executable smoke: AURA remained alive until the 12-second watchdog; no crash output and no unexpected clean-home files.
+  - `git diff --check` and `zsh -n scripts/aura-test.sh scripts/build-app-bundle.sh scripts/codesign-adhoc.sh`: passed.
+- **Limitations:** `swift-format` is not installed on this host. The app smoke was unsigned and did not claim TCC, GUI, microphone, Screen Recording, notarization, release, or real acoustic wake-word validation.
+- **Evidence IDs:** `EV-R0-20260802-FULL-SUITE-01`, `EV-R0-20260802-APP-SMOKE-01`, `EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01`.
+- **Next safe action:** Start R0 repository-truth and governance work; keep signing, notarization, real wake-word, and external release gates open.
