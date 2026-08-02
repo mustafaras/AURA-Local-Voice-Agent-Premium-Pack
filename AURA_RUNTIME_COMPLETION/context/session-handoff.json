@@ -1,9 +1,9 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-02T14:34:36Z",
+  "updated_at": "2026-08-02T14:35:54Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
-  "last_verified_commit": "62f96da3c14b1def80764a259377638142876ccc",
+  "last_verified_commit": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
   "active_prompt": {
     "id": "R1",
     "file": "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
@@ -84,6 +84,7 @@
     "EV-R0-20260802-CI-CONFIG-01",
     "EV-R0-20260802-LEGACY-REDIRECT-01",
     "EV-R0-20260802-TODO-AUDIT-01",
+    "EV-R0-20260802-POST-COMMIT-VALIDATION-01",
     "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01"
   ],
   "tests": [

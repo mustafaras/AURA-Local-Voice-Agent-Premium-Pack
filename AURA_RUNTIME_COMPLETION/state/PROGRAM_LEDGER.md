@@ -191,3 +191,11 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Result:** 20/20 bundles and 665/665 tests passed; `AuraAudioTests` passed 33/33 on all three isolated reruns. The earlier fresh wrapper run had one 2.047-second first-chunk latency miss against the unchanged 2.0-second bound; no assertion or budget was weakened.
 - **Evidence:** `EV-R0-20260802-FULL-SUITE-RERUN-01`.
 - **Limitation:** System TTS wall-clock latency remains host-load sensitive and is not a release-hardware gate.
+
+### 2026-08-02T14:35:54Z — R0_POST_COMMIT_VALIDATION — projection evidence synchronized to 083aaa8
+
+- **Actor:** GitHub Copilot engineering session.
+- **Verified commit:** `083aaa833a7cb6ee938029275a33381eb8dd7cb9`; `HEAD == origin/main` at validation time.
+- **Procedure/result:** `python3 scripts/validate_runtime_completion.py --ci`, 13 deterministic governance tests, and `git diff --check` passed.
+- **Evidence:** `EV-R0-20260802-POST-COMMIT-VALIDATION-01`.
+- **Next safe action:** Commit the state-only projection, push it, and continue from R1. A merge commit is not applicable because the work is already on `main`; verify `git merge --ff-only origin/main` reports no divergence.

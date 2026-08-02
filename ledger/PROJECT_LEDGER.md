@@ -3224,3 +3224,12 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Limitations:** No Xcode `xcodebuild` or `swift-format` is available on this host; R0 owns the durable toolchain/CI contract. No product source was changed. No commit or push was performed in this session.
 - **Acceptance:** BOOTSTRAP gate **passed**; R0 remains ready. Historical append-only entries were preserved, and the remaining legacy projection work is explicitly assigned to R0.
 - **Next safe action:** Execute `AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md` and inspect the canonical state, capability/evidence/risk registers, decision index, `Package.swift`, CI workflow, and build/signing scripts before editing.
+
+### 2026-08-02T14:35:54Z — R0_POST_COMMIT_AND_TODO_AUDIT — pushed baseline and clean regression evidence
+
+- **Actor:** Copilot.
+- **Result:** R0 governance commit `083aaa833a7cb6ee938029275a33381eb8dd7cb9` was pushed to `origin/main`. Post-commit validator, 13 governance tests, and diff-check passed. The full Swift helper rerun passed 20/20 bundles and 665/665 tests; three isolated `AuraAudioTests` reruns passed 33/33.
+- **TODO audit:** Repository-wide fallback scan found only two normative checklist mentions in the FINAL/SESSION_CLOSEOUT prompts; no production TODO/FIXME marker was found in audited paths. No marker was deleted.
+- **Evidence:** `EV-R0-20260802-POST-COMMIT-VALIDATION-01`, `EV-R0-20260802-FULL-SUITE-RERUN-01`, `EV-R0-20260802-TODO-AUDIT-01`.
+- **Limitations:** The first fresh full wrapper run had one 2.047-second system-TTS wall-clock miss; reruns passed without weakening the 2.0-second assertion. No CI workflow run, Xcode/xcodebuild, signing, notarization, release, or deployment evidence is claimed.
+- **Next safe action:** Commit/push the state-only projection, verify `git merge --ff-only origin/main` is already up to date, then begin R1.

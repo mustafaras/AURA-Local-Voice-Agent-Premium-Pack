@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-02T14:34:36Z",
+  "updated_at": "2026-08-02T14:35:54Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "62f96da3c14b1def80764a259377638142876ccc",
-    "remote_head": "62f96da3c14b1def80764a259377638142876ccc",
+    "verified_head": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
+    "remote_head": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -253,7 +253,7 @@
       "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
     }
   ],
-  "last_evidence_ids": ["EV-R0-20260802-STATE-VALIDATOR-01", "EV-R0-20260802-TOOLCHAIN-MANIFEST-01", "EV-R0-20260802-CI-CONFIG-01", "EV-R0-20260802-CAPABILITY-AUDIT-01", "EV-R0-20260802-LEGACY-REDIRECT-01", "EV-R0-20260802-TODO-AUDIT-01", "EV-R0-20260802-FULL-SUITE-RERUN-01", "EV-R0-20260802-APP-SMOKE-01"],
+  "last_evidence_ids": ["EV-R0-20260802-STATE-VALIDATOR-01", "EV-R0-20260802-TOOLCHAIN-MANIFEST-01", "EV-R0-20260802-CI-CONFIG-01", "EV-R0-20260802-CAPABILITY-AUDIT-01", "EV-R0-20260802-LEGACY-REDIRECT-01", "EV-R0-20260802-TODO-AUDIT-01", "EV-R0-20260802-POST-COMMIT-VALIDATION-01", "EV-R0-20260802-FULL-SUITE-RERUN-01", "EV-R0-20260802-APP-SMOKE-01"],
   "blockers": [],
   "next_action": "Start AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md. First action: inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing."
 }
