@@ -5,6 +5,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "$schema",
     "schema_version",
     "program_version",
     "updated_at",
@@ -17,6 +18,7 @@
     "next_action"
   ],
   "properties": {
+    "$schema": { "type": "string", "const": "../schemas/program-state.schema.json" },
     "schema_version": { "const": "1.0.0" },
     "program_version": { "type": "string", "pattern": "^1\\.[0-9]+\\.[0-9]+$" },
     "updated_at": { "type": "string", "format": "date-time" },
@@ -56,7 +58,7 @@
       "required": ["id", "file", "state", "step"],
       "properties": {
         "id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL)$" },
-        "file": { "type": "string", "pattern": "^prompts/runtime_completion/.+\\.prompt\\.md$" },
+        "file": { "type": "string", "pattern": "^AURA_RUNTIME_COMPLETION/prompts/.+\\.prompt\\.md$" },
         "state": { "$ref": "#/$defs/workState" },
         "step": { "type": "string", "minLength": 1, "maxLength": 500 },
         "started_at": { "type": ["string", "null"], "format": "date-time" },

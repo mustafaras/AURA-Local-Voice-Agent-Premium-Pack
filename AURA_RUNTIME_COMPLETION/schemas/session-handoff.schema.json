@@ -5,6 +5,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "$schema",
     "schema_version",
     "updated_at",
     "session_id",
@@ -20,6 +21,7 @@
     "required_first_reads"
   ],
   "properties": {
+    "$schema": { "type": "string", "const": "../schemas/session-handoff.schema.json" },
     "schema_version": { "const": "1.0.0" },
     "updated_at": { "type": "string", "format": "date-time" },
     "session_id": { "type": "string", "minLength": 1, "maxLength": 128 },
@@ -30,7 +32,7 @@
       "required": ["id", "file", "state", "step"],
       "properties": {
         "id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL)$" },
-        "file": { "type": "string", "pattern": "^prompts/runtime_completion/.+\\.prompt\\.md$" },
+        "file": { "type": "string", "pattern": "^AURA_RUNTIME_COMPLETION/prompts/.+\\.prompt\\.md$" },
         "state": { "enum": ["pending", "ready", "in_progress", "blocked", "completed", "skipped", "superseded"] },
         "step": { "type": "string", "minLength": 1, "maxLength": 500 }
       }

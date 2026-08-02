@@ -1,6 +1,6 @@
 # R0 — Repository Truth and Governance Repair Prompt
 
-Execute only after BOOTSTRAP is `completed` and R0 is `ready` in `ledger/runtime_completion/current-state.json`.
+Execute only after BOOTSTRAP is `completed` and R0 is `ready` in `AURA_RUNTIME_COMPLETION/state/current-state.json`.
 
 ## Mission
 

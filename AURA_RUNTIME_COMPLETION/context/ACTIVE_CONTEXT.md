@@ -27,7 +27,7 @@ The immediate program must:
 
 ## Immediate next action
 
-Run `prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md` in an authorized fresh engineering session.
+Run `AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md` in an authorized fresh engineering session.
 
 That session must verify the live repository and reconcile the machine state before implementing R0. It must not start Phase 26 or any optional historical roadmap phase merely because older prose names it as the next action.
 

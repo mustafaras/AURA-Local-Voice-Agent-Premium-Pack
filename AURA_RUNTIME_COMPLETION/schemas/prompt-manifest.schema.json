@@ -6,12 +6,13 @@
   "additionalProperties": false,
   "required": ["schema_version", "program_version", "program_name", "shared_contract", "state_file", "handoff_file", "prompts"],
   "properties": {
+    "$schema": { "type": "string", "const": "../schemas/prompt-manifest.schema.json" },
     "schema_version": { "const": "1.0.0" },
     "program_version": { "type": "string", "pattern": "^1\\.[0-9]+\\.[0-9]+$" },
     "program_name": { "const": "AURA Runtime Completion Program" },
-    "shared_contract": { "const": "prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md" },
-    "state_file": { "const": "ledger/runtime_completion/current-state.json" },
-    "handoff_file": { "const": "anti_amnesia/runtime_completion/session-handoff.json" },
+    "shared_contract": { "const": "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md" },
+    "state_file": { "const": "AURA_RUNTIME_COMPLETION/state/current-state.json" },
+    "handoff_file": { "const": "AURA_RUNTIME_COMPLETION/context/session-handoff.json" },
     "prompts": {
       "type": "array",
       "minItems": 15,
@@ -23,7 +24,7 @@
           "order": { "type": "integer", "minimum": 0, "maximum": 99 },
           "id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL)$" },
           "name": { "type": "string", "minLength": 3, "maxLength": 200 },
-          "file": { "type": "string", "pattern": "^prompts/runtime_completion/.+\\.prompt\\.md$" },
+          "file": { "type": "string", "pattern": "^AURA_RUNTIME_COMPLETION/prompts/.+\\.prompt\\.md$" },
           "dependencies": {
             "type": "array",
             "uniqueItems": true,

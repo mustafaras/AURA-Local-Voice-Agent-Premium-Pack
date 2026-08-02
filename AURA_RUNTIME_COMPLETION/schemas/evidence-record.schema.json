@@ -17,6 +17,7 @@
     "limitations"
   ],
   "properties": {
+    "$schema": { "type": "string", "const": "../schemas/evidence-record.schema.json" },
     "schema_version": { "const": "1.0.0" },
     "id": { "type": "string", "pattern": "^EV-[A-Za-z0-9._-]+$" },
     "track_id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL)$" },

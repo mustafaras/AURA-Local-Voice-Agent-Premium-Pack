@@ -2,7 +2,7 @@
 
 You are starting or resuming the AURA Runtime Completion Program in a session with no trusted chat history.
 
-Follow `AGENTS.md` and `prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md` exactly.
+Follow `AGENTS.md` and `AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md` exactly.
 
 ## Mission
 
@@ -13,14 +13,14 @@ Establish a truthful, schema-valid, evidence-backed execution baseline. Do not i
 Read only:
 
 1. `AGENTS.md`
-2. `prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md`
-3. `ledger/runtime_completion/current-state.json`
-4. `anti_amnesia/runtime_completion/session-handoff.json`
-5. `anti_amnesia/runtime_completion/READ_FIRST.md`
-6. `prompts/runtime_completion/prompt-manifest.json`
+2. `AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md`
+3. `AURA_RUNTIME_COMPLETION/state/current-state.json`
+4. `AURA_RUNTIME_COMPLETION/context/session-handoff.json`
+5. `AURA_RUNTIME_COMPLETION/context/READ_FIRST.md`
+6. `AURA_RUNTIME_COMPLETION/prompts/prompt-manifest.json`
 7. this prompt
 
-Then use `anti_amnesia/runtime_completion/context-index.json` to load only the additional files needed for reconciliation.
+Then use `AURA_RUNTIME_COMPLETION/context/context-index.json` to load only the additional files needed for reconciliation.
 
 ## Required preflight
 
@@ -64,13 +64,13 @@ If the live state differs from `current-state.json`, live evidence wins. Reconci
 
 Validate:
 
-- `prompts/runtime_completion/prompt-manifest.json`
-- `ledger/runtime_completion/current-state.json`
-- `ledger/runtime_completion/capability-matrix.json`
-- `anti_amnesia/runtime_completion/session-handoff.json`
-- `anti_amnesia/runtime_completion/context-index.json`
+- `AURA_RUNTIME_COMPLETION/prompts/prompt-manifest.json`
+- `AURA_RUNTIME_COMPLETION/state/current-state.json`
+- `AURA_RUNTIME_COMPLETION/state/capability-matrix.json`
+- `AURA_RUNTIME_COMPLETION/context/session-handoff.json`
+- `AURA_RUNTIME_COMPLETION/context/context-index.json`
 
-against the schemas in `schemas/runtime_completion/`.
+against the schemas in `AURA_RUNTIME_COMPLETION/schemas/`.
 
 Use an installed standards-compliant validator when available. If none exists and dependency installation is not authorized, perform deterministic parse/structural checks without pretending full JSON Schema validation occurred. Record the evidence class and limitation.
 
@@ -118,8 +118,8 @@ Do not verify unrelated CLIs/models yet. R0 will establish the durable toolchain
 
 ## Deliverables
 
-1. Append a `BOOTSTRAP_STARTED` and `BOOTSTRAP_COMPLETED` entry to `ledger/runtime_completion/PROGRAM_LEDGER.md` if edits are authorized.
-2. Update `ledger/runtime_completion/current-state.json` with:
+1. Append a `BOOTSTRAP_STARTED` and `BOOTSTRAP_COMPLETED` entry to `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` if edits are authorized.
+2. Update `AURA_RUNTIME_COMPLETION/state/current-state.json` with:
    - live branch/head/remote relation;
    - working-tree state;
    - current authority;
@@ -128,7 +128,7 @@ Do not verify unrelated CLIs/models yet. R0 will establish the durable toolchain
    - BOOTSTRAP state `completed`;
    - R0 state `ready` only if all bootstrap gates pass;
    - exact next action.
-3. Replace `anti_amnesia/runtime_completion/session-handoff.json` with a concise handoff for R0.
+3. Replace `AURA_RUNTIME_COMPLETION/context/session-handoff.json` with a concise handoff for R0.
 4. Update `ACTIVE_CONTEXT.md` only if the immediate context changed.
 5. Add evidence-index entries for repository reconciliation and JSON/manifest validation.
 6. Add or update risk-register entries discovered during bootstrap.

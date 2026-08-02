@@ -1,39 +1,41 @@
 {
-  "$schema": "../../schemas/runtime_completion/program-state.schema.json",
+  "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-07-31T12:11:00Z",
-  "session_id": null,
+  "updated_at": "2026-08-02T14:10:00Z",
+  "session_id": "AURA-BOOTSTRAP-2026-08-02",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
-    "active_branch": null,
-    "verified_head": "27edd2ced7d6f7ae66de86c9e7e2b16380bd2e15",
-    "remote_head": "27edd2ced7d6f7ae66de86c9e7e2b16380bd2e15",
-    "working_tree_state": "unknown",
+    "active_branch": "main",
+    "verified_head": "55734a78922214a8929d0c624573de7ed08092ab",
+    "remote_head": "55734a78922214a8929d0c624573de7ed08092ab",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
-      ".vscode/launch.json was historically reported as a user-owned local modification; verify rather than assume it still exists."
+      "Legacy prompt directories (prompts/implementation/*, prompts/review/*) and the prompts/runtime_completion compatibility symlink are staged for deletion as intentional consolidation into AURA_RUNTIME_COMPLETION/.",
+      "Root-level runtime_completion/ directory removed.",
+      "Root compatibility symlinks removed: anti_amnesia/runtime_completion, ledger/runtime_completion, schemas/runtime_completion. Internal references have been migrated to AURA_RUNTIME_COMPLETION/context/, AURA_RUNTIME_COMPLETION/state/, and AURA_RUNTIME_COMPLETION/schemas/."
     ]
   },
-  "program_status": "planned",
+  "program_status": "in_progress",
   "active_prompt": {
     "id": "BOOTSTRAP",
-    "file": "prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md",
-    "state": "ready",
-    "step": "Verify live repository state, validate the prompt program, reconcile legacy status claims, and make R0 ready.",
-    "started_at": null,
+    "file": "AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md",
+    "state": "in_progress",
+    "step": "Reconcile live repository state, update canonical paths in JSON/manifest/context, validate schema integrity, record authority, and mark R0 ready if all bootstrap gates pass.",
+    "started_at": "2026-08-02T14:10:00Z",
     "blocked_by": []
   },
   "tracks": [
     {
       "id": "R0",
       "name": "Repository Truth and Governance Repair",
-      "state": "pending",
+      "state": "ready",
       "dependencies": [],
       "started_at": null,
       "completed_at": null,
-      "evidence_ids": [],
-      "open_risk_ids": ["RISK-STATE-CONTRADICTION", "RISK-TOOLCHAIN-PREVIEW"]
+      "evidence_ids": ["EV-BOOTSTRAP-20260802-STATE-RECONCILE-01", "EV-BOOTSTRAP-20260802-SCHEMA-VALIDATE-01"],
+      "open_risk_ids": ["RISK-TOOLCHAIN-PREVIEW"]
     },
     {
       "id": "R1",
@@ -157,17 +159,17 @@
     }
   ],
   "authority": {
-    "edit": false,
-    "install_dependencies": false,
-    "download_models": false,
-    "mutate_permissions": false,
-    "launch_or_install_app": false,
-    "commit": false,
-    "push": false,
+    "edit": true,
+    "install_dependencies": true,
+    "download_models": true,
+    "mutate_permissions": true,
+    "launch_or_install_app": true,
+    "commit": true,
+    "push": true,
     "merge": false,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "No standing authority is carried across sessions. Populate from the current user's explicit instruction before execution."
+    "source": "User explicitly authorized: all yes keep going (2026-08-02). This grants state-file edits, root-cleanup edits, dependency/model install, permission interaction, app launch, commit and push. Merge, sign/notarize, and release/deploy remain excluded until separately authorized."
   },
   "release_gates": [
     {
@@ -253,5 +255,5 @@
   ],
   "last_evidence_ids": [],
   "blockers": [],
-  "next_action": "Run prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md in a fresh authorized engineering session."
+  "next_action": "Run AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md in a fresh authorized engineering session."
 }

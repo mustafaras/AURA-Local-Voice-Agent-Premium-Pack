@@ -1,24 +1,24 @@
 {
-  "$schema": "../../schemas/runtime_completion/prompt-manifest.schema.json",
+  "$schema": "../schemas/prompt-manifest.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
   "program_name": "AURA Runtime Completion Program",
-  "shared_contract": "prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md",
-  "state_file": "ledger/runtime_completion/current-state.json",
-  "handoff_file": "anti_amnesia/runtime_completion/session-handoff.json",
+  "shared_contract": "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
+  "state_file": "AURA_RUNTIME_COMPLETION/state/current-state.json",
+  "handoff_file": "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
   "prompts": [
     {
       "order": 0,
       "id": "BOOTSTRAP",
       "name": "Session Bootstrap and Baseline Reconciliation",
-      "file": "prompts/runtime_completion/00_SESSION_BOOTSTRAP.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md",
       "dependencies": [],
       "completion_gate": "Live repository state, toolchain, authority, schemas, anti-amnesia files, capability matrix, and program state are reconciled. R0 is marked ready only when no false baseline remains.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "anti_amnesia/runtime_completion/session-handoff.json",
-        "ledger/runtime_completion/PROGRAM_LEDGER.md",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+        "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md"
       ],
       "optional_context": [
         "docs/roadmap/AURA_FULLY_OPERATIONAL_ASSISTANT_MASTER_PLAN.md",
@@ -30,14 +30,16 @@
       "order": 1,
       "id": "R0",
       "name": "Repository Truth and Governance Repair",
-      "file": "prompts/runtime_completion/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
-      "dependencies": ["BOOTSTRAP"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
+      "dependencies": [
+        "BOOTSTRAP"
+      ],
       "completion_gate": "Repository status is machine-projectable and contradiction-resistant; toolchain and evidence rules are verified; stale completion claims cannot pass CI.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/PROGRAM_LEDGER.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "ledger/CURRENT_STATE.md",
@@ -50,14 +52,16 @@
       "order": 2,
       "id": "R1",
       "name": "Runtime Integration Spine and Trace Correctness",
-      "file": "prompts/runtime_completion/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
-      "dependencies": ["R0"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
+      "dependencies": [
+        "R0"
+      ],
       "completion_gate": "One production request preserves a truthful correlated trace through input, intent, policy, confirmation, execution, verification, response, and persistence; runtime health exposes unavailable modules.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "Sources/AURA/AuraKernel.swift",
@@ -70,14 +74,16 @@
       "order": 3,
       "id": "R2",
       "name": "Bilingual NLU and Dialogue",
-      "file": "prompts/runtime_completion/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
-      "dependencies": ["R1"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
+      "dependencies": [
+        "R1"
+      ],
       "completion_gate": "AURA understands natural Turkish, English, and mixed speech/text, produces model-backed conversation, performs safe clarification, and never routes unvalidated model output to execution.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "Sources/AuraIntent/IntentEngine.swift",
@@ -90,14 +96,16 @@
       "order": 4,
       "id": "R3",
       "name": "Capability Registry and Typed Planner",
-      "file": "prompts/runtime_completion/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md",
-      "dependencies": ["R2"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md",
+      "dependencies": [
+        "R2"
+      ],
       "completion_gate": "All user-reachable actions are represented by registered typed capability manifests; validated single- and multi-step plans execute only through policy, confirmation, and verification boundaries.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "Sources/AuraIntent/ToolRouter.swift",
@@ -109,14 +117,16 @@
       "order": 5,
       "id": "R4",
       "name": "Computer-Use Productization",
-      "file": "prompts/runtime_completion/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
-      "dependencies": ["R3"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
+      "dependencies": [
+        "R3"
+      ],
       "completion_gate": "A production planner can complete bounded tasks in approved applications with fresh observation, typed actions, policy checks, resumable confirmation, secure-field blocking, emergency stop, and live evidence.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "Sources/AuraComputerUse/ComputerUseControlLoop.swift",
@@ -128,14 +138,16 @@
       "order": 6,
       "id": "R5",
       "name": "Browser, Mail, Calendar, and Contacts Adapters",
-      "file": "prompts/runtime_completion/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
-      "dependencies": ["R3"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
+      "dependencies": [
+        "R3"
+      ],
       "completion_gate": "Structured read-first personal-productivity workflows are operational; mutation and send actions use least-privilege scopes, reviewed drafts, bound confirmation, injection defenses, and independent verification.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "docs/security/30_THREAT_MODEL.md",
@@ -147,14 +159,16 @@
       "order": 7,
       "id": "R6",
       "name": "VS Code and Coding-Agent Completion",
-      "file": "prompts/runtime_completion/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
-      "dependencies": ["R3"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
+      "dependencies": [
+        "R3"
+      ],
       "completion_gate": "VS Code policy is enforced; an authenticated bridge supports workspace, diagnostics, tasks, tests, and terminal state; coding-agent tasks are durable, bounded, reviewable, and evidence-backed.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "Sources/AuraVSCode/VSCodeAdapter.swift",
@@ -167,14 +181,16 @@
       "order": 8,
       "id": "R7",
       "name": "Wake Word, STT/TTS Routing, and Resource Governor",
-      "file": "prompts/runtime_completion/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
-      "dependencies": ["R2"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
+      "dependencies": [
+        "R2"
+      ],
       "completion_gate": "Push-to-Talk remains reliable; optional real wake word, bilingual STT routing, turn completion, barge-in, TTS fallback, and model resource governance meet live hardware latency, quality, privacy, and soak gates.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "Sources/AuraAudio",
@@ -187,14 +203,17 @@
       "order": 9,
       "id": "R8",
       "name": "Memory, Personalization, and Explainability",
-      "file": "prompts/runtime_completion/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md",
-      "dependencies": ["R2", "R3"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md",
+      "dependencies": [
+        "R2",
+        "R3"
+      ],
       "completion_gate": "Memory and context materially improve dialogue and tools while preserving provenance, bounded context, contradiction handling, retention, user inspection, correction, export, and deletion controls.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "Sources/AuraMemory",
@@ -207,14 +226,20 @@
       "order": 10,
       "id": "R9",
       "name": "Product UI, Accessibility, and Onboarding",
-      "file": "prompts/runtime_completion/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
-      "dependencies": ["R4", "R5", "R6", "R7", "R8"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
+      "dependencies": [
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
       "completion_gate": "Primary assistant workflows are visible, keyboard- and VoiceOver-operable, localized, privacy-transparent, and usable without terminal intervention; degraded states are actionable.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "Sources/AURA/AuraAppModel.swift",
@@ -226,15 +251,19 @@
       "order": 11,
       "id": "R10",
       "name": "Security and Privilege Separation",
-      "file": "prompts/runtime_completion/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
-      "dependencies": ["R4", "R5", "R6"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
+      "dependencies": [
+        "R4",
+        "R5",
+        "R6"
+      ],
       "completion_gate": "Privileged local control, network/model access, secrets, OAuth, plugins, and IPC are least-privilege and independently reviewable; all externally influenced paths pass adversarial gates.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/RISK_REGISTER.md",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "docs/security/30_THREAT_MODEL.md",
@@ -247,14 +276,17 @@
       "order": 12,
       "id": "R11",
       "name": "Release Engineering and Continuous Operations",
-      "file": "prompts/runtime_completion/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md",
-      "dependencies": ["R9", "R10"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md",
+      "dependencies": [
+        "R9",
+        "R10"
+      ],
       "completion_gate": "A clean target Mac can install, launch, update, roll back, recover, and uninstall a Developer-ID-signed, hardened, notarized AURA build with verified permissions, helpers, migrations, and support documentation.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "ledger/runtime_completion/RISK_REGISTER.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "scripts/build-app-bundle.sh",
@@ -267,14 +299,16 @@
       "order": 13,
       "id": "R12",
       "name": "Beta Validation and Release Candidate",
-      "file": "prompts/runtime_completion/13_R12_BETA_VALIDATION_AND_RC.prompt.md",
-      "dependencies": ["R11"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/13_R12_BETA_VALIDATION_AND_RC.prompt.md",
+      "dependencies": [
+        "R11"
+      ],
       "completion_gate": "Measured beta reliability, speech quality, task success, accessibility, privacy, security, recovery, and false-success targets are sustained; no critical blocker remains; a release-candidate evidence package is approved.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "ledger/runtime_completion/RISK_REGISTER.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "docs/roadmap/AURA_FULLY_OPERATIONAL_ASSISTANT_MASTER_PLAN.md",
@@ -286,15 +320,17 @@
       "order": 14,
       "id": "FINAL",
       "name": "Final Acceptance, Cleanup, and Operational Handoff",
-      "file": "prompts/runtime_completion/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
-      "dependencies": ["R12"],
+      "file": "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
+      "dependencies": [
+        "R12"
+      ],
       "completion_gate": "All mandatory product and release gates pass from clean evidence; stale scaffolding and contradictory status are removed; documentation and support handoff are complete; AURA is truthfully marked release-candidate verified or released.",
       "state_outputs": [
-        "ledger/runtime_completion/current-state.json",
-        "ledger/runtime_completion/capability-matrix.json",
-        "ledger/runtime_completion/PROGRAM_LEDGER.md",
-        "ledger/runtime_completion/EVIDENCE_INDEX.md",
-        "anti_amnesia/runtime_completion/session-handoff.json"
+        "AURA_RUNTIME_COMPLETION/state/current-state.json",
+        "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+        "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+        "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+        "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
       ],
       "optional_context": [
         "docs/roadmap/AURA_FULLY_OPERATIONAL_ASSISTANT_MASTER_PLAN.md",

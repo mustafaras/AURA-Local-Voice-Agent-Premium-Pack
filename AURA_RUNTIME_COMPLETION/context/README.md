@@ -14,7 +14,7 @@ This directory contains compact, replaceable context files for resuming the runt
 
 1. These files are not historical ledgers.
 2. Keep them concise and atomically replace them when state changes.
-3. Put command history and detailed evidence in `ledger/runtime_completion/`.
+3. Put command history and detailed evidence in `AURA_RUNTIME_COMPLETION/state/`.
 4. Put architectural rationale in ADRs.
 5. Put stable product requirements in the master plan and specifications.
 6. Do not copy full source files, logs, test output, email, documents, model output, or private content into anti-amnesia files.
@@ -24,8 +24,8 @@ This directory contains compact, replaceable context files for resuming the runt
 ## New-session minimum read set
 
 1. `AGENTS.md`
-2. `prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md`
-3. `ledger/runtime_completion/current-state.json`
+2. `AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md`
+3. `AURA_RUNTIME_COMPLETION/state/current-state.json`
 4. `session-handoff.json`
 5. `READ_FIRST.md`
 6. the active prompt

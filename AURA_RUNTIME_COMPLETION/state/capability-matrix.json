@@ -1,5 +1,5 @@
 {
-  "$schema": "../../schemas/runtime_completion/capability-matrix.schema.json",
+  "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
   "updated_at": "2026-07-31T12:11:00Z",
   "repository_commit": "27edd2ced7d6f7ae66de86c9e7e2b16380bd2e15",

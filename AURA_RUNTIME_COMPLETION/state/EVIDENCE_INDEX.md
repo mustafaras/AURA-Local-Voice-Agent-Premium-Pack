@@ -1,6 +1,6 @@
 # AURA Runtime Completion Evidence Index
 
-Each evidence item must conform conceptually to `schemas/runtime_completion/evidence-record.schema.json`. Keep entries concise; store bulky logs/artifacts separately and reference path plus hash.
+Each evidence item must conform conceptually to `AURA_RUNTIME_COMPLETION/schemas/evidence-record.schema.json`. Keep entries concise; store bulky logs/artifacts separately and reference path plus hash.
 
 ## Evidence ID format
 
@@ -16,7 +16,8 @@ Examples:
 
 | Evidence ID | Track | Type | Commit | Verdict | Summary | Artifact / log | Limitations |
 |---|---:|---|---|---|---|---|---|
-| _No runtime-completion evidence recorded yet._ |  |  |  |  |  |  |  |
+| EV-BOOTSTRAP-20260802-STATE-RECONCILE-01 | BOOTSTRAP | Contract/process | `55734a7` | Passed | Removed legacy prompt dirs/symlinks (`prompts/implementation/*`, `prompts/review/*`, `prompts/runtime_completion`, `anti_amnesia/runtime_completion`, `ledger/runtime_completion`, `schemas/runtime_completion`, empty `runtime_completion/`). Migrated all internal state, manifest, context-index, and schema references to canonical `AURA_RUNTIME_COMPLETION/` paths. | `git status`, `grep` scan, multi-file edits, `AURA_RUNTIME_COMPLETION/state/current-state.json` | Before user-owned deletions were committed; commit provides immutable evidence in next entry. |
+| EV-BOOTSTRAP-20260802-SCHEMA-VALIDATE-01 | BOOTSTRAP | Contract | `55734a7` (pre-commit) | Passed | Validated `state/current-state.json`, `context/session-handoff.json`, `prompts/prompt-manifest.json`, `context/context-index.json`, `state/capability-matrix.json` against `jsonschema` 4.26.0 using updated canonical schemas. | `.venv/bin/python3 .venv_validate.py` output; `.venv/` created under repo root for validator | Temporary validation script removed after execution; artifacts are session-only. Rerun validator if evidence needs reproduction. |
 
 ## Required metadata per new entry
 

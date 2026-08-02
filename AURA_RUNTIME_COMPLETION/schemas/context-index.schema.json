@@ -6,6 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "updated_at", "global_budget", "tiers", "phase_context"],
   "properties": {
+    "$schema": { "type": "string", "const": "../schemas/context-index.schema.json" },
     "schema_version": { "const": "1.0.0" },
     "updated_at": { "type": "string", "format": "date-time" },
     "global_budget": {

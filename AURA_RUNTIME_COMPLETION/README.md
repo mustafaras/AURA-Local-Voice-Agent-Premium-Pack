@@ -102,9 +102,7 @@ Do not create or maintain a second copy under `docs/roadmap/` or another reposit
 
 ## Compatibility links
 
-The previous locations under `prompts/runtime_completion`, `ledger/runtime_completion`, `anti_amnesia/runtime_completion`, and `schemas/runtime_completion` are retained temporarily as repository symlinks to this canonical directory. New documentation, prompts, and state records must use `AURA_RUNTIME_COMPLETION/...` paths.
-
-These compatibility links should be removed during R0 after all internal references have been migrated and verified.
+The previous locations under `prompts/runtime_completion`, `ledger/runtime_completion`, `anti_amnesia/runtime_completion`, and `schemas/runtime_completion` were retained temporarily as repository symlinks to this canonical directory. They were removed during BOOTSTRAP after internal references were migrated to `AURA_RUNTIME_COMPLETION/...` paths and verified. New documentation, prompts, state records, and schemas must use `AURA_RUNTIME_COMPLETION/...` paths.
 
 ## Completion rule
 

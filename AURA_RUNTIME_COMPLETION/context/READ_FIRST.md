@@ -5,10 +5,10 @@ Use this file at the beginning of every new session.
 ## Immediate procedure
 
 1. Read `AGENTS.md`.
-2. Read `prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md`.
-3. Parse and validate `ledger/runtime_completion/current-state.json`.
-4. Parse and validate `anti_amnesia/runtime_completion/session-handoff.json`.
-5. Confirm the active prompt exists in `prompts/runtime_completion/prompt-manifest.json` and its dependencies are completed.
+2. Read `AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md`.
+3. Parse and validate `AURA_RUNTIME_COMPLETION/state/current-state.json`.
+4. Parse and validate `AURA_RUNTIME_COMPLETION/context/session-handoff.json`.
+5. Confirm the active prompt exists in `AURA_RUNTIME_COMPLETION/prompts/prompt-manifest.json` and its dependencies are completed.
 6. Verify live branch, `HEAD`, remote relation, and working tree before trusting stored commit values.
 7. Record current user authority. No authority persists automatically from an earlier session.
 8. Read the active prompt and only its phase-specific context.
@@ -20,8 +20,8 @@ When information conflicts:
 
 1. live repository, official tool output, and verified runtime behavior;
 2. accepted ADRs, policy code, and security specifications;
-3. schema-valid `ledger/runtime_completion/current-state.json` reconciled to live evidence;
-4. newest relevant entry in `ledger/runtime_completion/PROGRAM_LEDGER.md`;
+3. schema-valid `AURA_RUNTIME_COMPLETION/state/current-state.json` reconciled to live evidence;
+4. newest relevant entry in `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md`;
 5. `session-handoff.json`;
 6. the active implementation prompt;
 7. `docs/roadmap/AURA_FULLY_OPERATIONAL_ASSISTANT_MASTER_PLAN.md`;

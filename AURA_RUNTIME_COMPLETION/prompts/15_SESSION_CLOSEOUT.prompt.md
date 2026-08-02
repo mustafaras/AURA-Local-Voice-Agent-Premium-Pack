@@ -40,7 +40,7 @@ Commit/push only if explicitly authorized.
 
 ## 3. Ledger entry
 
-Append one completion/interruption entry to `ledger/runtime_completion/PROGRAM_LEDGER.md` containing:
+Append one completion/interruption entry to `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` containing:
 
 - timestamp and session ID;
 - actor;
@@ -65,7 +65,7 @@ If correcting prior state, append a reconciliation entry. Never rewrite previous
 
 ## 5. Machine state update
 
-Atomically replace `ledger/runtime_completion/current-state.json` and validate it.
+Atomically replace `AURA_RUNTIME_COMPLETION/state/current-state.json` and validate it.
 
 Update:
 
@@ -83,7 +83,7 @@ Do not place verbose history in the state JSON.
 
 ## 6. Session handoff update
 
-Atomically replace `anti_amnesia/runtime_completion/session-handoff.json` and validate it.
+Atomically replace `AURA_RUNTIME_COMPLETION/context/session-handoff.json` and validate it.
 
 Keep it concise. Include only:
 

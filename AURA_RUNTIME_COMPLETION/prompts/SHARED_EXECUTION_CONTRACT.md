@@ -1,6 +1,6 @@
 # AURA Runtime Completion — Shared Execution Contract
 
-> **Applies to:** every prompt under `prompts/runtime_completion/`  
+> **Applies to:** every prompt under `AURA_RUNTIME_COMPLETION/prompts/`  
 > **Priority:** normative for this program unless superseded by `AGENTS.md`, an accepted ADR, or an explicit user instruction  
 > **Primary principle:** Models propose; policy authorizes; typed adapters execute; verification confirms; evidence records.
 
@@ -16,9 +16,9 @@ Read these files in order before editing:
 
 1. `AGENTS.md`
 2. this contract
-3. `ledger/runtime_completion/current-state.json`
-4. `anti_amnesia/runtime_completion/session-handoff.json`
-5. `anti_amnesia/runtime_completion/READ_FIRST.md`
+3. `AURA_RUNTIME_COMPLETION/state/current-state.json`
+4. `AURA_RUNTIME_COMPLETION/context/session-handoff.json`
+5. `AURA_RUNTIME_COMPLETION/context/READ_FIRST.md`
 6. the active prompt specified by `current-state.json`
 
 Then inspect only the phase-relevant files listed by the active prompt. Read the full master plan only when a phase requirement is unclear or a material architectural choice is being made.
@@ -139,11 +139,11 @@ Every meaningful command or live test used to justify completion must create an 
 - scope and limitations;
 - whether evidence is automated, live hardware, manual, or external.
 
-Append concise evidence summaries to `ledger/runtime_completion/EVIDENCE_INDEX.md`. Store bulky logs outside Markdown and reference them by path/hash.
+Append concise evidence summaries to `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`. Store bulky logs outside Markdown and reference them by path/hash.
 
 ## 10. Ledger protocol
 
-`ledger/runtime_completion/PROGRAM_LEDGER.md` is append-only.
+`AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` is append-only.
 
 At phase start append:
 
@@ -171,9 +171,9 @@ Never rewrite historical entries. Corrections are new entries referencing the co
 
 ## 11. State and handoff protocol
 
-`ledger/runtime_completion/current-state.json` is the compact machine source of truth. Replace it atomically after verified state changes.
+`AURA_RUNTIME_COMPLETION/state/current-state.json` is the compact machine source of truth. Replace it atomically after verified state changes.
 
-`anti_amnesia/runtime_completion/session-handoff.json` is the compact next-session handoff. It must contain only:
+`AURA_RUNTIME_COMPLETION/context/session-handoff.json` is the compact next-session handoff. It must contain only:
 
 - last verified commit;
 - active prompt and step;

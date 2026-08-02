@@ -4,8 +4,9 @@
   "title": "AURA Runtime Completion Capability Matrix",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "updated_at", "repository_commit", "capabilities"],
+  "required": ["$schema", "schema_version", "updated_at", "repository_commit", "capabilities"],
   "properties": {
+    "$schema": { "type": "string", "const": "../schemas/capability-matrix.schema.json" },
     "schema_version": { "const": "1.0.0" },
     "updated_at": { "type": "string", "format": "date-time" },
     "repository_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },

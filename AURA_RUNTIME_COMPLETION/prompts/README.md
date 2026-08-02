@@ -3,9 +3,9 @@
 > **Program version:** 1.0.0  
 > **Status:** Execution-ready  
 > **Primary plan:** `docs/roadmap/AURA_FULLY_OPERATIONAL_ASSISTANT_MASTER_PLAN.md`  
-> **Prompt manifest:** `prompts/runtime_completion/prompt-manifest.json`  
-> **Machine state:** `ledger/runtime_completion/current-state.json`  
-> **Session handoff:** `anti_amnesia/runtime_completion/session-handoff.json`
+> **Prompt manifest:** `AURA_RUNTIME_COMPLETION/prompts/prompt-manifest.json`  
+> **Machine state:** `AURA_RUNTIME_COMPLETION/state/current-state.json`  
+> **Session handoff:** `AURA_RUNTIME_COMPLETION/context/session-handoff.json`
 
 ## Purpose
 
@@ -40,10 +40,10 @@ Use `15_SESSION_CLOSEOUT.prompt.md` at the end of every work session, including 
 A new agent session must read only the following files initially:
 
 1. `AGENTS.md`
-2. `prompts/runtime_completion/SHARED_EXECUTION_CONTRACT.md`
-3. `ledger/runtime_completion/current-state.json`
-4. `anti_amnesia/runtime_completion/session-handoff.json`
-5. `anti_amnesia/runtime_completion/READ_FIRST.md`
+2. `AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md`
+3. `AURA_RUNTIME_COMPLETION/state/current-state.json`
+4. `AURA_RUNTIME_COMPLETION/context/session-handoff.json`
+5. `AURA_RUNTIME_COMPLETION/context/READ_FIRST.md`
 6. the active prompt named by `current-state.json`
 
 The agent should load the full master plan, ADRs, source files, tests, and historical ledger entries only when the active prompt requires them. This prevents context waste and reduces stale-state contamination.
@@ -52,10 +52,10 @@ The agent should load the full master plan, ADRs, source files, tests, and histo
 
 The program separates four kinds of information:
 
-- **Stable context:** `anti_amnesia/runtime_completion/KNOWN_FACTS.md`
-- **Current compact context:** `anti_amnesia/runtime_completion/ACTIVE_CONTEXT.md`
-- **Machine-readable handoff:** `anti_amnesia/runtime_completion/session-handoff.json`
-- **Historical evidence:** `ledger/runtime_completion/PROGRAM_LEDGER.md`
+- **Stable context:** `AURA_RUNTIME_COMPLETION/context/KNOWN_FACTS.md`
+- **Current compact context:** `AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md`
+- **Machine-readable handoff:** `AURA_RUNTIME_COMPLETION/context/session-handoff.json`
+- **Historical evidence:** `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md`
 
 Do not turn the handoff file into a historical diary. It must remain short and atomically replaceable. Historical details belong in the append-only ledger or evidence index.
 
@@ -65,7 +65,7 @@ When files disagree, use this order:
 
 1. live repository and command evidence;
 2. accepted ADRs and security policy;
-3. `ledger/runtime_completion/current-state.json` after validation;
+3. `AURA_RUNTIME_COMPLETION/state/current-state.json` after validation;
 4. newest append-only runtime-completion ledger entry;
 5. current session handoff;
 6. the master plan;
@@ -85,7 +85,7 @@ A prompt can move from `pending` to `in_progress` only after its preflight gate 
 - the next prompt is unblocked;
 - state and handoff files are updated atomically.
 
-Allowed prompt states are defined by `schemas/runtime_completion/program-state.schema.json`.
+Allowed prompt states are defined by `AURA_RUNTIME_COMPLETION/schemas/program-state.schema.json`.
 
 ## Commit and release authority
 
