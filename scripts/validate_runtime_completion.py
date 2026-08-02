@@ -404,6 +404,9 @@ def projection_only_paths(paths: list[str]) -> bool:
         "AURA_RUNTIME_COMPLETION/",
         "ledger/",
         "SESSION_STARTER.md",
+        ".gitignore",
+        "scripts/validate_runtime_completion.py",
+        "scripts/tests/",
         "TOOLCHAIN.md",
         "docs/decisions/ADR-045-toolchain-release-pipeline.md",
     )
