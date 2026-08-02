@@ -2,7 +2,7 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-02T14:35:54Z",
+  "updated_at": "2026-08-02T14:37:13Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
@@ -10,10 +10,10 @@
     "active_branch": "main",
     "verified_head": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
     "remote_head": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
-    "working_tree_state": "dirty_expected",
+    "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
-      "The current dirty state consists only of authorized R0 governance/toolchain/CI and state projection edits; no product source is modified.",
+      "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
       "The ordered manifest contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is a mandatory out-of-manifest session procedure documented by prompts/README.md."
     ]
   },
@@ -164,12 +164,12 @@
     "download_models": false,
     "mutate_permissions": false,
     "launch_or_install_app": false,
-    "commit": true,
-    "push": true,
-    "merge": true,
+    "commit": false,
+    "push": false,
+    "merge": false,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "Current user instruction: push commit merge and check all todos (2026-08-02). This authorizes repository edits, commit, push, and merge operations for R0. Dependency installation, model download, TCC/permission mutation, app launch/install, signing, notarization, release, and deployment remain unauthorized."
+    "source": "Current session used the user authorization `push commit merge and check all todos` for R0. Authority is reset for the next session: no dependency installation, model download, TCC/permission mutation, app launch/install, commit, push, merge, signing, notarization, release, or deployment authority carries forward."
   },
   "release_gates": [
     {

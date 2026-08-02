@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-02T14:35:54Z",
+  "updated_at": "2026-08-02T14:37:13Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
   "last_verified_commit": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
   "active_prompt": {
@@ -151,5 +151,5 @@
     "Sources/AuraCore/EventEnvelope.swift",
     "Sources/AuraAgent/Conversation.swift"
   ],
-  "notes": "Current user explicitly authorized commit, push, and merge for this R0 session. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045."
+  "notes": "The current session used explicit commit/push authority for R0 and reset authority for the next session. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045."
 }
