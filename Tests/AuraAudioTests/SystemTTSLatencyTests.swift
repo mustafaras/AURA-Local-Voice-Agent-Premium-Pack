@@ -8,7 +8,7 @@ import Testing
 /// These tests use wall-clock timing because `AVSpeechSynthesizer` does not
 /// expose a mockable clock. They are gated with generous budgets and only run
 /// when the environment has at least one system voice.
-@Suite("System TTS Latency and Interaction")
+@Suite("System TTS Latency and Interaction", .serialized)
 struct SystemTTSLatencyTests {
 
   private func systemEngine() async -> SystemTTSEngine? {

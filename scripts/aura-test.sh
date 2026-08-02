@@ -44,19 +44,35 @@ echo "==> Building production targets"
 swift build "${BUILD_ARGS[@]}"
 strip_build_xattrs
 
+TEST_TARGETS=(
+    AuraCoreTests AuraStoreTests AURAIntegrationTests AuraAudioTests
+    AuraAutomationTests AuraAgentTests AuraSTTTests AuraPolicyTests
+    AuraShellTests AuraComputerUseTests AuraSecurityTests AuraPluginsTests
+    AuraIntentTests AuraConfigTests AuraVSCodeTests AuraTasksTests AuraMemoryTests
+    AuraContextTests AuraScreenTests AuraAdversarialTests
+)
+
 echo "==> Building test targets"
+failed=0
+built_targets=()
 if [[ -n "$FILTER" ]]; then
-    swift build "${BUILD_ARGS[@]}" --target "${FILTER}"
-    strip_build_xattrs
-else
-    for target in \
-        AuraCoreTests AuraStoreTests AURAIntegrationTests AuraAudioTests \
-        AuraAutomationTests AuraAgentTests AuraSTTTests AuraPolicyTests \
-        AuraShellTests AuraComputerUseTests AuraSecurityTests AuraPluginsTests \
-        AuraIntentTests AuraConfigTests AuraVSCodeTests AuraTasksTests AuraMemoryTests \
-        AuraContextTests AuraScreenTests AuraAdversarialTests; do
-        swift build "${BUILD_ARGS[@]}" --target "$target"
+    if swift build "${BUILD_ARGS[@]}" --target "${FILTER}"; then
         strip_build_xattrs
+        built_targets+=("$FILTER")
+    else
+        echo "FAILED TO BUILD: $FILTER"
+        failed=$((failed + 1))
+    fi
+else
+    for target in "${TEST_TARGETS[@]}"; do
+        echo "--- $target"
+        if swift build "${BUILD_ARGS[@]}" --target "$target"; then
+            strip_build_xattrs
+            built_targets+=("$target")
+        else
+            echo "FAILED TO BUILD: $target"
+            failed=$((failed + 1))
+        fi
     done
 fi
 
@@ -73,6 +89,10 @@ run_bundle() {
     local binary="$bundle/Contents/MacOS/$name"
 
     echo "=== $name ==="
+    if [[ ! -x "$binary" ]]; then
+        echo "FAILED: $name (missing test executable)"
+        return 1
+    fi
     set +e
     perl -e 'alarm shift; exec @ARGV' 60 \
     env DYLD_FRAMEWORK_PATH="$TESTING_FRAMEWORK" \
@@ -109,18 +129,25 @@ run_bundle() {
 }
 
 echo "==> Running tests"
-failed=0
 if [[ -n "$FILTER" ]]; then
-    bundle="$BUILD_PATH/out/Products/Debug/${FILTER}.xctest"
-    if [[ -d "$bundle" ]]; then
-        run_bundle "$bundle" || failed=$((failed + 1))
-    else
-        echo "Bundle not found: $bundle"
-        failed=$((failed + 1))
+    if [[ ${#built_targets[@]} -eq 1 ]]; then
+        bundle="$BUILD_PATH/out/Products/Debug/${FILTER}.xctest"
+        if [[ -d "$bundle" ]]; then
+            run_bundle "$bundle" || failed=$((failed + 1))
+        else
+            echo "Bundle not found: $bundle"
+            failed=$((failed + 1))
+        fi
     fi
 else
-    for bundle in "$BUILD_PATH"/out/Products/Debug/*.xctest; do
-        run_bundle "$bundle" || failed=$((failed + 1))
+    for target in "${built_targets[@]}"; do
+        bundle="$BUILD_PATH/out/Products/Debug/${target}.xctest"
+        if [[ -d "$bundle" ]]; then
+            run_bundle "$bundle" || failed=$((failed + 1))
+        else
+            echo "Bundle not found: $bundle"
+            failed=$((failed + 1))
+        fi
     done
 fi
 
