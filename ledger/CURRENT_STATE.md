@@ -1,13 +1,13 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-02.
+Projection refreshed from live repository and command evidence on 2026-08-03.
 
 ## Canonical State Notice — 2026-08-02
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == f1f3bb959ea3b79eb821c5faccf57d8fad076203`. R1 is complete for
+origin/main == b8f896097d6b8bd390c5a5030b5eb902eb1631c0`. R1 is complete for
 local development/integration scope and R2 remains in progress pending live
 Ollama and hardware evidence. This legacy projection
 is retained for historical compatibility; the older status sections below are
@@ -18,7 +18,7 @@ not authoritative and must not override the canonical machine state.
 - R1 final live regression: 20 Swift Testing bundles, 678/678 tests passed, 0 failed bundles under `/tmp/aura-r1-final-closure`.
 - R1 focused trace/health evidence: AuraCoreTests 16/16, AURAIntegrationTests 17/17, AuraAudioTests 33/33, AuraSTTTests 14/14, AuraPolicyTests 18/18, and AuraAgentTests 206/206.
 - R1 accepted ADRs: ADR-035 TurnContext trace correctness and ADR-037 runtime health/confirmation transactions. Confirmation restart behavior is fail-closed; durable resume remains open.
-- R1 remains uncommitted and unpushed by authority; `swift-format`/full Xcode and release gates remain unavailable or open.
+- R1/R2 runtime changes are committed and pushed at `b8f8960`; `swift-format`/full Xcode and release gates remain unavailable or open.
 - R2 local slice: bilingual fast path, structured-NLU boundary, model-backed DialogueEngine, clarification expiry, locale-preserving TTS, and dialogue health are implemented; the latest full regression passed 695/695. R2 remains open only for live Ollama/hardware evidence and later release gates.
 
 - Code revision `20571de` contains the verified sequential Swift test runner and serialized system-TTS latency suite.

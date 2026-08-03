@@ -297,3 +297,11 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Evidence:** `EV-R2-20260803-FINAL-REGRESSION-01`.
 - **Authority:** The user explicitly authorized commit, push, and merge operations for this closeout. No dependency installation, model download, app launch, TCC mutation, signing, release, or deployment was authorized.
 - **Remaining limits:** R2 remains in progress pending live Ollama health/first-token/quality/residency evidence and authorized Turkish/English/mixed hardware demonstration.
+
+### 2026-08-03T06:19:48Z — R2_PUBLICATION_CLOSEOUT — validated runtime change set committed and pushed
+
+- **Actor:** GitHub Copilot engineering session.
+- **Publication:** Committed the validated 56-file R1/R2 runtime, tests, ADRs, evidence, and governance change set as `b8f896097d6b8bd390c5a5030b5eb902eb1631c0` with message `feat(runtime): integrate truthful bilingual dialogue spine`, then pushed it to `origin/main`.
+- **Verification:** `git status` reported a clean worktree and `git rev-parse HEAD origin/main` returned the same full hash. No separate merge commit was required because `main` was the active publication branch and no open PR/merge candidate existed.
+- **Evidence:** `EV-R2-20260803-PUBLICATION-01`.
+- **Authority boundary:** Commit/push/merge authority was explicit for this user request and expires at task completion. No dependency installation, model download, app launch, TCC mutation, signing, release, or deployment occurred.

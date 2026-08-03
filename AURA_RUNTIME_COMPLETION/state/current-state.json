@@ -2,20 +2,20 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-03T06:18:04Z",
+  "updated_at": "2026-08-03T06:19:48Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "f1f3bb959ea3b79eb821c5faccf57d8fad076203",
-    "remote_head": "f1f3bb959ea3b79eb821c5faccf57d8fad076203",
-    "working_tree_state": "dirty_expected",
+    "verified_head": "b8f896097d6b8bd390c5a5030b5eb902eb1631c0",
+    "remote_head": "b8f896097d6b8bd390c5a5030b5eb902eb1631c0",
+    "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
       "The ordered manifest contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is a mandatory out-of-manifest session procedure documented by prompts/README.md.",
-      "R1 runtime integration, trace, health, confirmation, architecture, and deterministic-test changes are local and validated; commit/push authority remains false."
+      "R1 runtime integration and R2 bilingual dialogue changes were validated, committed as b8f8960, and pushed to origin/main; the worktree is clean."
     ]
   },
   "program_status": "in_progress",
@@ -55,7 +55,7 @@
       "dependencies": ["R1"],
       "started_at": "2026-08-02T17:27:28Z",
       "completed_at": null,
-      "evidence_ids": ["EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01", "EV-R2-20260802-OLLAMA-STRUCTURED-01", "EV-R2-20260802-INTEGRATION-DIALOGUE-01", "EV-R2-20260802-FULL-SUITE-SLICE-01", "EV-R2-20260802-FULL-SUITE-FINAL-01", "EV-R2-20260802-FULL-SUITE-FINAL-02", "EV-R2-20260802-DIALOGUE-HEALTH-01", "EV-R2-20260802-AGENT-RISK-01", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260803-FINAL-REGRESSION-01"],
+      "evidence_ids": ["EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01", "EV-R2-20260802-OLLAMA-STRUCTURED-01", "EV-R2-20260802-INTEGRATION-DIALOGUE-01", "EV-R2-20260802-FULL-SUITE-SLICE-01", "EV-R2-20260802-FULL-SUITE-FINAL-01", "EV-R2-20260802-FULL-SUITE-FINAL-02", "EV-R2-20260802-DIALOGUE-HEALTH-01", "EV-R2-20260802-AGENT-RISK-01", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260803-FINAL-REGRESSION-01", "EV-R2-20260803-PUBLICATION-01"],
       "open_risk_ids": ["RISK-ENGLISH-ONLY-INTENT", "RISK-MODEL-MEMORY-PRESSURE"]
     },
     {
@@ -170,7 +170,7 @@
     "merge": false,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "Current session used the user authorization `push commit merge and check all todos` for R0. Authority is reset for the next session: no dependency installation, model download, TCC/permission mutation, app launch/install, commit, push, merge, signing, notarization, release, or deployment authority carries forward."
+    "source": "The user explicitly authorized commit, push, and merge for this closeout. Commit b8f8960 was created and pushed to origin/main; authority expires at task completion. No dependency installation, model download, TCC/permission mutation, app launch/install, signing, notarization, release, or deployment occurred."
   },
   "release_gates": [
     {
@@ -254,7 +254,7 @@
       "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
     }
   ],
-  "last_evidence_ids": ["EV-R2-20260803-FINAL-REGRESSION-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-AGENT-RISK-01", "EV-R2-20260802-DIALOGUE-HEALTH-01"],
+  "last_evidence_ids": ["EV-R2-20260803-PUBLICATION-01", "EV-R2-20260803-FINAL-REGRESSION-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-AGENT-RISK-01"],
   "blockers": [],
   "next_action": "With explicit authorization, run a bounded local Ollama health/first-token benchmark for gemma4:latest under the 16 GB memory budget, then perform the required Turkish, English, mixed, clarification, and degraded-mode hardware demonstration. Do not install models, mutate TCC, or claim R2 complete before that evidence."
 }

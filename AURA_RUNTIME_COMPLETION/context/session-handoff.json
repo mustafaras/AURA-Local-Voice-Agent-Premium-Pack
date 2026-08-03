@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-03T06:18:04Z",
+  "updated_at": "2026-08-03T06:19:48Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
-  "last_verified_commit": "f1f3bb959ea3b79eb821c5faccf57d8fad076203",
+  "last_verified_commit": "b8f896097d6b8bd390c5a5030b5eb902eb1631c0",
   "active_prompt": {
     "id": "R2",
     "file": "AURA_RUNTIME_COMPLETION/prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
     "state": "in_progress",
     "step": "Implement and validate the layered bilingual fast path, schema-validated local NLU refinement, model-backed dialogue, locale-preserving response plans, bounded provenance context, and honest degraded behavior."
   },
-  "summary": "R0 governance and R1 Runtime Integration Spine are complete in the local working tree. R2 is now in progress with bilingual fast-path classification, typed dialogue responses, schema-validated structured-NLU refinement, bounded provenance context, model-backed local reasoning, and locale-preserving response plans. The working tree remains intentionally uncommitted.",
+  "summary": "R0 governance and R1 Runtime Integration Spine are complete. R2 is in progress with bilingual fast-path classification, typed dialogue responses, schema-validated structured-NLU refinement, bounded provenance context, model-backed local reasoning, and locale-preserving response plans. The validated 56-file change set is committed as b8f8960 and pushed to origin/main; the working tree is clean.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -155,7 +155,8 @@
     "EV-R2-20260802-AGENT-RISK-01",
     "EV-R2-20260802-TODO-AUDIT-01",
     "EV-R2-20260802-FULL-SUITE-FINAL-03",
-    "EV-R2-20260803-FINAL-REGRESSION-01"
+    "EV-R2-20260803-FINAL-REGRESSION-01",
+    "EV-R2-20260803-PUBLICATION-01"
   ],
   "tests": [
     {
@@ -258,5 +259,5 @@
     "Sources/AuraIntent/IntentEngine.swift",
     "Sources/AuraAgent/Conversation.swift"
   ],
-  "notes": "R1 was validated locally but not committed or pushed; commit/push authority remains false. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R1 retains fail-closed restart behavior for confirmations and does not claim universal live postcondition verification."
+  "notes": "R1 and the local R2 implementation were validated, committed as b8f8960, and pushed to origin/main. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R1 retains fail-closed restart behavior for confirmations and the program does not claim universal live postcondition verification."
 }

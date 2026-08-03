@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `R2`
 > **Current program state:** In progress; R1 completed, R2 in progress
-> **Audited baseline:** `f1f3bb959ea3b79eb821c5faccf57d8fad076203`
+> **Audited baseline:** `b8f896097d6b8bd390c5a5030b5eb902eb1631c0`
 
 ## Canonical status
 
@@ -21,8 +21,8 @@ boundary, locale-preserving response-plan changes, clarification expiry, and
 dialogue health. The current-tree regression passes 20/20 bundles and 695/695
 tests. Accepted
 decisions are ADR-035 (TurnContext trace correctness) and ADR-037 (runtime
-health and confirmation transactions). The worktree is intentionally local and
-uncommitted; release claims remain blocked by toolchain, live hardware,
+health and confirmation transactions). The validated change set is committed
+as `b8f8960` and pushed to `origin/main`; the worktree is clean. Release claims remain blocked by toolchain, live hardware,
 privilege, signing, and beta gates.
 
 ## Why this program exists
