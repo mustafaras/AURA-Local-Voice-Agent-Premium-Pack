@@ -112,9 +112,9 @@ public struct ToolRegistry: Sendable {
       .codingAgentRun: ToolContract(
         id: "agent.codingAgentRun", version: "1.0.0",
         inputSchemaDescription: "backend: String, objective: String",
-        // Placeholder capability — see Capability.forIntent's doc comment.
-        // The real gate is each CLI adapter's own internal evaluate call.
-        requiredCapability: .intentConverse, riskTier: .destructive, isIdempotent: false,
+        // The adapter performs the authoritative backend-specific policy check;
+        // this generic capability keeps the contract's risk metadata honest.
+        requiredCapability: .agentRun, riskTier: .destructive, isIdempotent: false,
         preconditions: ["chosen backend CLI available and authorized"],
         sideEffects: ["delegates to a coding-agent CLI run; may write files"],
         timeoutSeconds: 1800, supportsRollback: false,
@@ -169,6 +169,24 @@ public enum IntentExecutionOutcome: Sendable, Equatable {
   case failed(reason: String)
 }
 
+extension IntentExecutionOutcome {
+  fileprivate var isVerifiedExecution: Bool {
+    if case .executed = self { return true }
+    return false
+  }
+
+  fileprivate var summaryForVerification: String {
+    switch self {
+    case .executed(let summary, _): return summary
+    case .acknowledgedAsync(let summary): return summary
+    case .blockedByPolicy(let reason): return reason
+    case .blockedPendingConfirmationDenied: return "confirmation denied"
+    case .ambiguous(let question): return question
+    case .failed(let reason): return reason
+    }
+  }
+}
+
 /// Implements steps 7–8 of `docs/subsystems/08_INTENT_ENGINE.md`'s pipeline
 /// ("select handler," "produce an inspectable execution plan") plus `09_
 /// TOOL_ROUTER.md`'s router behaviors (evaluate policy, record proposal/
@@ -185,6 +203,7 @@ public actor ToolRouter {
   private let confirmationPresenter: any IntentConfirmationPresenting
   private let eventBus: AuraEventBus
   private let configuration: IntentEngineConfiguration
+  private let dialogueEngine: DialogueEngine
   private let destructivePatternMatchers: [NSRegularExpression]
 
   public init(
@@ -196,7 +215,8 @@ public actor ToolRouter {
     registry: ToolRegistry,
     confirmationPresenter: any IntentConfirmationPresenting,
     eventBus: AuraEventBus,
-    configuration: IntentEngineConfiguration
+    configuration: IntentEngineConfiguration,
+    dialogueEngine: DialogueEngine = DialogueEngine()
   ) {
     self.policyEngine = policyEngine
     self.automation = automation
@@ -207,9 +227,39 @@ public actor ToolRouter {
     self.confirmationPresenter = confirmationPresenter
     self.eventBus = eventBus
     self.configuration = configuration
+    self.dialogueEngine = dialogueEngine
     self.destructivePatternMatchers = configuration.destructiveShellPatterns.compactMap {
       try? NSRegularExpression(pattern: $0, options: [.caseInsensitive])
     }
+  }
+
+  /// Route using the immutable turn context so every backend call inherits
+  /// the original session, actor, correlation, and causation metadata.
+  public func route(
+    _ intent: TypedIntent,
+    context: TurnContext
+    , dialogueContext: [DialogueContextItem] = []
+  ) async -> IntentExecutionOutcome {
+    let contract = registry.contract(for: intent.kind)
+    let routingContext = context.withBackendIDs(
+      TurnBackendIDs(
+        stt: context.backendIDs.stt,
+        tts: context.backendIDs.tts,
+        model: context.backendIDs.model,
+        tool: contract?.id))
+    let outcome = await route(
+      intent.withTurnContext(routingContext),
+      actor: context.actor,
+      sessionID: context.sessionID,
+      correlationID: routingContext.correlationID,
+      causationID: routingContext.causationID,
+      dialogueContext: dialogueContext)
+    let verified = outcome.isVerifiedExecution
+    _ = await policyEngine.completeAuthorizedExecution(
+      context: routingContext,
+      verified: verified,
+      summary: outcome.summaryForVerification)
+    return outcome
   }
 
   public func route(
@@ -217,7 +267,8 @@ public actor ToolRouter {
     actor: ActorID,
     sessionID: UUID,
     correlationID: UUID,
-    causationID: UUID
+    causationID: UUID,
+    dialogueContext: [DialogueContextItem] = []
   ) async -> IntentExecutionOutcome {
     guard !intent.isAmbiguous, intent.kind != .unknown else {
       await emit(
@@ -241,7 +292,13 @@ public actor ToolRouter {
 
     switch intent.kind {
     case .converse:
-      return handleConverse(intent)
+      return await handleConverse(
+        intent,
+        actor: actor,
+        sessionID: sessionID,
+        correlationID: correlationID,
+        causationID: causationID,
+        dialogueContext: dialogueContext)
     case .appActivate:
       return await handleAppLifecycle(
         intent, contract: contract, terminate: false, actor: actor, sessionID: sessionID,
@@ -264,11 +321,27 @@ public actor ToolRouter {
 
   // MARK: - Handlers
 
-  private func handleConverse(_ intent: TypedIntent) -> IntentExecutionOutcome {
-    // Deterministic templated reply for v1 — no live model dependency in
-    // the default path. Real conversational inference (e.g. via
-    // OllamaAdapter) is explicit future work, not attempted here.
-    .executed(summary: "Got it.", hasSpokenResponse: true)
+  private func handleConverse(
+    _ intent: TypedIntent,
+    actor: ActorID,
+    sessionID: UUID,
+    correlationID: UUID,
+    causationID: UUID,
+    dialogueContext: [DialogueContextItem]
+  ) async -> IntentExecutionOutcome {
+    let context = intent.turnContext ?? TurnContext(
+      sessionID: sessionID,
+      correlationID: correlationID,
+      causationID: causationID,
+      activationSource: .text,
+      actor: actor,
+      authority: .userUtterance,
+      sensitivity: .sensitive)
+    let response = await dialogueEngine.respond(
+      to: intent,
+      context: context,
+      contextItems: dialogueContext)
+    return .executed(summary: response.text, hasSpokenResponse: !response.text.isEmpty)
   }
 
   private func handleAppLifecycle(
@@ -452,10 +525,20 @@ public actor ToolRouter {
     correlationID: UUID,
     causationID: UUID
   ) async -> PolicyResolution {
+    let turnContext = intent.turnContext ?? TurnContext(
+      sessionID: sessionID,
+      correlationID: correlationID,
+      causationID: causationID,
+      activationSource: .text,
+      actor: actor,
+      authority: .userUtterance,
+      sensitivity: .sensitive)
     let request = PolicyEvaluationRequest(
       capability: capability, actor: actor, target: target, sessionID: sessionID,
-      correlationID: correlationID, causationID: causationID)
+      correlationID: correlationID, causationID: causationID,
+      turnContext: turnContext)
     let decision = await policyEngine.evaluate(request)
+    var confirmationSatisfied = false
 
     switch decision {
     case .allow:
@@ -474,13 +557,22 @@ public actor ToolRouter {
           correlationID: correlationID, causationID: causationID)
         return .blocked(.blockedPendingConfirmationDenied)
       }
+      confirmationSatisfied = true
     }
 
-    if intent.requiresMandatoryConfirmation {
+    if intent.requiresMandatoryConfirmation && !confirmationSatisfied {
       await emit(
         IntentBlockedEvent(intentID: intent.id, reason: "mandatoryConfirmationRequired"),
         correlationID: correlationID, causationID: causationID)
       return .blocked(.blockedPendingConfirmationDenied)
+    }
+
+    if let context = intent.turnContext {
+      let planHash = PolicyPlanHasher.hash(
+        capability: capability,
+        actor: actor,
+        target: target)
+      _ = await policyEngine.beginAuthorizedExecution(context: context, planHash: planHash)
     }
 
     return .allowed
@@ -489,12 +581,31 @@ public actor ToolRouter {
   // MARK: - Helpers
 
   private func clarifyingQuestion(for intent: TypedIntent) -> String {
+    let language = intent.language
     if let unresolvedApp = intent.slotValue(IntentSlotName.unresolvedAppName) {
+      if language == .turkish {
+        return "\(unresolvedApp) uygulamasını tanımıyorum. Hangi uygulamayı kastettiniz?"
+      }
+      if language == .mixed {
+        return "\(unresolvedApp) app’i tanımıyorum. Which application did you mean?"
+      }
       return "I don't know an application called \"\(unresolvedApp)\". Which application did you mean?"
     }
     if let unresolvedExecutable = intent.slotValue(IntentSlotName.executable) {
+      if language == .turkish {
+        return "\(unresolvedExecutable) komutunu tanımıyorum. Tam yolu paylaşır mısınız?"
+      }
+      if language == .mixed {
+        return "\(unresolvedExecutable) executable’ı tanımıyorum. Could you give me the full path?"
+      }
       return
         "I don't recognize the command \"\(unresolvedExecutable)\". Could you give me the full path?"
+    }
+    if language == .turkish {
+      return "Ne yapmak istediğinizden emin değilim. Lütfen yeniden ifade eder misiniz?"
+    }
+    if language == .mixed {
+      return "I'm not sure what you'd like me to do. Lütfen yeniden ifade eder misiniz?"
     }
     return "I'm not sure what you'd like me to do. Could you rephrase that?"
   }

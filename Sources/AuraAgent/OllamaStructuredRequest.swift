@@ -49,6 +49,18 @@ public enum OllamaStructuredRequest {
     return try decode(raw.response, typeName: "OllamaSummaryResult")
   }
 
+  public static func propose(
+    apiClient: any OllamaAPIClient,
+    model: String,
+    prompt: String,
+    keepAliveSeconds: Double
+  ) async throws(AuraError) -> OllamaNLUResult {
+    let raw = try await callGenerate(
+      apiClient: apiClient, model: model, prompt: prompt, format: .nlu,
+      keepAliveSeconds: keepAliveSeconds)
+    return try decode(raw.response, typeName: "OllamaNLUResult")
+  }
+
   private static func callGenerate(
     apiClient: any OllamaAPIClient,
     model: String,

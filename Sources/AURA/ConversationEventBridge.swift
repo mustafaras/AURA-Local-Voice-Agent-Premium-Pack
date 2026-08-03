@@ -18,11 +18,13 @@ import Foundation
 actor ConversationEventBridge {
   private let conversation: Conversation
   private let eventBus: AuraEventBus
+  private let sessionID: UUID
   private var subscribed = false
 
-  init(conversation: Conversation, eventBus: AuraEventBus) {
+  init(conversation: Conversation, eventBus: AuraEventBus, sessionID: UUID = UUID()) {
     self.conversation = conversation
     self.eventBus = eventBus
+    self.sessionID = sessionID
   }
 
   /// Subscribe to all three events. Must be called before `AuraAudio
@@ -32,17 +34,31 @@ actor ConversationEventBridge {
     subscribed = true
     await eventBus.subscribe(WakeActivationEvent.self) { [weak self] envelope in
       guard envelope.payload.isActive else { return }
-      await self?.conversation.wakeActivationStarted(privacyMode: envelope.payload.privacyMode)
+      guard let self else { return }
+      let context = envelope.payload.turnContext ?? TurnContext(
+        sessionID: self.sessionID,
+        correlationID: envelope.correlationID,
+        causationID: envelope.id,
+        activationSource: .wakeWord,
+        actor: envelope.actor,
+        authority: .userUtterance,
+        sensitivity: envelope.sensitivity)
+      await self.conversation.wakeActivationStarted(
+        privacyMode: envelope.payload.privacyMode,
+        turnContext: context.advancing(causationID: envelope.id))
     }
     await eventBus.subscribe(STTStableSegmentEvent.self) { [weak self] envelope in
-      await self?.conversation.stableSegmentReceived(envelope.payload)
+      await self?.conversation.stableSegmentReceived(
+        envelope.payload, turnContext: envelope.payload.turnContext)
     }
     await eventBus.subscribe(STTPartialEvent.self) { [weak self] envelope in
-      await self?.conversation.partialTranscriptReceived(envelope.payload)
+      await self?.conversation.partialTranscriptReceived(
+        envelope.payload, turnContext: envelope.payload.turnContext)
     }
     await eventBus.subscribe(STTHealthEvent.self) { [weak self] envelope in
       guard !envelope.payload.ready else { return }
-      await self?.conversation.recognitionFailed(detail: envelope.payload.detail)
+      await self?.conversation.recognitionFailed(
+        detail: envelope.payload.detail, turnContext: envelope.payload.turnContext)
     }
   }
 }

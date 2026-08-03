@@ -26,4 +26,7 @@
 | ADR-032 | Accepted | Layered self-tuning configuration, non-weakening project governance, reversible migrations, durable rollback, and expiring feature flags | 2026-07-29 | — |
 | ADR-033 | Accepted | Adversarial safety and red-team harness: deterministic eval target, failure-as-blocker CI, incident response, and independent review schedule | 2026-07-30 | — |
 | ADR-034 | In Progress | Accessibility and CLI privilege separation behind least-privilege sandbox helpers for OS-enforced network confinement | 2026-07-30 | — |
+| ADR-035 | Accepted | Immutable TurnContext trace identity, causation propagation, and actual backend metadata across the runtime turn | 2026-08-02 | — |
+| ADR-036 | Accepted for R2 implementation | Layered Turkish/English/mixed NLU, schema-validated local refinement, bounded dialogue context, and locale-preserving responses | 2026-08-02 | — |
+| ADR-037 | Accepted | Typed runtime health registry and fail-closed confirmation transaction lifecycle | 2026-08-02 | — |
 | ADR-045 | Accepted for R0 governance; release portions remain open | Toolchain, state projection, deployment target, and release pipeline baseline | 2026-08-02 | — |

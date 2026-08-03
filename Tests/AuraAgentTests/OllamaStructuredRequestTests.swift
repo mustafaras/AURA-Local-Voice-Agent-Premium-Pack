@@ -69,6 +69,43 @@ func ollamaStructuredRequestSummarizeDecodesValidResponse() async throws {
 }
 
 @Test
+func ollamaStructuredRequestProposeDecodesTypedNLUResponse() async throws {
+  let client = FakeOllamaAPIClient()
+  await client.setGenerateHandler { model, _, format, _ in
+    #expect(format == .nlu)
+    return OllamaGenerateResponse(
+      model: model,
+      response: #"{"dialogue_act":"answer","language":"mixed","capability_id":"","confidence":"0.91","ambiguity_reason":""}"#,
+      done: true)
+  }
+
+  let result = try await OllamaStructuredRequest.propose(
+    apiClient: client,
+    model: "gemma4:latest",
+    prompt: "answer this question",
+    keepAliveSeconds: 300)
+  #expect(result.dialogueAct == "answer")
+  #expect(result.language == "mixed")
+  #expect(result.capabilityID.isEmpty)
+}
+
+@Test
+func ollamaStructuredRequestProposeRejectsMalformedResponse() async throws {
+  let client = FakeOllamaAPIClient()
+  await client.setGenerateHandler { model, _, _, _ in
+    OllamaGenerateResponse(model: model, response: #"{"dialogue_act":"execute"}"#, done: true)
+  }
+
+  await #expect(throws: AuraError.self) {
+    try await OllamaStructuredRequest.propose(
+      apiClient: client,
+      model: "gemma4:latest",
+      prompt: "do something",
+      keepAliveSeconds: 300)
+  }
+}
+
+@Test
 func ollamaStructuredRequestPropagatesGenerateFailureAsAuraError() async throws {
   let client = FakeOllamaAPIClient()
   await client.setGenerateHandler { _, _, _, _ in

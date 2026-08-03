@@ -32,8 +32,10 @@ public actor WakeWordPipeline {
   private let vad: any VoiceActivityDetector
   private let wakeDetector: any WakeWordDetector
   private let speakerVerifier: (any SpeakerVerifier)?
+  private let sessionID: UUID
 
   private var state: State = .idle
+  private var activeTurnContext: TurnContext?
   private var privacyMode: Bool = false
   private var privacyModeRequiresShortcut: Bool = true
   private var lastAcceptedWakeTimestamp: TimeInterval = 0
@@ -61,7 +63,8 @@ public actor WakeWordPipeline {
     vad: any VoiceActivityDetector,
     wakeDetector: any WakeWordDetector,
     speakerVerifier: (any SpeakerVerifier)? = nil,
-    monotonicClock: @escaping @Sendable () -> TimeInterval = { CFAbsoluteTimeGetCurrent() }
+    monotonicClock: @escaping @Sendable () -> TimeInterval = { CFAbsoluteTimeGetCurrent() },
+    sessionID: UUID = UUID()
   ) {
     self.configuration = configuration
     self.eventBus = eventBus
@@ -70,6 +73,7 @@ public actor WakeWordPipeline {
     self.wakeDetector = wakeDetector
     self.speakerVerifier = speakerVerifier
     self.monotonicClock = monotonicClock
+    self.sessionID = sessionID
     self.privacyModeRequiresShortcut = configuration.privacyModeRequiresKeyboardShortcut
   }
 
@@ -102,6 +106,7 @@ public actor WakeWordPipeline {
     activationEndTask?.cancel()
     activationEndTask = nil
     state = privacyMode ? .privacyArmed : .idle
+    activeTurnContext = nil
     vad.reset()
     wakeDetector.reset()
     await logger.info("Wake-word pipeline stopped", actor: .audio)
@@ -154,9 +159,8 @@ public actor WakeWordPipeline {
     guard state == .listening || state == .activated || state == .speakerVerifying else { return }
 
     // Reconstruct a frame containing the actual sample data. The pipeline
-    // stores the most recent frame emitted by the realtime path so that
-    // tests and downstream consumers operate on real energy rather than
-    // placeholder zeros.
+    // stores the most recent frame emitted by the realtime path so tests and
+    // downstream consumers operate on the captured sample data.
     let frame = AudioFrame(
       samples: latestSamples,
       timestamp: event.timestamp,
@@ -195,6 +199,13 @@ public actor WakeWordPipeline {
     }
 
     metrics.acceptedActivations += 1
+    activeTurnContext = TurnContext(
+      sessionID: sessionID,
+      activationSource: .wakeWord,
+      actor: .user,
+      authority: .userUtterance,
+      sensitivity: privacyMode ? .sensitive : .internalLevel,
+      timingOrigin: now)
     await emitWakeDetectedEvent(hypothesis)
 
     if let verifier = speakerVerifier, configuration.speakerVerificationEnabled {
@@ -236,87 +247,88 @@ public actor WakeWordPipeline {
   // MARK: - Event emitters
 
   private func emitVoiceActivityEvent(_ result: VADResult) async {
-    let envelope = EventEnvelope(
-      correlationID: UUID(),
-      causationID: UUID(),
-      actor: .audio,
-      sensitivity: .internalLevel,
-      payload: VoiceActivityEvent(
+    await emit(
+      VoiceActivityEvent(
         isActive: result.isSpeech,
         energyDB: result.energyDB,
-        frameCount: result.frameCount
-      )
+        frameCount: result.frameCount)
     )
-    await eventBus.emit(envelope)
   }
 
   private func emitWakeHypothesisEvent(_ hypothesis: WakeHypothesis, suppressed: Bool) async {
-    let envelope = EventEnvelope(
-      correlationID: UUID(),
-      causationID: UUID(),
-      actor: .audio,
-      sensitivity: .internalLevel,
-      payload: WakeWordHypothesisEvent(
+    await emit(
+      WakeWordHypothesisEvent(
         confidence: hypothesis.confidence,
         matchedPhrase: hypothesis.matchedPhrase,
-        suppressedAsAntiTrigger: suppressed
-      )
+        suppressedAsAntiTrigger: suppressed)
     )
-    await eventBus.emit(envelope)
   }
 
   private func emitWakeDetectedEvent(_ hypothesis: WakeHypothesis) async {
-    let envelope = EventEnvelope(
-      correlationID: UUID(),
-      causationID: UUID(),
-      actor: .audio,
-      sensitivity: .internalLevel,
-      payload: WakeWordDetectedEvent(
+    await emit(
+      WakeWordDetectedEvent(
         confidence: hypothesis.confidence,
         matchedPhrase: hypothesis.matchedPhrase,
-        preRollFrames: 0
-      )
+        preRollFrames: 0)
     )
-    await eventBus.emit(envelope)
   }
 
   private func emitSpeakerVerificationEvent(_ hint: SpeakerIdentityHint) async {
-    let envelope = EventEnvelope(
-      correlationID: UUID(),
-      causationID: UUID(),
-      actor: .audio,
-      sensitivity: .sensitive,
-      payload: SpeakerVerificationEvent(
+    await emit(
+      SpeakerVerificationEvent(
         profileID: hint.profileID,
         score: hint.score,
-        isMatch: hint.profileID != nil && hint.score >= configuration.speakerVerificationThreshold
-      )
+        isMatch: hint.profileID != nil && hint.score >= configuration.speakerVerificationThreshold),
+      sensitivity: .sensitive
     )
-    await eventBus.emit(envelope)
   }
 
   private func emitWakeActivationEvent(active: Bool, privacyMode: Bool) async {
-    let envelope = EventEnvelope(
-      correlationID: UUID(),
-      causationID: UUID(),
-      actor: .audio,
-      sensitivity: .internalLevel,
-      payload: WakeActivationEvent(isActive: active, privacyMode: privacyMode)
+    let context: TurnContext?
+    if active {
+      let current = activeTurnContext ?? TurnContext(
+        sessionID: sessionID,
+        activationSource: .wakeWord,
+        actor: .user,
+        authority: .userUtterance,
+        sensitivity: privacyMode ? .sensitive : .internalLevel,
+        timingOrigin: monotonicClock())
+      activeTurnContext = current
+      context = current
+    } else {
+      context = activeTurnContext
+    }
+    await emit(
+      WakeActivationEvent(isActive: active, privacyMode: privacyMode, turnContext: context),
+      context: context
     )
-    await eventBus.emit(envelope)
+    if !active {
+      activeTurnContext = nil
+    }
   }
 
   private func emitPrivacyModeEvent(enabled: Bool, triggeredByKeyboardShortcut: Bool) async {
-    let envelope = EventEnvelope(
-      correlationID: UUID(),
-      causationID: UUID(),
-      actor: .audio,
-      sensitivity: .internalLevel,
-      payload: PrivacyModeEvent(
+    await emit(
+      PrivacyModeEvent(
         enabled: enabled,
-        triggeredByKeyboardShortcut: triggeredByKeyboardShortcut
-      )
+        triggeredByKeyboardShortcut: triggeredByKeyboardShortcut)
     )
+  }
+
+  private func emit<Payload: EventPayload>(
+    _ payload: Payload,
+    context: TurnContext? = nil,
+    sensitivity: SensitivityLevel = .internalLevel
+  ) async {
+    let traceContext = context ?? activeTurnContext
+    let envelope = traceContext?.envelope(
+      actor: .audio, sensitivity: sensitivity, payload: payload)
+      ?? EventEnvelope(
+        correlationID: sessionID,
+        causationID: sessionID,
+        actor: .audio,
+        sensitivity: sensitivity,
+        payload: payload)
     await eventBus.emit(envelope)
   }
 }

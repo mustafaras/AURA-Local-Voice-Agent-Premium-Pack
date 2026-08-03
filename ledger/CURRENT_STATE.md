@@ -1,17 +1,25 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-07-30.
+Projection refreshed from live repository and command evidence on 2026-08-02.
 
 ## Canonical State Notice — 2026-08-02
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == 62f96da3c14b1def80764a259377638142876ccc`. This legacy projection
+origin/main == f1f3bb959ea3b79eb821c5faccf57d8fad076203`. R1 is complete for
+local development/integration scope and R2 remains in progress pending live
+Ollama and hardware evidence. This legacy projection
 is retained for historical compatibility; the older status sections below are
-not authoritative and R0 must replace or redirect them deterministically.
+not authoritative and must not override the canonical machine state.
 
 ## Latest Verification Snapshot — 2026-08-02
+
+- R1 final live regression: 20 Swift Testing bundles, 678/678 tests passed, 0 failed bundles under `/tmp/aura-r1-final-closure`.
+- R1 focused trace/health evidence: AuraCoreTests 16/16, AURAIntegrationTests 17/17, AuraAudioTests 33/33, AuraSTTTests 14/14, AuraPolicyTests 18/18, and AuraAgentTests 206/206.
+- R1 accepted ADRs: ADR-035 TurnContext trace correctness and ADR-037 runtime health/confirmation transactions. Confirmation restart behavior is fail-closed; durable resume remains open.
+- R1 remains uncommitted and unpushed by authority; `swift-format`/full Xcode and release gates remain unavailable or open.
+- R2 local slice: bilingual fast path, structured-NLU boundary, model-backed DialogueEngine, clarification expiry, locale-preserving TTS, and dialogue health are implemented; the latest full regression passed 695/695. R2 remains open only for live Ollama/hardware evidence and later release gates.
 
 - Code revision `20571de` contains the verified sequential Swift test runner and serialized system-TTS latency suite.
 - Full repository validation passes: 20 test bundles, 665 tests, 0 failed bundles. The release `AURA.app` bundle and PluginHost/AutomationHelper/ShellHelper payloads also build successfully under `/tmp/aura-app-after`.

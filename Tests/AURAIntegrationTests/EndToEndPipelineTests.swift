@@ -60,12 +60,24 @@ func endToEndPipelineActivatesApplicationFromScriptedUtterance() async throws {
   await conversationBridge.start()
 
   let classifiedEvents = AtomicBox<[IntentClassifiedEvent]>([])
+  let traceCorrelations = AtomicBox<[UUID]>([])
   await bus.subscribe(IntentClassifiedEvent.self) { envelope in
     await classifiedEvents.withValue { $0 + [envelope.payload] }
+    await traceCorrelations.withValue { $0 + [envelope.correlationID] }
+  }
+  await bus.subscribe(IntentPlanGeneratedEvent.self) { envelope in
+    await traceCorrelations.withValue { $0 + [envelope.correlationID] }
+  }
+  await bus.subscribe(ToolInvokedEvent.self) { envelope in
+    await traceCorrelations.withValue { $0 + [envelope.correlationID] }
+  }
+  await bus.subscribe(ToolResultEvent.self) { envelope in
+    await traceCorrelations.withValue { $0 + [envelope.correlationID] }
   }
   let responsePlans = AtomicBox<[ResponsePlanEvent]>([])
   await bus.subscribe(ResponsePlanEvent.self) { envelope in
     await responsePlans.withValue { $0 + [envelope.payload] }
+    await traceCorrelations.withValue { $0 + [envelope.correlationID] }
   }
   let latencyMeasurements = AtomicBox<[LatencyMeasuredEvent]>([])
   await bus.subscribe(LatencyMeasuredEvent.self) { envelope in
@@ -115,6 +127,10 @@ func endToEndPipelineActivatesApplicationFromScriptedUtterance() async throws {
   let plans = await responsePlans.value
   #expect(plans.count == 1)
   #expect(plans.first?.hasSpokenResponse == true)
+  let trace = await traceCorrelations.value
+  #expect(trace.count >= 5)
+  #expect(Set(trace).count == 1)
+  #expect(plans.first?.turnContext?.turnID != nil)
 
   // MockTTSEngine drains quickly; poll briefly rather than a fixed sleep.
   var attempts = 0
@@ -135,6 +151,7 @@ func endToEndPipelineActivatesApplicationFromScriptedUtterance() async throws {
   #expect(wakeToAck!.latencySeconds < 0.5)
   #expect(wakeToAck!.budgetSeconds == 0.5)
   #expect(wakeToAck!.isMockEngine == true)
+  #expect(wakeToAck!.backendIDs?.tts?.hasPrefix("mock") == true)
 }
 
 /// Proves the ambiguity guardrail survives the full chain, not just

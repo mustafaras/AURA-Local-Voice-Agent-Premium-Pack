@@ -128,6 +128,9 @@ private actor Capture {
 
 // MARK: - Happy path: approved on first iteration
 
+@Suite("Multi-Agent Orchestrator", .serialized)
+struct MultiAgentOrchestratorTests {
+
 @Test
 func orchestratorApprovesOnFirstReviewIteration() async throws {
   let repoRoot = try makeScratchGitRepo()
@@ -472,4 +475,6 @@ func orchestratorSpecialistSwarmRejectsOversizedRequest() async throws {
       if case .budgetExceeded = $0.outcome { return true } else { return false }
     })
   #expect(await worktreeManager.activeCount() == 0)
+}
+
 }

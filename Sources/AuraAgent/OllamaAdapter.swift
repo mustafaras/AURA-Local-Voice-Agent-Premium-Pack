@@ -136,6 +136,67 @@ public actor OllamaAdapter {
     }
   }
 
+  public func structuredNLU(
+    prompt: String,
+    actor: ActorID,
+    sessionID: UUID,
+    correlationID: UUID,
+    causationID: UUID
+  ) async throws(AuraError) -> OllamaNLUResult {
+    let capability = OllamaTaskCapability.classification
+    switch await preflight(
+      capability: capability,
+      actor: actor,
+      sessionID: sessionID,
+      correlationID: correlationID,
+      causationID: causationID)
+    {
+    case .degraded(let reason):
+      await emitDegraded(
+        capability: capability,
+        reason: reason,
+        actor: actor,
+        correlationID: correlationID,
+        causationID: causationID)
+      throw AuraError.ollamaError(
+        "ollama unavailable for structured NLU (reason: \(reason.rawValue))")
+    case .ready(let model):
+      await emitAudit(
+        OllamaInferenceStartedEvent(
+          runID: correlationID,
+          model: model.name,
+          capability: capability.rawValue,
+          isLocalModel: model.isLocal,
+          structuredOutputRequested: true),
+        actor: actor,
+        correlationID: correlationID,
+        causationID: causationID)
+      do {
+        let result = try await OllamaStructuredRequest.propose(
+          apiClient: apiClient,
+          model: model.name,
+          prompt: prompt,
+          keepAliveSeconds: configuration.keepAliveSeconds)
+        await emitAudit(
+          OllamaInferenceCompletedEvent(runID: correlationID, model: model.name),
+          actor: actor,
+          correlationID: correlationID,
+          causationID: causationID)
+        return result
+      } catch {
+        await emitAudit(
+          OllamaErrorEvent(
+            runID: correlationID,
+            category: .structuredValidationFailed,
+            message: "structured NLU response rejected"),
+          actor: actor,
+          correlationID: correlationID,
+          causationID: causationID)
+        throw error
+      }
+    }
+  }
+
   /// Summarize `prompt` into a single string, structured-output validated.
   public func summarize(
     prompt: String,

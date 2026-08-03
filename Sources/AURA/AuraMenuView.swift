@@ -12,6 +12,19 @@ struct AuraMenuView: View {
         confirmationCard(challenge)
       }
 
+      HStack(spacing: 8) {
+        TextField("Type a request", text: $model.textInput)
+          .textFieldStyle(.roundedBorder)
+          .onSubmit { model.submitText() }
+        Button {
+          model.submitText()
+        } label: {
+          Image(systemName: "arrow.up.circle.fill")
+        }
+        .buttonStyle(.borderedProminent)
+        .accessibilityLabel("Submit typed request")
+      }
+
       Button {
         model.pushToTalk()
       } label: {
@@ -127,6 +140,13 @@ struct AuraMenuView: View {
           Label(warning, systemImage: "exclamationmark.triangle")
             .font(.caption)
             .fixedSize(horizontal: false, vertical: true)
+        }
+        ForEach(model.runtimeHealth, id: \RuntimeHealth.componentID) { (health: RuntimeHealth) in
+          let healthTitle = "\(health.componentID): \(health.status.rawValue)"
+          let healthSymbol = health.status == .ready ? "checkmark.circle" : "circle.dotted"
+          Label(healthTitle, systemImage: healthSymbol)
+            .font(.caption2)
+            .foregroundStyle(health.status == .ready ? Color.secondary : Color.orange)
         }
         Text("Emergency shortcut: Command–Shift–Escape")
           .font(.caption)

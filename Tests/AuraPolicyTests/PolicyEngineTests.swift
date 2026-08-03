@@ -230,6 +230,109 @@ func alwaysConfirmationIssuesChallenge() async throws {
 }
 
 @Test
+func confirmedPolicyRequestHasOneTimeExecutionAndVerificationLifecycle() async throws {
+  let (engine, _) = try await makeEngine()
+  let sessionID = UUID()
+  let context = TurnContext(
+    sessionID: sessionID,
+    activationSource: .text,
+    actor: .user,
+    authority: .userUtterance,
+    sensitivity: .sensitive)
+  let grant = Grant(
+    capability: .appTerminate,
+    patterns: [.any],
+    confirmationRequirement: .always)
+  try await engine.issueGrant(grant)
+  let request = PolicyEvaluationRequest(
+    capability: .appTerminate,
+    actor: .user,
+    target: PolicyTarget(appID: "com.apple.Safari"),
+    sessionID: sessionID,
+    correlationID: context.correlationID,
+    causationID: context.causationID,
+    turnContext: context)
+  let decision = await engine.evaluate(request)
+  guard case .confirm(let challenge, _) = decision else {
+    Issue.record("Expected confirmation challenge")
+    return
+  }
+
+  let response = PolicyConfirmationResponse(
+    requestID: challenge.requestID,
+    nonce: challenge.nonce,
+    responseHash: challenge.expectedHash,
+    accepted: true)
+  guard case .allow = await engine.submitConfirmation(response) else {
+    Issue.record("Expected confirmed policy request to allow")
+    return
+  }
+
+  #expect(await engine.beginAuthorizedExecution(context: context))
+  #expect(
+    await engine.completeAuthorizedExecution(
+      context: context,
+      verified: true,
+      summary: "Safari is no longer running"))
+  #expect(await engine.beginAuthorizedExecution(context: context) == false)
+}
+
+@Test
+func changedPlanCannotReuseConfirmationApproval() async throws {
+  let (engine, _) = try await makeEngine()
+  let grant = Grant(
+    capability: .shellExec,
+    patterns: [.any],
+    confirmationRequirement: .always)
+  try await engine.issueGrant(grant)
+  let context = TurnContext(
+    sessionID: UUID(),
+    activationSource: .text,
+    actor: .user,
+    authority: .userUtterance,
+    sensitivity: .sensitive)
+  let originalTarget = PolicyTarget(command: "/bin/echo", arguments: ["one"])
+  let request = PolicyEvaluationRequest(
+    capability: .shellExec,
+    actor: .user,
+    target: originalTarget,
+    sessionID: context.sessionID,
+    correlationID: context.correlationID,
+    causationID: context.causationID,
+    turnContext: context)
+  let decision = await engine.evaluate(request)
+  guard case .confirm(let challenge, _) = decision else {
+    Issue.record("Expected confirmation challenge")
+    return
+  }
+  guard case .allow = await engine.submitConfirmation(
+    PolicyConfirmationResponse(
+      requestID: challenge.requestID,
+      nonce: challenge.nonce,
+      responseHash: challenge.expectedHash,
+      accepted: true))
+  else {
+    Issue.record("Expected confirmation approval")
+    return
+  }
+
+  let changedPlanHash = PolicyPlanHasher.hash(
+    capability: .shellExec,
+    actor: .user,
+    target: PolicyTarget(command: "/bin/echo", arguments: ["two"]))
+  #expect(await engine.beginAuthorizedExecution(context: context, planHash: changedPlanHash) == false)
+
+  let originalPlanHash = PolicyPlanHasher.hash(
+    capability: .shellExec,
+    actor: .user,
+    target: originalTarget)
+  #expect(await engine.beginAuthorizedExecution(context: context, planHash: originalPlanHash))
+  #expect(
+    await engine.completeAuthorizedExecution(
+      context: context, verified: true, summary: "echo completed"))
+}
+
+@Test
 func perSessionConfirmationOnlyPromptsOnce() async throws {
   let (engine, _) = try await makeEngine()
   let grant = Grant(

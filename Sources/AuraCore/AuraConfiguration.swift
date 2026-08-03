@@ -758,8 +758,12 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
     speechTimeoutSeconds: Double = 60.0,
     bargeInGraceMilliseconds: UInt32 = 500,
     silenceEndFrames: UInt32 = 30,
-    deterministicStopCommands: Set<String> = ["stop", "cancel", "abort", "quit"],
-    deterministicPauseResumeCommands: Set<String> = ["pause", "resume", "continue"]
+    deterministicStopCommands: Set<String> = [
+      "stop", "cancel", "abort", "quit", "dur", "iptal", "vazgeç"
+    ],
+    deterministicPauseResumeCommands: Set<String> = [
+      "pause", "resume", "continue", "duraklat", "sürdür", "devam et"
+    ]
   ) {
     self.listenTimeoutSeconds = listenTimeoutSeconds
     self.thinkTimeoutSeconds = thinkTimeoutSeconds
@@ -801,11 +805,11 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
     silenceEndFrames = try container.decodeIfPresent(UInt32.self, forKey: .silenceEndFrames) ?? 30
     deterministicStopCommands =
       try container.decodeIfPresent(Set<String>.self, forKey: .deterministicStopCommands) ?? [
-        "stop", "cancel", "abort", "quit",
+        "stop", "cancel", "abort", "quit", "dur", "iptal", "vazgeç",
       ]
     deterministicPauseResumeCommands =
       try container.decodeIfPresent(Set<String>.self, forKey: .deterministicPauseResumeCommands)
-      ?? ["pause", "resume", "continue"]
+      ?? ["pause", "resume", "continue", "duraklat", "sürdür", "devam et"]
   }
 }
 
@@ -2704,6 +2708,9 @@ public struct IntentEngineConfiguration: Codable, Sendable, Equatable {
   /// the utterance does not name one explicitly.
   public var defaultCodingAgentWorkingDirectory: String
 
+  /// Seconds a clarification slot remains eligible for a follow-up answer.
+  public var clarificationExpirySeconds: Double
+
   /// Regex patterns that, when matched against a shell intent's executable
   /// plus arguments, escalate it from `.shellExecute` to `.shellDestructive`
   /// (`Capability.shellExecDestructive`, no grant seeded by default). A
@@ -2716,6 +2723,7 @@ public struct IntentEngineConfiguration: Codable, Sendable, Equatable {
     minimumClassificationConfidence: Double = 0.6,
     defaultCodingAgentBackend: String = "codex",
     defaultCodingAgentWorkingDirectory: String = "$HOME",
+    clarificationExpirySeconds: Double = 60,
     destructiveShellPatterns: [String] = [
       "rm\\s+-[a-zA-Z]*[rf][a-zA-Z]*[rf]",
       "diskutil\\s+(erase|reformat|partitionDisk)",
@@ -2726,6 +2734,7 @@ public struct IntentEngineConfiguration: Codable, Sendable, Equatable {
     self.minimumClassificationConfidence = minimumClassificationConfidence
     self.defaultCodingAgentBackend = defaultCodingAgentBackend
     self.defaultCodingAgentWorkingDirectory = defaultCodingAgentWorkingDirectory
+    self.clarificationExpirySeconds = clarificationExpirySeconds
     self.destructiveShellPatterns = destructiveShellPatterns
   }
 
@@ -2740,6 +2749,9 @@ public struct IntentEngineConfiguration: Codable, Sendable, Equatable {
     guard !defaultCodingAgentWorkingDirectory.isEmpty else {
       throw AuraError.invalidConfiguration(
         "intent defaultCodingAgentWorkingDirectory must not be empty")
+    }
+    guard clarificationExpirySeconds > 0 else {
+      throw AuraError.invalidConfiguration("intent clarificationExpirySeconds must be positive")
     }
     for pattern in destructiveShellPatterns {
       guard !pattern.isEmpty else {
@@ -2762,6 +2774,9 @@ public struct IntentEngineConfiguration: Codable, Sendable, Equatable {
       defaultCodingAgentWorkingDirectory: self.defaultCodingAgentWorkingDirectory.isEmpty
         ? IntentEngineConfiguration().defaultCodingAgentWorkingDirectory
         : self.defaultCodingAgentWorkingDirectory,
+      clarificationExpirySeconds: self.clarificationExpirySeconds <= 0
+        ? IntentEngineConfiguration().clarificationExpirySeconds
+        : self.clarificationExpirySeconds,
       destructiveShellPatterns: self.destructiveShellPatterns.isEmpty
         ? IntentEngineConfiguration().destructiveShellPatterns
         : self.destructiveShellPatterns
@@ -2780,6 +2795,9 @@ public struct IntentEngineConfiguration: Codable, Sendable, Equatable {
     defaultCodingAgentWorkingDirectory =
       try container.decodeIfPresent(String.self, forKey: .defaultCodingAgentWorkingDirectory)
       ?? defaults.defaultCodingAgentWorkingDirectory
+    clarificationExpirySeconds =
+      try container.decodeIfPresent(Double.self, forKey: .clarificationExpirySeconds)
+      ?? defaults.clarificationExpirySeconds
     destructiveShellPatterns =
       try container.decodeIfPresent([String].self, forKey: .destructiveShellPatterns)
       ?? defaults.destructiveShellPatterns

@@ -3233,3 +3233,62 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Evidence:** `EV-R0-20260802-POST-COMMIT-VALIDATION-01`, `EV-R0-20260802-FULL-SUITE-RERUN-01`, `EV-R0-20260802-TODO-AUDIT-01`.
 - **Limitations:** The first fresh full wrapper run had one 2.047-second system-TTS wall-clock miss; reruns passed without weakening the 2.0-second assertion. No CI workflow run, Xcode/xcodebuild, signing, notarization, release, or deployment evidence is claimed.
 - **Next safe action:** Commit/push the state-only projection, verify `git merge --ff-only origin/main` is already up to date, then begin R1.
+
+### 2026-08-02T16:34:12Z — R1_RUNTIME_INTEGRATION_SPINE_COMPLETED — local development gate passed
+
+- **Actor:** Copilot.
+- **Objective:** Complete R1's context-first runtime spine, truthful health and confirmation contracts, text/voice vertical slice, and deterministic regression gate.
+- **Implementation:** Added immutable `TurnContext` propagation across wake, STT, conversation, intent, policy, tool, confirmation, latency, and TTS metadata; added live `RuntimeHealthChangedEvent` publication and explicit degraded/loading/unsupported states in `AuraKernel`; added fail-closed `ConfirmationTransactionStore` lifecycle; accepted ADR-035 and ADR-037; stabilized timing-sensitive Agent tests without weakening assertions.
+- **Verification:** Fresh `./scripts/aura-test.sh /tmp/aura-r1-final-full` passed 20/20 bundles and 677/677 tests. Focused trace/health bundles passed: AuraCoreTests 16/16, AURAIntegrationTests 17/17, AuraAudioTests 33/33, AuraSTTTests 14/14, AuraPolicyTests 18/18, AuraAgentTests 206/206. `git diff --check`, runtime validator, 13 governance tests, and `zsh -n scripts/aura-test.sh` passed after projection repair.
+- **Evidence:** `EV-R1-20260802-FULL-SUITE-01`, `EV-R1-20260802-TRACE-HEALTH-01`, `EV-R1-20260802-GOVERNANCE-CLOSEOUT-01`.
+- **Acceptance:** R1 is **complete for local development/integration scope**; R2 is ready. The worktree remains uncommitted and unpushed because authority is false.
+- **Open risks:** Universal capability-specific postcondition verification and durable confirmation checkpoint/resume remain future work. Real wake-word/live hardware, full Xcode/CI, signing, notarization, and release gates remain open. No app install, TCC mutation, commit, push, merge, release, or deployment occurred.
+- **Next safe action:** Begin R2 bilingual NLU and dialogue while preserving R1's context, health, confirmation, and truthful-outcome boundaries.
+
+### 2026-08-02T16:39:22Z — R1_HEALTH_DETAIL_CORRECTION_VERIFIED — final focused regression
+
+- **Actor:** Copilot.
+- **Correction:** Kept detailed plugin and Ollama construction errors in the runtime-health records instead of replacing them with generic degraded text.
+- **Verification:** Production AURA rebuilt and the focused AuraCoreTests run passed 16/16 after the correction.
+- **Evidence:** `EV-R1-20260802-HEALTH-DETAIL-01`.
+
+### 2026-08-02T16:51:13Z — R1_FINAL_CLOSURE_REGRESSION — full suite clean after security and cleanup fixes
+
+- **Actor:** Copilot.
+- **Result:** Fresh `./scripts/aura-test.sh /tmp/aura-r1-final-closure` passed 20/20 Swift Testing bundles and 678/678 tests with 0 failed bundles. Exact confirmation plan binding rejects changed arguments; Chatterbox private output is removed before stream completion.
+- **Evidence:** `EV-R1-20260802-PLAN-BINDING-01`, `EV-R1-20260802-AUDIO-CLEANUP-01`, `EV-R1-20260802-FULL-SUITE-FINAL-01`.
+- **Limitations:** Local CommandLineTools evidence only; live target-hardware demonstration, app install, TCC, signing, notarization, release, and deployment remain unperformed and unauthorized.
+
+### 2026-08-02T17:38:57Z — R2_FULL_SLICE_REGRESSION — bilingual dialogue slice clean
+
+- **Actor:** Copilot.
+- **Result:** Fresh full repository run passed 20/20 Swift Testing bundles and 691/691 tests with 0 failed bundles after the R2 bilingual fast path, structured NLU, local reasoning seam, response locale, and multi-turn slot-filling changes.
+- **Evidence:** `EV-R2-20260802-FULL-SUITE-SLICE-01`.
+- **Open gates:** Golden-corpus metrics, real Ollama/first-token evidence, authorized Turkish/English/mixed hardware demonstration, and later release gates remain open. No commit, push, app install, TCC mutation, signing, notarization, release, or deployment occurred.
+
+### 2026-08-02T17:44:24Z — R2_FINAL_LOCAL_REGRESSION — 693 tests clean
+
+- **Actor:** Copilot.
+- **Result:** Fresh full suite passed 20/20 bundles and 693/693 tests. `ollama list` confirms the local `gemma4:latest` model exists at 9.6 GB; no inference was started, so memory/latency and live hardware gates remain honest and open.
+- **Evidence:** `EV-R2-20260802-FULL-SUITE-FINAL-01`, `EV-R2-20260802-LOCAL-MODEL-INVENTORY-01`.
+
+### 2026-08-02T17:50:37Z — R2_FINAL_REGRESSION_WITH_DIALOGUE_HEALTH — full suite clean
+
+- **Actor:** Copilot.
+- **Result:** Fresh full repository run passed 20/20 bundles and 694/694 tests after DialogueEngine runtime-health publication. R2 remains local/integration-complete but not fully accepted because live Ollama first-token/quality and authorized hardware evidence are still open.
+- **Evidence:** `EV-R2-20260802-FULL-SUITE-FINAL-02`.
+
+### 2026-08-02T18:08:28Z — R2_FINAL_REGRESSION_AFTER_GAP_FIXES — current tree clean
+
+- **Actor:** Copilot.
+- **Result:** Fresh `./scripts/aura-test.sh /tmp/aura-r2-after-gap-fixes` rebuilt production AURA and passed all 20/20 Swift Testing bundles: 695/695 tests, 0 failed bundles. The latest AuraIntentTests slice passed 44/44 after the coding-agent destructive-risk metadata correction.
+- **Evidence:** `EV-R2-20260802-FULL-SUITE-FINAL-03`.
+- **Status:** R2 remains in progress. Live Ollama health/first-token/quality/residency and authorized Turkish/English/mixed hardware evidence remain open; no commit, push, app launch, TCC mutation, signing, release, or deployment occurred.
+
+### 2026-08-03T06:18:04Z — R2_PRECOMMIT_REGRESSION — current tree clean before publication
+
+- **Actor:** Copilot.
+- **Result:** Fresh `./scripts/aura-test.sh /tmp/aura-final-before-commit-20260803` rebuilt production AURA and passed all 20/20 Swift Testing bundles: 695/695 tests, 0 failed bundles. AuraIntentTests passed 44/44 and AuraAdversarialTests passed 61/61.
+- **Evidence:** `EV-R2-20260803-FINAL-REGRESSION-01`.
+- **Authority:** The user explicitly authorized commit, push, and merge operations for this closeout. No dependency installation, model download, app launch, TCC mutation, signing, release, or deployment was authorized.
+- **Status:** R2 remains in progress; live Ollama and authorized hardware evidence remain open.

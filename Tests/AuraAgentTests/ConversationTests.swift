@@ -30,7 +30,7 @@ private final class EventBox: @unchecked Sendable {
   }
 }
 
-@Suite("Conversation State Machine")
+@Suite("Conversation State Machine", .serialized)
 struct ConversationTests {
 
   /// Creates a conversation wired to an event box that captures all
@@ -131,9 +131,6 @@ struct ConversationTests {
     await conversation.stableSegmentReceived(
       STTStableSegmentEvent(text: "stop", confidence: 0.95, deterministicCommand: "stop")
     )
-
-    // Give the async state machine a moment to settle.
-    try? await Task.sleep(nanoseconds: 50_000_000)
 
     #expect(await conversation.state == .idle)
     #expect(engine.currentPromptForTest() == nil)

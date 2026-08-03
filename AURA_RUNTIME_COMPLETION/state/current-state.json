@@ -2,28 +2,29 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-02T14:37:13Z",
+  "updated_at": "2026-08-03T06:18:04Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
-    "remote_head": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
-    "working_tree_state": "clean",
+    "verified_head": "f1f3bb959ea3b79eb821c5faccf57d8fad076203",
+    "remote_head": "f1f3bb959ea3b79eb821c5faccf57d8fad076203",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
-      "The ordered manifest contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is a mandatory out-of-manifest session procedure documented by prompts/README.md."
+      "The ordered manifest contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is a mandatory out-of-manifest session procedure documented by prompts/README.md.",
+      "R1 runtime integration, trace, health, confirmation, architecture, and deterministic-test changes are local and validated; commit/push authority remains false."
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R1",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
-    "state": "ready",
-    "step": "Inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing.",
-    "started_at": "2026-08-02T14:10:00Z",
+    "id": "R2",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
+    "state": "in_progress",
+    "step": "Implement and validate the layered bilingual fast path, schema-validated local NLU refinement, model-backed dialogue, locale-preserving response plans, bounded provenance context, and honest degraded behavior.",
+    "started_at": "2026-08-02T17:27:28Z",
     "blocked_by": []
   },
   "tracks": [
@@ -40,22 +41,22 @@
     {
       "id": "R1",
       "name": "Runtime Integration Spine and Trace Correctness",
-      "state": "ready",
+      "state": "completed",
       "dependencies": ["R0"],
-      "started_at": null,
-      "completed_at": null,
-      "evidence_ids": [],
-      "open_risk_ids": ["RISK-DISCONNECTED-RUNTIME", "RISK-FALSE-SUCCESS", "RISK-CONFIRMATION-RESUME"]
+      "started_at": "2026-08-02T14:10:00Z",
+      "completed_at": "2026-08-02T16:34:12Z",
+      "evidence_ids": ["EV-R1-20260802-FULL-SUITE-01", "EV-R1-20260802-TRACE-HEALTH-01", "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01", "EV-R1-20260802-HEALTH-DETAIL-01", "EV-R1-20260802-PLAN-BINDING-01", "EV-R1-20260802-AUDIO-CLEANUP-01", "EV-R1-20260802-FULL-SUITE-FINAL-01"],
+      "open_risk_ids": ["RISK-FALSE-SUCCESS", "RISK-CONFIRMATION-RESUME"]
     },
     {
       "id": "R2",
       "name": "Bilingual NLU and Dialogue",
-      "state": "pending",
+      "state": "in_progress",
       "dependencies": ["R1"],
-      "started_at": null,
+      "started_at": "2026-08-02T17:27:28Z",
       "completed_at": null,
-      "evidence_ids": [],
-      "open_risk_ids": ["RISK-ENGLISH-ONLY-INTENT", "RISK-CANNED-CONVERSATION"]
+      "evidence_ids": ["EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01", "EV-R2-20260802-OLLAMA-STRUCTURED-01", "EV-R2-20260802-INTEGRATION-DIALOGUE-01", "EV-R2-20260802-FULL-SUITE-SLICE-01", "EV-R2-20260802-FULL-SUITE-FINAL-01", "EV-R2-20260802-FULL-SUITE-FINAL-02", "EV-R2-20260802-DIALOGUE-HEALTH-01", "EV-R2-20260802-AGENT-RISK-01", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260803-FINAL-REGRESSION-01"],
+      "open_risk_ids": ["RISK-ENGLISH-ONLY-INTENT", "RISK-MODEL-MEMORY-PRESSURE"]
     },
     {
       "id": "R3",
@@ -253,7 +254,7 @@
       "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
     }
   ],
-  "last_evidence_ids": ["EV-R0-20260802-STATE-VALIDATOR-01", "EV-R0-20260802-TOOLCHAIN-MANIFEST-01", "EV-R0-20260802-CI-CONFIG-01", "EV-R0-20260802-CAPABILITY-AUDIT-01", "EV-R0-20260802-LEGACY-REDIRECT-01", "EV-R0-20260802-TODO-AUDIT-01", "EV-R0-20260802-POST-COMMIT-VALIDATION-01", "EV-R0-20260802-FULL-SUITE-RERUN-01", "EV-R0-20260802-APP-SMOKE-01"],
+  "last_evidence_ids": ["EV-R2-20260803-FINAL-REGRESSION-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-AGENT-RISK-01", "EV-R2-20260802-DIALOGUE-HEALTH-01"],
   "blockers": [],
-  "next_action": "Start AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md. First action: inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing."
+  "next_action": "With explicit authorization, run a bounded local Ollama health/first-token benchmark for gemma4:latest under the 16 GB memory budget, then perform the required Turkish, English, mixed, clarification, and degraded-mode hardware demonstration. Do not install models, mutate TCC, or claim R2 complete before that evidence."
 }

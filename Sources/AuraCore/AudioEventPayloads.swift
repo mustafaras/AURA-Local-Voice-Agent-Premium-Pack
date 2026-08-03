@@ -189,10 +189,16 @@ public struct WakeActivationEvent: EventPayload {
 
   public let isActive: Bool
   public let privacyMode: Bool
+  public let turnContext: TurnContext?
 
-  public init(isActive: Bool, privacyMode: Bool) {
+  public init(
+    isActive: Bool,
+    privacyMode: Bool,
+    turnContext: TurnContext? = nil
+  ) {
     self.isActive = isActive
     self.privacyMode = privacyMode
+    self.turnContext = turnContext
   }
 }
 
@@ -342,19 +348,22 @@ public struct TurnCompletedEvent: EventPayload {
   public let isFinal: Bool
   public let deterministicCommand: String?
   public let requiresPolicyReview: Bool
+  public let turnContext: TurnContext?
 
   public init(
     text: String,
     confidence: Double,
     isFinal: Bool,
     deterministicCommand: String? = nil,
-    requiresPolicyReview: Bool = true
+    requiresPolicyReview: Bool = true,
+    turnContext: TurnContext? = nil
   ) {
     self.text = text
     self.confidence = confidence
     self.isFinal = isFinal
     self.deterministicCommand = deterministicCommand
     self.requiresPolicyReview = requiresPolicyReview
+    self.turnContext = turnContext
   }
 }
 
@@ -372,17 +381,23 @@ public struct ResponsePlanEvent: EventPayload {
   /// uses this flag to decide whether the current turn qualifies for the
   /// simple-command completion latency budget.
   public let isSimpleCommand: Bool
+  public let language: DialogueLanguage?
+  public let turnContext: TurnContext?
 
   public init(
     planID: String,
     summary: String,
     hasSpokenResponse: Bool,
-    isSimpleCommand: Bool = false
+    isSimpleCommand: Bool = false,
+    language: DialogueLanguage? = nil,
+    turnContext: TurnContext? = nil
   ) {
     self.planID = planID
     self.summary = summary
     self.hasSpokenResponse = hasSpokenResponse
     self.isSimpleCommand = isSimpleCommand
+    self.language = language
+    self.turnContext = turnContext
   }
 }
 
@@ -409,10 +424,12 @@ public struct STTPartialEvent: EventPayload {
 
   public let text: String
   public let confidence: Double
+  public let turnContext: TurnContext?
 
-  public init(text: String, confidence: Double) {
+  public init(text: String, confidence: Double, turnContext: TurnContext? = nil) {
     self.text = text
     self.confidence = confidence
+    self.turnContext = turnContext
   }
 }
 
@@ -428,25 +445,31 @@ public struct STTStableSegmentEvent: EventPayload {
   /// If the stable segment matched a deterministic early-command, this is
   /// the canonical command string. Nil otherwise.
   public let deterministicCommand: String?
+  public let turnContext: TurnContext?
 
   public init(
     text: String,
     alternatives: [STTAlternative] = [],
     confidence: Double,
-    deterministicCommand: String? = nil
+    deterministicCommand: String? = nil,
+    turnContext: TurnContext? = nil
   ) {
     self.text = text
     self.alternatives = alternatives
     self.confidence = confidence
     self.deterministicCommand = deterministicCommand
+    self.turnContext = turnContext
   }
 }
 
 /// Emitted when an STT session is cancelled.
 public struct STTCancelledEvent: EventPayload {
   public static let eventType = "stt.cancelled"
+  public let turnContext: TurnContext?
 
-  public init() {}
+  public init(turnContext: TurnContext? = nil) {
+    self.turnContext = turnContext
+  }
 }
 
 /// Emitted when a latency-sensitive milestone is measured by the conversation
@@ -469,19 +492,26 @@ public struct LatencyMeasuredEvent: EventPayload {
   public let budgetSeconds: Double
   public let isMockEngine: Bool
   public let measuredAt: Date
+  public let turnID: UUID?
+  public let sessionID: UUID?
+  public let backendIDs: TurnBackendIDs?
 
   public init(
     kind: Kind,
     latencySeconds: Double,
     budgetSeconds: Double,
-    isMockEngine: Bool,
+    isMockEngine: Bool? = nil,
+    turnContext: TurnContext? = nil,
     measuredAt: Date = Date()
   ) {
     self.kind = kind
     self.latencySeconds = latencySeconds
     self.budgetSeconds = budgetSeconds
-    self.isMockEngine = isMockEngine
+    self.isMockEngine = isMockEngine ?? turnContext?.backendIDs.usesMockBackend ?? false
     self.measuredAt = measuredAt
+    self.turnID = turnContext?.turnID
+    self.sessionID = turnContext?.sessionID
+    self.backendIDs = turnContext?.backendIDs
   }
 }
 
@@ -492,10 +522,17 @@ public struct STTHealthEvent: EventPayload {
   public let ready: Bool
   public let status: String
   public let detail: String
+  public let turnContext: TurnContext?
 
-  public init(ready: Bool, status: String, detail: String) {
+  public init(
+    ready: Bool,
+    status: String,
+    detail: String,
+    turnContext: TurnContext? = nil
+  ) {
     self.ready = ready
     self.status = status
     self.detail = detail
+    self.turnContext = turnContext
   }
 }

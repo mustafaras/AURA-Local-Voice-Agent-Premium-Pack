@@ -45,13 +45,45 @@ public actor IntentDispatchCoordinator {
   }
 
   private func handle(_ envelope: EventEnvelope<TurnCompletedEvent>) async {
+    let context = envelope.payload.turnContext ?? TurnContext(
+      sessionID: sessionID,
+      correlationID: envelope.correlationID,
+      causationID: envelope.id,
+      activationSource: .text,
+      actor: envelope.actor,
+      authority: .userUtterance,
+      sensitivity: envelope.sensitivity)
     let intent = await intentEngine.classify(
-      envelope.payload, correlationID: envelope.correlationID, causationID: envelope.id)
+      envelope.payload, context: context.advancing(causationID: envelope.id))
+    let dialogueContext = await intentEngine.dialogueContextItems()
     let outcome = await toolRouter.route(
-      intent, actor: .intent, sessionID: sessionID, correlationID: envelope.correlationID,
-      causationID: envelope.id)
+      intent,
+      context: intent.turnContext ?? context,
+      dialogueContext: dialogueContext)
     let isSimpleCommand = isSimpleLocalCommand(intent: intent, outcome: outcome)
-    await conversation.responsePlanReceived(responsePlan(for: outcome, isSimpleCommand: isSimpleCommand))
+    let responseContext = (intent.turnContext ?? context).withBackendIDs(
+      TurnBackendIDs(
+        stt: intent.turnContext?.backendIDs.stt,
+        tts: intent.turnContext?.backendIDs.tts,
+        model: intent.turnContext?.backendIDs.model,
+        tool: toolID(for: intent)))
+    await conversation.responsePlanReceived(
+      responsePlan(
+        for: outcome,
+        isSimpleCommand: isSimpleCommand,
+        language: intent.language,
+        context: responseContext))
+  }
+
+  private func toolID(for intent: TypedIntent) -> String? {
+    switch intent.kind {
+    case .converse: return "aura.converse"
+    case .appActivate: return "automation.appActivate"
+    case .appTerminate: return "automation.appTerminate"
+    case .shellExecute: return "shell.execute"
+    case .codingAgentRun: return "agent.codingAgentRun"
+    case .unknown: return nil
+    }
   }
 
   /// A "simple command" is a local intent that resolves to a single tool
@@ -72,7 +104,10 @@ public actor IntentDispatchCoordinator {
   }
 
   private func responsePlan(
-    for outcome: IntentExecutionOutcome, isSimpleCommand: Bool
+    for outcome: IntentExecutionOutcome,
+    isSimpleCommand: Bool,
+    language: DialogueLanguage,
+    context: TurnContext
   ) -> ResponsePlanEvent {
     let summary: String
     let hasSpokenResponse: Bool
@@ -99,6 +134,8 @@ public actor IntentDispatchCoordinator {
     }
     return ResponsePlanEvent(
       planID: UUID().uuidString, summary: summary, hasSpokenResponse: hasSpokenResponse,
-      isSimpleCommand: isSimpleCommand)
+      isSimpleCommand: isSimpleCommand,
+      language: language,
+      turnContext: context)
   }
 }

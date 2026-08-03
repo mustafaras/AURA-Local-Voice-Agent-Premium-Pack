@@ -22,6 +22,43 @@ func classifierRecognizesOpenAsActivateSynonym() {
 }
 
 @Test
+func classifierRecognizesTurkishApplicationCommandAndLanguage() {
+  let result = classifier.classify(normalized: "safariyi aç", raw: "Safari'yi aç")
+  #expect(result.kind == .appActivate)
+  #expect(result.language == .turkish)
+  #expect(result.dialogueAct == .execute)
+  #expect(result.slots.first { $0.name == IntentSlotName.bundleIdentifier }?.value == "com.apple.Safari")
+}
+
+@Test
+func classifierRecognizesMixedTechnicalQuestion() {
+  let result = classifier.classify(
+    normalized: "çalıştır git status please", raw: "Çalıştır git status please")
+  #expect(result.language == .mixed)
+  #expect(result.kind == .unknown)
+  #expect(result.dialogueAct == .clarify)
+  #expect(result.ambiguityReasons.contains("executable is not registered"))
+}
+
+@Test
+func classifierHandlesPoliteEnglishParaphrase() {
+  let result = classifier.classify(
+    normalized: "could you open safari", raw: "Could you open Safari?")
+  #expect(result.kind == .appActivate)
+  #expect(result.language == .english)
+  #expect(result.slots.first?.value == "com.apple.Safari")
+}
+
+@Test
+func classifierHandlesPoliteTurkishParaphrase() {
+  let result = classifier.classify(
+    normalized: "lütfen safariyi açabilir misin", raw: "Lütfen Safari'yi açabilir misin?")
+  #expect(result.kind == .appActivate)
+  #expect(result.language == .turkish)
+  #expect(result.slots.first?.value == "com.apple.Safari")
+}
+
+@Test
 func classifierRecognizesKnownAppTerminate() {
   let result = classifier.classify(normalized: "quit safari", raw: "quit safari")
   #expect(result.kind == .appTerminate)

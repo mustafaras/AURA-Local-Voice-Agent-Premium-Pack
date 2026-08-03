@@ -177,6 +177,7 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
             box.yield(.progress(fragment: prompt.text, byteOffset: UInt64(result.frames)))
             defer { removePrivateAudioIfSafe(audioURL) }
             try await playback.play(audioURL)
+            removePrivateAudioIfSafe(audioURL)
             box.yield(.complete)
             box.finish()
             return

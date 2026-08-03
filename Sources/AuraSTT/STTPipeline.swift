@@ -29,8 +29,10 @@ public actor STTPipeline {
   private let eventBus: AuraEventBus
   private let logger: AuraLogger
   private let monotonicClock: () -> TimeInterval
+  private let sessionID: UUID
 
   private var state: State = .idle
+  private var activeTurnContext: TurnContext?
   private var activationTime: TimeInterval = 0
   private var resultStreamTask: Task<Void, Never>?
   private var metrics: Metrics = Metrics()
@@ -40,13 +42,15 @@ public actor STTPipeline {
     vocabulary: UserVocabulary,
     eventBus: AuraEventBus,
     logger: AuraLogger,
-    monotonicClock: @escaping @Sendable () -> TimeInterval = { CFAbsoluteTimeGetCurrent() }
+    monotonicClock: @escaping @Sendable () -> TimeInterval = { CFAbsoluteTimeGetCurrent() },
+    sessionID: UUID = UUID()
   ) {
     self.engine = engine
     self.vocabulary = vocabulary
     self.eventBus = eventBus
     self.logger = logger
     self.monotonicClock = monotonicClock
+    self.sessionID = sessionID
   }
 
   deinit {
@@ -68,6 +72,7 @@ public actor STTPipeline {
     resultStreamTask?.cancel()
     resultStreamTask = nil
     await engine.cancel()
+    activeTurnContext = nil
     state = .idle
     await logger.info("STT pipeline stopped", actor: .audio)
   }
@@ -85,14 +90,31 @@ public actor STTPipeline {
   private func subscribeToEvents() async {
     await eventBus.subscribe(WakeActivationEvent.self) { [weak self] envelope in
       guard let self = self, !Task.isCancelled else { return }
-      await self.handleWakeActivation(envelope.payload)
+      await self.handleWakeActivation(envelope)
     }
   }
 
-  private func handleWakeActivation(_ event: WakeActivationEvent) async {
+  private func handleWakeActivation(_ envelope: EventEnvelope<WakeActivationEvent>) async {
+    let event = envelope.payload
     if event.isActive {
       guard state == .activated || state == .idle else { return }
       activationTime = monotonicClock()
+      let context = (event.turnContext ?? TurnContext(
+        sessionID: sessionID,
+        correlationID: envelope.correlationID,
+        causationID: envelope.id,
+        activationSource: .wakeWord,
+        actor: envelope.actor,
+        authority: .userUtterance,
+        sensitivity: envelope.sensitivity,
+        timingOrigin: activationTime
+      )).advancing(causationID: envelope.id)
+      activeTurnContext = context.withBackendIDs(
+        TurnBackendIDs(
+          stt: engine.engineID,
+          tts: context.backendIDs.tts,
+          model: context.backendIDs.model,
+          tool: context.backendIDs.tool))
       state = .transcribing
       metrics.firstPartialLatencySeconds = 0
       await logger.info("STT session started", actor: .audio)
@@ -124,13 +146,16 @@ public actor STTPipeline {
   private func handleResult(_ result: STTTranscriptResult) async {
     if result.metadata["error"] == "true" {
       state = .activated
+      let context = activeTurnContext?.advancing(causationID: result.resultID)
+      if let context {
+        activeTurnContext = context
+      }
       await eventBus.emit(
-        EventEnvelope(
-          correlationID: UUID(),
-          causationID: result.resultID,
-          actor: .audio,
-          sensitivity: .internalLevel,
-          payload: STTHealthEvent(ready: false, status: "error", detail: result.text)))
+        envelope(
+          payload: STTHealthEvent(
+            ready: false, status: "error", detail: result.text, turnContext: context),
+          context: context,
+          causationID: result.resultID))
       return
     }
 
@@ -158,30 +183,35 @@ public actor STTPipeline {
   }
 
   private func emitPartialEvent(_ result: STTTranscriptResult) async {
-    let envelope = EventEnvelope(
-      correlationID: UUID(),
-      causationID: result.resultID,
-      actor: .audio,
-      sensitivity: .internalLevel,
-      payload: STTPartialEvent(text: result.text, confidence: result.confidence)
+    let context = activeTurnContext?.advancing(causationID: result.resultID)
+    if let context {
+      activeTurnContext = context
+    }
+    await eventBus.emit(
+      envelope(
+        payload: STTPartialEvent(
+          text: result.text, confidence: result.confidence, turnContext: context),
+        context: context,
+        causationID: result.resultID)
     )
-    await eventBus.emit(envelope)
   }
 
   private func emitStableSegmentEvent(_ result: STTTranscriptResult) async {
-    let envelope = EventEnvelope(
-      correlationID: UUID(),
-      causationID: result.resultID,
-      actor: .audio,
-      sensitivity: .internalLevel,
-      payload: STTStableSegmentEvent(
-        text: result.text,
-        alternatives: result.alternatives,
-        confidence: result.confidence,
-        deterministicCommand: vocabulary.matchDeterministicCommand(result.text)
+    let context = activeTurnContext?.advancing(causationID: result.resultID)
+    if let context {
+      activeTurnContext = context
+    }
+    await eventBus.emit(
+      envelope(
+        payload: STTStableSegmentEvent(
+          text: result.text,
+          alternatives: result.alternatives,
+          confidence: result.confidence,
+          deterministicCommand: vocabulary.matchDeterministicCommand(result.text),
+          turnContext: context),
+        context: context,
+        causationID: result.resultID)
       )
-    )
-    await eventBus.emit(envelope)
   }
 
   /// Cancel the current transcription session immediately.
@@ -196,13 +226,28 @@ public actor STTPipeline {
   }
 
   private func emitCancelledEvent() async {
-    let envelope = EventEnvelope(
-      correlationID: UUID(),
-      causationID: UUID(),
-      actor: .audio,
-      sensitivity: .internalLevel,
-      payload: STTCancelledEvent()
+    let causationID = activeTurnContext?.causationID ?? sessionID
+    let context = activeTurnContext?.advancing(causationID: causationID)
+    await eventBus.emit(
+      envelope(
+        payload: STTCancelledEvent(turnContext: context),
+        context: context,
+        causationID: causationID)
     )
-    await eventBus.emit(envelope)
+    activeTurnContext = nil
+  }
+
+  private func envelope<Payload: EventPayload>(
+    payload: Payload,
+    context: TurnContext?,
+    causationID: UUID
+  ) -> EventEnvelope<Payload> {
+    context?.envelope(actor: .audio, sensitivity: .internalLevel, payload: payload)
+      ?? EventEnvelope(
+        correlationID: sessionID,
+        causationID: causationID,
+        actor: .audio,
+        sensitivity: .internalLevel,
+        payload: payload)
   }
 }

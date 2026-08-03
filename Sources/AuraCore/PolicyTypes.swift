@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 
 // MARK: - Risk tiers
@@ -209,15 +210,12 @@ extension Capability {
   /// the capability `ToolRouter` evaluates, mirroring `Capability
   /// .forComputerUse(intent:)` exactly.
   ///
-  /// `.codingAgentRun` maps to `.intentConverse` — a placeholder the router
-  /// never actually acts on. The real authorization for a coding-agent run
-  /// happens inside the chosen CLI adapter (`CodexAdapter`/`ClaudeAdapter`/
-  /// `CopilotAdapter`), which already calls `PolicyEngine.evaluate` with
-  /// its own `agentCodexRun`/`agentClaudeRun`/`agentCopilotRun` capability
-  /// before running. Mapping `.codingAgentRun` to a second, real capability
-  /// here would create a redundant, out-of-band evaluation the adapter has
-  /// no way to know about; the placeholder makes that explicit instead of
-  /// silently implying the router itself gates this category.
+  /// `.codingAgentRun` maps to the generic destructive `.agentRun` metadata
+  /// capability. The chosen CLI adapter still performs the authoritative
+  /// backend-specific policy evaluation (`agentCodexRun`, `agentClaudeRun`, or
+  /// `agentCopilotRun`) before execution; this generic mapping prevents
+  /// context/planning metadata from incorrectly presenting the turn as plain
+  /// conversation without adding a redundant router-side authorization.
   public static func forIntent(_ category: IntentSemanticCategory) -> Capability {
     switch category {
     case .converse: return .intentConverse
@@ -225,7 +223,8 @@ extension Capability {
     case .appTerminate: return .appTerminate
     case .shellExecute: return .shellExec
     case .shellDestructive: return .shellExecDestructive
-    case .codingAgentRun, .unknown: return .intentConverse
+    case .codingAgentRun: return .agentRun
+    case .unknown: return .intentConverse
     }
   }
 
@@ -384,6 +383,48 @@ public struct PolicyTarget: Codable, Sendable, Equatable {
   public static let empty = PolicyTarget()
 }
 
+/// Stable hash of the exact policy-relevant plan fields. Volatile request IDs,
+/// causation IDs, nonces, and expiry timestamps are intentionally excluded so
+/// the same plan can be revalidated before one-time execution.
+public enum PolicyPlanHasher {
+  private struct Fingerprint: Codable {
+    let capability: Capability
+    let actor: ActorID
+    let target: PolicyTarget
+    let arguments: [String]
+    let environment: [String: String]
+  }
+
+  public static func hash(
+    capability: Capability,
+    actor: ActorID,
+    target: PolicyTarget,
+    arguments: [String] = [],
+    environment: [String: String] = [:]
+  ) -> String {
+    let fingerprint = Fingerprint(
+      capability: capability,
+      actor: actor,
+      target: target,
+      arguments: arguments,
+      environment: environment)
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.sortedKeys]
+    let data = try! encoder.encode(fingerprint)
+    let digest = SHA256.hash(data: data)
+    return digest.map { String(format: "%02x", $0) }.joined()
+  }
+
+  public static func hash(_ request: PolicyEvaluationRequest) -> String {
+    hash(
+      capability: request.capability,
+      actor: request.actor,
+      target: request.target,
+      arguments: request.arguments,
+      environment: request.environment)
+  }
+}
+
 /// Request sent into the policy engine for authorization.
 public struct PolicyEvaluationRequest: Codable, Sendable, Equatable, Identifiable {
   public let id: UUID
@@ -395,6 +436,7 @@ public struct PolicyEvaluationRequest: Codable, Sendable, Equatable, Identifiabl
   public let sessionID: UUID
   public let correlationID: UUID
   public let causationID: UUID
+  public let turnContext: TurnContext?
 
   public init(
     id: UUID = UUID(),
@@ -405,7 +447,8 @@ public struct PolicyEvaluationRequest: Codable, Sendable, Equatable, Identifiabl
     environment: [String: String] = [:],
     sessionID: UUID,
     correlationID: UUID,
-    causationID: UUID
+    causationID: UUID,
+    turnContext: TurnContext? = nil
   ) {
     self.id = id
     self.capability = capability
@@ -416,6 +459,7 @@ public struct PolicyEvaluationRequest: Codable, Sendable, Equatable, Identifiabl
     self.sessionID = sessionID
     self.correlationID = correlationID
     self.causationID = causationID
+    self.turnContext = turnContext
   }
 }
 
@@ -441,6 +485,9 @@ public struct PolicyConfirmationChallenge: Codable, Sendable, Equatable {
   public let riskTier: PermissionRiskTier
   public let expiresAt: Date
   public let expectedHash: String
+  public let planHash: String?
+  public let turnContext: TurnContext?
+  public let transactionID: UUID?
 
   public init(
     requestID: UUID,
@@ -451,7 +498,10 @@ public struct PolicyConfirmationChallenge: Codable, Sendable, Equatable {
     targetSummary: String,
     riskTier: PermissionRiskTier,
     expiresAt: Date,
-    expectedHash: String
+    expectedHash: String,
+    planHash: String? = nil,
+    turnContext: TurnContext? = nil,
+    transactionID: UUID? = nil
   ) {
     self.requestID = requestID
     self.sessionID = sessionID
@@ -462,6 +512,9 @@ public struct PolicyConfirmationChallenge: Codable, Sendable, Equatable {
     self.riskTier = riskTier
     self.expiresAt = expiresAt
     self.expectedHash = expectedHash
+    self.planHash = planHash
+    self.turnContext = turnContext
+    self.transactionID = transactionID
   }
 }
 

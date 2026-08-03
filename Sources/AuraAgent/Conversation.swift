@@ -15,6 +15,7 @@ public actor Conversation {
   private let ttsConfiguration: TTSConfiguration
   private let eventBus: AuraEventBus
   private let logger: AuraLogger
+  private let sessionID: UUID
 
   /// The active TTS engine. In a full build this would be selected from the
   /// adapter chain by the orchestrator; for the Phase 4 slice the engine is
@@ -33,6 +34,7 @@ public actor Conversation {
   /// Accumulated transcript text for the current listening turn.
   private var currentTurnText: String = ""
   private var currentTurnConfidence: Double = 0
+  private var activeTurnContext: TurnContext?
 
   /// Monotonic clock source used for all latency math in this actor.
   private let monotonicClock: () -> TimeInterval
@@ -56,13 +58,15 @@ public actor Conversation {
     ttsEngine: any TTSEngine,
     eventBus: AuraEventBus,
     logger: AuraLogger,
-    monotonicClock: @escaping @Sendable () -> TimeInterval = { CFAbsoluteTimeGetCurrent() }
+    monotonicClock: @escaping @Sendable () -> TimeInterval = { CFAbsoluteTimeGetCurrent() },
+    sessionID: UUID = UUID()
   ) {
     self.configuration = configuration
     self.ttsConfiguration = ttsConfiguration
     self.ttsEngine = ttsEngine
     self.eventBus = eventBus
     self.logger = logger
+    self.sessionID = sessionID
     self.monotonicClock = monotonicClock
   }
 
@@ -70,13 +74,23 @@ public actor Conversation {
 
   /// Call when a wake activation starts (user said wake word or pressed the
   /// privacy-mode shortcut). Moves from idle/speaking/interrupted to listening.
-  public func wakeActivationStarted(privacyMode: Bool) async {
+  public func wakeActivationStarted(
+    privacyMode: Bool,
+    turnContext: TurnContext? = nil
+  ) async {
     await cancelTimeout()
     if state == .speaking, ttsConfiguration.enableBargeIn {
       await stopSpeaking(reason: .interrupted)
     }
     // Always clear TTS queue on a fresh wake so stale prompts don't play.
     speechQueue.removeAll()
+    activeTurnContext = turnContext ?? TurnContext(
+      sessionID: sessionID,
+      activationSource: .pushToTalk,
+      actor: .user,
+      authority: .userUtterance,
+      sensitivity: privacyMode ? .sensitive : .internalLevel,
+      timingOrigin: monotonicClock())
     transition(
       to: .listening, reason: privacyMode ? "privacy-mode activation" : "wake-word activation")
     currentTurnText = ""
@@ -94,12 +108,41 @@ public actor Conversation {
     await logger.debug("Voice activity ended while listening", actor: .audio)
   }
 
+  /// Submit a typed turn through the same intent/response spine as speech.
+  public func submitTextTurn(_ text: String, context: TurnContext) async {
+    let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return }
+    await cancelTimeout()
+    if state == .speaking {
+      await stopSpeaking(reason: .interrupted)
+    }
+    speechQueue.removeAll()
+    activeTurnContext = context
+    currentTurnText = trimmed
+    currentTurnConfidence = 1
+    transition(to: .thinking, reason: "text turn submitted")
+    emit(
+      TurnCompletedEvent(
+        text: trimmed,
+        confidence: 1,
+        isFinal: true,
+        requiresPolicyReview: true,
+        turnContext: context))
+    scheduleTimeout(for: .thinking, after: configuration.thinkTimeoutSeconds)
+  }
+
   /// Process a stable STT segment during a listening turn.
-  public func stableSegmentReceived(_ event: STTStableSegmentEvent) async {
+  public func stableSegmentReceived(
+    _ event: STTStableSegmentEvent,
+    turnContext: TurnContext? = nil
+  ) async {
     guard state == .listening || state == .interrupted else { return }
 
     currentTurnText = event.text
     currentTurnConfidence = event.confidence
+    if let turnContext {
+      activeTurnContext = turnContext
+    }
 
     if let command = event.deterministicCommand {
       await handleDeterministicCommand(command)
@@ -112,7 +155,8 @@ public actor Conversation {
       confidence: event.confidence,
       isFinal: true,
       deterministicCommand: nil,
-      requiresPolicyReview: true
+      requiresPolicyReview: true,
+      turnContext: activeTurnContext
     )
     await cancelTimeout()
     transition(to: .thinking, reason: "stable STT segment received")
@@ -121,14 +165,23 @@ public actor Conversation {
   }
 
   /// Process a partial STT result. Does not change state; used only for UI.
-  public func partialTranscriptReceived(_ event: STTPartialEvent) async {
+  public func partialTranscriptReceived(
+    _ event: STTPartialEvent,
+    turnContext: TurnContext? = nil
+  ) async {
     guard state == .listening || state == .interrupted else { return }
+    if let turnContext {
+      activeTurnContext = turnContext
+    }
     await logger.debug("Partial transcript: \(event.text)", actor: .audio)
   }
 
   /// End the active listening turn with the concrete local STT failure.
-  public func recognitionFailed(detail: String) async {
+  public func recognitionFailed(detail: String, turnContext: TurnContext? = nil) async {
     guard state == .listening || state == .interrupted else { return }
+    if let turnContext {
+      activeTurnContext = turnContext
+    }
     await cancelTimeout()
     transition(to: .error, reason: detail)
   }
@@ -138,7 +191,15 @@ public actor Conversation {
   public func responsePlanReceived(_ event: ResponsePlanEvent) async {
     guard state == .thinking || state == .speaking else { return }
     await cancelTimeout()
-    emit(event)
+    if let context = event.turnContext ?? activeTurnContext {
+      activeTurnContext = context.withBackendIDs(
+        TurnBackendIDs(
+          stt: context.backendIDs.stt,
+          tts: ttsEngine.engineID,
+          model: context.backendIDs.model,
+          tool: context.backendIDs.tool))
+    }
+            emit(event)
 
     // A response plan from a local/no-remote-model intent qualifies this turn
     // for the simple-command completion latency budget.
@@ -151,7 +212,7 @@ public actor Conversation {
 
       let prompt = TTSPrompt(
         text: event.summary,
-        locale: ttsConfiguration.defaultLocale,
+        locale: event.language?.ttsLocale ?? ttsConfiguration.defaultLocale,
         rate: ttsConfiguration.defaultRate,
         interruptible: ttsConfiguration.enableBargeIn
       )
@@ -219,6 +280,7 @@ public actor Conversation {
     await stopSpeaking(reason: .interrupted)
     currentTurnText = ""
     currentTurnConfidence = 0
+    activeTurnContext = nil
     transition(to: .idle, reason: "deterministic stop command")
   }
 
@@ -317,7 +379,7 @@ public actor Conversation {
         kind: .wakeToAck,
         latencySeconds: latency,
         budgetSeconds: 0.5,
-        isMockEngine: true))
+        turnContext: activeTurnContext))
   }
 
   private func recordSimpleCommandCompletionLatencyIfNeeded() {
@@ -327,7 +389,7 @@ public actor Conversation {
         kind: .simpleCommandCompletion,
         latencySeconds: monotonicClock() - start,
         budgetSeconds: 1.5,
-        isMockEngine: true))
+        turnContext: activeTurnContext))
   }
 
   private func stopSpeaking(reason: TTSStopReason) async {
@@ -359,7 +421,8 @@ public actor Conversation {
       confidence: currentTurnConfidence,
       isFinal: true,
       deterministicCommand: normalized,
-      requiresPolicyReview: false
+      requiresPolicyReview: false,
+      turnContext: activeTurnContext
     )
     emit(completed)
     await cancelTimeout()
@@ -406,14 +469,19 @@ public actor Conversation {
     }
   }
 
-  private nonisolated func emit<P: EventPayload>(_ payload: P) {
-    let envelope = EventEnvelope<P>(
-      correlationID: UUID(),
-      causationID: UUID(),
-      actor: .system,
-      sensitivity: .internalLevel,
-      payload: payload
-    )
+  private func emit<P: EventPayload>(_ payload: P) {
+    let envelope: EventEnvelope<P>
+    if let context = activeTurnContext {
+      envelope = context.envelope(
+        actor: .system, sensitivity: .internalLevel, payload: payload)
+    } else {
+      envelope = EventEnvelope(
+        correlationID: UUID(),
+        causationID: UUID(),
+        actor: .system,
+        sensitivity: .internalLevel,
+        payload: payload)
+    }
     Task {
       await eventBus.emit(envelope)
     }

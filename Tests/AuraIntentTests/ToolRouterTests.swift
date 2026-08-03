@@ -22,12 +22,15 @@ private func makeIntent(
   category: IntentSemanticCategory,
   slots: [IntentSlot] = [],
   confidence: Double = 0.9,
-  isAmbiguous: Bool = false
+  isAmbiguous: Bool = false,
+  language: DialogueLanguage = .unknown
 ) -> TypedIntent {
   TypedIntent(
     turnCorrelationID: UUID(), kind: kind, semanticCategory: category, rawUtterance: "",
     normalizedUtterance: "", slots: slots, classificationConfidence: confidence,
-    isAmbiguous: isAmbiguous)
+    isAmbiguous: isAmbiguous,
+    language: language,
+    dialogueAct: isAmbiguous ? .clarify : .execute)
 }
 
 private func makeHarness(
@@ -70,6 +73,28 @@ func routerNeverTouchesPolicyForAmbiguousIntent() async throws {
     Issue.record("expected ambiguous, got \(outcome)")
     return
   }
+}
+
+@Test
+func routerClarifiesUnknownTurkishApplicationInTurkish() async throws {
+  let harness = try await makeHarness(allowByDefaultTiers: [])
+  let intent = makeIntent(
+    kind: .unknown,
+    category: .unknown,
+    slots: [IntentSlot(name: IntentSlotName.unresolvedAppName, value: "bilinmeyen")],
+    isAmbiguous: true,
+    language: .turkish)
+  let outcome = await harness.router.route(
+    intent,
+    actor: .intent,
+    sessionID: harness.sessionID,
+    correlationID: UUID(),
+    causationID: UUID())
+  guard case .ambiguous(let question) = outcome else {
+    Issue.record("expected ambiguous, got \(outcome)")
+    return
+  }
+  #expect(question.contains("uygulamasını"))
 }
 
 // MARK: - Converse

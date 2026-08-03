@@ -176,6 +176,19 @@ public struct OllamaFormatSchema: Codable, Sendable, Equatable {
     properties: ["summary": Property(type: "string")],
     required: ["summary"]
   )
+
+  public static let nlu = OllamaFormatSchema(
+    type: "object",
+    properties: [
+      "dialogue_act": Property(
+        type: "string", enum: ["answer", "execute", "clarify", "confirm", "delegate", "cancel"]),
+      "language": Property(type: "string", enum: ["turkish", "english", "mixed", "unknown"]),
+      "capability_id": Property(type: "string"),
+      "confidence": Property(type: "string"),
+      "ambiguity_reason": Property(type: "string"),
+    ],
+    required: ["dialogue_act", "language", "capability_id", "confidence", "ambiguity_reason"]
+  )
 }
 
 /// Decoded, schema-validated result of a classification request.
@@ -186,6 +199,22 @@ public struct OllamaClassificationResult: Codable, Sendable, Equatable {
 /// Decoded, schema-validated result of a summarization request.
 public struct OllamaSummaryResult: Codable, Sendable, Equatable {
   public let summary: String
+}
+
+public struct OllamaNLUResult: Codable, Sendable, Equatable {
+  public let dialogueAct: String
+  public let language: String
+  public let capabilityID: String
+  public let confidence: String
+  public let ambiguityReason: String
+
+  public enum CodingKeys: String, CodingKey {
+    case dialogueAct = "dialogue_act"
+    case language
+    case capabilityID = "capability_id"
+    case confidence
+    case ambiguityReason = "ambiguity_reason"
+  }
 }
 
 /// Network seam for the Ollama local HTTP API, mirroring the

@@ -29,7 +29,9 @@ actor AuraKernel {
   private let eventBus: AuraEventBus
   private let logger: AuraLogger
   private let confirmationPresenter: any AuraConfirmationPresenting
+  private let sessionID = UUID()
 
+  private var runtimeHealthRegistry: RuntimeHealthRegistry?
   private var policyEngine: PolicyEngine?
   private var taskEngine: AuraTaskEngine?
   private var agentTaskRunner: AgentBackendTaskRunner?
@@ -55,6 +57,7 @@ actor AuraKernel {
   private var started = false
   private var sttStarted = false
   private var audioStarted = false
+  private var conversation: Conversation?
 
   private var shutdownContinuation: CheckedContinuation<Void, Never>?
   private var sigintSource: DispatchSourceSignal?
@@ -107,14 +110,26 @@ actor AuraKernel {
       do {
         try await sttPipeline.start()
         sttStarted = true
+        await runtimeHealthRegistry?.recordReady("stt", detail: "speech recognition started")
       } catch {
+        await runtimeHealthRegistry?.record(
+          componentID: "stt", status: .failed,
+          detail: "speech recognition failed to start: \(error.localizedDescription)")
         throw AuraError.sttEngineError(
           "STT pipeline failed to start: \(error.localizedDescription)")
       }
     }
     if !audioStarted {
-      try await audio.start()
-      audioStarted = true
+      do {
+        try await audio.start()
+        audioStarted = true
+        await runtimeHealthRegistry?.recordReady("audio", detail: "audio capture started")
+      } catch {
+        await runtimeHealthRegistry?.record(
+          componentID: "audio", status: .failed,
+          detail: "audio capture failed to start: \(error.localizedDescription)")
+        throw error
+      }
     }
   }
 
@@ -122,13 +137,37 @@ actor AuraKernel {
     guard sttStarted else {
       throw AuraError.permissionDenied("Speech recognition permission is required")
     }
+    let context = TurnContext(
+      sessionID: sessionID,
+      activationSource: .pushToTalk,
+      actor: .user,
+      authority: .userUtterance,
+      sensitivity: .sensitive,
+      timingOrigin: ProcessInfo.processInfo.systemUptime)
     let envelope = EventEnvelope(
-      correlationID: UUID(),
+      correlationID: context.correlationID,
       causationID: UUID(),
       actor: .user,
       sensitivity: .sensitive,
-      payload: WakeActivationEvent(isActive: true, privacyMode: false))
+      payload: WakeActivationEvent(
+        isActive: true, privacyMode: false, turnContext: context)
+    )
     await eventBus.emit(envelope)
+  }
+
+  func submitText(_ text: String) async throws(AuraError) {
+    guard started, let conversation else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    let context = TurnContext(
+      sessionID: sessionID,
+      activationSource: .text,
+      actor: .user,
+      authority: .userUtterance,
+      sensitivity: .sensitive,
+      language: configuration.tts.defaultLocale,
+      timingOrigin: ProcessInfo.processInfo.systemUptime)
+    await conversation.submitTextTurn(text, context: context)
   }
 
   func triggerEmergencyStop() async {
@@ -137,6 +176,10 @@ actor AuraKernel {
 
   func resetEmergencyStop() async {
     await emergencyStop?.reset(actor: .user)
+  }
+
+  func runtimeHealthSnapshot() async -> [RuntimeHealth] {
+    await runtimeHealthRegistry?.snapshot() ?? []
   }
 
   func configurationInspection() async -> ConfigurationInspection? {
@@ -166,6 +209,9 @@ actor AuraKernel {
 
   private func construct() async throws(AuraError) {
     let bundleID = configuration.app.bundleIdentifier
+    let runtimeHealthRegistry = RuntimeHealthRegistry(eventBus: eventBus)
+    self.runtimeHealthRegistry = runtimeHealthRegistry
+    await runtimeHealthRegistry.recordReady("configuration", detail: "configuration loaded")
     configurationEngine = try await ConfigurationEngine.load(
       store: AuraStoreConfigurationStateStore(store: store))
 
@@ -173,11 +219,14 @@ actor AuraKernel {
       configuration: configuration.policy, eventBus: eventBus, store: store)
     try await seedDefaultGrants(policyEngine)
     self.policyEngine = policyEngine
+    await runtimeHealthRegistry.recordReady("policy", detail: "deny-by-default policy ready")
 
     let shell = AuraShell(configuration: configuration.shell)
     let automation = AuraAutomation(
       config: configuration.automation, eventBus: eventBus,
       logger: AuraLogger(subsystem: bundleID, category: "automation"))
+    await runtimeHealthRegistry.recordReady("shell", detail: "typed shell constructed")
+    await runtimeHealthRegistry.recordReady("automation", detail: "structured automation constructed")
 
     let memory = MemoryEngine(store: store, eventBus: eventBus)
     let context = ContextEngine(
@@ -185,13 +234,15 @@ actor AuraKernel {
     let contextBuilder = ContextBuilder(
       engine: context, memory: memory, eventBus: eventBus,
       configuration: configuration.context)
+    await runtimeHealthRegistry.recordReady("memory", detail: "memory engine constructed")
+    await runtimeHealthRegistry.recordReady("context", detail: "context engine constructed")
 
     let taskEngine = await AuraTaskEngine(
       store: store, eventBus: eventBus, configuration: configuration.task)
     try await taskEngine.recoverState()
     self.taskEngine = taskEngine
+    await runtimeHealthRegistry.recordReady("tasks", detail: "durable task engine ready")
 
-    let sessionID = UUID()
     let codexAdapter = CodexAdapter(
       configuration: configuration.codex, policyEngine: policyEngine,
       approvalPresenter: confirmationPresenter, eventBus: eventBus)
@@ -213,6 +264,7 @@ actor AuraKernel {
         defaultWorkingDirectory: configuration.intent.defaultCodingAgentWorkingDirectory)
     )
     self.agentTaskRunner = agentTaskRunner
+    await runtimeHealthRegistry.recordReady("agent-adapters", detail: "Codex, Claude, and Copilot adapters constructed")
 
     let emergencyStop = EmergencyStopController(eventBus: eventBus)
     self.emergencyStop = emergencyStop
@@ -227,6 +279,9 @@ actor AuraKernel {
       assistantBundleIdentifier: bundleID,
       screenshotRetentionDays: configuration.privacy.screenshotRetentionDays)
     self.screenEngine = screenEngine
+    await runtimeHealthRegistry.record(
+      componentID: "screen", status: configuration.screen.enabled ? .loading : .disabledByConfiguration,
+      detail: configuration.screen.enabled ? "screen context awaiting capture" : "screen capture disabled by configuration")
     computerUseLoop = ComputerUseControlLoop(
       screenEngine: screenEngine,
       policyEngine: policyEngine,
@@ -236,6 +291,7 @@ actor AuraKernel {
       emergencyStop: emergencyStop,
       eventBus: eventBus,
       configuration: configuration.computerUse)
+    await runtimeHealthRegistry.recordReady("computer-use", detail: "bounded computer-use loop constructed")
     vscodeAdapter = VSCodeAdapter(
       configuration: configuration.vscode,
       shell: shell,
@@ -243,10 +299,28 @@ actor AuraKernel {
     secretScanner = SecretScanner()
     injectionClassifier = PromptInjectionClassifier(configuration: configuration.security)
     networkAllowlist = NetworkAllowlist(configuration: configuration.security)
+    await runtimeHealthRegistry.recordReady("security", detail: "secret scanner and prompt-injection controls constructed")
+    await runtimeHealthRegistry.recordReady("network", detail: "network allowlist constructed")
+    await runtimeHealthRegistry.recordReady("vscode", detail: "VS Code adapter constructed")
 
     let verifier = PluginVerifier(
       trustRegistry: PluginTrustRegistry(configuration: configuration.plugins))
-    let runtimeComponents = try? PluginRuntimeFactory.make(configuration: configuration.plugins)
+    let runtimeComponents: PluginRuntimeComponents?
+    let pluginHealthDetail: String?
+    do {
+      runtimeComponents = try PluginRuntimeFactory.make(configuration: configuration.plugins)
+      pluginHealthDetail = nil
+    } catch {
+      runtimeComponents = nil
+      pluginHealthDetail = "plugin runtime unavailable: \(error.localizedDescription)"
+    }
+    if let pluginHealthDetail {
+      await runtimeHealthRegistry.record(
+        componentID: "plugins", status: .degraded,
+        detail: "\(pluginHealthDetail); registry remains fail-closed")
+    } else {
+      await runtimeHealthRegistry.recordReady("plugins", detail: "verified plugin runtime constructed")
+    }
     pluginRegistry = try await PluginRegistry(
       verifier: verifier,
       policyEngine: policyEngine,
@@ -255,30 +329,49 @@ actor AuraKernel {
       artifactStore: runtimeComponents?.artifactStore,
       runtimeHost: runtimeComponents?.runtimeHost,
       configuration: configuration.plugins)
-    ollamaAdapter = try? OllamaAdapter(
-      configuration: configuration.ollama,
-      policyEngine: policyEngine,
-      approvalPresenter: confirmationPresenter,
-      eventBus: eventBus)
+    let ollamaHealth: (RuntimeHealthStatus, String)
+    do {
+      ollamaAdapter = try OllamaAdapter(
+        configuration: configuration.ollama,
+        policyEngine: policyEngine,
+        approvalPresenter: confirmationPresenter,
+        eventBus: eventBus)
+      ollamaHealth = (.ready, "adapter constructed")
+    } catch {
+      ollamaAdapter = nil
+      ollamaHealth = (.degraded, "local model adapter unavailable: \(error.localizedDescription)")
+    }
+    await runtimeHealthRegistry.record(
+      componentID: "ollama",
+      status: ollamaHealth.0,
+      detail: ollamaHealth.1)
     let worktreeManager = WorktreeManager(
       configuration: configuration.worktree,
       policyEngine: policyEngine,
       eventBus: eventBus)
     self.worktreeManager = worktreeManager
+    await runtimeHealthRegistry.recordReady("worktrees", detail: "isolated worktree manager constructed")
     multiAgentOrchestrator = MultiAgentOrchestrator(
       worktreeManager: worktreeManager,
       policyEngine: policyEngine,
       validationShell: shell,
       eventBus: eventBus)
+    await runtimeHealthRegistry.recordReady("multi-agent", detail: "bounded multi-agent orchestrator constructed")
 
+    let dialogueBackend: (any DialogueReasoningBackend)? = ollamaAdapter
+    let structuredNLUBackend: (any StructuredNLUBackend)? = ollamaAdapter
+    let dialogueEngine = DialogueEngine(
+      reasoningBackend: dialogueBackend,
+      runtimeHealthRegistry: runtimeHealthRegistry)
     let toolRouter = ToolRouter(
       policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
       agentTaskRunner: agentTaskRunner, registry: .defaultRegistry(),
       confirmationPresenter: confirmationPresenter, eventBus: eventBus,
-      configuration: configuration.intent)
+      configuration: configuration.intent, dialogueEngine: dialogueEngine)
     let intentEngine = IntentEngine(
       classifier: RuleBasedUtteranceClassifier(), contextEngine: context,
       contextBuilder: contextBuilder, memoryEngine: memory,
+      structuredNLUBackend: structuredNLUBackend,
       configuration: configuration.intent, eventBus: eventBus,
       sessionID: sessionID)
 
@@ -295,8 +388,11 @@ actor AuraKernel {
     let wakeWordPipeline = WakeWordPipeline(
       configuration: configuration.wake, eventBus: eventBus,
       logger: AuraLogger(subsystem: bundleID, category: "wake"), vad: vad,
-      wakeDetector: wakeDetector)
+      wakeDetector: wakeDetector, sessionID: sessionID)
     self.wakeWordPipeline = wakeWordPipeline
+    await runtimeHealthRegistry.record(
+      componentID: "wake-word", status: .unsupported,
+      detail: "trained acoustic wake-word model is not bundled; Push to Talk is supported")
 
     let deterministicPhrases = configuration.conversation.deterministicStopCommands.union(
       configuration.conversation.deterministicPauseResumeCommands)
@@ -307,19 +403,29 @@ actor AuraKernel {
       configuration: configuration.stt, vocabulary: vocabulary)
     let sttPipeline = STTPipeline(
       engine: sttEngine, vocabulary: vocabulary, eventBus: eventBus,
-      logger: AuraLogger(subsystem: bundleID, category: "stt"))
+      logger: AuraLogger(subsystem: bundleID, category: "stt"), sessionID: sessionID)
     self.sttPipeline = sttPipeline
+    await runtimeHealthRegistry.record(
+      componentID: "stt",
+      status: .loading,
+      detail: "awaiting explicit speech permission and start")
 
     let ttsEngine = await Self.makeTTSEngine(
       adapterChain: configuration.tts.adapterChain,
       preferredSystemVoiceIdentifier: configuration.tts.preferredSystemVoiceIdentifier,
       logger: AuraLogger(subsystem: bundleID, category: "tts"))
+    let ttsHealth = ttsEngine.health()
+    await runtimeHealthRegistry.record(
+      componentID: "tts",
+      status: ttsHealth.ready ? .ready : .degraded,
+      detail: "\(ttsEngine.engineID): \(ttsHealth.detail)")
 
     let conversation = Conversation(
       configuration: configuration.conversation, ttsConfiguration: configuration.tts,
       ttsEngine: ttsEngine, eventBus: eventBus,
       logger: AuraLogger(subsystem: bundleID, category: "conversation"),
-      monotonicClock: { CFAbsoluteTimeGetCurrent() })
+      monotonicClock: { CFAbsoluteTimeGetCurrent() }, sessionID: sessionID)
+    self.conversation = conversation
 
     let performanceSampler = PerformanceSampler(
       logger: AuraLogger(subsystem: bundleID, category: "performance"))
@@ -328,7 +434,7 @@ actor AuraKernel {
       intentEngine: intentEngine, toolRouter: toolRouter, conversation: conversation,
       eventBus: eventBus, sessionID: sessionID)
     conversationEventBridge = ConversationEventBridge(
-      conversation: conversation, eventBus: eventBus)
+      conversation: conversation, eventBus: eventBus, sessionID: sessionID)
     audioSampleBridge = AudioSampleBridge(
       audio: audio, wakeWordPipeline: wakeWordPipeline, sttPipeline: sttPipeline,
       eventBus: eventBus, enableWakeDetection: false,
@@ -338,6 +444,11 @@ actor AuraKernel {
         maxDurationSeconds: min(
           7, max(1, configuration.conversation.listenTimeoutSeconds - 2))))
     self.performanceSampler = performanceSampler
+    await runtimeHealthRegistry.record(
+      componentID: "audio", status: .loading,
+      detail: "awaiting explicit speech permission and start")
+    await runtimeHealthRegistry.recordReady("conversation", detail: "turn state machine constructed")
+    await runtimeHealthRegistry.recordReady("intent", detail: "intent dispatch constructed")
   }
 
   /// Seed the default grant table — see `docs/decisions/ADR-022-composition
@@ -422,7 +533,11 @@ actor AuraKernel {
       "All configured TTS adapters unavailable; falling back to system", actor: .audio)
     let fallback = SystemTTSEngine(
       preferredVoiceIdentifier: preferredSystemVoiceIdentifier)
-    _ = try? await fallback.start()
+    do {
+      _ = try await fallback.start()
+    } catch {
+      await logger.error("System TTS fallback failed: \(error)", actor: .audio)
+    }
     return fallback
   }
 

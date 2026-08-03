@@ -49,6 +49,8 @@ final class AuraAppModel: ObservableObject {
   @Published private(set) var runtimeWarnings: [String] = [
     "Acoustic wake-word model unavailable; use Push to Talk."
   ]
+  @Published private(set) var runtimeHealth: [RuntimeHealth] = []
+  @Published var textInput = ""
   @Published private(set) var effectiveConfiguration: [EffectiveConfigurationEntry] = []
   @Published private(set) var configurationAuditCount = 0
   @Published private(set) var localRecommendationsEnabled = false
@@ -113,6 +115,21 @@ final class AuraAppModel: ObservableObject {
         try await kernel?.activatePushToTalk()
         status = .listening
         statusDetail = "Listening on device"
+      } catch {
+        setError(error.localizedDescription)
+      }
+    }
+  }
+
+  func submitText() {
+    let text = textInput.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !text.isEmpty else { return }
+    textInput = ""
+    Task {
+      do {
+        try await kernel?.submitText(text)
+        status = .thinking
+        statusDetail = "Processing typed request"
       } catch {
         setError(error.localizedDescription)
       }
@@ -222,6 +239,7 @@ final class AuraAppModel: ObservableObject {
         confirmationPresenter: confirmationPresenter)
       self.kernel = kernel
       try await kernel.start()
+      await refreshRuntimeHealth()
       refreshConfigurationInspection()
       permissions = PermissionCoordinator.snapshot()
       if permissions.speechReady {
@@ -250,6 +268,37 @@ final class AuraAppModel: ObservableObject {
     await eventBus.subscribe(EmergencyStopTriggeredEvent.self) { [weak self] _ in
       await self?.setEmergencyStopActive()
     }
+    await eventBus.subscribe(RuntimeHealthChangedEvent.self) { [weak self] envelope in
+      await self?.applyRuntimeHealth(envelope.payload.health)
+    }
+  }
+
+  private func refreshRuntimeHealth() async {
+    guard let kernel else { return }
+    let health = await kernel.runtimeHealthSnapshot()
+    applyRuntimeHealth(health)
+  }
+
+  private func applyRuntimeHealth(_ health: [RuntimeHealth]) {
+    runtimeHealth = health.sorted { $0.componentID < $1.componentID }
+    updateRuntimeWarnings()
+  }
+
+  private func applyRuntimeHealth(_ health: RuntimeHealth) {
+    if let index = runtimeHealth.firstIndex(where: { $0.componentID == health.componentID }) {
+      runtimeHealth[index] = health
+    } else {
+      runtimeHealth.append(health)
+      runtimeHealth.sort { $0.componentID < $1.componentID }
+    }
+    updateRuntimeWarnings()
+  }
+
+  private func updateRuntimeWarnings() {
+    let degraded = runtimeHealth
+      .filter { $0.status != .ready }
+      .map { "\($0.componentID): \($0.detail)" }
+    runtimeWarnings = ["Acoustic wake-word model unavailable; use Push to Talk."] + degraded
   }
 
   private func awaitConfirmation(_ challenge: PolicyConfirmationChallenge) async -> Bool {

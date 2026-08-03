@@ -18,9 +18,9 @@ public enum IntentSemanticCategory: String, Codable, Sendable, Equatable, CaseIt
   /// from `.shellExecute`, never a distinct classifier output.
   case shellDestructive
   /// Delegate an objective to a coding-agent CLI backend (Codex/Claude/
-  /// Copilot). The backend evaluates its own policy internally; see
-  /// `Capability.forIntent(_:)`'s doc comment for why this category maps to
-  /// a placeholder capability the router never actually acts on.
+  /// Copilot). The backend evaluates its own backend-specific capability
+  /// internally; the generic `.agentRun` capability preserves the destructive
+  /// risk in context and planning metadata.
   case codingAgentRun
   /// Classification confidence too low, or more than one candidate scored
   /// comparably — never dispatched, always surfaced as ambiguous.

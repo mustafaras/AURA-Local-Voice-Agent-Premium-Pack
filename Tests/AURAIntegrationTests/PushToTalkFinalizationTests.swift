@@ -9,22 +9,28 @@ import Testing
 
 private actor PushToTalkEventRecorder {
   private(set) var inactiveActivations = 0
+  private(set) var inactiveContexts: [TurnContext?] = []
   private(set) var stableTexts: [String] = []
+  private(set) var stableContexts: [TurnContext?] = []
   private(set) var healthErrors: [String] = []
+  private(set) var healthContexts: [TurnContext?] = []
 
   func record(_ event: WakeActivationEvent) {
     if !event.isActive {
       inactiveActivations += 1
+      inactiveContexts.append(event.turnContext)
     }
   }
 
   func record(_ event: STTStableSegmentEvent) {
     stableTexts.append(event.text)
+    stableContexts.append(event.turnContext)
   }
 
   func record(_ event: STTHealthEvent) {
     if !event.ready {
       healthErrors.append(event.detail)
+      healthContexts.append(event.turnContext)
     }
   }
 }
@@ -103,6 +109,47 @@ func pushToTalkEndsAfterSpeechAndSilence() async throws {
   #expect(await recorder.inactiveActivations == 1)
 }
 
+@Test("Push to Talk finalization preserves the active turn context")
+func pushToTalkFinalizationPreservesTurnContext() async throws {
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "ptt-context"))
+  let recorder = PushToTalkEventRecorder()
+  await bus.subscribe(WakeActivationEvent.self) { envelope in
+    await recorder.record(envelope.payload)
+  }
+  let context = TurnContext(
+    sessionID: UUID(),
+    turnID: UUID(),
+    correlationID: UUID(),
+    causationID: UUID(),
+    activationSource: .pushToTalk,
+    actor: .user,
+    authority: .userUtterance,
+    sensitivity: .sensitive,
+    timingOrigin: 42)
+  let finalizer = PushToTalkSessionFinalizer(
+    vad: EnergyVAD(silenceFrames: 2), eventBus: bus, maxDurationSeconds: 1)
+  await finalizer.start()
+
+  await bus.emit(
+    EventEnvelope(
+      correlationID: context.correlationID,
+      causationID: context.causationID,
+      actor: .user,
+      sensitivity: .sensitive,
+      payload: WakeActivationEvent(isActive: true, privacyMode: false, turnContext: context)))
+  await finalizer.ingest(
+    AudioFrame(samples: [0.8, -0.8], timestamp: 1, sequenceIndex: 1))
+  await finalizer.ingest(
+    AudioFrame(samples: [0, 0], timestamp: 2, sequenceIndex: 2))
+  await finalizer.ingest(
+    AudioFrame(samples: [0, 0], timestamp: 3, sequenceIndex: 3))
+
+  #expect(await recorder.inactiveContexts.count == 1)
+  #expect(await recorder.inactiveContexts.first??.correlationID == context.correlationID)
+  #expect(await recorder.inactiveContexts.first??.turnID == context.turnID)
+}
+
 @Test("Push to Talk hard deadline closes a session even when no speech is observed")
 func pushToTalkHardDeadlineEndsSilentSession() async throws {
   let bus = AuraEventBus(
@@ -139,11 +186,23 @@ func sttPipelineSupportsConsecutiveTurns() async throws {
     logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "stt"))
   try await pipeline.start()
 
+  var expectedCorrelations: [UUID] = []
   for turn in 1...2 {
+    let context = TurnContext(
+      sessionID: UUID(),
+      activationSource: .pushToTalk,
+      actor: .user,
+      authority: .userUtterance,
+      sensitivity: .sensitive,
+      timingOrigin: Double(turn))
+    expectedCorrelations.append(context.correlationID)
     await bus.emit(
       EventEnvelope(
-        correlationID: UUID(), causationID: UUID(), actor: .user, sensitivity: .sensitive,
-        payload: WakeActivationEvent(isActive: true, privacyMode: false)))
+        correlationID: context.correlationID,
+        causationID: context.causationID,
+        actor: .user,
+        sensitivity: .sensitive,
+        payload: WakeActivationEvent(isActive: true, privacyMode: false, turnContext: context)))
     await pipeline.ingestSampleFrame(
       AudioFrame(samples: [0.5], timestamp: Double(turn), sequenceIndex: UInt64(turn)))
     await bus.emit(
@@ -159,6 +218,8 @@ func sttPipelineSupportsConsecutiveTurns() async throws {
   }
 
   #expect(await recorder.stableTexts == ["turn 1", "turn 2"])
+  #expect(
+    await recorder.stableContexts.compactMap { $0?.correlationID } == expectedCorrelations)
 }
 
 @Test("STT errors are health events and never stable user intent")
@@ -179,10 +240,20 @@ func sttErrorsDoNotBecomeStableUserText() async throws {
     logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "stt"))
   try await pipeline.start()
 
+  let context = TurnContext(
+    sessionID: UUID(),
+    activationSource: .pushToTalk,
+    actor: .user,
+    authority: .userUtterance,
+    sensitivity: .sensitive,
+    timingOrigin: 7)
   await bus.emit(
     EventEnvelope(
-      correlationID: UUID(), causationID: UUID(), actor: .user, sensitivity: .sensitive,
-      payload: WakeActivationEvent(isActive: true, privacyMode: false)))
+      correlationID: context.correlationID,
+      causationID: context.causationID,
+      actor: .user,
+      sensitivity: .sensitive,
+      payload: WakeActivationEvent(isActive: true, privacyMode: false, turnContext: context)))
   await bus.emit(
     EventEnvelope(
       correlationID: UUID(), causationID: UUID(), actor: .user, sensitivity: .sensitive,
@@ -196,6 +267,7 @@ func sttErrorsDoNotBecomeStableUserText() async throws {
 
   #expect(await recorder.healthErrors == ["No speech detected"])
   #expect(await recorder.stableTexts.isEmpty)
+  #expect(await recorder.healthContexts.first??.correlationID == context.correlationID)
 }
 
 @Test("STT health failures end listening with the concrete error")

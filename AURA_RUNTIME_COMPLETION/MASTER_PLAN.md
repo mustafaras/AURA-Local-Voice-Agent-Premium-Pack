@@ -10,6 +10,8 @@
 > **Priority order:** Safety → Correctness → Recoverability → Latency → Convenience  
 > **Target outcome:** A dependable, conversational, local-first macOS assistant that can hear, understand, reason, speak, use approved applications, inspect and operate the desktop, manage personal productivity workflows, orchestrate coding agents, remember relevant context, and truthfully report outcomes.
 
+> **Current-state note — 2026-08-02:** This document is the proposed recovery baseline and contains the pre-R2 audit findings for historical context. R1 is complete locally; R2 has replaced the runtime `Got it.` path with typed bilingual dialogue, structured-NLU safety, bounded context, and honest degradation. Consult `AURA_RUNTIME_COMPLETION/state/current-state.json` for authoritative progress and remaining live/release gates.
+
 ---
 
 ## 1. Executive Decision

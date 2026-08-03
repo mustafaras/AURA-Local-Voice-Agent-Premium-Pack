@@ -56,8 +56,13 @@ public struct TypedIntent: Sendable, Equatable, Identifiable {
   public let slots: [IntentSlot]
   public let classificationConfidence: Double
   public let isAmbiguous: Bool
+  public let language: DialogueLanguage
+  public let dialogueAct: DialogueAct
+  public let ambiguityReasons: [String]
+  public let contextRequirements: [String]
   public let riskTier: PermissionRiskTier
   public let requiresMandatoryConfirmation: Bool
+  public let turnContext: TurnContext?
 
   public init(
     id: UUID = UUID(),
@@ -68,7 +73,12 @@ public struct TypedIntent: Sendable, Equatable, Identifiable {
     normalizedUtterance: String,
     slots: [IntentSlot] = [],
     classificationConfidence: Double,
-    isAmbiguous: Bool
+    isAmbiguous: Bool,
+    language: DialogueLanguage = .unknown,
+    dialogueAct: DialogueAct = .answer,
+    ambiguityReasons: [String] = [],
+    contextRequirements: [String] = [],
+    turnContext: TurnContext? = nil
   ) {
     self.id = id
     self.turnCorrelationID = turnCorrelationID
@@ -79,8 +89,31 @@ public struct TypedIntent: Sendable, Equatable, Identifiable {
     self.slots = slots
     self.classificationConfidence = min(max(classificationConfidence, 0), 1)
     self.isAmbiguous = isAmbiguous
+    self.language = language
+    self.dialogueAct = dialogueAct
+    self.ambiguityReasons = ambiguityReasons
+    self.contextRequirements = contextRequirements
     self.riskTier = semanticCategory.riskTier
     self.requiresMandatoryConfirmation = semanticCategory.requiresMandatoryConfirmation
+    self.turnContext = turnContext
+  }
+
+  public func withTurnContext(_ context: TurnContext) -> TypedIntent {
+    TypedIntent(
+      id: id,
+      turnCorrelationID: turnCorrelationID,
+      kind: kind,
+      semanticCategory: semanticCategory,
+      rawUtterance: rawUtterance,
+      normalizedUtterance: normalizedUtterance,
+      slots: slots,
+      classificationConfidence: classificationConfidence,
+      isAmbiguous: isAmbiguous,
+      language: language,
+      dialogueAct: dialogueAct,
+      ambiguityReasons: ambiguityReasons,
+      contextRequirements: contextRequirements,
+      turnContext: context)
   }
 
   public func slotValue(_ name: String) -> String? {
@@ -95,6 +128,9 @@ public struct TypedIntent: Sendable, Equatable, Identifiable {
     TypedIntent(
       id: id, turnCorrelationID: turnCorrelationID, kind: kind, semanticCategory: newCategory,
       rawUtterance: rawUtterance, normalizedUtterance: normalizedUtterance, slots: slots,
-      classificationConfidence: classificationConfidence, isAmbiguous: isAmbiguous)
+      classificationConfidence: classificationConfidence, isAmbiguous: isAmbiguous,
+      language: language, dialogueAct: dialogueAct, ambiguityReasons: ambiguityReasons,
+      contextRequirements: contextRequirements,
+      turnContext: turnContext)
   }
 }

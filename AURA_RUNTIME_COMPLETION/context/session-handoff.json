@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-02T14:37:13Z",
+  "updated_at": "2026-08-03T06:18:04Z",
   "session_id": "AURA-BOOTSTRAP-2026-08-02",
-  "last_verified_commit": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
+  "last_verified_commit": "f1f3bb959ea3b79eb821c5faccf57d8fad076203",
   "active_prompt": {
-    "id": "R1",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
-    "state": "ready",
-    "step": "Inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing."
+    "id": "R2",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
+    "state": "in_progress",
+    "step": "Implement and validate the layered bilingual fast path, schema-validated local NLU refinement, model-backed dialogue, locale-preserving response plans, bounded provenance context, and honest degraded behavior."
   },
-  "summary": "R0 Repository Truth and Governance Repair is complete. A standard-library repository validator, toolchain manifest/ADR, legacy-state pointers, capability audit, CI governance job, and deterministic validator tests are in place. The validator passes locally; no product source was changed. R1 is ready.",
+  "summary": "R0 governance and R1 Runtime Integration Spine are complete in the local working tree. R2 is now in progress with bilingual fast-path classification, typed dialogue responses, schema-validated structured-NLU refinement, bounded provenance context, model-backed local reasoning, and locale-preserving response plans. The working tree remains intentionally uncommitted.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -21,7 +21,16 @@
     "Verified through GitHub comparison that the suite added 38 files without modifying or deleting pre-existing files.",
     "Re-ran the strict BOOTSTRAP preflight: live repository, JSON/schema, manifest/dependency/reference, authority, and toolchain evidence are recorded; legacy stale prose is explicitly assigned to R0.",
     "Confirmed that the ordered manifest intentionally contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is mandatory but outside the ordered implementation manifest.",
-    "Completed R0 with scripts/validate_runtime_completion.py, 13 deterministic governance tests, toolchain-manifest.json, TOOLCHAIN.md, ADR-045, CI governance ordering, capability-matrix audit, and synchronized decision/evidence records."
+    "Completed R0 with scripts/validate_runtime_completion.py, 13 deterministic governance tests, toolchain-manifest.json, TOOLCHAIN.md, ADR-045, CI governance ordering, capability-matrix audit, and synchronized decision/evidence records.",
+    "Completed R1 with TurnContext propagation across wake, STT, conversation, intent, policy, tool, confirmation, latency, and TTS metadata paths; actual backend IDs are retained.",
+    "Added RuntimeHealthRegistry live change events, explicit degraded/loading/unsupported construction states, and UI health refresh through AuraAppModel.",
+    "Accepted ADR-035 and ADR-037; confirmation replay, plan-change, expiry, context-mismatch, verification, and restart fail-closed behavior are covered by tests.",
+    "Bound confirmation execution to exact structured plan fingerprints and added a changed-argument regression test.",
+    "Moved successful Chatterbox private-audio cleanup before stream completion and verified the full audio bundle remains deterministic.",
+    "Stabilized timing-sensitive Agent tests by serializing the Multi-Agent Orchestrator suite and removing an unnecessary deterministic-stop sleep without weakening assertions.",
+    "Fresh final R1 regression passed 20/20 bundles and 678/678 tests; R2 is now in progress."
+    ,"Started R2 after reading the normative prompt and accepted R1 contracts; the first focused R2 gates are green."
+    ,"Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
@@ -66,6 +75,48 @@
     ,"AURA_RUNTIME_COMPLETION/state/toolchain-manifest.json"
     ,"TOOLCHAIN.md"
     ,"docs/decisions/ADR-045-toolchain-release-pipeline.md"
+    ,"docs/decisions/ADR-035-turn-context-trace-correctness.md"
+    ,"docs/decisions/ADR-037-runtime-health-and-confirmation-transactions.md"
+    ,"docs/decisions/ADR-036-bilingual-nlu-dialogue-routing.md"
+    ,"Sources/AURA/AuraAppModel.swift"
+    ,"Sources/AURA/AuraKernel.swift"
+    ,"Sources/AURA/AuraMenuView.swift"
+    ,"Sources/AURA/ConversationEventBridge.swift"
+    ,"Sources/AURA/PushToTalkSessionFinalizer.swift"
+    ,"Sources/AuraAgent/Conversation.swift"
+    ,"Sources/AuraAudio/WakeWordPipeline.swift"
+    ,"Sources/AuraAudio/ChatterboxTTSEngine.swift"
+    ,"Sources/AuraCore/AudioEventPayloads.swift"
+    ,"Sources/AuraCore/DialogueTypes.swift"
+    ,"Sources/AuraCore/AuraConfiguration.swift"
+    ,"Sources/AuraCore/ConfirmationTransaction.swift"
+    ,"Sources/AuraCore/PolicyTypes.swift"
+    ,"Sources/AuraCore/RuntimeHealth.swift"
+    ,"Sources/AuraCore/TurnContext.swift"
+    ,"Sources/AuraIntent/IntentDispatchCoordinator.swift"
+    ,"Sources/AuraIntent/IntentEngine.swift"
+    ,"Sources/AuraIntent/DialogueEngine.swift"
+    ,"Sources/AuraIntent/ToolRouter.swift"
+    ,"Sources/AuraAgent/OllamaAdapter.swift"
+    ,"Sources/AuraAgent/OllamaAPIClient.swift"
+    ,"Sources/AuraAgent/OllamaStructuredRequest.swift"
+    ,"Tests/AuraIntentTests/DialogueEngineTests.swift"
+    ,"Tests/AuraIntentTests/BilingualGoldenCorpusTests.swift"
+    ,"Tests/AuraIntentTests/RuleBasedUtteranceClassifierTests.swift"
+    ,"Tests/AuraIntentTests/ToolRouterTests.swift"
+    ,"Tests/AuraAgentTests/OllamaStructuredRequestTests.swift"
+    ,"Sources/AuraIntent/TypedIntent.swift"
+    ,"Sources/AuraPolicy/PolicyEngine.swift"
+    ,"Sources/AuraSTT/STTPipeline.swift"
+    ,"Tests/AURAIntegrationTests/EndToEndPipelineTests.swift"
+    ,"Tests/AURAIntegrationTests/PushToTalkFinalizationTests.swift"
+    ,"Tests/AuraAgentTests/ConversationTests.swift"
+    ,"Tests/AuraAgentTests/MultiAgentOrchestratorTests.swift"
+    ,"Tests/AuraAgentTests/TextTurnTests.swift"
+    ,"Tests/AuraCoreTests/ConfirmationTransactionTests.swift"
+    ,"Tests/AuraCoreTests/RuntimeHealthTests.swift"
+    ,"Tests/AuraCoreTests/TurnContextTests.swift"
+    ,"Tests/AuraPolicyTests/PolicyEngineTests.swift"
     ,"scripts/validate_runtime_completion.py"
     ,"scripts/tests/test_validate_runtime_completion.py"
     ,".github/workflows/ci.yml"
@@ -85,7 +136,26 @@
     "EV-R0-20260802-LEGACY-REDIRECT-01",
     "EV-R0-20260802-TODO-AUDIT-01",
     "EV-R0-20260802-POST-COMMIT-VALIDATION-01",
-    "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01"
+    "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01",
+    "EV-R1-20260802-FULL-SUITE-01",
+    "EV-R1-20260802-TRACE-HEALTH-01",
+    "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01",
+    "EV-R1-20260802-HEALTH-DETAIL-01",
+    "EV-R1-20260802-PLAN-BINDING-01",
+    "EV-R1-20260802-AUDIO-CLEANUP-01",
+    "EV-R1-20260802-FULL-SUITE-FINAL-01",
+    "EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01",
+    "EV-R2-20260802-OLLAMA-STRUCTURED-01",
+    "EV-R2-20260802-INTEGRATION-DIALOGUE-01",
+    "EV-R2-20260802-FULL-SUITE-SLICE-01",
+    "EV-R2-20260802-FULL-SUITE-FINAL-01",
+    "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01",
+    "EV-R2-20260802-FULL-SUITE-FINAL-02",
+    "EV-R2-20260802-DIALOGUE-HEALTH-01",
+    "EV-R2-20260802-AGENT-RISK-01",
+    "EV-R2-20260802-TODO-AUDIT-01",
+    "EV-R2-20260802-FULL-SUITE-FINAL-03",
+    "EV-R2-20260803-FINAL-REGRESSION-01"
   ],
   "tests": [
     {
@@ -122,34 +192,71 @@
       "name": "CI YAML, shell syntax, and Python syntax validation",
       "result": "passed",
       "evidence_id": "EV-R0-20260802-CI-CONFIG-01"
+    },
+    {
+      "name": "R1 focused trace, runtime-health, policy, STT, audio, integration, and Agent tests",
+      "result": "passed",
+      "evidence_id": "EV-R1-20260802-TRACE-HEALTH-01"
+    },
+    {
+      "name": "R1 authoritative final Swift Testing regression: 20 bundles and 678 tests",
+      "result": "passed",
+      "evidence_id": "EV-R1-20260802-FULL-SUITE-01"
+    },
+    {
+      "name": "R2 focused bilingual intent/dialogue tests: 44 tests",
+      "result": "passed",
+      "evidence_id": "EV-R2-20260802-AGENT-RISK-01"
+    },
+    {
+      "name": "R2 focused Ollama/Agent structured-NLU tests: 208 tests",
+      "result": "passed",
+      "evidence_id": "EV-R2-20260802-OLLAMA-STRUCTURED-01"
+    },
+    {
+      "name": "R2 full repository slice regression: 20 bundles and 691 tests",
+      "result": "passed",
+      "evidence_id": "EV-R2-20260802-FULL-SUITE-SLICE-01"
+    },
+    {
+      "name": "R2 authoritative full repository regression: 20 bundles and 695 tests",
+      "result": "passed",
+      "evidence_id": "EV-R2-20260803-FINAL-REGRESSION-01"
+    },
+    {
+      "name": "R1 governance closeout validation and deterministic validator tests",
+      "result": "passed",
+      "evidence_id": "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01"
     }
   ],
   "blockers": [],
   "open_decisions": [
-    "Complete the R1 trace/confirmation architecture and retain the R0 validator as a pre-edit gate.",
-    "Verify current APIs and backend contracts only in the owning R1/R2/R3 tracks.",
+    "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
+    "Preserve TurnContext, runtime health, confirmation transactions, and truthful verification semantics while adding model-backed dialogue.",
+    "Durable confirmation checkpoint/resume remains a future decision; R1 restart behavior is fail-closed.",
     "Resolve the CommandLineTools-only limitation with full Xcode/CI evidence before making release claims."
   ],
   "risks": [
     "RISK-TOOLCHAIN-PREVIEW",
-    "RISK-DISCONNECTED-RUNTIME",
     "RISK-FALSE-SUCCESS",
-    "RISK-CONFIRMATION-RESUME"
+    "RISK-CONFIRMATION-RESUME",
+    "RISK-ENGLISH-ONLY-INTENT",
+    "RISK-MODEL-MEMORY-PRESSURE"
   ],
-  "next_action": "Execute AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md. First action: inspect AuraKernel/AuraAppModel, event envelopes, conversation, intent/dispatch, ToolRouter, policy/confirmation, automation/shell/task interfaces, persistence, and ADRs 021/022/034/035/037 before editing.",
+  "next_action": "With explicit authorization, run a bounded local Ollama health/first-token benchmark for gemma4:latest under the 16 GB memory budget, then perform the required Turkish, English, mixed, clarification, and degraded-mode hardware demonstration. Keep R2 in progress until that evidence exists; do not install models or mutate TCC.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-    "AURA_RUNTIME_COMPLETION/context/READ_FIRST.md",
-    "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
+    "AURA_RUNTIME_COMPLETION/prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-    "Sources/AURA/AuraKernel.swift",
-    "Sources/AURA/AuraAppModel.swift",
-    "Sources/AuraCore/EventEnvelope.swift",
+    "Sources/AuraCore/TurnContext.swift",
+    "Sources/AuraCore/RuntimeHealth.swift",
+    "Sources/AuraCore/ConfirmationTransaction.swift",
+    "Sources/AuraIntent/IntentEngine.swift",
     "Sources/AuraAgent/Conversation.swift"
   ],
-  "notes": "The current session used explicit commit/push authority for R0 and reset authority for the next session. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045."
+  "notes": "R1 was validated locally but not committed or pushed; commit/push authority remains false. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R1 retains fail-closed restart behavior for confirmations and does not claim universal live postcondition verification."
 }

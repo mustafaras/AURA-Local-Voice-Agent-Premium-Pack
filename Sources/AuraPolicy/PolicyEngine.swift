@@ -15,6 +15,7 @@ public actor PolicyEngine {
   private var denyRules: [DenyRule]
   private var pendingConfirmations: [UUID: PolicyConfirmationChallenge]
   private var confirmedSessionCapabilities: Set<String>
+  private let confirmationTransactions: ConfirmationTransactionStore
   private let eventBus: AuraEventBus
   private let store: AuraStore?
   private let jsonEncoder: JSONEncoder
@@ -36,6 +37,7 @@ public actor PolicyEngine {
     self.denyRules = []
     self.pendingConfirmations = [:]
     self.confirmedSessionCapabilities = []
+    self.confirmationTransactions = ConfirmationTransactionStore()
     self.eventBus = eventBus
     self.store = store
     self.jsonEncoder = JSONEncoder()
@@ -76,6 +78,8 @@ public actor PolicyEngine {
       if requiresConfirmation {
         let challenge = makeChallenge(for: request, grant: grant, auditID: auditID)
         pendingConfirmations[request.id] = challenge
+        await confirmationTransactions.propose(
+          challenge: challenge, sideEffects: [targetSummary])
         let decision: PolicyDecision = .confirm(challenge: challenge, auditID: auditID)
         await emitConfirmationRequested(challenge, auditID: auditID)
         await emitDecision(
@@ -117,6 +121,8 @@ public actor PolicyEngine {
     if requiresConfirmation {
       let challenge = makeChallenge(for: request, grant: nil, auditID: auditID)
       pendingConfirmations[request.id] = challenge
+      await confirmationTransactions.propose(
+        challenge: challenge, sideEffects: [targetSummary])
       let decision: PolicyDecision = .confirm(challenge: challenge, auditID: auditID)
       await emitConfirmationRequested(challenge, auditID: auditID)
       await emitDecision(
@@ -145,6 +151,8 @@ public actor PolicyEngine {
     let now = Date()
     guard now < challenge.expiresAt else {
       pendingConfirmations.removeValue(forKey: response.requestID)
+      _ = try? await confirmationTransactions.cancel(
+        requestID: response.requestID, reason: "expired")
       let decision: PolicyDecision = .deny(
         reason: "Confirmation challenge expired",
         auditID: auditID
@@ -162,11 +170,24 @@ public actor PolicyEngine {
 
     guard verified && response.accepted else {
       pendingConfirmations.removeValue(forKey: response.requestID)
+      _ = try? await confirmationTransactions.cancel(
+        requestID: response.requestID,
+        reason: response.accepted ? "response hash mismatch" : "user declined")
       let decision: PolicyDecision = .deny(
         reason: response.accepted
           ? "Confirmation response hash mismatch" : "User declined confirmation",
         auditID: auditID
       )
+      return decision
+    }
+
+    do {
+      _ = try await confirmationTransactions.authorize(response)
+    } catch {
+      pendingConfirmations.removeValue(forKey: response.requestID)
+      let decision: PolicyDecision = .deny(
+        reason: "Confirmation transaction rejected: \(error)",
+        auditID: auditID)
       return decision
     }
 
@@ -178,6 +199,23 @@ public actor PolicyEngine {
     pendingConfirmations.removeValue(forKey: response.requestID)
     let decision: PolicyDecision = .allow(auditID: auditID, grantID: nil)
     return decision
+  }
+
+  public func beginAuthorizedExecution(
+    context: TurnContext,
+    planHash: String? = nil
+  ) async -> Bool {
+    (try? await confirmationTransactions.beginLatestExecution(
+      context: context, planHash: planHash)) != nil
+  }
+
+  public func completeAuthorizedExecution(
+    context: TurnContext,
+    verified: Bool,
+    summary: String
+  ) async -> Bool {
+    (try? await confirmationTransactions.completeLatestExecution(
+      context: context, verified: verified, summary: summary)) != nil
   }
 
   // MARK: - Grant and deny-rule management
@@ -334,11 +372,13 @@ public actor PolicyEngine {
     let issuedAt = Date()
     let expiresAt = issuedAt.addingTimeInterval(configuration.confirmationExpirySeconds)
     let targetSummary = summarize(request.target)
+    let planHash = PolicyPlanHasher.hash(request)
     let expectedHash = challengeHash(
       requestID: request.id,
       nonce: nonce,
       capability: request.capability,
       targetSummary: targetSummary,
+      planHash: planHash,
       expiresAt: expiresAt
     )
     return PolicyConfirmationChallenge(
@@ -350,7 +390,9 @@ public actor PolicyEngine {
       targetSummary: targetSummary,
       riskTier: request.capability.riskTier,
       expiresAt: expiresAt,
-      expectedHash: expectedHash
+      expectedHash: expectedHash,
+      planHash: planHash,
+      turnContext: request.turnContext
     )
   }
 
@@ -364,6 +406,7 @@ public actor PolicyEngine {
     nonce: String,
     capability: Capability,
     targetSummary: String,
+    planHash: String,
     expiresAt: Date
   ) -> String {
     let canonical = [
@@ -371,6 +414,7 @@ public actor PolicyEngine {
       nonce,
       capability.identifier,
       targetSummary,
+      planHash,
       ISO8601DateFormatter().string(from: expiresAt),
     ].joined(separator: "|")
     let digest = SHA256.hash(data: Data(canonical.utf8))
