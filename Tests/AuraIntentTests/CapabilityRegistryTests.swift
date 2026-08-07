@@ -1,0 +1,122 @@
+import AuraCore
+import AuraIntent
+import Foundation
+import Testing
+
+private func makeManifest(
+  id: String = "test.capability",
+  version: String = "1.0.0",
+  requiredCapability: Capability = .intentConverse
+) -> CapabilityManifest {
+  CapabilityManifest(
+    id: id, version: version,
+    presentation: CapabilityPresentation(
+      titleByLocale: [.english: "Test"], descriptionByLocale: [.english: "A test capability."]),
+    inputSchemaDescription: "none", outputSchemaDescription: "none",
+    owningAdapter: "test", requiredCapability: requiredCapability, isIdempotent: true,
+    executionBudget: CapabilityExecutionBudget(
+      timeoutSeconds: 1, supportsCancellation: false, isRetryable: true),
+    confirmationRule: "none", verificationMethod: "none", rollbackStrategy: "none")
+}
+
+@Test
+func registryFailsClosedForUnknownID() async {
+  let registry = CapabilityRegistry()
+  #expect(await registry.manifest(id: "does.not.exist", version: "1.0.0") == nil)
+  #expect(await registry.resolveLatest(id: "does.not.exist") == nil)
+}
+
+@Test
+func registryFailsClosedForKnownIDWrongVersion() async {
+  let registry = CapabilityRegistry()
+  await registry.register(makeManifest(), availability: .ready)
+  #expect(await registry.manifest(id: "test.capability", version: "9.9.9") == nil)
+}
+
+@Test
+func registryResolveLatestPicksHighestRegisteredVersion() async {
+  let registry = CapabilityRegistry()
+  await registry.register(makeManifest(version: "1.0.0"), availability: .ready)
+  await registry.register(makeManifest(version: "1.2.0"), availability: .ready)
+  await registry.register(makeManifest(version: "1.1.0"), availability: .ready)
+  let latest = await registry.resolveLatest(id: "test.capability")
+  #expect(latest?.version == "1.2.0")
+}
+
+@Test
+func registryReplacingSameQualifiedIDOverwrites() async {
+  let registry = CapabilityRegistry()
+  await registry.register(makeManifest(requiredCapability: .intentConverse), availability: .ready)
+  await registry.register(makeManifest(requiredCapability: .appActivate), availability: .ready)
+  let manifest = await registry.manifest(id: "test.capability", version: "1.0.0")
+  #expect(manifest?.requiredCapability == .appActivate)
+}
+
+@Test
+func registryReachableManifestsExcludesDisabledAndDegraded() async {
+  let registry = CapabilityRegistry()
+  await registry.register(makeManifest(id: "ready.one"), availability: .ready)
+  await registry.register(
+    makeManifest(id: "degraded.one"), availability: .degraded(reason: "temporarily unavailable"))
+  await registry.register(
+    makeManifest(id: "disabled.one"), availability: .disabled(reason: "not implemented yet"))
+  let reachable = await registry.reachableManifests()
+  #expect(reachable.count == 1)
+  #expect(reachable.first?.id == "ready.one")
+}
+
+@Test
+func registryAllManifestsIncludesDisabledEntriesForHealthInspection() async {
+  let registry = CapabilityRegistry()
+  await registry.register(makeManifest(id: "ready.one"), availability: .ready)
+  await registry.register(
+    makeManifest(id: "disabled.one"), availability: .disabled(reason: "not implemented yet"))
+  #expect(await registry.allManifests().count == 2)
+}
+
+@Test
+func initialCapabilitySetRegistersEveryTargetManifest() async {
+  let registry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: registry)
+  #expect(await registry.allManifests().count == InitialCapabilitySet.manifests().count)
+  #expect(await registry.reachableManifests().count == 10)
+}
+
+@Test
+func initialCapabilitySetDisabledEntriesCarryTruthfulReasons() async {
+  let registry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: registry)
+  guard case .disabled(let reason)? = await registry.availability(
+    id: "filesystem.open_file", version: "1.0.0")
+  else {
+    Issue.record("expected filesystem.open_file to be registered disabled")
+    return
+  }
+  #expect(!reason.isEmpty)
+  #expect(!reason.lowercased().contains("todo"))
+}
+
+@Test
+func manifestPresentationFallsBackToEnglishForUnknownLocale() {
+  let manifest = makeManifest()
+  #expect(manifest.presentation.title(for: .turkish) == "Test")
+}
+
+@Test
+func computerUseRunRegisteredDisabledUntilApproved() async {
+  let registry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: registry)
+  // `computerUse.run` is registered but truthfully `.disabled`: it is
+  // implemented (DeterministicComputerUsePlanner) but not yet wired into a
+  // live user path and requires an approved, live-validated beta app.
+  guard case .disabled(let reason)? = await registry.availability(
+    id: "computerUse.run", version: "1.0.0")
+  else {
+    Issue.record("expected computerUse.run to be registered disabled")
+    return
+  }
+  #expect(!reason.isEmpty)
+  #expect(!reason.lowercased().contains("todo"))
+  // Adding a disabled manifest must not change the reachable count.
+  #expect(await registry.reachableManifests().count == 10)
+}

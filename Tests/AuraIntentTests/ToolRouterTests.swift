@@ -49,9 +49,11 @@ private func makeHarness(
   let store = try await makeTestStore()
   let taskEngine = await AuraTaskEngine(store: store, eventBus: bus)
   let (agentRunner, sessionID) = makeAgentBackendTaskRunner(policyEngine: policyEngine, eventBus: bus)
+  let capabilityRegistry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: capabilityRegistry)
   let router = ToolRouter(
     policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
-    agentTaskRunner: agentRunner, registry: .defaultRegistry(),
+    agentTaskRunner: agentRunner, capabilityRegistry: capabilityRegistry,
     confirmationPresenter: confirmationPresenter, eventBus: bus, configuration: configuration)
   return RouterHarness(
     router: router, policyEngine: policyEngine, applicationSpy: spy, sessionID: sessionID)

@@ -201,6 +201,12 @@ public actor Conversation {
     }
             emit(event)
 
+    if ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_TEXT"] == "1" {
+      await logger.info(
+        "TEXT_DEMO response [act=\(event.hasSpokenResponse ? "spoken" : "silent")]: \(event.summary)",
+        actor: .system)
+    }
+
     // A response plan from a local/no-remote-model intent qualifies this turn
     // for the simple-command completion latency budget.
     if event.isSimpleCommand {

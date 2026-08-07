@@ -289,6 +289,35 @@ func ollamaAdapterDegradesWhenModelStillExceedsBudgetAfterEvictingEverything() a
 }
 
 @Test
+func ollamaAdapterAllowsColdLoadWhenDiskSizeExceedsBudgetButEstimatedResidentSizeFits() async throws {
+  // Reproduces the real gemma4:latest coldstart rejection from
+  // EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01 and EV-R2-20260803-REAL-DESKTOP-SESSION-01:
+  // 9.6 GB on-disk size against a 6 GB budget used to be rejected outright,
+  // even though the real resident footprint (~3.2 GB, ~0.33x disk size) fits
+  // comfortably. At the default 0.5 estimatedResidentMemoryRatio, the
+  // estimated footprint (4.8 GB) must fit under the 6 GB budget with no
+  // eviction needed.
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaColdstartDiskVram"))
+  let policyEngine = try await makeOllamaPolicyEngine(eventBus: bus)
+  let gemma4 = OllamaTestFixtures.localModel(name: "gemma4:latest", sizeBytes: 9_600_000_000)
+  let client = FakeOllamaAPIClient(
+    modelsResult: .success([gemma4]), runningModelsResult: .success([]))
+  await client.setGenerateHandler { model, _, _, _ in
+    OllamaGenerateResponse(model: model, response: #"{"summary":"ok"}"#, done: true)
+  }
+  var configuration = OllamaConfiguration()
+  configuration.maxResidentModelBytes = 6_000_000_000
+  let adapter = try makeAdapter(
+    configuration: configuration, policyEngine: policyEngine, apiClient: client, eventBus: bus)
+
+  let result = try await adapter.summarize(
+    prompt: "x", actor: .agentOllama, sessionID: UUID(), correlationID: UUID(), causationID: UUID())
+  #expect(result.degraded == false)
+  #expect(await client.unloadedModels.isEmpty)
+}
+
+@Test
 func ollamaAdapterSkipsBudgetCheckWhenModelAlreadyResident() async throws {
   let bus = AuraEventBus(
     logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaAlreadyResident"))

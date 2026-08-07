@@ -375,6 +375,17 @@ public actor OllamaAdapter {
   /// resident models (oldest-`expires_at`-first) via `keep_alive: 0` if
   /// necessary. Returns `false` only if the model still would not fit even
   /// after evicting every other resident model.
+  ///
+  /// A model not yet resident is only known by its on-disk `/api/tags`
+  /// size, which is not the same quantity as resident VRAM (real-world
+  /// gap proven in `EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01`: `gemma4:latest`
+  /// at 9.6 GB on disk resolved to ~3.2 GB `size_vram` once loaded). Using
+  /// the raw disk size here would falsely reject a cold load that fits
+  /// comfortably once resident, so the candidate's estimated footprint is
+  /// derated by `configuration.estimatedResidentMemoryRatio`. Already
+  /// resident models (both the ones already accounted for in `running` and
+  /// the fast-path check below) always use their real measured
+  /// `size_vram`, never this estimate.
   private func ensureMemoryBudget(
     for model: OllamaRegisteredModel,
     actor: ActorID,
@@ -390,13 +401,18 @@ public actor OllamaAdapter {
       return true
     }
 
+    let estimatedModelBytes = UInt64(
+      Double(model.sizeBytes) * configuration.estimatedResidentMemoryRatio)
+
     var residentBytes = running.reduce(UInt64(0)) { $0 + $1.sizeVram }
-    guard residentBytes + model.sizeBytes > configuration.maxResidentModelBytes else {
+    guard residentBytes + estimatedModelBytes > configuration.maxResidentModelBytes else {
       return true
     }
 
     for resident in running.sorted(by: { $0.expiresAt < $1.expiresAt }) {
-      guard residentBytes + model.sizeBytes > configuration.maxResidentModelBytes else { break }
+      guard residentBytes + estimatedModelBytes > configuration.maxResidentModelBytes else {
+        break
+      }
       try? await apiClient.unload(model: resident.name)
       residentBytes -= min(residentBytes, resident.sizeVram)
       await emitAudit(
@@ -405,11 +421,11 @@ public actor OllamaAdapter {
         actor: actor, correlationID: correlationID, causationID: causationID)
     }
 
-    guard residentBytes + model.sizeBytes <= configuration.maxResidentModelBytes else {
+    guard residentBytes + estimatedModelBytes <= configuration.maxResidentModelBytes else {
       await emitAudit(
         OllamaBudgetExceededEvent(
           kind: .residentMemory, limit: Double(configuration.maxResidentModelBytes),
-          observed: Double(residentBytes + model.sizeBytes)),
+          observed: Double(residentBytes + estimatedModelBytes)),
         actor: actor, correlationID: correlationID, causationID: causationID)
       return false
     }

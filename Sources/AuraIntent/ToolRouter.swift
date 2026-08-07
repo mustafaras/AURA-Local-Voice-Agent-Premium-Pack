@@ -5,124 +5,10 @@ import AuraShell
 import AuraTasks
 import Foundation
 
-/// A tool's declared contract — `docs/subsystems/09_TOOL_ROUTER.md`'s
-/// required fields, plus one AURA-specific addition
-/// (`enforcesPolicyInternally`) capturing a real architectural split
-/// discovered while wiring this router: the CLI coding-agent adapters
-/// already call `PolicyEngine.evaluate` themselves before running, while
-/// `AuraAutomation`/`AuraShell` construct but never evaluate a policy
-/// request (`AuraShell.execute`'s own doc comment says so explicitly) —
-/// those must be gated by the router itself.
-public struct ToolContract: Sendable, Equatable {
-  public let id: String
-  public let version: String
-  public let inputSchemaDescription: String
-  public let requiredCapability: Capability
-  public let riskTier: PermissionRiskTier
-  public let isIdempotent: Bool
-  public let preconditions: [String]
-  public let sideEffects: [String]
-  public let timeoutSeconds: Double
-  public let supportsRollback: Bool
-  public let verificationMethod: String
-  public let sensitiveFieldKeys: [String]
-  public let enforcesPolicyInternally: Bool
-
-  public init(
-    id: String,
-    version: String,
-    inputSchemaDescription: String,
-    requiredCapability: Capability,
-    riskTier: PermissionRiskTier,
-    isIdempotent: Bool,
-    preconditions: [String] = [],
-    sideEffects: [String] = [],
-    timeoutSeconds: Double,
-    supportsRollback: Bool,
-    verificationMethod: String,
-    sensitiveFieldKeys: [String] = [],
-    enforcesPolicyInternally: Bool
-  ) {
-    self.id = id
-    self.version = version
-    self.inputSchemaDescription = inputSchemaDescription
-    self.requiredCapability = requiredCapability
-    self.riskTier = riskTier
-    self.isIdempotent = isIdempotent
-    self.preconditions = preconditions
-    self.sideEffects = sideEffects
-    self.timeoutSeconds = timeoutSeconds
-    self.supportsRollback = supportsRollback
-    self.verificationMethod = verificationMethod
-    self.sensitiveFieldKeys = sensitiveFieldKeys
-    self.enforcesPolicyInternally = enforcesPolicyInternally
-  }
-}
-
-/// One `ToolContract` per `IntentKind` in the closed v1 vocabulary.
-public struct ToolRegistry: Sendable {
-  private let contractsByKind: [IntentKind: ToolContract]
-
-  public init(contracts: [IntentKind: ToolContract]) {
-    self.contractsByKind = contracts
-  }
-
-  public func contract(for kind: IntentKind) -> ToolContract? {
-    contractsByKind[kind]
-  }
-
-  /// The standard v1 registry — one contract per real backend this phase
-  /// wires up. `.unknown` deliberately has no contract; `ToolRouter.route`
-  /// never reaches the registry lookup for it (ambiguity is checked first).
-  public static func defaultRegistry() -> ToolRegistry {
-    ToolRegistry(contracts: [
-      .converse: ToolContract(
-        id: "aura.converse", version: "1.0.0",
-        inputSchemaDescription: "utterance text; no side effects",
-        requiredCapability: .intentConverse, riskTier: .observation, isIdempotent: true,
-        timeoutSeconds: 1, supportsRollback: false, verificationMethod: "none",
-        enforcesPolicyInternally: false),
-      .appActivate: ToolContract(
-        id: "automation.appActivate", version: "1.0.0",
-        inputSchemaDescription: "bundleIdentifier: String",
-        requiredCapability: .appActivate, riskTier: .reversible, isIdempotent: true,
-        preconditions: ["target application installed"],
-        sideEffects: ["brings the target application to the foreground"],
-        timeoutSeconds: 10, supportsRollback: false,
-        verificationMethod: "AuraAutomation reports the activated bundle identifier",
-        enforcesPolicyInternally: false),
-      .appTerminate: ToolContract(
-        id: "automation.appTerminate", version: "1.0.0",
-        inputSchemaDescription: "bundleIdentifier: String",
-        requiredCapability: .appTerminate, riskTier: .mutation, isIdempotent: true,
-        preconditions: ["target application running"],
-        sideEffects: ["quits the target application; may discard unsaved state"],
-        timeoutSeconds: 10, supportsRollback: false,
-        verificationMethod: "AuraAutomation reports the terminated bundle identifier",
-        enforcesPolicyInternally: false),
-      .shellExecute: ToolContract(
-        id: "shell.execute", version: "1.0.0",
-        inputSchemaDescription: "executable: String, arguments: [String]",
-        requiredCapability: .shellExec, riskTier: .mutation, isIdempotent: false,
-        preconditions: ["executable resolvable within the closed v1 lookup table"],
-        sideEffects: ["arbitrary process side effects, bounded by AuraShell's own allowlist"],
-        timeoutSeconds: 30, supportsRollback: false,
-        verificationMethod: "process exit code and captured stdout/stderr",
-        enforcesPolicyInternally: false),
-      .codingAgentRun: ToolContract(
-        id: "agent.codingAgentRun", version: "1.0.0",
-        inputSchemaDescription: "backend: String, objective: String",
-        // The adapter performs the authoritative backend-specific policy check;
-        // this generic capability keeps the contract's risk metadata honest.
-        requiredCapability: .agentRun, riskTier: .destructive, isIdempotent: false,
-        preconditions: ["chosen backend CLI available and authorized"],
-        sideEffects: ["delegates to a coding-agent CLI run; may write files"],
-        timeoutSeconds: 1800, supportsRollback: false,
-        verificationMethod: "AuraTaskEngine status polling",
-        enforcesPolicyInternally: true),
-    ])
-  }
-}
+/// Superseded by `CapabilityManifest`/`CapabilityRegistry`
+/// (`CapabilityRegistry.swift`, `InitialCapabilitySet.swift`) as of R3 —
+/// see `04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`'s completion gate,
+/// "the registry is the sole production source for user-reachable tools."
 
 /// Pluggable presenter for a `PolicyConfirmationChallenge` `ToolRouter`
 /// itself raises (for the capabilities it, not an adapter, evaluates).
@@ -199,7 +85,14 @@ public actor ToolRouter {
   private let shell: AuraShell
   private let taskEngine: AuraTaskEngine
   private let agentTaskRunner: AgentBackendTaskRunner
-  private let registry: ToolRegistry
+  /// The sole production source of capability contracts — replaces the
+  /// prior phase's static `ToolRegistry` per `04_R3_CAPABILITY_REGISTRY_AND
+  /// _PLANNER.prompt.md`'s completion gate. `IntentKind` still identifies
+  /// what the classifier/dialogue layer produced; `capabilityID(for:)`
+  /// below is the only place that maps a kind to the registry's namespaced
+  /// capability ID, so adding a capability never requires widening this
+  /// router's own dispatch switch.
+  private let capabilityRegistry: CapabilityRegistry
   private let confirmationPresenter: any IntentConfirmationPresenting
   private let eventBus: AuraEventBus
   private let configuration: IntentEngineConfiguration
@@ -212,7 +105,7 @@ public actor ToolRouter {
     shell: AuraShell,
     taskEngine: AuraTaskEngine,
     agentTaskRunner: AgentBackendTaskRunner,
-    registry: ToolRegistry,
+    capabilityRegistry: CapabilityRegistry,
     confirmationPresenter: any IntentConfirmationPresenting,
     eventBus: AuraEventBus,
     configuration: IntentEngineConfiguration,
@@ -223,13 +116,25 @@ public actor ToolRouter {
     self.shell = shell
     self.taskEngine = taskEngine
     self.agentTaskRunner = agentTaskRunner
-    self.registry = registry
+    self.capabilityRegistry = capabilityRegistry
     self.confirmationPresenter = confirmationPresenter
     self.eventBus = eventBus
     self.configuration = configuration
     self.dialogueEngine = dialogueEngine
     self.destructivePatternMatchers = configuration.destructiveShellPatterns.compactMap {
       try? NSRegularExpression(pattern: $0, options: [.caseInsensitive])
+    }
+  }
+
+  /// The one place an `IntentKind` maps to a registry capability ID.
+  private func capabilityID(for kind: IntentKind) -> String? {
+    switch kind {
+    case .converse: return InitialCapabilitySet.converse.id
+    case .appActivate: return InitialCapabilitySet.appActivate.id
+    case .appTerminate: return InitialCapabilitySet.appTerminate.id
+    case .shellExecute: return InitialCapabilitySet.shellExecuteTyped.id
+    case .codingAgentRun: return InitialCapabilitySet.codingAgentRun.id
+    case .unknown: return nil
     }
   }
 
@@ -240,7 +145,7 @@ public actor ToolRouter {
     context: TurnContext
     , dialogueContext: [DialogueContextItem] = []
   ) async -> IntentExecutionOutcome {
-    let contract = registry.contract(for: intent.kind)
+    let contract = await resolveContract(for: intent.kind)
     let routingContext = context.withBackendIDs(
       TurnBackendIDs(
         stt: context.backendIDs.stt,
@@ -277,7 +182,7 @@ public actor ToolRouter {
       return .ambiguous(clarifyingQuestion: clarifyingQuestion(for: intent))
     }
 
-    guard let contract = registry.contract(for: intent.kind) else {
+    guard let contract = await resolveContract(for: intent.kind) else {
       await emit(
         IntentBlockedEvent(intentID: intent.id, reason: "noToolRegistered"),
         correlationID: correlationID, causationID: causationID)
@@ -344,9 +249,18 @@ public actor ToolRouter {
     return .executed(summary: response.text, hasSpokenResponse: !response.text.isEmpty)
   }
 
+  private func resolveContract(for kind: IntentKind) async -> CapabilityManifest? {
+    guard let id = capabilityID(for: kind) else { return nil }
+    guard let manifest = await capabilityRegistry.resolveLatest(id: id) else { return nil }
+    if case .ready = await capabilityRegistry.availability(qualifiedID: manifest.qualifiedID) {
+      return manifest
+    }
+    return nil
+  }
+
   private func handleAppLifecycle(
     _ intent: TypedIntent,
-    contract: ToolContract,
+    contract: CapabilityManifest,
     terminate: Bool,
     actor: ActorID,
     sessionID: UUID,

@@ -32,9 +32,11 @@ func endToEndPipelineActivatesApplicationFromScriptedUtterance() async throws {
   let taskEngine = await AuraTaskEngine(store: store, eventBus: bus)
   let agentTaskRunner = makeAgentBackendTaskRunner(policyEngine: policyEngine, eventBus: bus)
 
+  let capabilityRegistry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: capabilityRegistry)
   let toolRouter = ToolRouter(
     policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
-    agentTaskRunner: agentTaskRunner, registry: .defaultRegistry(),
+    agentTaskRunner: agentTaskRunner, capabilityRegistry: capabilityRegistry,
     confirmationPresenter: IntentAlwaysAllowConfirmationPresenter(), eventBus: bus,
     configuration: IntentEngineConfiguration())
   let intentEngine = IntentEngine(
@@ -170,9 +172,11 @@ func endToEndPipelineNeverGuessesAnUnresolvedApplication() async throws {
   let taskEngine = await AuraTaskEngine(store: store, eventBus: bus)
   let agentTaskRunner = makeAgentBackendTaskRunner(policyEngine: policyEngine, eventBus: bus)
 
+  let capabilityRegistry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: capabilityRegistry)
   let toolRouter = ToolRouter(
     policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
-    agentTaskRunner: agentTaskRunner, registry: .defaultRegistry(),
+    agentTaskRunner: agentTaskRunner, capabilityRegistry: capabilityRegistry,
     confirmationPresenter: IntentAlwaysAllowConfirmationPresenter(), eventBus: bus,
     configuration: IntentEngineConfiguration())
   let intentEngine = IntentEngine(
@@ -254,9 +258,11 @@ func endToEndPipelineCompletesSimpleCommandUnderBudget() async throws {
   let taskEngine = await AuraTaskEngine(store: store, eventBus: bus)
   let agentTaskRunner = makeAgentBackendTaskRunner(policyEngine: policyEngine, eventBus: bus)
 
+  let capabilityRegistry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: capabilityRegistry)
   let toolRouter = ToolRouter(
     policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
-    agentTaskRunner: agentTaskRunner, registry: .defaultRegistry(),
+    agentTaskRunner: agentTaskRunner, capabilityRegistry: capabilityRegistry,
     confirmationPresenter: IntentAlwaysAllowConfirmationPresenter(), eventBus: bus,
     configuration: IntentEngineConfiguration())
   let intentEngine = IntentEngine(

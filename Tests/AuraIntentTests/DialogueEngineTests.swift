@@ -284,5 +284,5 @@ func intentEngineExpiresClarificationBeforeAcceptingAStandaloneTarget() async {
 func codingAgentIntentPreservesDestructiveRiskMetadata() {
   #expect(Capability.forIntent(.codingAgentRun) == .agentRun)
   #expect(Capability.forIntent(.codingAgentRun).riskTier == .destructive)
-  #expect(ToolRegistry.defaultRegistry().contract(for: .codingAgentRun)?.requiredCapability == .agentRun)
+  #expect(InitialCapabilitySet.codingAgentRun.requiredCapability == .agentRun)
 }

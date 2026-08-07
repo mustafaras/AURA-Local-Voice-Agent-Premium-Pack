@@ -1689,6 +1689,19 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
   /// headroom for STT/TTS/vision models running elsewhere in AURA.
   public var maxResidentModelBytes: UInt64
 
+  /// A not-yet-resident candidate model is only known by its `/api/tags`
+  /// on-disk file size; the budget check estimates its real resident
+  /// footprint as `sizeBytes * estimatedResidentMemoryRatio` rather than
+  /// treating on-disk size as if it were VRAM. Real quantized GGUF models
+  /// commonly resolve to a resident footprint well under their on-disk
+  /// size (observed: `gemma4:latest` at 9.6 GB on disk, ~3.2 GB
+  /// `size_vram` once loaded, `EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01`).
+  /// Defaults to 0.5 — a conservative margin above that ~0.33 observed
+  /// ratio, so the estimate still overshoots real usage rather than
+  /// risking under-budgeting. Already-resident models bypass this
+  /// estimate entirely and use their real measured `size_vram`.
+  public var estimatedResidentMemoryRatio: Double
+
   /// Seconds an idle model is kept resident before Ollama unloads it,
   /// passed as `keep_alive` on every request.
   public var keepAliveSeconds: Double
@@ -1711,6 +1724,7 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
     requestTimeoutSeconds: Double = 120.0,
     healthCheckTimeoutSeconds: Double = 5.0,
     maxResidentModelBytes: UInt64 = 6_000_000_000,
+    estimatedResidentMemoryRatio: Double = 0.5,
     keepAliveSeconds: Double = 300.0,
     allowCloudModels: Bool = false,
     thermalAwarenessEnabled: Bool = true
@@ -1719,6 +1733,7 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
     self.requestTimeoutSeconds = requestTimeoutSeconds
     self.healthCheckTimeoutSeconds = healthCheckTimeoutSeconds
     self.maxResidentModelBytes = maxResidentModelBytes
+    self.estimatedResidentMemoryRatio = estimatedResidentMemoryRatio
     self.keepAliveSeconds = keepAliveSeconds
     self.allowCloudModels = allowCloudModels
     self.thermalAwarenessEnabled = thermalAwarenessEnabled
@@ -1748,6 +1763,10 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
     guard maxResidentModelBytes > 0 else {
       throw AuraError.invalidConfiguration("ollama maxResidentModelBytes must be positive")
     }
+    guard estimatedResidentMemoryRatio > 0 && estimatedResidentMemoryRatio <= 1 else {
+      throw AuraError.invalidConfiguration(
+        "ollama estimatedResidentMemoryRatio must be in (0, 1]")
+    }
     guard keepAliveSeconds >= 0 else {
       throw AuraError.invalidConfiguration("ollama keepAliveSeconds must be non-negative")
     }
@@ -1766,6 +1785,10 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
       maxResidentModelBytes: self.maxResidentModelBytes == 0
         ? OllamaConfiguration().maxResidentModelBytes
         : self.maxResidentModelBytes,
+      estimatedResidentMemoryRatio: self.estimatedResidentMemoryRatio <= 0
+        || self.estimatedResidentMemoryRatio > 1
+        ? OllamaConfiguration().estimatedResidentMemoryRatio
+        : self.estimatedResidentMemoryRatio,
       keepAliveSeconds: self.keepAliveSeconds < 0
         ? OllamaConfiguration().keepAliveSeconds
         : self.keepAliveSeconds,
@@ -1784,6 +1807,8 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
       try container.decodeIfPresent(Double.self, forKey: .healthCheckTimeoutSeconds) ?? 5.0
     maxResidentModelBytes =
       try container.decodeIfPresent(UInt64.self, forKey: .maxResidentModelBytes) ?? 6_000_000_000
+    estimatedResidentMemoryRatio =
+      try container.decodeIfPresent(Double.self, forKey: .estimatedResidentMemoryRatio) ?? 0.5
     keepAliveSeconds =
       try container.decodeIfPresent(Double.self, forKey: .keepAliveSeconds) ?? 300.0
     allowCloudModels =

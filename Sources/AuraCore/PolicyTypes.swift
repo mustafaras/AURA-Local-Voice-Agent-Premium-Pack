@@ -75,6 +75,20 @@ extension Capability {
     domain: "task", action: "delete", riskTier: .destructive)
   public static let taskList = Capability(
     domain: "task", action: "list", riskTier: .observation)
+  public static let taskStatus = Capability(
+    domain: "task", action: "status", riskTier: .observation)
+
+  public static let appDiscover = Capability(
+    domain: "app", action: "discover", riskTier: .observation)
+  public static let appHide = Capability(domain: "app", action: "hide", riskTier: .reversible)
+
+  public static let fileOpen = Capability(domain: "file", action: "open", riskTier: .reversible)
+  public static let fileReveal = Capability(
+    domain: "file", action: "reveal", riskTier: .reversible)
+  public static let urlOpen = Capability(domain: "url", action: "open", riskTier: .reversible)
+
+  public static let capabilityHealthQuery = Capability(
+    domain: "capability", action: "health", riskTier: .observation)
 
   /// Run the Codex CLI with a workspace-write sandbox (may modify files).
   public static let agentCodexRun = Capability(
@@ -136,6 +150,14 @@ extension Capability {
   /// `ComputerUseSemanticIntent.mandatoryConfirmationIntents`.
   public static let computerUseDestructiveAct = Capability(
     domain: "computerUse", action: "destructiveAct", riskTier: .destructive)
+
+  /// Launching a bounded computer-use control-loop session against an
+  /// approved application (the R4 product capability "run bounded
+  /// objective"). Mutation tier because it drives a live UI; combined with
+  /// `ComputerUseBetaAllowlist` and the mandatory-confirmation gates it
+  /// still cannot act on unapproved apps or unbounded objectives.
+  public static let computerUseRun = Capability(
+    domain: "computerUse", action: "run", riskTier: .mutation)
 
   /// Deterministic mapping from a computer-use step's semantic intent to the
   /// capability it must be evaluated under, mirroring

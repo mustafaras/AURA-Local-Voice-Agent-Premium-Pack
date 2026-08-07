@@ -106,10 +106,25 @@ final class AuraAppModel: ObservableObject {
 
   func pushToTalk() {
     Task {
-      guard permissions.speechReady else {
-        status = .restricted
-        statusDetail = "Grant microphone and Speech Recognition access first"
-        return
+      if !permissions.speechReady {
+        // Proactively trigger the real OS permission prompt here instead of
+        // only setting a passive status label — a user pressing Push to Talk
+        // expects that action itself to request access, the same way it
+        // would on iOS/Android, rather than needing to discover a separate
+        // menu control first.
+        statusDetail = "Waiting for voice permissions"
+        permissions = await PermissionCoordinator.requestVoicePermissions()
+        guard permissions.speechReady else {
+          status = .restricted
+          statusDetail = "Grant microphone and Speech Recognition access first"
+          return
+        }
+        do {
+          try await kernel?.startSpeechRecognition()
+        } catch {
+          setError("Speech recognition could not start: \(error.localizedDescription)")
+          return
+        }
       }
       do {
         try await kernel?.activatePushToTalk()
@@ -250,9 +265,42 @@ final class AuraAppModel: ObservableObject {
         status = .restricted
         statusDetail = "Complete voice permission onboarding"
       }
+      await runTextDemoIfRequested(logger: logger)
     } catch {
       setError("AURA failed to start: \(error.localizedDescription)")
     }
+  }
+
+  /// Debug-only, opt-in text-turn driver for sessions with no GUI/Accessibility
+  /// control. Inert unless `AURA_TEXT_DEMO_SCRIPT` names a readable file of one
+  /// utterance per line; submits each line through the exact same production
+  /// `submitText()` path a user's typed menu-bar input uses, waiting for the
+  /// conversation to return to `.idle` (bounded) between turns. Never enabled
+  /// by default and does not change any production dialogue/policy behavior.
+  private func runTextDemoIfRequested(logger: AuraLogger) async {
+    guard let scriptPath = ProcessInfo.processInfo.environment["AURA_TEXT_DEMO_SCRIPT"],
+      let contents = try? String(contentsOfFile: scriptPath, encoding: .utf8)
+    else { return }
+    let lines = contents.split(separator: "\n").map(String.init)
+      .map { $0.trimmingCharacters(in: .whitespaces) }
+      .filter { !$0.isEmpty }
+    for line in lines {
+      await logger.info("TEXT_DEMO turn: \(line)", actor: .system)
+      textInput = line
+      submitText()
+      var leftIdleWaited = 0.0
+      while status == .idle, leftIdleWaited < 5 {
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        leftIdleWaited += 0.1
+      }
+      var waited = 0.0
+      while status != .idle, waited < 45 {
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        waited += 0.5
+      }
+      await logger.info("TEXT_DEMO turn complete after \(waited)s, final status \(status.rawValue)", actor: .system)
+    }
+    await logger.info("TEXT_DEMO script complete", actor: .system)
   }
 
   private func subscribeToStatus(on eventBus: AuraEventBus) async {

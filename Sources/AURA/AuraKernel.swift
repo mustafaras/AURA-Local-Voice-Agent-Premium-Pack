@@ -34,6 +34,8 @@ actor AuraKernel {
   private var runtimeHealthRegistry: RuntimeHealthRegistry?
   private var policyEngine: PolicyEngine?
   private var taskEngine: AuraTaskEngine?
+  private var automation: AuraAutomation?
+  private var capabilityRegistry: CapabilityRegistry?
   private var agentTaskRunner: AgentBackendTaskRunner?
   private var audio: AuraAudio?
   private var wakeWordPipeline: WakeWordPipeline?
@@ -46,6 +48,7 @@ actor AuraKernel {
   private var emergencyStop: EmergencyStopController?
   private var screenEngine: ScreenContextEngine?
   private var computerUseLoop: ComputerUseControlLoop?
+  private var computerUseAllowlist: ComputerUseBetaAllowlist?
   private var vscodeAdapter: VSCodeAdapter?
   private var pluginRegistry: PluginRegistry?
   private var ollamaAdapter: OllamaAdapter?
@@ -182,6 +185,118 @@ actor AuraKernel {
     await runtimeHealthRegistry?.snapshot() ?? []
   }
 
+  /// R3's `app.discover`, `app.hide`, `task.status`, `task.cancel`, and
+  /// `capability.health` capabilities are reachable through these direct
+  /// methods rather than the bilingual NLU classifier — the same
+  /// reachability path `runtimeHealthSnapshot()`/`configurationInspection()`
+  /// already use. Each still evaluates policy through the exact same
+  /// `PolicyEngine` every `ToolRouter`-routed capability uses; only the
+  /// dispatch path (direct call vs. classified intent) differs.
+  private func evaluateDirectCapability(
+    _ capability: Capability, target: PolicyTarget = .empty
+  ) async throws(AuraError) {
+    guard let policyEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    let request = PolicyEvaluationRequest(
+      capability: capability, actor: .user, target: target, sessionID: sessionID,
+      correlationID: UUID(), causationID: UUID())
+    switch await policyEngine.evaluate(request) {
+    case .allow:
+      return
+    case .deny(let reason, _):
+      throw AuraError.permissionDenied(reason)
+    case .confirm:
+      // No confirmation presenter is wired for this direct-call path yet;
+      // fail closed rather than silently proceed or silently auto-confirm.
+      throw AuraError.permissionDenied(
+        "\(capability.domain).\(capability.action) requires confirmation, "
+          + "which this call path does not yet support")
+    }
+  }
+
+  func discoverApplications() async throws(AuraError) {
+    guard started, let automation else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.appDiscover)
+    await automation.discoverApplications()
+  }
+
+  func hideApplication(bundleIdentifier: String) async throws(AuraError) {
+    guard started, let automation else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.appHide, target: PolicyTarget(appID: bundleIdentifier))
+    try await automation.hideApplication(bundleIdentifier: bundleIdentifier)
+  }
+
+  func taskStatus(id: UUID) async throws(AuraError) -> TaskStatus? {
+    guard started, let taskEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.taskStatus)
+    return await taskEngine.status(id: id)
+  }
+
+  func taskCancel(id: UUID) async throws(AuraError) {
+    guard started, let taskEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.taskCancel)
+    try await taskEngine.cancel(id: id)
+  }
+
+  func capabilityHealthSnapshot() async throws(AuraError) -> [(CapabilityManifest, CapabilityAvailability?)] {
+    guard started, let capabilityRegistry else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.capabilityHealthQuery)
+    let manifests = await capabilityRegistry.allManifests()
+    var result: [(CapabilityManifest, CapabilityAvailability?)] = []
+    for manifest in manifests {
+      result.append((manifest, await capabilityRegistry.availability(qualifiedID: manifest.qualifiedID)))
+    }
+    return result
+  }
+
+  /// R4's `computerUse.run` capability: launch one bounded computer-use
+  /// control-loop session against an approved, live-validated beta app.
+  /// Policy is evaluated through the exact same `PolicyEngine` every other
+  /// capability uses; the beta allowlist is the structural gate that keeps
+  /// computer use from becoming a universal shortcut around missing adapters
+  /// (unapproved apps are refused before any observation or action).
+  func computerUseRun(
+    appBundleIdentifier: String,
+    objective: String
+  ) async throws(AuraError) -> ComputerUseLoopOutcome {
+    guard started, let computerUseLoop, let computerUseAllowlist, let screenEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(
+      .computerUseRun, target: PolicyTarget(appID: appBundleIdentifier))
+    guard computerUseAllowlist.isApproved(appBundleIdentifier) else {
+      throw AuraError.permissionDenied(
+        "computer-use target \(appBundleIdentifier) is not on the approved beta allowlist")
+    }
+    // Resolve an approved window for the target app. Computer use is
+    // always app/window scoped; a session cannot start without a real
+    // approved window belonging to the allowlisted application.
+    let windows = try await screenEngine.listApprovedWindows()
+    guard let window = windows.first(where: {
+      $0.applicationBundleIdentifier == appBundleIdentifier
+    }) else {
+      throw AuraError.computerUseError(
+        "no approved window found for \(appBundleIdentifier)")
+    }
+    let target = ComputerUseSessionTarget(
+      windowID: window.windowID,
+      appBundleIdentifier: appBundleIdentifier,
+      appName: window.applicationName)
+    let planner = DeterministicComputerUsePlanner(allowlist: computerUseAllowlist)
+    return await computerUseLoop.run(target: target, objective: objective, planner: planner)
+  }
+
   func configurationInspection() async -> ConfigurationInspection? {
     await configurationEngine?.inspect()
   }
@@ -225,6 +340,7 @@ actor AuraKernel {
     let automation = AuraAutomation(
       config: configuration.automation, eventBus: eventBus,
       logger: AuraLogger(subsystem: bundleID, category: "automation"))
+    self.automation = automation
     await runtimeHealthRegistry.recordReady("shell", detail: "typed shell constructed")
     await runtimeHealthRegistry.recordReady("automation", detail: "structured automation constructed")
 
@@ -291,6 +407,11 @@ actor AuraKernel {
       emergencyStop: emergencyStop,
       eventBus: eventBus,
       configuration: configuration.computerUse)
+    // R4 beta allowlist: starts with the deliberately small curated set,
+    // all `.disabled`; an app becomes reachable only after explicit live
+    // validation (see `ComputerUseBetaAllowlist.validating`). Computer use
+    // is therefore never a universal shortcut around missing adapters.
+    self.computerUseAllowlist = ComputerUseBetaAllowlist.initial
     await runtimeHealthRegistry.recordReady("computer-use", detail: "bounded computer-use loop constructed")
     vscodeAdapter = VSCodeAdapter(
       configuration: configuration.vscode,
@@ -363,9 +484,15 @@ actor AuraKernel {
     let dialogueEngine = DialogueEngine(
       reasoningBackend: dialogueBackend,
       runtimeHealthRegistry: runtimeHealthRegistry)
+    let capabilityRegistry = CapabilityRegistry()
+    await InitialCapabilitySet.registerAll(in: capabilityRegistry)
+    self.capabilityRegistry = capabilityRegistry
+    await runtimeHealthRegistry.recordReady(
+      "capabilityRegistry",
+      detail: "\(InitialCapabilitySet.manifests().count) capabilities registered")
     let toolRouter = ToolRouter(
       policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
-      agentTaskRunner: agentTaskRunner, registry: .defaultRegistry(),
+      agentTaskRunner: agentTaskRunner, capabilityRegistry: capabilityRegistry,
       confirmationPresenter: confirmationPresenter, eventBus: eventBus,
       configuration: configuration.intent, dialogueEngine: dialogueEngine)
     let intentEngine = IntentEngine(
@@ -471,6 +598,17 @@ actor AuraKernel {
       Grant(capability: .agentClaudeRun, patterns: [.any], confirmationRequirement: .always))
     try await policyEngine.issueGrant(
       Grant(capability: .agentCopilotRun, patterns: [.any], confirmationRequirement: .always))
+    // .reversible tier, no side effects, and OllamaPolicyAdapter only maps a
+    // model to this capability when its /api/tags entry reports no
+    // remote_host (isLocal), so the prompt never leaves the device — see
+    // ADR-036. Matches .appActivate's .none confirmation for a similarly
+    // reversible, non-destructive capability. Cloud-proxied inference keeps
+    // its .destructive tier and remains deny-by-default; no grant is added
+    // for it here.
+    try await policyEngine.issueGrant(
+      Grant(
+        capability: .agentOllamaLocalInference, patterns: [.any],
+        confirmationRequirement: .none))
   }
 
   /// Build the configured TTS engine chain. Chatterbox V3 runs in a separate,
