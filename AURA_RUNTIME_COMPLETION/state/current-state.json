@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-07T04:00:00Z",
+  "updated_at": "2026-08-07T05:00:00Z",
   "session_id": "AURA-R2-CLOSEOUT-20260807",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "b8f896097d6b8bd390c5a5030b5eb902eb1631c0",
-    "remote_head": "b8f896097d6b8bd390c5a5030b5eb902eb1631c0",
+    "verified_head": "808cf64f1804fc9ba433ea5a85beedcdabeacdb2",
+    "remote_head": "808cf64f1804fc9ba433ea5a85beedcdabeacdb2",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -22,12 +22,12 @@
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R4",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
+    "id": "R5",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
     "state": "in_progress",
-    "step": "R4 deterministic core + registry wiring implemented and tested (EV-R4-20260807-PRODUCTIZATION-CORE-01, EV-R4-20260807-WIRING-REGISTRY-01, ADR-039 accepted): ComputerUseObservation, beta allowlist, DeterministicComputerUsePlanner, resumable confirmation, semantic verification, computerUse.run registered + AuraKernel.computerUseRun wired. Remaining: live beta-app evidence (>=3 apps) requires the user present.",
-    "started_at": "2026-08-07T02:00:00Z",
-    "blocked_by": ["R4 is not formally complete: computerUse.run remains .disabled until an app is explicitly live-validated, the live end-to-end path has not been exercised on real hardware, and the required live beta-app evidence (safe tasks in >=3 approved apps, live confirmation/emergency-stop, live screen-content injection fixture) requires the user physically present. R3 is not formally complete: filesystem/URL adapters unbuilt, 4 direct-call-only capabilities lack NLU/UI reachability, planner not wired into DialogueEngine/ToolRouter for automatic multi-step plans, and the 7-scenario live completion demonstration not performed. R2 is also not formally complete: RISK-STT-MIC-NOT-CAPTURING (Open) and RISK-ENGLISH-ONLY-INTENT (Mitigating) require live hardware evidence with the user physically present. The user directed proceeding to R4 anyway; this is a deliberate, recorded deviation from the prompt manifest's normal dependency order, not an oversight."]
+    "step": "R5 started by user-directed deviation while R2/R3/R4 remain in_progress (not complete). R5 scope per 06_R5 prompt: read-first browser/mail/calendar/contacts adapters, least-privilege OAuth/Keychain, injection resistance, offline/degraded behavior, live acceptance. ADR-040 is Proposed in DECISION_REGISTER but the file does not yet exist on disk and must be authored first. Primary R5 risks: RISK-MISSING-PRODUCTIVITY-ADAPTERS, RISK-INDIRECT-PROMPT-INJECTION.",
+    "started_at": "2026-08-07T05:00:00Z",
+    "blocked_by": ["R5 is not formally complete: no browser/mail/calendar/contacts adapters exist yet, ADR-040 must be authored, and live acceptance requires explicitly authorized test accounts/profiles. R4 is not formally complete: computerUse.run remains .disabled until an app is explicitly live-validated, and live beta-app evidence requires the user physically present. R3 is not formally complete: filesystem/URL adapters unbuilt, 4 direct-call-only capabilities lack NLU/UI reachability, planner not wired into DialogueEngine/ToolRouter, and the 7-scenario live completion demonstration not performed. R2 is also not formally complete: RISK-STT-MIC-NOT-CAPTURING (Open) and RISK-ENGLISH-ONLY-INTENT (Mitigating) require live hardware evidence with the user physically present. The user directed proceeding to R5 anyway; this is a deliberate, recorded deviation from the prompt manifest's normal dependency order, not an oversight."]
   },
   "tracks": [
     {
@@ -83,9 +83,9 @@
     {
       "id": "R5",
       "name": "Browser, Mail, Calendar, and Contacts Adapters",
-      "state": "pending",
+      "state": "in_progress",
       "dependencies": ["R3"],
-      "started_at": null,
+      "started_at": "2026-08-07T05:00:00Z",
       "completed_at": null,
       "evidence_ids": [],
       "open_risk_ids": ["RISK-MISSING-PRODUCTIVITY-ADAPTERS", "RISK-INDIRECT-PROMPT-INJECTION"]
@@ -257,6 +257,6 @@
     }
   ],
   "last_evidence_ids": ["EV-R4-20260807-WIRING-REGISTRY-01", "EV-R4-20260807-PRODUCTIZATION-CORE-01", "EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01", "EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01", "EV-R2-20260804-PTT-PERMISSION-AUDIT-01"],
-  "blockers": ["R4 not complete: computerUse.run remains .disabled until an app is explicitly live-validated, and the required live beta-app evidence (safe tasks in >=3 approved apps, live confirmation/emergency-stop, live screen-content injection fixture) requires the user physically present. R3 not complete: filesystem/URL adapters unbuilt, 4 direct-call-only capabilities lack NLU/UI reachability, planner not wired into DialogueEngine/ToolRouter, 7-scenario live demo not performed. R2 not complete: RISK-STT-MIC-NOT-CAPTURING (Open) and RISK-ENGLISH-ONLY-INTENT (Mitigating) require live hardware evidence with the user present. RISK-STRUCTURED-NLU-MODEL-QUALITY sub-finding 3 accepted as bounded residual risk on 2026-08-07 (EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01)."],
-  "next_action": "R4 is the active prompt (in_progress). Its deterministic productization core and registry/composition wiring are implemented and tested (EV-R4-20260807-PRODUCTIZATION-CORE-01, EV-R4-20260807-WIRING-REGISTRY-01, ADR-039 accepted): ComputerUseObservation, beta allowlist, DeterministicComputerUsePlanner, resumable hash-bound confirmation, semantic postcondition verification, computerUse.run capability registered (truthfully .disabled until live-validated) and AuraKernel.computerUseRun wired. Remaining R4 work requires the user physically present: run safe tasks in >=3 approved beta apps (Accessibility-anchored action, coordinate fallback, a task requiring confirmation, a modal/identity/no-progress failure, a secure-field refusal, emergency stop, a screen-content injection fixture), record live evidence, then mark computerUse.run .liveValidated for the validated apps and re-run the completion gate. Do not mark R4 complete before these are resolved. R2's two live-verification blockers and R3's four remaining items remain open and unblocked by R4's independent work per the recorded user-directed deviation. Do not mark R2, R3, or R4 complete before their respective remaining items are resolved or explicitly accepted."
+  "blockers": ["R5 not complete: no browser/mail/calendar/contacts adapters exist yet, ADR-040 must be authored, and live acceptance requires explicitly authorized test accounts/profiles. R4 not complete: computerUse.run remains .disabled until an app is explicitly live-validated, and live beta-app evidence requires the user physically present. R3 not complete: filesystem/URL adapters unbuilt, 4 direct-call-only capabilities lack NLU/UI reachability, planner not wired into DialogueEngine/ToolRouter, 7-scenario live demo not performed. R2 not complete: RISK-STT-MIC-NOT-CAPTURING (Open) and RISK-ENGLISH-ONLY-INTENT (Mitigating) require live hardware evidence with the user present. RISK-STRUCTURED-NLU-MODEL-QUALITY sub-finding 3 accepted as bounded residual risk on 2026-08-07 (EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01)."],
+  "next_action": "R5 is the active prompt (in_progress), started by user-directed deviation while R2/R3/R4 remain in_progress. R5 scope: (1) author ADR-040 (docs/decisions/ADR-040-productivity-integrations-oauth.md — Proposed in DECISION_REGISTER but file does not yet exist) and record it; (2) build read-first browser/mail/calendar/contacts adapters with least-privilege OAuth/Keychain; (3) add injection resistance and offline/degraded behavior; (4) run live acceptance with explicitly authorized test accounts/profiles. Do not mark R5 complete before these are resolved. R2's two live-verification blockers, R3's four remaining items, and R4's live beta-app evidence remain open and unblocked by R5's independent work per the recorded user-directed deviation. Do not mark R2, R3, R4, or R5 complete before their respective remaining items are resolved or explicitly accepted."
 }

@@ -3300,3 +3300,14 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Verification:** Local `HEAD` and `origin/main` resolve to the same full hash, and `git status` reports a clean worktree. No separate merge commit was required because `main` was the active publication branch and no open PR/merge candidate existed.
 - **Evidence:** `EV-R2-20260803-PUBLICATION-01`.
 - **Status:** R2 remains in progress pending live Ollama and authorized hardware evidence. Commit/push/merge authority was explicit for this request and expires at task completion.
+
+### 2026-08-07T05:00:00Z — R2_R3_R4_DEFERRED_R5_STARTED — runtime-completion program advances to R5; remaining gates deferred to a second pass
+
+- **Actor:** GitHub Copilot engineering session.
+- **Objective result:** Recorded the incomplete R2/R3/R4 gates, started R5 (browser/mail/calendar/contacts adapters) by user-directed deviation, and wrote a new `SESSION_STARTER.md` for the next session. All remaining incomplete gates are deferred to a second pass after the first pass.
+- **State:** `HEAD == origin/main == 808cf64f1804fc9ba433ea5a85beedcdabeacdb2`; active prompt R5; R2/R3/R4 remain `in_progress`.
+- **R2:** bilingual NLU/dialogue implemented and system-tested but not formally closed (live hardware evidence pending: `RISK-STT-MIC-NOT-CAPTURING`, `RISK-ENGLISH-ONLY-INTENT`).
+- **R3:** capability registry/typed planner core implemented and tested (ADR-038) but not complete (filesystem/URL adapters, NLU/UI reachability, planner wiring, 7-scenario demo).
+- **R4:** computer-use productization core and registry wiring implemented and tested (ADR-039) but not complete (live beta-app evidence in ≥3 approved apps).
+- **R5:** active prompt; no adapters exist yet; ADR-040 must be authored first.
+- **Next safe action:** author ADR-040, then build read-first browser/mail/calendar/contacts adapters; complete R2/R3/R4/R5 remaining gates in a second pass with the user physically present.

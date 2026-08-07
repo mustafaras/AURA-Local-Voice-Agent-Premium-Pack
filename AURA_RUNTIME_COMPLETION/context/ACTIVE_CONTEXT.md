@@ -1,9 +1,9 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `R4`
-> **Current program state:** In progress; R1 completed, R2 in progress (deferred closeout), R3 in progress, R4 in progress (user-directed parallel start)
-> **Audited baseline:** `24fe2165f6b3805d3afcdbb7ed8554fda1ee06d0`
+> **Current prompt:** `R5`
+> **Current program state:** In progress; R1 completed, R2 in progress (deferred closeout), R3 in progress, R4 in progress, R5 in progress (user-directed parallel start)
+> **Audited baseline:** `808cf64f1804fc9ba433ea5a85beedcdabeacdb2`
 
 ## Canonical status
 
@@ -16,8 +16,10 @@ integration and trace correctness are complete for local development/integration
 scope. R2 bilingual NLU and dialogue is implemented and system-tested but **not
 formally closed** (see "R2 closeout status" below). R3 capability registry and
 typed planner is implemented and system-tested but **not complete** (see "R3
-status" below). R4 computer-use productization was started by user-directed
-deviation while R3 remains in_progress.
+status" below). R4 computer-use productization core and registry wiring are
+implemented and tested but **not complete** (see "R4 status" below). R5
+browser/mail/calendar/contacts adapters was started by user-directed deviation
+while R2/R3/R4 remain in_progress.
 
 ## R2 closeout status (2026-08-07)
 
@@ -81,6 +83,21 @@ evidence — safe tasks in ≥3 approved apps on granted Accessibility/Screen-Re
 screen-content injection fixture — has not been performed and requires the user physically present. `RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER` is mitigated
 but not closed.
 
+## R5 status
+
+R5 browser/mail/calendar/contacts adapters is `in_progress`, started by
+user-directed deviation while R2/R3/R4 remain open (recorded in the program
+ledger). Scope per `06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md`: read-first
+browser/mail/calendar/contacts capabilities, least-privilege OAuth/Keychain,
+injection resistance, offline/degraded behavior, and live acceptance. Primary
+risks: `RISK-MISSING-PRODUCTIVITY-ADAPTERS` and `RISK-INDIRECT-PROMPT-INJECTION`.
+ADR-040 is Proposed in `DECISION_REGISTER.md` but the file does not yet exist on
+disk and must be authored before implementation.
+
+**R5 is NOT complete.** No browser/mail/calendar/contacts adapters exist yet;
+ADR-040 must be authored; and live acceptance requires explicitly authorized
+test accounts/profiles.
+
 ## Why this program exists
 
 AURA contains many implemented and tested subsystems, but they do not yet form one complete assistant. The primary deficit is integration and product truthfulness, not raw code volume.
@@ -103,28 +120,24 @@ The immediate program must:
 
 ## Immediate next action
 
-R4 is the active prompt (in_progress). Its deterministic productization core and
-registry/composition wiring are done and tested (observation contract, beta
-allowlist, first production planner, resumable hash-bound confirmation,
-semantic postcondition verification, `computerUse.run` capability registered +
-`AuraKernel.computerUseRun` wired, ADR-039 accepted —
-`EV-R4-20260807-PRODUCTIZATION-CORE-01`, `EV-R4-20260807-WIRING-REGISTRY-01`).
-The next concrete R4 work requires the user physically present:
+R5 is the active prompt (in_progress), started by user-directed deviation while
+R2/R3/R4 remain open. The next concrete R5 work, in dependency order:
 
-1. **Run safe tasks in ≥3 approved beta apps** on granted
-   Accessibility/Screen-Recording hardware: an Accessibility-anchored action,
-   a coordinate fallback action, a task requiring confirmation, a
-   modal/identity/no-progress failure, a secure-field refusal, emergency stop,
-   and a screen-content injection fixture. Record live evidence
-   (video/screenshot/log only with explicit consent and redaction).
-2. **Mark `computerUse.run` `.liveValidated`** for the validated apps and
-   re-run the completion gate.
+1. **Author ADR-040** (`docs/decisions/ADR-040-productivity-integrations-oauth.md`
+   — Proposed in `DECISION_REGISTER.md` but the file does not yet exist on
+   disk) and record it, defining the browser/mail/calendar/contacts
+   least-privilege OAuth/Keychain trust boundaries.
+2. **Build read-first browser/mail/calendar/contacts adapters** with
+   least-privilege OAuth scopes and Keychain token references.
+3. **Add injection resistance and offline/degraded behavior** (provenance
+   tagging, content isolation, sanitized model context, adversarial fixtures).
+4. **Run live acceptance** with explicitly authorized test accounts/profiles.
 
-R3 and R2 remain open (deferred/parallel) — see the R2 closeout status and R3
-status sections above. Do not mark R2, R3, or R4 complete before their
-respective remaining items are resolved or explicitly accepted. Do not start
-Phase 26 or any optional historical roadmap phase merely because older prose
-names it as the next action.
+R4, R3, and R2 remain open (deferred/parallel) — see the R2 closeout status, R3
+status, and R4 status sections above. Do not mark R2, R3, R4, or R5 complete
+before their respective remaining items are resolved or explicitly accepted. Do
+not start Phase 26 or any optional historical roadmap phase merely because older
+prose names it as the next action.
 
 ## Current major risks
 

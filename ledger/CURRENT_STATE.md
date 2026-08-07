@@ -1,25 +1,27 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-03.
+Projection refreshed from live repository and command evidence on 2026-08-07.
 
-## Canonical State Notice — 2026-08-02
+## Canonical State Notice — 2026-08-07
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == b8f896097d6b8bd390c5a5030b5eb902eb1631c0`. R1 is complete for
-local development/integration scope and R2 remains in progress pending live
-Ollama and hardware evidence. This legacy projection
+origin/main == 808cf64f1804fc9ba433ea5a85beedcdabeacdb2`. R1 is complete for
+local development/integration scope. R2, R3, and R4 remain `in_progress`
+(deferred for a second pass) and R5 (browser/mail/calendar/contacts adapters) is
+the active prompt, started by user-directed deviation. This legacy projection
 is retained for historical compatibility; the older status sections below are
 not authoritative and must not override the canonical machine state.
 
-## Latest Verification Snapshot — 2026-08-02
+## Latest Verification Snapshot — 2026-08-07
 
-- R1 final live regression: 20 Swift Testing bundles, 678/678 tests passed, 0 failed bundles under `/tmp/aura-r1-final-closure`.
-- R1 focused trace/health evidence: AuraCoreTests 16/16, AURAIntegrationTests 17/17, AuraAudioTests 33/33, AuraSTTTests 14/14, AuraPolicyTests 18/18, and AuraAgentTests 206/206.
-- R1 accepted ADRs: ADR-035 TurnContext trace correctness and ADR-037 runtime health/confirmation transactions. Confirmation restart behavior is fail-closed; durable resume remains open.
-- R1/R2 runtime changes are committed and pushed at `b8f8960`; `swift-format`/full Xcode and release gates remain unavailable or open.
-- R2 local slice: bilingual fast path, structured-NLU boundary, model-backed DialogueEngine, clarification expiry, locale-preserving TTS, and dialogue health are implemented; the latest full regression passed 695/695. R2 remains open only for live Ollama/hardware evidence and later release gates.
+- R2/R3/R4 runtime and governance changes are committed and pushed at `808cf64`; full regression 20/20 bundles, 778/778 tests, 0 failed bundles; governance gate passes.
+- R2 bilingual NLU/dialogue implemented and system-tested but not formally closed (live hardware evidence pending).
+- R3 capability registry/typed planner architectural core implemented and tested (ADR-038 accepted) but not complete.
+- R4 computer-use productization deterministic core and registry wiring implemented and tested (ADR-039 accepted) but not complete (live beta-app evidence pending).
+- R5 browser/mail/calendar/contacts adapters is the active prompt; ADR-040 must be authored first.
+- `swift-format`/full Xcode and release gates remain unavailable or open.
 
 - Code revision `20571de` contains the verified sequential Swift test runner and serialized system-TTS latency suite.
 - Full repository validation passes: 20 test bundles, 665 tests, 0 failed bundles. The release `AURA.app` bundle and PluginHost/AutomationHelper/ShellHelper payloads also build successfully under `/tmp/aura-app-after`.
