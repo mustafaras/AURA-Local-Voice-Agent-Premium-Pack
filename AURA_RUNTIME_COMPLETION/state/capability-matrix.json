@@ -433,18 +433,27 @@
       "id": "intent.capability_registry",
       "name": "Typed capability registry and planner",
       "domain": "intent",
-      "implementation_state": "missing",
-      "runtime_state": "not_constructed",
-      "user_path_state": "none",
-      "verification_state": "none",
+      "implementation_state": "partial",
+      "runtime_state": "registered_ready",
+      "user_path_state": "developer_only",
+      "verification_state": "unit_only",
       "risk_tier": "destructive",
       "owning_track": "R3",
-      "production_files": [],
-      "test_files": [],
+      "production_files": [
+        "Sources/AuraIntent/CapabilityRegistry.swift",
+        "Sources/AuraIntent/CapabilityPlanner.swift",
+        "Sources/AuraIntent/InitialCapabilitySet.swift",
+        "Sources/AuraIntent/ToolRouter.swift",
+        "Sources/AURA/AuraKernel.swift"
+      ],
+      "test_files": [
+        "Tests/AuraIntentTests/CapabilityRegistryTests.swift",
+        "Tests/AuraIntentTests/CapabilityPlannerTests.swift"
+      ],
       "dependencies": ["intent.classification", "dialogue.conversation"],
-      "open_gaps": ["Current routing is a closed switch over five intent kinds; no capability manifests or validated multi-step plans."],
-      "evidence_ids": [],
-      "notes": "Central missing integration abstraction."
+      "open_gaps": ["4 of 14 registered capabilities (filesystem.open_file/open_folder/reveal, url.open) have a reviewed manifest but no adapter yet. 4 more (app.discover, app.hide, task.status, task.cancel) are reachable only via direct AuraKernel calls, not the bilingual NLU classifier or any UI control. The planner (multi-step/delegated/refusal PlanResult cases) is implemented and unit-tested but not yet wired into DialogueEngine/ToolRouter for automatic natural-language plan decomposition. The R3 prompt's required 7-scenario live completion demonstration has not been performed."],
+      "evidence_ids": ["EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01"],
+      "notes": "ToolRegistry/ToolContract (the prior closed five-intent switch) deleted; CapabilityRegistry is now the sole production source for the 5 pre-existing capabilities plus 5 more, with zero regression to existing behavior. See ADR-038."
     },
     {
       "id": "security.policy",

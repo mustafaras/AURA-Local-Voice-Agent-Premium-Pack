@@ -2,30 +2,32 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-03T06:19:48Z",
-  "session_id": "AURA-BOOTSTRAP-2026-08-02",
+  "updated_at": "2026-08-07T04:00:00Z",
+  "session_id": "AURA-R2-CLOSEOUT-20260807",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
     "verified_head": "b8f896097d6b8bd390c5a5030b5eb902eb1631c0",
     "remote_head": "b8f896097d6b8bd390c5a5030b5eb902eb1631c0",
-    "working_tree_state": "clean",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
       "The ordered manifest contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is a mandatory out-of-manifest session procedure documented by prompts/README.md.",
-      "R1 runtime integration and R2 bilingual dialogue changes were validated, committed as b8f8960, and pushed to origin/main; the worktree is clean."
+      "R1 runtime integration and R2 bilingual dialogue changes were validated, committed as b8f8960, and pushed to origin/main.",
+      "This session's ledger/state/evidence/risk-register/handoff updates recording the live Ollama benchmark and app-launch smoke (EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01, EV-R2-20260803-APP-LAUNCH-LIVE-01) remain local and uncommitted pending explicit commit/push authorization.",
+      "This session also modified product source with user authorization: a debug-gated (env-var-inert-by-default) text-demo hook in Sources/AURA/AuraAppModel.swift, a debug-gated response-text log in Sources/AuraAgent/Conversation.swift, and a new default policy grant for .agentOllamaLocalInference in Sources/AURA/AuraKernel.swift (documented as a 2026-08-03 addendum to ADR-036, EV-R2-20260803-TEXTDEMO-LIVE-01). Full regression re-verified at 20/20 bundles, 695/695 tests after each change. All remain local and uncommitted."
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R2",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
+    "id": "R4",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
     "state": "in_progress",
-    "step": "Implement and validate the layered bilingual fast path, schema-validated local NLU refinement, model-backed dialogue, locale-preserving response plans, bounded provenance context, and honest degraded behavior.",
-    "started_at": "2026-08-02T17:27:28Z",
-    "blocked_by": []
+    "step": "R4 deterministic core + registry wiring implemented and tested (EV-R4-20260807-PRODUCTIZATION-CORE-01, EV-R4-20260807-WIRING-REGISTRY-01, ADR-039 accepted): ComputerUseObservation, beta allowlist, DeterministicComputerUsePlanner, resumable confirmation, semantic verification, computerUse.run registered + AuraKernel.computerUseRun wired. Remaining: live beta-app evidence (>=3 apps) requires the user present.",
+    "started_at": "2026-08-07T02:00:00Z",
+    "blocked_by": ["R4 is not formally complete: computerUse.run remains .disabled until an app is explicitly live-validated, the live end-to-end path has not been exercised on real hardware, and the required live beta-app evidence (safe tasks in >=3 approved apps, live confirmation/emergency-stop, live screen-content injection fixture) requires the user physically present. R3 is not formally complete: filesystem/URL adapters unbuilt, 4 direct-call-only capabilities lack NLU/UI reachability, planner not wired into DialogueEngine/ToolRouter for automatic multi-step plans, and the 7-scenario live completion demonstration not performed. R2 is also not formally complete: RISK-STT-MIC-NOT-CAPTURING (Open) and RISK-ENGLISH-ONLY-INTENT (Mitigating) require live hardware evidence with the user physically present. The user directed proceeding to R4 anyway; this is a deliberate, recorded deviation from the prompt manifest's normal dependency order, not an oversight."]
   },
   "tracks": [
     {
@@ -55,27 +57,27 @@
       "dependencies": ["R1"],
       "started_at": "2026-08-02T17:27:28Z",
       "completed_at": null,
-      "evidence_ids": ["EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01", "EV-R2-20260802-OLLAMA-STRUCTURED-01", "EV-R2-20260802-INTEGRATION-DIALOGUE-01", "EV-R2-20260802-FULL-SUITE-SLICE-01", "EV-R2-20260802-FULL-SUITE-FINAL-01", "EV-R2-20260802-FULL-SUITE-FINAL-02", "EV-R2-20260802-DIALOGUE-HEALTH-01", "EV-R2-20260802-AGENT-RISK-01", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260803-FINAL-REGRESSION-01", "EV-R2-20260803-PUBLICATION-01"],
-      "open_risk_ids": ["RISK-ENGLISH-ONLY-INTENT", "RISK-MODEL-MEMORY-PRESSURE"]
+      "evidence_ids": ["EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01", "EV-R2-20260802-OLLAMA-STRUCTURED-01", "EV-R2-20260802-INTEGRATION-DIALOGUE-01", "EV-R2-20260802-FULL-SUITE-SLICE-01", "EV-R2-20260802-FULL-SUITE-FINAL-01", "EV-R2-20260802-FULL-SUITE-FINAL-02", "EV-R2-20260802-DIALOGUE-HEALTH-01", "EV-R2-20260802-AGENT-RISK-01", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260803-FINAL-REGRESSION-01", "EV-R2-20260803-PUBLICATION-01", "EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01", "EV-R2-20260803-APP-LAUNCH-LIVE-01", "EV-R2-20260803-TEXTDEMO-LIVE-01", "EV-R2-20260803-TEXTDEMO-LIVE-02", "EV-R2-20260803-PROMPT-LEAKAGE-FIX-01", "EV-R2-20260803-REAL-DESKTOP-SESSION-01", "EV-R2-20260803-OLLAMA-BUDGET-FIX-01", "EV-R2-20260804-STRUCTURED-NLU-CAPABILITY-GATE-FIX-01", "EV-R2-20260804-PTT-PERMISSION-AUDIT-01", "EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01"],
+      "open_risk_ids": ["RISK-ENGLISH-ONLY-INTENT", "RISK-MODEL-MEMORY-PRESSURE", "RISK-STRUCTURED-NLU-MODEL-QUALITY", "RISK-STT-MIC-NOT-CAPTURING"]
     },
     {
       "id": "R3",
       "name": "Capability Registry and Typed Planner",
-      "state": "pending",
+      "state": "in_progress",
       "dependencies": ["R2"],
-      "started_at": null,
+      "started_at": "2026-08-04T10:40:00Z",
       "completed_at": null,
-      "evidence_ids": [],
+      "evidence_ids": ["EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01"],
       "open_risk_ids": ["RISK-CLOSED-TOOL-ROUTER"]
     },
     {
       "id": "R4",
       "name": "Computer-Use Productization",
-      "state": "pending",
+      "state": "in_progress",
       "dependencies": ["R3"],
-      "started_at": null,
+      "started_at": "2026-08-07T02:00:00Z",
       "completed_at": null,
-      "evidence_ids": [],
+      "evidence_ids": ["EV-R4-20260807-PRODUCTIZATION-CORE-01", "EV-R4-20260807-WIRING-REGISTRY-01"],
       "open_risk_ids": ["RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER"]
     },
     {
@@ -164,13 +166,13 @@
     "install_dependencies": false,
     "download_models": false,
     "mutate_permissions": false,
-    "launch_or_install_app": false,
+    "launch_or_install_app": true,
     "commit": false,
     "push": false,
     "merge": false,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "The user explicitly authorized commit, push, and merge for this closeout. Commit b8f8960 was created and pushed to origin/main; authority expires at task completion. No dependency installation, model download, TCC/permission mutation, app launch/install, signing, notarization, release, or deployment occurred."
+    "source": "For this session the user explicitly authorized, via an explicit pre-action question: (1) loading/running the already-local gemma4:latest via Ollama for a bounded benchmark, (2) launching AURA.app, and (3) microphone/TCC permission. Model inference and app launch were exercised (EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01, EV-R2-20260803-APP-LAUNCH-LIVE-01); mutate_permissions/TCC was authorized but not exercised because this session has no GUI/Accessibility control to click a system permission dialog or drive the app UI, so no TCC mutation occurred. No dependency installation, model download, commit, push, merge, signing, notarization, release, or deployment occurred."
   },
   "release_gates": [
     {
@@ -254,7 +256,7 @@
       "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
     }
   ],
-  "last_evidence_ids": ["EV-R2-20260803-PUBLICATION-01", "EV-R2-20260803-FINAL-REGRESSION-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-AGENT-RISK-01"],
-  "blockers": [],
-  "next_action": "With explicit authorization, run a bounded local Ollama health/first-token benchmark for gemma4:latest under the 16 GB memory budget, then perform the required Turkish, English, mixed, clarification, and degraded-mode hardware demonstration. Do not install models, mutate TCC, or claim R2 complete before that evidence."
+  "last_evidence_ids": ["EV-R4-20260807-WIRING-REGISTRY-01", "EV-R4-20260807-PRODUCTIZATION-CORE-01", "EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01", "EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01", "EV-R2-20260804-PTT-PERMISSION-AUDIT-01"],
+  "blockers": ["R4 not complete: computerUse.run remains .disabled until an app is explicitly live-validated, and the required live beta-app evidence (safe tasks in >=3 approved apps, live confirmation/emergency-stop, live screen-content injection fixture) requires the user physically present. R3 not complete: filesystem/URL adapters unbuilt, 4 direct-call-only capabilities lack NLU/UI reachability, planner not wired into DialogueEngine/ToolRouter, 7-scenario live demo not performed. R2 not complete: RISK-STT-MIC-NOT-CAPTURING (Open) and RISK-ENGLISH-ONLY-INTENT (Mitigating) require live hardware evidence with the user present. RISK-STRUCTURED-NLU-MODEL-QUALITY sub-finding 3 accepted as bounded residual risk on 2026-08-07 (EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01)."],
+  "next_action": "R4 is the active prompt (in_progress). Its deterministic productization core and registry/composition wiring are implemented and tested (EV-R4-20260807-PRODUCTIZATION-CORE-01, EV-R4-20260807-WIRING-REGISTRY-01, ADR-039 accepted): ComputerUseObservation, beta allowlist, DeterministicComputerUsePlanner, resumable hash-bound confirmation, semantic postcondition verification, computerUse.run capability registered (truthfully .disabled until live-validated) and AuraKernel.computerUseRun wired. Remaining R4 work requires the user physically present: run safe tasks in >=3 approved beta apps (Accessibility-anchored action, coordinate fallback, a task requiring confirmation, a modal/identity/no-progress failure, a secure-field refusal, emergency stop, a screen-content injection fixture), record live evidence, then mark computerUse.run .liveValidated for the validated apps and re-run the completion gate. Do not mark R4 complete before these are resolved. R2's two live-verification blockers and R3's four remaining items remain open and unblocked by R4's independent work per the recorded user-directed deviation. Do not mark R2, R3, or R4 complete before their respective remaining items are resolved or explicitly accepted."
 }
