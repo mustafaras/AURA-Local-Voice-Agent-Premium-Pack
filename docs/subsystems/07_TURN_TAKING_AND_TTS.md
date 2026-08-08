@@ -72,3 +72,18 @@ AURA's spoken persona is defined in `persona/AURA_VOICE_AND_BEHAVIOR.md`:
 - Never speak secrets.
 - Avoid speaking code character by character unless requested.
 - Match persona tone for the situation (see persona doc for examples).
+
+## R7 implementation boundary
+
+Conversation state now applies a conservative bounded continuation window when a
+stable segment visibly ends with a connector, delimiter, or open punctuation;
+the text is never rewritten. System TTS retains its active synthesizer so
+`stopSpeaking`, `pauseSpeaking`, and `resumeSpeaking` are real AVFoundation
+operations on the serial synthesis queue. Chatterbox synthesis is bounded by a
+helper timeout, memory reservation, private WAV validation/cleanup, and
+system-Yelda fallback on timeout, failure, or resource denial. CPU is the safe
+default; MPS remains opt-in until live thermal/latency qualification.
+
+Live barge-in/echo behavior, consented neural reference and human listening
+acceptance, first-audio latency, cache/soak evidence, and release-quality
+neural-vs-system voice selection remain open.

@@ -1,4 +1,5 @@
 import AuraCore
+import AuraPolicy
 import AuraShell
 import Foundation
 
@@ -33,6 +34,7 @@ public struct VSCodeAlwaysAllowConfirmation: VSCodeDirtyEditorConfirmation {
 /// confirmation.
 public actor VSCodeAdapter {
   private let configuration: VSCodeConfiguration
+  private let policyEngine: PolicyEngine?
   private let policyAdapter: VSCodePolicyAdapter.Type
   private let cli: VSCodeCLI
   private let bridge: any VSCodeExtensionBridge
@@ -43,9 +45,11 @@ public actor VSCodeAdapter {
     configuration: VSCodeConfiguration,
     shell: AuraShell,
     bridge: any VSCodeExtensionBridge,
+    policyEngine: PolicyEngine? = nil,
     confirmation: any VSCodeDirtyEditorConfirmation = VSCodeAlwaysDenyConfirmation()
   ) {
     self.configuration = configuration
+    self.policyEngine = policyEngine
     self.policyAdapter = VSCodePolicyAdapter.self
     self.cli = VSCodeCLI(configuration: configuration, shell: shell)
     self.bridge = bridge
@@ -68,6 +72,26 @@ public actor VSCodeAdapter {
       )
     }
     return VSCodeWorkspaceInfo()
+  }
+
+  /// Resolve a coding workspace using the R6 precedence contract.
+  public func resolveWorkspace(
+    explicitTarget: String? = nil,
+    activeDurableTaskPath: String? = nil,
+    projectCandidates: [String] = []
+  ) async -> VSCodeWorkspaceResolution {
+    let resolver = VSCodeWorkspaceResolver()
+    return resolver.resolve(
+      explicitTarget: explicitTarget,
+      activeWorkspace: await activeWorkspace(),
+      activeDurableTaskPath: activeDurableTaskPath,
+      projectCandidates: projectCandidates
+    )
+  }
+
+  /// Return bridge readiness as reported by the authenticated transport.
+  public func bridgeHealth() async -> VSCodeBridgeHealth {
+    await bridge.health()
   }
 
   /// Execute a typed VS Code command after optional dirty-editor safety checks.
@@ -103,18 +127,10 @@ public actor VSCodeAdapter {
       }
     }
 
-    // Policy request is constructed for every command, even though the current
-    // boundary does not yet await a concrete PolicyEngine decision.
-    let request = policyAdapter.request(
-      for: command,
-      actor: actor,
-      correlationID: correlationID
-    )
-    await emit(
-      VSCodePolicyEvaluationEvent(request: request),
-      actor: actor,
-      correlationID: correlationID
-    )
+    guard await authorize(command, actor: actor, correlationID: correlationID) else {
+      return .failure(
+        AuraError.permissionDenied("VS Code action was not authorized by PolicyEngine"))
+    }
 
     switch command {
     case .terminalCommand:
@@ -139,7 +155,11 @@ public actor VSCodeAdapter {
     actor: ActorID,
     correlationID: String
   ) async -> Result<String, AuraError> {
-    await cli.execute(command, actor: actor, correlationID: correlationID)
+    guard await authorize(command, actor: actor, correlationID: correlationID) else {
+      return .failure(
+        AuraError.permissionDenied("VS Code CLI action was not authorized by PolicyEngine"))
+    }
+    return await cli.execute(command, actor: actor, correlationID: correlationID)
   }
 
   /// Read editor state from the extension bridge.
@@ -157,19 +177,110 @@ public actor VSCodeAdapter {
     await bridge.diagnostics(maxStalenessSeconds: configuration.bridgeMaxStalenessSeconds)
   }
 
+  /// Execute an allowlisted bridge command after a separate policy decision.
+  public func executeBridge(
+    _ command: VSCodeBridgeCommand,
+    actor: ActorID,
+    correlationID: String
+  ) async -> Result<VSCodeBridgeCommandResult, AuraError> {
+    guard await authorize(command, actor: actor, correlationID: correlationID) else {
+      return .failure(
+        AuraError.permissionDenied("VS Code bridge command was not authorized by PolicyEngine"))
+    }
+    do {
+      let result = try await bridge.execute(command)
+      guard result.outcome != .unavailable else {
+        return .failure(AuraError.vscodeError(result.message))
+      }
+      return .success(result)
+    } catch {
+      return .failure(error)
+    }
+  }
+
   // MARK: - Private
+
+  /// Evaluate and enforce the real policy decision before any CLI, shell, or
+  /// bridge route is reached. A missing engine is deliberately fail-closed;
+  /// emitting a request is not authorization.
+  private func authorize(
+    _ command: VSCodeCommand,
+    actor: ActorID,
+    correlationID: String
+  ) async -> Bool {
+    let request = policyAdapter.request(
+      for: command,
+      actor: actor,
+      correlationID: correlationID
+    )
+    await emit(
+      VSCodePolicyEvaluationEvent(request: request),
+      actor: actor,
+      correlationID: correlationID
+    )
+
+    guard let policyEngine else {
+      return false
+    }
+    let decision = await policyEngine.evaluate(request)
+    switch decision {
+    case .allow:
+      return true
+    case .deny, .confirm:
+      // Confirmation is intentionally not auto-submitted here. The caller/UI
+      // must complete the existing PolicyEngine confirmation transaction before
+      // a later, explicitly authorized execution attempt.
+      return false
+    }
+  }
+
+  private func authorize(
+    _ command: VSCodeBridgeCommand,
+    actor: ActorID,
+    correlationID: String
+  ) async -> Bool {
+    let request = policyAdapter.request(
+      for: command,
+      actor: actor,
+      correlationID: correlationID
+    )
+    await emit(
+      VSCodePolicyEvaluationEvent(request: request),
+      actor: actor,
+      correlationID: correlationID
+    )
+    guard let policyEngine else { return false }
+    switch await policyEngine.evaluate(request) {
+    case .allow:
+      return true
+    case .deny, .confirm:
+      return false
+    }
+  }
 
   private func executeViaBridge(
     _ command: VSCodeCommand,
     actor: ActorID,
     correlationID: String
   ) async -> Result<String, AuraError> {
-    // The bridge itself cannot run commands; route to terminal injection with
-    // a shell-safe representation. This is intentionally conservative.
-    return .failure(
-      AuraError.invalidConfiguration(
-        "\(command.kind) requires the VS Code extension bridge terminal route"
-      ))
+    let bridgeCommand: VSCodeBridgeCommand
+    switch command {
+    case .runTask(let name, let workspacePath):
+      bridgeCommand = .runTask(name: name, workspacePath: workspacePath)
+    case .runTests(let target, let workspacePath):
+      bridgeCommand = .runTests(target: target, workspacePath: workspacePath)
+    default:
+      return .failure(AuraError.invalidConfiguration("command is not a bridge task/test command"))
+    }
+    do {
+      let result = try await bridge.execute(bridgeCommand)
+      guard result.outcome != .unavailable else {
+        return .failure(AuraError.vscodeError(result.message))
+      }
+      return .success(result.message)
+    } catch {
+      return .failure(error)
+    }
   }
 
   private func emit(_ payload: some EventPayload, actor: ActorID, correlationID: String) async {

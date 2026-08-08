@@ -36,3 +36,19 @@ non-empty sample frame to STT; metadata-only placeholder audio is forbidden.
 
 ## Benchmarks
 Measure word error rate, entity error rate, first-partial latency, stable-segment latency, memory, CPU, and energy.
+
+## R7 implementation boundary
+
+`STTRouter` selects the first local engine that actually starts and records the
+selected engine ID, locale, offline capability, and router generation in
+health/result metadata. The native Speech adapter checks both recognizer
+availability and `supportsOnDeviceRecognition` before setting
+`requiresOnDeviceRecognition`; an unsupported locale is not represented as a
+ready offline engine. The engine-lifetime result stream remains reusable after
+session cancellation, and duplicate result IDs are discarded by
+`STTPipeline`.
+
+The current fallback is another Apple on-device locale adapter, not a silently
+quality-switching Whisper claim. Live Turkish/English/mixed-language WER and
+entity evaluation, a qualified local Whisper/equivalent fallback, microphone
+permission acceptance, and release-hardware recovery remain open.

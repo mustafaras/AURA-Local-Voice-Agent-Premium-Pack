@@ -20,6 +20,7 @@ public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
   private let lock = NSRecursiveLock()
   private var isRunning = false
   private var currentBox: UnsafeContinuationBox?
+  private var currentSynthesizer: AVSpeechSynthesizer?
 
   public init(preferredVoiceIdentifier: String? = nil) {
     self.preferredVoiceIdentifier = preferredVoiceIdentifier
@@ -41,13 +42,17 @@ public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
     let (stream, continuation) = AsyncStream<TTSChunk>.makeStream()
     let box = UnsafeContinuationBox(continuation: continuation)
 
-    lock.withLock {
-      currentBox = box
+    synthesizerQueue.sync {
+      lock.withLock {
+        currentSynthesizer?.stopSpeaking(at: .immediate)
+        currentSynthesizer = nil
+        currentBox = box
+      }
     }
 
     continuation.onTermination = { [weak self] _ in
       Task { [weak self] in
-        await self?.stopSpeaking()
+        await self?.stopSpeaking(ifCurrent: box)
       }
     }
 
@@ -101,6 +106,7 @@ public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
       delegate.attach(to: utterance)
       let synthesizer = AVSpeechSynthesizer()
       delegate.holdSynthesizer(synthesizer)
+      self.lock.withLock { self.currentSynthesizer = synthesizer }
       synthesizer.delegate = delegate
       synthesizer.speak(utterance)
     }
@@ -193,29 +199,40 @@ public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
   }
 
   public func stopSpeaking() async {
-    let box: UnsafeContinuationBox? = lock.withLock {
-      let box = currentBox
-      currentBox = nil
-      return box
-    }
+    await stopSpeaking(ifCurrent: nil)
+  }
+
+  /// Stop only when the stream that terminated is still the active stream.
+  /// A cancelled predecessor must not terminate a newer barge-in response.
+  private func stopSpeaking(ifCurrent expectedBox: UnsafeContinuationBox?) async {
+    var box: UnsafeContinuationBox?
     synthesizerQueue.sync {
-      // There is no strong reference kept to the synthesizer; the delegate
-      // holds it. Finishing the stream is enough for the consumer to stop.
+      lock.withLock {
+        if let expectedBox, currentBox !== expectedBox {
+          return
+        }
+        box = currentBox
+        currentBox = nil
+        currentSynthesizer?.stopSpeaking(at: .immediate)
+        currentSynthesizer = nil
+      }
     }
     box?.finish()
   }
 
   public func pauseSpeaking() async {
     synthesizerQueue.sync {
-      // AVSpeechSynthesizer pause is best-effort; we do not track a separate
-      // paused state here because the consumer cancels/resumes via speak/stop.
+      lock.withLock {
+        _ = currentSynthesizer?.pauseSpeaking(at: .word)
+      }
     }
   }
 
   public func resumeSpeaking() async {
     synthesizerQueue.sync {
-      // Resume is a no-op for the system adapter; a new speak call replaces
-      // the interrupted stream.
+      lock.withLock {
+        _ = currentSynthesizer?.continueSpeaking()
+      }
     }
   }
 

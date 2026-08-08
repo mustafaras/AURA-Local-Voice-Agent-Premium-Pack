@@ -26,3 +26,16 @@ Default audio retention is zero. The ring buffer is volatile. Debug capture requ
 - Device disconnect recovery.
 - Echo does not repeatedly trigger the assistant.
 - CPU and energy use remain within the documented budget.
+
+## R7 implementation boundary
+
+The production composition currently uses `DisabledWakeWordDetector` and
+`AudioSampleBridge(enableWakeDetection: false)`, so Push-to-Talk is the only
+claimed activation mode. `MarkerWakeWordDetector` is retained for deterministic
+tests only. `WakeWordPipeline` retains a small bounded map of real
+`AudioFrame` values by sequence index and drops an event when the exact frame is
+no longer present; it never reconstructs audio from a racy "latest sample"
+placeholder. Ambient audio retention remains volatile and bounded.
+
+Real wake-word qualification, headset/device switching, sleep/wake recovery,
+60-minute soak, and live echo/barge-in evidence remain open.

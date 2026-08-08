@@ -524,3 +524,106 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Second-pass completion plan (all remaining gates, to be completed after the first pass):** R2 live-verification (microphone/TCC voice demo `EV-R2-20260804-LIVE-VOICE-DEMO-01`, 7-scenario demo `EV-R2-20260804-LIVE-7SCENARIO-01`); R3 (filesystem/URL adapters, NLU/UI reachability for 4 direct-call-only capabilities, planner wired into DialogueEngine/ToolRouter, 7-scenario live demo); R4 (live beta-app evidence in ≥3 approved apps, mark `computerUse.run` `.liveValidated`); R5 (author ADR-040, build read-first adapters, injection resistance, live acceptance with authorized test accounts). Each requires the user physically present or explicit authorization for live/account actions.
 - **New session starter:** `SESSION_STARTER.md` was rewritten to point at the authoritative `AURA_RUNTIME_COMPLETION/state/current-state.json` and `context/session-handoff.json`, record the current `HEAD == origin/main == 808cf64`, the active prompt R5, and the exact next action (author ADR-040, then build read-first adapters).
 - **Next safe action (R5):** (1) author ADR-040 (`docs/decisions/ADR-040-productivity-integrations-oauth.md`) and record it in `DECISION_REGISTER.md`; (2) build read-first browser/mail/calendar/contacts adapters with least-privilege OAuth/Keychain; (3) add injection resistance and offline/degraded behavior; (4) run live acceptance with explicitly authorized test accounts/profiles. Do not mark R5 complete before these are resolved. R2's two live-verification blockers, R3's four remaining items, and R4's live beta-app evidence remain open and unblocked by R5's independent work.
+
+### 2026-08-07T06:00:00Z — R5_ADR040_ACCEPTED — ADR-040 authored and accepted; R5 trust boundaries and OAuth scope model defined
+
+- **Actor:** GitHub Copilot engineering session (autonomous, user unavailable; user will review later).
+- **Session ID:** `AURA-R2-CLOSEOUT-20260807`.
+- **Verified starting commit:** `808cf64f1804fc9ba433ea5a85beedcdabeacdb2` on `main`; `HEAD == origin/main`; working tree clean at session start.
+- **Authority:** No commit, push, merge, install, launch, or TCC mutation authority is assumed or exercised. Documentation-only.
+- **ADR-040 authored and accepted:** `docs/decisions/ADR-040-productivity-integrations-oauth.md` now exists on disk (previously Proposed in `DECISION_REGISTER.md` with no file) and is marked **Accepted** in `DECISION_REGISTER.md`. It defines the R5 browser/mail/calendar/contacts least-privilege OAuth/Keychain trust boundaries: read-first default with mutation/send separately gated; incremental least-privilege OAuth scopes (read-only installation never requests send scope); Keychain-only immediately-revocable tokens via `KeychainSecretStore`; deny-by-default `NetworkAllowlist` enforcement per provider with redirect re-checking; untrusted-content provenance tagging + `PromptInjectionClassifier` isolation for page/mail/attachment/event content; explicit closed account/profile scope mirroring `ComputerUseBetaAllowlist`; immutable `ConfirmationTransaction` for send/mutation; computer use as explicit bounded fallback; and first-class offline/degraded states. It reuses the verified primitives (ADR-020 Keychain/NetworkAllowlist/ContentProvenance/PromptInjectionClassifier, ADR-037 ConfirmationTransaction, ADR-038 CapabilityRegistry, ADR-039 allowlist pattern) rather than inventing parallel ones.
+- **R5 status:** Remains `in_progress`. ADR-040 is now Accepted (the first R5 work item is done), but no browser/mail/calendar/contacts adapters exist yet, and live acceptance requires explicitly authorized test accounts/profiles. `RISK-MISSING-PRODUCTIVITY-ADAPTERS` and `RISK-OAUTH-OVERPRIVILEGE` are materially mitigated by the ADR's decisions but not closed; `RISK-INDIRECT-PROMPT-INJECTION` is mitigated for the R5 content paths but the general R10 enforcement remains open.
+- **Next safe action (R5):** (1) build read-first browser/mail/calendar/contacts adapters with least-privilege OAuth/Keychain (registering the R5 capabilities in `InitialCapabilitySet` with truthful availability); (2) add injection resistance and offline/degraded behavior; (3) run live acceptance with explicitly authorized test accounts/profiles. Do not mark R5 complete before these are resolved. R2's two live-verification blockers, R3's four remaining items, and R4's live beta-app evidence remain open and unblocked by R5's independent work.
+
+### 2026-08-08T10:13:59Z — R5_READ_FIRST_ADAPTER_SLICE_STARTED — objective, boundaries, and acceptance criteria recorded before implementation
+
+- **Actor:** Codex engineering session.
+- **Objective:** Implement the first deterministic R5 read-first slice: typed browser/mail/calendar/contacts adapter contracts; least-privilege OAuth scope and Keychain-reference handling; provider/domain allowlist checks; external-content provenance and prompt-injection isolation; explicit degraded states; native EventKit/Contacts read adapters where the current macOS SDK provides a structured API; and truthful capability manifests.
+- **Assumptions:** Existing ADR-040 is the governing decision; the current SwiftPM package remains the build boundary; Safari page access requires a separately packaged Safari Web Extension/native-messaging bridge; no live provider account or browser profile is configured for this offline test pass; read-only capabilities may be registered but must remain visibly unavailable until composition-root and live/provider wiring exists.
+- **Risks:** Provider/browser bridge and live OAuth acceptance remain open; EventKit/Contacts authorization is user-controlled and must not be requested during tests; external content must never gain authority; token values must not enter logs, events, prompts, or speech; the pre-existing dirty state and untracked ADR-040 must be preserved.
+- **Acceptance criteria:** (1) package builds the new productivity target; (2) read-only adapters are typed and fail closed for missing configuration, permission, account, scope, network, and injection conditions; (3) read-only OAuth scope manifests cannot silently include compose/send scopes; (4) capability registration is truthful and does not increase the reachable count before composition wiring; (5) focused tests cover scope escalation/revocation, token-reference redaction, domain/redirect enforcement, ambiguity, native read mapping, conflict detection, and direct/indirect injection fixtures; (6) no live account, permission, send, commit, push, or release action is performed.
+- **Next safe action:** Implement the adapter/security slice, then run focused tests, full `scripts/aura-test.sh`, and governance validation before updating state/evidence.
+
+### 2026-08-08T10:40:01Z — R5_READ_FIRST_ADAPTER_SLICE_IMPLEMENTED — deterministic first slice verified; live wiring remains open
+
+- **Actor:** Codex engineering session.
+- **Verified repository:** `HEAD == origin/main == daf062aefc8b2eaa516769fdf27e6fc816111002` on `main`; the worktree remains intentionally dirty and this session performed no commit or push.
+- **Objective result:** Implemented the first R5 read-first slice under Accepted ADR-040: `AuraProductivity` typed browser/mail/calendar/contacts contracts; structured Safari active-tab bridge contract; Gmail read-only OAuth scope/Keychain/account/network boundary; EventKit calendar and Contacts candidate-only native adapters; provenance/injection guards; conflict and attachment policies; and truthful `.disabled` capability manifests.
+- **Verification:** `swift build --target AuraProductivity` passed; focused `AuraProductivityTests` passed 9/9; `./scripts/aura-test.sh /tmp/aura-r5-full` passed 21/21 bundles, 747/747 tests, 0 failed bundles; `python3 scripts/validate_runtime_completion.py --ci` passed; `git diff --check` passed. Focused log SHA-256: `6e97abe025939bc4bb67daf34858a41a2fa21f2c35b7bd63bc70f6c7a3e6e9c8`.
+- **Safety and limits:** No live OAuth consent, provider account, Safari extension package, EventKit/Contacts permission prompt, NLU/UI composition path, mutation/send flow, or external publication was performed. `swift-format` and full Xcode remain unavailable. R5 remains `in_progress`; four read capabilities remain truthfully disabled until live wiring and acceptance.
+- **Next safe action:** Wire the typed slice through `AuraKernel`/Dialogue/UI, package Safari/provider transports, configure explicitly authorized accounts/profiles and permissions, run live offline/degraded acceptance, then separately gate mutation/draft/send with immutable confirmation and post-action verification.
+- **Evidence ID:** `EV-R5-20260808-READ-FIRST-ADAPTERS-01`.
+
+### 2026-08-08T10:51:29Z — R6_POLICY_BRIDGE_SLICE_STARTED — R5 gaps preserved; R6 objective and acceptance recorded
+
+- **Actor:** Codex engineering session.
+- **Transition:** R5 remains `in_progress`; its unresolved gates and the R2/R3/R4 deferred gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. R6 is now the active prompt by user-directed continuation.
+- **Objective:** Enforce `PolicyEngine` decisions before every VS Code action path and harden the existing structured bridge boundary with authenticated/versioned/nonce-aware contracts, bounded data, and explicit stale/disconnect behavior.
+- **Assumptions:** Existing `AuraVSCode`, `AuraTasks`, `AuraAgent`, `WorktreeManager`, and ADR-041 Proposed record are the governing local surfaces; the installed `code` CLI is version `1.132.0` arm64; no live extension packaging, agent backend execution, TCC, commit, or publication action is authorized in this slice.
+- **Risks:** Current bridge state is file-based and unauthenticated; CLI/backend flags and health may drift; direct adapter paths could bypass policy; dirty editor and workspace ambiguity could cause loss or wrong-directory execution.
+- **Acceptance criteria:** Policy deny/confirm/missing-policy paths fail closed before CLI/shell/bridge execution; bridge DTOs carry version/nonce/freshness and reject malformed or stale state; focused R6 tests cover policy gating and bridge failure modes; no R5 gate is marked complete; no live external action is performed.
+- **Next safe action:** Implement the policy gate and bridge contract slice, then run focused R6 tests, full regression, governance validation, and update evidence without accepting ADR-041 prematurely.
+
+### 2026-08-08T11:05:18Z — R6_POLICY_BRIDGE_SLICE_IMPLEMENTED — first policy and authenticated bridge slice verified
+
+- **Actor:** Codex engineering session.
+- **Verified repository:** `HEAD == origin/main == daf062aefc8b2eaa516769fdf27e6fc816111002` on `main`; the worktree remains intentionally dirty and this session performed no commit or push.
+- **Objective result:** `VSCodeAdapter` now receives and awaits the real `PolicyEngine` before CLI, shell, or bridge execution and fails closed for missing, denied, or confirmation-required decisions. The file bridge has an authenticated, versioned HMAC-SHA256 envelope with expected extension ID, nonce replay defense, freshness/clock-skew checks, and bounded payload size. The default production bridge remains unavailable without authenticated configuration.
+- **Verification:** Focused `./scripts/aura-test.sh /tmp/aura-r6-vscode-focused-4 AuraVSCodeTests` passed 17/17. Full `./scripts/aura-test.sh /tmp/aura-r6-full` passed 21/21 bundles, 751/751 tests, 0 failed bundles. Final `python3 scripts/validate_runtime_completion.py --ci`, script unittest discovery (13/13), `git diff --check`, `zsh -n scripts/aura-test.sh`, and JSON parsing passed. Known linker warnings reference unavailable CommandLineTools framework paths; they did not fail the build.
+- **Evidence:** `EV-R6-20260808-POLICY-BRIDGE-01`; `/tmp/aura-r6-full/out/Products/Debug/*.log`; `/tmp/aura-r6-vscode-focused-4`.
+- **Boundaries:** No live extension package/shared-secret provisioning, task/test/diagnostics/workspace route, coding-agent backend health/auth/run, TCC/UI acceptance, user-present live coding-agent demonstration, commit, push, release, or deployment was performed. ADR-041 remains Proposed; R6 remains `in_progress`. R2/R3/R4/R5 remain open in `SECOND_PASS_OPEN_GAPS.md`.
+- **Next safe action:** Package and provision the authenticated extension bridge; complete workspace/task/test/diagnostic/agent routes and durable reviewable writes; verify backend health; then run user-present live acceptance. Do not close R6 or accept ADR-041 from local simulated evidence alone.
+
+### 2026-08-08T11:52:53Z — R6_TYPED_ROUTES_AND_BOUNDED_CODING_SLICE — local typed route and durable-control expansion recorded
+
+- **Actor:** Codex engineering session; session `AURA-R6-VSCODE-20260808`.
+- **Objective result:** Added typed signed bridge command/response DTOs and bounded command validation; fail-closed workspace resolution with explicit → active VS Code → active durable task/worktree → project-candidate precedence; typed task/test/cancel policy mappings; backend health probes that record exact local CLI/version/help evidence while keeping auth/model readiness unverified; production natural-language coding routing through the workspace/backend/worktree/durable-task coordinator; and durable task deadline, inactivity-watchdog, duplicate-ID, cancellation, and latest-checkpoint recovery controls.
+- **Verification:** `swift build --target AuraIntent` passed; `swift build --target AURA` passed; `git diff --check` passed. After placing the existing CommandLineTools `Testing.framework` and interop library in the temporary scratch `@rpath`, `swift test --skip-build --scratch-path /tmp/aura-r6-verify.c9K82Q` passed 21/21 bundles and 763/763 tests. The project runner passed all R6-relevant bundles; its single repository-wide failure was the known `AuraAudioTests` helper `exit 142` after assertions passed.
+- **Safety and limits:** The production bridge remains unavailable without authenticated extension configuration. No extension package/provisioning, live backend auth/model turn, TCC/UI action, commit, push, release, deploy, or user-present acceptance was performed. Write-capable coding remains fail-closed until workspace, backend readiness, worktree, policy, and verification gates pass. ADR-041 remains Proposed and was not accepted.
+- **Evidence ID:** `EV-R6-20260808-TYPED-ROUTES-02`.
+- **Next safe action:** Provision the real extension bridge, connect/live-verify all typed routes, complete backend onboarding and durable reviewable flows, and run the user-present R6 acceptance gate before considering ADR-041 or R6 closure. Keep the AuraAudio exit-142 result under its existing approval boundary; do not intervene in system services without approval.
+
+### 2026-08-08T12:22:42Z — R6_FIRST_PASS_SCOPE_CLARIFICATION — corrected pass terminology
+
+- **User correction:** R6 is the active first-pass continuation. The phrase
+  “second local R6 slice” was incorrect and has been removed from the current
+  handoff/state projections.
+- **State boundary:** `SECOND_PASS_OPEN_GAPS.md` is reserved for the R2-R5
+  gates deferred for the future second pass. R6's remaining extension,
+  backend, durable-flow, and user-present acceptance gates remain current
+  first-pass work and are tracked in the authoritative R6 state/evidence
+  records.
+- **No product change:** This correction changes terminology and state
+  projection only; the R6 implementation and its evidence remain intact.
+
+### 2026-08-08T12:28:03Z — R6_GAPS_AND_R7_APPROVAL_RULE — per-prompt gap recording restored
+
+- **User instruction:** After every prompt, including the active R6 prompt,
+  append unresolved gates to `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`
+  for completion from the beginning in the future second pass.
+- **R6 state:** The R6 section is restored in that file. Its presence is a
+  future second-pass record and does not suspend or close the current first-pass
+  R6 work.
+- **Transition gate:** After R7's explicitly authorized commit/push/merge
+  delivery, stop and obtain the user's explicit approval before transitioning
+  to R8.
+
+### 2026-08-08T12:43:10Z — R7_VOICE_ROUTING_RESOURCE_GOVERNOR_STARTED — objective and boundaries recorded before R7 continuation
+
+- **Actor:** Codex engineering session; user explicitly authorized continuation to R7.
+- **Transition:** R6 remains `in_progress`; R2-R6 unresolved gates remain recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. R7 is the active first-pass prompt. No R8 work is authorized before R7 delivery and explicit user approval.
+- **Objective:** Implement the R7 local voice slice: exact-frame wake pipeline safety with truthful PTT-only production behavior, reusable local STT routing with capability-aware on-device recognition, bounded incomplete-turn completion, deterministic system-TTS interruption/fallback, and actor-isolated resource admission under memory pressure and thermal state.
+- **Assumptions:** Apple Speech and AVFoundation remain the native local adapters; no qualified real wake-word engine, live bilingual corpus, live human barge-in session, or approved ADR-042 acceptance is available in this pass. The existing dirty R5/R6 worktree is user-owned state and must be preserved.
+- **Risks:** Wake-word FAR/FRR and neural-TTS quality are unverified; local STT fallback is not a qualified Whisper-quality router; sleep/device/TCC recovery and measured 16 GB soak require live evidence; ADR-042 must not be accepted without explicit user approval.
+- **Acceptance criteria:** R7 code must build; focused and full available tests must pass or be precisely bounded; PTT remains truthful and safe; fallback/cancel/duplicate/continuation/resource paths are covered; R7 open gates are appended to `SECOND_PASS_OPEN_GAPS.md`; ledgers/state/evidence remain synchronized; no R8 transition occurs without explicit approval.
+- **Intended files:** `Sources/AuraCore/{VoiceResourceGovernor,TurnCompletionHeuristics}.swift`, `Sources/AuraSTT/{STTRouter,STTEngine,SystemSTTEngine,STTPipeline}.swift`, `Sources/AuraAudio/{WakeWordDetector,WakeWordPipeline,SystemTTSEngine,ChatterboxTTSEngine}.swift`, `Sources/AURA/AuraKernel.swift`, related tests, subsystem documentation, and R7 state/evidence records.
+- **Next safe action:** Compile the existing R7 slice, repair any source/test failures, then add focused coverage before state closeout.
+
+### 2026-08-08T13:29:34Z — R7_VOICE_LOCAL_SAFETY_VALIDATED — local implementation and available regression gates passed
+
+- **Actor:** Codex engineering session; session `AURA-R7-VOICE-20260808`.
+- **Objective result:** Completed the R7 local voice routing/resource slice with truthful production Push-to-Talk-only behavior, bounded exact-frame wake buffering, capability-aware on-device STT routing, duplicate-result suppression, bounded incomplete-turn continuation, generation-safe system-TTS interruption, Chatterbox timeout/Yelda fallback, and actor-isolated thermal/memory/failure admission control. The production wake detector remains explicitly disabled because no real wake-word candidate was live-qualified.
+- **Verification:** `swift build --target AURA` passed. `./scripts/aura-test.sh /tmp/aura-r7-full-final` built production AURA and passed 21/21 bundles with 774/774 tests and zero failed bundles. Focused Core and Audio reruns passed 22/22 and 35/35. `python3 scripts/validate_runtime_completion.py --ci`, 13/13 deterministic validator tests, `git diff --check`, `zsh -n scripts/aura-test.sh`, and JSON parsing passed after the deterministic thermal-state correction.
+- **Evidence:** `EV-R7-20260808-VOICE-LOCAL-SAFETY-01`; `/tmp/aura-r7-full-final/out/Products/Debug/*.log` aggregate SHA-256 `4213dc54d4c12a767b2df3387f27453b91b238198b4235ad958518aacc1a047a`; focused Core log SHA-256 `6acba13cf4382ba3dba6c3e5ed24f24dd7adc935f3285ab6bcf1deb832c9da97`; focused Audio log SHA-256 `edfa14206274609d056f12c361fbb18bc2536fde9558ca14e4bd0fd09d3571b8`.
+- **Limits:** No live wake-word FAR/FRR, bilingual/mixed microphone WER/entity evaluation, user-present barge-in or sleep/device/TCC recovery, measured 16 GB multi-workload soak, consented neural reference/quality acceptance, or ADR-042 approval was performed. R7 remains `in_progress`; R2-R6 gaps remain in `SECOND_PASS_OPEN_GAPS.md`.
+- **Delivery boundary:** R7 is ready for the explicitly authorized commit/push delivery. The active branch is `main`, so no separate merge commit is applicable. After delivery, stop and request explicit user approval before R8.

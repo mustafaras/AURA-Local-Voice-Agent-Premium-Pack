@@ -72,7 +72,8 @@ public actor AuraTaskEngine {
   @discardableResult
   public func enqueue(
     request: TaskRequest,
-    runner: TaskRunner
+    runner: TaskRunner,
+    taskID: UUID = UUID()
   ) async throws(AuraError) -> TaskStatus {
     guard !shutdown else {
       throw .taskError("Engine is shutting down")
@@ -80,8 +81,12 @@ public actor AuraTaskEngine {
     guard tasksByID.count < configuration.queueCapacity else {
       throw .taskQueueFull
     }
+    guard tasksByID[taskID] == nil else {
+      throw .taskInvalidState("task ID is already registered: " + taskID.uuidString)
+    }
 
     let task = AuraTask(
+      id: taskID,
       priority: request.priority,
       objective: request.objective,
       deadline: request.deadline,
@@ -328,6 +333,14 @@ public actor AuraTaskEngine {
     } catch is CancellationError {
       await finish(task: task, state: cancellationState, error: "Cancelled")
     } catch let error as AuraError {
+      if case .taskCancelled = error {
+        await finish(task: task, state: cancellationState, error: "Cancelled")
+        return
+      }
+      if isTerminalBoundFailure(error) {
+        await finish(task: task, state: .failed, error: error.localizedDescription)
+        return
+      }
       task.incrementAttempt()
       if task.attempt <= task.maxRetries {
         task.transition(to: .pending)
@@ -360,16 +373,88 @@ public actor AuraTaskEngine {
     }
   }
 
+  private func isTerminalBoundFailure(_ error: AuraError) -> Bool {
+    switch error {
+    case .taskExpired:
+      return true
+    case .taskError(let message):
+      return message.contains("inactivity timeout")
+    default:
+      return false
+    }
+  }
+
   private func runWithWatchdog(
     task: AuraTask,
     runner: TaskRunner,
     plan: TaskPlan,
     context: TaskExecutionContext
   ) async throws(AuraError) {
-    // Simple co-operative watchdog: the runner reports activity through context.
-    // The runner is responsible for periodic progress/checkpoint calls; if it does not,
-    // we cannot safely interrupt arbitrary Swift code. Document this limitation.
-    try await runner.execute(taskID: task.id, request: task.requestSnapshot(), plan: plan, context: context)
+    enum Outcome: Sendable {
+      case runnerCompleted
+    }
+
+    do {
+      let outcome = try await withThrowingTaskGroup(of: Outcome.self) { group in
+        group.addTask {
+          do {
+            try await runner.execute(
+              taskID: task.id,
+              request: task.requestSnapshot(),
+              plan: plan,
+              context: context)
+            return .runnerCompleted
+          } catch let error as AuraError {
+            throw error
+          } catch is CancellationError {
+            throw AuraError.taskCancelled(task.id)
+          } catch {
+            throw AuraError.taskError("runner failed: \(error.localizedDescription)")
+          }
+        }
+        group.addTask {
+          while true {
+            if Task.isCancelled {
+              await context.markCancelled()
+              throw AuraError.taskCancelled(task.id)
+            }
+            if task.isExpired() {
+              await context.markCancelled()
+              throw AuraError.taskExpired(task.id)
+            }
+            let inactivity = await context.secondsSinceLastActivity()
+            if task.inactivityTimeoutSeconds > 0,
+              inactivity >= task.inactivityTimeoutSeconds
+            {
+              await context.markCancelled()
+              throw AuraError.taskError(
+                "task inactivity timeout after \(task.inactivityTimeoutSeconds)s")
+            }
+            do {
+              try await Task.sleep(for: .milliseconds(50))
+            } catch {
+              await context.markCancelled()
+              throw AuraError.taskCancelled(task.id)
+            }
+          }
+        }
+        defer { group.cancelAll() }
+        guard let first = try await group.next() else {
+          throw AuraError.taskError("task watchdog ended without an outcome")
+        }
+        return first
+      }
+      switch outcome {
+      case .runnerCompleted:
+        return
+      }
+    } catch let error as AuraError {
+      throw error
+    } catch is CancellationError {
+      throw AuraError.taskCancelled(task.id)
+    } catch {
+      throw AuraError.taskError("task watchdog failed: \(error.localizedDescription)")
+    }
   }
 
   private func finish(task: AuraTask, state: TaskState, error: String?) async {

@@ -205,6 +205,8 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
       stt: STTConfiguration(
         engineID: self.stt.engineID.isEmpty ? STTConfiguration().engineID : self.stt.engineID,
         locale: self.stt.locale.isEmpty ? STTConfiguration().locale : self.stt.locale,
+        fallbackLocale: self.stt.fallbackLocale.isEmpty
+          ? STTConfiguration().fallbackLocale : self.stt.fallbackLocale,
         partialBoundaryFrames: self.stt.partialBoundaryFrames <= 0
           ? STTConfiguration().partialBoundaryFrames : self.stt.partialBoundaryFrames,
         stabilizationDelayFrames: self.stt.stabilizationDelayFrames <= 0
@@ -240,6 +242,9 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
         silenceEndFrames: self.conversation.silenceEndFrames <= 0
           ? ConversationConfiguration().silenceEndFrames
           : self.conversation.silenceEndFrames,
+        continuationWindowSeconds: self.conversation.continuationWindowSeconds <= 0
+          ? ConversationConfiguration().continuationWindowSeconds
+          : self.conversation.continuationWindowSeconds,
         deterministicStopCommands: self.conversation.deterministicStopCommands.isEmpty
           ? ConversationConfiguration().deterministicStopCommands
           : self.conversation.deterministicStopCommands,
@@ -617,6 +622,10 @@ public struct STTConfiguration: Codable, Sendable, Equatable {
   /// Primary locale for transcription, in BCP-47 form.
   public var locale: String
 
+  /// Secondary local locale used only if the primary Speech adapter cannot
+  /// start. This is not a claim of simultaneous bilingual recognition.
+  public var fallbackLocale: String
+
   /// Number of frames ingested before a partial result is emitted.
   public var partialBoundaryFrames: UInt32
 
@@ -629,12 +638,14 @@ public struct STTConfiguration: Codable, Sendable, Equatable {
   public init(
     engineID: String = "native-speech",
     locale: String = "tr-TR",
+    fallbackLocale: String = "en-US",
     partialBoundaryFrames: UInt32 = 3,
     stabilizationDelayFrames: UInt32 = 2,
     enableCustomVocabulary: Bool = true
   ) {
     self.engineID = engineID
     self.locale = locale
+    self.fallbackLocale = fallbackLocale
     self.partialBoundaryFrames = partialBoundaryFrames
     self.stabilizationDelayFrames = stabilizationDelayFrames
     self.enableCustomVocabulary = enableCustomVocabulary
@@ -646,6 +657,9 @@ public struct STTConfiguration: Codable, Sendable, Equatable {
     }
     guard !locale.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
       throw AuraError.invalidConfiguration("stt locale must not be empty")
+    }
+    guard !fallbackLocale.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      throw AuraError.invalidConfiguration("stt fallbackLocale must not be empty")
     }
     guard partialBoundaryFrames > 0 else {
       throw AuraError.invalidConfiguration("stt partialBoundaryFrames must be positive")
@@ -659,6 +673,8 @@ public struct STTConfiguration: Codable, Sendable, Equatable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     engineID = try container.decodeIfPresent(String.self, forKey: .engineID) ?? "native-speech"
     locale = try container.decodeIfPresent(String.self, forKey: .locale) ?? "tr-TR"
+    fallbackLocale =
+      try container.decodeIfPresent(String.self, forKey: .fallbackLocale) ?? "en-US"
     partialBoundaryFrames =
       try container.decodeIfPresent(UInt32.self, forKey: .partialBoundaryFrames) ?? 3
     stabilizationDelayFrames =
@@ -746,6 +762,10 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
   /// Number of consecutive silent frames required to end a listening turn.
   public var silenceEndFrames: UInt32
 
+  /// Short grace window used when a stable segment looks syntactically
+  /// incomplete. A later segment may complete the turn sooner.
+  public var continuationWindowSeconds: Double
+
   /// Deterministic voice commands that always stop the assistant mid-speech.
   public var deterministicStopCommands: Set<String>
 
@@ -758,6 +778,7 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
     speechTimeoutSeconds: Double = 60.0,
     bargeInGraceMilliseconds: UInt32 = 500,
     silenceEndFrames: UInt32 = 30,
+    continuationWindowSeconds: Double = 1.25,
     deterministicStopCommands: Set<String> = [
       "stop", "cancel", "abort", "quit", "dur", "iptal", "vazgeç"
     ],
@@ -770,6 +791,7 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
     self.speechTimeoutSeconds = speechTimeoutSeconds
     self.bargeInGraceMilliseconds = bargeInGraceMilliseconds
     self.silenceEndFrames = silenceEndFrames
+    self.continuationWindowSeconds = continuationWindowSeconds
     self.deterministicStopCommands = deterministicStopCommands
     self.deterministicPauseResumeCommands = deterministicPauseResumeCommands
   }
@@ -790,6 +812,9 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
     guard silenceEndFrames > 0 else {
       throw AuraError.invalidConfiguration("silenceEndFrames must be positive")
     }
+    guard continuationWindowSeconds > 0 else {
+      throw AuraError.invalidConfiguration("continuationWindowSeconds must be positive")
+    }
   }
 
   public init(from decoder: Decoder) throws {
@@ -803,6 +828,8 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
     bargeInGraceMilliseconds =
       try container.decodeIfPresent(UInt32.self, forKey: .bargeInGraceMilliseconds) ?? 500
     silenceEndFrames = try container.decodeIfPresent(UInt32.self, forKey: .silenceEndFrames) ?? 30
+    continuationWindowSeconds =
+      try container.decodeIfPresent(Double.self, forKey: .continuationWindowSeconds) ?? 1.25
     deterministicStopCommands =
       try container.decodeIfPresent(Set<String>.self, forKey: .deterministicStopCommands) ?? [
         "stop", "cancel", "abort", "quit", "dur", "iptal", "vazgeç",

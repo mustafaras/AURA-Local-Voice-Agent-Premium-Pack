@@ -27,6 +27,14 @@ public enum ContentProvenance: String, Codable, Sendable, Equatable, CaseIterabl
   case agentToolOutput
   /// A fetched web page or its extracted text.
   case webContent
+  /// A message body or subject retrieved from a mail provider.
+  case mailBody
+  /// Metadata or extracted text from a mail attachment.
+  case mailAttachment
+  /// An event title, notes, or location retrieved from a calendar provider.
+  case eventContent
+  /// A contact record returned by a scoped lookup.
+  case contactRecord
   /// Vision-recognized on-screen text (`AuraScreen`'s OCR pipeline).
   case screenOCR
   /// stdout/stderr from a shell command (`AuraShell`).
@@ -41,8 +49,9 @@ public enum ContentProvenance: String, Codable, Sendable, Equatable, CaseIterabl
   public var carriesAuthority: Bool {
     switch self {
     case .systemPolicy, .userUtterance: return true
-    case .repositoryFile, .memoryRetrieval, .agentToolOutput, .webContent, .screenOCR,
-      .terminalOutput, .pluginManifest:
+    case .repositoryFile, .memoryRetrieval, .agentToolOutput, .webContent, .mailBody,
+      .mailAttachment, .eventContent, .contactRecord, .screenOCR, .terminalOutput,
+      .pluginManifest:
       return false
     }
   }

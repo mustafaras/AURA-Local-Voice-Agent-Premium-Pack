@@ -37,6 +37,7 @@ actor AuraKernel {
   private var automation: AuraAutomation?
   private var capabilityRegistry: CapabilityRegistry?
   private var agentTaskRunner: AgentBackendTaskRunner?
+  private var agentBackendHealthRegistry: AgentBackendHealthRegistry?
   private var audio: AuraAudio?
   private var wakeWordPipeline: WakeWordPipeline?
   private var sttPipeline: STTPipeline?
@@ -53,6 +54,8 @@ actor AuraKernel {
   private var pluginRegistry: PluginRegistry?
   private var ollamaAdapter: OllamaAdapter?
   private var worktreeManager: WorktreeManager?
+  private var codingTaskCoordinator: CodingTaskCoordinator?
+  private var voiceResourceGovernor: VoiceResourceGovernor?
   private var multiAgentOrchestrator: MultiAgentOrchestrator?
   private var secretScanner: SecretScanner?
   private var injectionClassifier: PromptInjectionClassifier?
@@ -183,6 +186,32 @@ actor AuraKernel {
 
   func runtimeHealthSnapshot() async -> [RuntimeHealth] {
     await runtimeHealthRegistry?.snapshot() ?? []
+  }
+
+  func agentBackendHealthSnapshot() async -> [AgentBackendHealth] {
+    await agentBackendHealthRegistry?.snapshot() ?? []
+  }
+
+  func refreshAgentBackendHealth(workspacePath: String? = nil) async -> [AgentBackendHealth] {
+    await agentBackendHealthRegistry?.refreshAll(workspacePath: workspacePath) ?? []
+  }
+
+  func codingTaskPreflight(
+    _ request: CodingTaskRequest
+  ) async throws(AuraError) -> CodingTaskPreflight {
+    guard started, let codingTaskCoordinator else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    return try await codingTaskCoordinator.preflight(request)
+  }
+
+  func enqueueCodingTask(
+    _ request: CodingTaskRequest
+  ) async throws(AuraError) -> TaskStatus {
+    guard started, let codingTaskCoordinator else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    return try await codingTaskCoordinator.enqueue(request, actor: .user, sessionID: sessionID)
   }
 
   /// R3's `app.discover`, `app.hide`, `task.status`, `task.cancel`, and
@@ -327,6 +356,12 @@ actor AuraKernel {
     let runtimeHealthRegistry = RuntimeHealthRegistry(eventBus: eventBus)
     self.runtimeHealthRegistry = runtimeHealthRegistry
     await runtimeHealthRegistry.recordReady("configuration", detail: "configuration loaded")
+    let voiceResourceGovernor = VoiceResourceGovernor()
+    await voiceResourceGovernor.start()
+    self.voiceResourceGovernor = voiceResourceGovernor
+    await runtimeHealthRegistry.recordReady(
+      "voice-resources",
+      detail: "bounded local voice reservations active for \(await voiceResourceGovernor.physicalMemoryMB()) MB physical memory")
     configurationEngine = try await ConfigurationEngine.load(
       store: AuraStoreConfigurationStateStore(store: store))
 
@@ -380,7 +415,50 @@ actor AuraKernel {
         defaultWorkingDirectory: configuration.intent.defaultCodingAgentWorkingDirectory)
     )
     self.agentTaskRunner = agentTaskRunner
-    await runtimeHealthRegistry.recordReady("agent-adapters", detail: "Codex, Claude, and Copilot adapters constructed")
+    let backendProbeRunner = AuraShellAgentBackendCommandRunner(
+      shells: [
+        .codex: AuraShell(configuration: configuration.codex.derivedShellConfiguration()),
+        .claude: AuraShell(configuration: configuration.claude.derivedShellConfiguration()),
+        .copilot: AuraShell(configuration: configuration.copilot.derivedShellConfiguration()),
+      ])
+    let agentHealthRegistry = AgentBackendHealthRegistry(
+      probe: CLIAgentBackendHealthProbe(
+        executablePaths: [
+          .codex: configuration.codex.executablePath,
+          .claude: configuration.claude.executablePath,
+          .copilot: configuration.copilot.executablePath,
+        ],
+        runner: backendProbeRunner))
+    self.agentBackendHealthRegistry = agentHealthRegistry
+    let backendHealth = await agentHealthRegistry.refreshAll(
+      workspacePath: configuration.intent.defaultCodingAgentWorkingDirectory)
+    for health in backendHealth {
+      let status: RuntimeHealthStatus
+      switch health.state {
+      case .ready:
+        status = .ready
+      case .degraded:
+        status = .degraded
+      case .unavailable:
+        status = .dependencyMissing
+      case .unauthorized:
+        status = .permissionBlocked
+      case .versionMismatch:
+        status = .unsupported
+      }
+      await runtimeHealthRegistry.record(
+        componentID: "agent.backend." + health.backend.rawValue,
+        status: status,
+        detail: health.detail)
+    }
+    let adapterHealthStatus: RuntimeHealthStatus =
+      backendHealth.allSatisfy { $0.state == AgentBackendHealthState.ready }
+      ? .ready
+      : .degraded
+    await runtimeHealthRegistry.record(
+      componentID: "agent-adapters",
+      status: adapterHealthStatus,
+      detail: "adapters constructed; per-backend live version/auth/model evidence remains explicit")
 
     let emergencyStop = EmergencyStopController(eventBus: eventBus)
     self.emergencyStop = emergencyStop
@@ -416,7 +494,8 @@ actor AuraKernel {
     vscodeAdapter = VSCodeAdapter(
       configuration: configuration.vscode,
       shell: shell,
-      bridge: VSCodeFileBridge(statePath: configuration.vscode.bridgeStatePath))
+      bridge: VSCodeFileBridge(statePath: configuration.vscode.bridgeStatePath),
+      policyEngine: policyEngine)
     secretScanner = SecretScanner()
     injectionClassifier = PromptInjectionClassifier(configuration: configuration.security)
     networkAllowlist = NetworkAllowlist(configuration: configuration.security)
@@ -472,6 +551,14 @@ actor AuraKernel {
       eventBus: eventBus)
     self.worktreeManager = worktreeManager
     await runtimeHealthRegistry.recordReady("worktrees", detail: "isolated worktree manager constructed")
+    self.codingTaskCoordinator = CodingTaskCoordinator(
+      taskEngine: taskEngine,
+      backendRunner: agentTaskRunner,
+      healthRegistry: agentHealthRegistry,
+      worktreeManager: worktreeManager)
+    await runtimeHealthRegistry.recordReady(
+      "coding-tasks",
+      detail: "workspace/backend/worktree/durable-task coordinator constructed")
     multiAgentOrchestrator = MultiAgentOrchestrator(
       worktreeManager: worktreeManager,
       policyEngine: policyEngine,
@@ -494,7 +581,8 @@ actor AuraKernel {
       policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
       agentTaskRunner: agentTaskRunner, capabilityRegistry: capabilityRegistry,
       confirmationPresenter: confirmationPresenter, eventBus: eventBus,
-      configuration: configuration.intent, dialogueEngine: dialogueEngine)
+      configuration: configuration.intent, dialogueEngine: dialogueEngine,
+      codingTaskCoordinator: codingTaskCoordinator)
     let intentEngine = IntentEngine(
       classifier: RuleBasedUtteranceClassifier(), contextEngine: context,
       contextBuilder: contextBuilder, memoryEngine: memory,
@@ -508,10 +596,7 @@ actor AuraKernel {
     self.audio = audio
 
     let vad = EnergyVAD(silenceFrames: configuration.wake.vadSilenceFrames)
-    let wakeDetector = MarkerWakeWordDetector(
-      phrase: configuration.wake.phrase,
-      confidenceThreshold: configuration.wake.wakeConfidenceThreshold,
-      energyThresholdDB: configuration.wake.vadEnergyThresholdDB)
+    let wakeDetector = DisabledWakeWordDetector()
     let wakeWordPipeline = WakeWordPipeline(
       configuration: configuration.wake, eventBus: eventBus,
       logger: AuraLogger(subsystem: bundleID, category: "wake"), vad: vad,
@@ -527,7 +612,8 @@ actor AuraKernel {
       deterministicCommands: Dictionary(
         uniqueKeysWithValues: deterministicPhrases.map { ($0, $0) }))
     let sttEngine = Self.makeSTTEngine(
-      configuration: configuration.stt, vocabulary: vocabulary)
+      configuration: configuration.stt, vocabulary: vocabulary,
+      governor: voiceResourceGovernor)
     let sttPipeline = STTPipeline(
       engine: sttEngine, vocabulary: vocabulary, eventBus: eventBus,
       logger: AuraLogger(subsystem: bundleID, category: "stt"), sessionID: sessionID)
@@ -540,7 +626,8 @@ actor AuraKernel {
     let ttsEngine = await Self.makeTTSEngine(
       adapterChain: configuration.tts.adapterChain,
       preferredSystemVoiceIdentifier: configuration.tts.preferredSystemVoiceIdentifier,
-      logger: AuraLogger(subsystem: bundleID, category: "tts"))
+      logger: AuraLogger(subsystem: bundleID, category: "tts"),
+      governor: voiceResourceGovernor)
     let ttsHealth = ttsEngine.health()
     await runtimeHealthRegistry.record(
       componentID: "tts",
@@ -617,7 +704,8 @@ actor AuraKernel {
   private static func makeTTSEngine(
     adapterChain: TTSAdapterChain,
     preferredSystemVoiceIdentifier: String,
-    logger: AuraLogger
+    logger: AuraLogger,
+    governor: VoiceResourceGovernor? = nil
   ) async -> any TTSEngine {
     for adapterID in adapterChain.adapterIDs {
       switch adapterID {
@@ -629,7 +717,8 @@ actor AuraKernel {
           preferredVoiceIdentifier: preferredSystemVoiceIdentifier)
         let engine = ChatterboxTTSEngine(
           configuration: .installed(helperScriptPath: helperScriptPath),
-          fallback: fallback)
+          fallback: fallback,
+          resourceGovernor: governor)
         do {
           let health = try await engine.start()
           if health.ready {
@@ -685,10 +774,25 @@ actor AuraKernel {
   /// vocabulary are taken from `STTConfiguration`.
   private static func makeSTTEngine(
     configuration: STTConfiguration,
-    vocabulary: UserVocabulary
+    vocabulary: UserVocabulary,
+    governor: VoiceResourceGovernor? = nil
   ) -> any STTEngine {
     switch configuration.engineID {
     case "native-speech":
+      return STTRouter(
+        candidates: [
+          SystemSTTEngine(
+            locale: Locale(identifier: configuration.locale),
+            vocabulary: vocabulary,
+            enableCustomVocabulary: configuration.enableCustomVocabulary),
+          SystemSTTEngine(
+            engineID: "native-speech-fallback",
+            locale: Locale(identifier: configuration.fallbackLocale),
+            vocabulary: vocabulary,
+            enableCustomVocabulary: configuration.enableCustomVocabulary),
+        ],
+        governor: governor)
+    case "native-speech-single":
       return SystemSTTEngine(
         locale: Locale(identifier: configuration.locale),
         vocabulary: vocabulary,
@@ -724,6 +828,7 @@ actor AuraKernel {
 
     await taskEngine.start(runner: agentTaskRunner)
     await performanceSampler.start(on: eventBus)
+    await voiceResourceGovernor?.start()
     await wakeWordPipeline.start()
     await intentDispatchCoordinator.start()
     await conversationEventBridge.start()
@@ -741,6 +846,7 @@ actor AuraKernel {
       await sttPipeline?.stop()
       sttStarted = false
     }
+    await voiceResourceGovernor?.stop()
     await taskEngine?.shutdown()
     await logger.info("AuraKernel shutdown complete", actor: .system)
   }

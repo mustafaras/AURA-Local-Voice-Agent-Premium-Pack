@@ -44,6 +44,7 @@ public actor WakeWordPipeline {
   private var subscriptionTask: Task<Void, Never>?
   private var activationEndTask: Task<Void, Never>?
   private let monotonicClock: () -> TimeInterval
+  private var retainedFrames: [UInt64: AudioFrame] = [:]
 
   /// Create a wake-word pipeline.
   ///
@@ -107,6 +108,7 @@ public actor WakeWordPipeline {
     activationEndTask = nil
     state = privacyMode ? .privacyArmed : .idle
     activeTurnContext = nil
+    retainedFrames.removeAll(keepingCapacity: true)
     vad.reset()
     wakeDetector.reset()
     await logger.info("Wake-word pipeline stopped", actor: .audio)
@@ -158,15 +160,15 @@ public actor WakeWordPipeline {
   private func handleFrameEvent(_ event: AudioFrameEvent) async {
     guard state == .listening || state == .activated || state == .speakerVerifying else { return }
 
-    // Reconstruct a frame containing the actual sample data. The pipeline
-    // stores the most recent frame emitted by the realtime path so tests and
-    // downstream consumers operate on the captured sample data.
-    let frame = AudioFrame(
-      samples: latestSamples,
-      timestamp: event.timestamp,
-      sequenceIndex: event.sequenceIndex,
-      isDiscontinuity: event.isDiscontinuity
-    )
+    // Resolve the exact captured frame by sequence. A "latest frame" lookup
+    // is unsafe here because the realtime producer may advance before this
+    // asynchronous subscriber handles the event.
+    guard let frame = retainedFrames.removeValue(forKey: event.sequenceIndex) else {
+      await logger.warning(
+        "Wake frame \(event.sequenceIndex) was no longer retained; dropping metadata-only input",
+        actor: .audio)
+      return
+    }
 
     let vadResult = vad.analyze(frame)
     await emitVoiceActivityEvent(vadResult)
@@ -219,15 +221,13 @@ public actor WakeWordPipeline {
     scheduleActivationEnd()
   }
 
-  /// Latest captured samples published by the realtime audio path. Tests can
-  /// seed this via `ingestSampleFrame(_:)`. The buffer is intentionally bounded
-  /// and overwritten on every frame so memory usage stays flat.
-  private nonisolated(unsafe) var latestSamples: [Float] = []
-
-  /// Ingest a frame with real sample data. The realtime audio service calls this
-  /// for each captured frame *before* emitting the matching `AudioFrameEvent`.
+  /// Retain the real frame until its matching metadata event is consumed. The
+  /// map is bounded so a stalled subscriber cannot retain ambient audio.
   public func ingestSampleFrame(_ frame: AudioFrame) {
-    latestSamples = frame.samples
+    retainedFrames[frame.sequenceIndex] = frame
+    if retainedFrames.count > 8, let oldest = retainedFrames.keys.min() {
+      retainedFrames.removeValue(forKey: oldest)
+    }
   }
 
   private func scheduleActivationEnd() {

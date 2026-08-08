@@ -1,17 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-07T05:00:00Z",
-  "session_id": "AURA-R2-CLOSEOUT-20260807",
-  "last_verified_commit": "808cf64f1804fc9ba433ea5a85beedcdabeacdb2",
+  "updated_at": "2026-08-08T13:29:34Z",
+  "session_id": "AURA-R7-VOICE-20260808",
+  "last_verified_commit": "daf062aefc8b2eaa516769fdf27e6fc816111002",
   "active_prompt": {
-    "id": "R5",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
+    "id": "R7",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
     "state": "in_progress",
-    "step": "R5 started by user-directed deviation while R2/R3/R4 remain in_progress. R5 scope: read-first browser/mail/calendar/contacts adapters, least-privilege OAuth/Keychain, injection resistance, offline/degraded behavior, live acceptance. ADR-040 must be authored first (Proposed in DECISION_REGISTER, file not yet on disk). R2, R3, and R4 remain in_progress in parallel, by explicit user choice."
+    "step": "R7 local voice routing/resource slice is source/build verified; real wake-word qualification, live bilingual microphone quality, release-hardware recovery/barge-in, measured 16 GB soak, neural quality/consent, and ADR-042 approval remain. R2-R6 gaps remain in SECOND_PASS_OPEN_GAPS.md; request explicit user approval before R8 after R7 delivery."
   },
-  "summary": "R0 governance and R1 Runtime Integration Spine are complete. R2 bilingual NLU/dialogue is implemented and system-tested but not formally closed (two live-verification blockers require the user physically present; RISK-STRUCTURED-NLU-MODEL-QUALITY sub-finding 3 accepted as bounded risk). R3 capability registry/typed planner architectural core is implemented and tested with zero regression (ADR-038 accepted) but not complete (filesystem/URL adapters, NLU/UI reachability, planner wiring, 7-scenario demo pending). R4 computer-use productization is in_progress: its deterministic core (observation contract, beta allowlist, first production planner, resumable hash-bound confirmation, semantic postcondition verification, ADR-039 accepted) plus registry/composition wiring (computerUse.run capability registered truthfully disabled, AuraKernel.computerUseRun wired) are implemented and tested (EV-R4-20260807-PRODUCTIZATION-CORE-01, EV-R4-20260807-WIRING-REGISTRY-01; 20/20 bundles, 778/778 tests); remaining is live beta-app evidence (>=3 approved apps) requiring the user physically present. R5 browser/mail/calendar/contacts adapters is now in_progress (started by user-directed deviation); ADR-040 must be authored first. The interactive hardware demonstrations (microphone/TCC, 7-scenario, beta apps) remain unperformed and need a human physically present. All R2/R3/R4/R5 closeout and transition notes are recorded in PROGRAM_LEDGER.md, RISK_REGISTER.md, EVIDENCE_INDEX.md, DECISION_REGISTER.md, current-state.json, and ACTIVE_CONTEXT.md."
-  ,
+  "summary": "R0 governance and R1 Runtime Integration Spine are complete. R2 bilingual NLU/dialogue, R3 capability/planner, R4 computer-use, R5 productivity, and R6 VS Code/coding remain in_progress with their gates recorded in SECOND_PASS_OPEN_GAPS.md. R7 is active in the first pass: exact-frame wake safety with truthful Push-to-Talk-only production behavior, reusable local STT routing, bounded continuation, deterministic TTS interruption/timeout fallback, and actor-isolated resource admission are implemented and locally validated. The final available regression passed 21/21 bundles and 774/774 tests. Real wake-word qualification, live bilingual microphone quality, release-hardware recovery/barge-in, measured 16 GB soak, neural reference/quality, and ADR-042 approval remain open. After authorized R7 commit/push/merge delivery, explicit user approval is required before R8.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -29,9 +28,14 @@
     "Bound confirmation execution to exact structured plan fingerprints and added a changed-argument regression test.",
     "Moved successful Chatterbox private-audio cleanup before stream completion and verified the full audio bundle remains deterministic.",
     "Stabilized timing-sensitive Agent tests by serializing the Multi-Agent Orchestrator suite and removing an unnecessary deterministic-stop sleep without weakening assertions.",
-    "Fresh final R1 regression passed 20/20 bundles and 678/678 tests; R2 is now in progress."
-    ,"Started R2 after reading the normative prompt and accepted R1 contracts; the first focused R2 gates are green."
-    ,"Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts."
+    "Fresh final R1 regression passed 20/20 bundles and 678/678 tests; R2 is now in progress.",
+    "Started R2 after reading the normative prompt and accepted R1 contracts; the first focused R2 gates are green.",
+    "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
+    "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",
+    "Recorded R2/R3/R4/R5 deferred completion gates in AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md without closing any gate; transitioned the active prompt to R6.",
+    "Implemented and verified the R6 first policy/bridge slice under EV-R6-20260808-POLICY-BRIDGE-01; kept ADR-041 Proposed and all live R6 gates open.",
+    "Implemented the R6 typed bridge/workspace/backend/coordinator/task-bounds slice under EV-R6-20260808-TYPED-ROUTES-02; source builds and the clean scratch runtime suite passed 21/21 bundles and 763/763 tests, while the repository runner retained the known AuraAudio helper exit-142 limitation.",
+    "Started the R7 voice routing/resource-governor slice: production wake detection is explicitly disabled until a real model qualifies; local STT routing checks on-device capability and preserves engine-lifetime streams; incomplete turns, TTS interruption/timeout/fallback, and bounded STT/neural-TTS reservations are covered locally. Final available validation passed 21/21 bundles and 774/774 tests; R7 remains in_progress pending live evidence and explicit ADR-042 approval."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
@@ -71,64 +75,86 @@
     "AURA_RUNTIME_COMPLETION/schemas/evidence-record.schema.json",
     "AURA_RUNTIME_COMPLETION/schemas/program-state.schema.json",
     "AURA_RUNTIME_COMPLETION/schemas/prompt-manifest.schema.json",
-    "AURA_RUNTIME_COMPLETION/schemas/session-handoff.schema.json"
-    ,"AURA_RUNTIME_COMPLETION/schemas/toolchain-manifest.schema.json"
-    ,"AURA_RUNTIME_COMPLETION/state/toolchain-manifest.json"
-    ,"TOOLCHAIN.md"
-    ,"docs/decisions/ADR-045-toolchain-release-pipeline.md"
-    ,"docs/decisions/ADR-035-turn-context-trace-correctness.md"
-    ,"docs/decisions/ADR-037-runtime-health-and-confirmation-transactions.md"
-    ,"docs/decisions/ADR-036-bilingual-nlu-dialogue-routing.md"
-    ,"Sources/AURA/AuraAppModel.swift"
-    ,"Sources/AURA/AuraKernel.swift"
-    ,"Sources/AURA/AuraMenuView.swift"
-    ,"Sources/AURA/ConversationEventBridge.swift"
-    ,"Sources/AURA/PushToTalkSessionFinalizer.swift"
-    ,"Sources/AuraAgent/Conversation.swift"
-    ,"Sources/AuraAudio/WakeWordPipeline.swift"
-    ,"Sources/AuraAudio/ChatterboxTTSEngine.swift"
-    ,"Sources/AuraCore/AudioEventPayloads.swift"
-    ,"Sources/AuraCore/DialogueTypes.swift"
-    ,"Sources/AuraCore/AuraConfiguration.swift"
-    ,"Sources/AuraCore/ConfirmationTransaction.swift"
-    ,"Sources/AuraCore/PolicyTypes.swift"
-    ,"Sources/AuraCore/RuntimeHealth.swift"
-    ,"Sources/AuraCore/TurnContext.swift"
-    ,"Sources/AuraIntent/IntentDispatchCoordinator.swift"
-    ,"Sources/AuraIntent/IntentEngine.swift"
-    ,"Sources/AuraIntent/DialogueEngine.swift"
-    ,"Sources/AuraIntent/ToolRouter.swift"
-    ,"Sources/AuraAgent/OllamaAdapter.swift"
-    ,"Sources/AuraAgent/OllamaAPIClient.swift"
-    ,"Sources/AuraAgent/OllamaStructuredRequest.swift"
-    ,"Tests/AuraIntentTests/DialogueEngineTests.swift"
-    ,"Tests/AuraIntentTests/BilingualGoldenCorpusTests.swift"
-    ,"Tests/AuraIntentTests/RuleBasedUtteranceClassifierTests.swift"
-    ,"Tests/AuraIntentTests/ToolRouterTests.swift"
-    ,"Tests/AuraAgentTests/OllamaStructuredRequestTests.swift"
-    ,"Sources/AuraIntent/TypedIntent.swift"
-    ,"Sources/AuraPolicy/PolicyEngine.swift"
-    ,"Sources/AuraSTT/STTPipeline.swift"
-    ,"Tests/AURAIntegrationTests/EndToEndPipelineTests.swift"
-    ,"Tests/AURAIntegrationTests/PushToTalkFinalizationTests.swift"
-    ,"Tests/AuraAgentTests/ConversationTests.swift"
-    ,"Tests/AuraAgentTests/MultiAgentOrchestratorTests.swift"
-    ,"Tests/AuraAgentTests/TextTurnTests.swift"
-    ,"Tests/AuraCoreTests/ConfirmationTransactionTests.swift"
-    ,"Tests/AuraCoreTests/RuntimeHealthTests.swift"
-    ,"Tests/AuraCoreTests/TurnContextTests.swift"
-    ,"Tests/AuraPolicyTests/PolicyEngineTests.swift"
-    ,"Tests/AuraAgentTests/OllamaAdapterTests.swift"
-    ,"Sources/AuraIntent/CapabilityRegistry.swift"
-    ,"Sources/AuraIntent/CapabilityPlanner.swift"
-    ,"Sources/AuraIntent/InitialCapabilitySet.swift"
-    ,"Tests/AuraIntentTests/CapabilityRegistryTests.swift"
-    ,"Tests/AuraIntentTests/CapabilityPlannerTests.swift"
-    ,"docs/decisions/ADR-038-capability-registry-and-planner.md"
-    ,"scripts/validate_runtime_completion.py"
-    ,"scripts/tests/test_validate_runtime_completion.py"
-    ,".github/workflows/ci.yml"
-    ,"ledger/DECISION_INDEX.md"
+    "AURA_RUNTIME_COMPLETION/schemas/session-handoff.schema.json",
+    "AURA_RUNTIME_COMPLETION/schemas/toolchain-manifest.schema.json",
+    "AURA_RUNTIME_COMPLETION/state/toolchain-manifest.json",
+    "TOOLCHAIN.md",
+    "docs/decisions/ADR-045-toolchain-release-pipeline.md",
+    "docs/decisions/ADR-035-turn-context-trace-correctness.md",
+    "docs/decisions/ADR-037-runtime-health-and-confirmation-transactions.md",
+    "docs/decisions/ADR-036-bilingual-nlu-dialogue-routing.md",
+    "Sources/AURA/AuraAppModel.swift",
+    "Sources/AURA/AuraKernel.swift",
+    "Sources/AURA/AuraMenuView.swift",
+    "Sources/AURA/ConversationEventBridge.swift",
+    "Sources/AURA/PushToTalkSessionFinalizer.swift",
+    "Sources/AuraAgent/Conversation.swift",
+    "Sources/AuraAudio/WakeWordPipeline.swift",
+    "Sources/AuraAudio/ChatterboxTTSEngine.swift",
+    "Sources/AuraCore/AudioEventPayloads.swift",
+    "Sources/AuraCore/DialogueTypes.swift",
+    "Sources/AuraCore/AuraConfiguration.swift",
+    "Sources/AuraCore/ConfirmationTransaction.swift",
+    "Sources/AuraCore/PolicyTypes.swift",
+    "Sources/AuraCore/RuntimeHealth.swift",
+    "Sources/AuraCore/TurnContext.swift",
+    "Sources/AuraIntent/IntentDispatchCoordinator.swift",
+    "Sources/AuraIntent/IntentEngine.swift",
+    "Sources/AuraIntent/DialogueEngine.swift",
+    "Sources/AuraIntent/ToolRouter.swift",
+    "Sources/AuraAgent/OllamaAdapter.swift",
+    "Sources/AuraAgent/OllamaAPIClient.swift",
+    "Sources/AuraAgent/OllamaStructuredRequest.swift",
+    "Tests/AuraIntentTests/DialogueEngineTests.swift",
+    "Tests/AuraIntentTests/BilingualGoldenCorpusTests.swift",
+    "Tests/AuraIntentTests/RuleBasedUtteranceClassifierTests.swift",
+    "Tests/AuraIntentTests/ToolRouterTests.swift",
+    "Tests/AuraAgentTests/OllamaStructuredRequestTests.swift",
+    "Sources/AuraIntent/TypedIntent.swift",
+    "Sources/AuraPolicy/PolicyEngine.swift",
+    "Sources/AuraSTT/STTPipeline.swift",
+    "Tests/AURAIntegrationTests/EndToEndPipelineTests.swift",
+    "Tests/AURAIntegrationTests/PushToTalkFinalizationTests.swift",
+    "Tests/AuraAgentTests/ConversationTests.swift",
+    "Tests/AuraAgentTests/MultiAgentOrchestratorTests.swift",
+    "Tests/AuraAgentTests/TextTurnTests.swift",
+    "Tests/AuraCoreTests/ConfirmationTransactionTests.swift",
+    "Tests/AuraCoreTests/RuntimeHealthTests.swift",
+    "Tests/AuraCoreTests/TurnContextTests.swift",
+    "Tests/AuraPolicyTests/PolicyEngineTests.swift",
+    "Tests/AuraAgentTests/OllamaAdapterTests.swift",
+    "Sources/AuraIntent/CapabilityRegistry.swift",
+    "Sources/AuraIntent/CapabilityPlanner.swift",
+    "Sources/AuraIntent/InitialCapabilitySet.swift",
+    "Tests/AuraIntentTests/CapabilityRegistryTests.swift",
+    "Tests/AuraIntentTests/CapabilityPlannerTests.swift",
+    "docs/decisions/ADR-038-capability-registry-and-planner.md",
+    "scripts/validate_runtime_completion.py",
+    "scripts/tests/test_validate_runtime_completion.py",
+    ".github/workflows/ci.yml",
+    "ledger/DECISION_INDEX.md",
+    "Package.swift",
+    "Sources/AuraProductivity/ProductivityTypes.swift",
+    "Sources/AuraProductivity/ProductivitySecurity.swift",
+    "Sources/AuraProductivity/ProductivityAdapters.swift",
+    "Sources/AuraProductivity/NativeProductivityAdapters.swift",
+    "Tests/AuraProductivityTests/AuraProductivityTests.swift",
+    "docs/subsystems/PRODUCTIVITY_READ_FIRST.md",
+    "scripts/aura-test.sh",
+    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+    "Sources/AuraVSCode/VSCodeAdapter.swift",
+    "Sources/AuraVSCode/VSCodeExtensionBridge.swift",
+    "Sources/AuraVSCode/VSCodeBridgeSecurity.swift",
+    "Tests/AuraVSCodeTests/AuraVSCodeTests.swift",
+    "docs/subsystems/13_VSCODE_CONTROL.md",
+    "Sources/AuraCore/TurnCompletionHeuristics.swift",
+    "Sources/AuraCore/VoiceResourceGovernor.swift",
+    "Sources/AuraSTT/STTRouter.swift",
+    "Sources/AuraAudio/WakeWordDetector.swift",
+    "Sources/AuraAudio/SystemTTSEngine.swift",
+    "Tests/AuraCoreTests/TurnCompletionHeuristicsTests.swift",
+    "Tests/AuraCoreTests/VoiceResourceGovernorTests.swift",
+    "Tests/AuraSTTTests/STTRouterTests.swift"
   ],
   "evidence_ids": [
     "EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01",
@@ -170,7 +196,11 @@
     "EV-R2-20260803-TEXTDEMO-LIVE-01",
     "EV-R2-20260803-TEXTDEMO-LIVE-02",
     "EV-R2-20260803-PROMPT-LEAKAGE-FIX-01",
-    "EV-R2-20260803-REAL-DESKTOP-SESSION-01"
+    "EV-R2-20260803-REAL-DESKTOP-SESSION-01",
+    "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
+    "EV-R6-20260808-POLICY-BRIDGE-01",
+    "EV-R6-20260808-TYPED-ROUTES-02",
+    "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
   ],
   "tests": [
     {
@@ -242,6 +272,16 @@
       "name": "R1 governance closeout validation and deterministic validator tests",
       "result": "passed",
       "evidence_id": "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01"
+    },
+    {
+      "name": "R7 authoritative local production build and full Swift Testing regression: 21 bundles and 774 tests",
+      "result": "passed",
+      "evidence_id": "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
+    },
+    {
+      "name": "R7 governance validator, deterministic tests, shell syntax, diff, and JSON checks",
+      "result": "passed",
+      "evidence_id": "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
     }
   ],
   "blockers": [],
@@ -261,20 +301,20 @@
     "RISK-STT-MIC-NOT-CAPTURING",
     "RISK-CLOSED-TOOL-ROUTER"
   ],
-  "next_action": "By explicit user instruction ('bunu atlayalım sıradaki aşamaya geçelim'), the program moved to R3 while R2 stayed in_progress with two open risks (RISK-STT-MIC-NOT-CAPTURING has an unconfirmed candidate fix, EV-R2-20260804-PTT-PERMISSION-AUDIT-01, needing the user physically present to verify; RISK-STRUCTURED-NLU-MODEL-QUALITY's residual sampling variance needs an explicit accept/reject decision). R3's architectural core is now implemented and tested with zero regression: CapabilityManifest/CapabilityRegistry/CapabilityPlanner (Sources/AuraIntent/CapabilityRegistry.swift, CapabilityPlanner.swift) replace the closed five-intent ToolRouter switch; ToolRegistry/ToolContract were deleted (not left as dead code); InitialCapabilitySet registers 14 manifests (10 truthfully .ready, 4 truthfully .disabled with no adapter yet); 5 new direct, policy-gated AuraKernel methods give 4 more capabilities real reachability outside the NLU classifier; ADR-038 documents the design and known gaps. New CapabilityRegistryTests/CapabilityPlannerTests cover the required fail-closed/versioning/validation/cycle/fingerprint list; all pre-existing suites pass unchanged. Full regression run twice: 20/20 bundles, 717/717 tests, no flakiness. R3 is NOT complete: filesystem/URL adapters are unbuilt, the 4 newly-ready direct-call capabilities have no NLU/UI reachability yet, the planner is not wired into DialogueEngine/ToolRouter for real multi-step natural-language plans, and the required 7-scenario live completion demonstration has not been performed. Do not claim R2 or R3 complete before their respective remaining items are resolved or explicitly accepted.",
+  "next_action": "Deliver the validated R7 changes on main with the authorized commit/push; no separate merge commit applies because main is the active integration branch. Then stop and request explicit user approval before R8. Keep R2-R6 unresolved gates recorded in SECOND_PASS_OPEN_GAPS.md and do not accept ADR-042 or claim live voice gates from simulated evidence.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-    "AURA_RUNTIME_COMPLETION/prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
+    "AURA_RUNTIME_COMPLETION/prompts/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
+    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "Sources/AuraCore/TurnContext.swift",
-    "Sources/AuraCore/RuntimeHealth.swift",
-    "Sources/AuraCore/ConfirmationTransaction.swift",
-    "Sources/AuraIntent/IntentEngine.swift",
-    "Sources/AuraAgent/Conversation.swift"
+    "Sources/AuraVSCode/VSCodeAdapter.swift",
+    "Sources/AuraVSCode/VSCodeExtensionBridge.swift"
   ],
-  "notes": "R1 and the local R2 implementation were validated, committed as b8f8960, and pushed to origin/main. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R1 retains fail-closed restart behavior for confirmations and the program does not claim universal live postcondition verification."
+  "notes": "R1 and the local R2 implementation were validated, committed as b8f8960, and pushed to origin/main. The live repository HEAD is daf062aefc8b2eaa516769fdf27e6fc816111002 on main; R7 validation is complete in the dirty worktree and delivery is the next authorized action. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R2-R6 open gates are preserved in SECOND_PASS_OPEN_GAPS.md. R7 live wake/STT/TTS/recovery/soak gates and ADR-042 approval remain open."
 }

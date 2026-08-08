@@ -118,6 +118,28 @@ struct ChatterboxTTSEngineTests {
     #expect(engine.health().ready)
   }
 
+  @Test func helperTimeoutFallsBackAndStopsTheHelper() async throws {
+    let directory = try makeTemporaryDirectory()
+    defer { try? FileManager.default.removeItem(at: directory) }
+    let helper = HangingChatterboxHelper()
+    let engine = ChatterboxTTSEngine(
+      configuration: testConfiguration(
+        outputDirectory: directory, helperTimeoutSeconds: 0.01),
+      helper: helper,
+      fallback: MockTTSEngine(),
+      playback: FakeChatterboxPlayback())
+    _ = try await engine.start()
+    try await waitUntilReady(engine)
+
+    let chunks = await engine.speak(
+      TTSPrompt(text: "Zaman aşımı sonrası Yelda.", locale: "tr-TR")
+    ).reduce(into: [TTSChunk]()) { $0.append($1) }
+
+    #expect(chunks.last == .complete)
+    #expect(await helper.stopCount() >= 1)
+    #expect(engine.health().status == "fallback")
+  }
+
   @Test func runtimeConfigurationFailsClosedAtEveryMaterialBoundary() throws {
     let directory = try makeTemporaryDirectory()
     defer { try? FileManager.default.removeItem(at: directory) }
@@ -159,7 +181,8 @@ struct ChatterboxTTSEngineTests {
 
   private func testConfiguration(
     outputDirectory: URL,
-    maxTextCharacters: Int = 2_000
+    maxTextCharacters: Int = 2_000,
+    helperTimeoutSeconds: Double = 45
   ) -> ChatterboxTTSEngine.Configuration {
     .init(
       pythonPath: "/test/python",
@@ -167,7 +190,8 @@ struct ChatterboxTTSEngineTests {
       modelPath: "/test/model",
       referenceAudioPath: "/test/reference.wav",
       outputDirectory: outputDirectory.path,
-      maxTextCharacters: maxTextCharacters)
+      maxTextCharacters: maxTextCharacters,
+      helperTimeoutSeconds: helperTimeoutSeconds)
   }
 
   private func makeTemporaryDirectory() throws -> URL {
@@ -220,6 +244,27 @@ private actor FakeChatterboxHelper: ChatterboxHelperExecuting {
   }
 
   func requestCount() -> Int { requests }
+  func stopCount() -> Int { stops }
+}
+
+private actor HangingChatterboxHelper: ChatterboxHelperExecuting {
+  private var stops = 0
+
+  func start() async throws -> ChatterboxHelperReady {
+    ChatterboxHelperReady(device: "cpu-test", referenceConfigured: true)
+  }
+
+  func synthesize(_ request: ChatterboxSynthesisRequest) async throws
+    -> ChatterboxSynthesisResult
+  {
+    try await Task.sleep(for: .seconds(10))
+    throw AuraError.ttsAdapterFailed("unexpected test helper completion")
+  }
+
+  func stop() async {
+    stops += 1
+  }
+
   func stopCount() -> Int { stops }
 }
 

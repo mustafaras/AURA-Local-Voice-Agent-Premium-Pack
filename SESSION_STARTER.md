@@ -1,18 +1,18 @@
-# AURA Session Starter — R5 Active; R2/R3/R4 Deferred for Second Pass
+# AURA Session Starter — R7 Active; R2/R3/R4/R5/R6 Open for Second Pass
 
-> Conversation date: 7 August 2026
-> Last commit: `808cf64f1804fc9ba433ea5a85beedcdabeacdb2` — `docs(state): record R2 closeout, R3 status, and R4 productization progress`
+> Conversation date: 8 August 2026
+> Live HEAD: `daf062aefc8b2eaa516769fdf27e6fc816111002` — `docs(state): start R5 adapters and write new session starter for second-pass completion`
 > Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry before changing files.
 
-## Canonical State Notice — 2026-08-07
+## Canonical State Notice — 2026-08-08
 
 This starter is a **historical compatibility document**. Use
 `AURA_RUNTIME_COMPLETION/state/current-state.json` and
 `AURA_RUNTIME_COMPLETION/context/session-handoff.json` as the authoritative
-state. Live `HEAD == origin/main == 808cf64f1804fc9ba433ea5a85beedcdabeacdb2`;
-the active prompt is **R5** and the next action is to author ADR-040 then build
-read-first browser/mail/calendar/contacts adapters. The historical HEAD, phase,
-and push claims below are not current state.
+state. Live `HEAD == origin/main == daf062aefc8b2eaa516769fdf27e6fc816111002`;
+the active prompt is **R7**. R2/R3/R4/R5/R6 remain open and their second-pass
+gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
+The historical phase and push claims below are not current state.
 
 ## Repository
 
@@ -42,15 +42,28 @@ and push claims below are not current state.
   `computerUse.run` registered truthfully `.disabled`, `AuraKernel.computerUseRun`
   wired) but **not complete**: live beta-app evidence (≥3 approved apps) requires
   the user physically present.
-- **R5** `in_progress` — browser/mail/calendar/contacts adapters, started by
-  user-directed deviation while R2/R3/R4 remain open. **No adapters exist yet;
-  ADR-040 must be authored first.**
+- **R5** `in_progress` — first typed read-first adapter slice implemented and
+  tested, but Safari/provider packaging, composition/UI wiring, live accounts,
+  mutation/send, and live acceptance remain open.
+- **R6** `in_progress` — active first-pass prompt. The policy/bridge slice is
+  verified under `EV-R6-20260808-POLICY-BRIDGE-01`; the current first-pass
+  typed-route continuation is source/build verified under
+  `EV-R6-20260808-TYPED-ROUTES-02`. Live
+  extension packaging/provisioning, complete route acceptance, backend
+  auth/model readiness, durable reviewable live flows, test-runner repair, and
+  live acceptance remain open. ADR-041 remains Proposed.
+- **R7** `in_progress` — exact-frame audio safety, truthful Push-to-Talk-only
+  wake scope, local STT routing, bounded continuation, TTS
+  interruption/timeout fallback, and bounded resource admission are under
+  validation. Real wake-word/live bilingual microphone/recovery/soak/neural
+  quality evidence and ADR-042 approval remain open.
 
 ## Second-pass completion plan (all remaining gates)
 
 The user directed that all remaining incomplete gates be completed in a second
-pass after the first pass. Each requires the user physically present or explicit
-authorization for live/account actions:
+pass after the first pass. The canonical list is
+`AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`; each live/account item
+requires the user physically present or explicit authorization:
 
 1. **R2 live-verification:** microphone/TCC voice demo
    (`EV-R2-20260804-LIVE-VOICE-DEMO-01`) and 7-scenario demo
@@ -60,8 +73,18 @@ authorization for live/account actions:
    demo.
 3. **R4:** live beta-app evidence in ≥3 approved apps, then mark
    `computerUse.run` `.liveValidated`.
-4. **R5:** author ADR-040, build read-first adapters, injection resistance,
-   live acceptance with authorized test accounts.
+4. **R5:** package and wire read-first adapters, authorized account/profile
+   acceptance, injection/degraded tests, and separately gated mutation/send.
+5. **R6:** retain the current first-pass open gates listed in
+   `SECOND_PASS_OPEN_GAPS.md`; continue R6 now, and revisit these items from
+   the beginning in the future second pass after the first pass is complete.
+6. **R7:** retain the current first-pass open gates listed in
+   `SECOND_PASS_OPEN_GAPS.md`; deliver R7, then stop for explicit user approval
+   before R8.
+
+After R7's own delivery, commit/push/merge it, record the exact evidence, and
+stop for the user's explicit approval before transitioning to R8. Do not begin
+R8 from an assumed approval.
 
 ## Verified historical handoff (Phases 0–25, prior program)
 
@@ -80,17 +103,13 @@ authorization for live/account actions:
 
 1. Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`,
    `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest
-   `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry.
-2. Choose the next work item:
-   - **Option A — Begin R5 (active prompt):** author ADR-040
-     (`docs/decisions/ADR-040-productivity-integrations-oauth.md`), then build
-     read-first browser/mail/calendar/contacts adapters with least-privilege
-     OAuth/Keychain, injection resistance, and offline/degraded behavior.
-   - **Option B — Second-pass completion:** with the user physically present,
-     close R2 live-verification, R3 remaining items, R4 live beta-app evidence,
-     and R5 live acceptance.
+   `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry plus
+   `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
+2. Continue **R7 (active prompt)** with focused voice routing/resource
+   validation and truthful live-gate recording,
+   live typed workspace/task/test/agent routes, backend onboarding, and durable
+   reviewable coding flows; keep R2/R3/R4/R5 open.
 3. State objective, assumptions, risks, and acceptance criteria in the task
    ledger before editing.
 4. Do not commit, push, merge, release, deploy, or mutate TCC/application state
    unless explicitly authorized.
-

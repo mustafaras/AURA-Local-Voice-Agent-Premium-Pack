@@ -83,6 +83,25 @@ func initialCapabilitySetRegistersEveryTargetManifest() async {
 }
 
 @Test
+func initialCapabilitySetRegistersR6VSCodeRoutesDisabledUntilLiveBridge() async {
+  let registry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: registry)
+  for id in [
+    "vscode.editor_state", "vscode.workspace_status", "vscode.diagnostics",
+    "vscode.run_task", "vscode.cancel_task", "vscode.run_tests",
+    "vscode.cancel_tests", "vscode.terminal_sessions", "vscode.bridge_health",
+  ] {
+    guard case .disabled(let reason)? = await registry.availability(
+      id: id, version: "1.0.0")
+    else {
+      Issue.record("expected \(id) to be registered disabled")
+      continue
+    }
+    #expect(reason.contains("authenticated extension"))
+  }
+}
+
+@Test
 func initialCapabilitySetDisabledEntriesCarryTruthfulReasons() async {
   let registry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: registry)

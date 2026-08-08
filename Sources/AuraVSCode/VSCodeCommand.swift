@@ -130,7 +130,7 @@ public struct VSCodeTerminalState: Codable, Sendable, Equatable {
 // MARK: - Workspace detection result
 
 /// Result of detecting the currently active VS Code workspace.
-public struct VSCodeWorkspaceInfo: Sendable, Equatable {
+public struct VSCodeWorkspaceInfo: Codable, Sendable, Equatable {
   public let workspaceFilePath: String?
   public let folderPaths: [String]
   public let activeFolderPath: String?

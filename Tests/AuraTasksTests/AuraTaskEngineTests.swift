@@ -346,6 +346,46 @@ func checkpointPersistsAndCanBeLoaded() async throws {
   let checkpoint = try await backend.loadCheckpoint(taskID: status.id, name: "step-1")
   #expect(checkpoint?.name == "step-1")
   #expect(checkpoint?.state["counter"] == "42")
+  let latest = try await backend.loadLatestCheckpoint(taskID: status.id)
+  #expect(latest?.name == "step-1")
+}
+
+// MARK: - Deadline and inactivity watchdog
+
+@Test
+func expiredTaskFailsWithoutRetry() async throws {
+  let (engine, _, _) = try await makeEngine(
+    config: TaskConfiguration(defaultMaxRetries: 3, maxConcurrentTasks: 1, queueCapacity: 5))
+  let gate = Gate()
+  let status = try await engine.enqueue(
+    request: TaskRequest(
+      objective: "deadline",
+      deadline: Date().addingTimeInterval(0.05),
+      inactivityTimeoutSeconds: 2,
+      maxRetries: 3),
+    runner: BlockingRunner(gate: gate))
+  try? await Task.sleep(nanoseconds: 250_000_000)
+  let finalStatus = await engine.status(id: status.id)
+  #expect(finalStatus?.state == .failed)
+  #expect(finalStatus?.errorMessage?.contains("expired") == true)
+}
+
+@Test
+func inactiveTaskFailsWithoutRetry() async throws {
+  let (engine, _, _) = try await makeEngine(
+    config: TaskConfiguration(defaultMaxRetries: 3, maxConcurrentTasks: 1, queueCapacity: 5))
+  let gate = Gate()
+  let status = try await engine.enqueue(
+    request: TaskRequest(
+      objective: "inactivity",
+      deadline: Date().addingTimeInterval(2),
+      inactivityTimeoutSeconds: 0.05,
+      maxRetries: 3),
+    runner: BlockingRunner(gate: gate))
+  try? await Task.sleep(nanoseconds: 250_000_000)
+  let finalStatus = await engine.status(id: status.id)
+  #expect(finalStatus?.state == .failed)
+  #expect(finalStatus?.errorMessage?.contains("inactivity timeout") == true)
 }
 
 // MARK: - Retry exhaustion

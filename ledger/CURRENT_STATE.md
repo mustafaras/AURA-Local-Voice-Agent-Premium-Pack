@@ -1,33 +1,35 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-07.
+Projection refreshed from live repository and command evidence on 2026-08-08.
 
-## Canonical State Notice — 2026-08-07
+## Canonical State Notice — 2026-08-08
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == 808cf64f1804fc9ba433ea5a85beedcdabeacdb2`. R1 is complete for
-local development/integration scope. R2, R3, and R4 remain `in_progress`
-(deferred for a second pass) and R5 (browser/mail/calendar/contacts adapters) is
-the active prompt, started by user-directed deviation. This legacy projection
+origin/main == daf062aefc8b2eaa516769fdf27e6fc816111002`. R1 is complete for
+local development/integration scope. R2, R3, R4, and R5 remain `in_progress`
+with deferred gates recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
+R6 (VS Code and coding-agent completion) is now the active prompt after a
+user-directed continuation. This legacy projection
 is retained for historical compatibility; the older status sections below are
 not authoritative and must not override the canonical machine state.
 
-## Latest Verification Snapshot — 2026-08-07
+## Latest Verification Snapshot — 2026-08-08
 
-- R2/R3/R4 runtime and governance changes are committed and pushed at `808cf64`; full regression 20/20 bundles, 778/778 tests, 0 failed bundles; governance gate passes.
+- R2/R3/R4 runtime and governance changes are present at live `daf062a`; the worktree is intentionally dirty; R5 and R6 first-slice changes remain local and uncommitted. R5 full regression passed 21/21 bundles, 747/747 tests; R6 full regression passed 21/21 bundles, 751/751 tests, both with 0 failed bundles.
 - R2 bilingual NLU/dialogue implemented and system-tested but not formally closed (live hardware evidence pending).
 - R3 capability registry/typed planner architectural core implemented and tested (ADR-038 accepted) but not complete.
 - R4 computer-use productization deterministic core and registry wiring implemented and tested (ADR-039 accepted) but not complete (live beta-app evidence pending).
-- R5 browser/mail/calendar/contacts adapters is the active prompt; ADR-040 must be authored first.
+- R5 browser/mail/calendar/contacts adapters is the active prompt; **ADR-040 is Accepted** and the first typed read-first slice is implemented/tested (`AuraProductivityTests` 9/9), with truthful capability manifests remaining `.disabled` until composition/provider/live wiring. Safari extension packaging, live accounts/permissions, mutation/send, and live acceptance remain open.
 - `swift-format`/full Xcode and release gates remain unavailable or open.
 
 - Code revision `20571de` contains the verified sequential Swift test runner and serialized system-TTS latency suite.
 - Full repository validation passes: 20 test bundles, 665 tests, 0 failed bundles. The release `AURA.app` bundle and PluginHost/AutomationHelper/ShellHelper payloads also build successfully under `/tmp/aura-app-after`.
 - An unsigned AURA executable launched from a workspace-local bundle with an isolated `HOME` and stayed alive for the 12-second watchdog window without crash output. This is a bounded startup smoke only; it does not prove signing, TCC, GUI, microphone, Screen Recording, real wake-word, or release behavior.
 - `git diff --check` and shell syntax checks pass. `swift-format` is unavailable on this host.
-- Next safe action: begin R0 repository-truth and governance work from `AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md`; signing, notarization, and release gates remain open.
+- R6 is active and its first policy/bridge slice is verified under `EV-R6-20260808-POLICY-BRIDGE-01`: `AuraVSCodeTests` 17/17 and full 751/751; the installed local `code` CLI is version 1.132.0 arm64; no live command or extension package was executed.
+- Next safe action: package/provision the authenticated bridge, complete typed workspace/task/test/agent routes, backend health, durable reviewable coding-agent flows, and user-present live acceptance. R5 and earlier gates remain in the second-pass list.
 
 - Phase: Phase 25 adversarial safety harness and red-team evaluation suite is
   implemented, verified, and closed. Phase 24 layered configuration is

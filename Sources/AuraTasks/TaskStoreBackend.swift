@@ -80,13 +80,13 @@ public actor TaskStoreBackend {
 
   /// Load the latest checkpoint for a task, if any.
   public func loadLatestCheckpoint(taskID: UUID) async throws(AuraError) -> TaskCheckpoint? {
-    let index = try await indexEntries()
-    guard index.contains(taskID) else { return nil }
-    // List all checkpoint keys for this task; pick the one with the latest capturedAt.
-    // Because AuraStore key-value does not support listing by prefix, we rely on the
-    // runner naming checkpoints deterministically or keeping names in the task snapshot.
-    // For now, the snapshot stores the latest checkpoint name; callers should save that.
-    return nil
+    guard let snapshot = try await loadTaskSnapshot(id: taskID),
+      let name = snapshot.latestCheckpointName,
+      !name.isEmpty
+    else {
+      return nil
+    }
+    return try await loadCheckpoint(taskID: taskID, name: name)
   }
 
   /// Load a named checkpoint for a task.

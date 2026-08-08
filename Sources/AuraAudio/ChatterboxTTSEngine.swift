@@ -20,6 +20,7 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
     public var device: String
     public var maxTextCharacters: Int
     public var maxAudioBytes: Int
+    public var helperTimeoutSeconds: Double
 
     public init(
       pythonPath: String? = nil,
@@ -27,9 +28,12 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
       modelPath: String? = nil,
       referenceAudioPath: String? = nil,
       outputDirectory: String? = nil,
-      device: String = "mps",
+      // CPU is the qualified safe default on the supported 16 GB profile.
+      // MPS remains opt-in until a live latency/thermal qualification exists.
+      device: String = "cpu",
       maxTextCharacters: Int = 2_000,
-      maxAudioBytes: Int = 32 * 1_024 * 1_024
+      maxAudioBytes: Int = 32 * 1_024 * 1_024,
+      helperTimeoutSeconds: Double = 45
     ) {
       self.pythonPath = pythonPath
       self.helperScriptPath = helperScriptPath
@@ -39,6 +43,7 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
       self.device = device
       self.maxTextCharacters = maxTextCharacters
       self.maxAudioBytes = maxAudioBytes
+      self.helperTimeoutSeconds = helperTimeoutSeconds
     }
 
     /// Resolve the user-controlled local runtime without embedding weights.
@@ -66,7 +71,7 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
       guard device == "mps" || device == "cpu" else {
         return "unsupported device"
       }
-      guard maxTextCharacters > 0, maxAudioBytes > 44 else {
+      guard maxTextCharacters > 0, maxAudioBytes > 44, helperTimeoutSeconds > 0 else {
         return "invalid safety bounds"
       }
       guard let pythonPath, fileManager.isExecutableFile(atPath: pythonPath) else {
@@ -102,16 +107,19 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
   private let helper: any ChatterboxHelperExecuting
   private let fallback: any TTSEngine
   private let playback: any ChatterboxAudioPlaying
+  private let resourceGovernor: VoiceResourceGovernor?
   private let healthBox = ChatterboxHealthBox()
   private let allowInjectedHelper: Bool
 
   public init(
     configuration: Configuration = Configuration(),
-    fallback: (any TTSEngine)? = nil
+    fallback: (any TTSEngine)? = nil,
+    resourceGovernor: VoiceResourceGovernor? = nil
   ) {
     self.configuration = configuration
     self.helper = ProcessChatterboxHelper(configuration: configuration)
     self.playback = ChatterboxAudioPlayback()
+    self.resourceGovernor = resourceGovernor
     self.fallback =
       fallback
       ?? SystemTTSEngine(
@@ -123,11 +131,13 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
     configuration: Configuration,
     helper: any ChatterboxHelperExecuting,
     fallback: any TTSEngine,
-    playback: any ChatterboxAudioPlaying = ChatterboxAudioPlayback()
+    playback: any ChatterboxAudioPlaying = ChatterboxAudioPlayback(),
+    resourceGovernor: VoiceResourceGovernor? = nil
   ) {
     self.configuration = configuration
     self.helper = helper
     self.playback = playback
+    self.resourceGovernor = resourceGovernor
     self.fallback = fallback
     self.allowInjectedHelper = true
   }
@@ -170,18 +180,37 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
         }
 
         if healthBox.neuralReady {
+          let reservation = await resourceGovernor?.reserve(
+            .ttsNeural, estimatedMemoryMB: 1_536, priority: .speech)
+          guard reservation?.granted ?? true else {
+            healthBox.set(
+              TTSHealth(
+                ready: true,
+                status: "fallback",
+                detail: "Neural TTS deferred by resource governor; female Yelda fallback active"),
+              neuralReady: false)
+            for await chunk in fallback.speak(prompt) {
+              box.yield(chunk)
+            }
+            box.finish()
+            return
+          }
           do {
             let request = try makeRequest(prompt: prompt)
-            let result = try await helper.synthesize(request)
+            let result = try await synthesizeWithTimeout(request)
             let audioURL = try validateAudioResult(result)
             box.yield(.progress(fragment: prompt.text, byteOffset: UInt64(result.frames)))
             defer { removePrivateAudioIfSafe(audioURL) }
             try await playback.play(audioURL)
             removePrivateAudioIfSafe(audioURL)
+            await resourceGovernor?.release(.ttsNeural, estimatedMemoryMB: 1_536)
             box.yield(.complete)
             box.finish()
             return
           } catch {
+            await resourceGovernor?.release(.ttsNeural, estimatedMemoryMB: 1_536)
+            await resourceGovernor?.recordFailure(.ttsNeural)
+            await helper.stop()
             healthBox.set(
               TTSHealth(
                 ready: true, status: "fallback",
@@ -261,6 +290,25 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
     return ChatterboxSynthesisRequest(
       id: UUID(), text: text, language: language,
       emphasis: min(max(prompt.emphasis, 0), 1))
+  }
+
+  private func synthesizeWithTimeout(
+    _ request: ChatterboxSynthesisRequest
+  ) async throws -> ChatterboxSynthesisResult {
+    try await withThrowingTaskGroup(of: ChatterboxSynthesisResult.self) { group in
+      group.addTask { [helper] in
+        try await helper.synthesize(request)
+      }
+      group.addTask { [timeout = configuration.helperTimeoutSeconds] in
+        try await Task.sleep(for: .seconds(timeout))
+        throw AuraError.ttsAdapterFailed("Chatterbox helper synthesis timed out")
+      }
+      defer { group.cancelAll() }
+      guard let result = try await group.next() else {
+        throw AuraError.ttsAdapterFailed("Chatterbox helper returned no result")
+      }
+      return result
+    }
   }
 
   private func validateAudioResult(_ result: ChatterboxSynthesisResult) throws(AuraError) -> URL {

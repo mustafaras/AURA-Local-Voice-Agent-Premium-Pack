@@ -30,7 +30,8 @@ let package = Package(
         .library(name: "AuraSecurity", targets: ["AuraSecurity"]),
         .library(name: "AuraPlugins", targets: ["AuraPlugins"]),
         .library(name: "AuraIntent", targets: ["AuraIntent"]),
-        .library(name: "AuraConfig", targets: ["AuraConfig"])
+        .library(name: "AuraConfig", targets: ["AuraConfig"]),
+        .library(name: "AuraProductivity", targets: ["AuraProductivity"])
     ],
     dependencies: [
     ],
@@ -55,7 +56,8 @@ let package = Package(
                 "AuraSecurity",
                 "AuraPlugins",
                 "AuraConfig",
-                "AuraVSCode"
+                "AuraVSCode",
+                "AuraProductivity"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
@@ -100,7 +102,7 @@ let package = Package(
         ),
         .target(
             name: "AuraAgent",
-            dependencies: ["AuraCore", "AuraAudio", "AuraShell", "AuraPolicy", "AuraTasks"],
+            dependencies: ["AuraCore", "AuraAudio", "AuraShell", "AuraPolicy", "AuraTasks", "AuraVSCode"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
@@ -168,7 +170,7 @@ let package = Package(
         ),
         .testTarget(
             name: "AuraAgentTests",
-            dependencies: ["AuraAgent", "AuraAudio", "AuraShell", "AuraPolicy", "AuraTasks", "AuraStore"],
+            dependencies: ["AuraAgent", "AuraAudio", "AuraShell", "AuraPolicy", "AuraTasks", "AuraStore", "AuraVSCode"],
             resources: [.copy("Fixtures")],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
@@ -224,7 +226,7 @@ let package = Package(
         ),
         .target(
             name: "AuraVSCode",
-            dependencies: ["AuraCore", "AuraShell"],
+            dependencies: ["AuraCore", "AuraPolicy", "AuraShell"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
@@ -369,6 +371,28 @@ let package = Package(
                 .swiftLanguageMode(.v6)
             ]
         ),
+        .target(
+            name: "AuraProductivity",
+            dependencies: ["AuraCore", "AuraSecurity"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("EventKit", .when(platforms: [.macOS])),
+                .linkedFramework("Contacts", .when(platforms: [.macOS]))
+            ]
+        ),
+        .testTarget(
+            name: "AuraProductivityTests",
+            dependencies: ["AuraProductivity", "AuraSecurity", "AuraCore", "AuraIntent"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6),
+                .unsafeFlags([
+                    "-Xfrontend", "-load-resolved-plugin",
+                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
+                ])
+            ]
+        ),
         .testTarget(
             name: "AuraConfigTests",
             dependencies: ["AuraConfig", "AuraStore"],
@@ -415,7 +439,7 @@ let package = Package(
         ),
         .testTarget(
             name: "AuraVSCodeTests",
-            dependencies: ["AuraVSCode"],
+            dependencies: ["AuraVSCode", "AuraPolicy"],
             swiftSettings: [
                 .swiftLanguageMode(.v6),
                 .unsafeFlags([

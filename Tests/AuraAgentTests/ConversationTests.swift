@@ -119,6 +119,23 @@ struct ConversationTests {
     #expect(turns.first?.requiresPolicyReview == true)
   }
 
+  @Test("incomplete stable segment gets a bounded continuation window")
+  func incompleteStableSegmentWaitsBriefly() async throws {
+    let config = ConversationConfiguration(continuationWindowSeconds: 0.01)
+    let (conversation, _, _, _, box) = await makeConversation(conversationConfig: config)
+
+    await conversation.wakeActivationStarted(privacyMode: false)
+    await conversation.stableSegmentReceived(
+      STTStableSegmentEvent(text: "run the tests and", confidence: 0.9)
+    )
+    #expect(await conversation.state == .listening)
+    #expect(box.events.compactMap { $0 as? TurnCompletedEvent }.isEmpty)
+
+    try? await Task.sleep(for: .milliseconds(40))
+    #expect(await conversation.state == .thinking)
+    #expect(box.events.compactMap { $0 as? TurnCompletedEvent }.count == 1)
+  }
+
   @Test("deterministic stop command stops assistant")
   func deterministicStopCommand() async throws {
     let config = ConversationConfiguration(

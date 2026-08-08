@@ -107,6 +107,11 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
     lock.lock()
     defer { lock.unlock() }
 
+    if case .cancelled = stateValue {
+      // Cancellation ends only the current recognition request. The
+      // engine-lifetime result stream remains reusable for the next PTT turn.
+      stateValue = .idle
+    }
     guard case .idle = stateValue else {
       return healthForCurrentState()
     }
@@ -136,10 +141,18 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
         "SFSpeechRecognizer unavailable for locale \(locale.identifier)")
     }
 
+    guard recognizer.supportsOnDeviceRecognition else {
+      throw AuraError.sttEngineError(
+        "On-device Speech.framework recognition unavailable for locale \(locale.identifier)")
+    }
+
     return STTHealth(
       ready: true,
       status: "ready",
-      detail: "Native Speech.framework STT ready for \(locale.identifier)"
+      detail: "Native Speech.framework STT ready for \(locale.identifier); on-device only",
+      engineID: engineID,
+      locale: locale.identifier,
+      supportsOffline: true
     )
   }
 
@@ -204,7 +217,7 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
   // MARK: - Private helpers
 
   private func startRecognition(activationTime: TimeInterval) throws {
-    guard let recognizer, recognizer.isAvailable else {
+    guard let recognizer, recognizer.isAvailable, recognizer.supportsOnDeviceRecognition else {
       throw AuraError.sttEngineError("Recognizer unavailable")
     }
 
@@ -330,6 +343,7 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
       metadata: [
         "engineID": engineID,
         "locale": locale.identifier,
+        "onDevice": "true",
         "segments": String(segments.count),
       ]
     )
@@ -399,25 +413,37 @@ public final class SystemSTTEngine: STTEngine, @unchecked Sendable {
       return STTHealth(
         ready: false,
         status: "idle",
-        detail: "Native STT engine idle"
+        detail: "Native STT engine idle",
+        engineID: engineID,
+        locale: locale.identifier,
+        supportsOffline: true
       )
     case .streaming:
       return STTHealth(
         ready: true,
         status: "streaming",
-        detail: "Native STT engine streaming"
+        detail: "Native STT engine streaming on-device",
+        engineID: engineID,
+        locale: locale.identifier,
+        supportsOffline: true
       )
     case .finalized:
       return STTHealth(
         ready: true,
         status: "finalized",
-        detail: "Native STT session finalized"
+        detail: "Native STT session finalized",
+        engineID: engineID,
+        locale: locale.identifier,
+        supportsOffline: true
       )
     case .cancelled:
       return STTHealth(
         ready: false,
         status: "cancelled",
-        detail: "Native STT session cancelled"
+        detail: "Native STT session cancelled",
+        engineID: engineID,
+        locale: locale.identifier,
+        supportsOffline: true
       )
     }
   }

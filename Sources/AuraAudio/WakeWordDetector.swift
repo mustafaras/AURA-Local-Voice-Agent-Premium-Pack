@@ -24,6 +24,25 @@ public protocol WakeWordDetector: Sendable {
   @Sendable func reset()
 }
 
+/// Production-safe detector used when no evaluated, licensed, local wake-word
+/// model is provisioned. Push to Talk remains the supported activation path.
+/// This is deliberately not a degraded-ready signal: it can never detect.
+public struct DisabledWakeWordDetector: WakeWordDetector {
+  public let reason: String
+
+  public init(
+    reason: String = "No evaluated local wake-word model is provisioned; use Push to Talk"
+  ) {
+    self.reason = reason
+  }
+
+  public func analyze(_ frame: AudioFrame, vadResult: VADResult?) -> WakeHypothesis {
+    WakeHypothesis(detected: false, confidence: 0, matchedPhrase: "")
+  }
+
+  public func reset() {}
+}
+
 /// Test-only configurable wake-word detector that "detects" the phrase when a
 /// synthetic marker tone is present in the frame. It produces deterministic
 /// confidence values so tests can measure thresholds, debounce, and anti-trigger

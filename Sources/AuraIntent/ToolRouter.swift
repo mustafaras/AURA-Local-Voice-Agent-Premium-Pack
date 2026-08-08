@@ -1,4 +1,5 @@
 import AuraAutomation
+import AuraAgent
 import AuraCore
 import AuraPolicy
 import AuraShell
@@ -85,6 +86,7 @@ public actor ToolRouter {
   private let shell: AuraShell
   private let taskEngine: AuraTaskEngine
   private let agentTaskRunner: AgentBackendTaskRunner
+  private let codingTaskCoordinator: CodingTaskCoordinator?
   /// The sole production source of capability contracts — replaces the
   /// prior phase's static `ToolRegistry` per `04_R3_CAPABILITY_REGISTRY_AND
   /// _PLANNER.prompt.md`'s completion gate. `IntentKind` still identifies
@@ -109,13 +111,15 @@ public actor ToolRouter {
     confirmationPresenter: any IntentConfirmationPresenting,
     eventBus: AuraEventBus,
     configuration: IntentEngineConfiguration,
-    dialogueEngine: DialogueEngine = DialogueEngine()
+    dialogueEngine: DialogueEngine = DialogueEngine(),
+    codingTaskCoordinator: CodingTaskCoordinator? = nil
   ) {
     self.policyEngine = policyEngine
     self.automation = automation
     self.shell = shell
     self.taskEngine = taskEngine
     self.agentTaskRunner = agentTaskRunner
+    self.codingTaskCoordinator = codingTaskCoordinator
     self.capabilityRegistry = capabilityRegistry
     self.confirmationPresenter = confirmationPresenter
     self.eventBus = eventBus
@@ -366,14 +370,11 @@ public actor ToolRouter {
     }
   }
 
-  /// A `.codingAgentRun` intent is delegated wholesale to `AgentBackendTask
-  /// Runner`/`AuraTaskEngine` and never awaited here: `Conversation`'s
-  /// `thinkTimeoutSeconds` (default 30s) bounds how long `IntentDispatch
-  /// Coordinator` can take to produce a `ResponsePlanEvent`, and a real
-  /// coding-agent CLI turn routinely takes far longer than that. The chosen
-  /// CLI adapter (`CodexAdapter`/`ClaudeAdapter`/`CopilotAdapter`, wrapped
-  /// by `AgentBackendTaskRunner`) evaluates its own policy internally
-  /// before running — this method never calls `PolicyEngine.evaluate`.
+  /// A `.codingAgentRun` intent is delegated asynchronously. In production,
+  /// the R6 coordinator must first resolve an explicit VS Code workspace,
+  /// verify backend readiness, and establish write isolation before enqueueing
+  /// the durable task. Test-only harnesses may omit the coordinator to retain
+  /// the historical enqueue fixture.
   private func handleCodingAgentRun(
     _ intent: TypedIntent,
     correlationID: UUID,
@@ -385,6 +386,38 @@ public actor ToolRouter {
     let backend = intent.slotValue(IntentSlotName.backend) ?? configuration.defaultCodingAgentBackend
     guard AgentBackendTaskRunner.supportedBackends.contains(backend) else {
       return .failed(reason: "unsupported coding-agent backend: \(backend)")
+    }
+
+    if let codingTaskCoordinator {
+      guard let backendID = AgentBackendID(rawValue: backend) else {
+        return .failed(reason: "unsupported coding-agent backend: \(backend)")
+      }
+      let request = CodingTaskRequest(
+        objective: objective,
+        backend: backendID,
+        mode: .writeCapable,
+        context: [AgentBackendTaskRunner.backendContextKey: backend])
+
+      await emit(
+        ToolInvokedEvent(intentID: intent.id, toolID: "agent.codingAgentRun"),
+        correlationID: correlationID, causationID: causationID)
+      do {
+        _ = try await codingTaskCoordinator.enqueue(
+          request, actor: .intent, sessionID: intent.turnContext?.sessionID ?? UUID())
+        let summary = "Started a " + backend + " run for: " + objective + "."
+        await emit(
+          ToolResultEvent(
+            intentID: intent.id, toolID: "agent.codingAgentRun", succeeded: true, summary: summary),
+          correlationID: correlationID, causationID: causationID)
+        return .acknowledgedAsync(summary: summary)
+      } catch {
+        let summary = "Failed to start " + backend + " run: " + error.localizedDescription
+        await emit(
+          ToolResultEvent(
+            intentID: intent.id, toolID: "agent.codingAgentRun", succeeded: false, summary: summary),
+          correlationID: correlationID, causationID: causationID)
+        return .failed(reason: summary)
+      }
     }
 
     // No working-directory context key is set here: each per-backend

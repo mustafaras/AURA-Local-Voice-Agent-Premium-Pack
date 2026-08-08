@@ -1,9 +1,9 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `R5`
-> **Current program state:** In progress; R1 completed, R2 in progress (deferred closeout), R3 in progress, R4 in progress, R5 in progress (user-directed parallel start)
-> **Audited baseline:** `808cf64f1804fc9ba433ea5a85beedcdabeacdb2`
+> **Current prompt:** `R7`
+> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6 remain open, R7 active after a user-directed transition
+> **Audited baseline:** `daf062aefc8b2eaa516769fdf27e6fc816111002` on `main` (`HEAD == origin/main`; working tree intentionally dirty)
 
 ## Canonical status
 
@@ -90,13 +90,76 @@ user-directed deviation while R2/R3/R4 remain open (recorded in the program
 ledger). Scope per `06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md`: read-first
 browser/mail/calendar/contacts capabilities, least-privilege OAuth/Keychain,
 injection resistance, offline/degraded behavior, and live acceptance. Primary
-risks: `RISK-MISSING-PRODUCTIVITY-ADAPTERS` and `RISK-INDIRECT-PROMPT-INJECTION`.
-ADR-040 is Proposed in `DECISION_REGISTER.md` but the file does not yet exist on
-disk and must be authored before implementation.
+risks: `RISK-MISSING-PRODUCTIVITY-ADAPTERS`, `RISK-INDIRECT-PROMPT-INJECTION`,
+and `RISK-OAUTH-OVERPRIVILEGE`. **ADR-040 is now Accepted** (authored at
+`docs/decisions/ADR-040-productivity-integrations-oauth.md` and recorded in
+`DECISION_REGISTER.md` on 2026-08-07), defining the browser/mail/calendar/
+contacts least-privilege OAuth/Keychain trust boundaries: read-first default,
+incremental least-privilege OAuth scopes, Keychain-only revocable tokens,
+deny-by-default `NetworkAllowlist` enforcement, untrusted-content provenance/
+isolation, closed account/profile scope, immutable send/mutation confirmation,
+and computer use as explicit bounded fallback.
 
-**R5 is NOT complete.** No browser/mail/calendar/contacts adapters exist yet;
-ADR-040 must be authored; and live acceptance requires explicitly authorized
-test accounts/profiles.
+**R5 is NOT complete.** The first typed read-first adapter slice is implemented
+and tested under `EV-R5-20260808-READ-FIRST-ADAPTERS-01`: structured Safari
+active-tab and Gmail read-only contracts, EventKit/Contacts native read
+adapters, OAuth/Keychain scope boundaries, provenance/injection guards, and
+truthful disabled registry manifests. The slice is not wired into the live
+composition/NLU/UI path; Safari extension packaging, provider transports,
+authorized accounts/permissions, mutation/send, and live acceptance remain.
+The full local regression is 21/21 bundles, 747/747 tests, 0 failures; the
+focused `AuraProductivityTests` result is 9/9. Live acceptance requires
+explicitly authorized test accounts/profiles and the user physically present
+for permission prompts.
+
+## R6 status
+
+R6 — VS Code and Coding-Agent Completion — is the active prompt after the
+user-directed transition from R5. The local policy/bridge slice remains
+verified under `EV-R6-20260808-POLICY-BRIDGE-01`; the current first-pass
+typed-route continuation is recorded under
+`EV-R6-20260808-TYPED-ROUTES-02`. It adds typed signed command
+and response routes, fail-closed workspace precedence/ambiguity handling,
+backend health probing that does not confuse executable presence with auth or
+model readiness, production router wiring through the coding-task coordinator,
+and durable deadline/inactivity/latest-checkpoint controls.
+
+R6's unresolved gates are also copied into
+[`SECOND_PASS_OPEN_GAPS.md`](../SECOND_PASS_OPEN_GAPS.md) for the future second
+pass. That record does not defer the current first-pass R6 work: extension
+provisioning, live route acceptance, backend readiness, durable reviewable
+flows, and user-present acceptance remain the active next gates.
+
+The file bridge is not yet a packaged/provisioned extension bridge. Live
+extension transport, secret onboarding, complete route acceptance, backend
+authentication/model readiness, user-facing progress/review, restart/resume,
+and user-present acceptance remain open. A clean scratch runtime run passed
+21/21 bundles and 763/763 tests after placing the existing CommandLineTools
+`Testing.framework` and interop library at the temporary test `@rpath`; the
+repository runner still reports `AuraAudioTests` helper `exit 142` after its
+assertions pass. Existing safety guidance requires approval before system
+service intervention. ADR-041 is Proposed and must remain so until explicit
+approval plus its implementation/evidence gate. The installed local VS Code
+CLI remains `1.132.0` (`arm64`); no live extension command was executed.
+
+## R7 status
+
+R7 — Wake Word, STT/TTS Routing, and Resource Governor — is the active first-pass
+prompt. The local slice now keeps production wake detection explicitly
+Push-to-Talk-only until a real model qualifies; preserves exact audio frames by
+sequence; routes between local Speech adapters only when their on-device
+capability is real; adds bounded incomplete-turn continuation; makes system-TTS
+interrupt/pause/resume operations real; bounds Chatterbox helper timeouts and
+resource reservations; and records thermal/memory/circuit decisions through
+`VoiceResourceGovernor`.
+
+R7 is **not formally complete**. Real wake-word model/FAR-FR evidence, live
+Turkish/English/mixed microphone WER/entity quality, user-present barge-in and
+device/sleep/TCC recovery, measured 16 GB multi-workload soak, consented neural
+reference/human quality, and explicit ADR-042 approval remain open. These gates
+are recorded in [`SECOND_PASS_OPEN_GAPS.md`](../SECOND_PASS_OPEN_GAPS.md) for
+future second-pass completion. After authorized R7 delivery, stop and request
+explicit user approval before R8.
 
 ## Why this program exists
 
@@ -120,24 +183,25 @@ The immediate program must:
 
 ## Immediate next action
 
-R5 is the active prompt (in_progress), started by user-directed deviation while
-R2/R3/R4 remain open. The next concrete R5 work, in dependency order:
+R6 is the active prompt (in_progress) after the user-directed R5 transition.
+R5 remains open and all R2/R3/R4/R5 deferred gates are recorded in
+[`SECOND_PASS_OPEN_GAPS.md`](../SECOND_PASS_OPEN_GAPS.md). The next concrete R6
+work, in dependency order:
 
-1. **Author ADR-040** (`docs/decisions/ADR-040-productivity-integrations-oauth.md`
-   — Proposed in `DECISION_REGISTER.md` but the file does not yet exist on
-   disk) and record it, defining the browser/mail/calendar/contacts
-   least-privilege OAuth/Keychain trust boundaries.
-2. **Build read-first browser/mail/calendar/contacts adapters** with
-   least-privilege OAuth scopes and Keychain token references.
-3. **Add injection resistance and offline/degraded behavior** (provenance
-   tagging, content isolation, sanitized model context, adversarial fixtures).
-4. **Run live acceptance** with explicitly authorized test accounts/profiles.
+1. **Package and provision the authenticated extension bridge** while retaining
+   the existing fail-closed policy gate and bounded envelope contract.
+2. **Complete live typed workspace/task/test/agent routes** with durable,
+   isolated, reviewable write flows; repair the host test-runner framework path;
+   then run the R6 live acceptance gate.
 
-R4, R3, and R2 remain open (deferred/parallel) — see the R2 closeout status, R3
-status, and R4 status sections above. Do not mark R2, R3, R4, or R5 complete
-before their respective remaining items are resolved or explicitly accepted. Do
-not start Phase 26 or any optional historical roadmap phase merely because older
-prose names it as the next action.
+R5, R4, R3, and R2 remain open (deferred/parallel) — see the status sections
+above and `SECOND_PASS_OPEN_GAPS.md`. Do not mark R2, R3, R4, R5, or R6
+complete before their respective remaining items are resolved or explicitly
+accepted. Do not start Phase 26 or any optional historical roadmap phase merely
+because older prose names it as the next action.
+
+After R7's commit/push/merge delivery, stop and obtain explicit user approval
+before moving to R8.
 
 ## Current major risks
 
@@ -146,7 +210,7 @@ prose names it as the next action.
 - universal capability-specific postcondition verification is incomplete;
 - no production computer-use planner;
 - VS Code policy not enforced in the adapter path;
-- no browser/mail/calendar/contacts adapters;
+- no live-wired browser/mail/calendar/contacts provider path;
 - no real wake word;
 - model memory/thermal contention on 16 GB hardware;
 - main-process privilege concentration;

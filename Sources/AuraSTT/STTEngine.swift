@@ -65,6 +65,16 @@ public struct STTHealth: Sendable, Equatable {
   /// Human-readable detail. Avoid embedding private content.
   public let detail: String
 
+  /// Actual adapter selected for the current session. Empty means the
+  /// adapter has not selected a backend yet.
+  public let engineID: String
+
+  /// Locale currently presented by the selected adapter.
+  public let locale: String
+
+  /// Whether the adapter is configured to keep recognition local/offline.
+  public let supportsOffline: Bool
+
   /// Timestamp of the last successful result, if any.
   public let lastResultTimestamp: Date?
 
@@ -72,12 +82,18 @@ public struct STTHealth: Sendable, Equatable {
     ready: Bool,
     status: String,
     detail: String,
-    lastResultTimestamp: Date? = nil
+    lastResultTimestamp: Date? = nil,
+    engineID: String = "",
+    locale: String = "",
+    supportsOffline: Bool = false
   ) {
     self.ready = ready
     self.status = status
     self.detail = detail
     self.lastResultTimestamp = lastResultTimestamp
+    self.engineID = engineID
+    self.locale = locale
+    self.supportsOffline = supportsOffline
   }
 }
 

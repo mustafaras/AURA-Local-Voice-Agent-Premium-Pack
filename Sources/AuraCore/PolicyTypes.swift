@@ -64,6 +64,20 @@ extension Capability {
     domain: "vscode", action: "manageExtension", riskTier: .mutation)
   public static let vscodeObserveState = Capability(
     domain: "vscode", action: "observeState", riskTier: .observation)
+  public static let vscodeWorkspaceStatus = Capability(
+    domain: "vscode", action: "workspaceStatus", riskTier: .observation)
+  public static let vscodeDiagnostics = Capability(
+    domain: "vscode", action: "diagnostics", riskTier: .observation)
+  public static let vscodeRunTask = Capability(
+    domain: "vscode", action: "runTask", riskTier: .reversible)
+  public static let vscodeCancelTask = Capability(
+    domain: "vscode", action: "cancelTask", riskTier: .reversible)
+  public static let vscodeRunTests = Capability(
+    domain: "vscode", action: "runTests", riskTier: .reversible)
+  public static let vscodeCancelTests = Capability(
+    domain: "vscode", action: "cancelTests", riskTier: .reversible)
+  public static let vscodeBridgeHealth = Capability(
+    domain: "vscode", action: "bridgeHealth", riskTier: .observation)
 
   public static let taskEnqueue = Capability(
     domain: "task", action: "enqueue", riskTier: .reversible)
@@ -86,6 +100,28 @@ extension Capability {
   public static let fileReveal = Capability(
     domain: "file", action: "reveal", riskTier: .reversible)
   public static let urlOpen = Capability(domain: "url", action: "open", riskTier: .reversible)
+
+  /// Read the currently approved browser profile/tab through a structured
+  /// browser integration. Page text remains external, non-authoritative data.
+  public static let browserRead = Capability(
+    domain: "browser", action: "read", riskTier: .observation)
+  /// Read mail metadata and approved message content through a configured
+  /// provider adapter. Reading is sensitive data access but not external
+  /// communication; the adapter remains account- and scope-bound.
+  public static let mailRead = Capability(
+    domain: "mail", action: "read", riskTier: .observation)
+  /// Read calendar events through an explicitly authorized provider or
+  /// EventKit store.
+  public static let calendarRead = Capability(
+    domain: "calendar", action: "read", riskTier: .observation)
+  /// Resolve only the contact candidates needed for the current request.
+  public static let contactsLookup = Capability(
+    domain: "contacts", action: "lookup", riskTier: .observation)
+  /// Escalate an integration from read-only to compose/send or write access.
+  /// This is deliberately destructive-tier and is never caller-supplied as a
+  /// raw OAuth scope string.
+  public static let oauthEscalate = Capability(
+    domain: "oauth", action: "escalate", riskTier: .destructive)
 
   public static let capabilityHealthQuery = Capability(
     domain: "capability", action: "health", riskTier: .observation)

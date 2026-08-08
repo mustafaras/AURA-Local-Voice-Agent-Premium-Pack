@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-07T05:00:00Z",
-  "session_id": "AURA-R2-CLOSEOUT-20260807",
+  "updated_at": "2026-08-08T13:29:34Z",
+  "session_id": "AURA-R7-VOICE-20260808",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "808cf64f1804fc9ba433ea5a85beedcdabeacdb2",
-    "remote_head": "808cf64f1804fc9ba433ea5a85beedcdabeacdb2",
+    "verified_head": "daf062aefc8b2eaa516769fdf27e6fc816111002",
+    "remote_head": "daf062aefc8b2eaa516769fdf27e6fc816111002",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -17,17 +17,22 @@
       "The ordered manifest contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is a mandatory out-of-manifest session procedure documented by prompts/README.md.",
       "R1 runtime integration and R2 bilingual dialogue changes were validated, committed as b8f8960, and pushed to origin/main.",
       "This session's ledger/state/evidence/risk-register/handoff updates recording the live Ollama benchmark and app-launch smoke (EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01, EV-R2-20260803-APP-LAUNCH-LIVE-01) remain local and uncommitted pending explicit commit/push authorization.",
-      "This session also modified product source with user authorization: a debug-gated (env-var-inert-by-default) text-demo hook in Sources/AURA/AuraAppModel.swift, a debug-gated response-text log in Sources/AuraAgent/Conversation.swift, and a new default policy grant for .agentOllamaLocalInference in Sources/AURA/AuraKernel.swift (documented as a 2026-08-03 addendum to ADR-036, EV-R2-20260803-TEXTDEMO-LIVE-01). Full regression re-verified at 20/20 bundles, 695/695 tests after each change. All remain local and uncommitted."
+      "This session also modified product source with user authorization: a debug-gated (env-var-inert-by-default) text-demo hook in Sources/AURA/AuraAppModel.swift, a debug-gated response-text log in Sources/AuraAgent/Conversation.swift, and a new default policy grant for .agentOllamaLocalInference in Sources/AURA/AuraKernel.swift (documented as a 2026-08-03 addendum to ADR-036, EV-R2-20260803-TEXTDEMO-LIVE-01). Full regression re-verified at 20/20 bundles, 695/695 tests after each change. All remain local and uncommitted.",
+      "R5 first read-first adapter slice is implemented and locally tested, but remains uncommitted and unwired from the live composition/UI/provider paths; no live OAuth/TCC, mutation/send, commit, or push was performed.",
+      "R2/R3/R4/R5 deferred gates are recorded in AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md; R6 is now the active prompt and its policy/bridge plus typed-route slices remain local and uncommitted.",
+      "R7 local voice routing/resource slice is implemented and validated in the dirty worktree; the final local regression passed 21/21 bundles and 774/774 tests. Live wake/STT/voice/recovery/soak gates and ADR-042 approval remain open."
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R5",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
+    "id": "R7",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
     "state": "in_progress",
-    "step": "R5 started by user-directed deviation while R2/R3/R4 remain in_progress (not complete). R5 scope per 06_R5 prompt: read-first browser/mail/calendar/contacts adapters, least-privilege OAuth/Keychain, injection resistance, offline/degraded behavior, live acceptance. ADR-040 is Proposed in DECISION_REGISTER but the file does not yet exist on disk and must be authored first. Primary R5 risks: RISK-MISSING-PRODUCTIVITY-ADAPTERS, RISK-INDIRECT-PROMPT-INJECTION.",
-    "started_at": "2026-08-07T05:00:00Z",
-    "blocked_by": ["R5 is not formally complete: no browser/mail/calendar/contacts adapters exist yet, ADR-040 must be authored, and live acceptance requires explicitly authorized test accounts/profiles. R4 is not formally complete: computerUse.run remains .disabled until an app is explicitly live-validated, and live beta-app evidence requires the user physically present. R3 is not formally complete: filesystem/URL adapters unbuilt, 4 direct-call-only capabilities lack NLU/UI reachability, planner not wired into DialogueEngine/ToolRouter, and the 7-scenario live completion demonstration not performed. R2 is also not formally complete: RISK-STT-MIC-NOT-CAPTURING (Open) and RISK-ENGLISH-ONLY-INTENT (Mitigating) require live hardware evidence with the user physically present. The user directed proceeding to R5 anyway; this is a deliberate, recorded deviation from the prompt manifest's normal dependency order, not an oversight."]
+    "step": "R7 local voice routing/resource slice is implemented and fully locally validated; deliver the authorized commit/push/merge, then stop for explicit approval before R8. Real wake-word qualification, live bilingual microphone quality, release-hardware barge-in/recovery, measured 16 GB soak, neural reference/quality, and ADR-042 approval remain open.",
+    "started_at": "2026-08-08T12:43:10Z",
+    "blocked_by": [
+      "R7 is not formally complete: no real wake-word candidate/live FAR-FR evidence, no live Turkish/English/mixed microphone WER/entity evidence or qualified local Whisper fallback, no user-present barge-in/device/sleep/TCC recovery evidence, no measured 16 GB multi-workload soak, neural voice consent/quality gate, or explicit ADR-042 approval. R6 and earlier tracks remain open exactly as recorded in SECOND_PASS_OPEN_GAPS.md."
+    ]
   },
   "tracks": [
     {
@@ -37,128 +42,261 @@
       "dependencies": [],
       "started_at": null,
       "completed_at": "2026-08-02T14:26:47Z",
-      "evidence_ids": ["EV-BOOTSTRAP-20260802-STATE-RECONCILE-01", "EV-BOOTSTRAP-20260802-SCHEMA-VALIDATE-01", "EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01", "EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01", "EV-BOOTSTRAP-20260802-TOOLCHAIN-INVENTORY-01", "EV-R0-20260802-FULL-SUITE-01", "EV-R0-20260802-FULL-SUITE-RERUN-01", "EV-R0-20260802-APP-SMOKE-01", "EV-R0-20260802-CAPABILITY-AUDIT-01", "EV-R0-20260802-STATE-VALIDATOR-01", "EV-R0-20260802-TOOLCHAIN-MANIFEST-01", "EV-R0-20260802-CI-CONFIG-01", "EV-R0-20260802-LEGACY-REDIRECT-01", "EV-R0-20260802-TODO-AUDIT-01"],
-      "open_risk_ids": ["RISK-TOOLCHAIN-PREVIEW"]
+      "evidence_ids": [
+        "EV-BOOTSTRAP-20260802-STATE-RECONCILE-01",
+        "EV-BOOTSTRAP-20260802-SCHEMA-VALIDATE-01",
+        "EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01",
+        "EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01",
+        "EV-BOOTSTRAP-20260802-TOOLCHAIN-INVENTORY-01",
+        "EV-R0-20260802-FULL-SUITE-01",
+        "EV-R0-20260802-FULL-SUITE-RERUN-01",
+        "EV-R0-20260802-APP-SMOKE-01",
+        "EV-R0-20260802-CAPABILITY-AUDIT-01",
+        "EV-R0-20260802-STATE-VALIDATOR-01",
+        "EV-R0-20260802-TOOLCHAIN-MANIFEST-01",
+        "EV-R0-20260802-CI-CONFIG-01",
+        "EV-R0-20260802-LEGACY-REDIRECT-01",
+        "EV-R0-20260802-TODO-AUDIT-01"
+      ],
+      "open_risk_ids": [
+        "RISK-TOOLCHAIN-PREVIEW"
+      ]
     },
     {
       "id": "R1",
       "name": "Runtime Integration Spine and Trace Correctness",
       "state": "completed",
-      "dependencies": ["R0"],
+      "dependencies": [
+        "R0"
+      ],
       "started_at": "2026-08-02T14:10:00Z",
       "completed_at": "2026-08-02T16:34:12Z",
-      "evidence_ids": ["EV-R1-20260802-FULL-SUITE-01", "EV-R1-20260802-TRACE-HEALTH-01", "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01", "EV-R1-20260802-HEALTH-DETAIL-01", "EV-R1-20260802-PLAN-BINDING-01", "EV-R1-20260802-AUDIO-CLEANUP-01", "EV-R1-20260802-FULL-SUITE-FINAL-01"],
-      "open_risk_ids": ["RISK-FALSE-SUCCESS", "RISK-CONFIRMATION-RESUME"]
+      "evidence_ids": [
+        "EV-R1-20260802-FULL-SUITE-01",
+        "EV-R1-20260802-TRACE-HEALTH-01",
+        "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01",
+        "EV-R1-20260802-HEALTH-DETAIL-01",
+        "EV-R1-20260802-PLAN-BINDING-01",
+        "EV-R1-20260802-AUDIO-CLEANUP-01",
+        "EV-R1-20260802-FULL-SUITE-FINAL-01"
+      ],
+      "open_risk_ids": [
+        "RISK-FALSE-SUCCESS",
+        "RISK-CONFIRMATION-RESUME"
+      ]
     },
     {
       "id": "R2",
       "name": "Bilingual NLU and Dialogue",
       "state": "in_progress",
-      "dependencies": ["R1"],
+      "dependencies": [
+        "R1"
+      ],
       "started_at": "2026-08-02T17:27:28Z",
       "completed_at": null,
-      "evidence_ids": ["EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01", "EV-R2-20260802-OLLAMA-STRUCTURED-01", "EV-R2-20260802-INTEGRATION-DIALOGUE-01", "EV-R2-20260802-FULL-SUITE-SLICE-01", "EV-R2-20260802-FULL-SUITE-FINAL-01", "EV-R2-20260802-FULL-SUITE-FINAL-02", "EV-R2-20260802-DIALOGUE-HEALTH-01", "EV-R2-20260802-AGENT-RISK-01", "EV-R2-20260802-TODO-AUDIT-01", "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01", "EV-R2-20260802-FULL-SUITE-FINAL-03", "EV-R2-20260803-FINAL-REGRESSION-01", "EV-R2-20260803-PUBLICATION-01", "EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01", "EV-R2-20260803-APP-LAUNCH-LIVE-01", "EV-R2-20260803-TEXTDEMO-LIVE-01", "EV-R2-20260803-TEXTDEMO-LIVE-02", "EV-R2-20260803-PROMPT-LEAKAGE-FIX-01", "EV-R2-20260803-REAL-DESKTOP-SESSION-01", "EV-R2-20260803-OLLAMA-BUDGET-FIX-01", "EV-R2-20260804-STRUCTURED-NLU-CAPABILITY-GATE-FIX-01", "EV-R2-20260804-PTT-PERMISSION-AUDIT-01", "EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01"],
-      "open_risk_ids": ["RISK-ENGLISH-ONLY-INTENT", "RISK-MODEL-MEMORY-PRESSURE", "RISK-STRUCTURED-NLU-MODEL-QUALITY", "RISK-STT-MIC-NOT-CAPTURING"]
+      "evidence_ids": [
+        "EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01",
+        "EV-R2-20260802-OLLAMA-STRUCTURED-01",
+        "EV-R2-20260802-INTEGRATION-DIALOGUE-01",
+        "EV-R2-20260802-FULL-SUITE-SLICE-01",
+        "EV-R2-20260802-FULL-SUITE-FINAL-01",
+        "EV-R2-20260802-FULL-SUITE-FINAL-02",
+        "EV-R2-20260802-DIALOGUE-HEALTH-01",
+        "EV-R2-20260802-AGENT-RISK-01",
+        "EV-R2-20260802-TODO-AUDIT-01",
+        "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01",
+        "EV-R2-20260802-FULL-SUITE-FINAL-03",
+        "EV-R2-20260803-FINAL-REGRESSION-01",
+        "EV-R2-20260803-PUBLICATION-01",
+        "EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01",
+        "EV-R2-20260803-APP-LAUNCH-LIVE-01",
+        "EV-R2-20260803-TEXTDEMO-LIVE-01",
+        "EV-R2-20260803-TEXTDEMO-LIVE-02",
+        "EV-R2-20260803-PROMPT-LEAKAGE-FIX-01",
+        "EV-R2-20260803-REAL-DESKTOP-SESSION-01",
+        "EV-R2-20260803-OLLAMA-BUDGET-FIX-01",
+        "EV-R2-20260804-STRUCTURED-NLU-CAPABILITY-GATE-FIX-01",
+        "EV-R2-20260804-PTT-PERMISSION-AUDIT-01",
+        "EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01"
+      ],
+      "open_risk_ids": [
+        "RISK-ENGLISH-ONLY-INTENT",
+        "RISK-MODEL-MEMORY-PRESSURE",
+        "RISK-STRUCTURED-NLU-MODEL-QUALITY",
+        "RISK-STT-MIC-NOT-CAPTURING"
+      ]
     },
     {
       "id": "R3",
       "name": "Capability Registry and Typed Planner",
       "state": "in_progress",
-      "dependencies": ["R2"],
+      "dependencies": [
+        "R2"
+      ],
       "started_at": "2026-08-04T10:40:00Z",
       "completed_at": null,
-      "evidence_ids": ["EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01"],
-      "open_risk_ids": ["RISK-CLOSED-TOOL-ROUTER"]
+      "evidence_ids": [
+        "EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01"
+      ],
+      "open_risk_ids": [
+        "RISK-CLOSED-TOOL-ROUTER"
+      ]
     },
     {
       "id": "R4",
       "name": "Computer-Use Productization",
       "state": "in_progress",
-      "dependencies": ["R3"],
+      "dependencies": [
+        "R3"
+      ],
       "started_at": "2026-08-07T02:00:00Z",
       "completed_at": null,
-      "evidence_ids": ["EV-R4-20260807-PRODUCTIZATION-CORE-01", "EV-R4-20260807-WIRING-REGISTRY-01"],
-      "open_risk_ids": ["RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER"]
+      "evidence_ids": [
+        "EV-R4-20260807-PRODUCTIZATION-CORE-01",
+        "EV-R4-20260807-WIRING-REGISTRY-01"
+      ],
+      "open_risk_ids": [
+        "RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER"
+      ]
     },
     {
       "id": "R5",
       "name": "Browser, Mail, Calendar, and Contacts Adapters",
       "state": "in_progress",
-      "dependencies": ["R3"],
+      "dependencies": [
+        "R3"
+      ],
       "started_at": "2026-08-07T05:00:00Z",
       "completed_at": null,
-      "evidence_ids": [],
-      "open_risk_ids": ["RISK-MISSING-PRODUCTIVITY-ADAPTERS", "RISK-INDIRECT-PROMPT-INJECTION"]
+      "evidence_ids": [
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+      ],
+      "open_risk_ids": [
+        "RISK-MISSING-PRODUCTIVITY-ADAPTERS",
+        "RISK-INDIRECT-PROMPT-INJECTION",
+        "RISK-OAUTH-OVERPRIVILEGE"
+      ]
     },
     {
       "id": "R6",
       "name": "VS Code and Coding-Agent Completion",
-      "state": "pending",
-      "dependencies": ["R3"],
-      "started_at": null,
+      "state": "in_progress",
+      "dependencies": [
+        "R3"
+      ],
+      "started_at": "2026-08-08T11:05:00Z",
       "completed_at": null,
-      "evidence_ids": [],
-      "open_risk_ids": ["RISK-VSCODE-POLICY-NOT-ENFORCED", "RISK-BRIDGE-INCOMPLETE"]
+      "evidence_ids": [
+        "EV-R6-20260808-POLICY-BRIDGE-01",
+        "EV-R6-20260808-TYPED-ROUTES-02"
+      ],
+      "open_risk_ids": [
+        "RISK-VSCODE-POLICY-NOT-ENFORCED",
+        "RISK-BRIDGE-INCOMPLETE",
+        "RISK-AGENT-BACKEND-DRIFT"
+      ]
     },
     {
       "id": "R7",
       "name": "Wake Word, STT/TTS Routing, and Resource Governor",
-      "state": "pending",
-      "dependencies": ["R2"],
-      "started_at": null,
+      "state": "in_progress",
+      "dependencies": [
+        "R2"
+      ],
+      "started_at": "2026-08-08T12:43:10Z",
       "completed_at": null,
-      "evidence_ids": ["EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01"],
-      "open_risk_ids": ["RISK-NO-REAL-WAKE-WORD", "RISK-MODEL-MEMORY-PRESSURE", "RISK-NEURAL-TTS-LATENCY"]
+      "evidence_ids": [
+        "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01",
+        "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
+      ],
+      "open_risk_ids": [
+        "RISK-NO-REAL-WAKE-WORD",
+        "RISK-MODEL-MEMORY-PRESSURE",
+        "RISK-NEURAL-TTS-LATENCY",
+        "RISK-STT-ROUTER-QUALITY",
+        "RISK-VOICE-RECOVERY-LIVE"
+      ]
     },
     {
       "id": "R8",
       "name": "Memory, Personalization, and Explainability",
       "state": "pending",
-      "dependencies": ["R2", "R3"],
+      "dependencies": [
+        "R2",
+        "R3"
+      ],
       "started_at": null,
       "completed_at": null,
       "evidence_ids": [],
-      "open_risk_ids": ["RISK-MEMORY-NOT-PRODUCTIZED"]
+      "open_risk_ids": [
+        "RISK-MEMORY-NOT-PRODUCTIZED"
+      ]
     },
     {
       "id": "R9",
       "name": "Product UI, Accessibility, and Onboarding",
       "state": "pending",
-      "dependencies": ["R4", "R5", "R6", "R7", "R8"],
+      "dependencies": [
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+      ],
       "started_at": null,
       "completed_at": null,
       "evidence_ids": [],
-      "open_risk_ids": ["RISK-CONTROL-PANEL-NOT-ASSISTANT-UI"]
+      "open_risk_ids": [
+        "RISK-CONTROL-PANEL-NOT-ASSISTANT-UI"
+      ]
     },
     {
       "id": "R10",
       "name": "Security and Privilege Separation",
       "state": "pending",
-      "dependencies": ["R4", "R5", "R6"],
+      "dependencies": [
+        "R4",
+        "R5",
+        "R6"
+      ],
       "started_at": null,
       "completed_at": null,
       "evidence_ids": [],
-      "open_risk_ids": ["RISK-MAIN-PROCESS-PRIVILEGE-CONCENTRATION", "RISK-NETWORK-ALLOWLIST-INCOMPLETE"]
+      "open_risk_ids": [
+        "RISK-MAIN-PROCESS-PRIVILEGE-CONCENTRATION",
+        "RISK-NETWORK-ALLOWLIST-INCOMPLETE"
+      ]
     },
     {
       "id": "R11",
       "name": "Release Engineering and Continuous Operations",
       "state": "pending",
-      "dependencies": ["R9", "R10"],
+      "dependencies": [
+        "R9",
+        "R10"
+      ],
       "started_at": null,
       "completed_at": null,
       "evidence_ids": [],
-      "open_risk_ids": ["RISK-NOT-NOTARIZED", "RISK-NO-SIGNED-UPDATER", "RISK-NO-LAUNCH-AT-LOGIN"]
+      "open_risk_ids": [
+        "RISK-NOT-NOTARIZED",
+        "RISK-NO-SIGNED-UPDATER",
+        "RISK-NO-LAUNCH-AT-LOGIN"
+      ]
     },
     {
       "id": "R12",
       "name": "Beta Validation and Release Candidate",
       "state": "pending",
-      "dependencies": ["R11"],
+      "dependencies": [
+        "R11"
+      ],
       "started_at": null,
       "completed_at": null,
       "evidence_ids": [],
-      "open_risk_ids": ["RISK-NO-INDEPENDENT-BETA-EVIDENCE"]
+      "open_risk_ids": [
+        "RISK-NO-INDEPENDENT-BETA-EVIDENCE"
+      ]
     }
   ],
   "authority": {
@@ -256,7 +394,18 @@
       "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
     }
   ],
-  "last_evidence_ids": ["EV-R4-20260807-WIRING-REGISTRY-01", "EV-R4-20260807-PRODUCTIZATION-CORE-01", "EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01", "EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01", "EV-R2-20260804-PTT-PERMISSION-AUDIT-01"],
-  "blockers": ["R5 not complete: no browser/mail/calendar/contacts adapters exist yet, ADR-040 must be authored, and live acceptance requires explicitly authorized test accounts/profiles. R4 not complete: computerUse.run remains .disabled until an app is explicitly live-validated, and live beta-app evidence requires the user physically present. R3 not complete: filesystem/URL adapters unbuilt, 4 direct-call-only capabilities lack NLU/UI reachability, planner not wired into DialogueEngine/ToolRouter, 7-scenario live demo not performed. R2 not complete: RISK-STT-MIC-NOT-CAPTURING (Open) and RISK-ENGLISH-ONLY-INTENT (Mitigating) require live hardware evidence with the user present. RISK-STRUCTURED-NLU-MODEL-QUALITY sub-finding 3 accepted as bounded residual risk on 2026-08-07 (EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01)."],
-  "next_action": "R5 is the active prompt (in_progress), started by user-directed deviation while R2/R3/R4 remain in_progress. R5 scope: (1) author ADR-040 (docs/decisions/ADR-040-productivity-integrations-oauth.md — Proposed in DECISION_REGISTER but file does not yet exist) and record it; (2) build read-first browser/mail/calendar/contacts adapters with least-privilege OAuth/Keychain; (3) add injection resistance and offline/degraded behavior; (4) run live acceptance with explicitly authorized test accounts/profiles. Do not mark R5 complete before these are resolved. R2's two live-verification blockers, R3's four remaining items, and R4's live beta-app evidence remain open and unblocked by R5's independent work per the recorded user-directed deviation. Do not mark R2, R3, R4, or R5 complete before their respective remaining items are resolved or explicitly accepted."
+  "last_evidence_ids": [
+    "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
+    "EV-R6-20260808-TYPED-ROUTES-02",
+    "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
+    "EV-R4-20260807-WIRING-REGISTRY-01",
+    "EV-R4-20260807-PRODUCTIZATION-CORE-01",
+    "EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01",
+    "EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01",
+    "EV-R2-20260804-PTT-PERMISSION-AUDIT-01"
+  ],
+  "blockers": [
+    "R7 local voice routing/resource code and available validation are complete for this slice, but formal completion is open: real wake-word qualification, live bilingual microphone quality, release-hardware barge-in/device/sleep/TCC recovery, measured 16 GB multi-workload soak, neural reference/quality gates, and ADR-042 approval remain. R2-R6 remain open exactly as tracked in SECOND_PASS_OPEN_GAPS.md."
+  ],
+  "next_action": "Deliver the validated R7 changes on main with the authorized commit/push; no separate merge commit applies because main is the active integration branch. Then stop and request explicit user approval before R8. Do not accept ADR-042 or claim live wake/STT/TTS/recovery/resource gates from simulated evidence."
 }

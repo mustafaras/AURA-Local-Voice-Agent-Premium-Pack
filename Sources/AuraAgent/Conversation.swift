@@ -30,6 +30,8 @@ public actor Conversation {
 
   /// Timer for the listening timeout. Cancelled on state change.
   private var timeoutTask: Task<Void, Never>?
+  private var continuationTask: Task<Void, Never>?
+  private var pendingContinuation: (event: STTStableSegmentEvent, context: TurnContext?, id: UUID)?
 
   /// Accumulated transcript text for the current listening turn.
   private var currentTurnText: String = ""
@@ -84,6 +86,9 @@ public actor Conversation {
     }
     // Always clear TTS queue on a fresh wake so stale prompts don't play.
     speechQueue.removeAll()
+    continuationTask?.cancel()
+    continuationTask = nil
+    pendingContinuation = nil
     activeTurnContext = turnContext ?? TurnContext(
       sessionID: sessionID,
       activationSource: .pushToTalk,
@@ -149,6 +154,38 @@ public actor Conversation {
       return
     }
 
+    if TurnCompletionHeuristics.likelyIncomplete(event.text) {
+      let id = UUID()
+      pendingContinuation = (event: event, context: turnContext, id: id)
+      continuationTask?.cancel()
+      continuationTask = Task { [weak self] in
+        guard let self else { return }
+        try? await Task.sleep(for: .seconds(configuration.continuationWindowSeconds))
+        guard !Task.isCancelled else { return }
+        await self.completePendingContinuation(id: id)
+      }
+      await logger.debug(
+        "Stable transcript looks incomplete; waiting for continuation",
+        actor: .audio)
+      return
+    }
+
+    await completeStableSegment(event, turnContext: turnContext)
+  }
+
+  private func completePendingContinuation(id: UUID) async {
+    guard let pendingContinuation, pendingContinuation.id == id else { return }
+    self.pendingContinuation = nil
+    continuationTask = nil
+    await completeStableSegment(
+      pendingContinuation.event,
+      turnContext: pendingContinuation.context)
+  }
+
+  private func completeStableSegment(
+    _ event: STTStableSegmentEvent,
+    turnContext: TurnContext?
+  ) async {
     // Semantic turn completion: stable segment ends the listening phase.
     let completed = TurnCompletedEvent(
       text: event.text,
@@ -282,6 +319,9 @@ public actor Conversation {
   /// Stop the assistant deterministically from any state. Clears the TTS queue.
   public func stop() async {
     await cancelTimeout()
+    continuationTask?.cancel()
+    continuationTask = nil
+    pendingContinuation = nil
     speechQueue.removeAll()
     await stopSpeaking(reason: .interrupted)
     currentTurnText = ""

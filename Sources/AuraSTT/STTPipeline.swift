@@ -36,6 +36,7 @@ public actor STTPipeline {
   private var activationTime: TimeInterval = 0
   private var resultStreamTask: Task<Void, Never>?
   private var metrics: Metrics = Metrics()
+  private var consumedResultIDs: Set<UUID> = []
 
   public init(
     engine: any STTEngine,
@@ -73,6 +74,7 @@ public actor STTPipeline {
     resultStreamTask = nil
     await engine.cancel()
     activeTurnContext = nil
+    consumedResultIDs.removeAll(keepingCapacity: true)
     state = .idle
     await logger.info("STT pipeline stopped", actor: .audio)
   }
@@ -144,6 +146,10 @@ public actor STTPipeline {
   }
 
   private func handleResult(_ result: STTTranscriptResult) async {
+    guard consumedResultIDs.insert(result.resultID).inserted else {
+      await logger.debug("Duplicate STT result dropped: \(result.resultID)", actor: .audio)
+      return
+    }
     if result.metadata["error"] == "true" {
       state = .activated
       let context = activeTurnContext?.advancing(causationID: result.resultID)
@@ -218,8 +224,9 @@ public actor STTPipeline {
   public func cancel() async {
     metrics.cancellations += 1
     state = .activated
-    resultStreamTask?.cancel()
-    resultStreamTask = nil
+    // The result stream belongs to the engine lifetime. Cancelling the
+    // consumer task here would make later Push-to-Talk sessions permanently
+    // deaf after one cancellation.
     await engine.cancel()
     await emitCancelledEvent()
     await logger.info("STT session cancelled", actor: .audio)

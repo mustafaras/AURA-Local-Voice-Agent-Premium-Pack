@@ -66,6 +66,7 @@ Start with a deliberately small set, such as Finder, one browser, VS Code, Termi
 
 When a step requires confirmation:
 
+
 1. persist plan, observation, app/window identity, anchor, and hash;
 2. present target, action, side effect, and risk;
 3. after approval recapture and re-resolve the target;

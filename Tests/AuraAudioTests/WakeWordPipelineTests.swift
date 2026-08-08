@@ -5,6 +5,21 @@ import Testing
 
 struct WakeWordPipelineTests {
 
+  @Test func disabledWakeDetectorNeverClaimsProductionActivation() {
+    let detector = DisabledWakeWordDetector()
+    let frame = AudioFrame(
+      samples: Array(repeating: 1.0, count: 512),
+      timestamp: 0,
+      sequenceIndex: 1,
+      isDiscontinuity: false)
+
+    let result = detector.analyze(frame, vadResult: nil)
+    #expect(!result.detected)
+    #expect(result.confidence == 0)
+    #expect(result.matchedPhrase.isEmpty)
+    #expect(detector.reason.contains("Push to Talk"))
+  }
+
   @Test func energyVADDetectsToneAndResets() {
     let vad = EnergyVAD(
       adaptationRate: 0.1,
