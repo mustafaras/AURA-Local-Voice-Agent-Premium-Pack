@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-08T13:36:40Z",
+  "updated_at": "2026-08-08T13:40:12Z",
   "session_id": "AURA-R7-VOICE-20260808",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "bd062fa0ad8a9420c5faa3eb3050e893d9e00b14",
-    "remote_head": "bd062fa0ad8a9420c5faa3eb3050e893d9e00b14",
+    "verified_head": "95d88ab831595e8d369970bd3da23f86c10dac59",
+    "remote_head": "95d88ab831595e8d369970bd3da23f86c10dac59",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -207,7 +207,8 @@
       "completed_at": null,
       "evidence_ids": [
         "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01",
-        "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
+        "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
+        "EV-R7-20260808-LOCAL-APP-DEPLOY-01"
       ],
       "open_risk_ids": [
         "RISK-NO-REAL-WAKE-WORD",
@@ -395,6 +396,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-R7-20260808-LOCAL-APP-DEPLOY-01",
     "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
     "EV-R6-20260808-TYPED-ROUTES-02",
     "EV-R5-20260808-READ-FIRST-ADAPTERS-01",

@@ -7,7 +7,7 @@ Projection refreshed from live repository and command evidence on 2026-08-08.
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == bd062fa0ad8a9420c5faa3eb3050e893d9e00b14`. R1 is complete for
+origin/main == 95d88ab831595e8d369970bd3da23f86c10dac59`. R1 is complete for
 local development/integration scope. R2, R3, R4, and R5 remain `in_progress`
 with deferred gates recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
 R7 (voice wake/STT/TTS/resource governance) is now the active prompt after a

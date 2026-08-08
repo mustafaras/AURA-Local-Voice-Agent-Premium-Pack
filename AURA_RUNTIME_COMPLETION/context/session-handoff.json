@@ -1,9 +1,9 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-08T13:36:40Z",
+  "updated_at": "2026-08-08T13:40:12Z",
   "session_id": "AURA-R7-VOICE-20260808",
-  "last_verified_commit": "bd062fa0ad8a9420c5faa3eb3050e893d9e00b14",
+  "last_verified_commit": "95d88ab831595e8d369970bd3da23f86c10dac59",
   "active_prompt": {
     "id": "R7",
     "file": "AURA_RUNTIME_COMPLETION/prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
@@ -200,7 +200,8 @@
     "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
     "EV-R6-20260808-POLICY-BRIDGE-01",
     "EV-R6-20260808-TYPED-ROUTES-02",
-    "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
+    "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
+    "EV-R7-20260808-LOCAL-APP-DEPLOY-01"
   ],
   "tests": [
     {
@@ -282,6 +283,11 @@
       "name": "R7 governance validator, deterministic tests, shell syntax, diff, and JSON checks",
       "result": "passed",
       "evidence_id": "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
+    },
+    {
+      "name": "R7 local signed app deployment and 8-second launch smoke (local development; release-limited)",
+      "result": "passed",
+      "evidence_id": "EV-R7-20260808-LOCAL-APP-DEPLOY-01"
     }
   ],
   "blockers": [],
@@ -301,7 +307,7 @@
     "RISK-STT-MIC-NOT-CAPTURING",
     "RISK-CLOSED-TOOL-ROUTER"
   ],
-  "next_action": "Deliver the validated R7 changes on main with the authorized commit/push; no separate merge commit applies because main is the active integration branch. Then stop and request explicit user approval before R8. Keep R2-R6 unresolved gates recorded in SECOND_PASS_OPEN_GAPS.md and do not accept ADR-042 or claim live voice gates from simulated evidence.",
+  "next_action": "R7 is pushed to origin/main; no separate merge commit applies because main is the active integration branch. Stop and request explicit user approval before R8. Keep R2-R6 unresolved gates recorded in SECOND_PASS_OPEN_GAPS.md and do not accept ADR-042 or claim live voice gates from simulated evidence.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
@@ -316,5 +322,5 @@
     "Sources/AuraVSCode/VSCodeAdapter.swift",
     "Sources/AuraVSCode/VSCodeExtensionBridge.swift"
   ],
-  "notes": "R1 and the local R2 implementation were validated, committed as b8f8960, and pushed to origin/main. The live repository HEAD is daf062aefc8b2eaa516769fdf27e6fc816111002 on main; R7 validation is complete in the dirty worktree and delivery is the next authorized action. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R2-R6 open gates are preserved in SECOND_PASS_OPEN_GAPS.md. R7 live wake/STT/TTS/recovery/soak gates and ADR-042 approval remain open."
+  "notes": "R1 and the local R2 implementation were validated, committed as b8f8960, and pushed to origin/main. R7 was delivered through commits bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and 95d88ab831595e8d369970bd3da23f86c10dac59, both pushed to origin/main. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R2-R6 open gates are preserved in SECOND_PASS_OPEN_GAPS.md. R7 live wake/STT/TTS/recovery/soak gates and ADR-042 approval remain open."
 }
