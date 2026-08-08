@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-08T13:29:34Z",
+  "updated_at": "2026-08-08T13:36:40Z",
   "session_id": "AURA-R7-VOICE-20260808",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "daf062aefc8b2eaa516769fdf27e6fc816111002",
-    "remote_head": "daf062aefc8b2eaa516769fdf27e6fc816111002",
+    "verified_head": "bd062fa0ad8a9420c5faa3eb3050e893d9e00b14",
+    "remote_head": "bd062fa0ad8a9420c5faa3eb3050e893d9e00b14",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -20,7 +20,7 @@
       "This session also modified product source with user authorization: a debug-gated (env-var-inert-by-default) text-demo hook in Sources/AURA/AuraAppModel.swift, a debug-gated response-text log in Sources/AuraAgent/Conversation.swift, and a new default policy grant for .agentOllamaLocalInference in Sources/AURA/AuraKernel.swift (documented as a 2026-08-03 addendum to ADR-036, EV-R2-20260803-TEXTDEMO-LIVE-01). Full regression re-verified at 20/20 bundles, 695/695 tests after each change. All remain local and uncommitted.",
       "R5 first read-first adapter slice is implemented and locally tested, but remains uncommitted and unwired from the live composition/UI/provider paths; no live OAuth/TCC, mutation/send, commit, or push was performed.",
       "R2/R3/R4/R5 deferred gates are recorded in AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md; R6 is now the active prompt and its policy/bridge plus typed-route slices remain local and uncommitted.",
-      "R7 local voice routing/resource slice is implemented and validated in the dirty worktree; the final local regression passed 21/21 bundles and 774/774 tests. Live wake/STT/voice/recovery/soak gates and ADR-042 approval remain open."
+      "R7 local voice routing/resource slice was committed as bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and pushed to origin/main after the final local regression passed 21/21 bundles and 774/774 tests. Live wake/STT/voice/recovery/soak gates and ADR-042 approval remain open."
     ]
   },
   "program_status": "in_progress",
@@ -28,7 +28,7 @@
     "id": "R7",
     "file": "AURA_RUNTIME_COMPLETION/prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
     "state": "in_progress",
-    "step": "R7 local voice routing/resource slice is implemented and fully locally validated; deliver the authorized commit/push/merge, then stop for explicit approval before R8. Real wake-word qualification, live bilingual microphone quality, release-hardware barge-in/recovery, measured 16 GB soak, neural reference/quality, and ADR-042 approval remain open.",
+    "step": "R7 local voice routing/resource slice is implemented, fully locally validated, committed, and pushed; stop for explicit approval before R8. Real wake-word qualification, live bilingual microphone quality, release-hardware barge-in/recovery, measured 16 GB soak, neural reference/quality, and ADR-042 approval remain open.",
     "started_at": "2026-08-08T12:43:10Z",
     "blocked_by": [
       "R7 is not formally complete: no real wake-word candidate/live FAR-FR evidence, no live Turkish/English/mixed microphone WER/entity evidence or qualified local Whisper fallback, no user-present barge-in/device/sleep/TCC recovery evidence, no measured 16 GB multi-workload soak, neural voice consent/quality gate, or explicit ADR-042 approval. R6 and earlier tracks remain open exactly as recorded in SECOND_PASS_OPEN_GAPS.md."
@@ -407,5 +407,5 @@
   "blockers": [
     "R7 local voice routing/resource code and available validation are complete for this slice, but formal completion is open: real wake-word qualification, live bilingual microphone quality, release-hardware barge-in/device/sleep/TCC recovery, measured 16 GB multi-workload soak, neural reference/quality gates, and ADR-042 approval remain. R2-R6 remain open exactly as tracked in SECOND_PASS_OPEN_GAPS.md."
   ],
-  "next_action": "Deliver the validated R7 changes on main with the authorized commit/push; no separate merge commit applies because main is the active integration branch. Then stop and request explicit user approval before R8. Do not accept ADR-042 or claim live wake/STT/TTS/recovery/resource gates from simulated evidence."
+  "next_action": "R7 is pushed to origin/main. No separate merge commit applies because main is the active integration branch. Stop and request explicit user approval before R8. Do not accept ADR-042 or claim live wake/STT/TTS/recovery/resource gates from simulated evidence."
 }

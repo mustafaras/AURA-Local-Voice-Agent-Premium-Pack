@@ -1,7 +1,7 @@
 # AURA Session Starter — R7 Active; R2/R3/R4/R5/R6 Open for Second Pass
 
 > Conversation date: 8 August 2026
-> Live HEAD: `daf062aefc8b2eaa516769fdf27e6fc816111002` — `docs(state): start R5 adapters and write new session starter for second-pass completion`
+> Live HEAD: `bd062fa0ad8a9420c5faa3eb3050e893d9e00b14` — `feat(r7): route local voice and govern runtime resources`
 > Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry before changing files.
 
 ## Canonical State Notice — 2026-08-08
@@ -9,7 +9,7 @@
 This starter is a **historical compatibility document**. Use
 `AURA_RUNTIME_COMPLETION/state/current-state.json` and
 `AURA_RUNTIME_COMPLETION/context/session-handoff.json` as the authoritative
-state. Live `HEAD == origin/main == daf062aefc8b2eaa516769fdf27e6fc816111002`;
+state. Live `HEAD == origin/main == bd062fa0ad8a9420c5faa3eb3050e893d9e00b14`;
 the active prompt is **R7**. R2/R3/R4/R5/R6 remain open and their second-pass
 gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
 The historical phase and push claims below are not current state.

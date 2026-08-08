@@ -7,10 +7,10 @@ Projection refreshed from live repository and command evidence on 2026-08-08.
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == daf062aefc8b2eaa516769fdf27e6fc816111002`. R1 is complete for
+origin/main == bd062fa0ad8a9420c5faa3eb3050e893d9e00b14`. R1 is complete for
 local development/integration scope. R2, R3, R4, and R5 remain `in_progress`
 with deferred gates recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
-R6 (VS Code and coding-agent completion) is now the active prompt after a
+R7 (voice wake/STT/TTS/resource governance) is now the active prompt after a
 user-directed continuation. This legacy projection
 is retained for historical compatibility; the older status sections below are
 not authoritative and must not override the canonical machine state.

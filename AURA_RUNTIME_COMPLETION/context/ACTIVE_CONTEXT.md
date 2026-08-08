@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `R7`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6 remain open, R7 active after a user-directed transition
-> **Audited baseline:** `daf062aefc8b2eaa516769fdf27e6fc816111002` on `main` (`HEAD == origin/main`; working tree intentionally dirty)
+> **Audited baseline:** `bd062fa0ad8a9420c5faa3eb3050e893d9e00b14` on `main` (`HEAD == origin/main`; delivery metadata projection is intentionally dirty)
 
 ## Canonical status
 
