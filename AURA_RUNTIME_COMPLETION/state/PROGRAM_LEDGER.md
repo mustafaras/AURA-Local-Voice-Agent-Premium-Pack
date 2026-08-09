@@ -706,3 +706,11 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Acceptance verdict:** R10 remains `in_progress`. Evidence supports contract/integration-simulated first-pass boundaries only. The pipe is not authenticated XPC peer identity, helpers are echo-only, universal network/provider/DNS/subprocess enforcement is absent, OAuth transport/callback/revocation is not wired, and provenance/injection, plugin trust, incident/review, and independent security gates remain open.
 - **Evidence:** `EV-R10-20260809-BOUNDARY-SLICE-01`.
 - **Next safe action:** Review the complete diff, run governance and focused regression checks after the final state projection, deliver the authorized R10 branch through commit/push/merge, then stop and request explicit approval before R11.
+
+### 2026-08-09T10:27:17Z — R10_DELIVERY — authorized commit, push, merge, and stop boundary
+
+- **Actor:** Codex engineering session `AURA-R10-SECURITY-20260809`; user explicitly authorized commit, push, merge, and continuation. No deploy/release/signing/TCC/dependency/model action was performed.
+- **Delivery:** Feature commit `2f6d8f5b734041cebd575034faca42a708e8eb6d` (`feat(r10): harden helper network and oauth boundaries`) was pushed to `origin/feature/r10-security-boundaries`. Main was merged no-ff as `e1ecf82e2650823ddf4e4b553c0d8dda58e74911` (`merge: deliver R10 security boundaries`) and pushed to `origin/main`.
+- **Verdict:** R10 first-pass boundary slice delivered; R10 remains `in_progress` because peer-authenticated IPC, real helper execution, universal network/provider/DNS enforcement, OAuth transport/revocation, injection corpus, plugin trust/update, incident response, and independent review remain open. ADR-044 remains Proposed. R11 was not started.
+- **Evidence:** `EV-R10-20260809-BOUNDARY-SLICE-01`, `EV-R10-20260809-DELIVERY-02`.
+- **Next safe action:** Stop and request explicit user approval before transitioning to R11.

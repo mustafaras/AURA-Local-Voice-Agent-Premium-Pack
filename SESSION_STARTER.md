@@ -1,7 +1,7 @@
 # AURA Session Starter — R10 Active; R2/R3/R4/R5/R6/R7/R8/R9 Open for Second Pass
 
 > Conversation date: 9 August 2026
-> Live HEAD: `a5a1f5fd702cc5dd34ace31ffe2dcfa254798548` — `merge: deliver R9 product UI`
+> Live HEAD: `e1ecf82e2650823ddf4e4b553c0d8dda58e74911` — `merge: deliver R10 security boundaries`
 > Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry before changing files.
 
 ## Canonical State Notice — 2026-08-09
@@ -9,7 +9,7 @@
 This starter is a **historical compatibility document**. Use
 `AURA_RUNTIME_COMPLETION/state/current-state.json` and
 `AURA_RUNTIME_COMPLETION/context/session-handoff.json` as the authoritative
-state. Live `HEAD == origin/main == a5a1f5fd702cc5dd34ace31ffe2dcfa254798548`;
+state. Live `HEAD == origin/main == e1ecf82e2650823ddf4e4b553c0d8dda58e74911`;
 the active prompt is **R10**. R2/R3/R4/R5/R6/R7/R8/R9 remain open and their second-pass
 gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
 The historical phase and push claims below are not current state.
@@ -72,10 +72,13 @@ The historical phase and push claims below are not current state.
   open; evidence: `EV-R9-20260808-UI-BUILD-02`,
   `EV-R9-20260808-UI-TESTS-03`, `EV-R9-20260808-GAPS-04`, and authorized
   delivery `EV-R9-20260809-DELIVERY-07`.
-- **R10** `in_progress` — security/privilege topology, authenticated IPC,
-  mandatory network and secret boundaries, provenance/injection defenses,
-  plugin trust, and adversarial containment are now under first-pass audit.
-  No R10 completion evidence exists yet; all R10 gates remain open.
+- **R10** `in_progress` — first-pass helper-envelope, covered network/Ollama,
+  and OAuth/Keychain boundary slice delivered as merge
+  `e1ecf82e2650823ddf4e4b553c0d8dda58e74911`, with evidence
+  `EV-R10-20260809-BOUNDARY-SLICE-01` and `EV-R10-20260809-DELIVERY-02`.
+  R10 is not complete: peer-authenticated IPC, real helper execution, universal
+  network/provider/DNS enforcement, OAuth transport/revocation, injection,
+  plugin trust, operations, and independent review remain open.
 
 ## Second-pass completion plan (all remaining gates)
 
@@ -109,9 +112,8 @@ requires the user physically present or explicit authorization:
    provenance/injection, plugin, and operations boundaries; add adversarial
    evidence and retain all unresolved security gates.
 
-After R10's own delivery is explicitly authorized, record exact evidence and
-stop for the user's explicit approval before transitioning to R11. Do not begin
-R11 from an assumed approval.
+R10 delivery is recorded; stop here and obtain the user's explicit approval
+before transitioning to R11. Do not begin R11 from an assumed approval.
 
 ## Verified historical handoff (Phases 0–25, prior program)
 
@@ -132,9 +134,9 @@ R11 from an assumed approval.
    `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest
    `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry plus
    `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
-2. Continue **R10 (active prompt)** by reading the required security context,
-   auditing the live boundaries, and appending every unresolved R10 gate to
-   `SECOND_PASS_OPEN_GAPS.md`; keep R2/R3/R4/R5/R6/R7/R8/R9 open.
+2. Review the delivered R10 evidence and residuals, then request explicit user
+   approval before starting **R11**; keep R2/R3/R4/R5/R6/R7/R8/R9/R10 open where
+   their gates remain unresolved.
 3. State objective, assumptions, risks, and acceptance criteria in the task
    ledger before editing.
 4. Do not release, deploy, sign, mutate TCC/application state, install
