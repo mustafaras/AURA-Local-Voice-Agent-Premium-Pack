@@ -37,23 +37,48 @@ public struct ExternalContent: Sendable, Equatable {
 public struct ProductivityNetworkPolicy: Sendable, Equatable {
   public let allowlist: NetworkAllowlist
   public let requireHTTPS: Bool
+  public let allowedPorts: Set<Int>
+  public let allowedPathPrefixes: Set<String>
 
-  public init(allowlist: NetworkAllowlist, requireHTTPS: Bool = true) {
+  public init(
+    allowlist: NetworkAllowlist,
+    requireHTTPS: Bool = true,
+    allowedPorts: Set<Int> = [],
+    allowedPathPrefixes: Set<String> = []
+  ) {
     self.allowlist = allowlist
     self.requireHTTPS = requireHTTPS
+    self.allowedPorts = allowedPorts
+    self.allowedPathPrefixes = allowedPathPrefixes
   }
 
   public func validate(_ url: URL, isRedirect: Bool = false) throws(ProductivityError) {
     guard let scheme = url.scheme?.lowercased(),
-      (!requireHTTPS || scheme == "https")
+      (!requireHTTPS ? ["http", "https"] : ["https"]).contains(scheme)
     else {
       throw .invalidInput("provider URL must use HTTPS")
     }
-    guard let host = url.host?.lowercased(), !host.isEmpty else {
+    let host = url.host?.lowercased() ?? "missing"
+    guard url.user == nil, url.password == nil else {
+      throw .invalidInput("provider URL userinfo is not allowed")
+    }
+    guard !host.isEmpty else {
       throw .invalidInput("provider URL must contain a host")
     }
     guard allowlist.isAllowed(host: host) else {
       throw isRedirect ? .invalidRedirect(host: host) : .hostNotAllowed(host: host)
+    }
+    if !allowedPorts.isEmpty {
+      let effectivePort = url.port ?? (scheme == "https" ? 443 : 80)
+      guard allowedPorts.contains(effectivePort) else {
+        throw .invalidInput("provider URL port is not allowed")
+      }
+    }
+    if !allowedPathPrefixes.isEmpty {
+      let path = url.path.isEmpty ? "/" : url.path
+      guard allowedPathPrefixes.contains(where: { path.hasPrefix($0) }) else {
+        throw .invalidInput("provider URL path is not allowed")
+      }
     }
   }
 }

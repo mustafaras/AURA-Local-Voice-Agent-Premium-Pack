@@ -485,26 +485,26 @@
       "production_files": ["Sources/AuraSecurity/NetworkAllowlist.swift"],
       "test_files": ["Tests/AuraSecurityTests"],
       "dependencies": [],
-      "open_gaps": ["Not proven as a mandatory factory/boundary for every URLSession, redirect, DNS, and subprocess network path."],
-      "evidence_ids": [],
-      "notes": "Policy object exists; complete enforcement does not."
+      "open_gaps": ["Endpoint and redirect checks cover the Ollama loopback client, but a mandatory factory/boundary for every URLSession, provider, redirect, DNS, and subprocess network path is not proven."],
+      "evidence_ids": ["EV-R10-20260809-BOUNDARY-SLICE-01"],
+      "notes": "Policy object and one client boundary exist; complete enforcement does not."
     },
     {
       "id": "security.oauth_keychain",
       "name": "OAuth and Keychain secret handling",
       "domain": "security",
-      "implementation_state": "missing",
-      "runtime_state": "not_constructed",
-      "user_path_state": "none",
-      "verification_state": "none",
+      "implementation_state": "partial",
+      "runtime_state": "constructed_inactive",
+      "user_path_state": "developer_only",
+      "verification_state": "integration_simulated",
       "risk_tier": "restricted",
       "owning_track": "R10",
-      "production_files": [],
-      "test_files": [],
+      "production_files": ["Sources/AuraProductivity/ProductivityTypes.swift"],
+      "test_files": ["Tests/AuraProductivityTests"],
       "dependencies": ["security.network_enforcement"],
-      "open_gaps": ["Required for Gmail/calendar/remote integrations; no least-privilege scope lifecycle or token revocation UI."],
-      "evidence_ids": [],
-      "notes": "Secrets must be referenced, never copied into events or prompts."
+      "open_gaps": ["PKCE/state/redirect/scope and Keychain expiry/revoke contracts are tested, but provider token exchange/callback wiring, account isolation, live revocation, and leakage prevention across all support paths remain open."],
+      "evidence_ids": ["EV-R10-20260809-BOUNDARY-SLICE-01"],
+      "notes": "Secrets must be referenced, never copied into events or prompts; the active transport is not wired."
     },
     {
       "id": "security.privilege_separation",
@@ -519,9 +519,9 @@
       "production_files": ["Sources/AuraPlugins", "Resources/AuraPluginHost.entitlements"],
       "test_files": ["Tests/AuraPluginsTests", "Tests/AuraSecurityTests"],
       "dependencies": ["security.policy"],
-      "open_gaps": ["Plugin helper is separated, but main app retains Accessibility, generated input, shell, CLI, and network powers."],
-      "evidence_ids": [],
-      "notes": "Required before strong OS-enforced confinement claims."
+      "open_gaps": ["Typed helper envelopes and capability allowlists are tested, but the pipe is not authenticated XPC, helper executors are echo-only, and the main app retains Accessibility, generated input, shell, CLI, and network powers."],
+      "evidence_ids": ["EV-R10-20260809-BOUNDARY-SLICE-01"],
+      "notes": "Required before strong OS-enforced confinement claims; plugin trust/update evidence remains open."
     },
     {
       "id": "release.distribution",

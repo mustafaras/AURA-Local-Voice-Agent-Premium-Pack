@@ -204,13 +204,16 @@ privacy/recovery acceptance remain open in `SECOND_PASS_OPEN_GAPS.md`.
 
 ## R10 status
 
-R10 — Security and Privilege Separation — is now the active first-pass prompt
-after explicit user authorization to deliver R9 and continue. The delivered
-tree still has the main-process privilege, network, secret/OAuth, helper IPC,
-provenance/injection, plugin trust, and operations gaps described by the R10
-prompt. No R10 implementation or completion claim has been made yet; the next
-step is a live-source topology audit followed by the smallest evidence-backed
-hardening slice. R2-R9 remain `in_progress` and their open gates are preserved.
+R10 — Security and Privilege Separation — is the active first-pass prompt.
+The first bounded slice is now implemented and locally verified under
+`EV-R10-20260809-BOUNDARY-SLICE-01`: versioned/hash-bound/replay-protected
+helper envelopes, endpoint restrictions for the covered Ollama path, and
+PKCE/state/Keychain expiry contracts. R10 remains `in_progress`: the pipe is
+not authenticated XPC, helper executors are not wired, universal network
+factory/DNS/provider enforcement is absent, OAuth transport and live revocation
+are absent, and provenance/injection, plugin supply-chain, operations, and
+independent-review gates remain open. R2-R9 remain `in_progress` and their
+open gates are preserved.
 
 ## Why this program exists
 
@@ -240,15 +243,15 @@ R9 delivery. R2/R3/R4/R5/R6/R7/R8/R9 remain open and all deferred gates are reco
 work and R9 work are now historical for this first-pass transition; the next
 concrete R10 work is:
 
-1. **Read and reconcile R10 context**: threat model, security ADRs, policy and
-   grants, confirmation binding, network/secret/OAuth, helper/plugin, injection,
-   adversarial, updater, and incident-response sources.
-2. **Map the live boundaries before editing**: process authority, entitlements,
-   network clients, secret paths, local IPC assumptions, untrusted-content
-   provenance, and plugin/package trust. Mark policy-only behavior separately
-   from OS-enforced confinement.
-3. **Implement and test only evidence-backed R10 slices**, append every open
-   security gate to `SECOND_PASS_OPEN_GAPS.md`, and preserve all R2-R9 gaps.
+1. **Complete the R10 boundary audit**: enumerate every helper, URLSession,
+   provider, secret, plugin, updater, and external-content path and distinguish
+   policy-only behavior from OS-enforced confinement.
+2. **Add the missing direct evidence**: authenticated peer transport or an
+   accepted equivalent, real helper execution, universal network-factory and
+   DNS/redirect tests, provider OAuth lifecycle, leakage corpus, plugin trust,
+   incident/review evidence, and independent security review.
+3. **Keep the residuals explicit** in `SECOND_PASS_OPEN_GAPS.md`; do not accept
+   ADR-044 or start R11 from contract tests alone.
 
 R2, R3, R4, R5, R6, R7, and R8 remain open — see the status sections above and
 `SECOND_PASS_OPEN_GAPS.md`. Do not mark any of them

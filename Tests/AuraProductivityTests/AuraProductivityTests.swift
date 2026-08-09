@@ -158,6 +158,63 @@ func networkPolicyRechecksRedirectHosts() throws {
 }
 
 @Test
+func oauthPKCEBindsStateRedirectAndReadOnlyScopes() throws {
+  let session = try OAuthPKCESession(
+    manifest: .gmailReadFirst,
+    tier: .read,
+    requestedScopes: OAuthScopeManifest.gmailReadFirst.scopes(for: .read),
+    redirectURI: URL(string: "https://aura.example.test/oauth/callback")!,
+    state: "state-1",
+    codeVerifier: String(repeating: "v", count: 50))
+  #expect(session.codeChallenge.isEmpty == false)
+  try session.validateCallback(
+    state: "state-1",
+    code: "authorization-code",
+    redirectURI: URL(string: "https://aura.example.test/oauth/callback")!)
+  #expect(throws: ProductivityError.self) {
+    try session.validateCallback(
+      state: "wrong-state",
+      code: "authorization-code",
+      redirectURI: session.redirectURI)
+  }
+  #expect(throws: ProductivityError.self) {
+    try OAuthPKCESession(
+      manifest: .gmailReadFirst,
+      tier: .read,
+      requestedScopes: OAuthScopeManifest.gmailReadFirst.scopes(for: .read)
+        .union(["https://www.googleapis.com/auth/gmail.send"]),
+      redirectURI: session.redirectURI)
+  }
+}
+
+@Test
+func oauthPKCERejectsUntrustedRedirectAndExpiredKeychainToken() async throws {
+  #expect(throws: ProductivityError.self) {
+    try OAuthPKCESession(
+      manifest: .gmailReadFirst,
+      tier: .read,
+      requestedScopes: OAuthScopeManifest.gmailReadFirst.scopes(for: .read),
+      redirectURI: URL(string: "http://attacker.example/callback")!)
+  }
+
+  let now = Date(timeIntervalSince1970: 2_000)
+  let secretStore = ProductivitySecretStoreFake()
+  let store = KeychainOAuthTokenStore(secretStore: secretStore, now: { now })
+  let reference = try OAuthTokenReference(provider: .gmail, accountID: "person@example.com")
+  try await store.save(
+    try OAuthTokenMaterial(
+      accessToken: "expired-access-token",
+      refreshToken: "refresh-token",
+      expiresAt: now.addingTimeInterval(-1),
+      scopes: OAuthScopeManifest.gmailReadFirst.scopes(for: .read)),
+    for: reference)
+  await #expect(throws: ProductivityError.self) {
+    try await store.accessToken(for: reference)
+  }
+  #expect((await secretStore.rawValue(forKey: reference.keychainKey)) == nil)
+}
+
+@Test
 func gmailReadAdapterUsesApprovedAccountAndNeverOffersMutation() async throws {
   let tokenStore = OAuthTokenStoreFake()
   let reference = try OAuthTokenReference(provider: .gmail, accountID: "person@example.com")

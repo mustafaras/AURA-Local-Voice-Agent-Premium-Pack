@@ -6,20 +6,48 @@ import Foundation
 /// Protocol version shared by all AURA sandbox helpers. Bumped whenever a
 /// breaking change is made to any helper request/response envelope.
 public enum HelperIPCProtocol {
-  public static let version = 1
+  public static let version = 2
 }
 
 /// Common header carried by every helper request envelope. Concrete request
 /// types extend this via a nested `payload` field.
 public struct HelperIPCRequestHeader: Codable, Sendable, Equatable {
   public let protocolVersion: Int
+  public let requestID: UUID
   public let nonce: UUID
   public let helperKind: HelperKind
+  public let capability: Capability
+  public let actor: ActorID
+  public let target: PolicyTarget
+  public let planHash: String
+  public let issuedAt: Date
+  public let expiresAt: Date
+  public let payloadSHA256Hex: String
 
-  public init(protocolVersion: Int, nonce: UUID, helperKind: HelperKind) {
+  public init(
+    protocolVersion: Int,
+    requestID: UUID,
+    nonce: UUID,
+    helperKind: HelperKind,
+    capability: Capability,
+    actor: ActorID,
+    target: PolicyTarget,
+    planHash: String,
+    issuedAt: Date,
+    expiresAt: Date,
+    payloadSHA256Hex: String
+  ) {
     self.protocolVersion = protocolVersion
+    self.requestID = requestID
     self.nonce = nonce
     self.helperKind = helperKind
+    self.capability = capability
+    self.actor = actor
+    self.target = target
+    self.planHash = planHash
+    self.issuedAt = issuedAt
+    self.expiresAt = expiresAt
+    self.payloadSHA256Hex = payloadSHA256Hex
   }
 }
 
@@ -32,13 +60,173 @@ public enum HelperKind: String, Codable, Sendable, Equatable, CaseIterable {
 /// Common attestation carried by every helper response envelope.
 public struct HelperIPCResponseHeader: Codable, Sendable, Equatable {
   public let protocolVersion: Int
+  public let requestID: UUID
   public let nonce: UUID
   public let sandboxAttested: Bool
+  public let payloadSHA256Hex: String
 
-  public init(protocolVersion: Int, nonce: UUID, sandboxAttested: Bool) {
+  public init(
+    protocolVersion: Int,
+    requestID: UUID,
+    nonce: UUID,
+    sandboxAttested: Bool,
+    payloadSHA256Hex: String
+  ) {
     self.protocolVersion = protocolVersion
+    self.requestID = requestID
     self.nonce = nonce
     self.sandboxAttested = sandboxAttested
+    self.payloadSHA256Hex = payloadSHA256Hex
+  }
+}
+
+/// Typed request envelope shared by the AURA process and sandbox helpers.
+/// The process-launch pipe is the current transport boundary; this envelope
+/// adds the application-level bindings that the pipe alone does not provide:
+/// capability, actor, target, immutable plan hash, payload hash, freshness,
+/// and a one-time nonce.
+public struct HelperIPCRequestEnvelope: Codable, Sendable, Equatable {
+  public let header: HelperIPCRequestHeader
+  public let payload: Data
+
+  public init(header: HelperIPCRequestHeader, payload: Data) {
+    self.header = header
+    self.payload = payload
+  }
+
+  public init(
+    helperKind: HelperKind,
+    capability: Capability,
+    actor: ActorID,
+    target: PolicyTarget,
+    payload: Data,
+    requestID: UUID = UUID(),
+    nonce: UUID = UUID(),
+    issuedAt: Date = Date(),
+    expiresAt: Date? = nil
+  ) {
+    let expiry = expiresAt ?? issuedAt.addingTimeInterval(30)
+    self.payload = payload
+    self.header = HelperIPCRequestHeader(
+      protocolVersion: HelperIPCProtocol.version,
+      requestID: requestID,
+      nonce: nonce,
+      helperKind: helperKind,
+      capability: capability,
+      actor: actor,
+      target: target,
+      planHash: PolicyPlanHasher.hash(capability: capability, actor: actor, target: target),
+      issuedAt: issuedAt,
+      expiresAt: expiry,
+      payloadSHA256Hex: sha256Hex(payload))
+  }
+}
+
+/// Typed response envelope. A response is accepted only when it binds back to
+/// the exact request ID and nonce and its payload digest matches its bytes.
+public struct HelperIPCResponseEnvelope: Codable, Sendable, Equatable {
+  public let header: HelperIPCResponseHeader
+  public let payload: Data
+
+  public init(request: HelperIPCRequestEnvelope, sandboxAttested: Bool, payload: Data) {
+    self.payload = payload
+    self.header = HelperIPCResponseHeader(
+      protocolVersion: HelperIPCProtocol.version,
+      requestID: request.header.requestID,
+      nonce: request.header.nonce,
+      sandboxAttested: sandboxAttested,
+      payloadSHA256Hex: sha256Hex(payload))
+  }
+}
+
+/// Closed capability map for the two currently planned helper boundaries.
+/// A helper never receives network, secret, plugin, OAuth, or privilege-change
+/// authority merely because a caller supplied that capability in JSON.
+public enum HelperIPCAuthorization {
+  public static func allows(_ capability: Capability, for helper: HelperKind) -> Bool {
+    switch helper {
+    case .automation:
+      return capability.domain == "app"
+        || capability.domain == "screen"
+        || capability.domain == "computerUse"
+    case .shell:
+      return capability.domain == "shell"
+        || (capability.domain == "agent" && capability.action != "ollamaCloudInference")
+    }
+  }
+}
+
+public enum HelperIPCValidator {
+  public static func validate(
+    _ request: HelperIPCRequestEnvelope,
+    expectedHelper: HelperKind,
+    now: Date = Date(),
+    maximumLifetimeSeconds: TimeInterval = 30,
+    maximumFutureSkewSeconds: TimeInterval = 5
+  ) throws(AuraError) {
+    let header = request.header
+    guard header.protocolVersion == HelperIPCProtocol.version,
+      header.helperKind == expectedHelper
+    else {
+      throw .securityError("helper IPC protocol or helper-kind mismatch")
+    }
+    guard HelperIPCAuthorization.allows(header.capability, for: expectedHelper) else {
+      throw .securityError("helper IPC capability is outside the helper allowlist")
+    }
+    guard header.expiresAt > header.issuedAt,
+      header.expiresAt.timeIntervalSince(header.issuedAt) <= maximumLifetimeSeconds,
+      header.issuedAt <= now.addingTimeInterval(maximumFutureSkewSeconds),
+      now < header.expiresAt
+    else {
+      throw .securityError("helper IPC request is expired or has an invalid freshness window")
+    }
+    guard header.payloadSHA256Hex == sha256Hex(request.payload) else {
+      throw .securityError("helper IPC payload hash mismatch")
+    }
+    let expectedPlanHash = PolicyPlanHasher.hash(
+      capability: header.capability, actor: header.actor, target: header.target)
+    guard header.planHash == expectedPlanHash else {
+      throw .securityError("helper IPC plan hash mismatch")
+    }
+  }
+
+  public static func validate(
+    _ response: HelperIPCResponseEnvelope,
+    for request: HelperIPCRequestEnvelope,
+    expectedHelper: HelperKind,
+    now: Date = Date()
+  ) throws(AuraError) {
+    try validate(request, expectedHelper: expectedHelper, now: now)
+    guard response.header.protocolVersion == HelperIPCProtocol.version,
+      response.header.requestID == request.header.requestID,
+      response.header.nonce == request.header.nonce,
+      response.header.sandboxAttested,
+      response.header.payloadSHA256Hex == sha256Hex(response.payload)
+    else {
+      throw .securityError("helper IPC response failed request binding or attestation")
+    }
+  }
+}
+
+/// Replay protection must live in the caller because helpers are intentionally
+/// short-lived. Expired nonces are purged, while a consumed nonce remains
+/// rejected for the lifetime of its freshness window.
+public actor HelperIPCReplayGuard {
+  private var consumed: [UUID: Date] = [:]
+
+  public init() {}
+
+  public func consume(
+    _ request: HelperIPCRequestEnvelope,
+    expectedHelper: HelperKind,
+    now: Date = Date()
+  ) throws(AuraError) {
+    try HelperIPCValidator.validate(request, expectedHelper: expectedHelper, now: now)
+    consumed = consumed.filter { $0.value > now }
+    guard consumed[request.header.nonce] == nil else {
+      throw .securityError("helper IPC nonce replay detected")
+    }
+    consumed[request.header.nonce] = request.header.expiresAt
   }
 }
 

@@ -1,5 +1,6 @@
 import AuraCore
 import AuraSecurity
+import CryptoKit
 import Foundation
 
 /// User-presentable failure states for productivity integrations. These are
@@ -156,18 +157,102 @@ public struct OAuthTokenReference: Codable, Sendable, Equatable, Hashable {
   }
 }
 
+/// A short-lived OAuth authorization session. State and PKCE bind the callback
+/// to the exact user-started request; the authorization code itself is never
+/// stored in this value, emitted as an event, or placed in a prompt.
+public struct OAuthPKCESession: Sendable, Equatable {
+  public let provider: OAuthProviderID
+  public let redirectURI: URL
+  public let state: String
+  public let codeChallenge: String
+  public let scopes: Set<String>
+  private let codeVerifier: String
+
+  public init(
+    manifest: OAuthScopeManifest,
+    tier: OAuthScopeTier,
+    requestedScopes: Set<String>,
+    redirectURI: URL,
+    state: String? = nil,
+    codeVerifier: String? = nil
+  ) throws(ProductivityError) {
+    try manifest.validate(requestedScopes: requestedScopes, for: tier)
+    guard Self.isAllowedRedirect(redirectURI) else {
+      throw .invalidRedirect(host: redirectURI.host ?? "missing")
+    }
+    let resolvedState = state ?? UUID().uuidString
+    let resolvedVerifier = codeVerifier ?? (UUID().uuidString + UUID().uuidString)
+    guard !resolvedState.isEmpty, resolvedVerifier.count >= 43 else {
+      throw .invalidInput("OAuth state and PKCE verifier must be non-empty and bounded")
+    }
+    self.provider = manifest.provider
+    self.redirectURI = redirectURI
+    self.state = resolvedState
+    self.codeVerifier = resolvedVerifier
+    self.codeChallenge = Self.challenge(for: resolvedVerifier)
+    self.scopes = requestedScopes
+  }
+
+  public func validateCallback(
+    state callbackState: String,
+    code: String,
+    redirectURI callbackURI: URL
+  ) throws(ProductivityError) {
+    guard callbackState == state else {
+      throw .invalidInput("OAuth callback state mismatch")
+    }
+    guard callbackURI == redirectURI else {
+      throw .invalidRedirect(host: callbackURI.host ?? "missing")
+    }
+    guard !code.isEmpty, !code.contains("\n"), !code.contains("\r") else {
+      throw .invalidInput("OAuth callback code is invalid")
+    }
+  }
+
+  /// The verifier is consumed only by the token-exchange boundary and must
+  /// never be included in logs, prompts, events, or support bundles.
+  public var verifierForTokenExchange: String { codeVerifier }
+
+  private static func challenge(for verifier: String) -> String {
+    let digest = SHA256.hash(data: Data(verifier.utf8))
+    return Data(digest).base64EncodedString()
+      .replacingOccurrences(of: "+", with: "-")
+      .replacingOccurrences(of: "/", with: "_")
+      .replacingOccurrences(of: "=", with: "")
+  }
+
+  private static func isAllowedRedirect(_ url: URL) -> Bool {
+    guard let scheme = url.scheme?.lowercased(), let host = url.host?.lowercased(),
+      url.user == nil, url.password == nil
+    else { return false }
+    if scheme == "https" { return true }
+    return scheme == "http" && ["127.0.0.1", "localhost", "[::1]", "::1"].contains(host)
+  }
+}
+
 /// Secret material exists only at the Keychain adapter boundary. It must not
 /// be embedded in events, prompts, model context, or capability manifests.
+/// Expiry and the reviewed scope set stay beside the secret so a stale or
+/// over-scoped token cannot silently remain usable after restart.
 public struct OAuthTokenMaterial: Sendable, Equatable {
   public let accessToken: String
   public let refreshToken: String?
+  public let expiresAt: Date?
+  public let scopes: Set<String>
 
-  public init(accessToken: String, refreshToken: String? = nil) throws(ProductivityError) {
+  public init(
+    accessToken: String,
+    refreshToken: String? = nil,
+    expiresAt: Date? = nil,
+    scopes: Set<String> = []
+  ) throws(ProductivityError) {
     guard !accessToken.isEmpty else {
       throw .invalidInput("access token must not be empty")
     }
     self.accessToken = accessToken
     self.refreshToken = refreshToken
+    self.expiresAt = expiresAt
+    self.scopes = scopes
   }
 }
 
@@ -189,12 +274,40 @@ public actor KeychainOAuthTokenStore: OAuthTokenStoring {
   private struct StoredMaterial: Codable, Sendable, Equatable {
     let accessToken: String
     let refreshToken: String?
+    let expiresAt: Date?
+    let scopes: Set<String>
+
+    enum CodingKeys: String, CodingKey {
+      case accessToken, refreshToken, expiresAt, scopes
+    }
+
+    init(
+      accessToken: String,
+      refreshToken: String?,
+      expiresAt: Date?,
+      scopes: Set<String>
+    ) {
+      self.accessToken = accessToken
+      self.refreshToken = refreshToken
+      self.expiresAt = expiresAt
+      self.scopes = scopes
+    }
+
+    init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      accessToken = try container.decode(String.self, forKey: .accessToken)
+      refreshToken = try container.decodeIfPresent(String.self, forKey: .refreshToken)
+      expiresAt = try container.decodeIfPresent(Date.self, forKey: .expiresAt)
+      scopes = try container.decodeIfPresent(Set<String>.self, forKey: .scopes) ?? []
+    }
   }
 
   private let secretStore: any SecretStoring
+  private let now: @Sendable () -> Date
 
-  public init(secretStore: any SecretStoring) {
+  public init(secretStore: any SecretStoring, now: @escaping @Sendable () -> Date = { Date() }) {
     self.secretStore = secretStore
+    self.now = now
   }
 
   public func save(
@@ -203,7 +316,11 @@ public actor KeychainOAuthTokenStore: OAuthTokenStoring {
   ) async throws(ProductivityError) {
     do {
       let data = try JSONEncoder().encode(
-        StoredMaterial(accessToken: material.accessToken, refreshToken: material.refreshToken))
+        StoredMaterial(
+          accessToken: material.accessToken,
+          refreshToken: material.refreshToken,
+          expiresAt: material.expiresAt,
+          scopes: material.scopes))
       try await secretStore.store(data, forKey: reference.keychainKey)
     } catch {
       throw .providerUnavailable
@@ -219,6 +336,10 @@ public actor KeychainOAuthTokenStore: OAuthTokenStoring {
       }
       guard let material = try? JSONDecoder().decode(StoredMaterial.self, from: data) else {
         throw ProductivityError.providerUnavailable
+      }
+      if let expiresAt = material.expiresAt, expiresAt <= now() {
+        try? await secretStore.delete(forKey: reference.keychainKey)
+        throw ProductivityError.tokenExpiredOrRevoked
       }
       return material.accessToken
     } catch let error as ProductivityError {
