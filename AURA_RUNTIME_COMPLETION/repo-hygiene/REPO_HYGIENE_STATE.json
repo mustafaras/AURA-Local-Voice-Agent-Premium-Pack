@@ -6,9 +6,9 @@
   "updated_at":"2026-08-09T13:28:10Z",
   "session_id":"AURA-REPO-HYGIENE-PROGRAM-20260809",
   "repository":{
-    "branch":"chore/repo-hygiene-control-plane-20260809",
-    "head":"994fe3f3470ebaf11dcecc990ada543d0be0e19b",
-    "remote_head":"e1004795e56df8c171422261eace96543649cf51",
+    "branch":"main",
+    "head":"0a8d61e5aa63c2471031c1c11ffc835354538f26",
+    "remote_head":"0a8d61e5aa63c2471031c1c11ffc835354538f26",
     "working_tree_state":"dirty_expected"
   },
   "active_prompt":"H-000",
