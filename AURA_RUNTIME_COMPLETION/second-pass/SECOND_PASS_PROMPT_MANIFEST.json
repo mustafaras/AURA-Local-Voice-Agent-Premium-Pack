@@ -1,0 +1,553 @@
+{
+  "schema_version": "1.0.0",
+  "program_name": "AURA Second-Pass Gap Closure",
+  "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+  "prompt_directory": "AURA_RUNTIME_COMPLETION/prompts/second_pass",
+  "transition_policy": "Strictly linear: only the active prompt may execute; its predecessor must be completed, its cognitive gate and evidence must be recorded, all projections must synchronize, and the validator must pass before next_prompt may become active.",
+  "prompts": [
+    {
+      "id": "SP-000",
+      "sequence": 0,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-000_BASELINE_AND_SYNCHRONIZATION_LOCK.prompt.md",
+      "track": "BOOTSTRAP/R0",
+      "gap_ids": [
+        "OPEN-00",
+        "OPEN-01"
+      ],
+      "depends_on": [],
+      "next_prompt": "SP-001",
+      "evidence_prefix": "EV-SP-000",
+      "title": "Baseline and Synchronization Lock",
+      "completion_gate": "All control files agree on SP-000, no dependency or identifier mismatch exists, and the validator passes. Any mismatch keeps SP-000 blocked."
+    },
+    {
+      "id": "SP-001",
+      "sequence": 1,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
+      "track": "R1",
+      "gap_ids": [
+        "OPEN-02"
+      ],
+      "depends_on": [
+        "SP-000"
+      ],
+      "next_prompt": "SP-002",
+      "evidence_prefix": "EV-SP-001",
+      "title": "Live Trace and Confirmation Residual",
+      "completion_gate": "A direct live evidence bundle proves the required trace and fail-closed confirmation cases; otherwise keep R1 residual open."
+    },
+    {
+      "id": "SP-002",
+      "sequence": 2,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-002_MICROPHONE_AND_TCC_PUSH_TO_TALK.prompt.md",
+      "track": "R2",
+      "gap_ids": [
+        "OPEN-03"
+      ],
+      "depends_on": [
+        "SP-001"
+      ],
+      "next_prompt": "SP-003",
+      "evidence_prefix": "EV-SP-002",
+      "title": "Microphone and TCC Push-to-Talk",
+      "completion_gate": "User-present evidence proves a real Turkish/English speech turn reaches STT or records a reproducible, correctly handled blocker with no false success."
+    },
+    {
+      "id": "SP-003",
+      "sequence": 3,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-003_SEVEN_LIVE_BILINGUAL_DIALOGUE_SCENARIOS.prompt.md",
+      "track": "R2",
+      "gap_ids": [
+        "OPEN-03"
+      ],
+      "depends_on": [
+        "SP-002"
+      ],
+      "next_prompt": "SP-004",
+      "evidence_prefix": "EV-SP-003",
+      "title": "Seven Live Bilingual Dialogue Scenarios",
+      "completion_gate": "All seven scenarios meet their typed safety and truthful-degradation criteria with direct evidence; unresolved model or hardware behavior keeps R2 open."
+    },
+    {
+      "id": "SP-004",
+      "sequence": 4,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-004_FILESYSTEM_AND_URL_CAPABILITY_ADAPTERS.prompt.md",
+      "track": "R3",
+      "gap_ids": [
+        "OPEN-04"
+      ],
+      "depends_on": [
+        "SP-003"
+      ],
+      "next_prompt": "SP-005",
+      "evidence_prefix": "EV-SP-004",
+      "title": "Filesystem and URL Capability Adapters",
+      "completion_gate": "Four adapters are real, typed, policy-controlled, verified, and truthfully registered; no UI/NLU reachability is claimed yet."
+    },
+    {
+      "id": "SP-005",
+      "sequence": 5,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-005_CAPABILITY_REACHABILITY_AND_PLANNER_WIRING.prompt.md",
+      "track": "R3",
+      "gap_ids": [
+        "OPEN-04"
+      ],
+      "depends_on": [
+        "SP-004"
+      ],
+      "next_prompt": "SP-006",
+      "evidence_prefix": "EV-SP-005",
+      "title": "Capability Reachability and Planner Wiring",
+      "completion_gate": "A production natural-language request creates only registry-validated plans and every reachable capability has truthful health and UI/NLU state."
+    },
+    {
+      "id": "SP-006",
+      "sequence": 6,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-006_R3_LIVE_CAPABILITY_SCENARIOS.prompt.md",
+      "track": "R3",
+      "gap_ids": [
+        "OPEN-04"
+      ],
+      "depends_on": [
+        "SP-005"
+      ],
+      "next_prompt": "SP-007",
+      "evidence_prefix": "EV-SP-006",
+      "title": "R3 Live Capability Scenarios",
+      "completion_gate": "The seven direct/live scenarios pass with typed evidence and no registry bypass; otherwise keep R3 open."
+    },
+    {
+      "id": "SP-007",
+      "sequence": 7,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-007_LIVE_COMPUTER_USE_PLANNER_IN_APPROVED_APPS.prompt.md",
+      "track": "R4",
+      "gap_ids": [
+        "OPEN-05"
+      ],
+      "depends_on": [
+        "SP-006"
+      ],
+      "next_prompt": "SP-008",
+      "evidence_prefix": "EV-SP-007",
+      "title": "Live Computer-Use Planner in Approved Apps",
+      "completion_gate": "Three approved apps pass the required live tasks with semantic verification and no unsafe fallback; otherwise computerUse.run stays disabled."
+    },
+    {
+      "id": "SP-008",
+      "sequence": 8,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-008_COMPUTER_USE_ADVERSARIAL_SAFETY.prompt.md",
+      "track": "R4",
+      "gap_ids": [
+        "OPEN-05"
+      ],
+      "depends_on": [
+        "SP-007"
+      ],
+      "next_prompt": "SP-009",
+      "evidence_prefix": "EV-SP-008",
+      "title": "Computer-Use Adversarial Safety",
+      "completion_gate": "All adversarial cases fail closed and emergency stop is proven across boundaries; unresolved cases block R4 and R9."
+    },
+    {
+      "id": "SP-009",
+      "sequence": 9,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-009_SAFARI_EXTENSION_PACKAGING_AND_AUTHENTICATION.prompt.md",
+      "track": "R5",
+      "gap_ids": [
+        "OPEN-06"
+      ],
+      "depends_on": [
+        "SP-008"
+      ],
+      "next_prompt": "SP-010",
+      "evidence_prefix": "EV-SP-009",
+      "title": "Safari Extension Packaging and Authentication",
+      "completion_gate": "A real packaged bridge is authenticated, bounded, revocable, and visibly degraded when unavailable."
+    },
+    {
+      "id": "SP-010",
+      "sequence": 10,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-010_PROVIDER_ACCOUNT_AND_UI_COMPOSITION.prompt.md",
+      "track": "R5",
+      "gap_ids": [
+        "OPEN-06"
+      ],
+      "depends_on": [
+        "SP-009"
+      ],
+      "next_prompt": "SP-011",
+      "evidence_prefix": "EV-SP-010",
+      "title": "Provider, Account, and UI Composition",
+      "completion_gate": "Each read-first capability has a real composition path, account isolation, scope boundary, and actionable UI state."
+    },
+    {
+      "id": "SP-011",
+      "sequence": 11,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
+      "track": "R5",
+      "gap_ids": [
+        "OPEN-06"
+      ],
+      "depends_on": [
+        "SP-010"
+      ],
+      "next_prompt": "SP-012",
+      "evidence_prefix": "EV-SP-011",
+      "title": "Productivity Live Acceptance",
+      "completion_gate": "Read-first live matrix and revocation pass; mutation/send is either separately evidenced or explicitly excluded."
+    },
+    {
+      "id": "SP-012",
+      "sequence": 12,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
+      "track": "R6",
+      "gap_ids": [
+        "OPEN-07"
+      ],
+      "depends_on": [
+        "SP-011"
+      ],
+      "next_prompt": "SP-013",
+      "evidence_prefix": "EV-SP-012",
+      "title": "Authenticated VS Code Extension Bridge",
+      "completion_gate": "The extension is packaged, authenticated, revocable, and policy-enforced on the live path."
+    },
+    {
+      "id": "SP-013",
+      "sequence": 13,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-013_CODING_BACKEND_AND_DURABLE_TASK_LIFECYCLE.prompt.md",
+      "track": "R6",
+      "gap_ids": [
+        "OPEN-07"
+      ],
+      "depends_on": [
+        "SP-012"
+      ],
+      "next_prompt": "SP-014",
+      "evidence_prefix": "EV-SP-013",
+      "title": "Coding Backend and Durable Task Lifecycle",
+      "completion_gate": "Backend health and task lifecycle are truthful, bounded, durable, reviewable, and fail closed on missing proof."
+    },
+    {
+      "id": "SP-014",
+      "sequence": 14,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-014_CODING_ASSISTANT_LIVE_ACCEPTANCE.prompt.md",
+      "track": "R6",
+      "gap_ids": [
+        "OPEN-07"
+      ],
+      "depends_on": [
+        "SP-013"
+      ],
+      "next_prompt": "SP-015",
+      "evidence_prefix": "EV-SP-014",
+      "title": "Coding Assistant Live Acceptance",
+      "completion_gate": "All live coding scenarios pass with direct evidence and no unauthorized repository delivery."
+    },
+    {
+      "id": "SP-015",
+      "sequence": 15,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-015_WAKE_WORD_DECISION_AND_EVALUATION.prompt.md",
+      "track": "R7",
+      "gap_ids": [
+        "OPEN-08"
+      ],
+      "depends_on": [
+        "SP-014"
+      ],
+      "next_prompt": "SP-016",
+      "evidence_prefix": "EV-SP-015",
+      "title": "Wake-Word Decision and Evaluation",
+      "completion_gate": "Wake word is live-qualified with evidence or explicitly excluded with truthful UI and no wake-word claim."
+    },
+    {
+      "id": "SP-016",
+      "sequence": 16,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-016_BILINGUAL_STT_QUALITY_AND_VOICE_RECOVERY.prompt.md",
+      "track": "R7",
+      "gap_ids": [
+        "OPEN-08"
+      ],
+      "depends_on": [
+        "SP-015"
+      ],
+      "next_prompt": "SP-017",
+      "evidence_prefix": "EV-SP-016",
+      "title": "Bilingual STT Quality and Voice Recovery",
+      "completion_gate": "Defined bilingual quality and recovery thresholds pass on target hardware or the affected capability is excluded."
+    },
+    {
+      "id": "SP-017",
+      "sequence": 17,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
+      "track": "R7",
+      "gap_ids": [
+        "OPEN-08"
+      ],
+      "depends_on": [
+        "SP-016"
+      ],
+      "next_prompt": "SP-018",
+      "evidence_prefix": "EV-SP-017",
+      "title": "TTS, Resource Soak, and ADR-042",
+      "completion_gate": "Resource/voice thresholds pass or neural/wake capabilities are explicitly excluded; PTT + system TTS remains truthful."
+    },
+    {
+      "id": "SP-018",
+      "sequence": 18,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-018_PRODUCTION_MEMORY_REFERENCE_WIRING.prompt.md",
+      "track": "R8",
+      "gap_ids": [
+        "OPEN-09"
+      ],
+      "depends_on": [
+        "SP-017"
+      ],
+      "next_prompt": "SP-019",
+      "evidence_prefix": "EV-SP-018",
+      "title": "Production Memory Reference Wiring",
+      "completion_gate": "The live production path can resolve safe references with provenance and clarifies every unsafe ambiguity."
+    },
+    {
+      "id": "SP-019",
+      "sequence": 19,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
+      "track": "R8",
+      "gap_ids": [
+        "OPEN-09"
+      ],
+      "depends_on": [
+        "SP-018"
+      ],
+      "next_prompt": "SP-020",
+      "evidence_prefix": "EV-SP-019",
+      "title": "Live Memory Controls, Conflicts, and Restart",
+      "completion_gate": "All eight R8 live/product scenarios pass with user-visible controls and no hidden authority transfer."
+    },
+    {
+      "id": "SP-020",
+      "sequence": 20,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-020_REMOTE_CONTEXT_BOUNDARY_AND_ADR_043.prompt.md",
+      "track": "R8",
+      "gap_ids": [
+        "OPEN-09"
+      ],
+      "depends_on": [
+        "SP-019"
+      ],
+      "next_prompt": "SP-021",
+      "evidence_prefix": "EV-SP-020",
+      "title": "Remote Context Boundary and ADR-043",
+      "completion_gate": "Remote delivery is independently proven safe or explicitly excluded; local-only claims remain truthful."
+    },
+    {
+      "id": "SP-021",
+      "sequence": 21,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-021_ACCESSIBILITY_AND_LOCALIZATION_ACCEPTANCE.prompt.md",
+      "track": "R9",
+      "gap_ids": [
+        "OPEN-10"
+      ],
+      "depends_on": [
+        "SP-020"
+      ],
+      "next_prompt": "SP-022",
+      "evidence_prefix": "EV-SP-021",
+      "title": "Accessibility and Localization Acceptance",
+      "completion_gate": "Manual evidence proves primary workflows are operable and understandable in both locales."
+    },
+    {
+      "id": "SP-022",
+      "sequence": 22,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-022_UI_CONTROLS_ONBOARDING_AND_RECOVERY.prompt.md",
+      "track": "R9",
+      "gap_ids": [
+        "OPEN-10"
+      ],
+      "depends_on": [
+        "SP-021"
+      ],
+      "next_prompt": "SP-023",
+      "evidence_prefix": "EV-SP-022",
+      "title": "UI Controls, Onboarding, and Recovery",
+      "completion_gate": "R9 users can understand and control primary workflows without terminal intervention, with actionable degraded states."
+    },
+    {
+      "id": "SP-023",
+      "sequence": 23,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-023_AUTHENTICATED_IPC_AND_PRIVILEGE_SEPARATION.prompt.md",
+      "track": "R10",
+      "gap_ids": [
+        "OPEN-11"
+      ],
+      "depends_on": [
+        "SP-022"
+      ],
+      "next_prompt": "SP-024",
+      "evidence_prefix": "EV-SP-023",
+      "title": "Authenticated IPC and Privilege Separation",
+      "completion_gate": "Peer identity, real helper execution, entitlement scope, and compromise containment are independently evidenced."
+    },
+    {
+      "id": "SP-024",
+      "sequence": 24,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-024_NETWORK_OAUTH_AND_INJECTION_ENFORCEMENT.prompt.md",
+      "track": "R10",
+      "gap_ids": [
+        "OPEN-11"
+      ],
+      "depends_on": [
+        "SP-023"
+      ],
+      "next_prompt": "SP-025",
+      "evidence_prefix": "EV-SP-024",
+      "title": "Network, OAuth, and Injection Enforcement",
+      "completion_gate": "No covered network or content path bypasses policy; OAuth and injection evidence passes with no secret leakage."
+    },
+    {
+      "id": "SP-025",
+      "sequence": 25,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-025_PLUGIN_TRUST_INCIDENT_RESPONSE_AND_ADR_044.prompt.md",
+      "track": "R10",
+      "gap_ids": [
+        "OPEN-11"
+      ],
+      "depends_on": [
+        "SP-024"
+      ],
+      "next_prompt": "SP-026",
+      "evidence_prefix": "EV-SP-025",
+      "title": "Plugin Trust, Incident Response, and ADR-044",
+      "completion_gate": "Supply-chain, incident, and independent-review evidence exists; no critical unaccepted security risk remains."
+    },
+    {
+      "id": "SP-026",
+      "sequence": 26,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-026_RELEASE_TOOLCHAIN_REPRODUCIBILITY_AND_CI.prompt.md",
+      "track": "R11",
+      "gap_ids": [
+        "OPEN-12"
+      ],
+      "depends_on": [
+        "SP-025"
+      ],
+      "next_prompt": "SP-027",
+      "evidence_prefix": "EV-SP-026",
+      "title": "Release Toolchain, Reproducibility, and CI",
+      "completion_gate": "Reproducibility and observed CI evidence are independently inspectable and match the canonical commit."
+    },
+    {
+      "id": "SP-027",
+      "sequence": 27,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-027_SIGNING_NOTARIZATION_AND_CLEAN_MACHINE_GATEKEEPER.prompt.md",
+      "track": "R11",
+      "gap_ids": [
+        "OPEN-12"
+      ],
+      "depends_on": [
+        "SP-026"
+      ],
+      "next_prompt": "SP-028",
+      "evidence_prefix": "EV-SP-027",
+      "title": "Signing, Notarization, and Clean-Machine Gatekeeper",
+      "completion_gate": "Clean-machine Gatekeeper and nested-signature/notarization evidence passes; otherwise R11 remains blocked."
+    },
+    {
+      "id": "SP-028",
+      "sequence": 28,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-028_UPDATER_LIFECYCLE_RECOVERY_AND_MIGRATION.prompt.md",
+      "track": "R11",
+      "gap_ids": [
+        "OPEN-12"
+      ],
+      "depends_on": [
+        "SP-027"
+      ],
+      "next_prompt": "SP-029",
+      "evidence_prefix": "EV-SP-028",
+      "title": "Updater, Lifecycle, Recovery, and Migration",
+      "completion_gate": "Lifecycle, updater, recovery, migration, support, uninstall, and rollback all pass on supported clean/configured profiles."
+    },
+    {
+      "id": "SP-029",
+      "sequence": 29,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-029_BETA_SCOPE_CONSENT_AND_TELEMETRY.prompt.md",
+      "track": "R12",
+      "gap_ids": [
+        "OPEN-13"
+      ],
+      "depends_on": [
+        "SP-028"
+      ],
+      "next_prompt": "SP-030",
+      "evidence_prefix": "EV-SP-029",
+      "title": "Beta Scope, Consent, and Telemetry",
+      "completion_gate": "Approved cohort/consent/privacy/telemetry/kill-switch evidence exists; no telemetry is activated by this prompt alone."
+    },
+    {
+      "id": "SP-030",
+      "sequence": 30,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
+      "track": "R12",
+      "gap_ids": [
+        "OPEN-13"
+      ],
+      "depends_on": [
+        "SP-029"
+      ],
+      "next_prompt": "SP-031",
+      "evidence_prefix": "EV-SP-030",
+      "title": "Beta SLOs, Scenarios, Incidents, and Sign-Offs",
+      "completion_gate": "Mandatory SLOs and scenarios pass, incidents are remediated, and independent sign-offs are complete."
+    },
+    {
+      "id": "SP-031",
+      "sequence": 31,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-031_RELEASE_CANDIDATE_EVIDENCE_PACKAGE_AND_ADR_047.prompt.md",
+      "track": "R12",
+      "gap_ids": [
+        "OPEN-13"
+      ],
+      "depends_on": [
+        "SP-030"
+      ],
+      "next_prompt": "SP-032",
+      "evidence_prefix": "EV-SP-031",
+      "title": "Release-Candidate Evidence Package and ADR-047",
+      "completion_gate": "RC package is complete, reproducible, recoverable, independently reviewed, and explicitly approved."
+    },
+    {
+      "id": "SP-032",
+      "sequence": 32,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-032_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
+      "track": "FINAL",
+      "gap_ids": [
+        "OPEN-14"
+      ],
+      "depends_on": [
+        "SP-031"
+      ],
+      "next_prompt": "SP-033",
+      "evidence_prefix": "EV-SP-032",
+      "title": "Final Acceptance and Cleanup",
+      "completion_gate": "Every mandatory gate is passed or explicitly scoped/accepted by authorized ownership; otherwise return to the owning SP prompt."
+    },
+    {
+      "id": "SP-033",
+      "sequence": 33,
+      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
+      "track": "SESSION_CLOSEOUT",
+      "gap_ids": [
+        "OPEN-15"
+      ],
+      "depends_on": [
+        "SP-032"
+      ],
+      "next_prompt": null,
+      "evidence_prefix": "EV-SP-033",
+      "title": "Final Closeout Reconciliation",
+      "completion_gate": "The chain is either truthfully completed with all direct evidence or truthfully blocked with a complete maintainer handoff; no ambiguous state remains."
+    }
+  ],
+  "transition_policy": "Strictly linear. A prompt may advance only after direct acceptance evidence, cognitive completion answers, synchronized ledger/state updates, and validate_second_pass_program.py pass."
+}

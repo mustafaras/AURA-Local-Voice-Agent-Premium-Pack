@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.local/schemas/second-pass-state.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "program_name", "program_status", "updated_at", "active_prompt", "active_state", "completed_prompts", "blocked_prompts", "last_evidence_ids", "authority", "control_files", "next_action"],
+  "properties": {
+    "$schema": {"const": "./SECOND_PASS_STATE.schema.json"},
+    "schema_version": {"const": "1.0.0"},
+    "program_name": {"type": "string"},
+    "program_status": {"enum": ["planned", "in_progress", "blocked", "completed"]},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "active_prompt": {"type": "string", "pattern": "^SP-[0-9]{3}$"},
+    "active_state": {"enum": ["pending", "in_progress", "blocked", "completed"]},
+    "completed_prompts": {"type": "array", "items": {"type": "string", "pattern": "^SP-[0-9]{3}$"}, "uniqueItems": true},
+    "blocked_prompts": {"type": "array", "items": {"type": "string", "pattern": "^SP-[0-9]{3}$"}, "uniqueItems": true},
+    "last_evidence_ids": {"type": "array", "items": {"type": "string", "pattern": "^EV-[A-Za-z0-9._-]+$"}, "uniqueItems": true},
+    "authority": {"type": "object", "additionalProperties": {"type": "boolean"}},
+    "control_files": {"type": "object", "additionalProperties": {"type": "string"}},
+    "next_action": {"type": "string", "minLength": 1}
+  }
+}

@@ -1,7 +1,7 @@
-# AURA Session Starter — R10 Active; R2/R3/R4/R5/R6/R7/R8/R9 Open for Second Pass
+# AURA Session Starter — FINAL Active/Blocked; R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 Open
 
 > Conversation date: 9 August 2026
-> Live HEAD: `e1ecf82e2650823ddf4e4b553c0d8dda58e74911` — `merge: deliver R10 security boundaries`
+> Live HEAD: `e1004795e56df8c171422261eace96543649cf51` — `docs(state): record R10 delivery and activate R11`
 > Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry before changing files.
 
 ## Canonical State Notice — 2026-08-09
@@ -9,8 +9,8 @@
 This starter is a **historical compatibility document**. Use
 `AURA_RUNTIME_COMPLETION/state/current-state.json` and
 `AURA_RUNTIME_COMPLETION/context/session-handoff.json` as the authoritative
-state. Live `HEAD == origin/main == e1ecf82e2650823ddf4e4b553c0d8dda58e74911`;
-the active prompt is **R10**. R2/R3/R4/R5/R6/R7/R8/R9 remain open and their second-pass
+state. Live `HEAD == origin/main == e1004795e56df8c171422261eace96543649cf51`;
+the active prompt is **FINAL**. R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open and their second-pass
 gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
 The historical phase and push claims below are not current state.
 
@@ -79,6 +79,22 @@ The historical phase and push claims below are not current state.
   R10 is not complete: peer-authenticated IPC, real helper execution, universal
   network/provider/DNS enforcement, OAuth transport/revocation, injection,
   plugin trust, operations, and independent review remain open.
+- **R11** `in_progress` — deterministic `development_unverified` artifact,
+  reproducible ZIP, bundle inventory/SBOM, checksum-bound manifest, and
+  fail-closed release-status validation are implemented under
+  `EV-R11-20260809-ARTIFACT-MANIFEST-01`. Developer ID/notarization,
+  clean-machine Gatekeeper, signed updater, launch-at-login, recovery,
+  migration, uninstall, and observed post-change release CI remain open. The
+  CI workflow now requests bounded retention of the same development artifact;
+  its configuration is not run evidence.
+- **R12** `in_progress` by explicit user transition request, but blocked by the
+  incomplete R11 release gates. No beta cohort, telemetry, SLO, incident,
+  independent sign-off, or release-candidate evidence exists; no beta or
+  release readiness claim is made.
+- **FINAL** `in_progress`/blocked by the incomplete R12 gate. The edit-only
+  acceptance audit and blocked maintainer handoff are recorded under
+  `EV-FINAL-20260809-CLOSEOUT-BLOCKED-01`; FINAL cannot mark the program
+  release-candidate verified or released.
 
 ## Second-pass completion plan (all remaining gates)
 
@@ -108,12 +124,18 @@ requires the user physically present or explicit authorization:
    R9 was then started by explicit user approval; its live gates remain open.
 8. **R9:** retain the unresolved first-pass gates in
    `SECOND_PASS_OPEN_GAPS.md`; R9 was delivered but not formally closed.
-9. **R10:** map and harden process privilege, IPC, network, secret/OAuth,
-   provenance/injection, plugin, and operations boundaries; add adversarial
-   evidence and retain all unresolved security gates.
+9. **R10:** retain the unresolved security gates in
+   `SECOND_PASS_OPEN_GAPS.md`; its first-pass slice was delivered.
+10. **R11:** retain the unresolved release/operations gates in
+   `SECOND_PASS_OPEN_GAPS.md`; no release or deployment claim is made.
+11. **R12:** retain the unresolved beta/SLO/incident/sign-off/RC gates in
+   `SECOND_PASS_OPEN_GAPS.md`; no beta or release-candidate claim is made.
+12. **FINAL:** retain the unresolved acceptance/cleanup/operational-handoff
+   gates in `SECOND_PASS_OPEN_GAPS.md`; no completion or release claim is made.
 
-R10 delivery is recorded; stop here and obtain the user's explicit approval
-before transitioning to R11. Do not begin R11 from an assumed approval.
+FINAL is active by explicit user request despite the R12 dependency blocker. Do
+not infer beta enrollment, telemetry, commit/push/release/deploy authority from
+this transition.
 
 ## Verified historical handoff (Phases 0–25, prior program)
 
@@ -134,9 +156,10 @@ before transitioning to R11. Do not begin R11 from an assumed approval.
    `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest
    `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry plus
    `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
-2. Review the delivered R10 evidence and residuals, then request explicit user
-   approval before starting **R11**; keep R2/R3/R4/R5/R6/R7/R8/R9/R10 open where
-   their gates remain unresolved.
+2. Continue **R11** by obtaining separately authorized full-Xcode, signing,
+   clean-machine, updater, recovery, migration, uninstall, and observed-CI
+   evidence; keep R2/R3/R4/R5/R6/R7/R8/R9/R10/R11 open where gates remain
+   unresolved.
 3. State objective, assumptions, risks, and acceptance criteria in the task
    ledger before editing.
 4. Do not release, deploy, sign, mutate TCC/application state, install

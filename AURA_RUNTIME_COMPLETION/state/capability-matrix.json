@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-09T10:27:17Z",
-  "repository_commit": "e1ecf82e2650823ddf4e4b553c0d8dda58e74911",
+  "updated_at": "2026-08-09T11:16:13Z",
+  "repository_commit": "e1004795e56df8c171422261eace96543649cf51",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -533,29 +533,29 @@
       "verification_state": "integration_simulated",
       "risk_tier": "restricted",
       "owning_track": "R11",
-      "production_files": ["scripts/build-app-bundle.sh", "scripts/codesign-adhoc.sh", "Resources/AURA-Info.plist"],
-      "test_files": [],
+      "production_files": ["scripts/build-app-bundle.sh", "scripts/build-release-artifact.sh", "scripts/generate_release_manifest.py", "scripts/validate_release_manifest.py", ".github/workflows/ci.yml", "Resources/AURA-Info.plist"],
+      "test_files": ["scripts/tests/test_release_manifest.py"],
       "dependencies": ["security.privilege_separation"],
-      "open_gaps": ["Only local/ad-hoc or stable local signing; no Developer ID, notarization, staple, DMG/PKG, or clean external-machine release evidence."],
-      "evidence_ids": [],
+      "open_gaps": ["The deterministic artifact/manifest slice is local and development_unverified only; CI retention is configured but no post-change run was observed; no Developer ID, secure timestamp, notarization, staple, DMG/PKG, or clean external-machine evidence exists."],
+      "evidence_ids": ["EV-R11-20260809-ARTIFACT-MANIFEST-01"],
       "notes": "Local package verification is not public distribution readiness."
     },
     {
       "id": "operations.updates_recovery",
       "name": "Signed updates, launch at login, safe mode, and recovery",
       "domain": "operations",
-      "implementation_state": "missing",
-      "runtime_state": "not_constructed",
-      "user_path_state": "none",
-      "verification_state": "none",
+      "implementation_state": "partial",
+      "runtime_state": "constructed_inactive",
+      "user_path_state": "developer_only",
+      "verification_state": "integration_simulated",
       "risk_tier": "restricted",
       "owning_track": "R11",
-      "production_files": ["docs/operations/UPDATE_MECHANISM.md"],
-      "test_files": [],
+      "production_files": ["scripts/validate_release_manifest.py", "docs/operations/UPDATE_MECHANISM.md", "docs/operations/RELEASE_ARTIFACTS.md", "docs/decisions/ADR-046-signed-update-recovery.md"],
+      "test_files": ["scripts/tests/test_release_manifest.py"],
       "dependencies": ["release.distribution"],
-      "open_gaps": ["No signed updater, rollback, downgrade protection, launch-at-login implementation, safe mode, support bundle, or full uninstall/factory reset evidence."],
-      "evidence_ids": [],
-      "notes": "Design prose is not an operational updater."
+      "open_gaps": ["Manifest validation is not an updater. No signed package transport, Sparkle/approved updater integration, rollback/downgrade protection, launch-at-login implementation, safe mode, support bundle, migration, uninstall, or factory reset evidence."],
+      "evidence_ids": ["EV-R11-20260809-ARTIFACT-MANIFEST-01"],
+      "notes": "Design prose and local manifest contracts are not an operational updater. ADR-046 remains Proposed."
     }
   ]
 }

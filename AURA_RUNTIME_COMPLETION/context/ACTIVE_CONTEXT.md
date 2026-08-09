@@ -1,11 +1,24 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `R9`
-> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8 remain open, R9 active after explicit user continuation
-> **Audited baseline:** `3f5c28faf513e9a6a3be27677a7ac566c5fca168` on `main` (`HEAD == origin/main`; delivery metadata projection is intentionally dirty)
+> **Current prompt:** `FINAL`
+> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
+> **Audited baseline:** `e1004795e56df8c171422261eace96543649cf51` on `main` (`HEAD == origin/main`; delivery metadata projection is intentionally dirty)
 
 ## Canonical status
+
+## Repository hygiene overlay
+
+The repository-hygiene program is a separate, synchronized control overlay at
+`docs/operations/REPO_HYGIENE_PROGRAM.md`. Its machine state is
+`AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json`, currently
+`H-000` / `pending`; its 11-prompt manifest, focused ledger, contracts,
+Tier-0/Tier-1 read order, and validator must agree before a hygiene prompt can
+advance. This overlay does not close R2–R12, FINAL, beta, release, security,
+permission, or live-hardware gates. The current preparation authority is
+edit-only: no cleanup, Git object mutation, install, commit, push, merge,
+release, or deploy is authorized. Start with H-000 and run the mandatory
+`15_SESSION_CLOSEOUT.prompt.md` after every attempt.
 
 The strict BOOTSTRAP preflight and R0 governance repair are complete. Canonical machine state is in
 `AURA_RUNTIME_COMPLETION/state/current-state.json`; the ordered manifest has
@@ -20,8 +33,19 @@ status" below). R4 computer-use productization core and registry wiring are
 implemented and tested but **not complete** (see "R4 status" below). R5
 browser/mail/calendar/contacts adapters, R6 coding-agent routes, and R7
 voice/resource governance remain open; R8 memory/context is locally
-implemented but remains open on live gates and ADR-043; R9 is now the active
-prompt after user-directed continuation.
+implemented but remains open on live gates and ADR-043; R9/R10/R11 first-pass
+slices remain open, R12 is blocked by its beta/RC gates, and FINAL is now active
+for a blocked acceptance and closeout audit by user-directed transition request.
+
+## Second-pass synchronized overlay
+
+The separate second-pass chain is defined by
+`AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json` and is currently
+`SP-000` / `pending`. Its manifest, gap register, Tier-0/Tier-1 context order,
+focused append-only ledger, prompt contract, and validator must agree before
+any second-pass prompt can run. This overlay does not overwrite the first-pass
+canonical state above: first-pass `FINAL` remains blocked, while second-pass
+`SP-000` is the only prompt eligible for an explicitly authorized start.
 
 ## R2 closeout status (2026-08-07)
 
@@ -204,7 +228,8 @@ privacy/recovery acceptance remain open in `SECOND_PASS_OPEN_GAPS.md`.
 
 ## R10 status
 
-R10 — Security and Privilege Separation — is the active first-pass prompt.
+R10 — Security and Privilege Separation — was the preceding first-pass prompt
+and remains `in_progress`.
 The first bounded slice is now implemented and locally verified under
 `EV-R10-20260809-BOUNDARY-SLICE-01`: versioned/hash-bound/replay-protected
 helper envelopes, endpoint restrictions for the covered Ollama path, and
@@ -213,7 +238,34 @@ not authenticated XPC, helper executors are not wired, universal network
 factory/DNS/provider enforcement is absent, OAuth transport and live revocation
 are absent, and provenance/injection, plugin supply-chain, operations, and
 independent-review gates remain open. R2-R9 remain `in_progress` and their
-open gates are preserved.
+open gates are preserved. R11 was the preceding first-pass prompt.
+
+## R11 status
+
+R11 — Release Engineering and Continuous Operations — was the preceding prompt
+after explicit user approval following R10 delivery. This was an edit-only
+release-readiness pass. The repository currently has SwiftPM/ad-hoc or local
+development signing preparation and design-only update/recovery documentation;
+it does not have a verified Developer ID/notarized artifact, clean-machine
+Gatekeeper evidence, signed updater, launch-at-login path, safe-mode/support
+bundle/uninstall implementation, or observed release CI run. R9 and R10 remain
+`in_progress`; their open gates are preserved and R11 cannot claim release
+readiness from local contract tests alone.
+
+## R12 status
+
+R12 — Beta Validation and Release Candidate — was the preceding prompt. Its
+blocked readiness contract exists, but no beta/RC gate passed. R11, R9, and
+R10 open gates remain blockers and are preserved in `SECOND_PASS_OPEN_GAPS.md`.
+ADR-047 is absent and was not invented.
+
+## FINAL status
+
+FINAL — Acceptance, Cleanup, and Operational Handoff — is active by explicit
+user request despite the incomplete R12 dependency. This is an edit-only final
+audit and maintainer-handoff pass. It cannot mark the program
+`release_candidate_verified` or `released`; all failed gates are returned to
+R2-R12 and recorded without deleting historical evidence.
 
 ## Why this program exists
 
@@ -237,21 +289,19 @@ The immediate program must:
 
 ## Immediate next action
 
-R10 is the active prompt (in_progress) after explicit user authorization and
-R9 delivery. R2/R3/R4/R5/R6/R7/R8/R9 remain open and all deferred gates are recorded in
-[`SECOND_PASS_OPEN_GAPS.md`](../SECOND_PASS_OPEN_GAPS.md). The next concrete R8
-work and R9 work are now historical for this first-pass transition; the next
-concrete R10 work is:
+FINAL is the active acceptance/closeout prompt (in_progress) after explicit
+user approval following the R12 first-pass slice. R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open and all
+deferred gates are recorded in [`SECOND_PASS_OPEN_GAPS.md`](../SECOND_PASS_OPEN_GAPS.md).
+The edit-only FINAL/CLOSEOUT work is now recorded. The next concrete safe action is:
 
-1. **Complete the R10 boundary audit**: enumerate every helper, URLSession,
-   provider, secret, plugin, updater, and external-content path and distinguish
-   policy-only behavior from OS-enforced confinement.
-2. **Add the missing direct evidence**: authenticated peer transport or an
-   accepted equivalent, real helper execution, universal network-factory and
-   DNS/redirect tests, provider OAuth lifecycle, leakage corpus, plugin trust,
-   incident/review evidence, and independent security review.
-3. **Keep the residuals explicit** in `SECOND_PASS_OPEN_GAPS.md`; do not accept
-   ADR-044 or start R11 from contract tests alone.
+1. **Return to R11** for full-Xcode, signing/notarization, clean-machine,
+   updater, recovery, migration, uninstall, and observed-CI evidence.
+2. **Return to R12** for separately authorized beta consent, content-free
+   telemetry/SLO/scenario/incident evidence, independent sign-offs, and a
+   provenance-bound RC package.
+3. **Rerun FINAL** only after those owning-track gates pass; do not enroll
+   participants, activate telemetry, launch/install, publish, or deploy without
+   separate explicit authority.
 
 R2, R3, R4, R5, R6, R7, and R8 remain open — see the status sections above and
 `SECOND_PASS_OPEN_GAPS.md`. Do not mark any of them
@@ -259,10 +309,10 @@ complete before their respective remaining items are resolved or explicitly
 accepted. Do not start Phase 26 or any optional historical roadmap phase merely
 because older prose names it as the next action.
 
-After R10's own delivery is explicitly authorized and completed, stop and obtain
-explicit user approval before moving to R11. Do not accept ADR-044 or claim
-external-beta security readiness without the required evidence and independent
-review.
+FINAL is active by explicit user request. Do not mark FINAL complete,
+`release_candidate_verified`, or `released`, accept ADR-047, or start session
+closeout as successful until R11/R12 and all final acceptance gates have direct
+proof.
 
 ## Current major risks
 
@@ -281,3 +331,7 @@ review.
 ## Compact success definition
 
 AURA is complete only when a clean target Mac can install and run a bilingual assistant that understands natural speech/text, answers through a real reasoning backend, executes registered capabilities through policy and bound confirmation, verifies results, handles practical desktop/productivity/coding workflows, exposes memory/privacy/health controls, survives restart/update/recovery, and passes release and beta gates without false-success claims.
+R12 now has a machine-readable blocked readiness contract, schema, validator,
+focused negative tests, and runbook under `EV-R12-20260809-READINESS-CONTRACT-01`.
+This remains static/contract evidence only; no beta or release-candidate gate
+has passed.

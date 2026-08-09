@@ -1,0 +1,42 @@
+{
+  "$schema": "./SECOND_PASS_STATE.schema.json",
+  "schema_version": "1.0.0",
+  "program_name": "AURA Second-Pass Gap Closure",
+  "program_status": "planned",
+  "updated_at": "2026-08-09T12:59:35Z",
+  "active_prompt": "SP-000",
+  "active_state": "pending",
+  "completed_prompts": [],
+  "blocked_prompts": [],
+  "last_evidence_ids": [
+    "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
+    "EV-SECOND-PASS-20260809-CONTROL-PLANE-01",
+    "EV-OPEN-GAPS-20260809-FULL-AUDIT-01"
+  ],
+  "authority": {
+    "edit": true,
+    "launch_or_install_app": false,
+    "mutate_permissions": false,
+    "install_dependencies": false,
+    "download_models": false,
+    "provider_accounts": false,
+    "telemetry_or_beta": false,
+    "sign_or_notarize": false,
+    "commit": false,
+    "push": false,
+    "merge": false,
+    "release_or_deploy": false
+  },
+  "control_files": {
+    "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+    "prompt_manifest": "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
+    "prompt_contract": "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
+    "context_read_first": "AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md",
+    "ledger": "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+    "first_pass_state": "AURA_RUNTIME_COMPLETION/state/current-state.json",
+    "session_handoff": "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+    "validator": "scripts/validate_second_pass_program.py",
+    "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
+  },
+  "next_action": "SP-000 remains pending; start it only with explicit user approval for second-pass execution, then require its cognitive gate and validator before SP-001."
+}

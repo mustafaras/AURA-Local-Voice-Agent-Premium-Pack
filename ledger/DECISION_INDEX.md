@@ -30,3 +30,4 @@
 | ADR-036 | Accepted for R2 implementation | Layered Turkish/English/mixed NLU, schema-validated local refinement, bounded dialogue context, and locale-preserving responses | 2026-08-02 | — |
 | ADR-037 | Accepted | Typed runtime health registry and fail-closed confirmation transaction lifecycle | 2026-08-02 | — |
 | ADR-045 | Accepted for R0 governance; release portions remain open | Toolchain, state projection, deployment target, and release pipeline baseline | 2026-08-02 | — |
+| ADR-046 | Proposed | Signed updates, rollback, downgrade protection, safe mode, and recovery | 2026-08-09 | — |

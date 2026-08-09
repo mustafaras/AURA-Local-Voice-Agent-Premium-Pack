@@ -1,26 +1,56 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-08.
+Projection refreshed from live repository and command evidence on 2026-08-09.
 
-## Canonical State Notice — 2026-08-08
+## Canonical State Notice — 2026-08-09
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == 3f5c28faf513e9a6a3be27677a7ac566c5fca168`. R1 is complete for
-local development/integration scope. R2, R3, R4, R5, R6, R7, and R8 remain
-`in_progress`
-with deferred gates recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
-R8 (memory, personalization, and explainability) remains open after its full
-available local regression passed 21/21 bundles and 782/782 tests. R9
-(product UI, accessibility, and onboarding) is now the active prompt after
-explicit user continuation; its source build passed and deterministic UI-state
-tests passed 3/3, while live product/manual gates remain open. ADR-043 remains
-Proposed. This legacy projection
-is retained for historical compatibility; the older status sections below are
-not authoritative and must not override the canonical machine state.
+origin/main == e1004795e56df8c171422261eace96543649cf51`. R2 through R12 remain
+`in_progress` with deferred/live/manual/security/release/beta gates recorded in
+`AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. FINAL/CLOSEOUT is active by
+explicit user request for a blocked acceptance audit and maintainer handoff;
+it cannot claim release-candidate verification or release. The R11 local
+`development_unverified` artifact, manifest, SBOM, checksum, and fail-closed
+validator remain the only release evidence; CI artifact retention is configured
+but unobserved. This legacy projection is retained for historical compatibility;
+the machine-readable state remains authoritative.
 
-## Latest Verification Snapshot — 2026-08-08
+## Latest Verification Snapshot — 2026-08-09
+
+### Repository hygiene program overlay
+
+The repository-hygiene audit is now encoded as the canonical plan
+`docs/operations/REPO_HYGIENE_PROGRAM.md` and the synchronized H-000–H-010
+control plane under `AURA_RUNTIME_COMPLETION/repo-hygiene/`. The active hygiene
+state is `H-000` / `pending`; no cleanup or Git object recovery mutation has
+been performed. The validator passed and the existing dirty worktree, non-zero
+Git fsck result, and product second-pass gates remain unchanged.
+
+- R11 local artifact/manifest evidence `EV-R11-20260809-ARTIFACT-MANIFEST-01`
+  remains valid: the reproducible ZIP is `development_unverified`, its recorded
+  SHA-256 is
+  `31073b4051d1ef1c8ca5761278370e353c030fc7d6e7d6add032c4a4ed3c5e22`, and
+  focused/governance tests are green.
+- The CI workflow statically parses and invokes the same fail-closed builder,
+  then retains only the ZIP/manifest for 14 days. This configuration is not
+  observed CI evidence until a real post-change run is inspected.
+- No commit, push, merge, signing, notarization, installation, release, or
+  deployment was performed for the R11 worktree.
+- R12 transition and the blocked readiness contract are recorded as edit-only
+  beta-readiness work. No cohort, telemetry, SLO, incident, independent
+  sign-off, or release-candidate evidence exists; ADR-047 is absent.
+- FINAL/CLOSEOUT reconciliation is recorded under
+  `EV-FINAL-20260809-CLOSEOUT-BLOCKED-01` and
+  `docs/operations/FINAL_OPERATIONAL_HANDOFF.md`; no release, beta enrollment,
+  telemetry activation, signing, installation, commit, push, merge, or deploy
+  was performed.
+
+The older status sections below are historical and must not override the
+canonical machine state.
+
+## Historical Verification Snapshot — 2026-08-08
 
 - R2/R3/R4 runtime and governance changes are present at live `daf062a`; the worktree is intentionally dirty; R5, R6, R7, R8, and R9 first-pass changes remain local and uncommitted. R5 full regression passed 21/21 bundles, 747/747 tests; R6 full regression passed 21/21 bundles, 751/751 tests, both with 0 failed bundles. R8 focused memory/context validation passed 30/30 and 33/33; full R8 regression passed 21/21 bundles and 782/782 tests with zero failed bundles, and governance passed. R9 `swift build --target AURA` passed; the direct R9 UI-state run passed 3/3.
 - R2 bilingual NLU/dialogue implemented and system-tested but not formally closed (live hardware evidence pending).

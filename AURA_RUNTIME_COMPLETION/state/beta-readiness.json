@@ -1,0 +1,93 @@
+{
+  "$schema": "../schemas/beta-readiness.schema.json",
+  "schema_version": "1.0.0",
+  "readiness_status": "blocked",
+  "session_id": "AURA-R12-BETA-20260809",
+  "authority": {
+    "mode": "edit_only",
+    "beta_enrollment": false,
+    "telemetry_activation": false,
+    "app_install_or_launch": false,
+    "release": false
+  },
+  "dependency_gate": {
+    "r11_state": "in_progress",
+    "r11_release_status": "development_unverified",
+    "r11_completion_required": true
+  },
+  "cohort": {
+    "status": "not_enrolled",
+    "type": "none",
+    "consent": "not_collected",
+    "minimum_sessions": null,
+    "supported_profiles": ["clean_profile", "configured_profile"]
+  },
+  "capability_scope": {
+    "included": [],
+    "excluded": [
+      "real_wake_word",
+      "neural_voice",
+      "computer_use",
+      "mail_send",
+      "plugins",
+      "remote_agents",
+      "signed_updates",
+      "launch_at_login"
+    ],
+    "rationale": "No beta capability is enabled before its direct gate passes."
+  },
+  "telemetry": {
+    "enabled": false,
+    "consent_required": true,
+    "raw_content_allowed": false,
+    "transport": "none",
+    "retention_days": null,
+    "aggregate_fields": [
+      "session_outcome",
+      "latency_percentiles",
+      "confirmation_outcome",
+      "recovery_outcome",
+      "resource_pressure_class"
+    ]
+  },
+  "slo_definitions": [
+    {"id": "ptt_ack", "metric": "push_to_talk_acknowledgement_ms", "percentiles": [50, 95, 99], "target_ms": null, "sample_minimum": null, "status": "not_measured"},
+    {"id": "stt_partial", "metric": "first_stt_partial_ms", "percentiles": [50, 95, 99], "target_ms": null, "sample_minimum": null, "status": "not_measured"},
+    {"id": "dialogue_first_token", "metric": "local_dialogue_first_token_ms", "percentiles": [50, 95, 99], "target_ms": null, "sample_minimum": null, "status": "not_measured"},
+    {"id": "false_success", "metric": "false_success_rate", "percentiles": [50, 95, 99], "target_ms": null, "sample_minimum": null, "status": "not_measured"},
+    {"id": "unauthorized_action", "metric": "unauthorized_action_count", "percentiles": [], "target_ms": null, "sample_minimum": null, "status": "not_measured"}
+  ],
+  "scenario_matrix": [
+    {"id": "turkish_english_mixed", "status": "not_run", "evidence_ids": []},
+    {"id": "permission_denial_revocation", "status": "not_run", "evidence_ids": []},
+    {"id": "offline_backend_unavailable", "status": "not_run", "evidence_ids": []},
+    {"id": "task_helper_crash_recovery", "status": "not_run", "evidence_ids": []},
+    {"id": "injection_emergency_stop_accessibility", "status": "not_run", "evidence_ids": []}
+  ],
+  "incident_review": {
+    "status": "not_run",
+    "severity_1_2_count": null,
+    "false_success_count": null,
+    "unauthorized_action_count": null,
+    "remediation_records": []
+  },
+  "signoffs": {
+    "security": "not_obtained",
+    "privacy": "not_obtained",
+    "accessibility_localization": "not_obtained",
+    "release_recovery": "not_obtained",
+    "product_truthfulness": "not_obtained"
+  },
+  "release_candidate": {
+    "status": "blocked",
+    "approved": false,
+    "commit": null,
+    "artifact_path": null,
+    "artifact_sha256": null
+  },
+  "open_blockers": [
+    "R11 is incomplete and has no signed/notarized clean-machine release artifact.",
+    "No beta cohort, consent, telemetry, SLO samples, incident review, or independent sign-off exists.",
+    "ADR-047 is absent and no release-candidate approval authority exists."
+  ]
+}
