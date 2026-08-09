@@ -3460,3 +3460,97 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Verification:** After replacing runtime-optional control calls with explicit fail-closed guards, `swift build --target AURA` passed again. A freshly rebuilt `AURAIntegrationTests` target passed the focused UI/remediation run `6/6` through the documented direct Swift Testing helper/rpath workaround.
 - **Limits:** The plain all-bundle SwiftPM runner remains host-blocked by generated xctest metadata/codesign/rpath behavior. This does not provide user-present accessibility, TCC, onboarding, model/account, or deployment evidence; R9 remains `in_progress`.
 - **Evidence:** `EV-R9-20260808-FAIL-CLOSED-06`.
+
+### 2026-08-09T11:00:00Z — R11_CI_ARTIFACT_WORKFLOW_STARTED — edit-only continuous-evidence slice
+
+- **Actor:** Codex engineering session `AURA-R11-RELEASE-20260809`; edit-only authority remains active. No commit, push, merge, signing, notarization, installation, release, or deployment is authorized by this entry.
+- **Objective:** Extend the existing self-hosted macOS CI job to build and retain an explicitly `development_unverified` reproducible artifact and manifest after successful tests, while preserving the release boundary.
+- **Assumptions:** Workflow configuration is not CI evidence until a run is observed; R9/R10 and all R11 Apple/recovery/update gates remain open.
+- **Acceptance criteria:** Use least-privilege workflow permissions; invoke the existing artifact builder/validator; upload only bounded, clearly named development evidence; do not add public distribution or signing behavior.
+- **Risks:** Runner drift or missing full Xcode may prevent artifact generation; CI artifacts must not be confused with release-candidate evidence.
+- **Next safe action:** Patch and statically validate `.github/workflows/ci.yml`, then record the unobserved-run limitation.
+
+### 2026-08-09T11:16:13Z — R11_CI_ARTIFACT_WORKFLOW_FINAL_CHECK — governance restored after handoff-boundary normalization
+
+- **Actor:** Codex engineering session `AURA-R11-RELEASE-20260809`; edit-only authority remains active. No commit, push, merge, signing, notarization, installation, release, or deployment occurred.
+- **Correction:** The session-handoff schema limits `completed` to 30 and `required_first_reads` to 12. A redundant historical completion item and two redundant read-list entries were removed; the R11 CI configuration and its unobserved-run limitation remain recorded in the canonical state and R11 ledgers.
+- **Verification:** Runtime-completion governance passed; deterministic script tests passed `17/17`; the recorded development manifest validated; workflow YAML parsing, shell syntax, JSON parsing, and `git diff --check` passed. Release validation failed closed as expected because full Xcode/xcodebuild is unavailable.
+- **Acceptance verdict:** The CI configuration slice is complete for edit-only scope. R11 remains `in_progress`; no post-change CI run or release operation is claimed.
+- **Next safe action:** Await explicit delivery authority before commit/push/merge and separate release/signing/deployment authority before consequential operations.
+
+### 2026-08-09T11:20:21Z — R12_STARTED — explicit transition despite R11 dependency blocker
+
+- **Actor:** Codex engineering session `AURA-R12-BETA-20260809`; the user explicitly requested transition to the next prompt after the R11 first-pass slice. No beta enrollment, telemetry activation, app installation/launch, commit, push, merge, signing, release, or deployment was authorized.
+- **Objective:** Define local beta-readiness, privacy-preserving measurement, SLO/scenario, incident/sign-off, and release-candidate evidence contracts without claiming beta or release readiness.
+- **Dependency exception:** R11 remains `in_progress`; its local `development_unverified` artifact/manifest is not a release candidate. ADR-047 is absent and no decision is invented.
+- **Acceptance criteria:** Preserve the R11 blocker, excluded-capability list, opt-in content-free measurement, raw-content non-retention, percentile SLO, incident, independent-review, and RC provenance gates in the state/open-gap records.
+- **Next safe action:** Audit R12 and implement only a fail-closed local readiness/evidence-package slice; do not enroll participants or activate telemetry without separate authority.
+
+### 2026-08-09T11:29:54Z — R12_READINESS_CONTRACT_VALIDATED — conservative local contract only
+
+- **Actor:** Codex engineering session `AURA-R12-BETA-20260809`; edit-only authority remains active. No beta enrollment, telemetry activation, app launch/install, commit, push, merge, signing, release, or deployment occurred.
+- **Delivered:** Added the machine-readable blocked beta-readiness record/schema, fail-closed validator, six focused tests, and the R12 readiness runbook. No experimental capability is enabled; raw-content telemetry is forbidden; SLO/scenario/incident/sign-off/RC fields remain unmeasured, unrun, absent, or blocked.
+- **Verification:** Readiness validator passed; focused tests passed `6/6`; the schema subset validator, JSON parsing, and `git diff --check` passed.
+- **Limits:** This is static/contract evidence only and does not prove beta, daily-use reliability, independent review, release-candidate verification, or release readiness. R11 remains incomplete.
+- **Evidence:** `EV-R12-20260809-BETA-BOUNDARY-START-01`, `EV-R12-20260809-READINESS-CONTRACT-01`.
+- **Next safe action:** Preserve the blocked contract and continue only local R12 readiness audit work until separate beta/release authority exists.
+
+### 2026-08-09T11:48:42Z — FINAL_CLOSEOUT_BLOCKED — acceptance reconciliation and maintainer handoff
+
+- **Actor:** Codex engineering session `AURA-FINAL-CLOSEOUT-20260809`; mandatory session-closeout procedure; edit-only authority.
+- **Repository:** branch `main`; verified start/end `HEAD == origin/main == e1004795e56df8c171422261eace96543649cf51`; worktree `dirty_expected`. No unrelated user-owned file was overwritten.
+- **Objective:** Run the FINAL acceptance/cleanup and SESSION CLOSEOUT records while preserving every unresolved gate and avoiding unsupported beta/RC/release claims.
+- **Delivered:** Canonical state and capability-matrix commit bindings were reconciled; session handoff, evidence index, risk register, current-state projection, and open-gap references were updated; `docs/operations/FINAL_OPERATIONAL_HANDOFF.md` was added as the blocked maintainer handoff.
+- **Verification:** Runtime-completion CI governance passed; deterministic Python script tests passed **23/23**; blocked beta-readiness validation passed; JSON/schema parsing, workflow YAML parsing, shell syntax, `git diff --check`, and duplicate-file scan passed. The first validation caught and the final validation confirmed correction of a stale capability-matrix commit binding.
+- **Acceptance verdict:** FINAL/CLOSEOUT documentation and edit-only reconciliation are complete. Product/release acceptance is **blocked**: R2-R10 live/manual/security/accessibility gates, R11 full release/operations evidence, R12 beta/RC evidence, clean-Mac E2E, recovery/uninstall/support-bundle review, and release authority are missing. No release candidate or release is claimed.
+- **Evidence:** `EV-FINAL-20260809-CLOSEOUT-BLOCKED-01`, `EV-R11-20260809-ARTIFACT-MANIFEST-01`, `EV-R12-20260809-BETA-BOUNDARY-START-01`, `EV-R12-20260809-READINESS-CONTRACT-01`.
+- **Open risks/decisions:** `RISK-FINAL-ACCEPTANCE-BLOCKED`, `RISK-NO-BETA-CONSENT-BOUNDARY`, and `RISK-NO-RC-EVIDENCE-PACKAGE` remain open. ADR-047 is absent; no release waiver, beta consent, telemetry, or RC decision was inferred.
+- **Authority boundary:** No commit, push, merge, signing, notarization, installation, deployment, beta enrollment, telemetry activation, permission mutation, dependency install, or model download occurred or is authorized by this closeout.
+- **Next safe action:** Resume R11 with separately authorized full-Xcode/release/operations evidence, then R12 with separately authorized beta/RC evidence; rerun FINAL only after those owning-track gates pass.
+
+### 2026-08-09T12:24:01Z — FULL_PROMPT_0_15_GAP_AUDIT — ordered closure plan recorded
+
+- **Actor:** Codex engineering session; edit-only documentation/state authority.
+- **Scope:** Compared all ordered prompts `BOOTSTRAP`, `R0`–`R12`, `FINAL`, and mandatory `15_SESSION_CLOSEOUT` with the live manifest/state/handoff, capability/evidence/risk/decision registers, runtime/project ledgers, existing open gaps, and relevant source/test/ADR surfaces.
+- **Repository:** branch `main`; `HEAD == origin/main == e1004795e56df8c171422261eace96543649cf51`; worktree `dirty_expected`.
+- **Finding and correction:** The previous open-gap record began at R2 and lacked a uniform prompt-by-prompt closure sequence for 0, 1, 2, and 15; stale “active first-pass” wording also obscured the current FINAL/R11/R12 boundary. No unverified gate was promoted to complete.
+- **Delivered:** Added the full 0–15 matrix, `OPEN-00`–`OPEN-15` gap IDs, `S00`–`S14` dependency-safe closure algorithm, explicit authority/evidence requirements, and final no-closure rule to `SECOND_PASS_OPEN_GAPS.md`. Added `EV-OPEN-GAPS-20260809-FULL-AUDIT-01` and synchronized machine handoff references.
+- **Verdict:** Documentation/state audit complete for edit-only scope. R2–R12 and FINAL remain open or blocked exactly where direct live/release/beta evidence is absent; no release claim is made.
+- **Next safe action:** Execute `S01` R1 live residual only after separate user-present authority, then advance in order and close each step with evidence and SESSION CLOSEOUT.
+
+### 2026-08-09T12:26:40Z — FULL_PROMPT_0_15_GAP_AUDIT_VALIDATED — governance checks passed
+
+- **Actor:** Codex engineering session; edit-only documentation/state authority.
+- **Verification:** Runtime-completion CI governance passed; deterministic script tests passed **23/23**; blocked beta-readiness validation passed; edited JSON and workflow YAML parsed; shell syntax, `git diff --check`, and the `OPEN-00`–`OPEN-15` heading check passed. Live relation remained `HEAD == origin/main == e1004795e56df8c171422261eace96543649cf51`.
+- **Verdict:** The full prompt-ordered gap plan is valid as a tracking artifact. No live, security, beta, release, or clean-machine gap was closed by this validation.
+- **Evidence:** `EV-OPEN-GAPS-20260809-FULL-AUDIT-01`.
+- **Next safe action:** Execute `S01` only after separate user-present authority, then advance through S02–S14 with evidence and closeout.
+
+### 2026-08-09T12:56:26Z — SECOND_PASS_CONTROL_PLANE_VALIDATED — structural chain only
+
+- **Actor:** Codex engineering session; documentation/state/test authority only.
+- **Change:** Added the synchronized anti-amnesia/context contract, focused second-pass ledger, strict 34-prompt linear manifest (`SP-000`–`SP-033`), prompt files, machine state, open-gap links, and executable validator/test coverage. Corrected generated prompt filename and front-matter defects before validation.
+- **Verification:** Second-pass validator passed; deterministic script tests passed **26/26**; runtime governance, blocked beta readiness, JSON/YAML/shell/diff checks passed. `HEAD == origin/main == e1004795e56df8c171422261eace96543649cf51`; worktree remains intentionally dirty.
+- **Limits:** `SP-000` is still `pending`; no second-pass prompt was executed and no product/live/security/beta/release gate was closed. Commit, push, merge, deploy, signing, telemetry, beta, and installation remain unauthorized.
+- **Evidence:** `EV-SECOND-PASS-20260809-CONTROL-PLANE-01`.
+- **Next safe action:** Start `SP-000` only after explicit user authorization; require its cognitive completion gate and validator before `SP-001`.
+
+### 2026-08-09T12:59:35Z — SECOND_PASS_PROMPT_MARKDOWN_NORMALIZED — structural correction
+
+- **Correction:** The generated second-pass prompts contained escaped/unclosed inline-code markers in some Tier-1 read references. All 34 prompt files were normalized and rescanned; mission, dependency, gap, and authority content was preserved.
+- **Verification:** The second-pass validator passed again; the focused prompt tests passed and the deterministic script suite remains **26/26**. No second-pass prompt was executed.
+- **Evidence:** `EV-SECOND-PASS-20260809-CONTROL-PLANE-02`.
+- **Limits:** This is context/control-plane evidence only. R2–R12/FINAL and all live, security, beta, release, and delivery gates remain open or blocked.
+- **Next safe action:** Execute only `SP-000` after explicit authorization and a fresh closeout record.
+
+### 2026-08-09T13:20:00Z — REPO_HYGIENE_PROGRAM_PREPARED — sequential hygiene control plane
+
+- **Actor:** Codex engineering session `AURA-REPO-HYGIENE-PROGRAM-20260809`; edit-only documentation/control-plane authority.
+- **Objective:** Convert the repository-hygiene audit into one canonical Markdown plan plus a strictly ordered, evidence-gated prompt chain that can be applied one prompt at a time.
+- **Delivered:** Added `docs/operations/REPO_HYGIENE_PROGRAM.md`, the H-000–H-010 manifest/state/schema/contracts, bounded read-first context, focused append-only hygiene ledger, 11 focused prompts, and `scripts/validate_repo_hygiene_program.py` with tests.
+- **Observed baseline:** `HEAD == origin/main == e1004795e56df8c171422261eace96543649cf51`; worktree is `dirty_expected`; source build passed in a temporary path; Python runtime tests passed 4/4; existing governance checks passed; Git fsck remains non-zero with 199 bad SHA-1 file entries and 8,901 dangling objects.
+- **Verification:** `python3 scripts/validate_repo_hygiene_program.py` passed; focused hygiene tests passed 3/3; JSON parsing and documentation diff review passed. This proves control-plane synchronization only, not that any hygiene gap is closed.
+- **Authority boundary:** No cleanup, deletion, Git object mutation, dependency/tool installation, commit, push, merge, release, deploy, signing, notarization, permission mutation, or app installation/launch occurred.
+- **Open risks:** `RISK-REPO-HYGIENE-GIT-OBJECT-DATABASE`, `RISK-REPO-HYGIENE-DOC-TOOLCHAIN-DRIFT`, `RISK-REPO-HYGIENE-CONTEXT-BLOAT`, and `RISK-REPO-HYGIENE-TOOLING-UNAVAILABLE` remain open for the ordered prompts.
+- **Evidence:** `EV-REPO-HYGIENE-20260809-PROGRAM-01`; validator output is recorded in the focused ledger.
+- **Next safe action:** Read the Tier-0 context and execute only H-000; keep H-000 active if ownership, authority, or baseline evidence is incomplete.

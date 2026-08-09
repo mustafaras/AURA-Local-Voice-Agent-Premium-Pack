@@ -2,15 +2,15 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-09T10:27:17Z",
-  "session_id": "AURA-R10-SECURITY-20260809",
+  "updated_at": "2026-08-09T13:28:10Z",
+  "session_id": "AURA-REPO-HYGIENE-PROGRAM-20260809",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
-    "active_branch": "main",
-    "verified_head": "e1ecf82e2650823ddf4e4b553c0d8dda58e74911",
-    "remote_head": "e1ecf82e2650823ddf4e4b553c0d8dda58e74911",
-    "working_tree_state": "clean",
+    "active_branch": "chore/repo-hygiene-control-plane-20260809",
+    "verified_head": "994fe3f3470ebaf11dcecc990ada543d0be0e19b",
+    "remote_head": "e1004795e56df8c171422261eace96543649cf51",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
@@ -26,18 +26,29 @@
       "R9 first-pass product UI/accessibility/onboarding slice is implemented locally. swift build --target AURA passed; the R9ProductUIState integration target compiled and its direct Swift Testing run passed 3/3. R9 live VoiceOver/keyboard/manual layout, full control coverage, onboarding denial/restart, and user-present acceptance remained open before delivery.",
       "R9 was committed as 2879cbfd430ba3caba7cf361d83f1a802b1cf463 on feature/r9-product-ui-accessibility, pushed, merged to main as a5a1f5fd702cc5dd34ace31ffe2dcfa254798548, and pushed to origin/main. R9 remains in_progress with its open gates preserved; the user explicitly authorized transition to R10.",
       "Six exact byte-identical Finder-copy artifacts were removed before R10 validation; the tracked originals were preserved and no unrelated user-owned files remain in the worktree.",
-      "R10 first-pass boundary commit 2f6d8f5b734041cebd575034faca42a708e8eb6d was pushed to origin/feature/r10-security-boundaries and merged to main as e1ecf82e2650823ddf4e4b553c0d8dda58e74911; delivery and the synchronized projection state are recorded."
+      "R10 first-pass boundary commit 2f6d8f5b734041cebd575034faca42a708e8eb6d was pushed to origin/feature/r10-security-boundaries and merged to main as e1ecf82e2650823ddf4e4b553c0d8dda58e74911; delivery and the synchronized projection state are recorded.",
+      "R11 edit-only release-readiness changes are intentionally dirty until the artifact/manifest validation slice, CI workflow scope review, governance evidence, and final scope review are complete; no signing, notarization, installation, publication, or deployment was performed.",
+      "R11 CI artifact-evidence workflow configuration now invokes the existing development_unverified builder after successful tests and retains only the ZIP/manifest for 14 days; YAML and local governance checks pass, but no post-change CI run has been observed.",
+      "R12 was activated by explicit user request despite the incomplete R11 dependency. The local beta-readiness contract is blocked by default; no cohort, telemetry, app launch/install, beta, release-candidate, or release operation is authorized.",
+      "FINAL/CLOSEOUT was activated by explicit user request despite the incomplete R12 dependency. The blocked maintainer handoff and exact owning-track return are recorded; no release-candidate or release claim is authorized."
+      ,"The full 0–15 prompt/state/source audit is recorded under EV-OPEN-GAPS-20260809-FULL-AUDIT-01; SECOND_PASS_OPEN_GAPS.md now contains OPEN-00–OPEN-15 and S00–S14 closure steps without closing any unverified gate.",
+      "The synchronized second-pass control plane is recorded under EV-SECOND-PASS-20260809-CONTROL-PLANE-01: SP-000 is pending, the chain contains 34 linear prompts, and no product/live/release gate was closed."
+      ,"A final second-pass prompt-markdown normalization is recorded under EV-SECOND-PASS-20260809-CONTROL-PLANE-02; all 34 files now have closed inline-code markers and remain validator-clean."
+      ,"The repository-hygiene control plane is recorded under EV-REPO-HYGIENE-20260809-PROGRAM-01: the canonical plan, H-000–H-010 prompts, manifest/state/contracts, Tier-0/Tier-1 context, focused ledger, and validator are present; H-000 is pending and no cleanup or Git recovery mutation is authorized."
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R10",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
+    "id": "FINAL",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "state": "in_progress",
-    "step": "R10 first-pass security audit and hardening: map process privileges, enforce authenticated typed IPC/network/secret boundaries, preserve provenance and policy invariants, and add adversarial containment evidence. R2-R9 open gates remain preserved.",
-    "started_at": "2026-08-09T09:58:06Z",
+    "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification.",
+    "started_at": "2026-08-09T11:36:40Z",
     "blocked_by": [
-      "R2-R9 remain in_progress with open gates exactly as recorded in SECOND_PASS_OPEN_GAPS.md; R10 must not claim OS-enforced isolation, network enforcement, OAuth hardening, or supply-chain completion before direct evidence exists."
+      "R12 remains in_progress and blocked: no beta cohort, telemetry, SLO samples, scenario results, incident review, independent sign-offs, or approved release candidate exists.",
+      "R11 remains in_progress: only a local development_unverified artifact/manifest slice exists; full Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed CI evidence remain open.",
+      "R9 and R10 remain in_progress with open gates exactly as recorded in SECOND_PASS_OPEN_GAPS.md; FINAL must not claim clean end-to-end acceptance, release-candidate verification, or release.",
+      "This session has edit authority only. Beta enrollment, participant contact, app installation/launch, telemetry activation, signing, notarization, release publication, deployment, TCC mutation, dependency installation, and model download remain unauthorized."
     ]
   },
   "tracks": [
@@ -302,32 +313,41 @@
     {
       "id": "R11",
       "name": "Release Engineering and Continuous Operations",
-      "state": "pending",
+      "state": "in_progress",
       "dependencies": [
         "R9",
         "R10"
       ],
-      "started_at": null,
+      "started_at": "2026-08-09T10:34:16Z",
       "completed_at": null,
-      "evidence_ids": [],
+      "evidence_ids": [
+        "EV-R11-20260809-ARTIFACT-MANIFEST-01"
+      ],
       "open_risk_ids": [
         "RISK-NOT-NOTARIZED",
         "RISK-NO-SIGNED-UPDATER",
-        "RISK-NO-LAUNCH-AT-LOGIN"
+        "RISK-NO-LAUNCH-AT-LOGIN",
+        "RISK-NO-REPRODUCIBLE-ARCHIVE",
+        "RISK-NO-RECOVERY-DIAGNOSTICS"
       ]
     },
     {
       "id": "R12",
       "name": "Beta Validation and Release Candidate",
-      "state": "pending",
+      "state": "in_progress",
       "dependencies": [
         "R11"
       ],
-      "started_at": null,
+      "started_at": "2026-08-09T11:20:21Z",
       "completed_at": null,
-      "evidence_ids": [],
+      "evidence_ids": [
+        "EV-R12-20260809-BETA-BOUNDARY-START-01",
+        "EV-R12-20260809-READINESS-CONTRACT-01"
+      ],
       "open_risk_ids": [
-        "RISK-NO-INDEPENDENT-BETA-EVIDENCE"
+        "RISK-NO-INDEPENDENT-BETA-EVIDENCE",
+        "RISK-NO-BETA-CONSENT-BOUNDARY",
+        "RISK-NO-RC-EVIDENCE-PACKAGE"
       ]
     }
   ],
@@ -336,13 +356,13 @@
     "install_dependencies": false,
     "download_models": false,
     "mutate_permissions": false,
-    "launch_or_install_app": true,
+    "launch_or_install_app": false,
     "commit": false,
     "push": false,
     "merge": false,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "For this session the user explicitly authorized, via an explicit pre-action question: (1) loading/running the already-local gemma4:latest via Ollama for a bounded benchmark, (2) launching AURA.app, and (3) microphone/TCC permission. Model inference and app launch were exercised (EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01, EV-R2-20260803-APP-LAUNCH-LIVE-01); mutate_permissions/TCC was authorized but not exercised because this session has no GUI/Accessibility control to click a system permission dialog or drive the app UI, so no TCC mutation occurred. No dependency installation, model download, commit, push, merge, signing, notarization, release, or deployment occurred."
+    "source": "User explicitly approved transition to R12 and then requested FINAL/CLOSEOUT after the first-pass slices. Edit-only beta-readiness, acceptance-audit, and evidence/ledger/handoff work is authorized; beta enrollment, participant contact, app installation/launch, telemetry activation, signing, notarization, installation, publication, deployment, TCC mutation, dependency installation, model download, commit, push, and merge are not authorized."
   },
   "release_gates": [
     {
@@ -427,6 +447,13 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-REPO-HYGIENE-20260809-PROGRAM-01",
+    "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
+    "EV-OPEN-GAPS-20260809-FULL-AUDIT-01",
+    "EV-FINAL-20260809-CLOSEOUT-BLOCKED-01",
+    "EV-R12-20260809-READINESS-CONTRACT-01",
+    "EV-R12-20260809-BETA-BOUNDARY-START-01",
+    "EV-R11-20260809-ARTIFACT-MANIFEST-01",
     "EV-R10-20260809-DELIVERY-02",
     "EV-R10-20260809-BOUNDARY-SLICE-01",
     "EV-R9-20260809-DELIVERY-07",
@@ -450,7 +477,11 @@
     "EV-R2-20260804-PTT-PERMISSION-AUDIT-01"
   ],
   "blockers": [
-    "R2-R9 remain in_progress with deferred/live/manual gates preserved in SECOND_PASS_OPEN_GAPS.md. R10 has first-pass boundary evidence but no completion evidence; independent security review and direct enforcement evidence are required before external-beta claims."
+    "R2-R10 live, manual, security, accessibility, integration, and privilege gates remain open as recorded in SECOND_PASS_OPEN_GAPS.md.",
+    "R11 has only a local development_unverified artifact/manifest slice; full Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed CI evidence remain open.",
+    "R12 has no authorized beta cohort, telemetry/SLO evidence, scenario results, incident review, independent sign-offs, or approved release-candidate package.",
+    "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
+    "Repository hygiene H-000 is pending; Git object recovery, cleanup, tool installation, and all delivery actions remain unauthorized."
   ],
-  "next_action": "Stop and request explicit user approval before R11; retain independent-review, peer-authenticated IPC, universal network/provider, OAuth transport, injection, plugin-trust, and operations gates as open."
+  "next_action": "Return to R11: obtain separately authorized full-Xcode, signing/notarization, clean-machine, updater, recovery, migration, uninstall, and observed-CI evidence; then return to R12 for authorized beta/RC evidence before rerunning FINAL."
 }

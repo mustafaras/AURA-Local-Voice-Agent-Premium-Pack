@@ -1,7 +1,7 @@
 # AURA Second-Pass Open Gaps
 
 **Status:** Open tracking record; these items are intentionally not closed.
-**Recorded:** 2026-08-08
+**Recorded:** 2026-08-09; full 0–15 audit `EV-OPEN-GAPS-20260809-FULL-AUDIT-01`
 **Authority:** `AURA_RUNTIME_COMPLETION/state/current-state.json`, the active prompt files, and the append-only program/project ledgers.
 
 This document is the canonical handoff list for incomplete gates deferred to a
@@ -9,7 +9,180 @@ second implementation pass. An item may be marked complete only after its
 own prompt gate, evidence requirement, and relevant live acceptance have
 actually passed. Local unit or contract tests do not close a live gate.
 
-## R2 — Bilingual NLU and Dialogue
+## Synchronized second-pass control plane
+
+The open-gap register is deliberately coupled to the anti-amnesia context,
+machine state, prompt manifest, focused ledger, and validator below. These are
+projections of one chain, not independent checklists:
+
+- **Gap truth:** this file, `SECOND_PASS_OPEN_GAPS.md`.
+- **Execution order:** [`SECOND_PASS_PROMPT_MANIFEST.json`](second-pass/SECOND_PASS_PROMPT_MANIFEST.json).
+- **Active state:** [`SECOND_PASS_STATE.json`](second-pass/SECOND_PASS_STATE.json), currently `SP-000` / `pending`.
+- **Prompt contract:** [`SECOND_PASS_PROMPT_CONTRACT.md`](second-pass/SECOND_PASS_PROMPT_CONTRACT.md).
+- **Control invariants:** [`SECOND_PASS_CONTROL_CONTRACT.md`](second-pass/SECOND_PASS_CONTROL_CONTRACT.md).
+- **Tiered context:** [`SECOND_PASS_READ_FIRST.md`](context/SECOND_PASS_READ_FIRST.md).
+- **Focused append-only ledger:** [`SECOND_PASS_LEDGER.md`](second-pass/SECOND_PASS_LEDGER.md).
+- **Human chain index:** [`SECOND_PASS_PROMPT_PROGRAM.md`](SECOND_PASS_PROMPT_PROGRAM.md).
+- **Machine validator:** `scripts/validate_second_pass_program.py`.
+
+The manifest contains 34 prompts (`SP-000` through `SP-033`). A prompt may
+only become `completed` when its named `OPEN-*` item is objectively resolved,
+its cognitive completion questions and evidence are recorded, every required
+projection is synchronized, and the validator passes. If any projection
+disagrees, the active prompt remains blocked/in progress and the next prompt
+cannot start. The mandatory `15_SESSION_CLOSEOUT.prompt.md` procedure remains
+required after every attempt.
+
+## Full 0–15 audit verdict
+
+This audit reconciles all ordered prompts in `prompt-manifest.json`, the
+mandatory out-of-manifest session-closeout procedure, `current-state.json`,
+the capability/evidence/risk registers, both ledgers, the existing open-gap
+entries, and the relevant source/test/ADR surfaces. The live repository
+relation at audit start is `HEAD == origin/main ==
+e1004795e56df8c171422261eace96543649cf51`; the worktree is
+`dirty_expected` because the first-pass state and release-readiness records are
+local.
+
+The result is intentionally conservative:
+
+- BOOTSTRAP and R0 are complete for repository-governance scope.
+- R1 is complete for the recorded development/integration scope, but its
+  prompt-level user-present live demonstration and universal postcondition
+  evidence remain final cross-track prerequisites.
+- R2–R12 remain `in_progress`; R12 is blocked by missing R11 and beta/RC
+  evidence. FINAL remains `in_progress`/blocked and cannot claim a release
+  candidate or release.
+- Prompt 15 is mandatory after every step and is a procedure, not a product
+  track. The previous closeout is recorded, but every future edit must produce
+  a new closeout record.
+- No item below is closed by source existence, an ADR draft, a fake/simulated
+  boundary, a local test, or a statically valid workflow alone.
+
+## Prompt-by-prompt status matrix
+
+| Order | Prompt | Live status | Unapplied completion scope | Depends on / owner | Closure evidence required |
+|---:|---|---|---|---|---|
+| 00 | BOOTSTRAP | `completed` | No new product gap; revalidate live state, authority, manifest, schemas, and dirty-file ownership at every resumed session. | None / session owner | Fresh repository/state/schema/manifest/toolchain evidence and closeout |
+| 01 | R0 | `completed` | Governance gate is met for the recorded scope. The unobserved CI run and full-Xcode limitation are forwarded to R11, not silently treated as R0 proof. | BOOTSTRAP / governance owner | Validator, capability audit, toolchain, legacy-pointer and CI-configuration evidence |
+| 02 | R1 | `completed` for development/integration scope | User-present safe observation + reversible mutation trace, confirmation denial/expiry, and universal capability postcondition coverage remain open before full product closure. | R0 / runtime owner | Authorized live trace, execution/verification pair, confirmation behavior, regression |
+| 03 | R2 | `in_progress` | Real microphone/TCC Push-to-Talk gate and seven Turkish/English/mixed live scenarios; review accepted model-variance risk before external beta. | R1 / dialogue owner | Live voice and 7-scenario evidence, bounded model-quality decision |
+| 04 | R3 | `in_progress` | Filesystem/URL adapters, NLU/UI reachability, automatic planner-to-dialogue wiring, and seven-scenario demonstration. | R2 / capability owner | Registry/health inspection, natural-language plan traces, live scenarios |
+| 05 | R4 | `in_progress` | Live planner/allowlist execution in at least three approved apps with permissions, semantic verification, injection refusal, confirmation and emergency-stop evidence. | R3 / computer-use owner | Redacted live beta-app evidence bundle |
+| 06 | R5 | `in_progress` | Packaged/authenticated browser bridge, provider/account transport, composition/UI reachability, revocation/degraded/injection acceptance, and separately gated mutation/send flows. | R3; R4 fallback / productivity owner | Authorized test-account live evidence and post-action verification |
+| 07 | R6 | `in_progress` | Real authenticated extension transport, live workspace routes, backend readiness/auth/model/cancellation/budget checks, durable task restart/resume, and user-present acceptance. | R3 / coding-agent owner | Extension/backend/task evidence with no unauthorized delivery |
+| 08 | R7 | `in_progress` | Wake-word qualification or explicit exclusion, bilingual STT quality, barge-in/echo/device recovery, 16 GB soak, neural-TTS qualification or system-TTS-only scope, ADR-042. | R2 / voice owner | Live audio dataset/protocol, hardware/recovery/soak evidence |
+| 09 | R8 | `in_progress` | Production reference-candidate wiring, live restart/reference/conflict/control demonstrations, actual remote-boundary evidence if enabled, and ADR-043. | R2 + R3 / memory owner | User-present product evidence and privacy-safe transport evidence |
+| 10 | R9 | `in_progress` | Manual VoiceOver/keyboard/layout/localization pass, full task/capability/model/privacy/recovery controls, onboarding denial/restart, and support/recovery UX. | R4–R8 / UI owner | Clean/configured profile accessibility and usability evidence |
+| 11 | R10 | `in_progress` | Authenticated peer boundary/real helper execution, all-network-path enforcement, OAuth lifecycle, plugin trust, injection corpus, incident response, independent review, ADR-044. | R4–R6 and R9 surfaces / security owner | Adversarial, independent-review, and production-boundary evidence |
+| 12 | R11 | `in_progress` | Full-Xcode reproducible release artifact, observed CI, Developer ID/notarization/Gatekeeper, launch-at-login, updater/rollback, recovery/migration/uninstall/support bundle. | R9 + R10 / release owner | Release-class clean-machine and CI evidence, ADR-046 |
+| 13 | R12 | `in_progress`/blocked | Approved cohort/consent, content-free telemetry, SLO/scenario/incident results, independent sign-offs, and provenance-bound RC package. | R11 / beta owner | Authorized beta evidence, SLO report, sign-offs, RC approval, ADR-047 |
+| 14 | FINAL | `in_progress`/blocked | Full capability acceptance, clean-Mac E2E, security/privacy review, documentation cleanup, state closure, and operational handoff. | R12 / release owner | All mandatory evidence and explicit release authority |
+| 15 | SESSION CLOSEOUT | mandatory procedure | No product gap; must be rerun after every implementation/audit session with exact branch, commit, files, tests, evidence, blockers, authority, and next action. | Every order / session owner | New append-only ledger/evidence/state/handoff validation |
+
+## Ordered closure algorithm
+
+The following is the only safe order for closing the remaining work. The
+historical out-of-order transitions remain recorded; this plan governs the
+second-pass closure sequence.
+
+1. **S00 — Reconcile baseline.** Run BOOTSTRAP/R0 validation against live
+   `HEAD`, remote, worktree, authority, schemas, manifest, capability matrix,
+   evidence/risk/decision references, and toolchain. Preserve unrelated dirty
+   files. If any projection differs, repair state first and stop.
+2. **S01 — Close R1 live residuals.** With explicit user-present authority,
+   capture one safe observation, one reversible mutation requiring confirmation,
+   execution/verification states, spoken/visual truthful result, and denied or
+   expired confirmation. Resolve the durable-confirmation policy as
+   fail-closed or explicitly accepted; do not broaden R1 from local evidence.
+3. **S02 — Close R2.** Verify microphone/TCC Push-to-Talk, then run the seven
+   Turkish/English/mixed scenarios with trace, language, model, clarification,
+   latency, and degradation evidence. Keep raw audio/model output out of
+   ledgers. Re-evaluate the accepted local-model variance before external beta.
+4. **S03 — Close R3.** Implement and test the filesystem/URL adapters, expose
+   the currently direct-call-only capabilities through NLU/UI, wire typed
+   multi-step planning into production dialogue, and run the seven R3
+   scenarios. Every unavailable capability remains visibly disabled.
+5. **S04–S08 — Close R4, R5, R6, R7, and R8 in dependency-safe parallel
+   tracks.** Each track must first finish its local contract/test work, then
+   its live/manual evidence, then its ADR and state transition. R4–R8 cannot
+   borrow another track's local tests as live proof.
+6. **S09 — Close R9.** After R4–R8 evidence is available, run clean and
+   configured profiles through Turkish and English UI, VoiceOver, keyboard,
+   Dynamic Type/scaled layout, permissions denied/revoked, offline/no-model,
+   task failure, confirmation, emergency stop, and recovery. Wire only
+   capabilities that have truthful health and authority states.
+7. **S10 — Close R10.** Complete the authenticated process boundary, real
+   helper execution, mandatory network-client audit, OAuth/provider lifecycle,
+   plugin trust/update, injection corpus, incident response, and independent
+   security review. No external-beta claim is allowed while a critical finding
+   is open or ADR-044 is only Proposed.
+8. **S11 — Close R11.** On an authorized full-Xcode/CI environment, build a
+   reproducible nested-signed artifact, notarize/staple it, validate Gatekeeper
+   on a clean Mac, and exercise launch-at-login, update/rollback, recovery,
+   migration, low-disk/corrupt-artifact, support-bundle, uninstall, and factory
+   reset. The local `development_unverified` ZIP is not a substitute.
+9. **S12 — Close R12.** Only after R11 passes, obtain authorized beta scope,
+   consent, privacy notice, kill-switch owner, opt-in content-free telemetry,
+   SLO definitions, scenario matrix, incident process, independent sign-offs,
+   and the approved RC package. Keep experimental capabilities excluded unless
+   their own gates passed.
+10. **S13 — Run FINAL.** Reconcile all capability claims against evidence,
+    perform clean end-to-end acceptance, review security/privacy/support
+    artifacts, remove only genuinely stale scaffolding, and set
+    `release_candidate_verified` or `released` only with direct evidence and
+    explicit authority.
+11. **S14 — Run SESSION CLOSEOUT.** Append the phase result, including blocked
+    results, update state/handoff/evidence/risk/decision references, validate
+    every closure artifact, and state the exact next prompt. This step is
+    mandatory after every earlier step as well.
+
+## Closure record format
+
+Every numbered item below is closed only when its acceptance evidence is
+appended to `EVIDENCE_INDEX.md`, its residual risks are updated in
+`RISK_REGISTER.md`, its status is reflected in `current-state.json`, and the
+relevant runtime and project ledgers receive an append-only entry. Each live
+item must include the user/account/hardware authority, exact procedure,
+timestamp, result, artifact path/hash where relevant, and limitations.
+
+## OPEN-00 — BOOTSTRAP revalidation
+
+Status: no unresolved bootstrap implementation gap. On every resumed session:
+
+1. Verify branch, `HEAD`, `origin/main`, worktree and user-owned files.
+2. Validate state, handoff, manifest, schemas, evidence/risk/decision refs and
+   toolchain without installing anything unless authorized.
+3. Record authority and exact next prompt before editing.
+
+The existing BOOTSTRAP evidence proves the historical baseline only; it does
+not make later live gates pass.
+
+## OPEN-01 — R0 governance residual boundary
+
+Status: R0 governance gate passed for its bounded scope. Preserve these
+forwarded items as R11 evidence requirements rather than claiming they are
+R0 failures:
+
+1. Observe a real CI run separately from local workflow parsing.
+2. Keep the CommandLineTools/full-Xcode limitation explicit until R11 proves
+   the release toolchain.
+3. Re-run the fail-closed validator after every state or capability change.
+
+## OPEN-02 — R1 live trace residuals
+
+1. Run the authorized user-present observation/reversible-mutation demo with a
+   complete correlated trace and displayed confirmation.
+2. Prove allow executes exactly once; deny, timeout, dismissal, replay,
+   restart, and changed-plan cases do not execute.
+3. Capture distinct execution and verification outcomes, including failed
+   verification reported as failure rather than success.
+4. Confirm cancellation and concurrent-turn isolation on the live path.
+
+R1 remains marked completed only for the recorded development/integration
+scope; these items are prerequisites for the program-wide final gate.
+
+## OPEN-03 — R2: Bilingual NLU and Dialogue
 
 Prompt: [`03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md`](prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md)
 
@@ -23,7 +196,7 @@ Prompt: [`03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md`](prompts/03_R2_BILINGUAL_N
 - Do not treat local model, text-demo, or unit/integration evidence as a
   substitute for the user-present hardware gate.
 
-## R3 — Capability Registry and Typed Planner
+## OPEN-04 — R3: Capability Registry and Typed Planner
 
 Prompt: [`04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`](prompts/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md)
 
@@ -35,7 +208,7 @@ Prompt: [`04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`](prompts/04_R3_CAPABI
 - Run and record the required seven-scenario live completion demonstration.
 - Preserve truthful registry state; unavailable capabilities remain disabled.
 
-## R4 — Computer-Use Productization
+## OPEN-05 — R4: Computer-Use Productization
 
 Prompt: [`05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md`](prompts/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md)
 
@@ -50,7 +223,7 @@ Prompt: [`05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md`](prompts/05_R4_COMPUTER_U
 - Close `RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER` only after the live gate and
   its evidence bundle pass.
 
-## R5 — Browser, Mail, Calendar, and Contacts Adapters
+## OPEN-06 — R5: Browser, Mail, Calendar, and Contacts Adapters
 
 Prompt: [`06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md`](prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md)
 
@@ -71,14 +244,14 @@ The deterministic first slice is recorded by
 - Do not mark R5 complete based only on `AuraProductivityTests` or the full
   local Swift regression.
 
-## R6 — VS Code and Coding-Agent Completion
+## OPEN-07 — R6: VS Code and Coding-Agent Completion
 
 Prompt: [`07_R6_VSCODE_AND_CODING_AGENTS.prompt.md`](prompts/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md)
 
-R6 is the active first-pass prompt. Its current implementation is recorded by
+R6's first-pass implementation is recorded by
 `EV-R6-20260808-POLICY-BRIDGE-01` and
 `EV-R6-20260808-TYPED-ROUTES-02`; the items below are preserved for the future
-second pass and do not close the active first-pass R6 gate.
+second pass and do not close the R6 prompt gate.
 
 - Complete and provision the real authenticated VS Code extension transport;
   the current file bridge is a bounded local contract and has no live extension
@@ -102,11 +275,11 @@ second pass and do not close the active first-pass R6 gate.
 - Run the required user-present live acceptance, including no unauthorized
   commit/push/merge/release/deploy, before closing R6 or accepting ADR-041.
 
-## R7 — Wake Word, STT/TTS Routing, and Resource Governor
+## OPEN-08 — R7: Wake Word, STT/TTS Routing, and Resource Governor
 
 Prompt: [`08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md`](prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md)
 
-R7's first local implementation slice is being continued in the first pass;
+R7's first local implementation slice is recorded from the first pass;
 the unresolved gates below are recorded for the future second pass as required
 by the per-prompt workflow. The slice is not a substitute for live acceptance
 or ADR-042 approval.
@@ -142,7 +315,7 @@ or ADR-042 approval.
   explicit user acceptance are not recorded. Do not mark R7 complete or move
   to R8 based on simulated tests alone.
 
-## R8 — Memory, Personalization, and Explainability
+## OPEN-09 — R8: Memory, Personalization, and Explainability
 
 Prompt: [`09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md`](prompts/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md)
 
@@ -178,7 +351,7 @@ or decision-acceptance gates.
   gate are still required. R9 was started by explicit user continuation; this
   R8 entry remains historical and does not close R8's deferred gates.
 
-## R9 — Product UI, Accessibility, and Onboarding
+## OPEN-10 — R9: Product UI, Accessibility, and Onboarding
 
 Prompt: [`10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md`](prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md)
 
@@ -219,12 +392,12 @@ Evidence is recorded under `EV-R9-20260808-UI-BUILD-02` and
   integrations, and launch-at-login steps remain truthful optional/deferred
   steps; R11 owns launch-at-login. R9 remains `in_progress`.
 
-## R10 — Security and Privilege Separation
+## OPEN-11 — R10: Security and Privilege Separation
 
 Prompt: [`11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md`](prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md)
 
-R10 is the active first-pass prompt after the user explicitly authorized
-commit/push/merge and continuation. R9 remains `in_progress`; its open manual,
+R10's first-pass slice followed the user-authorized commit/push/merge and
+continuation. R9 remains `in_progress`; its open manual,
 live, TCC, task/capability/model/privacy/recovery, and accessibility gates are
 preserved above. A bounded first implementation slice is now source/build and
 focused-test verified under `EV-R10-20260809-BOUNDARY-SLICE-01`, but R10 is not
@@ -258,12 +431,130 @@ confinement, live provider, independent-review, injection-corpus, plugin trust,
 or incident-response gates. These residuals must remain until independently
 verified or explicitly accepted by the authorized release owner.
 
+## OPEN-12 — R11: Release Engineering and Continuous Operations
+
+Prompt: [`12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md`](prompts/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md)
+
+R11 was activated after explicit user approval following R10 delivery. The first
+safe slice is release-readiness work only; no external release authority is
+implied. Every completion gate remains open:
+
+- full Xcode/Swift/SDK/toolchain pinning and an observed release CI run;
+- reproducible archive/build metadata covering the app, nested helpers,
+  entitlements, plists, resources, symbols, checksums, SBOM, and provenance;
+- Developer ID signing, secure timestamp, notarization, stapling, Gatekeeper,
+  clean-machine, quarantine, nested-helper, and TCC identity evidence;
+- user-controlled launch-at-login, sleep/wake/crash/update behavior, safe mode,
+  diagnostics/support bundle review, reset/recovery, uninstall, and factory
+  reset semantics;
+- signed update manifest/package, transport, version/channel policy,
+  downgrade/replay protection, atomic install, migration backup, staged rollout,
+  kill switch, rollback, and compatibility checks;
+- configuration/database/memory/plugin/model migration and interrupted/failed/
+  low-disk/corrupt-artifact recovery tests;
+- R9/R10 prerequisite gates and all external-beta/release gates remain open.
+
+The local first-pass target is to add deterministic artifact/manifest/checksum
+validation and explicit fail-closed placeholders/tests. These contract checks
+do not prove signing, notarization, installation, updater operation, or clean
+machine behavior. ADR-046 must remain `Proposed` until its operational and
+security alternatives are directly reviewed and accepted.
+
+The CI workflow now contains an edit-only step that builds and retains the same
+clearly named `development_unverified` artifact and manifest for up to 14 days
+after a successful build/test job. The workflow definition is statically
+validated, but no post-change CI run has been observed; retention, provenance,
+runner compatibility, and artifact inspection therefore remain open evidence
+gates.
+
+## OPEN-13 — R12: Beta Validation and Release Candidate
+
+Prompt: [`13_R12_BETA_VALIDATION_AND_RC.prompt.md`](prompts/13_R12_BETA_VALIDATION_AND_RC.prompt.md)
+
+R12 was activated by explicit user request even though R11 remains `in_progress`.
+This is a deliberate dependency exception recorded in the canonical state; it
+does not close R11 or authorize beta/release operations. All R12 completion
+gates remain open:
+
+- no controlled internal/external beta cohort, supported hardware/profile
+  matrix, capability inclusion/exclusion list, duration, sample minimum, issue
+  SLA, rollback/kill-switch authority, or privacy notice is approved;
+- no opt-in content-free telemetry implementation or consent evidence exists;
+- no percentile SLO report, Turkish/English/mixed scenario matrix, false-success
+  or unauthorized-action result, crash/recovery/update/uninstall result exists;
+- no severity-1/2 incident review, root-cause/remediation regression record,
+  independent security/privacy/accessibility/localization/release sign-off, or
+  accepted ADR-047 exists (`ADR-047` is not present in the repository);
+- no reproducible signed/notarized release-candidate artifact, clean-install,
+  update/rollback/recovery evidence package, beta window, or authorized beta
+  participant evidence exists.
+
+The edit-only R12 target is a local readiness matrix and fail-closed evidence
+package contract. That conservative contract now exists under
+`EV-R12-20260809-READINESS-CONTRACT-01`; it does not enroll participants,
+activate telemetry, launch or install the app, publish a release, or establish
+beta/RC readiness. Continue auditing the contract and preserve every missing
+direct-evidence gate.
+
+## OPEN-14 — FINAL: Acceptance, Cleanup, and Operational Handoff
+
+Prompt: [`14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md`](prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md)
+
+FINAL is active by explicit user request, despite the required R12 dependency
+not being `release_candidate_verified`. The final audit therefore cannot mark
+the program complete, `release_candidate_verified`, or `released`. Mandatory
+closure gates remain open and return to their owning tracks:
+
+- R2-R10 live, manual, security, accessibility, integration, and privilege
+  gates remain open as recorded above;
+- R11 has no full-Xcode reproducible signed/notarized clean-machine artifact,
+  updater, launch-at-login, recovery, migration, uninstall, or observed CI run;
+- R12 has no beta cohort/consent, telemetry, percentile SLO results, scenario
+  matrix, incident remediation, independent sign-offs, or approved RC package;
+- no complete clean-Mac end-to-end acceptance, support-bundle privacy review,
+  rollback/uninstall/factory-reset evidence, or authorized release action exists;
+- ADR-047 is absent; no final decision or release waiver is invented.
+
+The FINAL/CLOSEOUT deliverable is a blocked maintainer handoff and exact
+owning-track return, not a release claim. Stale prose may be reconciled only
+where it conflicts with canonical state; historical ledger entries remain
+append-only.
+
+Closeout evidence: `EV-FINAL-20260809-CLOSEOUT-BLOCKED-01`. The handoff is
+recorded at [`FINAL_OPERATIONAL_HANDOFF.md`](../docs/operations/FINAL_OPERATIONAL_HANDOFF.md);
+runtime governance and 23/23 deterministic script tests pass, but those checks
+do not satisfy the missing live, release, beta, or clean-machine gates above.
+
+## OPEN-15 — SESSION CLOSEOUT procedure
+
+This is mandatory after every numbered step, including a blocked or failed
+step. The last closeout was recorded under
+`EV-FINAL-20260809-CLOSEOUT-BLOCKED-01`; it does not close future sessions.
+
+1. Record branch, exact `HEAD`, remote relation, dirty worktree, user-owned
+   changes, active prompt, and authority.
+2. Review the diff for accidental scope, secrets, stale claims, weakened
+   assertions, generated-file drift, and missing documentation.
+3. Append one result entry to both runtime/project ledgers with objective,
+   files, commands, evidence, acceptance verdict, residual risks, authority,
+   and exact next action.
+4. Update evidence, risk, decision, capability, current-state, and handoff
+   references atomically; reset authority unless the user explicitly grants it.
+5. Validate state/handoff/capability/schema/manifest/dependency/evidence/risk
+   references and record the closeout evidence ID.
+
+No session may report “all gaps closed” while any `OPEN-03`–`OPEN-14` item is
+unverified or while the current state is not `release_candidate_verified` or
+`released` with matching direct evidence.
+
 ## Current first-pass workflow boundary
 
-Continue R10 now as the active first-pass prompt. After each prompt, append that
-prompt's unresolved gates to this file for the future second pass; do not treat
-the presence of an entry here as permission to skip its current first-pass
-work.
+The FINAL/CLOSEOUT audit is complete for edit-only scope and remains
+`in_progress`/blocked because the owning R11/R12 gates are incomplete. Return to
+R11, then R12, with separately authorized evidence; rerun FINAL only after
+those gates pass. After each later prompt, append its unresolved gates to this
+file for the future second pass; do not treat an entry as permission to skip
+current first-pass work.
 
 ## Cross-cutting constraints for the second pass
 
@@ -282,9 +573,10 @@ work.
   deploy only if the user explicitly authorizes that delivery and record exact
   evidence for each action. R9 delivery was explicitly authorized and recorded
   under `EV-R9-20260809-DELIVERY-07`.
-- Stop after the authorized R10 delivery and request explicit user approval
-  before transitioning to R11. Do not begin R11 from an assumed or implied
-  approval.
+- R11 and R12 transitions were explicitly approved and their edit-only slices
+  are recorded. FINAL transition is now explicitly approved by the user despite
+  the R12 dependency blocker. FINAL remains blocked; do not infer beta
+  enrollment, telemetry, release, or deploy authority from any transition.
 
 ## Reopening rule
 

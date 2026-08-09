@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.local/schemas/second-pass-prompt-manifest.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "program_name", "gap_register", "prompt_directory", "prompts", "transition_policy"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "program_name": {"type": "string"},
+    "gap_register": {"type": "string"},
+    "prompt_directory": {"type": "string"},
+    "prompts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "sequence", "file", "track", "gap_ids", "depends_on", "next_prompt", "evidence_prefix"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^SP-[0-9]{3}$"},
+          "sequence": {"type": "integer", "minimum": 0},
+          "file": {"type": "string"},
+          "track": {"type": "string"},
+          "gap_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^OPEN-[0-9]{2}$"}, "uniqueItems": true},
+          "depends_on": {"type": "array", "items": {"type": "string", "pattern": "^SP-[0-9]{3}$"}, "uniqueItems": true},
+          "next_prompt": {"type": ["string", "null"], "pattern": "^SP-[0-9]{3}$"},
+          "evidence_prefix": {"type": "string", "pattern": "^EV-SP-[0-9]{3}"}
+        }
+      }
+    },
+    "transition_policy": {"type": "string", "minLength": 1}
+  }
+}

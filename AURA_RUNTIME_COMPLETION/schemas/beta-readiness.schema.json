@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.local/schemas/runtime-completion/beta-readiness.schema.json",
+  "title": "AURA Beta Readiness Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "readiness_status",
+    "session_id",
+    "authority",
+    "dependency_gate",
+    "cohort",
+    "capability_scope",
+    "telemetry",
+    "slo_definitions",
+    "scenario_matrix",
+    "incident_review",
+    "signoffs",
+    "release_candidate",
+    "open_blockers"
+  ],
+  "properties": {
+    "$schema": {"type": "string", "const": "../schemas/beta-readiness.schema.json"},
+    "schema_version": {"type": "string", "const": "1.0.0"},
+    "readiness_status": {"type": "string", "enum": ["blocked", "not_ready"]},
+    "session_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "authority": {"type": "object"},
+    "dependency_gate": {"type": "object"},
+    "cohort": {"type": "object"},
+    "capability_scope": {"type": "object"},
+    "telemetry": {"type": "object"},
+    "slo_definitions": {"type": "array", "minItems": 1},
+    "scenario_matrix": {"type": "array", "minItems": 1},
+    "incident_review": {"type": "object"},
+    "signoffs": {"type": "object"},
+    "release_candidate": {"type": "object"},
+    "open_blockers": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+  }
+}

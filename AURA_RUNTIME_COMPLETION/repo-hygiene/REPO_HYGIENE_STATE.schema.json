@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["$schema","schema_version","program_id","program_status","updated_at","repository","active_prompt","active_state","completed_prompts","blocked_prompts","evidence_ids","open_gap_ids","authority","control_files","next_action"],
+  "properties":{
+    "$schema":{"type":"string"},"schema_version":{"const":"1.0.0"},"program_id":{"const":"AURA-REPO-HYGIENE"},
+    "program_status":{"enum":["planned","in_progress","blocked","completed"]},"updated_at":{"type":"string","format":"date-time"},"session_id":{"type":"string"},
+    "repository":{"type":"object","additionalProperties":false,"required":["branch","head","remote_head","working_tree_state"],"properties":{"branch":{"type":"string"},"head":{"type":"string","pattern":"^[0-9a-f]{40}$"},"remote_head":{"type":"string","pattern":"^[0-9a-f]{40}$"},"working_tree_state":{"enum":["clean","dirty_expected","dirty_unexpected","unknown"]}}},
+    "active_prompt":{"type":"string","pattern":"^H-[0-9]{3}$"},"active_state":{"enum":["pending","ready","in_progress","blocked","completed"]},
+    "completed_prompts":{"type":"array","uniqueItems":true,"items":{"type":"string","pattern":"^H-[0-9]{3}$"}},"blocked_prompts":{"type":"array","uniqueItems":true,"items":{"type":"string","pattern":"^H-[0-9]{3}$"}},
+    "evidence_ids":{"type":"array","uniqueItems":true,"items":{"type":"string","pattern":"^EV-[A-Za-z0-9._-]+$"}},"open_gap_ids":{"type":"array","uniqueItems":true,"items":{"type":"string","pattern":"^HYGIENE-[0-9]{2}$"}},
+    "authority":{"type":"object","additionalProperties":false,"required":["edit_control_plane","edit_product_code","destructive_cleanup","git_recovery_mutation","install_tools_or_dependencies","commit_push_merge","release_or_deploy"],"properties":{"edit_control_plane":{"type":"boolean"},"edit_product_code":{"type":"boolean"},"destructive_cleanup":{"type":"boolean"},"git_recovery_mutation":{"type":"boolean"},"install_tools_or_dependencies":{"type":"boolean"},"commit_push_merge":{"type":"boolean"},"release_or_deploy":{"type":"boolean"}}},
+    "control_files":{"type":"object","additionalProperties":{"type":"string"},"minProperties":7},"next_action":{"type":"string","minLength":1}
+  }
+}

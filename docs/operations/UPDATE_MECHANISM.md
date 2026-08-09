@@ -1,10 +1,10 @@
-> **Status:** Design document — implementation pending
+> **Status:** Design document — R11 artifact/manifest slice verified; runtime updater pending
 > **Target:** macOS 27+ on Apple Silicon
 > **Priority order:** Safety → Correctness → Recoverability → Latency → Convenience
 
 # AURA Update Mechanism
 
-This document describes the planned software-update design for AURA. The current repository contains build and code-sign placeholder scripts only; the in-app update engine is intentionally deferred until after the first signed release exists.
+This document describes the planned software-update design for AURA. R11 now provides a local, `development_unverified` artifact/manifest/checksum slice; it does not constitute a signed release or an update engine. The in-app update engine remains intentionally deferred until the signing, notarization, transport, and recovery gates are separately authorized and evidenced.
 
 ## Goals
 
@@ -72,6 +72,12 @@ This document describes the planned software-update design for AURA. The current
 - `scripts/build-app-bundle.sh` — builds `AURA.app` from SwiftPM release.
 - `scripts/codesign-adhoc.sh` — ad-hoc signs the bundle for local testing.
 - `scripts/verify-signature.sh` — verifies signature and entitlements.
+- `scripts/build-release-artifact.sh` — produces a deterministic, explicitly
+  unverified local ZIP and manifest; it does not sign, notarize, install, or
+  publish.
+- `scripts/generate_release_manifest.py` and
+  `scripts/validate_release_manifest.py` — generate and fail closed on the
+  local bundle inventory, SBOM, checksums, and release-status boundary.
 
 These scripts intentionally do not perform network operations, do not distribute anything, and do not touch user data.
 
@@ -93,4 +99,10 @@ These scripts intentionally do not perform network operations, do not distribute
 - [ ] Add `UpdateCheckRequestedEvent` and related event payloads.
 - [ ] Add update approval UI/voice flow.
 - [ ] Add atomic install assistant.
-- [ ] ADR for update signing, key rotation, and rollback.
+- [ ] Implement the maintained updater design in
+  `docs/decisions/ADR-046-signed-update-recovery.md` only after explicit
+  approval and a signed release authority exists.
+- [ ] Add a ServiceManagement launch-at-login implementation with explicit
+  user consent and lifecycle evidence.
+- [ ] Add safe mode, support-bundle, migration, uninstall, and factory-reset
+  recovery flows with restart/rollback evidence.

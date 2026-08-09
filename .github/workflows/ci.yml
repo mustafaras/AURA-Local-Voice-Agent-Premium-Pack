@@ -1,5 +1,8 @@
 name: AURA CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]
@@ -44,3 +47,19 @@ jobs:
           AURA_ENABLE_COVERAGE: "1"
           AURA_COVERAGE_MIN: "70"
         run: ./scripts/aura-test.sh /tmp/aurabuild-ci
+
+      - name: Build development-unverified release evidence
+        env:
+          BUILD_ROOT: ${{ runner.temp }}/aura-r11-release-artifact
+          OUTPUT_DIR: ${{ runner.temp }}/aura-r11-release-artifact/output
+        run: ./scripts/build-release-artifact.sh
+
+      - name: Retain development-unverified artifact and manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: aura-development-unverified-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/aura-r11-release-artifact/output/AURA-development-unverified.zip
+            ${{ runner.temp }}/aura-r11-release-artifact/output/AURA-development-unverified.manifest.json
