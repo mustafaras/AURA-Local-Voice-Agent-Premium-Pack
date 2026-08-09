@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-08T13:40:12Z",
-  "session_id": "AURA-R7-VOICE-20260808",
+  "updated_at": "2026-08-08T16:44:48Z",
+  "session_id": "AURA-R9-PRODUCT-UI-20260808",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "95d88ab831595e8d369970bd3da23f86c10dac59",
-    "remote_head": "95d88ab831595e8d369970bd3da23f86c10dac59",
+    "verified_head": "3f5c28faf513e9a6a3be27677a7ac566c5fca168",
+    "remote_head": "3f5c28faf513e9a6a3be27677a7ac566c5fca168",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -20,18 +20,21 @@
       "This session also modified product source with user authorization: a debug-gated (env-var-inert-by-default) text-demo hook in Sources/AURA/AuraAppModel.swift, a debug-gated response-text log in Sources/AuraAgent/Conversation.swift, and a new default policy grant for .agentOllamaLocalInference in Sources/AURA/AuraKernel.swift (documented as a 2026-08-03 addendum to ADR-036, EV-R2-20260803-TEXTDEMO-LIVE-01). Full regression re-verified at 20/20 bundles, 695/695 tests after each change. All remain local and uncommitted.",
       "R5 first read-first adapter slice is implemented and locally tested, but remains uncommitted and unwired from the live composition/UI/provider paths; no live OAuth/TCC, mutation/send, commit, or push was performed.",
       "R2/R3/R4/R5 deferred gates are recorded in AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md; R6 is now the active prompt and its policy/bridge plus typed-route slices remain local and uncommitted.",
-      "R7 local voice routing/resource slice was committed as bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and pushed to origin/main after the final local regression passed 21/21 bundles and 774/774 tests. Live wake/STT/voice/recovery/soak gates and ADR-042 approval remain open."
+      "R7 local voice routing/resource slice was committed as bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and pushed to origin/main after the final local regression passed 21/21 bundles and 774/774 tests. Live wake/STT/voice/recovery/soak gates and ADR-042 approval remain open.",
+      "R8 memory/personalization/explainability slice is implemented locally with purpose-aware memory writes, bounded preference profiles, authority-ranked context, conflict surfacing, provenance inspection, and local-only/remote fail-closed delivery. Focused validation is recorded by EV-R8-20260808-MEMORY-POLICY-01 and EV-R8-20260808-CONTEXT-PRODUCT-02; live product demonstrations, R9 UI, and ADR-043 acceptance remain open.",
+      "R8 full available regression passed 21/21 bundles and 782/782 tests with zero failed bundles; runtime-completion validation, 13 governance tests, JSON parsing, shell syntax, and git diff check also passed. Changes remain local and uncommitted.",
+      "R9 first-pass product UI/accessibility/onboarding slice is implemented locally. swift build --target AURA passed; the R9ProductUIState integration target compiled and its direct Swift Testing run passed 3/3. R9 live VoiceOver/keyboard/manual layout, full control coverage, onboarding denial/restart, and user-present acceptance remain open; no delivery action was authorized."
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R7",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
+    "id": "R9",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
     "state": "in_progress",
-    "step": "R7 local voice routing/resource slice is implemented, fully locally validated, committed, and pushed; stop for explicit approval before R8. Real wake-word qualification, live bilingual microphone quality, release-hardware barge-in/recovery, measured 16 GB soak, neural reference/quality, and ADR-042 approval remain open.",
-    "started_at": "2026-08-08T12:43:10Z",
+    "step": "R9 first-pass product UI, accessibility semantics, localization, staged onboarding, truthful capability/task/model/privacy surfaces, and recovery controls are implemented locally; live/manual acceptance and remaining control projections are open. R8 deferred gates remain open and must not be treated as closed by UI projections.",
+    "started_at": "2026-08-08T15:28:28Z",
     "blocked_by": [
-      "R7 is not formally complete: no real wake-word candidate/live FAR-FR evidence, no live Turkish/English/mixed microphone WER/entity evidence or qualified local Whisper fallback, no user-present barge-in/device/sleep/TCC recovery evidence, no measured 16 GB multi-workload soak, neural voice consent/quality gate, or explicit ADR-042 approval. R6 and earlier tracks remain open exactly as recorded in SECOND_PASS_OPEN_GAPS.md."
+      "R8 live gates remain open exactly as recorded in SECOND_PASS_OPEN_GAPS.md; R9 live VoiceOver/keyboard/localization/onboarding acceptance and full product surface coverage are not yet verified. R2-R8 remain open as recorded."
     ]
   },
   "tracks": [
@@ -221,22 +224,30 @@
     {
       "id": "R8",
       "name": "Memory, Personalization, and Explainability",
-      "state": "pending",
+      "state": "in_progress",
       "dependencies": [
         "R2",
         "R3"
       ],
-      "started_at": null,
+      "started_at": "2026-08-08T14:13:21Z",
       "completed_at": null,
-      "evidence_ids": [],
+      "evidence_ids": [
+        "EV-R8-20260808-MEMORY-POLICY-01",
+        "EV-R8-20260808-CONTEXT-PRODUCT-02",
+        "EV-R8-20260808-REGRESSION-03"
+      ],
       "open_risk_ids": [
-        "RISK-MEMORY-NOT-PRODUCTIZED"
+        "RISK-MEMORY-NOT-PRODUCTIZED",
+        "RISK-MEMORY-LIVE-ACCEPTANCE",
+        "RISK-MEMORY-REFERENCE-WIRING",
+        "RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE",
+        "RISK-ADR-043-PENDING"
       ]
     },
     {
       "id": "R9",
       "name": "Product UI, Accessibility, and Onboarding",
-      "state": "pending",
+      "state": "in_progress",
       "dependencies": [
         "R4",
         "R5",
@@ -244,11 +255,21 @@
         "R7",
         "R8"
       ],
-      "started_at": null,
+      "started_at": "2026-08-08T15:28:28Z",
       "completed_at": null,
-      "evidence_ids": [],
+      "evidence_ids": [
+        "EV-R9-20260808-UI-SLICE-START-01",
+        "EV-R9-20260808-UI-BUILD-02",
+        "EV-R9-20260808-UI-TESTS-03",
+        "EV-R9-20260808-UI-REGRESSION-05",
+        "EV-R9-20260808-GAPS-04",
+        "EV-R9-20260808-FAIL-CLOSED-06"
+      ],
       "open_risk_ids": [
-        "RISK-CONTROL-PANEL-NOT-ASSISTANT-UI"
+        "RISK-CONTROL-PANEL-NOT-ASSISTANT-UI",
+        "RISK-R9-LIVE-ACCESSIBILITY",
+        "RISK-R9-LOCALIZATION",
+        "RISK-R9-ONBOARDING-RECOVERY"
       ]
     },
     {
@@ -396,6 +417,15 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-R9-20260808-FAIL-CLOSED-06",
+    "EV-R9-20260808-UI-REGRESSION-05",
+    "EV-R9-20260808-GAPS-04",
+    "EV-R9-20260808-UI-TESTS-03",
+    "EV-R9-20260808-UI-BUILD-02",
+    "EV-R9-20260808-UI-SLICE-START-01",
+    "EV-R8-20260808-REGRESSION-03",
+    "EV-R8-20260808-CONTEXT-PRODUCT-02",
+    "EV-R8-20260808-MEMORY-POLICY-01",
     "EV-R7-20260808-LOCAL-APP-DEPLOY-01",
     "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
     "EV-R6-20260808-TYPED-ROUTES-02",
@@ -407,7 +437,7 @@
     "EV-R2-20260804-PTT-PERMISSION-AUDIT-01"
   ],
   "blockers": [
-    "R7 local voice routing/resource code and available validation are complete for this slice, but formal completion is open: real wake-word qualification, live bilingual microphone quality, release-hardware barge-in/device/sleep/TCC recovery, measured 16 GB multi-workload soak, neural reference/quality gates, and ADR-042 approval remain. R2-R6 remain open exactly as tracked in SECOND_PASS_OPEN_GAPS.md."
+    "R9 is in_progress after explicit user continuation. The product UI/accessibility/onboarding slice is being implemented; R8 live gates and R9 live/manual acceptance remain open. R2-R8 remain open exactly as tracked in SECOND_PASS_OPEN_GAPS.md."
   ],
-  "next_action": "R7 is pushed to origin/main. No separate merge commit applies because main is the active integration branch. Stop and request explicit user approval before R8. Do not accept ADR-042 or claim live wake/STT/TTS/recovery/resource gates from simulated evidence."
+  "next_action": "Run the user-present R9 VoiceOver/keyboard/localization/onboarding/manual acceptance and close or explicitly scope the remaining task/capability/model/privacy/recovery controls; do not start R10 until R9's gate is evidenced or explicitly scoped."
 }

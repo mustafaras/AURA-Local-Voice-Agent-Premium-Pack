@@ -120,6 +120,41 @@ public protocol ContextRankable {
   var scopeMatch: Bool { get }
 }
 
+public enum ContextDestination: String, Codable, Sendable, Equatable {
+  case localModel
+  case remoteModel
+}
+
+/// The context transport boundary is explicit. Local-only is the safe
+/// default; remote delivery is a separate, inspectable request and remains
+/// sensitivity-filtered before a caller can hand it to a remote model.
+public struct ContextDeliveryPolicy: Codable, Sendable, Equatable {
+  public let destination: ContextDestination
+  public let allowSensitive: Bool
+
+  public init(destination: ContextDestination = .localModel, allowSensitive: Bool = false) {
+    self.destination = destination
+    self.allowSensitive = allowSensitive
+  }
+
+  public static let localOnly = ContextDeliveryPolicy()
+  public static let remotePublicOnly = ContextDeliveryPolicy(
+    destination: .remoteModel, allowSensitive: false)
+
+  public func permits(_ sensitivity: SensitivityLevel) -> Bool {
+    switch destination {
+    case .localModel:
+      return true
+    case .remoteModel:
+      switch sensitivity {
+      case .publicLevel: return true
+      case .internalLevel: return allowSensitive
+      case .sensitive, .secret: return false
+      }
+    }
+  }
+}
+
 // MARK: - Context item
 
 /// One piece of content in a reconstructed context bundle, always traceable
@@ -134,6 +169,8 @@ public struct ContextItem: Sendable, Equatable, Identifiable, ContextRankable {
   public let observedAt: Date
   public let hasDirectEvidence: Bool
   public let scopeMatch: Bool
+  public let sensitivity: SensitivityLevel
+  public let isRedacted: Bool
   /// Composite rank score assigned by `ContextRanking`; `0` for mandatory
   /// items that were never scored (they are never competing for budget).
   public let score: Double
@@ -156,6 +193,8 @@ public struct ContextItem: Sendable, Equatable, Identifiable, ContextRankable {
     observedAt: Date,
     hasDirectEvidence: Bool,
     scopeMatch: Bool,
+    sensitivity: SensitivityLevel = .internalLevel,
+    isRedacted: Bool = false,
     score: Double = 0,
     provenanceNodeIDs: [UUID] = [],
     inclusionReason: String = "mandatory live context"
@@ -169,6 +208,8 @@ public struct ContextItem: Sendable, Equatable, Identifiable, ContextRankable {
     self.observedAt = observedAt
     self.hasDirectEvidence = hasDirectEvidence
     self.scopeMatch = scopeMatch
+    self.sensitivity = sensitivity
+    self.isRedacted = isRedacted
     self.score = score
     self.provenanceNodeIDs = provenanceNodeIDs
     self.inclusionReason = inclusionReason
@@ -178,7 +219,8 @@ public struct ContextItem: Sendable, Equatable, Identifiable, ContextRankable {
     ContextItem(
       id: id, stage: stage, sourceID: sourceID, summary: summary, authority: authority,
       confidence: confidence, observedAt: observedAt, hasDirectEvidence: hasDirectEvidence,
-      scopeMatch: scopeMatch, score: newScore, provenanceNodeIDs: provenanceNodeIDs,
+      scopeMatch: scopeMatch, sensitivity: sensitivity, isRedacted: isRedacted,
+      score: newScore, provenanceNodeIDs: provenanceNodeIDs,
       inclusionReason: inclusionReason)
   }
 
@@ -189,7 +231,8 @@ public struct ContextItem: Sendable, Equatable, Identifiable, ContextRankable {
     ContextItem(
       id: id, stage: stage, sourceID: sourceID, summary: summary, authority: authority,
       confidence: confidence, observedAt: observedAt, hasDirectEvidence: hasDirectEvidence,
-      scopeMatch: scopeMatch, score: score, provenanceNodeIDs: provenanceNodeIDs,
+      scopeMatch: scopeMatch, sensitivity: sensitivity, isRedacted: isRedacted,
+      score: score, provenanceNodeIDs: provenanceNodeIDs,
       inclusionReason: inclusionReason)
   }
 }
@@ -200,6 +243,9 @@ public struct ContextItem: Sendable, Equatable, Identifiable, ContextRankable {
 public struct ContextBundle: Sendable, Equatable {
   public let sessionID: UUID
   public let utterance: String
+  public let purpose: String
+  public let requestingComponent: ActorID
+  public let deliveryPolicy: ContextDeliveryPolicy
   public let generatedAt: Date
   /// Final items, in retrieval-sequence order, already truncated to budget.
   public let items: [ContextItem]
@@ -208,21 +254,39 @@ public struct ContextBundle: Sendable, Equatable {
   public let consideredCandidateCount: Int
   /// How many of those candidates were dropped to keep the bundle minimal.
   public let droppedCandidateCount: Int
+  public let tokenBudget: Int
+  public let estimatedTokenCount: Int
+  public let exclusions: [String]
+  public let unresolvedContradictions: [MemoryConflict]
 
   public init(
     sessionID: UUID,
     utterance: String,
+    purpose: String = "turn reconstruction",
+    requestingComponent: ActorID = .context,
+    deliveryPolicy: ContextDeliveryPolicy = .localOnly,
     generatedAt: Date = Date(),
     items: [ContextItem],
     consideredCandidateCount: Int,
-    droppedCandidateCount: Int
+    droppedCandidateCount: Int,
+    tokenBudget: Int = 0,
+    estimatedTokenCount: Int = 0,
+    exclusions: [String] = [],
+    unresolvedContradictions: [MemoryConflict] = []
   ) {
     self.sessionID = sessionID
     self.utterance = utterance
+    self.purpose = purpose
+    self.requestingComponent = requestingComponent
+    self.deliveryPolicy = deliveryPolicy
     self.generatedAt = generatedAt
     self.items = items
     self.consideredCandidateCount = consideredCandidateCount
     self.droppedCandidateCount = droppedCandidateCount
+    self.tokenBudget = tokenBudget
+    self.estimatedTokenCount = estimatedTokenCount
+    self.exclusions = exclusions
+    self.unresolvedContradictions = unresolvedContradictions
   }
 }
 

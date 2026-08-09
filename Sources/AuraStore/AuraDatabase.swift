@@ -146,6 +146,7 @@ public actor AuraDatabase {
             created_at DATETIME NOT NULL,
             observed_at DATETIME NOT NULL,
             retention_json TEXT NOT NULL,
+            purpose TEXT NOT NULL DEFAULT 'unspecified',
             supersedes TEXT,
             project_id TEXT,
             task_id TEXT,
@@ -247,7 +248,17 @@ public actor AuraDatabase {
     try recordMigration(version: "v1_2_0_memory_records")
     try recordMigration(version: "v1_3_0_provenance_graph")
     try recordMigration(version: "v1_4_0_plugin_audit")
+    if try !columnExists(table: "memory_records", column: "purpose") {
+      try execute(
+        sql: "ALTER TABLE memory_records ADD COLUMN purpose TEXT NOT NULL DEFAULT 'unspecified';")
+    }
+    try recordMigration(version: "v1_5_0_memory_purpose")
     try enableForeignKeys()
+  }
+
+  private func columnExists(table: String, column: String) throws(AuraError) -> Bool {
+    let rows = try query(sql: "PRAGMA table_info(\(table));", arguments: [])
+    return rows.contains { $0["name"]?.textValue == column }
   }
 
   private func recordMigration(version: String) throws(AuraError) {

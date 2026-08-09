@@ -104,6 +104,8 @@ public struct ContextInclusionOverride: Sendable, Equatable {
 public struct DeepContextRequest: Sendable, Equatable {
   public let utterance: String
   public let sessionID: UUID
+  public let purpose: String
+  public let requestingComponent: ActorID
   public let conversationState: ConversationState
   public let intent: ContextIntentSchema
   public let pendingConfirmation: PolicyConfirmationChallenge?
@@ -113,11 +115,14 @@ public struct DeepContextRequest: Sendable, Equatable {
   public let referenceCandidates: [ReferenceCandidate]
   public let explicitlyConfirmedTargetID: UUID?
   public let inclusionOverride: ContextInclusionOverride
+  public let deliveryPolicy: ContextDeliveryPolicy
   public let referenceDate: Date
 
   public init(
     utterance: String,
     sessionID: UUID,
+    purpose: String = "turn reconstruction",
+    requestingComponent: ActorID = .context,
     conversationState: ConversationState,
     intent: ContextIntentSchema,
     pendingConfirmation: PolicyConfirmationChallenge? = nil,
@@ -127,10 +132,13 @@ public struct DeepContextRequest: Sendable, Equatable {
     referenceCandidates: [ReferenceCandidate] = [],
     explicitlyConfirmedTargetID: UUID? = nil,
     inclusionOverride: ContextInclusionOverride = .none,
+    deliveryPolicy: ContextDeliveryPolicy = .localOnly,
     referenceDate: Date = Date()
   ) {
     self.utterance = utterance
     self.sessionID = sessionID
+    self.purpose = purpose
+    self.requestingComponent = requestingComponent
     self.conversationState = conversationState
     self.intent = intent
     self.pendingConfirmation = pendingConfirmation
@@ -140,6 +148,7 @@ public struct DeepContextRequest: Sendable, Equatable {
     self.referenceCandidates = referenceCandidates
     self.explicitlyConfirmedTargetID = explicitlyConfirmedTargetID
     self.inclusionOverride = inclusionOverride
+    self.deliveryPolicy = deliveryPolicy
     self.referenceDate = referenceDate
   }
 }

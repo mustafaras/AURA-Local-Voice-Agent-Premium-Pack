@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-08T13:40:12Z",
-  "session_id": "AURA-R7-VOICE-20260808",
-  "last_verified_commit": "95d88ab831595e8d369970bd3da23f86c10dac59",
+  "updated_at": "2026-08-08T16:44:48Z",
+  "session_id": "AURA-R9-PRODUCT-UI-20260808",
+  "last_verified_commit": "3f5c28faf513e9a6a3be27677a7ac566c5fca168",
   "active_prompt": {
-    "id": "R7",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
+    "id": "R9",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
     "state": "in_progress",
-    "step": "R7 local voice routing/resource slice is source/build verified; real wake-word qualification, live bilingual microphone quality, release-hardware recovery/barge-in, measured 16 GB soak, neural quality/consent, and ADR-042 approval remain. R2-R6 gaps remain in SECOND_PASS_OPEN_GAPS.md; request explicit user approval before R8 after R7 delivery."
+    "step": "R9 first-pass product UI, accessibility semantics, localization, staged onboarding, truthful capability/task/model/privacy surfaces, and recovery controls are implemented locally; R8 deferred gates and R9 live/manual acceptance remain open."
   },
-  "summary": "R0 governance and R1 Runtime Integration Spine are complete. R2 bilingual NLU/dialogue, R3 capability/planner, R4 computer-use, R5 productivity, and R6 VS Code/coding remain in_progress with their gates recorded in SECOND_PASS_OPEN_GAPS.md. R7 is active in the first pass: exact-frame wake safety with truthful Push-to-Talk-only production behavior, reusable local STT routing, bounded continuation, deterministic TTS interruption/timeout fallback, and actor-isolated resource admission are implemented and locally validated. The final available regression passed 21/21 bundles and 774/774 tests. Real wake-word qualification, live bilingual microphone quality, release-hardware recovery/barge-in, measured 16 GB soak, neural reference/quality, and ADR-042 approval remain open. After authorized R7 commit/push/merge delivery, explicit user approval is required before R8.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R8 remain in_progress with deferred gates recorded in SECOND_PASS_OPEN_GAPS.md. R9 is active after explicit user continuation: the product UI, accessibility, localization, staged onboarding, truthful disabled-state surfaces, memory controls, and recovery controls are implemented locally. R8 live gates and R9 live/manual acceptance remain open.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -35,7 +35,9 @@
     "Recorded R2/R3/R4/R5 deferred completion gates in AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md without closing any gate; transitioned the active prompt to R6.",
     "Implemented and verified the R6 first policy/bridge slice under EV-R6-20260808-POLICY-BRIDGE-01; kept ADR-041 Proposed and all live R6 gates open.",
     "Implemented the R6 typed bridge/workspace/backend/coordinator/task-bounds slice under EV-R6-20260808-TYPED-ROUTES-02; source builds and the clean scratch runtime suite passed 21/21 bundles and 763/763 tests, while the repository runner retained the known AuraAudio helper exit-142 limitation.",
-    "Started the R7 voice routing/resource-governor slice: production wake detection is explicitly disabled until a real model qualifies; local STT routing checks on-device capability and preserves engine-lifetime streams; incomplete turns, TTS interruption/timeout/fallback, and bounded STT/neural-TTS reservations are covered locally. Final available validation passed 21/21 bundles and 774/774 tests; R7 remains in_progress pending live evidence and explicit ADR-042 approval."
+    "Started the R7 voice routing/resource-governor slice: production wake detection is explicitly disabled until a real model qualifies; local STT routing checks on-device capability and preserves engine-lifetime streams; incomplete turns, TTS interruption/timeout/fallback, and bounded STT/neural-TTS reservations are covered locally. Final available validation passed 21/21 bundles and 774/774 tests; R7 remains in_progress pending live evidence and explicit ADR-042 approval.",
+    "R8 local memory/context implementation and full regression were verified; R9 started after explicit user continuation.",
+    "R9 first-pass UI slice was source-build verified; fail-closed runtime guards were added and R9ProductUIState plus RuntimeUIRemediation focused suites passed 6/6 through the direct Swift Testing helper. R9 unresolved live/manual and remaining control gates were appended to SECOND_PASS_OPEN_GAPS.md."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
@@ -86,6 +88,8 @@
     "Sources/AURA/AuraAppModel.swift",
     "Sources/AURA/AuraKernel.swift",
     "Sources/AURA/AuraMenuView.swift",
+    "Sources/AURA/ProductUIState.swift",
+    "Tests/AURAIntegrationTests/R9ProductUIStateTests.swift",
     "Sources/AURA/ConversationEventBridge.swift",
     "Sources/AURA/PushToTalkSessionFinalizer.swift",
     "Sources/AuraAgent/Conversation.swift",
@@ -307,13 +311,13 @@
     "RISK-STT-MIC-NOT-CAPTURING",
     "RISK-CLOSED-TOOL-ROUTER"
   ],
-  "next_action": "R7 is pushed to origin/main; no separate merge commit applies because main is the active integration branch. Stop and request explicit user approval before R8. Keep R2-R6 unresolved gates recorded in SECOND_PASS_OPEN_GAPS.md and do not accept ADR-042 or claim live voice gates from simulated evidence.",
+  "next_action": "Perform user-present R9 VoiceOver/keyboard/localization/onboarding/manual acceptance and complete or explicitly scope remaining task/capability/model/privacy/recovery controls. Preserve all R2-R8 open gates and do not start R10 without R9 gate evidence or explicit scope approval.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-    "AURA_RUNTIME_COMPLETION/prompts/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
+    "AURA_RUNTIME_COMPLETION/prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
@@ -322,5 +326,5 @@
     "Sources/AuraVSCode/VSCodeAdapter.swift",
     "Sources/AuraVSCode/VSCodeExtensionBridge.swift"
   ],
-  "notes": "R1 and the local R2 implementation were validated, committed as b8f8960, and pushed to origin/main. R7 was delivered through commits bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and 95d88ab831595e8d369970bd3da23f86c10dac59, both pushed to origin/main. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R2-R6 open gates are preserved in SECOND_PASS_OPEN_GAPS.md. R7 live wake/STT/TTS/recovery/soak gates and ADR-042 approval remain open."
+  "notes": "R1 and the local R2 implementation were validated, committed as b8f8960, and pushed to origin/main. R7 was delivered through commits bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and 95d88ab831595e8d369970bd3da23f86c10dac59, both pushed to origin/main. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R2-R8 open gates are preserved in SECOND_PASS_OPEN_GAPS.md. R9 source build passed and deterministic UI tests passed 3/3; R9 live/manual gates remain open."
 }

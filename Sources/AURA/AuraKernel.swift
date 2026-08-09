@@ -34,6 +34,7 @@ actor AuraKernel {
   private var runtimeHealthRegistry: RuntimeHealthRegistry?
   private var policyEngine: PolicyEngine?
   private var taskEngine: AuraTaskEngine?
+  private var memoryEngine: MemoryEngine?
   private var automation: AuraAutomation?
   private var capabilityRegistry: CapabilityRegistry?
   private var agentTaskRunner: AgentBackendTaskRunner?
@@ -268,6 +269,16 @@ actor AuraKernel {
     return await taskEngine.status(id: id)
   }
 
+  /// R9's task-center projection. It uses the same policy gate as the
+  /// single-task status capability and returns immutable snapshots only.
+  func taskStatuses() async throws(AuraError) -> [TaskStatus] {
+    guard started, let taskEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.taskStatus)
+    return await taskEngine.allStatuses().sorted { $0.updatedAt > $1.updatedAt }
+  }
+
   func taskCancel(id: UUID) async throws(AuraError) {
     guard started, let taskEngine else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
@@ -287,6 +298,54 @@ actor AuraKernel {
       result.append((manifest, await capabilityRegistry.availability(qualifiedID: manifest.qualifiedID)))
     }
     return result
+  }
+
+  /// R9's user-inspectable memory projection. Audit/security records remain
+  /// excluded by `MemoryEngine.inspect` and are never copied into the UI.
+  func memoryRecordsSnapshot() async throws(AuraError) -> [MemoryRecord] {
+    guard started, let memoryEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    return try await memoryEngine.inspect(includeSuperseded: false)
+  }
+
+  func correctMemoryRecord(
+    id: UUID, newStatement: String, reason: String
+  ) async throws(AuraError) -> MemoryRecord {
+    guard started, let memoryEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    let statement = newStatement.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !statement.isEmpty else {
+      throw AuraError.memoryError("memory correction cannot be empty")
+    }
+    return try await memoryEngine.correct(
+      recordID: id, newStatement: statement, reason: reason, actor: .user,
+      sessionID: sessionID)
+  }
+
+  func deleteMemoryRecord(id: UUID, reason: String) async throws(AuraError) {
+    guard started, let memoryEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    _ = try await memoryEngine.deleteRecord(id: id, reason: reason, actor: .user)
+  }
+
+  func memoryExportData() async throws(AuraError) -> Data {
+    guard started, let memoryEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    let bundle = try await memoryEngine.export()
+    let document = AuraMemoryExportDocument(
+      generatedAt: Date(), records: bundle.records, conflicts: bundle.conflicts)
+    do {
+      let encoder = JSONEncoder()
+      encoder.dateEncodingStrategy = .iso8601
+      encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+      return try encoder.encode(document)
+    } catch {
+      throw AuraError.memoryError("memory export could not be encoded: \(error.localizedDescription)")
+    }
   }
 
   /// R4's `computerUse.run` capability: launch one bounded computer-use
@@ -380,6 +439,7 @@ actor AuraKernel {
     await runtimeHealthRegistry.recordReady("automation", detail: "structured automation constructed")
 
     let memory = MemoryEngine(store: store, eventBus: eventBus)
+    self.memoryEngine = memory
     let context = ContextEngine(
       store: store, memory: memory, eventBus: eventBus, configuration: configuration.context)
     let contextBuilder = ContextBuilder(

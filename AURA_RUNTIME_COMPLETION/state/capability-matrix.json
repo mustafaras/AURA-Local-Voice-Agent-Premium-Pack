@@ -2,7 +2,7 @@
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
   "updated_at": "2026-08-08T13:40:12Z",
-  "repository_commit": "95d88ab831595e8d369970bd3da23f86c10dac59",
+  "repository_commit": "3f5c28faf513e9a6a3be27677a7ac566c5fca168",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -425,9 +425,9 @@
       "production_files": ["Sources/AuraMemory", "Sources/AuraContext"],
       "test_files": ["Tests/AuraMemoryTests", "Tests/AuraContextTests"],
       "dependencies": ["dialogue.conversation"],
-      "open_gaps": ["Not materially consumed by dialogue/tools; no user inspection/correction/export/deletion UI or realistic cross-session product tests."],
-      "evidence_ids": [],
-      "notes": "Strong subsystem foundation with limited product activation."
+      "open_gaps": ["Production reference-candidate population is incomplete; no launched-app user inspection/correction/export/deletion UI, user-present cross-session demonstration, or remote transport evidence."],
+      "evidence_ids": ["EV-R8-20260808-MEMORY-POLICY-01", "EV-R8-20260808-CONTEXT-PRODUCT-02"],
+      "notes": "Bounded local memory/context policy and explainability metadata are implemented and integration-tested; product activation and live acceptance remain open."
     },
     {
       "id": "intent.capability_registry",

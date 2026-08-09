@@ -34,6 +34,12 @@ public actor ContextBuilder {
     correlationID: UUID = UUID()
   ) async throws(AuraError) -> DeepContextResult {
     try configuration.validate()
+    if request.deliveryPolicy.destination == .remoteModel
+      && !request.deliveryPolicy.permits(.sensitive)
+    {
+      throw AuraError.contextError(
+        "remote context requires a separately redacted, user-approved turn summary")
+    }
     let startedAt = Date()
     var trace: [ContextPipelineTrace] = []
 
@@ -51,12 +57,15 @@ public actor ContextBuilder {
     var baseBundle = try await engine.reconstruct(
       utterance: request.utterance,
       sessionID: request.sessionID,
+      purpose: request.purpose,
+      requestingComponent: request.requestingComponent,
       conversationState: request.conversationState,
       pendingConfirmation: request.pendingConfirmation,
       pendingTask: request.pendingTask,
       activeWorkspace: request.activeWorkspace,
       scope: request.scope,
       referenceDate: request.referenceDate,
+      deliveryPolicy: request.deliveryPolicy,
       actor: actor,
       correlationID: correlationID)
 
@@ -115,11 +124,17 @@ public actor ContextBuilder {
         outputCount: referenceResolution == .none ? 0 : 1,
         detail: resolutionDescription(referenceResolution)))
 
+    var exclusions = baseBundle.exclusions
+
     // Mandatory live context cannot be hidden by an override. Optional
     // exclusions are applied before token selection.
     allItems.removeAll {
-      !$0.stage.isMandatory
+      let excluded = !$0.stage.isMandatory
         && request.inclusionOverride.excludedSourceIDs.contains($0.sourceID)
+      if excluded {
+        exclusions.append("excluded by per-turn user override: \($0.sourceID)")
+      }
+      return excluded
     }
 
     let budgeted = try budget(
@@ -129,13 +144,20 @@ public actor ContextBuilder {
     baseBundle = ContextBundle(
       sessionID: baseBundle.sessionID,
       utterance: baseBundle.utterance,
+      purpose: baseBundle.purpose,
+      requestingComponent: baseBundle.requestingComponent,
+      deliveryPolicy: baseBundle.deliveryPolicy,
       generatedAt: baseBundle.generatedAt,
       items: budgeted.items.sorted {
         $0.stage == $1.stage ? $0.score > $1.score : $0.stage < $1.stage
       },
       consideredCandidateCount: baseBundle.consideredCandidateCount + enriched.graphItems.count,
       droppedCandidateCount:
-        baseBundle.droppedCandidateCount + max(0, allItems.count - budgeted.items.count))
+        baseBundle.droppedCandidateCount + max(0, allItems.count - budgeted.items.count),
+      tokenBudget: configuration.maxTokenBudget,
+      estimatedTokenCount: budgeted.tokens,
+      exclusions: exclusions,
+      unresolvedContradictions: baseBundle.unresolvedContradictions)
 
     let inspection = baseBundle.items.map {
       ContextInspectionItem(item: $0, estimatedTokens: Self.estimateTokens($0.summary))
@@ -239,8 +261,12 @@ public actor ContextBuilder {
     referenceDate: Date
   ) async throws(AuraError) -> Enrichment {
     var items = sourceItems
-    let currentRecords = try await memory.currentState()
+    let currentRecords = try await memory.inspect(includeSuperseded: false)
+    let beliefs = try await memory.activeBeliefs()
+    let activeIDs = Set(beliefs.map(\.activeRecordID))
     let recordByID = Dictionary(uniqueKeysWithValues: currentRecords.map { ($0.id, $0) })
+    let activeRecordByID = Dictionary(
+      uniqueKeysWithValues: currentRecords.filter { activeIDs.contains($0.id) }.map { ($0.id, $0) })
     items.removeAll { item in
       guard case .memoryRecord(let recordID) = item.sourceID else { return false }
       return recordByID[recordID]?.sensitivity == .secret
@@ -250,7 +276,7 @@ public actor ContextBuilder {
     ]
 
     for recordID in includedRecordIDs {
-      guard let record = recordByID[recordID] else { continue }
+      guard let record = activeRecordByID[recordID] else { continue }
       guard injectableClasses.contains(record.memoryClass), record.sensitivity != .secret else {
         continue
       }
@@ -266,7 +292,7 @@ public actor ContextBuilder {
           sourceID: .memoryRecord(recordID: record.id), summary: record.statement,
           authority: ContextAuthority.from(record.provenance), confidence: record.confidence,
           observedAt: record.observedAt, hasDirectEvidence: !record.evidenceReferences.isEmpty,
-          scopeMatch: true,
+          scopeMatch: true, sensitivity: record.sensitivity,
           score: ContextRanking.score(
             MemoryRankable(record: record), referenceDate: referenceDate,
             configuration: configuration),

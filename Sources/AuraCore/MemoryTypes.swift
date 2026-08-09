@@ -14,6 +14,21 @@ public enum MemoryClass: String, Codable, Sendable, Equatable, CaseIterable {
   case auditSecurity
 }
 
+/// The origin of a requested memory write. This is deliberately narrower than
+/// `MemoryProvenance`: provenance describes what was recorded, while this
+/// value describes whether the caller is allowed to persist it at all.
+public enum MemoryWriteSource: Codable, Sendable, Equatable {
+  case explicitUser
+  case verifiedToolEvidence(actor: ActorID)
+  case activeDurableTask
+  case approvedSummary
+  case classifierDerived
+  case inferred
+  case modelOutput
+  case untrustedExternalContent
+  case rawContent
+}
+
 // MARK: - Provenance
 
 /// How a memory record's statement came to be known.
@@ -98,6 +113,9 @@ public struct MemoryRecord: Codable, Sendable, Equatable, Identifiable {
   public let createdAt: Date
   public let observedAt: Date
   public let retention: MemoryRetentionPolicy
+  /// Why this record is being retained. This is metadata, not authority: the
+  /// provenance and evidence fields remain the source of truth for trust.
+  public let purpose: String
   public let supersedes: UUID?
   public let scope: MemoryScope
 
@@ -113,6 +131,7 @@ public struct MemoryRecord: Codable, Sendable, Equatable, Identifiable {
     createdAt: Date = Date(),
     observedAt: Date? = nil,
     retention: MemoryRetentionPolicy,
+    purpose: String = "unspecified",
     supersedes: UUID? = nil,
     scope: MemoryScope = .global
   ) {
@@ -127,6 +146,7 @@ public struct MemoryRecord: Codable, Sendable, Equatable, Identifiable {
     self.createdAt = createdAt
     self.observedAt = observedAt ?? createdAt
     self.retention = retention
+    self.purpose = purpose
     self.supersedes = supersedes
     self.scope = scope
   }
@@ -144,6 +164,7 @@ public struct MemoryRecordDraft: Sendable, Equatable {
   public let sensitivity: SensitivityLevel
   public let observedAt: Date?
   public let retention: MemoryRetentionPolicy
+  public let purpose: String
   public let supersedes: UUID?
   public let scope: MemoryScope
 
@@ -157,6 +178,7 @@ public struct MemoryRecordDraft: Sendable, Equatable {
     sensitivity: SensitivityLevel,
     observedAt: Date? = nil,
     retention: MemoryRetentionPolicy,
+    purpose: String = "unspecified",
     supersedes: UUID? = nil,
     scope: MemoryScope = .global
   ) {
@@ -169,8 +191,130 @@ public struct MemoryRecordDraft: Sendable, Equatable {
     self.sensitivity = sensitivity
     self.observedAt = observedAt
     self.retention = retention
+    self.purpose = purpose
     self.supersedes = supersedes
     self.scope = scope
+  }
+}
+
+/// A policy-aware request to persist memory. Callers that are crossing a
+/// subsystem boundary should use this type instead of treating a plain draft
+/// as implicit authorization to retain user data.
+public struct MemoryWriteRequest: Sendable, Equatable {
+  public let draft: MemoryRecordDraft
+  public let source: MemoryWriteSource
+
+  public init(draft: MemoryRecordDraft, source: MemoryWriteSource) {
+    self.draft = draft
+    self.source = source
+  }
+}
+
+public enum PreferenceResponseLength: String, Codable, Sendable, Equatable, CaseIterable {
+  case concise
+  case balanced
+  case detailed
+}
+
+public struct PreferenceQuietHours: Codable, Sendable, Equatable {
+  public let startHour: Int
+  public let endHour: Int
+
+  public init(startHour: Int, endHour: Int) {
+    self.startHour = startHour
+    self.endHour = endHour
+  }
+
+  public func validate() throws(AuraError) {
+    guard (0..<24).contains(startHour), (0..<24).contains(endHour) else {
+      throw AuraError.memoryError("quiet hours must use 0...23 hour values")
+    }
+  }
+}
+
+/// User-controlled personalization data. It is intentionally a bounded,
+/// typed profile rather than an arbitrary key/value memory bag.
+public struct UserPreferenceProfile: Codable, Sendable, Equatable {
+  public var preferredLanguage: String
+  public var responseLength: PreferenceResponseLength
+  public var browserAccount: String?
+  public var mailAccount: String?
+  public var calendarAccount: String?
+  public var codingBackend: String?
+  public var codingModel: String?
+  public var workingDirectories: [String]
+  public var projects: [String]
+  public var voicePreference: String?
+  public var activationPreference: String?
+  public var localOnly: Bool
+  public var quietHours: PreferenceQuietHours?
+  public var enabledMemoryClasses: Set<MemoryClass>
+  public var retentionOverrides: [MemoryClass: MemoryRetentionPolicy]
+
+  public init(
+    preferredLanguage: String = "tr-TR",
+    responseLength: PreferenceResponseLength = .balanced,
+    browserAccount: String? = nil,
+    mailAccount: String? = nil,
+    calendarAccount: String? = nil,
+    codingBackend: String? = nil,
+    codingModel: String? = nil,
+    workingDirectories: [String] = [],
+    projects: [String] = [],
+    voicePreference: String? = nil,
+    activationPreference: String? = nil,
+    localOnly: Bool = true,
+    quietHours: PreferenceQuietHours? = nil,
+    enabledMemoryClasses: Set<MemoryClass> = Set(MemoryClass.allCases.filter { $0 != .auditSecurity }),
+    retentionOverrides: [MemoryClass: MemoryRetentionPolicy] = [:]
+  ) {
+    self.preferredLanguage = preferredLanguage
+    self.responseLength = responseLength
+    self.browserAccount = browserAccount
+    self.mailAccount = mailAccount
+    self.calendarAccount = calendarAccount
+    self.codingBackend = codingBackend
+    self.codingModel = codingModel
+    self.workingDirectories = workingDirectories
+    self.projects = projects
+    self.voicePreference = voicePreference
+    self.activationPreference = activationPreference
+    self.localOnly = localOnly
+    self.quietHours = quietHours
+    self.enabledMemoryClasses = enabledMemoryClasses
+    self.retentionOverrides = retentionOverrides
+  }
+
+  public func validate() throws(AuraError) {
+    guard !preferredLanguage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      throw AuraError.memoryError("preferred language must not be empty")
+    }
+    guard !enabledMemoryClasses.contains(.auditSecurity) else {
+      throw AuraError.memoryError("audit/security memory cannot be user-enabled or disabled")
+    }
+    guard workingDirectories.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) else {
+      throw AuraError.memoryError("working directory preferences must not be empty")
+    }
+    try quietHours?.validate()
+  }
+}
+
+/// Non-user policy bounds. A preference may narrow these bounds but can never
+/// widen them (for example, enabling cloud context while the machine policy is
+/// local-only).
+public struct PreferencePolicyBounds: Sendable, Equatable {
+  public let cloudContextAllowed: Bool
+
+  public init(cloudContextAllowed: Bool = false) {
+    self.cloudContextAllowed = cloudContextAllowed
+  }
+
+  public func validate(_ profile: UserPreferenceProfile) throws(AuraError) {
+    try profile.validate()
+    guard profile.localOnly || cloudContextAllowed else {
+      throw AuraError.permissionDenied(
+        "user preference cannot enable remote context while machine policy is local-only")
+    }
   }
 }
 

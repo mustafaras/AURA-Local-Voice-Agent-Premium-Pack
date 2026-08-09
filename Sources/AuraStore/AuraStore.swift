@@ -254,8 +254,8 @@ public actor AuraStore: LedgerBackend {
         INSERT INTO memory_records (
             id, memory_class, subject, statement, evidence_references,
             provenance_json, confidence, sensitivity, created_at, observed_at,
-            retention_json, supersedes, project_id, task_id, session_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            retention_json, purpose, supersedes, project_id, task_id, session_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """,
       arguments: [
         .text(record.id.uuidString),
@@ -269,6 +269,7 @@ public actor AuraStore: LedgerBackend {
         .text(formatDate(record.createdAt)),
         .text(formatDate(record.observedAt)),
         .text(try encodeCodable(record.retention, label: "retention")),
+        .text(record.purpose),
         record.supersedes.map { SQLiteValue.text($0.uuidString) } ?? .null,
         record.scope.projectID.map(SQLiteValue.text) ?? .null,
         record.scope.taskID.map { SQLiteValue.text($0.uuidString) } ?? .null,
@@ -350,6 +351,7 @@ public actor AuraStore: LedgerBackend {
           createdAt: parseDate(row["created_at"]),
           observedAt: parseDate(row["observed_at"]),
           retention: retention,
+          purpose: row["purpose"]?.text ?? "unspecified",
           supersedes: row["supersedes"]?.text.flatMap(UUID.init(uuidString:)),
           scope: MemoryScope(
             projectID: row["project_id"]?.text,

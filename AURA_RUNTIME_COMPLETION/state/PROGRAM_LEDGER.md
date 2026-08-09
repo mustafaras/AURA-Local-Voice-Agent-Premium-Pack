@@ -634,3 +634,53 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Deployment:** Built the pushed R7 tree under `/tmp/aura-r7-deploy`, signed with `AURA Stable Local Signing`, verified all helper sandbox attestations and strict code-signature checks, then installed `/Applications/AURA.app`. The prior local app was preserved at `/Applications/AURA.app.r7-previous-20260808T164510` for rollback.
 - **Verification:** Deployed and scratch main binaries match SHA-256 `42b5bf4103319770a282d51ef16062bcf917b9c0ed6f22731edf407294442c75`; the deployed process remained alive during the 8-second launch smoke. Evidence: `EV-R7-20260808-LOCAL-APP-DEPLOY-01` and `/tmp/aura-r7-deployed-signature.log` SHA-256 `0e803a4d44e295d54ade8f52267a498c72f11a1e85cfe9e7b871ecfc071d0677`.
 - **Limits:** This is local development deployment only. Full Xcode is unavailable, so `python3 scripts/validate_runtime_completion.py --release` fails closed; no Developer ID, notarization, external beta, TCC, microphone, or live voice acceptance is claimed. R7 remains `in_progress` and R8 remains gated on explicit user approval.
+
+### 2026-08-08T14:13:21Z — R8_STARTED_MEMORY_PERSONALIZATION_EXPLAINABILITY — user-directed first-pass continuation
+
+- **Actor:** Codex engineering session; user explicitly directed continuation to R8 after R7 delivery. No R8 commit, push, merge, release, deploy, installation, dependency download, or TCC mutation is authorized by this entry.
+- **Objective:** Activate the existing memory/provenance/context foundations as a user-controlled capability while preventing raw/untrusted/model content retention, authority confusion, unbounded context, and remote-context leakage.
+- **Assumptions:** Existing AuraStore schema is migrated additively; the compatibility `append(draft:)` path remains for existing tests/callers; local-only is the safe default; R9 owns visible UI controls; live acceptance requires the user present.
+- **Implementation:** Added `MemoryWriteRequest`/source policy with secret-like content checks; persisted record purpose via additive `v1_5_0_memory_purpose`; added bounded `UserPreferenceProfile` and `UserPreferenceProfileStore`; changed IntentEngine memory persistence to a bounded classifier summary without raw utterance/slot values; extended `ContextBundle` and `ContextItem` with requester/purpose/delivery/sensitivity/budget/exclusions/provenance metadata; context retrieval now uses authority-ranked active beliefs and surfaces unresolved conflicts; remote context delivery fails closed without a redacted approved summary.
+- **Verification:** `swift build --build-path /tmp/aura-r8-build` passed. `./scripts/aura-test.sh /tmp/aura-r8-memory-final2 AuraMemoryTests` passed 30/30; `./scripts/aura-test.sh /tmp/aura-r8-context AuraContextTests` passed 33/33. Evidence IDs: `EV-R8-20260808-MEMORY-POLICY-01`, `EV-R8-20260808-CONTEXT-PRODUCT-02`.
+- **Risks:** User-present restart/profile, multi-turn reference, destructive ambiguity, contradiction resolution, inspection/correction/deletion/export, and provenance-display demonstrations are not performed. Reference candidates are not yet populated from all production salience/tool paths; R9 UI and actual remote transport verification remain open; ADR-043 is Proposed and must not be accepted without explicit user approval.
+- **Acceptance criteria:** Focused/full local validation and governance must pass; all unresolved R8 gates must be appended to `SECOND_PASS_OPEN_GAPS.md`; no memory record may silently authorize a risky action; no R9 transition occurs without explicit approval.
+- **Next safe action:** Run the full available regression and governance gates, then record R8 evidence/state projections and stop for the user's decision on delivery and ADR-043 acceptance.
+
+### 2026-08-08T14:31:02Z — R8_REGRESSION_AND_GOVERNANCE_VALIDATED — local first-pass validation complete, live gates remain open
+
+- **Actor:** Codex engineering session; session `AURA-R8-MEMORY-20260808`.
+- **Verification:** `./scripts/aura-test.sh /tmp/aura-r8-full-final` passed 21/21 bundles and 782/782 tests with zero failed bundles. R8 focused suites remained green at `AuraMemoryTests` 30/30 and `AuraContextTests` 33/33; the updated raw-transcript non-retention contract in `AuraIntentTests` passed 67/67. `python3 scripts/validate_runtime_completion.py --ci` passed; `python3 -m unittest discover -s scripts/tests` passed 13/13; `jq empty`, shell syntax checks, and `git diff --check` passed.
+- **Evidence:** `EV-R8-20260808-REGRESSION-03`; 21 test logs under `/tmp/aura-r8-full-final/out/Products/Debug/`, aggregate hash of sorted per-log SHA-256 records `17ea291c7736f2d0474a417f867343f6066d43985aeefc13075feee0c914cae0`.
+- **Limits:** CommandLineTools linker warnings for unavailable full-Xcode framework paths remain host limitations; no user-present restart/profile, reference, ambiguity, contradiction/control, remote transport, or latency/soak acceptance was performed. R8 remains `in_progress`; ADR-043 remains `Proposed`.
+- **Delivery boundary:** No R8 commit, push, merge, release, deploy, installation, dependency/model download, or TCC mutation was performed or authorized. Stop for explicit user direction before delivery and before R9.
+
+### 2026-08-08T15:28:28Z — R9_STARTED_PRODUCT_UI_ACCESSIBILITY_ONBOARDING — explicit user-directed continuation
+
+- **Actor:** Codex engineering session; session `AURA-R9-PRODUCT-UI-20260808`.
+- **Objective:** Transform the menu-bar panel into a coherent, keyboard-operable, VoiceOver-aware, Turkish/English product surface covering conversation, tasks, capabilities/permissions, models/voice, privacy/memory, recovery, and staged onboarding.
+- **Assumptions:** Existing backend contracts remain authoritative; unavailable capabilities remain visibly disabled; R8 live gates remain open and are not silently closed by UI work; permission requests occur only after user action; no cloud or privileged behavior is enabled by presentation code.
+- **Risks:** Manual VoiceOver/keyboard/scaled-layout acceptance, complete localization, restart restoration, onboarding denial/recovery, and full provider/model/memory control coverage are not yet evidenced.
+- **Acceptance criteria:** Add the R9 UI slice with pure state/reducer tests, real kernel snapshot/control wiring where available, actionable disabled states, accessibility/localization semantics, staged onboarding, and truthful R9 open-gap recording. No commit/push/merge/release/deploy is authorized by this entry.
+
+### 2026-08-08T16:36:47Z — R9_PRODUCT_UI_SLICE_VALIDATED — local first-pass implementation and deterministic tests
+
+- **Actor:** Codex engineering session; session `AURA-R9-PRODUCT-UI-20260808`, branch `main`, dirty worktree at `HEAD 3f5c28f`.
+- **Objective result:** Replaced the single control panel with a SwiftUI product surface for conversation, durable tasks, capabilities/permissions, models/voice, privacy/memory, and recovery. Added truthful local/cloud and ready/degraded/disabled projections, task cancellation, backend/model health, non-audit memory inspect/correct/delete/export paths, confirmation/emergency controls, persisted UI tab/language/onboarding state, staged onboarding, and English/Turkish shell copy. Existing policy, append-only memory, permission, and emergency-stop boundaries remain authoritative.
+- **Verification:** `swift build --target AURA` passed on macOS 27 / Apple Silicon / Swift 6.4 CommandLineTools with known missing-framework search-path warnings. `swift build --target AURAIntegrationTests` compiled the test target; the direct Swift Testing helper run passed `R9ProductUIStateTests` 3/3 (reducer, localization, export round-trip). The normal `swift test --filter` runner remains host-blocked by unrelated all-bundle codesign/Finder metadata and test-framework rpath behavior; no test result was inferred from that failed command.
+- **Risks:** User-present VoiceOver reading order, keyboard-only focus, contrast/scaled-layout/reduced-motion, live TCC permission denial/revocation, onboarding restart/recovery, task scope/review metadata, capability grant lifecycle, model lifecycle, integrations/account controls, support bundles, and full privacy/recovery acceptance remain open exactly as recorded in `SECOND_PASS_OPEN_GAPS.md`. R9 remains `in_progress`.
+- **Evidence:** `EV-R9-20260808-UI-BUILD-02`, `EV-R9-20260808-UI-TESTS-03`, and `EV-R9-20260808-GAPS-04`.
+- **Delivery boundary:** No commit, push, merge, release, deploy, installation, dependency/model download, or TCC mutation was performed or authorized. Stop for user-present R9 acceptance or explicit scope direction before R10.
+
+### 2026-08-08T16:42:07Z — R9_FOCUSED_REGRESSION — relevant UI and existing remediation tests passed
+
+- **Actor:** Codex engineering session; session `AURA-R9-PRODUCT-UI-20260808`, branch `main`, dirty worktree.
+- **Verification:** Direct Swift Testing helper execution with the local CommandLineTools Testing framework/interop rpaths passed `6/6`: `R9ProductUIStateTests` 3/3 and `RuntimeUIRemediationTests` 3/3. The latter retained clean-profile directory permissions and confirmation-denial behavior while exercising the updated AURA target.
+- **Limits:** This is local unit/integration evidence only. The normal all-bundle SwiftPM runner is blocked by this host's generated `.xctest` metadata/codesign/rpath behavior; no user-present VoiceOver, keyboard, TCC, model, account, live onboarding, or deployment result is claimed. R9 remains `in_progress`.
+- **Evidence:** `EV-R9-20260808-UI-REGRESSION-05`.
+
+### 2026-08-08T16:44:48Z — R9_FAIL_CLOSED_CONTROLS_VERIFIED — final local source verification
+
+- **Actor:** Codex engineering session; session `AURA-R9-PRODUCT-UI-20260808`, branch `main`, dirty worktree.
+- **Verification:** After replacing runtime-optional control calls with explicit fail-closed guards, `swift build --target AURA` passed again. A freshly rebuilt `AURAIntegrationTests` target passed the focused UI/remediation run `6/6` through the documented direct Swift Testing helper/rpath workaround.
+- **Limits:** The plain all-bundle SwiftPM runner remains host-blocked by generated xctest metadata/codesign/rpath behavior. This does not provide user-present accessibility, TCC, onboarding, model/account, or deployment evidence; R9 remains `in_progress`.
+- **Evidence:** `EV-R9-20260808-FAIL-CLOSED-06`.

@@ -1,9 +1,9 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `R7`
-> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6 remain open, R7 active after a user-directed transition
-> **Audited baseline:** `95d88ab831595e8d369970bd3da23f86c10dac59` on `main` (`HEAD == origin/main`; delivery metadata projection is intentionally dirty)
+> **Current prompt:** `R9`
+> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8 remain open, R9 active after explicit user continuation
+> **Audited baseline:** `3f5c28faf513e9a6a3be27677a7ac566c5fca168` on `main` (`HEAD == origin/main`; delivery metadata projection is intentionally dirty)
 
 ## Canonical status
 
@@ -18,8 +18,10 @@ formally closed** (see "R2 closeout status" below). R3 capability registry and
 typed planner is implemented and system-tested but **not complete** (see "R3
 status" below). R4 computer-use productization core and registry wiring are
 implemented and tested but **not complete** (see "R4 status" below). R5
-browser/mail/calendar/contacts adapters was started by user-directed deviation
-while R2/R3/R4 remain in_progress.
+browser/mail/calendar/contacts adapters, R6 coding-agent routes, and R7
+voice/resource governance remain open; R8 memory/context is locally
+implemented but remains open on live gates and ADR-043; R9 is now the active
+prompt after user-directed continuation.
 
 ## R2 closeout status (2026-08-07)
 
@@ -158,8 +160,45 @@ Turkish/English/mixed microphone WER/entity quality, user-present barge-in and
 device/sleep/TCC recovery, measured 16 GB multi-workload soak, consented neural
 reference/human quality, and explicit ADR-042 approval remain open. These gates
 are recorded in [`SECOND_PASS_OPEN_GAPS.md`](../SECOND_PASS_OPEN_GAPS.md) for
-future second-pass completion. After authorized R7 delivery, stop and request
-explicit user approval before R8.
+future second-pass completion. R8 was started only after the user's explicit
+continuation; R7's unresolved gates remain historical open gaps.
+
+## R8 status
+
+R8 — Memory, Personalization, and Explainability — was the preceding first-pass
+prompt. Its local slice adds an explicit `MemoryWriteRequest` policy boundary,
+purpose metadata with an additive SQLite migration, restart-safe bounded user
+preference profiles, authority-ranked active-belief retrieval, visible
+unresolved contradictions, provenance/budget/exclusion metadata, a bounded
+classifier summary instead of raw transcript persistence, and local-only /
+remote fail-closed context delivery.
+
+Focused validation is green: `AuraMemoryTests` 30/30 and `AuraContextTests`
+33/33. The full available regression is also green: 21/21 bundles and 782/782
+tests, with runtime-completion validation and 13 governance tests passing under
+`EV-R8-20260808-REGRESSION-03`. R8 is **not formally complete**. Production
+reference-candidate wiring, user-present restart/multi-turn/ambiguity/
+contradiction/control demonstrations, R9 UI controls, actual remote transport
+exclusion evidence, and explicit ADR-043 acceptance remain open. Do not treat
+local tests as live product acceptance.
+
+## R9 status
+
+R9 — Product UI, Accessibility, and Onboarding — is the active first-pass
+prompt. The local slice replaces the single control panel with conversation,
+durable task, capability/permission, model/voice, privacy/memory, and recovery
+surfaces. It adds truthful health/degraded/disabled projections, staged
+onboarding, persisted tab/language state, confirmation/emergency controls,
+non-audit memory controls, and English/Turkish shell copy. `swift build
+--target AURA` passed and the R9 reducer/localization/export tests passed 3/3
+under `EV-R9-20260808-UI-BUILD-02` and
+`EV-R9-20260808-UI-TESTS-03`.
+
+R9 is **not formally complete**. User-present VoiceOver/keyboard/focus,
+contrast/scaled-layout/reduced-motion, TCC denial/revocation, onboarding
+restart/recovery, full task scope/review metadata, capability grant lifecycle,
+model lifecycle, integrations/account controls, support bundles, and complete
+privacy/recovery acceptance remain open in `SECOND_PASS_OPEN_GAPS.md`.
 
 ## Why this program exists
 
@@ -183,25 +222,30 @@ The immediate program must:
 
 ## Immediate next action
 
-R6 is the active prompt (in_progress) after the user-directed R5 transition.
-R5 remains open and all R2/R3/R4/R5 deferred gates are recorded in
-[`SECOND_PASS_OPEN_GAPS.md`](../SECOND_PASS_OPEN_GAPS.md). The next concrete R6
-work, in dependency order:
+R9 is the active prompt (in_progress) after explicit user continuation.
+R2/R3/R4/R5/R6/R7/R8 remain open and all deferred gates are recorded in
+[`SECOND_PASS_OPEN_GAPS.md`](../SECOND_PASS_OPEN_GAPS.md). The next concrete R8
+work is now historical; the next concrete R9 work is:
 
-1. **Package and provision the authenticated extension bridge** while retaining
-   the existing fail-closed policy gate and bounded envelope contract.
-2. **Complete live typed workspace/task/test/agent routes** with durable,
-   isolated, reviewable write flows; repair the host test-runner framework path;
-   then run the R6 live acceptance gate.
+1. **Run user-present R9 acceptance**: VoiceOver order, keyboard-only focus,
+   confirmation focus/expiry, contrast, scaled layout, reduced motion,
+   Turkish/English clean/configured profiles, denial/revocation, restart, and
+   emergency stop.
+2. **Complete or explicitly scope the remaining task, capability, model,
+   privacy, integration, and recovery controls** without presenting unavailable
+   backends as ready.
+3. **Keep R9 in progress and do not start R10** until its gate is evidenced or
+   explicitly scoped; preserve R2-R8 open gaps and ADR-043 Proposed.
 
-R5, R4, R3, and R2 remain open (deferred/parallel) — see the status sections
-above and `SECOND_PASS_OPEN_GAPS.md`. Do not mark R2, R3, R4, R5, or R6
+R2, R3, R4, R5, R6, R7, and R8 remain open — see the status sections above and
+`SECOND_PASS_OPEN_GAPS.md`. Do not mark any of them
 complete before their respective remaining items are resolved or explicitly
 accepted. Do not start Phase 26 or any optional historical roadmap phase merely
 because older prose names it as the next action.
 
-After R7's commit/push/merge delivery, stop and obtain explicit user approval
-before moving to R8.
+After R9's own delivery is explicitly authorized and completed, stop and obtain
+explicit user approval before moving to R10. Do not accept ADR-043 without that
+approval.
 
 ## Current major risks
 

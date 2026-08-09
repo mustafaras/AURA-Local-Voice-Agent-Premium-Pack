@@ -1,7 +1,7 @@
-# AURA Session Starter — R7 Active; R2/R3/R4/R5/R6 Open for Second Pass
+# AURA Session Starter — R9 Active; R2/R3/R4/R5/R6/R7/R8 Open for Second Pass
 
 > Conversation date: 8 August 2026
-> Live HEAD: `95d88ab831595e8d369970bd3da23f86c10dac59` — `docs(state): record R7 delivery baseline`
+> Live HEAD: `3f5c28faf513e9a6a3be27677a7ac566c5fca168` — `docs(deploy): record R7 local app installation`
 > Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry before changing files.
 
 ## Canonical State Notice — 2026-08-08
@@ -9,8 +9,8 @@
 This starter is a **historical compatibility document**. Use
 `AURA_RUNTIME_COMPLETION/state/current-state.json` and
 `AURA_RUNTIME_COMPLETION/context/session-handoff.json` as the authoritative
-state. Live `HEAD == origin/main == 95d88ab831595e8d369970bd3da23f86c10dac59`;
-the active prompt is **R7**. R2/R3/R4/R5/R6 remain open and their second-pass
+state. Live `HEAD == origin/main == 3f5c28faf513e9a6a3be27677a7ac566c5fca168`;
+the active prompt is **R9**. R2/R3/R4/R5/R6/R7/R8 remain open and their second-pass
 gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
 The historical phase and push claims below are not current state.
 
@@ -57,6 +57,20 @@ The historical phase and push claims below are not current state.
   interruption/timeout fallback, and bounded resource admission are under
   validation. Real wake-word/live bilingual microphone/recovery/soak/neural
   quality evidence and ADR-042 approval remain open.
+- **R8** `in_progress` — purpose-aware memory writes, bounded restart-safe
+  preference profiles, authority-ranked context, contradiction visibility,
+  provenance/budget/exclusion metadata, and local-only/remote fail-closed
+  delivery are implemented; the full available regression passed 21/21 bundles
+  and 782/782 tests, and governance passed. Live product demonstrations,
+  production reference wiring, R9 UI, remote transport evidence, and ADR-043
+  acceptance remain open.
+- **R9** `in_progress` — product UI sections, truthful task/capability/model/
+  privacy/recovery projections, staged onboarding, emergency/confirmation
+  controls, persisted English/Turkish shell state, and deterministic UI-state
+  tests are implemented locally. User-present VoiceOver/keyboard/manual layout,
+  denial/revocation/restart, full control lifecycle, and live acceptance remain
+  open; evidence: `EV-R9-20260808-UI-BUILD-02`,
+  `EV-R9-20260808-UI-TESTS-03`, `EV-R9-20260808-GAPS-04`.
 
 ## Second-pass completion plan (all remaining gates)
 
@@ -76,15 +90,21 @@ requires the user physically present or explicit authorization:
 4. **R5:** package and wire read-first adapters, authorized account/profile
    acceptance, injection/degraded tests, and separately gated mutation/send.
 5. **R6:** retain the current first-pass open gates listed in
-   `SECOND_PASS_OPEN_GAPS.md`; continue R6 now, and revisit these items from
-   the beginning in the future second pass after the first pass is complete.
+   `SECOND_PASS_OPEN_GAPS.md`; revisit these items from the beginning in the
+   future second pass after the first pass is complete.
 6. **R7:** retain the current first-pass open gates listed in
    `SECOND_PASS_OPEN_GAPS.md`; deliver R7, then stop for explicit user approval
-   before R8.
+   before R8 (already explicitly approved for this first-pass continuation).
+7. **R8:** retain the current first-pass open gates listed in
+   `SECOND_PASS_OPEN_GAPS.md`; complete local integration and validation, then
+   R9 was then started by explicit user approval; its live gates remain open.
+8. **R9:** perform user-present VoiceOver, keyboard, layout/localization,
+   onboarding denial/restart, permission, emergency-stop, and recovery
+   acceptance; complete or explicitly scope remaining controls before R10.
 
-After R7's own delivery, commit/push/merge it, record the exact evidence, and
-stop for the user's explicit approval before transitioning to R8. Do not begin
-R8 from an assumed approval.
+After R9's own delivery is explicitly authorized, record exact evidence and
+stop for the user's explicit approval before transitioning to R10. Do not begin
+R10 from an assumed approval.
 
 ## Verified historical handoff (Phases 0–25, prior program)
 
@@ -105,10 +125,9 @@ R8 from an assumed approval.
    `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest
    `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry plus
    `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
-2. Continue **R7 (active prompt)** with focused voice routing/resource
-   validation and truthful live-gate recording,
-   live typed workspace/task/test/agent routes, backend onboarding, and durable
-   reviewable coding flows; keep R2/R3/R4/R5 open.
+2. Continue **R9 (active prompt)** with user-present/manual accessibility,
+   localization, onboarding, and recovery acceptance; keep R2/R3/R4/R5/R6/R7/R8
+   open and append every unresolved R9 gate to `SECOND_PASS_OPEN_GAPS.md`.
 3. State objective, assumptions, risks, and acceptance criteria in the task
    ledger before editing.
 4. Do not commit, push, merge, release, deploy, or mutate TCC/application state
