@@ -3554,3 +3554,13 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Open risks:** `RISK-REPO-HYGIENE-GIT-OBJECT-DATABASE`, `RISK-REPO-HYGIENE-DOC-TOOLCHAIN-DRIFT`, `RISK-REPO-HYGIENE-CONTEXT-BLOAT`, and `RISK-REPO-HYGIENE-TOOLING-UNAVAILABLE` remain open for the ordered prompts.
 - **Evidence:** `EV-REPO-HYGIENE-20260809-PROGRAM-01`; validator output is recorded in the focused ledger.
 - **Next safe action:** Read the Tier-0 context and execute only H-000; keep H-000 active if ownership, authority, or baseline evidence is incomplete.
+
+### 2026-08-09T13:45:00Z — REPO_HYGIENE_DELIVERY — merged governance/control-plane delivery
+
+- **Actor:** Codex engineering session `AURA-REPO-HYGIENE-DELIVERY-20260809`; user-authorized Git delivery.
+- **Delivered:** 93-file governance/control-plane scope committed, pushed on a feature branch, merged as PR #1 into `main`, state projections reconciled, and `main` pushed to `origin/main` at `18a92404a56a3551175fdf3604459ed904c272ea`.
+- **Verification:** Runtime-completion, second-pass, and repository-hygiene validators passed; deterministic script tests passed 29/29; JSON/YAML/shell/diff checks passed; local `development_unverified` artifact manifest and SHA-256 were verified.
+- **CI limitation:** Runs `31316309132` and `31316436632` remain queued because `aura-m1-local` is offline. No CI pass is claimed.
+- **Deployment verdict:** No release/deploy occurred. Full Xcode, signing/notarization, external release target, and configured deploy mechanism are absent; the local artifact is explicitly unverified development evidence.
+- **Evidence:** `EV-REPO-HYGIENE-20260809-DELIVERY-02`.
+- **Next safe action:** Restore the authorized self-hosted runner and inspect CI; keep H-000 pending.
