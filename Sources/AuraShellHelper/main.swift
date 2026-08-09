@@ -25,35 +25,20 @@ guard input.count <= 1_048_576 else {
   fail("shell helper request exceeded size limit")
 }
 
-struct EchoRequest: Codable {
-  let header: HelperIPCRequestHeader
-  let payload: String
-}
-
-struct EchoResponse: Codable {
-  let header: HelperIPCResponseHeader
-  let payload: String
-}
-
-let request: EchoRequest
+let request: HelperIPCRequestEnvelope
 do {
-  request = try JSONDecoder().decode(EchoRequest.self, from: input)
+  request = try JSONDecoder().decode(HelperIPCRequestEnvelope.self, from: input)
 } catch {
   fail("invalid shell helper request")
 }
 
-guard request.header.protocolVersion == HelperIPCProtocol.version,
-  request.header.helperKind == .shell
+guard (try? HelperIPCValidator.validate(request, expectedHelper: .shell)) != nil
 else {
   fail("shell helper protocol mismatch")
 }
 
-let response = EchoResponse(
-  header: HelperIPCResponseHeader(
-    protocolVersion: HelperIPCProtocol.version,
-    nonce: request.header.nonce,
-    sandboxAttested: true),
-  payload: request.payload)
+let response = HelperIPCResponseEnvelope(
+  request: request, sandboxAttested: true, payload: request.payload)
 
 guard let encoded = try? JSONEncoder().encode(response) else {
   fail("unable to encode shell helper response")

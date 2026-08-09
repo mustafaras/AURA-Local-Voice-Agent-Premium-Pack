@@ -223,18 +223,28 @@ Evidence is recorded under `EV-R9-20260808-UI-BUILD-02` and
 
 Prompt: [`11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md`](prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md)
 
-R10 is now the active first-pass prompt after the user explicitly authorized R9
+R10 is the active first-pass prompt after the user explicitly authorized
 commit/push/merge and continuation. R9 remains `in_progress`; its open manual,
 live, TCC, task/capability/model/privacy/recovery, and accessibility gates are
-preserved above. R10 has not yet been audited or implemented in this transition
-record, so every R10 completion gate remains open:
+preserved above. A bounded first implementation slice is now source/build and
+focused-test verified under `EV-R10-20260809-BOUNDARY-SLICE-01`, but R10 is not
+complete and every unverified completion gate remains open:
 
-- process/privilege topology, helper boundaries, entitlements, sandbox claims,
-  and authenticated typed local IPC;
-- mandatory network factory/enforcement, redirect/DNS/TLS/download bounds,
-  provider/account grants, and subprocess network assumptions;
-- Keychain/secret references, OAuth scope/expiry/revocation, PKCE/CSRF/callback
-  binding, and leakage prevention across args/env/logs/events/crashes/support;
+- `HelperIPCRequestEnvelope`/`HelperIPCResponseEnvelope` now bind helper kind,
+  capability, actor, target, plan hash, payload hash, freshness, nonce replay,
+  and sandbox attestation for the two parent-launched helper executables. This
+  is an application-level pipe contract, not authenticated XPC peer identity;
+  helper execution is still echo-only and the main process retains broad
+  Accessibility, generated-input, shell, CLI, and network authority.
+- `NetworkEndpointPolicy` and the Ollama client now constrain scheme, host,
+  port, path, userinfo, response size, cookies/cache, and redirects for the
+  covered loopback path. A mandatory factory for every `URLSession`, DNS/IP
+  pinning/revalidation, proxy/TLS policy, download bounds, provider transport,
+  and subprocess network audit remain open.
+- OAuth PKCE/state/redirect/scope contracts and Keychain token expiry/revoke
+  deletion are now locally tested. Actual provider token exchange/callback
+  wiring, CSRF/account isolation, live revocation, and leakage prevention
+  across args/env/logs/events/crashes/support remain open.
 - untrusted-content provenance, instruction/content separation, schema and
   capability validation, redaction, action-time policy re-evaluation, and
   indirect-injection corpus coverage;
@@ -243,9 +253,10 @@ record, so every R10 completion gate remains open:
 - incident response, review schedule, vulnerability reporting, grant
   revocation, containment, independent security review, and ADR-044 acceptance.
 
-No R10 gate is closed by this phase-start entry. These gaps must be refined with
-source/test evidence and retained until independently verified or explicitly
-accepted by the authorized release owner.
+The focused source/build tests prove contracts only; they do not close OS
+confinement, live provider, independent-review, injection-corpus, plugin trust,
+or incident-response gates. These residuals must remain until independently
+verified or explicitly accepted by the authorized release owner.
 
 ## Current first-pass workflow boundary
 

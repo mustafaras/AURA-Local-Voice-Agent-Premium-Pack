@@ -49,3 +49,36 @@ func configurationInitializerReadsSecurityConfiguration() {
   #expect(allowlist.isAllowed(host: "ollama.local"))
   #expect(!allowlist.isAllowed(host: "attacker.example"))
 }
+
+@Test
+func endpointPolicyBindsSchemePortAndPath() throws {
+  let policy = NetworkEndpointPolicy(
+    allowlist: NetworkAllowlist(allowedHosts: ["api.example.com"]),
+    allowedSchemes: ["https"],
+    allowedPorts: [443],
+    allowedPathPrefixes: ["/v1/"])
+  try policy.validate(URL(string: "https://api.example.com/v1/messages")!)
+  #expect(throws: AuraError.self) {
+    try policy.validate(URL(string: "http://api.example.com/v1/messages")!)
+  }
+  #expect(throws: AuraError.self) {
+    try policy.validate(URL(string: "https://api.example.com:8443/v1/messages")!)
+  }
+  #expect(throws: AuraError.self) {
+    try policy.validate(URL(string: "https://api.example.com/admin")!)
+  }
+}
+
+@Test
+func endpointPolicyRejectsUserInfoAndRedirectEscape() throws {
+  let policy = NetworkEndpointPolicy(
+    allowlist: NetworkAllowlist(allowedHosts: ["api.example.com"]),
+    allowedSchemes: ["https"],
+    allowedPorts: [443])
+  #expect(throws: AuraError.self) {
+    try policy.validate(URL(string: "https://user:pass@api.example.com/v1")!)
+  }
+  #expect(throws: AuraError.self) {
+    try policy.validate(URL(string: "https://evil.example/v1")!, isRedirect: true)
+  }
+}

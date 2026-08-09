@@ -2,7 +2,7 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-09T09:58:06Z",
+  "updated_at": "2026-08-09T10:21:32Z",
   "session_id": "AURA-R10-SECURITY-20260809",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
@@ -25,7 +25,7 @@
       "R8 full available regression passed 21/21 bundles and 782/782 tests with zero failed bundles; runtime-completion validation, 13 governance tests, JSON parsing, shell syntax, and git diff check also passed. Changes remain local and uncommitted.",
       "R9 first-pass product UI/accessibility/onboarding slice is implemented locally. swift build --target AURA passed; the R9ProductUIState integration target compiled and its direct Swift Testing run passed 3/3. R9 live VoiceOver/keyboard/manual layout, full control coverage, onboarding denial/restart, and user-present acceptance remained open before delivery.",
       "R9 was committed as 2879cbfd430ba3caba7cf361d83f1a802b1cf463 on feature/r9-product-ui-accessibility, pushed, merged to main as a5a1f5fd702cc5dd34ace31ffe2dcfa254798548, and pushed to origin/main. R9 remains in_progress with its open gates preserved; the user explicitly authorized transition to R10.",
-      "Six untracked Finder-copy files with exact byte-identical counterparts are preserved outside the R9 delivery scope and are not staged."
+      "Six exact byte-identical Finder-copy artifacts were removed before R10 validation; the tracked originals were preserved and no unrelated user-owned files remain in the worktree."
     ]
   },
   "program_status": "in_progress",
@@ -286,10 +286,15 @@
       ],
       "started_at": "2026-08-09T09:58:06Z",
       "completed_at": null,
-      "evidence_ids": [],
+      "evidence_ids": [
+        "EV-R10-20260809-BOUNDARY-SLICE-01"
+      ],
       "open_risk_ids": [
         "RISK-MAIN-PROCESS-PRIVILEGE-CONCENTRATION",
-        "RISK-NETWORK-ALLOWLIST-INCOMPLETE"
+        "RISK-NETWORK-ALLOWLIST-INCOMPLETE",
+        "RISK-IPC-PEER-AUTH-ABSENT",
+        "RISK-OAUTH-LIFECYCLE-INCOMPLETE",
+        "RISK-PLUGIN-TRUST-EVIDENCE-ABSENT"
       ]
     },
     {
@@ -420,6 +425,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-R10-20260809-BOUNDARY-SLICE-01",
     "EV-R9-20260809-DELIVERY-07",
     "EV-R9-20260808-FAIL-CLOSED-06",
     "EV-R9-20260808-UI-REGRESSION-05",
@@ -443,5 +449,5 @@
   "blockers": [
     "R2-R9 remain in_progress with deferred/live/manual gates preserved in SECOND_PASS_OPEN_GAPS.md. R10 has no completion evidence yet; independent security review and direct enforcement evidence are required before external-beta claims."
   ],
-  "next_action": "Read the R10 threat-model, security ADR, policy/grant/confirmation, network, secret/OAuth, plugin, helper, adversarial, and incident-response context; reconcile the live topology before editing."
+  "next_action": "Run final governance/diff checks, deliver the authorized R10 boundary slice through commit/push/merge, then stop and request explicit approval before R11; retain independent-review, peer-authenticated IPC, universal network/provider, OAuth transport, injection, plugin-trust, and operations gates as open."
 }

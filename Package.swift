@@ -102,7 +102,7 @@ let package = Package(
         ),
         .target(
             name: "AuraAgent",
-            dependencies: ["AuraCore", "AuraAudio", "AuraShell", "AuraPolicy", "AuraTasks", "AuraVSCode"],
+            dependencies: ["AuraCore", "AuraAudio", "AuraShell", "AuraPolicy", "AuraTasks", "AuraVSCode", "AuraSecurity"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]

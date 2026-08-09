@@ -1,5 +1,18 @@
 import AuraCore
+import AuraSecurity
 import Foundation
+
+private final class OllamaRedirectRejectingDelegate: NSObject, URLSessionTaskDelegate {
+  func urlSession(
+    _ session: URLSession,
+    task: URLSessionTask,
+    willPerformHTTPRedirection response: HTTPURLResponse,
+    newRequest request: URLRequest,
+    completionHandler: @escaping (URLRequest?) -> Void
+  ) {
+    completionHandler(nil)
+  }
+}
 
 // MARK: - Real, verified Ollama HTTP API shapes
 //
@@ -241,15 +254,34 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
   private let requestTimeoutSeconds: Double
   private let healthCheckTimeoutSeconds: Double
   private let session: URLSession
+  private let endpointPolicy: NetworkEndpointPolicy
 
   public init(configuration: OllamaConfiguration) throws(AuraError) {
     guard let url = URL(string: configuration.baseURL) else {
       throw AuraError.invalidConfiguration("ollama baseURL is not a valid URL")
     }
+    let policy = NetworkEndpointPolicy(
+      allowlist: NetworkAllowlist(allowedHosts: OllamaConfiguration.allowedLoopbackHosts),
+      allowedSchemes: ["http", "https"],
+      allowedPorts: [11434],
+      maximumResponseBytes: 10 * 1024 * 1024)
+    do {
+      try policy.validate(url)
+    } catch {
+      throw .invalidConfiguration("ollama baseURL failed network policy: \(error.localizedDescription)")
+    }
     self.baseURL = url
     self.requestTimeoutSeconds = configuration.requestTimeoutSeconds
     self.healthCheckTimeoutSeconds = configuration.healthCheckTimeoutSeconds
-    self.session = URLSession(configuration: .ephemeral)
+    self.endpointPolicy = policy
+    let sessionConfiguration = URLSessionConfiguration.ephemeral
+    sessionConfiguration.httpShouldSetCookies = false
+    sessionConfiguration.httpCookieStorage = nil
+    sessionConfiguration.requestCachePolicy = .reloadIgnoringLocalCacheData
+    self.session = URLSession(
+      configuration: sessionConfiguration,
+      delegate: OllamaRedirectRejectingDelegate(),
+      delegateQueue: nil)
   }
 
   public func health() async throws -> OllamaVersionResponse {
@@ -334,6 +366,17 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
   }
 
   private func send<Response: Decodable>(_ request: URLRequest) async throws -> Response {
+    guard let requestURL = request.url else {
+      throw AuraError.ollamaError("request has no URL")
+    }
+    do {
+      try endpointPolicy.validate(requestURL)
+      guard requestURL.path.hasPrefix("/api/") else {
+        throw AuraError.securityError("Ollama request path is outside /api/")
+      }
+    } catch {
+      throw AuraError.ollamaError("network policy denied Ollama request: \(error.localizedDescription)")
+    }
     let (data, urlResponse): (Data, URLResponse)
     do {
       (data, urlResponse) = try await session.data(for: request)
@@ -342,6 +385,17 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
     }
     guard let httpResponse = urlResponse as? HTTPURLResponse else {
       throw AuraError.ollamaError("non-HTTP response from Ollama daemon")
+    }
+    guard let responseURL = httpResponse.url else {
+      throw AuraError.ollamaError("Ollama response has no URL")
+    }
+    do {
+      try endpointPolicy.validate(responseURL)
+    } catch {
+      throw AuraError.ollamaError("network policy denied Ollama response: \(error.localizedDescription)")
+    }
+    guard data.count <= endpointPolicy.maximumResponseBytes else {
+      throw AuraError.ollamaError("Ollama response exceeded the configured byte bound")
     }
     guard (200...299).contains(httpResponse.statusCode) else {
       if let errorBody = try? makeDecoder().decode(OllamaErrorResponse.self, from: data) {
