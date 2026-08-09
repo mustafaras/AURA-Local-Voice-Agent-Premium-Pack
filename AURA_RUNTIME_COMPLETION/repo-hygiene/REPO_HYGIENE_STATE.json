@@ -7,7 +7,7 @@
   "session_id":"AURA-REPO-HYGIENE-PROGRAM-20260809",
   "repository":{
     "branch":"chore/repo-hygiene-control-plane-20260809",
-    "head":"e1004795e56df8c171422261eace96543649cf51",
+    "head":"994fe3f3470ebaf11dcecc990ada543d0be0e19b",
     "remote_head":"e1004795e56df8c171422261eace96543649cf51",
     "working_tree_state":"dirty_expected"
   },
