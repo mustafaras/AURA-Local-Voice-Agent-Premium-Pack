@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-08T16:44:48Z",
-  "session_id": "AURA-R9-PRODUCT-UI-20260808",
+  "updated_at": "2026-08-09T09:58:06Z",
+  "session_id": "AURA-R10-SECURITY-20260809",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "3f5c28faf513e9a6a3be27677a7ac566c5fca168",
-    "remote_head": "3f5c28faf513e9a6a3be27677a7ac566c5fca168",
+    "verified_head": "a5a1f5fd702cc5dd34ace31ffe2dcfa254798548",
+    "remote_head": "a5a1f5fd702cc5dd34ace31ffe2dcfa254798548",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -23,18 +23,20 @@
       "R7 local voice routing/resource slice was committed as bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and pushed to origin/main after the final local regression passed 21/21 bundles and 774/774 tests. Live wake/STT/voice/recovery/soak gates and ADR-042 approval remain open.",
       "R8 memory/personalization/explainability slice is implemented locally with purpose-aware memory writes, bounded preference profiles, authority-ranked context, conflict surfacing, provenance inspection, and local-only/remote fail-closed delivery. Focused validation is recorded by EV-R8-20260808-MEMORY-POLICY-01 and EV-R8-20260808-CONTEXT-PRODUCT-02; live product demonstrations, R9 UI, and ADR-043 acceptance remain open.",
       "R8 full available regression passed 21/21 bundles and 782/782 tests with zero failed bundles; runtime-completion validation, 13 governance tests, JSON parsing, shell syntax, and git diff check also passed. Changes remain local and uncommitted.",
-      "R9 first-pass product UI/accessibility/onboarding slice is implemented locally. swift build --target AURA passed; the R9ProductUIState integration target compiled and its direct Swift Testing run passed 3/3. R9 live VoiceOver/keyboard/manual layout, full control coverage, onboarding denial/restart, and user-present acceptance remain open; no delivery action was authorized."
+      "R9 first-pass product UI/accessibility/onboarding slice is implemented locally. swift build --target AURA passed; the R9ProductUIState integration target compiled and its direct Swift Testing run passed 3/3. R9 live VoiceOver/keyboard/manual layout, full control coverage, onboarding denial/restart, and user-present acceptance remained open before delivery.",
+      "R9 was committed as 2879cbfd430ba3caba7cf361d83f1a802b1cf463 on feature/r9-product-ui-accessibility, pushed, merged to main as a5a1f5fd702cc5dd34ace31ffe2dcfa254798548, and pushed to origin/main. R9 remains in_progress with its open gates preserved; the user explicitly authorized transition to R10.",
+      "Six untracked Finder-copy files with exact byte-identical counterparts are preserved outside the R9 delivery scope and are not staged."
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R9",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
+    "id": "R10",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
     "state": "in_progress",
-    "step": "R9 first-pass product UI, accessibility semantics, localization, staged onboarding, truthful capability/task/model/privacy surfaces, and recovery controls are implemented locally; live/manual acceptance and remaining control projections are open. R8 deferred gates remain open and must not be treated as closed by UI projections.",
-    "started_at": "2026-08-08T15:28:28Z",
+    "step": "R10 first-pass security audit and hardening: map process privileges, enforce authenticated typed IPC/network/secret boundaries, preserve provenance and policy invariants, and add adversarial containment evidence. R2-R9 open gates remain preserved.",
+    "started_at": "2026-08-09T09:58:06Z",
     "blocked_by": [
-      "R8 live gates remain open exactly as recorded in SECOND_PASS_OPEN_GAPS.md; R9 live VoiceOver/keyboard/localization/onboarding acceptance and full product surface coverage are not yet verified. R2-R8 remain open as recorded."
+      "R2-R9 remain in_progress with open gates exactly as recorded in SECOND_PASS_OPEN_GAPS.md; R10 must not claim OS-enforced isolation, network enforcement, OAuth hardening, or supply-chain completion before direct evidence exists."
     ]
   },
   "tracks": [
@@ -263,7 +265,8 @@
         "EV-R9-20260808-UI-TESTS-03",
         "EV-R9-20260808-UI-REGRESSION-05",
         "EV-R9-20260808-GAPS-04",
-        "EV-R9-20260808-FAIL-CLOSED-06"
+        "EV-R9-20260808-FAIL-CLOSED-06",
+        "EV-R9-20260809-DELIVERY-07"
       ],
       "open_risk_ids": [
         "RISK-CONTROL-PANEL-NOT-ASSISTANT-UI",
@@ -275,13 +278,13 @@
     {
       "id": "R10",
       "name": "Security and Privilege Separation",
-      "state": "pending",
+      "state": "in_progress",
       "dependencies": [
         "R4",
         "R5",
         "R6"
       ],
-      "started_at": null,
+      "started_at": "2026-08-09T09:58:06Z",
       "completed_at": null,
       "evidence_ids": [],
       "open_risk_ids": [
@@ -417,6 +420,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-R9-20260809-DELIVERY-07",
     "EV-R9-20260808-FAIL-CLOSED-06",
     "EV-R9-20260808-UI-REGRESSION-05",
     "EV-R9-20260808-GAPS-04",
@@ -437,7 +441,7 @@
     "EV-R2-20260804-PTT-PERMISSION-AUDIT-01"
   ],
   "blockers": [
-    "R9 is in_progress after explicit user continuation. The product UI/accessibility/onboarding slice is being implemented; R8 live gates and R9 live/manual acceptance remain open. R2-R8 remain open exactly as tracked in SECOND_PASS_OPEN_GAPS.md."
+    "R2-R9 remain in_progress with deferred/live/manual gates preserved in SECOND_PASS_OPEN_GAPS.md. R10 has no completion evidence yet; independent security review and direct enforcement evidence are required before external-beta claims."
   ],
-  "next_action": "Run the user-present R9 VoiceOver/keyboard/localization/onboarding/manual acceptance and close or explicitly scope the remaining task/capability/model/privacy/recovery controls; do not start R10 until R9's gate is evidenced or explicitly scoped."
+  "next_action": "Read the R10 threat-model, security ADR, policy/grant/confirmation, network, secret/OAuth, plugin, helper, adversarial, and incident-response context; reconcile the live topology before editing."
 }

@@ -184,7 +184,7 @@ local tests as live product acceptance.
 
 ## R9 status
 
-R9 — Product UI, Accessibility, and Onboarding — is the active first-pass
+R9 — Product UI, Accessibility, and Onboarding — was the delivered first-pass
 prompt. The local slice replaces the single control panel with conversation,
 durable task, capability/permission, model/voice, privacy/memory, and recovery
 surfaces. It adds truthful health/degraded/disabled projections, staged
@@ -192,13 +192,25 @@ onboarding, persisted tab/language state, confirmation/emergency controls,
 non-audit memory controls, and English/Turkish shell copy. `swift build
 --target AURA` passed and the R9 reducer/localization/export tests passed 3/3
 under `EV-R9-20260808-UI-BUILD-02` and
-`EV-R9-20260808-UI-TESTS-03`.
+`EV-R9-20260808-UI-TESTS-03`, with final source evidence
+`EV-R9-20260808-FAIL-CLOSED-06` and authorized delivery
+`EV-R9-20260809-DELIVERY-07`.
 
 R9 is **not formally complete**. User-present VoiceOver/keyboard/focus,
 contrast/scaled-layout/reduced-motion, TCC denial/revocation, onboarding
 restart/recovery, full task scope/review metadata, capability grant lifecycle,
 model lifecycle, integrations/account controls, support bundles, and complete
 privacy/recovery acceptance remain open in `SECOND_PASS_OPEN_GAPS.md`.
+
+## R10 status
+
+R10 — Security and Privilege Separation — is now the active first-pass prompt
+after explicit user authorization to deliver R9 and continue. The delivered
+tree still has the main-process privilege, network, secret/OAuth, helper IPC,
+provenance/injection, plugin trust, and operations gaps described by the R10
+prompt. No R10 implementation or completion claim has been made yet; the next
+step is a live-source topology audit followed by the smallest evidence-backed
+hardening slice. R2-R9 remain `in_progress` and their open gates are preserved.
 
 ## Why this program exists
 
@@ -222,20 +234,21 @@ The immediate program must:
 
 ## Immediate next action
 
-R9 is the active prompt (in_progress) after explicit user continuation.
-R2/R3/R4/R5/R6/R7/R8 remain open and all deferred gates are recorded in
+R10 is the active prompt (in_progress) after explicit user authorization and
+R9 delivery. R2/R3/R4/R5/R6/R7/R8/R9 remain open and all deferred gates are recorded in
 [`SECOND_PASS_OPEN_GAPS.md`](../SECOND_PASS_OPEN_GAPS.md). The next concrete R8
-work is now historical; the next concrete R9 work is:
+work and R9 work are now historical for this first-pass transition; the next
+concrete R10 work is:
 
-1. **Run user-present R9 acceptance**: VoiceOver order, keyboard-only focus,
-   confirmation focus/expiry, contrast, scaled layout, reduced motion,
-   Turkish/English clean/configured profiles, denial/revocation, restart, and
-   emergency stop.
-2. **Complete or explicitly scope the remaining task, capability, model,
-   privacy, integration, and recovery controls** without presenting unavailable
-   backends as ready.
-3. **Keep R9 in progress and do not start R10** until its gate is evidenced or
-   explicitly scoped; preserve R2-R8 open gaps and ADR-043 Proposed.
+1. **Read and reconcile R10 context**: threat model, security ADRs, policy and
+   grants, confirmation binding, network/secret/OAuth, helper/plugin, injection,
+   adversarial, updater, and incident-response sources.
+2. **Map the live boundaries before editing**: process authority, entitlements,
+   network clients, secret paths, local IPC assumptions, untrusted-content
+   provenance, and plugin/package trust. Mark policy-only behavior separately
+   from OS-enforced confinement.
+3. **Implement and test only evidence-backed R10 slices**, append every open
+   security gate to `SECOND_PASS_OPEN_GAPS.md`, and preserve all R2-R9 gaps.
 
 R2, R3, R4, R5, R6, R7, and R8 remain open — see the status sections above and
 `SECOND_PASS_OPEN_GAPS.md`. Do not mark any of them
@@ -243,9 +256,10 @@ complete before their respective remaining items are resolved or explicitly
 accepted. Do not start Phase 26 or any optional historical roadmap phase merely
 because older prose names it as the next action.
 
-After R9's own delivery is explicitly authorized and completed, stop and obtain
-explicit user approval before moving to R10. Do not accept ADR-043 without that
-approval.
+After R10's own delivery is explicitly authorized and completed, stop and obtain
+explicit user approval before moving to R11. Do not accept ADR-044 or claim
+external-beta security readiness without the required evidence and independent
+review.
 
 ## Current major risks
 

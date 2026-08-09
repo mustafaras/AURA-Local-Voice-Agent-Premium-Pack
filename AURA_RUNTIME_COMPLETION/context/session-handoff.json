@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-08T16:44:48Z",
-  "session_id": "AURA-R9-PRODUCT-UI-20260808",
-  "last_verified_commit": "3f5c28faf513e9a6a3be27677a7ac566c5fca168",
+  "updated_at": "2026-08-09T09:58:06Z",
+  "session_id": "AURA-R10-SECURITY-20260809",
+  "last_verified_commit": "a5a1f5fd702cc5dd34ace31ffe2dcfa254798548",
   "active_prompt": {
-    "id": "R9",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
+    "id": "R10",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
     "state": "in_progress",
-    "step": "R9 first-pass product UI, accessibility semantics, localization, staged onboarding, truthful capability/task/model/privacy surfaces, and recovery controls are implemented locally; R8 deferred gates and R9 live/manual acceptance remain open."
+    "step": "R10 first-pass security audit and hardening: map process privileges, enforce authenticated typed IPC/network/secret boundaries, preserve provenance and policy invariants, and add adversarial containment evidence. R2-R9 open gates remain preserved."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R8 remain in_progress with deferred gates recorded in SECOND_PASS_OPEN_GAPS.md. R9 is active after explicit user continuation: the product UI, accessibility, localization, staged onboarding, truthful disabled-state surfaces, memory controls, and recovery controls are implemented locally. R8 live gates and R9 live/manual acceptance remain open.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R9 remain in_progress with deferred/live/manual gates recorded in SECOND_PASS_OPEN_GAPS.md. R9 first-pass UI was delivered as commit a5a1f5f on origin/main, but its acceptance gates remain open. R10 is active after explicit user authorization and has no completion evidence yet.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -37,7 +37,8 @@
     "Implemented the R6 typed bridge/workspace/backend/coordinator/task-bounds slice under EV-R6-20260808-TYPED-ROUTES-02; source builds and the clean scratch runtime suite passed 21/21 bundles and 763/763 tests, while the repository runner retained the known AuraAudio helper exit-142 limitation.",
     "Started the R7 voice routing/resource-governor slice: production wake detection is explicitly disabled until a real model qualifies; local STT routing checks on-device capability and preserves engine-lifetime streams; incomplete turns, TTS interruption/timeout/fallback, and bounded STT/neural-TTS reservations are covered locally. Final available validation passed 21/21 bundles and 774/774 tests; R7 remains in_progress pending live evidence and explicit ADR-042 approval.",
     "R8 local memory/context implementation and full regression were verified; R9 started after explicit user continuation.",
-    "R9 first-pass UI slice was source-build verified; fail-closed runtime guards were added and R9ProductUIState plus RuntimeUIRemediation focused suites passed 6/6 through the direct Swift Testing helper. R9 unresolved live/manual and remaining control gates were appended to SECOND_PASS_OPEN_GAPS.md."
+    "R9 first-pass UI slice was source-build verified; fail-closed runtime guards were added and R9ProductUIState plus RuntimeUIRemediation focused suites passed 6/6 through the direct Swift Testing helper. R9 unresolved live/manual and remaining control gates were appended to SECOND_PASS_OPEN_GAPS.md.",
+    "R9 delivery was verified: feature commit 2879cbf was pushed, merge commit a5a1f5f was pushed to origin/main, remote/local SHA equality and a clean tree were confirmed. R10 started by explicit user authorization; no deploy/release action was performed."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
@@ -311,20 +312,20 @@
     "RISK-STT-MIC-NOT-CAPTURING",
     "RISK-CLOSED-TOOL-ROUTER"
   ],
-  "next_action": "Perform user-present R9 VoiceOver/keyboard/localization/onboarding/manual acceptance and complete or explicitly scope remaining task/capability/model/privacy/recovery controls. Preserve all R2-R8 open gates and do not start R10 without R9 gate evidence or explicit scope approval.",
+  "next_action": "Read the R10 threat-model, security ADR, policy/grant/confirmation, network, secret/OAuth, plugin, helper, adversarial, and incident-response context; reconcile the live topology before editing.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-    "AURA_RUNTIME_COMPLETION/prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
+    "AURA_RUNTIME_COMPLETION/context/READ_FIRST.md",
+    "AURA_RUNTIME_COMPLETION/prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-    "Sources/AuraCore/TurnContext.swift",
-    "Sources/AuraVSCode/VSCodeAdapter.swift",
-    "Sources/AuraVSCode/VSCodeExtensionBridge.swift"
+    "docs/security/30_THREAT_MODEL.md",
+    "docs/operations/ADVERSARIAL_INCIDENT_RESPONSE.md"
   ],
-  "notes": "R1 and the local R2 implementation were validated, committed as b8f8960, and pushed to origin/main. R7 was delivered through commits bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and 95d88ab831595e8d369970bd3da23f86c10dac59, both pushed to origin/main. Dependency/model installation, TCC, app launch/install, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R2-R8 open gates are preserved in SECOND_PASS_OPEN_GAPS.md. R9 source build passed and deterministic UI tests passed 3/3; R9 live/manual gates remain open."
+  "notes": "R1 and the local R2 implementation were validated, committed as b8f8960, and pushed to origin/main. R7 was delivered through commits bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and 95d88ab831595e8d369970bd3da23f86c10dac59. R9 was delivered through feature commit 2879cbf and merge commit a5a1f5f, both pushed; its live/manual gates remain open. Dependency/model installation, TCC, signing, notarization, release, and deployment remain unauthorized. The CommandLineTools-only limitation is documented in TOOLCHAIN.md and ADR-045. R2-R9 open gates are preserved in SECOND_PASS_OPEN_GAPS.md."
 }

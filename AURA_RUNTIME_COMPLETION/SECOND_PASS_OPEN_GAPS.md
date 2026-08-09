@@ -219,9 +219,37 @@ Evidence is recorded under `EV-R9-20260808-UI-BUILD-02` and
   integrations, and launch-at-login steps remain truthful optional/deferred
   steps; R11 owns launch-at-login. R9 remains `in_progress`.
 
+## R10 — Security and Privilege Separation
+
+Prompt: [`11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md`](prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md)
+
+R10 is now the active first-pass prompt after the user explicitly authorized R9
+commit/push/merge and continuation. R9 remains `in_progress`; its open manual,
+live, TCC, task/capability/model/privacy/recovery, and accessibility gates are
+preserved above. R10 has not yet been audited or implemented in this transition
+record, so every R10 completion gate remains open:
+
+- process/privilege topology, helper boundaries, entitlements, sandbox claims,
+  and authenticated typed local IPC;
+- mandatory network factory/enforcement, redirect/DNS/TLS/download bounds,
+  provider/account grants, and subprocess network assumptions;
+- Keychain/secret references, OAuth scope/expiry/revocation, PKCE/CSRF/callback
+  binding, and leakage prevention across args/env/logs/events/crashes/support;
+- untrusted-content provenance, instruction/content separation, schema and
+  capability validation, redaction, action-time policy re-evaluation, and
+  indirect-injection corpus coverage;
+- plugin/package signature, hash, vendor-root, revocation, quarantine,
+  update/rollback, SBOM/checksum, and unverified-code rejection evidence;
+- incident response, review schedule, vulnerability reporting, grant
+  revocation, containment, independent security review, and ADR-044 acceptance.
+
+No R10 gate is closed by this phase-start entry. These gaps must be refined with
+source/test evidence and retained until independently verified or explicitly
+accepted by the authorized release owner.
+
 ## Current first-pass workflow boundary
 
-Continue R9 now as the active first-pass prompt. After each prompt, append that
+Continue R10 now as the active first-pass prompt. After each prompt, append that
 prompt's unresolved gates to this file for the future second pass; do not treat
 the presence of an entry here as permission to skip its current first-pass
 work.
@@ -239,13 +267,13 @@ work.
 
 ## Prompt transition approval rule
 
-- After R9 reaches its own completion gate, perform commit/push/merge/deploy
-  only if the user explicitly authorizes that delivery and record exact
-  evidence for each action.
-- Stop after the authorized R9 delivery and request the user's explicit
-  approval before transitioning to R10. Do not begin R10 from an assumed or
-  implied approval. R9 is already active because that transition approval was
-  explicitly given; this rule governs the next transition.
+- After each prompt reaches its own completion gate, perform commit/push/merge/
+  deploy only if the user explicitly authorizes that delivery and record exact
+  evidence for each action. R9 delivery was explicitly authorized and recorded
+  under `EV-R9-20260809-DELIVERY-07`.
+- Stop after the authorized R10 delivery and request explicit user approval
+  before transitioning to R11. Do not begin R11 from an assumed or implied
+  approval.
 
 ## Reopening rule
 

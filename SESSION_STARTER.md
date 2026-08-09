@@ -1,16 +1,16 @@
-# AURA Session Starter — R9 Active; R2/R3/R4/R5/R6/R7/R8 Open for Second Pass
+# AURA Session Starter — R10 Active; R2/R3/R4/R5/R6/R7/R8/R9 Open for Second Pass
 
-> Conversation date: 8 August 2026
-> Live HEAD: `3f5c28faf513e9a6a3be27677a7ac566c5fca168` — `docs(deploy): record R7 local app installation`
+> Conversation date: 9 August 2026
+> Live HEAD: `a5a1f5fd702cc5dd34ace31ffe2dcfa254798548` — `merge: deliver R9 product UI`
 > Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry before changing files.
 
-## Canonical State Notice — 2026-08-08
+## Canonical State Notice — 2026-08-09
 
 This starter is a **historical compatibility document**. Use
 `AURA_RUNTIME_COMPLETION/state/current-state.json` and
 `AURA_RUNTIME_COMPLETION/context/session-handoff.json` as the authoritative
-state. Live `HEAD == origin/main == 3f5c28faf513e9a6a3be27677a7ac566c5fca168`;
-the active prompt is **R9**. R2/R3/R4/R5/R6/R7/R8 remain open and their second-pass
+state. Live `HEAD == origin/main == a5a1f5fd702cc5dd34ace31ffe2dcfa254798548`;
+the active prompt is **R10**. R2/R3/R4/R5/R6/R7/R8/R9 remain open and their second-pass
 gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
 The historical phase and push claims below are not current state.
 
@@ -70,7 +70,12 @@ The historical phase and push claims below are not current state.
   tests are implemented locally. User-present VoiceOver/keyboard/manual layout,
   denial/revocation/restart, full control lifecycle, and live acceptance remain
   open; evidence: `EV-R9-20260808-UI-BUILD-02`,
-  `EV-R9-20260808-UI-TESTS-03`, `EV-R9-20260808-GAPS-04`.
+  `EV-R9-20260808-UI-TESTS-03`, `EV-R9-20260808-GAPS-04`, and authorized
+  delivery `EV-R9-20260809-DELIVERY-07`.
+- **R10** `in_progress` — security/privilege topology, authenticated IPC,
+  mandatory network and secret boundaries, provenance/injection defenses,
+  plugin trust, and adversarial containment are now under first-pass audit.
+  No R10 completion evidence exists yet; all R10 gates remain open.
 
 ## Second-pass completion plan (all remaining gates)
 
@@ -98,13 +103,15 @@ requires the user physically present or explicit authorization:
 7. **R8:** retain the current first-pass open gates listed in
    `SECOND_PASS_OPEN_GAPS.md`; complete local integration and validation, then
    R9 was then started by explicit user approval; its live gates remain open.
-8. **R9:** perform user-present VoiceOver, keyboard, layout/localization,
-   onboarding denial/restart, permission, emergency-stop, and recovery
-   acceptance; complete or explicitly scope remaining controls before R10.
+8. **R9:** retain the unresolved first-pass gates in
+   `SECOND_PASS_OPEN_GAPS.md`; R9 was delivered but not formally closed.
+9. **R10:** map and harden process privilege, IPC, network, secret/OAuth,
+   provenance/injection, plugin, and operations boundaries; add adversarial
+   evidence and retain all unresolved security gates.
 
-After R9's own delivery is explicitly authorized, record exact evidence and
-stop for the user's explicit approval before transitioning to R10. Do not begin
-R10 from an assumed approval.
+After R10's own delivery is explicitly authorized, record exact evidence and
+stop for the user's explicit approval before transitioning to R11. Do not begin
+R11 from an assumed approval.
 
 ## Verified historical handoff (Phases 0–25, prior program)
 
@@ -125,10 +132,10 @@ R10 from an assumed approval.
    `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest
    `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry plus
    `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
-2. Continue **R9 (active prompt)** with user-present/manual accessibility,
-   localization, onboarding, and recovery acceptance; keep R2/R3/R4/R5/R6/R7/R8
-   open and append every unresolved R9 gate to `SECOND_PASS_OPEN_GAPS.md`.
+2. Continue **R10 (active prompt)** by reading the required security context,
+   auditing the live boundaries, and appending every unresolved R10 gate to
+   `SECOND_PASS_OPEN_GAPS.md`; keep R2/R3/R4/R5/R6/R7/R8/R9 open.
 3. State objective, assumptions, risks, and acceptance criteria in the task
    ledger before editing.
-4. Do not commit, push, merge, release, deploy, or mutate TCC/application state
-   unless explicitly authorized.
+4. Do not release, deploy, sign, mutate TCC/application state, install
+   dependencies/models, or access secrets unless explicitly authorized.
