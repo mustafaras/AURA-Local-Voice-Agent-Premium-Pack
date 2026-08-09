@@ -75,7 +75,8 @@ func intentEngineAppendsWorkingConversationRecordForClassifiedIntent() async thr
   let record = records[0]
   #expect(record.subject.hasPrefix("intent:"))
   #expect(record.statement.contains("appActivate"))
-  #expect(record.statement.contains("open safari"))
+  #expect(!record.statement.contains("open safari"))
+  #expect(record.statement.contains("slots: bundleIdentifier"))
   #expect(record.provenance == .systemDerived(source: .intent))
   #expect(record.evidenceReferences.contains(correlationID.uuidString))
 }

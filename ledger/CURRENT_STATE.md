@@ -7,29 +7,34 @@ Projection refreshed from live repository and command evidence on 2026-08-08.
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == 95d88ab831595e8d369970bd3da23f86c10dac59`. R1 is complete for
-local development/integration scope. R2, R3, R4, and R5 remain `in_progress`
+origin/main == 3f5c28faf513e9a6a3be27677a7ac566c5fca168`. R1 is complete for
+local development/integration scope. R2, R3, R4, R5, R6, R7, and R8 remain
+`in_progress`
 with deferred gates recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
-R7 (voice wake/STT/TTS/resource governance) is now the active prompt after a
-user-directed continuation. This legacy projection
+R8 (memory, personalization, and explainability) remains open after its full
+available local regression passed 21/21 bundles and 782/782 tests. R9
+(product UI, accessibility, and onboarding) is now the active prompt after
+explicit user continuation; its source build passed and deterministic UI-state
+tests passed 3/3, while live product/manual gates remain open. ADR-043 remains
+Proposed. This legacy projection
 is retained for historical compatibility; the older status sections below are
 not authoritative and must not override the canonical machine state.
 
 ## Latest Verification Snapshot — 2026-08-08
 
-- R2/R3/R4 runtime and governance changes are present at live `daf062a`; the worktree is intentionally dirty; R5 and R6 first-slice changes remain local and uncommitted. R5 full regression passed 21/21 bundles, 747/747 tests; R6 full regression passed 21/21 bundles, 751/751 tests, both with 0 failed bundles.
+- R2/R3/R4 runtime and governance changes are present at live `daf062a`; the worktree is intentionally dirty; R5, R6, R7, R8, and R9 first-pass changes remain local and uncommitted. R5 full regression passed 21/21 bundles, 747/747 tests; R6 full regression passed 21/21 bundles, 751/751 tests, both with 0 failed bundles. R8 focused memory/context validation passed 30/30 and 33/33; full R8 regression passed 21/21 bundles and 782/782 tests with zero failed bundles, and governance passed. R9 `swift build --target AURA` passed; the direct R9 UI-state run passed 3/3.
 - R2 bilingual NLU/dialogue implemented and system-tested but not formally closed (live hardware evidence pending).
 - R3 capability registry/typed planner architectural core implemented and tested (ADR-038 accepted) but not complete.
 - R4 computer-use productization deterministic core and registry wiring implemented and tested (ADR-039 accepted) but not complete (live beta-app evidence pending).
-- R5 browser/mail/calendar/contacts adapters is the active prompt; **ADR-040 is Accepted** and the first typed read-first slice is implemented/tested (`AuraProductivityTests` 9/9), with truthful capability manifests remaining `.disabled` until composition/provider/live wiring. Safari extension packaging, live accounts/permissions, mutation/send, and live acceptance remain open.
+- R5 browser/mail/calendar/contacts adapters, R6 coding-agent routes, and R7 voice/resource governance remain open; **ADR-040 is Accepted**, while ADR-041, ADR-042, and ADR-043 remain Proposed. R8 memory/context is locally bounded and explainable, but production reference wiring, user-present controls, remote transport evidence, and live acceptance remain open.
 - `swift-format`/full Xcode and release gates remain unavailable or open.
 
 - Code revision `20571de` contains the verified sequential Swift test runner and serialized system-TTS latency suite.
 - Full repository validation passes: 20 test bundles, 665 tests, 0 failed bundles. The release `AURA.app` bundle and PluginHost/AutomationHelper/ShellHelper payloads also build successfully under `/tmp/aura-app-after`.
 - An unsigned AURA executable launched from a workspace-local bundle with an isolated `HOME` and stayed alive for the 12-second watchdog window without crash output. This is a bounded startup smoke only; it does not prove signing, TCC, GUI, microphone, Screen Recording, real wake-word, or release behavior.
 - `git diff --check` and shell syntax checks pass. `swift-format` is unavailable on this host.
-- R6 is active and its first policy/bridge slice is verified under `EV-R6-20260808-POLICY-BRIDGE-01`: `AuraVSCodeTests` 17/17 and full 751/751; the installed local `code` CLI is version 1.132.0 arm64; no live command or extension package was executed.
-- Next safe action: package/provision the authenticated bridge, complete typed workspace/task/test/agent routes, backend health, durable reviewable coding-agent flows, and user-present live acceptance. R5 and earlier gates remain in the second-pass list.
+- R6's policy/bridge and typed-route slices remain source/build verified, with live extension/backend acceptance open. R8 focused evidence is recorded under `EV-R8-20260808-MEMORY-POLICY-01` and `EV-R8-20260808-CONTEXT-PRODUCT-02`; these are subsystem/integration evidence, not live product acceptance.
+- Next safe action: perform user-present R9 VoiceOver/keyboard/localization/onboarding/manual acceptance and complete or explicitly scope remaining product-control gaps; keep R2-R8 open and stop before R10 until R9 is evidenced.
 
 - Phase: Phase 25 adversarial safety harness and red-team evaluation suite is
   implemented, verified, and closed. Phase 24 layered configuration is

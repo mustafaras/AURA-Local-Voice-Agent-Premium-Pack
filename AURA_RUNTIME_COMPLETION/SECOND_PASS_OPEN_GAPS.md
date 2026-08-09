@@ -142,9 +142,86 @@ or ADR-042 approval.
   explicit user acceptance are not recorded. Do not mark R7 complete or move
   to R8 based on simulated tests alone.
 
+## R8 — Memory, Personalization, and Explainability
+
+Prompt: [`09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md`](prompts/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md)
+
+R8's local first-pass slice is implemented and focused-tested under
+`EV-R8-20260808-MEMORY-POLICY-01` and
+`EV-R8-20260808-CONTEXT-PRODUCT-02`; the full local regression and governance
+gate passed under `EV-R8-20260808-REGRESSION-03`. R8 nevertheless remains
+`in_progress`. The local contracts do not replace the required product, live,
+or decision-acceptance gates.
+
+- A user-present restart-safe preference demonstration has not been run through
+  the launched application; the second-store-handle test proves persistence
+  only at the subsystem/integration level.
+- Production reference-candidate population is incomplete. Resolver and
+  ContextBuilder contracts exist, but the full salience/tool candidate assembly
+  is not yet wired for multi-turn references such as “that repo”, “last file”,
+  “previous test”, “ask Claude”, or “send the draft”. Ambiguous or destructive
+  references must still clarify and require the real policy/confirmation path.
+- Authority-ranked active beliefs and unresolved contradiction surfacing are
+  implemented and tested, but all conflict classes, supersession outcomes, and
+  user correction behavior lack a user-present product demonstration.
+- Search, browse, correct, supersede, delete, and export controls are not yet
+  exposed through the R9 user interface; audit/security retention and
+  user-visible explainability acceptance remain open.
+- Purpose, provenance, sensitivity, token budget, exclusions, and local-only
+  remote fail-closed delivery are tested. No actual remote transport/provider
+  evidence exists; a separately redacted and user-approved remote-summary path
+  must not be inferred from the current fail-closed behavior.
+- Poisoning, secret-like input, raw/model/untrusted write rejection, and local
+  policy non-weakening have local evidence, but there is no end-to-end live
+  model/tool material-improvement, latency/soak, or privacy-audit package.
+- ADR-043 remains `Proposed`; explicit user acceptance and the R8 completion
+  gate are still required. R9 was started by explicit user continuation; this
+  R8 entry remains historical and does not close R8's deferred gates.
+
+## R9 — Product UI, Accessibility, and Onboarding
+
+Prompt: [`10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md`](prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md)
+
+The first-pass R9 product slice is implemented locally and source-build
+verified. The menu-bar/window surface now has conversation, task,
+capability/permission, model/voice, privacy/memory, and recovery sections;
+truthful local/cloud and degraded/disabled indicators; staged onboarding;
+keyboard shortcuts/native controls; confirmation presentation; memory
+inspection/correction/deletion/export wiring; and English/Turkish shell copy.
+Evidence is recorded under `EV-R9-20260808-UI-BUILD-02` and
+`EV-R9-20260808-UI-TESTS-03`. This does not close R9.
+
+- VoiceOver reading order, keyboard-only navigation, confirmation focus
+  containment/expiry, contrast, non-color status, scaled text/reflow,
+  reduced-motion behavior, and Turkish/English layout must still be exercised
+  manually on the target macOS hardware. The local SwiftPM test runner also
+  requires the CommandLineTools Testing framework/rpath workaround in this
+  host; full Xcode UI automation is unavailable.
+- The task projection currently exposes the durable `TaskStatus` fields only.
+  Backend/model/workspace/account/app scope, diff/test/artifact/evidence
+  review, pause/resume/retry controls, and universal truthful verification
+  presentation are not yet available from that backend contract.
+- The capability center is currently an inspectable health projection. Grant
+  expiry/revoke/disable/test controls and live TCC/permission repair evidence
+  are not yet wired into the product surface; unavailable capabilities remain
+  visibly disabled rather than being presented as executable.
+- The model/voice center reports configured system voice and coding-backend
+  health, but model download/remove, routing/fallback controls, benchmark
+  health, local-model readiness, and reference-voice consent evidence remain
+  open. No model or dependency was downloaded by R9.
+- Memory controls are wired to the R8 append-only policy, but user-present
+  restart, correction/conflict, deletion, export, retention, and privacy
+  acceptance have not been demonstrated. Integrations/account-scope/network
+  summaries, support-bundle generation, safe-mode/reset flows, and update or
+  uninstall guidance remain incomplete.
+- Onboarding denial/revocation/restart recovery and live clean/configured
+  Turkish/English profiles have not been demonstrated. Wake word, local model,
+  integrations, and launch-at-login steps remain truthful optional/deferred
+  steps; R11 owns launch-at-login. R9 remains `in_progress`.
+
 ## Current first-pass workflow boundary
 
-Continue R7 now as the active first-pass prompt. After each prompt, append that
+Continue R9 now as the active first-pass prompt. After each prompt, append that
 prompt's unresolved gates to this file for the future second pass; do not treat
 the presence of an entry here as permission to skip its current first-pass
 work.
@@ -162,10 +239,13 @@ work.
 
 ## Prompt transition approval rule
 
-- After R7 reaches its own completion gate, perform the explicitly requested
-  commit/push/merge delivery and record the exact delivery evidence.
-- Stop after that R7 delivery and request the user's explicit approval before
-  transitioning to R8. Do not begin R8 from an assumed or implied approval.
+- After R9 reaches its own completion gate, perform commit/push/merge/deploy
+  only if the user explicitly authorizes that delivery and record exact
+  evidence for each action.
+- Stop after the authorized R9 delivery and request the user's explicit
+  approval before transitioning to R10. Do not begin R10 from an assumed or
+  implied approval. R9 is already active because that transition approval was
+  explicitly given; this rule governs the next transition.
 
 ## Reopening rule
 

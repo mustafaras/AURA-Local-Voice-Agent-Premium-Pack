@@ -1,6 +1,9 @@
 import AppKit
+import AuraAgent
 import AuraConfig
 import AuraCore
+import AuraIntent
+import AuraMemory
 import AuraStore
 import Foundation
 
@@ -54,6 +57,16 @@ final class AuraAppModel: ObservableObject {
   @Published private(set) var effectiveConfiguration: [EffectiveConfigurationEntry] = []
   @Published private(set) var configurationAuditCount = 0
   @Published private(set) var localRecommendationsEnabled = false
+  @Published private(set) var taskStatuses: [TaskStatus] = []
+  @Published private(set) var capabilityRows: [AuraCapabilityRow] = []
+  @Published private(set) var backendHealth: [AgentBackendHealth] = []
+  @Published private(set) var memoryRows: [AuraMemoryRow] = []
+  @Published private(set) var conversationMessages: [AuraConversationMessage] = []
+  @Published private(set) var partialTranscript = ""
+  @Published private(set) var lastPlanSummary: String?
+  @Published private(set) var lastOperationMessage = ""
+  @Published var productUIState = AuraProductUIState()
+  @Published var memoryCorrectionTarget: AuraMemoryRow? = nil
 
   private let confirmationPresenter = UIConfirmationPresenter()
   private let emergencyShortcutMonitor = EmergencyShortcutMonitor()
@@ -63,6 +76,17 @@ final class AuraAppModel: ObservableObject {
   private var bootTask: Task<Void, Never>?
 
   init() {
+    if let rawLanguage = UserDefaults.standard.string(forKey: "aura.ui.language"),
+      let savedLanguage = AuraUILanguage(rawValue: rawLanguage)
+    {
+      productUIState.language = savedLanguage
+    }
+    if let data = UserDefaults.standard.data(forKey: "aura.ui.state"),
+      let savedState = try? JSONDecoder().decode(AuraProductUIState.self, from: data)
+    {
+      productUIState.selectedTab = savedState.selectedTab
+      productUIState.onboarding = savedState.onboarding
+    }
     bootTask = Task { [weak self] in
       guard let self else { return }
       self.emergencyShortcutMonitor.start { [weak self] in
@@ -79,7 +103,11 @@ final class AuraAppModel: ObservableObject {
       permissions = await PermissionCoordinator.requestVoicePermissions()
       if permissions.speechReady {
         do {
-          try await kernel?.startSpeechRecognition()
+          guard let kernel else {
+            setError("AURA runtime is not started; voice permission setup cannot continue")
+            return
+          }
+          try await kernel.startSpeechRecognition()
           status = .idle
           statusDetail = "Ready — use Push to Talk"
         } catch {
@@ -120,7 +148,11 @@ final class AuraAppModel: ObservableObject {
           return
         }
         do {
-          try await kernel?.startSpeechRecognition()
+          guard let kernel else {
+            setError("AURA runtime is not started; Push to Talk cannot start")
+            return
+          }
+          try await kernel.startSpeechRecognition()
         } catch {
           setError("Speech recognition could not start: \(error.localizedDescription)")
           return
@@ -140,6 +172,7 @@ final class AuraAppModel: ObservableObject {
     let text = textInput.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !text.isEmpty else { return }
     textInput = ""
+    appendConversation(.init(role: .user, text: text))
     Task {
       do {
         try await kernel?.submitText(text)
@@ -174,6 +207,222 @@ final class AuraAppModel: ObservableObject {
     confirmationContinuation?.resume(returning: accepted)
     confirmationContinuation = nil
     pendingConfirmation = nil
+    productUIState.reduce(.hideConfirmation)
+  }
+
+  func selectTab(_ tab: AuraProductTab) {
+    productUIState.reduce(.selectTab(tab))
+    persistProductUIState()
+  }
+
+  func setUILanguage(_ language: AuraUILanguage) {
+    productUIState.reduce(.setLanguage(language))
+    UserDefaults.standard.set(language.rawValue, forKey: "aura.ui.language")
+    persistProductUIState()
+    refreshProductSnapshots()
+  }
+
+  func beginOnboarding() {
+    productUIState.reduce(.beginOnboarding)
+    persistProductUIState()
+  }
+
+  func closeOnboarding() {
+    productUIState.reduce(.closeOnboarding)
+    persistProductUIState()
+  }
+
+  func advanceOnboarding() {
+    productUIState.reduce(.advanceOnboarding)
+    persistProductUIState()
+  }
+
+  func skipOptionalOnboardingStep() {
+    productUIState.reduce(.skipOptionalOnboardingStep)
+    persistProductUIState()
+  }
+
+  func onboardingPrimaryAction() {
+    switch productUIState.onboarding.stage {
+    case .privacy, .health, .voiceTest, .ttsTest, .localModel, .integrations,
+      .safeCommand, .launchAtLogin:
+      advanceOnboarding()
+    case .voicePermissions:
+      Task {
+        permissions = await PermissionCoordinator.requestVoicePermissions()
+        guard permissions.speechReady else {
+          status = .restricted
+          statusDetail = "Voice permissions are required before continuing"
+          return
+        }
+        do {
+          guard let kernel else {
+            setError("AURA runtime is not started; voice onboarding cannot continue")
+            return
+          }
+          try await kernel.startSpeechRecognition()
+          status = .idle
+          statusDetail = "Ready — use Push to Talk"
+          advanceOnboarding()
+        } catch {
+          setError("Speech recognition could not start: \(error.localizedDescription)")
+        }
+      }
+    case .wakeWord:
+      lastOperationMessage = "Wake word is optional and no acoustic model is installed."
+      skipOptionalOnboardingStep()
+    case .privilegedAccess:
+      requestAccessibilityPermission()
+      requestScreenRecordingPermission()
+      refreshPermissions()
+      if permissions.accessibility == .granted && permissions.screenRecording == .granted {
+        advanceOnboarding()
+      } else {
+        lastOperationMessage =
+          "Accessibility and Screen Recording remain optional; grant them in macOS Settings, then continue."
+      }
+    case .emergencyStop:
+      if emergencyStopActive {
+        resetEmergencyStop()
+        advanceOnboarding()
+      } else {
+        triggerEmergencyStop()
+        lastOperationMessage = "Emergency stop is active. Press Continue to re-arm and proceed."
+      }
+    case .complete:
+      closeOnboarding()
+    }
+  }
+
+  func refreshProductSnapshots() {
+    Task { [weak self] in
+      guard let self else { return }
+      await refreshRuntimeHealth()
+      guard let kernel else { return }
+      do {
+        taskStatuses = try await kernel.taskStatuses()
+        let capabilitySnapshot = try await kernel.capabilityHealthSnapshot()
+        capabilityRows = capabilitySnapshot.map { manifest, availability in
+          let language: DialogueLanguage = productUIState.language == .turkish ? .turkish : .english
+          let state: String
+          let detail: String
+          let isEnabled: Bool
+          switch availability {
+          case .ready:
+            state = AuraCopy.text("capabilities.ready", language: productUIState.language)
+            detail = "Ready"
+            isEnabled = true
+          case .degraded(let reason):
+            state = AuraCopy.text("capabilities.degraded", language: productUIState.language)
+            detail = reason
+            isEnabled = false
+          case .disabled(let reason):
+            state = AuraCopy.text("capabilities.disabled", language: productUIState.language)
+            detail = reason
+            isEnabled = false
+          case .none:
+            state = AuraCopy.text("capabilities.disabled", language: productUIState.language)
+            detail = "No availability evidence is registered"
+            isEnabled = false
+          }
+          return AuraCapabilityRow(
+            id: manifest.qualifiedID,
+            title: manifest.presentation.title(for: language),
+            description: manifest.presentation.descriptionByLocale[language] ?? "",
+            locality: manifest.locality.rawValue,
+            state: state,
+            detail: detail,
+            riskAndConfirmation: manifest.confirmationRule,
+            qualifiedID: manifest.qualifiedID,
+            isEnabled: isEnabled)
+        }.sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
+        backendHealth = await kernel.refreshAgentBackendHealth()
+        let records = try await kernel.memoryRecordsSnapshot()
+        memoryRows = records.map { record in
+          AuraMemoryRow(
+            id: record.id,
+            memoryClass: record.memoryClass.rawValue,
+            subject: record.subject,
+            statement: record.statement,
+            purpose: record.purpose,
+            provenance: String(describing: record.provenance),
+            confidence: record.confidence,
+            sensitivity: record.sensitivity.rawValue,
+            createdAt: record.createdAt,
+            canMutate: record.memoryClass != .auditSecurity)
+        }
+      } catch {
+        setError("Product status refresh failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func cancelTask(_ id: UUID) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        try await kernel.taskCancel(id: id)
+        lastOperationMessage = "Task cancellation requested."
+        refreshProductSnapshots()
+      } catch {
+        setError("Task cancellation failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func deleteMemory(_ id: UUID) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        try await kernel.deleteMemoryRecord(
+          id: id, reason: "user requested from R9 Memory Center")
+        lastOperationMessage = "Memory record deleted; the deletion itself remains audited."
+        refreshProductSnapshots()
+      } catch {
+        setError("Memory deletion failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func beginMemoryCorrection(_ record: AuraMemoryRow) {
+    memoryCorrectionTarget = record
+  }
+
+  func correctMemory(_ id: UUID, statement: String) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        _ = try await kernel.correctMemoryRecord(
+          id: id, newStatement: statement, reason: "user correction from R9 Memory Center")
+        lastOperationMessage = "Correction appended and linked to the previous memory record."
+        refreshProductSnapshots()
+      } catch {
+        setError("Memory correction failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func exportMemory() {
+    Task {
+      do {
+        guard let data = try await kernel?.memoryExportData() else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "aura-memory-\(Self.exportDateFormatter.string(from: Date())).json"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        try data.write(to: url, options: .atomic)
+        lastOperationMessage = "Non-audit memory export saved."
+      } catch {
+        setError("Memory export failed: \(error.localizedDescription)")
+      }
+    }
   }
 
   func openMicrophoneSettings() {
@@ -255,6 +504,7 @@ final class AuraAppModel: ObservableObject {
       self.kernel = kernel
       try await kernel.start()
       await refreshRuntimeHealth()
+      refreshProductSnapshots()
       refreshConfigurationInspection()
       permissions = PermissionCoordinator.snapshot()
       if permissions.speechReady {
@@ -312,6 +562,26 @@ final class AuraAppModel: ObservableObject {
     }
     await eventBus.subscribe(TaskStateChangedEvent.self) { [weak self] envelope in
       await self?.updateTask(envelope.payload)
+    }
+    await eventBus.subscribe(TaskProgressEvent.self) { [weak self] _ in
+      Task { @MainActor [weak self] in
+        self?.refreshProductSnapshots()
+      }
+    }
+    await eventBus.subscribe(STTPartialEvent.self) { [weak self] envelope in
+      await self?.applyPartialTranscript(envelope.payload)
+    }
+    await eventBus.subscribe(TurnCompletedEvent.self) { [weak self] envelope in
+      await self?.applyCompletedTurn(envelope.payload)
+    }
+    await eventBus.subscribe(ResponsePlanEvent.self) { [weak self] envelope in
+      await self?.applyResponsePlan(envelope.payload)
+    }
+    await eventBus.subscribe(ToolResultEvent.self) { [weak self] envelope in
+      await self?.applyToolResult(envelope.payload)
+    }
+    await eventBus.subscribe(IntentBlockedEvent.self) { [weak self] envelope in
+      await self?.applyIntentBlocked(envelope.payload)
     }
     await eventBus.subscribe(EmergencyStopTriggeredEvent.self) { [weak self] _ in
       await self?.setEmergencyStopActive()
@@ -386,11 +656,57 @@ final class AuraAppModel: ObservableObject {
       AuraTaskSummary(id: event.taskID, title: event.objective, state: "Queued"),
       at: 0)
     tasks = Array(tasks.prefix(5))
+    refreshProductSnapshots()
   }
 
   private func updateTask(_ event: TaskStateChangedEvent) {
     guard let index = tasks.firstIndex(where: { $0.id == event.taskID }) else { return }
     tasks[index].state = event.newState.rawValue
+    refreshProductSnapshots()
+  }
+
+  private func applyPartialTranscript(_ event: STTPartialEvent) {
+    partialTranscript = event.text
+  }
+
+  private func applyCompletedTurn(_ event: TurnCompletedEvent) {
+    partialTranscript = ""
+    guard !event.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+    appendConversation(.init(role: .user, text: event.text))
+  }
+
+  private func applyResponsePlan(_ event: ResponsePlanEvent) {
+    lastPlanSummary = event.summary
+    guard !event.summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+    appendConversation(.init(role: .assistant, text: event.summary))
+  }
+
+  private func applyToolResult(_ event: ToolResultEvent) {
+    lastOperationMessage = event.summary
+    appendConversation(
+      .init(role: .system, text: event.summary, isDegraded: !event.succeeded, sourceSummary: event.toolID))
+  }
+
+  private func applyIntentBlocked(_ event: IntentBlockedEvent) {
+    lastOperationMessage = event.reason
+    appendConversation(
+      .init(role: .system, text: "Blocked: \(event.reason)", isDegraded: true, sourceSummary: "Policy"))
+  }
+
+  private func appendConversation(_ message: AuraConversationMessage) {
+    guard !message.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+    if conversationMessages.last?.role == message.role,
+      conversationMessages.last?.text == message.text
+    {
+      return
+    }
+    conversationMessages.append(message)
+    conversationMessages = Array(conversationMessages.suffix(40))
+  }
+
+  private func persistProductUIState() {
+    guard let data = try? JSONEncoder().encode(productUIState) else { return }
+    UserDefaults.standard.set(data, forKey: "aura.ui.state")
   }
 
   private func setEmergencyStopActive() {
@@ -402,5 +718,14 @@ final class AuraAppModel: ObservableObject {
   private func setError(_ message: String) {
     status = .error
     statusDetail = message
+    lastOperationMessage = message
   }
+
+  private static let exportDateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.calendar = Calendar(identifier: .gregorian)
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "yyyyMMdd"
+    return formatter
+  }()
 }

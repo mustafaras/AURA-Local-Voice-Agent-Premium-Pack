@@ -112,6 +112,33 @@ public actor MemoryEngine {
     sessionID: UUID = UUID(),
     correlationID: UUID = UUID()
   ) async throws(AuraError) -> MemoryAppendOutcome {
+    let source: MemoryWriteSource
+    switch draft.provenance {
+    case .userStated:
+      source = .explicitUser
+    case .observed(let sourceActor), .systemDerived(let sourceActor):
+      source = .verifiedToolEvidence(actor: sourceActor)
+    case .inferred:
+      source = .inferred
+    }
+    return try await append(
+      MemoryWriteRequest(draft: draft, source: source), actor: actor, sessionID: sessionID,
+      correlationID: correlationID)
+  }
+
+  /// Append a record after evaluating its explicit retention/write policy.
+  /// Untrusted content, model output, and raw content have no implicit path
+  /// into durable memory. This overload is the boundary used by product
+  /// callers that know why a record is being retained.
+  @discardableResult
+  public func append(
+    _ request: MemoryWriteRequest,
+    actor: ActorID = .memory,
+    sessionID: UUID = UUID(),
+    correlationID: UUID = UUID()
+  ) async throws(AuraError) -> MemoryAppendOutcome {
+    let draft = request.draft
+    try validateWritePolicy(request)
     try validateEvidence(draft)
     try validateSensitiveRetention(draft)
 
@@ -125,6 +152,7 @@ public actor MemoryEngine {
       sensitivity: draft.sensitivity,
       observedAt: draft.observedAt,
       retention: draft.retention,
+      purpose: draft.purpose,
       supersedes: draft.supersedes,
       scope: draft.scope
     )
@@ -326,6 +354,7 @@ public actor MemoryEngine {
       confidence: 1.0,
       sensitivity: existing.sensitivity,
       retention: existing.retention,
+      purpose: existing.purpose,
       supersedes: existing.id,
       scope: existing.scope
     )
@@ -438,6 +467,82 @@ public actor MemoryEngine {
 
 
   // MARK: - Validation
+
+  private func validateWritePolicy(_ request: MemoryWriteRequest) throws(AuraError) {
+    let draft = request.draft
+    guard !draft.subject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      throw AuraError.memoryError("memory subject must not be empty")
+    }
+    guard !draft.purpose.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+      throw AuraError.memoryError("memory purpose must not be empty")
+    }
+    guard !containsSecretLikeText("\(draft.subject) \(draft.statement)") else {
+      throw AuraError.memoryError("secret-like content cannot be persisted in memory")
+    }
+
+    switch request.source {
+    case .rawContent, .modelOutput, .untrustedExternalContent:
+      throw AuraError.memoryError(
+        "raw, untrusted, and model-generated content requires an explicit user-approved summary")
+    case .explicitUser:
+      guard draft.memoryClass != .auditSecurity else {
+        throw AuraError.memoryError("users cannot author audit/security memory")
+      }
+    case .verifiedToolEvidence:
+      guard !draft.evidenceReferences.isEmpty else {
+        throw AuraError.memoryError("verified tool memory requires evidence references")
+      }
+    case .activeDurableTask:
+      guard draft.memoryClass == .taskState, draft.scope.taskID != nil else {
+        throw AuraError.memoryError("durable task memory requires a task scope")
+      }
+    case .approvedSummary:
+      guard draft.memoryClass == .sessionSummary, !draft.evidenceReferences.isEmpty else {
+        throw AuraError.memoryError("session summaries require approval and source evidence")
+      }
+    case .classifierDerived:
+      guard draft.memoryClass == .workingConversation else {
+        throw AuraError.memoryError("classifier-derived memory is limited to working conversation")
+      }
+      guard draft.statement.utf8.count <= 512 else {
+        throw AuraError.memoryError("classifier-derived memory exceeds the bounded summary size")
+      }
+      switch draft.retention {
+      case .ephemeral, .sessionScoped:
+        break
+      case .indefinite, .auditRetention:
+        throw AuraError.memoryError("classifier-derived memory cannot use durable retention")
+      }
+    case .inferred:
+      // Inference may be retained only as explicitly labeled, non-authoritative
+      // memory. `MemoryProvenance.inferred` prevents it from masquerading as a
+      // user or tool fact in ranking and reference resolution.
+      break
+    }
+  }
+
+  private func containsSecretLikeText(_ text: String) -> Bool {
+    let normalized = text.lowercased()
+    if let range = normalized.range(of: "sk-") {
+      let suffix = normalized[range.upperBound...]
+      if suffix.prefix(20).count == 20 { return true }
+    }
+    if let range = normalized.range(of: "akia") {
+      let suffix = normalized[range.upperBound...]
+      if suffix.prefix(16).count == 16 { return true }
+    }
+    if normalized.contains("private key") {
+      return true
+    }
+    if normalized.contains("-----begin") && normalized.contains("private key-----") {
+      return true
+    }
+    let patterns = [
+      #"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b"#,
+      #"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"#,
+    ]
+    return patterns.contains { text.range(of: $0, options: .regularExpression) != nil }
+  }
 
   /// "Facts require evidence. Inference is labeled." — any non-inferred
   /// provenance must cite at least one evidence reference; `.inferred`

@@ -47,12 +47,15 @@ public actor ContextEngine {
   public func reconstruct(
     utterance: String,
     sessionID: UUID,
+    purpose: String = "turn reconstruction",
+    requestingComponent: ActorID = .context,
     conversationState: ConversationState,
     pendingConfirmation: PolicyConfirmationChallenge? = nil,
     pendingTask: TaskStatus? = nil,
     activeWorkspace: ActiveWorkspaceSnapshot? = nil,
     scope: MemoryScope = .global,
     referenceDate: Date = Date(),
+    deliveryPolicy: ContextDeliveryPolicy = .localOnly,
     actor: ActorID = .context,
     correlationID: UUID = UUID()
   ) async throws(AuraError) -> ContextBundle {
@@ -62,13 +65,14 @@ public actor ContextEngine {
       ContextItem(
         stage: .currentUtterance, sourceID: .utterance, summary: utterance,
         authority: .userStated, confidence: 1.0, observedAt: referenceDate,
-        hasDirectEvidence: true, scopeMatch: true))
+        hasDirectEvidence: true, scopeMatch: true, sensitivity: .sensitive))
 
     mandatory.append(
       ContextItem(
         stage: .conversationState, sourceID: .conversationState,
         summary: "conversation state: \(conversationState.rawValue)", authority: .systemDerived,
-        confidence: 1.0, observedAt: referenceDate, hasDirectEvidence: true, scopeMatch: true))
+        confidence: 1.0, observedAt: referenceDate, hasDirectEvidence: true, scopeMatch: true,
+        sensitivity: .internalLevel))
 
     if let pendingConfirmation {
       mandatory.append(
@@ -78,7 +82,7 @@ public actor ContextEngine {
           summary:
             "pending confirmation: \(pendingConfirmation.requestedAction.identifier) on \(pendingConfirmation.targetSummary)",
           authority: .systemDerived, confidence: 1.0, observedAt: pendingConfirmation.issuedAt,
-          hasDirectEvidence: true, scopeMatch: true))
+          hasDirectEvidence: true, scopeMatch: true, sensitivity: .sensitive))
     }
     if let pendingTask {
       mandatory.append(
@@ -87,7 +91,7 @@ public actor ContextEngine {
           sourceID: .pendingTask(taskID: pendingTask.id),
           summary: "pending task (\(pendingTask.state.rawValue)): \(pendingTask.objective)",
           authority: .systemDerived, confidence: 1.0, observedAt: pendingTask.updatedAt,
-          hasDirectEvidence: true, scopeMatch: true))
+          hasDirectEvidence: true, scopeMatch: true, sensitivity: .sensitive))
     }
 
     if let activeWorkspace {
@@ -95,10 +99,12 @@ public actor ContextEngine {
         ContextItem(
           stage: .activeAppOrWorkspace, sourceID: .activeWorkspace,
           summary: activeWorkspace.summary, authority: .observed, confidence: 1.0,
-          observedAt: activeWorkspace.capturedAt, hasDirectEvidence: true, scopeMatch: true))
+          observedAt: activeWorkspace.capturedAt, hasDirectEvidence: true, scopeMatch: true,
+          sensitivity: .sensitive))
     }
 
     let ledgerEntries = try await recentLedgerEntries()
+    let unresolvedContradictions = try await memory.conflicts(unresolvedOnly: true)
 
     var candidates: [ContextItem] = []
     candidates.append(contentsOf: ledgerItems(from: ledgerEntries, referenceDate: referenceDate))
@@ -108,6 +114,14 @@ public actor ContextEngine {
     candidates.append(
       contentsOf: try await semanticItems(
         utterance: utterance, scope: scope, referenceDate: referenceDate))
+
+    var exclusions: [String] = []
+    candidates.removeAll { item in
+      guard !deliveryPolicy.permits(item.sensitivity) else { return false }
+      exclusions.append(
+        "excluded \(item.sourceID): sensitivity not permitted for \(deliveryPolicy.destination.rawValue)")
+      return true
+    }
 
     // Each category above is already ranked and capped by the same
     // composite score (`rankAndCap`); a final global sort + budget cut
@@ -120,9 +134,11 @@ public actor ContextEngine {
     let orderedTail = kept.sorted { $0.stage == $1.stage ? $0.score > $1.score : $0.stage < $1.stage }
 
     let bundle = ContextBundle(
-      sessionID: sessionID, utterance: utterance, generatedAt: referenceDate,
-      items: mandatory + orderedTail, consideredCandidateCount: candidates.count,
-      droppedCandidateCount: droppedCount)
+      sessionID: sessionID, utterance: utterance, purpose: purpose,
+      requestingComponent: requestingComponent, deliveryPolicy: deliveryPolicy,
+      generatedAt: referenceDate, items: mandatory + orderedTail,
+      consideredCandidateCount: candidates.count, droppedCandidateCount: droppedCount,
+      exclusions: exclusions, unresolvedContradictions: unresolvedContradictions)
 
     await emit(
       ContextBundleAssembledEvent(
@@ -199,7 +215,7 @@ public actor ContextEngine {
         summary: entry.taskID.isEmpty ? title : "\(entry.taskID): \(title)",
         authority: .systemDerived, confidence: 1.0, observedAt: entry.timestamp,
         hasDirectEvidence: !entry.evidenceInspected.isEmpty || !entry.filesChanged.isEmpty,
-        scopeMatch: true)
+        scopeMatch: true, sensitivity: .internalLevel)
     }
     return rankAndCap(items, limit: configuration.maxLedgerEntries, referenceDate: referenceDate)
   }
@@ -215,7 +231,7 @@ public actor ContextEngine {
             stage: .recentDecisions, sourceID: .decision(entryID: entry.id, index: index),
             summary: decision, authority: .systemDerived, confidence: 0.9,
             observedAt: entry.timestamp, hasDirectEvidence: !entry.evidenceInspected.isEmpty,
-            scopeMatch: true))
+            scopeMatch: true, sensitivity: .internalLevel))
       }
     }
     return rankAndCap(items, limit: configuration.maxDecisions, referenceDate: referenceDate)
@@ -224,14 +240,15 @@ public actor ContextEngine {
   private func preferenceItems(scope: MemoryScope, referenceDate: Date) async throws(AuraError)
     -> [ContextItem]
   {
-    let records = try await memory.currentState(memoryClass: .userPreference, scope: nil)
+    let records = try await activeRecords(memoryClass: .userPreference)
     let items = records.map { record in
       ContextItem(
         stage: .preferences, sourceID: .memoryRecord(recordID: record.id),
         summary: record.statement, authority: ContextAuthority.from(record.provenance),
         confidence: record.confidence, observedAt: record.observedAt,
         hasDirectEvidence: !record.evidenceReferences.isEmpty,
-        scopeMatch: ContextRanking.scopeMatches(recordScope: record.scope, requestScope: scope))
+        scopeMatch: ContextRanking.scopeMatches(recordScope: record.scope, requestScope: scope),
+        sensitivity: record.sensitivity)
     }
     return rankAndCap(items, limit: configuration.maxPreferences, referenceDate: referenceDate)
   }
@@ -245,7 +262,7 @@ public actor ContextEngine {
     let classes: [MemoryClass] = [.projectFact, .proceduralKnowledge, .taskState]
     var items: [ContextItem] = []
     for memoryClass in classes {
-      let records = try await memory.currentState(memoryClass: memoryClass, scope: nil)
+      let records = try await activeRecords(memoryClass: memoryClass)
       for record in records {
         let documentTokens = ContextRanking.tokenize("\(record.subject) \(record.statement)")
         let overlap = ContextRanking.containmentScore(query: queryTokens, document: documentTokens)
@@ -257,10 +274,21 @@ public actor ContextEngine {
             confidence: record.confidence, observedAt: record.observedAt,
             hasDirectEvidence: !record.evidenceReferences.isEmpty,
             scopeMatch: ContextRanking.scopeMatches(
-              recordScope: record.scope, requestScope: scope)))
+              recordScope: record.scope, requestScope: scope), sensitivity: record.sensitivity))
       }
     }
     return rankAndCap(items, limit: configuration.maxSemanticMatches, referenceDate: referenceDate)
+  }
+
+  /// Use the authority/freshness projection rather than treating the latest
+  /// append as authoritative. Unresolved conflicts remain visible on the
+  /// bundle, while only the active belief enters ordinary retrieval.
+  private func activeRecords(memoryClass: MemoryClass) async throws(AuraError) -> [MemoryRecord] {
+    let records = try await memory.inspect(
+      memoryClass: memoryClass, scope: nil, includeSuperseded: false)
+    let beliefs = try await memory.activeBeliefs(memoryClass: memoryClass, scope: nil)
+    let activeIDs = Set(beliefs.map(\.activeRecordID))
+    return records.filter { activeIDs.contains($0.id) }
   }
 
   /// Score every item with the shared composite ranking function and keep

@@ -610,13 +610,13 @@ public actor IntentEngine {
   ) async {
     guard let memoryEngine = memoryEngine else { return }
 
-    let statement: String
-    if intent.slots.isEmpty {
-      statement = "classified intent: \(intent.kind) — \"\(intent.normalizedUtterance)\""
-    } else {
-      let slots = intent.slots.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
-      statement = "classified intent: \(intent.kind) — \"\(intent.normalizedUtterance)\" [\(slots)]"
-    }
+    // Keep only a bounded classifier summary. The raw transcript and slot
+    // values are turn-local input, not durable memory, and may contain
+    // secrets or private content.
+    let slotNames = intent.slots.map(\.name).sorted()
+    let statement = slotNames.isEmpty
+      ? "classified intent: \(intent.kind)"
+      : "classified intent: \(intent.kind); slots: \(slotNames.joined(separator: ", "))"
 
     let draft = MemoryRecordDraft(
       memoryClass: .workingConversation,
@@ -627,12 +627,14 @@ public actor IntentEngine {
       confidence: intent.classificationConfidence,
       sensitivity: .internalLevel,
       retention: .sessionScoped,
+      purpose: "bounded local intent continuity",
       scope: MemoryScope(sessionID: context.sessionID)
     )
 
     do {
       let outcome = try await memoryEngine.append(
-        draft, actor: .intent, sessionID: context.sessionID, correlationID: context.correlationID)
+        MemoryWriteRequest(draft: draft, source: .classifierDerived), actor: .intent,
+        sessionID: context.sessionID, correlationID: context.correlationID)
       let record: MemoryRecord
       switch outcome {
       case .recorded(let r): record = r
