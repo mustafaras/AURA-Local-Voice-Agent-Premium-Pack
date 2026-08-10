@@ -2,15 +2,15 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-10T08:11:34Z",
-  "session_id": "AURA-REPO-HYGIENE-H005-20260810",
+  "updated_at": "2026-08-10T08:19:34Z",
+  "session_id": "AURA-REPO-HYGIENE-H005-DELIVERY-20260810",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "ee95b7c2e5caba9f77debf3c57e0873feb45ebf9",
-    "remote_head": "ee95b7c2e5caba9f77debf3c57e0873feb45ebf9",
-    "working_tree_state": "dirty_expected",
+    "verified_head": "3b1aa85f8c55e17b49c43daea008f98fd6515f15",
+    "remote_head": "3b1aa85f8c55e17b49c43daea008f98fd6515f15",
+    "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
@@ -42,6 +42,7 @@
       ,"H-003 closeout is recorded under EV-REPO-HYGIENE-H-003-CLOSEOUT-20260809-01: hygiene validator, focused 3/3, ignore 2/2, runtime governance, full 31/31 script tests, JSON, diff, and tracked-artifact audits pass; authority is reset for the next session."
       ,"H-004 canonical toolchain/documentation evidence is recorded under EV-REPO-HYGIENE-H-004-20260810-01: the active macOS 27+/arm64/Swift 6.4/SDK 27 baseline and 21 Swift test targets are reconciled; Package.swift and scripts/aura-test.sh use discovered/fail-closed Swift Testing paths; source build, AuraCoreTests 27/27, validators, JSON/YAML, documentation references, shell syntax, and diff checks pass. Full Xcode remains unavailable; H-005 was the next approved prompt."
       ,"H-005 bounded formatter/toolchain evidence and mandatory closeout are recorded under EV-REPO-HYGIENE-H-005-20260810-02 and EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02: .swift-format schema version 1 and explicit CI strict flags are present; 1,019 findings across 116 files were remediated in reviewed batches; recursive formatter lint, strict build, and 21/21 bundles with 794/794 tests pass. SwiftLint 0.65.0 is provisioned, while full SourceKit-backed lint remains explicitly blocked under the toolchain-owner risk. H-005 is ready and remains active pending exact ONAY: H-006."
+      ,"H-005 delivery is recorded at merge commit 3b1aa85f8c55e17b49c43daea008f98fd6515f15 after feature commit d3c77b4c172f0b3600cf3ddba403b2853f4b92f5 was pushed and merged. The worktree is clean; active_prompt remains H-005 and H-006 is not opened."
     ]
   },
   "program_status": "in_progress",

@@ -7,7 +7,7 @@ Projection refreshed from live repository and command evidence on 2026-08-10.
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`. R2 through R12 remain
+origin/main == 3b1aa85f8c55e17b49c43daea008f98fd6515f15`. R2 through R12 remain
 `in_progress` with deferred/live/manual/security/release/beta gates recorded in
 `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. FINAL/CLOSEOUT is active by
 explicit user request for a blocked acceptance audit and maintainer handoff;
@@ -26,11 +26,10 @@ The repository-hygiene audit is now encoded as the canonical plan
 control plane under `AURA_RUNTIME_COMPLETION/repo-hygiene/`. H-000 through
 H-004 are complete for chain-order purposes; H-005 is active and `ready`
 after the formatter/lint/strict-concurrency gate. No cleanup, quarantine, or
-Git object recovery mutation has been performed. The live invariants remain
-`HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9` with 589
-tracked and 69,940 ignored paths; the worktree contains 31 tracked
-control-plane modifications and two intentional untracked control-plane
-files (`.swift-format` and the H-003 regression test). The current source/test
+Git object recovery mutation has been performed. The H-005 delivery is now
+merged and pushed at `HEAD == origin/main == 3b1aa85f8c55e17b49c43daea008f98fd6515f15`
+with 592 tracked, 0 untracked, and 70,058 ignored paths; the worktree is
+clean. The current source/test
 diff is the explicitly authorized formatter remediation; no product behavior
 change was intended;
 `Runtime/chatterbox/.gitignore` remains the intended H-003 control-plane

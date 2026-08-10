@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-10T08:11:34Z",
-  "session_id": "AURA-REPO-HYGIENE-H005-20260810",
-  "last_verified_commit": "ee95b7c2e5caba9f77debf3c57e0873feb45ebf9",
+  "updated_at": "2026-08-10T08:19:34Z",
+  "session_id": "AURA-REPO-HYGIENE-H005-DELIVERY-20260810",
+  "last_verified_commit": "3b1aa85f8c55e17b49c43daea008f98fd6515f15",
   "active_prompt": {
     "id": "FINAL",
     "file": "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "state": "in_progress",
     "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. The full 0–15 audit is recorded under EV-OPEN-GAPS-20260809-FULL-AUDIT-01 with OPEN-00–OPEN-15 and S00–S14 closure steps; FINAL/CLOSEOUT remains blocked at live HEAD ee95b7c2e5caba9f77debf3c57e0873feb45ebf9, with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The synchronized second-pass overlay is active at SP-000/pending. The repository-hygiene overlay is active at H-005/ready: bounded formatter remediation is complete, recursive formatter lint and strict build pass, and the canonical wrapper passes 21/21 bundles and 794/794 tests. SwiftLint 0.65.0 is provisioned, but full SourceKit-backed lint remains explicitly blocked under the toolchain-owner risk; H-006 must not open without exact approval. The original `.git` remains unrepaired.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. The full 0–15 audit is recorded under EV-OPEN-GAPS-20260809-FULL-AUDIT-01 with OPEN-00–OPEN-15 and S00–S14 closure steps; FINAL/CLOSEOUT remains blocked at live HEAD 3b1aa85f8c55e17b49c43daea008f98fd6515f15, with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The synchronized second-pass overlay is active at SP-000/pending. The repository-hygiene overlay is active at H-005/ready and was delivered through the pushed feature commit d3c77b4c172f0b3600cf3ddba403b2853f4b92f5 and merge commit 3b1aa85f8c55e17b49c43daea008f98fd6515f15: bounded formatter remediation is complete, recursive formatter lint and strict build pass, and the canonical wrapper passes 21/21 bundles and 794/794 tests. SwiftLint 0.65.0 is provisioned, but full SourceKit-backed lint remains explicitly blocked under the toolchain-owner risk; H-006 is not opened in this turn. The original `.git` remains unrepaired.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -491,7 +491,7 @@
     "RISK-REPO-HYGIENE-GENERATED-ARTIFACTS-IN-PLACE",
     "RISK-REPO-HYGIENE-CI-CHECKOUT-DEFAULTS"
   ],
-  "next_action": "H-005 is ready at the active boundary. Keep active_prompt at H-005 and await exact `ONAY: H-006`; do not open H-006 automatically. The next safe action after that approval is to read the mandatory H-006 authority/context sequence and only then inspect H-006. Full SourceKit-backed SwiftLint remains owned by the toolchain owner; do not claim a full lint pass from --disable-sourcekit. Preserve the original `.git` repair and all release/beta boundaries.",
+  "next_action": "H-005 delivery is synchronized at merge commit 3b1aa85f8c55e17b49c43daea008f98fd6515f15 and the worktree is clean. Keep active_prompt at H-005, do not open H-006 in this turn, and await a fresh exact `ONAY: H-006`. The next safe action after that approval is to read the mandatory H-006 authority/context sequence and only then inspect H-006. Full SourceKit-backed SwiftLint remains owned by the toolchain owner; do not claim a full lint pass from --disable-sourcekit. Preserve the original `.git` repair and all release/beta boundaries.",
   "required_first_reads": [
     "AGENTS.md",
     "README.md",

@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/toolchain-manifest.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-10T08:11:34Z",
-  "repository_commit": "ee95b7c2e5caba9f77debf3c57e0873feb45ebf9",
+  "updated_at": "2026-08-10T08:19:34Z",
+  "repository_commit": "3b1aa85f8c55e17b49c43daea008f98fd6515f15",
   "supported": {
     "development": {
       "os": "macOS 27+",

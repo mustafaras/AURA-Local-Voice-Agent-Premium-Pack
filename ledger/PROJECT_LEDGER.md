@@ -3646,6 +3646,13 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Evidence:** `EV-REPO-HYGIENE-H-003-20260809-01`; `/tmp/aura-h003-ignore-audit.tfZN0W/README.md`.
 - **Next safe action:** Await exact `ONAY: H-004`; do not open H-004 automatically.
 
+### 2026-08-10T08:19:34Z — REPO_HYGIENE_H005_DELIVERY_COMPLETE
+
+- **Actor/authority:** User explicitly required commit, push, and merge before the next H-006 approval; only delivery authority was used and H-006 was not opened.
+- **Delivery evidence:** Feature commit `d3c77b4c172f0b3600cf3ddba403b2853f4b92f5` was pushed to `origin/repo-hygiene/h005-delivery`; no-ff merge `3b1aa85f8c55e17b49c43daea008f98fd6515f15` was pushed to `origin/main`. Local/remote main equality is confirmed with relation `0 0`; final status is clean.
+- **Scope/residuals:** The delivered scope is the authorized H-005 formatter/toolchain/control-plane set. Full SourceKit-backed SwiftLint, original local Git fsck, generated-artifact, CI, and later hygiene risks remain open. H-005 remains active/ready; no release or deploy claim follows.
+- **Next action:** Stop and await fresh exact `ONAY: H-006`; do not open H-006 automatically.
+
 ### 2026-08-10T08:01:21Z — REPO_HYGIENE_H005_REMEDIATION_READY
 
 - **Actor/authority:** Codex session `AURA-REPO-HYGIENE-H005-20260810`; exact user authority `EVET: H-005 bounded formatter remediation + SwiftLint/toolchain provision`; only H-005 was applied and H-006+ were not opened.

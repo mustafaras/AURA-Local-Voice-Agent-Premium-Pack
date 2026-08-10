@@ -1005,3 +1005,10 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Closeout checks:** Hygiene validator exit 0 at H-005/ready; runtime-completion CI validator exit 0; focused hygiene tests 5/5; full script suite 31/31; JSON, shell, and diff checks pass; recursive strict formatter lint exit 0; strict build exit 0; canonical wrapper 21/21 bundles and 794/794 tests. Full SwiftLint remains explicitly blocked at SourceKit load exit 133; no-SourceKit fallback exit 2 is partial only.
 - **Acceptance/residuals:** H-005 is ready because formatting, strict compiler, and regression evidence are complete and the unavailable full SwiftLint capability has a named owner and falsification path. `RISK-REPO-HYGIENE-FORMAT-FINDINGS` is closed; SourceKit/full-Xcode/CI, other hygiene tools, Git object-database, generated artifacts, and later hygiene risks remain open. No release, deploy, install beyond the authorized SwiftLint provision, or CI execution is claimed.
 - **Evidence/next action:** `EV-REPO-HYGIENE-H-005-20260810-02`, `EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02`; stop and await exact `ONAY: H-006`. Do not open H-006 or change active prompt state automatically.
+
+### 2026-08-10T08:19:34Z — REPO_HYGIENE_H005_DELIVERY_COMPLETE
+
+- **Actor/authority:** User explicitly required commit/push/merge before a new H-006 approval. Delivery authority was used only for the existing H-005 worktree; H-006 and later prompt files were not opened.
+- **Delivery:** Feature commit `d3c77b4c172f0b3600cf3ddba403b2853f4b92f5` was pushed to `origin/repo-hygiene/h005-delivery`; no-ff merge `3b1aa85f8c55e17b49c43daea008f98fd6515f15` was pushed to `origin/main`.
+- **Verification:** Local and remote `main` resolve to `3b1aa85f8c55e17b49c43daea008f98fd6515f15`; relation `0 0`; final status is clean; 592 tracked, 0 untracked, 70,058 ignored. H-005 remains `ready` and active; original `.git` remains unrepaired and full SourceKit SwiftLint remains blocked.
+- **Next action:** Keep `active_prompt=H-005`; stop and await a fresh exact `ONAY: H-006`. Do not open H-006 automatically.

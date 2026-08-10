@@ -3,13 +3,13 @@
   "schema_version":"1.0.0",
   "program_id":"AURA-REPO-HYGIENE",
   "program_status":"in_progress",
-  "updated_at":"2026-08-10T08:11:34Z",
-  "session_id":"AURA-REPO-HYGIENE-H005-20260810",
+  "updated_at":"2026-08-10T08:19:34Z",
+  "session_id":"AURA-REPO-HYGIENE-H005-DELIVERY-20260810",
   "repository":{
     "branch":"main",
-    "head":"ee95b7c2e5caba9f77debf3c57e0873feb45ebf9",
-    "remote_head":"ee95b7c2e5caba9f77debf3c57e0873feb45ebf9",
-    "working_tree_state":"dirty_expected"
+    "head":"3b1aa85f8c55e17b49c43daea008f98fd6515f15",
+    "remote_head":"3b1aa85f8c55e17b49c43daea008f98fd6515f15",
+    "working_tree_state":"clean"
   },
   "active_prompt":"H-005",
   "active_state":"ready",
@@ -35,5 +35,5 @@
     "ledger":"AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md",
     "validator":"scripts/validate_repo_hygiene_program.py"
   },
-  "next_action":"H-005 is ready at the active boundary: formatter findings are remediated and the exact formatter/build/test gates pass. Full SourceKit-backed SwiftLint remains an explicit toolchain-owner blocker; its partial mode is not a pass. Keep active_prompt at H-005 and await exact ONAY: H-006; do not open H-006 automatically."
+  "next_action":"H-005 is delivered at 3b1aa85f8c55e17b49c43daea008f98fd6515f15 and remains ready at the active boundary. Formatter findings are remediated and the exact formatter/build/test gates pass. Full SourceKit-backed SwiftLint remains an explicit toolchain-owner blocker; its partial mode is not a pass. Keep active_prompt at H-005, do not open H-006 in this turn, and await a fresh exact ONAY: H-006."
 }
