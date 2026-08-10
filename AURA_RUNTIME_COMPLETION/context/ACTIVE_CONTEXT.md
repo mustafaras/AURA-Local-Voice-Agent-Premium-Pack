@@ -17,8 +17,9 @@ Tier-0/Tier-1 read order, and validator must agree before a hygiene prompt can
 advance. This overlay does not close R2–R12, FINAL, beta, release, security,
 permission, or live-hardware gates. The current authority is reset at closeout;
 no standing mutation authority remains:
-no cleanup, Git object mutation, install, commit, push, merge, release, or
-deploy is authorized. H-000 is complete for chain order. After exact user
+no cleanup, Git object mutation, install, release, or deploy is authorized;
+the H-008 delivery was separately authorized and is recorded at merge commit
+`47775180c224f87fa5a58703f793515ffcb2c35c`. H-000 is complete for chain order. After exact user
 authority to create a clean clone, H-001 verified a fresh remote clone with
 strict fsck exit 0, matching main tip/closure, clean status, and a current
 worktree preservation mapping. The original local object database still fails
@@ -44,14 +45,14 @@ full SourceKit-backed lint is blocked by the CLT-only developer directory and
 its no-SourceKit fallback is not a pass. H-005 was delivered and is complete
 for chain order; H-006 is complete under exact `ONAY: H-006`, with
 `EV-REPO-HYGIENE-H-006-20260810-01` recording the bounded unsafe/debug audit,
-strict build, focused tests, and cognitive gate. H-007 is active and ready
-under exact `ONAY: H-007`; H-008 remains unopened. The raw all-source matrix is
+strict build, focused tests, and cognitive gate. H-007 is complete for chain
+order and H-008 is ready after its verified delivery. The raw all-source matrix is
 65.15%, while the explicit four-file host-boundary scope passes at 70.02%
 against the unchanged 70% ratchet. H-007 edit-only authority expired at
 closeout; no cleanup/deletion/quarantine is allowed. H-008 is now active under
 exact `ONAY: H-008`: its fail-closed tracked-content secret scan, dependency
 lock/provenance checks, and SHA-pinned workflow checks are implemented and
-focused-tested; H-009 remains unopened. Local Git history scanning remains
+focused-tested and delivered at merge commit `47775180c224f87fa5a58703f793515ffcb2c35c`; H-009 remains unopened. Local Git history scanning remains
 blocked by the damaged original object database, and external vulnerability/
 SBOM scanners remain unavailable.
 

@@ -7,7 +7,7 @@ Projection refreshed from live repository and command evidence on 2026-08-10.
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == 6c4cc993f86c029ce754c5e540399beb781899bb`. R2 through R12 remain
+origin/main == 47775180c224f87fa5a58703f793515ffcb2c35c`. R2 through R12 remain
 `in_progress` with deferred/live/manual/security/release/beta gates recorded in
 `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. FINAL/CLOSEOUT is active by
 explicit user request for a blocked acceptance audit and maintainer handoff;
@@ -27,7 +27,9 @@ control plane under `AURA_RUNTIME_COMPLETION/repo-hygiene/`. H-000 through
 H-006 and H-007 are complete for chain-order purposes; H-008 is active and
 `ready` after exact user approval. H-007's explicit host-boundary scope
 measured 70.02% against the unchanged 70% line-coverage ratchet; raw all-source
-coverage remains 65.15%. No cleanup, quarantine, or
+coverage remains 65.15%. The verified H-008 feature commit was pushed and
+merged to `main` at `47775180c224f87fa5a58703f793515ffcb2c35c`; the synchronized
+state projection follows that delivery. No cleanup, quarantine, or
 Git object recovery mutation has been performed. The H-005 delivery is now
 merged and pushed at `3b1aa85f8c55e17b49c43daea008f98fd6515f15`, followed by
 the synchronized state projection commit at live `HEAD == origin/main ==

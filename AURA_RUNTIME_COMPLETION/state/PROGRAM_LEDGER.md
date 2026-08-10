@@ -1050,3 +1050,11 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Acceptance/limitations:** H-008 is ready for chain-order continuation only. Historical secret absence is not claimed because the damaged original Git object database remains untouched; `gitleaks`, `trufflehog`, `osv-scanner`, `syft`, and `grype` are unavailable; hosted CI, vulnerability/SBOM, and external git commit revalidation are unverified and separately owned. No secret value was exposed or transmitted.
 - **Evidence:** `EV-REPO-HYGIENE-H-008-20260810-01`, `EV-REPO-HYGIENE-H-008-CLOSEOUT-20260810-01`; focused details are in `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md`.
 - **Next safe action:** Stop at H-008 and await exact `ONAY: H-009`; do not open or apply H-009 automatically.
+
+### 2026-08-10T13:08:41Z — REPO_HYGIENE_H008_DELIVERY
+
+- **Actor/authority:** Codex session `AURA-REPO-HYGIENE-H008-20260810`; explicit user authority to commit, push, and merge the verified H-008 delivery. H-009 and later prompts were not opened.
+- **Delivery:** Feature commit `abed46b69387fa9cb19c8db5adcaaef9c8e66afa` was pushed to `origin/repo-hygiene/h008-delivery`; the branch was merged with `--no-ff` into `main` as `47775180c224f87fa5a58703f793515ffcb2c35c`; `main` was pushed to `origin/main`.
+- **Verification:** Before delivery, all H-008 validators and the full 21/21 Swift / 794/794 test matrix passed. After merge, local and remote main matched at `0/0`, the worktree was clean, hygiene and supply-chain validators passed, and runtime-completion correctly identified stale pre-merge verified-head projection requiring synchronization.
+- **Safety/limitations:** No cleanup, Git recovery mutation, history rewrite, installation, permission change, app launch, release, deploy, or secret transmission occurred. Original Git history, vulnerability/SBOM, hosted-CI, and external git commit limitations remain explicit.
+- **Next action:** Commit/push the state-only projection at live merge SHA `47775180c224f87fa5a58703f793515ffcb2c35c`, rerun validators, then stop at H-008 and await exact `ONAY: H-009`.
