@@ -105,7 +105,8 @@ public final class STTRouter: STTEngine, @unchecked Sendable {
       await governor.release(.stt, estimatedMemoryMB: reservationMB)
       lock.withLock { resourceReserved = false }
     }
-    let detail = failures.isEmpty
+    let detail =
+      failures.isEmpty
       ? "No local STT engine reported ready"
       : failures.joined(separator: " | ")
     let health = STTHealth(

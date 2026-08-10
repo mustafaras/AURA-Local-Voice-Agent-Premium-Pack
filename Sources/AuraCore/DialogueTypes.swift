@@ -22,11 +22,11 @@ public enum DialogueLanguage: String, Codable, Sendable, Equatable, CaseIterable
     let turkishSignals: Set<String> = [
       "aç", "açık", "başlat", "bugün", "bu", "çalıştır", "dosya", "et", "hangi", "için",
       "kapat", "lütfen", "merhaba", "mi", "mı", "mu", "mü", "nasıl", "ne", "neden", "notlar",
-      "posta", "sürdür", "teşekkür", "yardım"
+      "posta", "sürdür", "teşekkür", "yardım",
     ]
     let englishSignals: Set<String> = [
       "a", "about", "activate", "and", "close", "execute", "file", "for", "hello", "how",
-      "is", "launch", "open", "please", "quit", "run", "the", "what", "why"
+      "is", "launch", "open", "please", "quit", "run", "the", "what", "why",
     ]
     let turkishCount = tokens.intersection(turkishSignals).count
     let englishCount = tokens.intersection(englishSignals).count

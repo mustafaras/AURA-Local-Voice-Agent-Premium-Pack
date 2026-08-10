@@ -119,7 +119,8 @@ public actor ContextEngine {
     candidates.removeAll { item in
       guard !deliveryPolicy.permits(item.sensitivity) else { return false }
       exclusions.append(
-        "excluded \(item.sourceID): sensitivity not permitted for \(deliveryPolicy.destination.rawValue)")
+        "excluded \(item.sourceID): sensitivity not permitted for \(deliveryPolicy.destination.rawValue)"
+      )
       return true
     }
 
@@ -131,7 +132,9 @@ public actor ContextEngine {
     let droppedCount = candidates.count - kept.count
 
     // Present the kept optional items back in retrieval-sequence order.
-    let orderedTail = kept.sorted { $0.stage == $1.stage ? $0.score > $1.score : $0.stage < $1.stage }
+    let orderedTail = kept.sorted {
+      $0.stage == $1.stage ? $0.score > $1.score : $0.stage < $1.stage
+    }
 
     let bundle = ContextBundle(
       sessionID: sessionID, utterance: utterance, purpose: purpose,
@@ -300,7 +303,8 @@ public actor ContextEngine {
   {
     items
       .map {
-        $0.withScore(ContextRanking.score($0, referenceDate: referenceDate, configuration: configuration))
+        $0.withScore(
+          ContextRanking.score($0, referenceDate: referenceDate, configuration: configuration))
       }
       .sorted { $0.score > $1.score }
       .prefix(limit)

@@ -99,12 +99,13 @@ struct BlockingRunner: TaskRunner {
 
 struct CountingRunner: TaskRunner {
   var plan: TaskPlan
-  var execute: @Sendable (
-    UUID,
-    TaskRequest,
-    TaskPlan,
-    TaskExecutionContext
-  ) async -> Void
+  var execute:
+    @Sendable (
+      UUID,
+      TaskRequest,
+      TaskPlan,
+      TaskExecutionContext
+    ) async -> Void
 
   func plan(for task: TaskRequest) async throws(AuraError) -> TaskPlan { plan }
 
@@ -134,7 +135,6 @@ struct FailingRunner: TaskRunner {
   }
 }
 
-
 func makeTempStore() async throws -> AuraStore {
   let path = NSTemporaryDirectory().appending(UUID().uuidString).appending(".db")
   return try await AuraStore(path: path)
@@ -152,13 +152,16 @@ func makeEngine(
   }
   let capture = Capture()
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraTasksTests", category: "testBus"))
-  await bus.subscribe(TaskEnqueuedEvent.self) { (envelope: EventEnvelope<TaskEnqueuedEvent>) async in
+  await bus.subscribe(TaskEnqueuedEvent.self) {
+    (envelope: EventEnvelope<TaskEnqueuedEvent>) async in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskStateChangedEvent.self) { (envelope: EventEnvelope<TaskStateChangedEvent>) async in
+  await bus.subscribe(TaskStateChangedEvent.self) {
+    (envelope: EventEnvelope<TaskStateChangedEvent>) async in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskProgressEvent.self) { (envelope: EventEnvelope<TaskProgressEvent>) async in
+  await bus.subscribe(TaskProgressEvent.self) {
+    (envelope: EventEnvelope<TaskProgressEvent>) async in
     await capture.append(envelope.payload)
   }
   await bus.subscribe(TaskPausedEvent.self) { (envelope: EventEnvelope<TaskPausedEvent>) async in
@@ -167,13 +170,16 @@ func makeEngine(
   await bus.subscribe(TaskResumedEvent.self) { (envelope: EventEnvelope<TaskResumedEvent>) async in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskCancelledEvent.self) { (envelope: EventEnvelope<TaskCancelledEvent>) async in
+  await bus.subscribe(TaskCancelledEvent.self) {
+    (envelope: EventEnvelope<TaskCancelledEvent>) async in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskCheckpointEvent.self) { (envelope: EventEnvelope<TaskCheckpointEvent>) async in
+  await bus.subscribe(TaskCheckpointEvent.self) {
+    (envelope: EventEnvelope<TaskCheckpointEvent>) async in
     await capture.append(envelope.payload)
   }
   let engine = await AuraTaskEngine(store: s, eventBus: bus, configuration: config)

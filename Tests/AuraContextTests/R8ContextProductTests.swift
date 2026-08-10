@@ -60,7 +60,8 @@ func r8ContextBundleCarriesPurposeProvenanceAndBoundedBudget() async throws {
     DeepContextRequest(
       utterance: "what build toolchain evidence exists", sessionID: UUID(),
       purpose: "tool selection", requestingComponent: .intent,
-      conversationState: .thinking, intent: ContextIntentSchema(
+      conversationState: .thinking,
+      intent: ContextIntentSchema(
         name: "toolchain.lookup", confidence: 0.95)))
   #expect(result.bundle.purpose == "tool selection")
   #expect(result.bundle.requestingComponent == .intent)

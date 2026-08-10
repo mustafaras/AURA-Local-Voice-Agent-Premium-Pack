@@ -156,14 +156,16 @@ func memoryEngineResolveConflictPersistsResolution() async throws {
     return
   }
 
-  try await engine.resolveConflict(id: conflict.id, resolution: .keptExisting(reason: "user confirmed blue"))
+  try await engine.resolveConflict(
+    id: conflict.id, resolution: .keptExisting(reason: "user confirmed blue"))
 
   let conflicts = try await engine.conflicts(subject: "user.favoriteColor")
   #expect(conflicts.count == 1)
   if case .keptExisting(let reason) = conflicts.first?.resolution {
     #expect(reason == "user confirmed blue")
   } else {
-    Issue.record("expected keptExisting resolution, got \(String(describing: conflicts.first?.resolution))")
+    Issue.record(
+      "expected keptExisting resolution, got \(String(describing: conflicts.first?.resolution))")
   }
 }
 
@@ -189,7 +191,8 @@ func memoryEngineCurrentStateReturnsLatestNonSupersededRecord() async throws {
     return
   }
 
-  let current = try await engine.currentState(memoryClass: .projectFact, subject: "project.testFramework")
+  let current = try await engine.currentState(
+    memoryClass: .projectFact, subject: "project.testFramework")
   #expect(current.count == 1)
   #expect(current.first?.id == v2Record.id)
   #expect(current.first?.statement == "swift-testing")
@@ -216,7 +219,8 @@ func memoryEngineCurrentStateMostRecentWinsOnUnresolvedConflict() async throws {
     retention: .indefinite)
   try await engine.append(second)
 
-  let current = try await engine.currentState(memoryClass: .userPreference, subject: "user.favoriteColor")
+  let current = try await engine.currentState(
+    memoryClass: .userPreference, subject: "user.favoriteColor")
   #expect(current.count == 1)
   #expect(current.first?.statement == "green")
 }
@@ -229,7 +233,8 @@ func memoryEngineCorrectAppendsSupersedingRecordAndEmitsEvent() async throws {
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraMemoryTests", category: "correct"))
   let engine = MemoryEngine(store: store, eventBus: bus)
   let capture = Capture()
-  await bus.subscribe(MemoryCorrectedEvent.self) { (envelope: EventEnvelope<MemoryCorrectedEvent>) async in
+  await bus.subscribe(MemoryCorrectedEvent.self) {
+    (envelope: EventEnvelope<MemoryCorrectedEvent>) async in
     await capture.append(envelope.payload)
   }
 
@@ -284,7 +289,8 @@ func memoryEngineDeleteRemovesRecordAndEmitsContentFreeAuditEvent() async throws
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraMemoryTests", category: "delete"))
   let engine = MemoryEngine(store: store, eventBus: bus)
   let capture = Capture()
-  await bus.subscribe(MemoryDeletedEvent.self) { (envelope: EventEnvelope<MemoryDeletedEvent>) async in
+  await bus.subscribe(MemoryDeletedEvent.self) {
+    (envelope: EventEnvelope<MemoryDeletedEvent>) async in
     await capture.append(envelope.payload)
   }
 
@@ -300,7 +306,8 @@ func memoryEngineDeleteRemovesRecordAndEmitsContentFreeAuditEvent() async throws
   let receipt = try await engine.deleteRecord(id: record.id, reason: "user requested deletion")
   #expect(receipt.recordID == record.id)
 
-  let remaining = try await engine.inspect(memoryClass: .userPreference, subject: "user.dietaryRestriction")
+  let remaining = try await engine.inspect(
+    memoryClass: .userPreference, subject: "user.dietaryRestriction")
   #expect(remaining.isEmpty)
 
   let events = await capture.all(MemoryDeletedEvent.self)
@@ -364,7 +371,8 @@ func memoryEngineEnforceRetentionPurgesSessionScopedRecordsForEndedSessions() as
   let draft = MemoryRecordDraft(
     memoryClass: .workingConversation, subject: "conversation.turn.1", statement: "hello",
     evidenceReferences: ["turn-1"], provenance: .observed(source: .user),
-    sensitivity: .internalLevel, retention: .sessionScoped, scope: MemoryScope(sessionID: sessionID))
+    sensitivity: .internalLevel, retention: .sessionScoped, scope: MemoryScope(sessionID: sessionID)
+  )
   guard case .recorded(let record) = try await engine.append(draft) else {
     Issue.record("expected recorded")
     return

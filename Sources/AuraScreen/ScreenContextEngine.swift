@@ -77,19 +77,23 @@ public actor ScreenContextEngine {
     sessionID: UUID = UUID(),
     correlationID: UUID = UUID()
   ) async throws(AuraError) -> ScreenCaptureOutcome {
-    await emit(ScreenCaptureRequestedEvent(windowID: windowID), actor: actor, correlationID: correlationID)
+    await emit(
+      ScreenCaptureRequestedEvent(windowID: windowID), actor: actor, correlationID: correlationID)
 
     guard configuration.enabled else {
-      return await block(.disabledByConfiguration, windowID: windowID, actor: actor, correlationID: correlationID)
+      return await block(
+        .disabledByConfiguration, windowID: windowID, actor: actor, correlationID: correlationID)
     }
 
     if let region, !region.isValid {
-      return await block(.invalidRegion, windowID: windowID, actor: actor, correlationID: correlationID)
+      return await block(
+        .invalidRegion, windowID: windowID, actor: actor, correlationID: correlationID)
     }
 
     let windows = try await windowSource.listCapturableWindows()
     guard let descriptor = windows.first(where: { $0.windowID == windowID }) else {
-      return await block(.windowNotFound, windowID: windowID, actor: actor, correlationID: correlationID)
+      return await block(
+        .windowNotFound, windowID: windowID, actor: actor, correlationID: correlationID)
     }
 
     guard isApproved(descriptor) else {
@@ -109,7 +113,8 @@ public actor ScreenContextEngine {
     )
     let decision = await policyEngine.evaluate(policyRequest)
     guard case .allow = decision else {
-      return await block(.policyDenied, windowID: windowID, actor: actor, correlationID: correlationID)
+      return await block(
+        .policyDenied, windowID: windowID, actor: actor, correlationID: correlationID)
     }
 
     let image = try await windowSource.captureImage(
@@ -279,7 +284,8 @@ public actor ScreenContextEngine {
       .map { "\($0.value.count) \($0.key.rawValue)" }
       .sorted()
       .joined(separator: ", ")
-    return "Captured window of \(appDescription); redacted \(redactions.count) region(s): \(categoryCounts)."
+    return
+      "Captured window of \(appDescription); redacted \(redactions.count) region(s): \(categoryCounts)."
   }
 
   private func emit<Payload: EventPayload>(

@@ -15,9 +15,39 @@ BUILD_PATH="${1:-/tmp/aurabuild}"
 FILTER="${2:-}"
 ENABLE_COVERAGE="${AURA_ENABLE_COVERAGE:-0}"
 COVERAGE_MIN="${AURA_COVERAGE_MIN:-70}"
-HELPER="/Library/Developer/CommandLineTools/usr/libexec/swift/pm/swiftpm-testing-helper"
-TESTING_FRAMEWORK="/Library/Developer/CommandLineTools/Library/Developer/Frameworks"
-TESTING_LIB="/Library/Developer/CommandLineTools/Library/Developer/usr/lib"
+AURA_DEVELOPER_DIR="$(xcode-select -p 2>/dev/null || true)"
+AURA_SWIFT_PATH="$(xcrun --find swift 2>/dev/null || true)"
+if [[ -z "$AURA_DEVELOPER_DIR" || ! -d "$AURA_DEVELOPER_DIR" ]]; then
+    echo "FAILED: xcode-select did not return a valid developer directory" >&2
+    exit 2
+fi
+if [[ -z "$AURA_SWIFT_PATH" || ! -x "$AURA_SWIFT_PATH" ]]; then
+    echo "FAILED: xcrun could not discover an executable Swift tool" >&2
+    exit 2
+fi
+
+# Derive the SwiftPM helper and macro plugin from the discovered Swift toolchain.
+# Testing.framework and its interop library may be supplied explicitly for a
+# non-CommandLineTools Xcode layout; missing paths fail closed below.
+AURA_SWIFT_USR="$(cd "$(dirname "$AURA_SWIFT_PATH")/.." && pwd)"
+HELPER="$AURA_SWIFT_USR/libexec/swift/pm/swiftpm-testing-helper"
+TESTING_MACROS_PATH="$AURA_SWIFT_USR/lib/swift/host/plugins/testing/libTestingMacros.dylib"
+TESTING_FRAMEWORK="${AURA_TESTING_FRAMEWORK_PATH:-$AURA_DEVELOPER_DIR/Library/Developer/Frameworks}"
+TESTING_LIB="${AURA_TESTING_LIB_PATH:-$AURA_DEVELOPER_DIR/Library/Developer/usr/lib}"
+
+if [[ ! -x "$HELPER" || ! -f "$TESTING_MACROS_PATH" ||
+    ! -d "$TESTING_FRAMEWORK/Testing.framework" ||
+    ! -f "$TESTING_LIB/lib_TestingInterop.dylib" ]]; then
+    echo "FAILED: Swift Testing support is incomplete for the discovered toolchain" >&2
+    echo "  developer directory: $AURA_DEVELOPER_DIR" >&2
+    echo "  swift tool: $AURA_SWIFT_PATH" >&2
+    echo "  helper: $HELPER" >&2
+    echo "  testing macros: $TESTING_MACROS_PATH" >&2
+    echo "  Testing.framework root: $TESTING_FRAMEWORK" >&2
+    echo "  Testing interop root: $TESTING_LIB" >&2
+    exit 2
+fi
+export AURA_TESTING_MACROS_PATH="$TESTING_MACROS_PATH"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

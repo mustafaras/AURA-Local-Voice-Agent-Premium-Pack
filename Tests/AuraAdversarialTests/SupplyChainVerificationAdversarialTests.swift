@@ -48,7 +48,11 @@ private func makeSignedManifest(
   return (manifest: signed, bundleData: bundleData, privateKey: privateKey)
 }
 
-private func registry(trusting fixture: (manifest: PluginManifest, bundleData: Data, privateKey: Curve25519.Signing.PrivateKey)) -> PluginTrustRegistry {
+private func registry(
+  trusting fixture: (
+    manifest: PluginManifest, bundleData: Data, privateKey: Curve25519.Signing.PrivateKey
+  )
+) -> PluginTrustRegistry {
   PluginTrustRegistry(keysByVendor: [
     fixture.manifest.vendorName: fixture.privateKey.publicKey
   ])
@@ -67,7 +71,9 @@ func pluginVerifierDetectsMissingSignatureWhenManifestIsUnsigned() async throws 
     requiredPermissions: [.directory("/tmp/aura-plugin-tests", recursive: true)],
     contentHashSHA256Hex: hashHex,
     signatureBase64: Data(repeating: 0, count: 64).base64EncodedString())
-  let registry = PluginTrustRegistry(keysByVendor: [unsignedManifest.vendorName: privateKey.publicKey])
+  let registry = PluginTrustRegistry(keysByVendor: [
+    unsignedManifest.vendorName: privateKey.publicKey
+  ])
   let verifier = PluginVerifier(trustRegistry: registry)
   let result = verifier.verify(manifest: unsignedManifest, bundleData: bundleData)
   #expect(result == .signatureInvalid)

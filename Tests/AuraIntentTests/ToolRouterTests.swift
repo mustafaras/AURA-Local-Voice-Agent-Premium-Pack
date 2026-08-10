@@ -34,7 +34,9 @@ private func makeIntent(
 }
 
 private func makeHarness(
-  allowByDefaultTiers: Set<PermissionRiskTier> = [.observation, .reversible, .mutation, .destructive],
+  allowByDefaultTiers: Set<PermissionRiskTier> = [
+    .observation, .reversible, .mutation, .destructive,
+  ],
   grantConfirmationNoneFor: [Capability] = [],
   confirmationPresenter: any IntentConfirmationPresenting = IntentAlwaysDenyConfirmationPresenter(),
   configuration: IntentEngineConfiguration = IntentEngineConfiguration()
@@ -48,7 +50,8 @@ private func makeHarness(
   let shell = AuraShell(configuration: ShellConfiguration())
   let store = try await makeTestStore()
   let taskEngine = await AuraTaskEngine(store: store, eventBus: bus)
-  let (agentRunner, sessionID) = makeAgentBackendTaskRunner(policyEngine: policyEngine, eventBus: bus)
+  let (agentRunner, sessionID) = makeAgentBackendTaskRunner(
+    policyEngine: policyEngine, eventBus: bus)
   let capabilityRegistry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: capabilityRegistry)
   let router = ToolRouter(

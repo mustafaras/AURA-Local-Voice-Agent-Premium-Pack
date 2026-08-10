@@ -42,7 +42,9 @@ struct SystemTTSLatencyTests {
     }
 
     let elapsed = firstChunkTime ?? (CFAbsoluteTimeGetCurrent() - started)
-    #expect(elapsed < budgetSeconds, "first-chunk latency \(elapsed) s exceeded budget \(budgetSeconds) s")
+    #expect(
+      elapsed < budgetSeconds, "first-chunk latency \(elapsed) s exceeded budget \(budgetSeconds) s"
+    )
   }
 
   @Test func fullUtteranceLatencyIsUnderBudget() async throws {
@@ -61,7 +63,9 @@ struct SystemTTSLatencyTests {
     }
     let elapsed = CFAbsoluteTimeGetCurrent() - started
 
-    #expect(elapsed < budgetSeconds, "full-utterance latency \(elapsed) s exceeded budget \(budgetSeconds) s")
+    #expect(
+      elapsed < budgetSeconds,
+      "full-utterance latency \(elapsed) s exceeded budget \(budgetSeconds) s")
   }
 
   @Test func bargeInInterruptsActiveStream() async throws {
@@ -70,7 +74,8 @@ struct SystemTTSLatencyTests {
       return
     }
 
-    let firstPrompt = TTSPrompt(text: "this is the first prompt that should be interrupted", locale: "en-US")
+    let firstPrompt = TTSPrompt(
+      text: "this is the first prompt that should be interrupted", locale: "en-US")
     let secondPrompt = TTSPrompt(text: "second", locale: "en-US")
 
     let firstStream = engine.speak(firstPrompt)
@@ -84,7 +89,10 @@ struct SystemTTSLatencyTests {
     let firstChunks = await firstTask.value
 
     // The second stream must complete.
-    let secondComplete = secondChunks.contains { if case .complete = $0 { return true }; return false }
+    let secondComplete = secondChunks.contains {
+      if case .complete = $0 { return true }
+      return false
+    }
     #expect(secondComplete)
 
     // The first stream should have been terminated quickly.
@@ -109,8 +117,14 @@ struct SystemTTSLatencyTests {
 
     // System TTS fragment boundaries are not guaranteed to be stable across
     // runs, so we assert on lifecycle shape rather than byte-for-byte equality.
-    let firstComplete = first.contains { if case .complete = $0 { return true }; return false }
-    let secondComplete = second.contains { if case .complete = $0 { return true }; return false }
+    let firstComplete = first.contains {
+      if case .complete = $0 { return true }
+      return false
+    }
+    let secondComplete = second.contains {
+      if case .complete = $0 { return true }
+      return false
+    }
 
     #expect(firstComplete, "First speak lifecycle should complete")
     #expect(secondComplete, "Second speak lifecycle should complete")

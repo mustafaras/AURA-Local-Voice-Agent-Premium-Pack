@@ -9,7 +9,8 @@ import Testing
 
 /// A working directory that passes `ClaudeConfiguration`'s default
 /// `allowedWorkingDirectories` ("$HOME", "$TMPDIR") allowlist check.
-private let claudeTaskAllowedWorkingDirectory = ProcessInfo.processInfo.environment["HOME"] ?? "/tmp"
+private let claudeTaskAllowedWorkingDirectory =
+  ProcessInfo.processInfo.environment["HOME"] ?? "/tmp"
 
 // MARK: - Test doubles
 
@@ -201,9 +202,11 @@ func claudeAdapterAllowByDefaultPathInvokesExecutorAndParsesRealFixture() async 
     return nil
   }
   #expect(assistantTexts == ["ping"])
-  guard case .turnCompleted(let resultText, let cost, _, _, _, _) = events.last(where: {
-    if case .turnCompleted = $0 { return true } else { return false }
-  }) else {
+  guard
+    case .turnCompleted(let resultText, let cost, _, _, _, _) = events.last(where: {
+      if case .turnCompleted = $0 { return true } else { return false }
+    })
+  else {
     Issue.record("expected a turnCompleted event, got \(events)")
     return
   }
@@ -302,7 +305,11 @@ func claudeAdapterFlagsCostBudgetExceededAfterRealCompletedRun() async throws {
 
   #expect(
     events.contains {
-      if case .budgetExceeded(let kind, _, _) = $0 { return kind == "costUSD" } else { return false }
+      if case .budgetExceeded(let kind, _, _) = $0 {
+        return kind == "costUSD"
+      } else {
+        return false
+      }
     })
 }
 
@@ -366,7 +373,8 @@ func claudeTaskRunnerThrowsWhenProcessTimesOutWithoutResultLine() async throws {
     defaultToolProfile: .readOnly)
 
   let capture = ClaudeTestCapture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 
@@ -397,7 +405,8 @@ func claudeTaskRunnerHappyPathCompletesTaskViaEngine() async throws {
     defaultToolProfile: .readOnly)
 
   let capture = ClaudeTestCapture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 

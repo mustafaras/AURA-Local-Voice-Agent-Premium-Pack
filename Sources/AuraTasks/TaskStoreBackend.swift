@@ -38,7 +38,8 @@ public actor TaskStoreBackend {
     do {
       data = try jsonEncoder.encode(snapshot)
     } catch {
-      throw AuraError.serializationError("Failed to encode task snapshot: \(error.localizedDescription)")
+      throw AuraError.serializationError(
+        "Failed to encode task snapshot: \(error.localizedDescription)")
     }
     let id = snapshot.id
     try await store.setValue(String(data: data, encoding: .utf8) ?? "", forKey: taskKey(id: id))
@@ -56,7 +57,8 @@ public actor TaskStoreBackend {
     do {
       return try jsonDecoder.decode(TaskSnapshot.self, from: data)
     } catch {
-      throw AuraError.serializationError("Failed to decode task snapshot: \(error.localizedDescription)")
+      throw AuraError.serializationError(
+        "Failed to decode task snapshot: \(error.localizedDescription)")
     }
   }
 
@@ -72,7 +74,8 @@ public actor TaskStoreBackend {
     do {
       data = try jsonEncoder.encode(checkpoint)
     } catch {
-      throw AuraError.serializationError("Failed to encode checkpoint: \(error.localizedDescription)")
+      throw AuraError.serializationError(
+        "Failed to encode checkpoint: \(error.localizedDescription)")
     }
     let key = checkpointKey(taskID: checkpoint.taskID, name: checkpoint.name)
     try await store.setValue(String(data: data, encoding: .utf8) ?? "", forKey: key)
@@ -90,7 +93,8 @@ public actor TaskStoreBackend {
   }
 
   /// Load a named checkpoint for a task.
-  public func loadCheckpoint(taskID: UUID, name: String) async throws(AuraError) -> TaskCheckpoint? {
+  public func loadCheckpoint(taskID: UUID, name: String) async throws(AuraError) -> TaskCheckpoint?
+  {
     guard let json = try await store.value(forKey: checkpointKey(taskID: taskID, name: name)) else {
       return nil
     }
@@ -100,7 +104,8 @@ public actor TaskStoreBackend {
     do {
       return try jsonDecoder.decode(TaskCheckpoint.self, from: data)
     } catch {
-      throw AuraError.serializationError("Failed to decode checkpoint: \(error.localizedDescription)")
+      throw AuraError.serializationError(
+        "Failed to decode checkpoint: \(error.localizedDescription)")
     }
   }
 
@@ -116,7 +121,8 @@ public actor TaskStoreBackend {
       let strings = try jsonDecoder.decode([String].self, from: data)
       return strings.compactMap(UUID.init(uuidString:))
     } catch {
-      throw AuraError.serializationError("Failed to decode task index: \(error.localizedDescription)")
+      throw AuraError.serializationError(
+        "Failed to decode task index: \(error.localizedDescription)")
     }
   }
 
@@ -140,7 +146,8 @@ public actor TaskStoreBackend {
     do {
       data = try jsonEncoder.encode(strings)
     } catch {
-      throw AuraError.serializationError("Failed to encode task index: \(error.localizedDescription)")
+      throw AuraError.serializationError(
+        "Failed to encode task index: \(error.localizedDescription)")
     }
     try await store.setValue(String(data: data, encoding: .utf8) ?? "", forKey: Self.indexKey)
   }

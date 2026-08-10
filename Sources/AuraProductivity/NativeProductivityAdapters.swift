@@ -62,7 +62,8 @@ public actor EventKitCalendarReadAdapter: CalendarReadAdapter {
           provenance: .eventContent,
           classifier: classifier)
       }
-      guard !title.isBlocked, !(location?.isBlocked ?? false), !(recurrence?.isBlocked ?? false) else {
+      guard !title.isBlocked, !(location?.isBlocked ?? false), !(recurrence?.isBlocked ?? false)
+      else {
         return nil
       }
       guard let range = try? CalendarTimeRange(start: eventStart, end: eventEnd) else {

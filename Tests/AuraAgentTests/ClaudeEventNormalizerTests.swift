@@ -8,16 +8,25 @@ import Testing
 
 @Test
 func normalizerParsesHookStarted() {
-  let line = #"{"type":"system","subtype":"hook_started","hook_name":"SessionStart:startup","hook_event":"SessionStart"}"#
+  let line =
+    #"{"type":"system","subtype":"hook_started","hook_name":"SessionStart:startup","hook_event":"SessionStart"}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 1)
-  #expect(event == .hookEvent(hookName: "SessionStart:startup", hookEvent: "SessionStart", outcome: nil, sequence: 1))
+  #expect(
+    event
+      == .hookEvent(
+        hookName: "SessionStart:startup", hookEvent: "SessionStart", outcome: nil, sequence: 1))
 }
 
 @Test
 func normalizerParsesHookResponse() {
-  let line = #"{"type":"system","subtype":"hook_response","hook_name":"SessionStart:startup","hook_event":"SessionStart","outcome":"success"}"#
+  let line =
+    #"{"type":"system","subtype":"hook_response","hook_name":"SessionStart:startup","hook_event":"SessionStart","outcome":"success"}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 2)
-  #expect(event == .hookEvent(hookName: "SessionStart:startup", hookEvent: "SessionStart", outcome: "success", sequence: 2))
+  #expect(
+    event
+      == .hookEvent(
+        hookName: "SessionStart:startup", hookEvent: "SessionStart", outcome: "success", sequence: 2
+      ))
 }
 
 @Test
@@ -37,7 +46,8 @@ func normalizerParsesSessionInit() {
 
 @Test
 func normalizerParsesAssistantTextMessage() {
-  let line = #"{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"ping"}]}}"#
+  let line =
+    #"{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"ping"}]}}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 4)
   #expect(event == .message(role: "assistant", text: "ping", sequence: 4))
 }
@@ -51,14 +61,16 @@ func normalizerCarriesNonTextContentBlocksOpaquely() {
 
 @Test
 func normalizerParsesRateLimitEvent() {
-  let line = #"{"type":"rate_limit_event","rate_limit_info":{"status":"allowed","rateLimitType":"five_hour"}}"#
+  let line =
+    #"{"type":"rate_limit_event","rate_limit_info":{"status":"allowed","rateLimitType":"five_hour"}}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 6)
   #expect(event == .rateLimitEvent(status: "allowed", rateLimitType: "five_hour", sequence: 6))
 }
 
 @Test
 func normalizerParsesSuccessfulResult() {
-  let line = #"{"type":"result","subtype":"success","is_error":false,"result":"ping","num_turns":1,"duration_ms":1486,"stop_reason":"end_turn","total_cost_usd":0.0263853,"permission_denials":[]}"#
+  let line =
+    #"{"type":"result","subtype":"success","is_error":false,"result":"ping","num_turns":1,"duration_ms":1486,"stop_reason":"end_turn","total_cost_usd":0.0263853,"permission_denials":[]}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 7)
   #expect(
     event
@@ -69,7 +81,8 @@ func normalizerParsesSuccessfulResult() {
 
 @Test
 func normalizerParsesFailedResult() {
-  let line = #"{"type":"result","subtype":"error_during_execution","is_error":true,"result":"something broke","api_error_status":500}"#
+  let line =
+    #"{"type":"result","subtype":"error_during_execution","is_error":true,"result":"something broke","api_error_status":500}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 8)
   #expect(event == .turnFailed(message: "something broke", apiErrorStatus: 500))
 }
@@ -131,8 +144,9 @@ func claudeNormalizerParsesRealSuccessfulRunFixtureWithoutUnrecognizedLines() th
     Issue.record("expected hookEvent first, got \(events[0])")
     return
   }
-  guard case .sessionInit(_, let model, let permissionMode, let toolCount, _, _, let apiKeySource) =
-    events[2]
+  guard
+    case .sessionInit(_, let model, let permissionMode, let toolCount, _, _, let apiKeySource) =
+      events[2]
   else {
     Issue.record("expected sessionInit third, got \(events[2])")
     return

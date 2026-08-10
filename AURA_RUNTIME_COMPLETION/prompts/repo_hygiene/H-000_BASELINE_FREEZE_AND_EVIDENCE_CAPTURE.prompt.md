@@ -4,7 +4,7 @@ sequence: 0
 gap_id: HYGIENE-00
 depends_on: none
 next_prompt: H-001
-state: pending
+state: ready
 ---
 
 # H-000 — Baseline freeze and evidence capture

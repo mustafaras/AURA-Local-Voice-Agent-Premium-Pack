@@ -115,4 +115,3 @@ extension DeterministicComputerUsePlanner: ComputerUsePlanning {
     return await propose(observation: wrapped, objective: objective, previousSteps: previousSteps)
   }
 }
-

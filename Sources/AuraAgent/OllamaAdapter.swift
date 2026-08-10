@@ -71,7 +71,8 @@ public actor OllamaAdapter {
       let version = try await apiClient.health()
       let latencyMs = Date().timeIntervalSince(start) * 1000
       await emitAudit(
-        OllamaHealthCheckEvent(healthy: true, version: version.version, latencyMilliseconds: latencyMs),
+        OllamaHealthCheckEvent(
+          healthy: true, version: version.version, latencyMilliseconds: latencyMs),
         actor: actor, correlationID: correlationID, causationID: causationID)
       return true
     } catch {
@@ -99,14 +100,16 @@ public actor OllamaAdapter {
       causationID: causationID)
     {
     case .degraded(let reason):
-      await emitDegraded(capability: capability, reason: reason, actor: actor,
+      await emitDegraded(
+        capability: capability, reason: reason, actor: actor,
         correlationID: correlationID, causationID: causationID)
       guard let deterministicFallback else {
         throw AuraError.ollamaError(
           "ollama unavailable for classification and no deterministic fallback was provided (reason: \(reason.rawValue))"
         )
       }
-      return OllamaCapabilityResult(text: deterministicFallback(prompt, labels), model: nil, degraded: true)
+      return OllamaCapabilityResult(
+        text: deterministicFallback(prompt, labels), model: nil, degraded: true)
 
     case .ready(let model):
       let runID = correlationID
@@ -122,10 +125,12 @@ public actor OllamaAdapter {
         await emitAudit(
           OllamaInferenceCompletedEvent(runID: runID, model: model.name),
           actor: actor, correlationID: correlationID, causationID: causationID)
-        return OllamaCapabilityResult(text: result.classification, model: model.name, degraded: false)
+        return OllamaCapabilityResult(
+          text: result.classification, model: model.name, degraded: false)
       } catch {
         await emitAudit(
-          OllamaErrorEvent(runID: runID, category: .structuredValidationFailed, message: "\(error)"),
+          OllamaErrorEvent(
+            runID: runID, category: .structuredValidationFailed, message: "\(error)"),
           actor: actor, correlationID: correlationID, causationID: causationID)
         if let deterministicFallback {
           return OllamaCapabilityResult(
@@ -212,7 +217,8 @@ public actor OllamaAdapter {
       causationID: causationID)
     {
     case .degraded(let reason):
-      await emitDegraded(capability: capability, reason: reason, actor: actor,
+      await emitDegraded(
+        capability: capability, reason: reason, actor: actor,
         correlationID: correlationID, causationID: causationID)
       guard let deterministicFallback else {
         throw AuraError.ollamaError(
@@ -238,7 +244,8 @@ public actor OllamaAdapter {
         return OllamaCapabilityResult(text: result.summary, model: model.name, degraded: false)
       } catch {
         await emitAudit(
-          OllamaErrorEvent(runID: runID, category: .structuredValidationFailed, message: "\(error)"),
+          OllamaErrorEvent(
+            runID: runID, category: .structuredValidationFailed, message: "\(error)"),
           actor: actor, correlationID: correlationID, causationID: causationID)
         if let deterministicFallback {
           return OllamaCapabilityResult(
@@ -266,7 +273,8 @@ public actor OllamaAdapter {
       causationID: causationID)
     {
     case .degraded(let reason):
-      await emitDegraded(capability: capability, reason: reason, actor: actor,
+      await emitDegraded(
+        capability: capability, reason: reason, actor: actor,
         correlationID: correlationID, causationID: causationID)
       throw AuraError.ollamaError(
         "ollama unavailable for reasoning; no deterministic fallback exists for open-ended reasoning (reason: \(reason.rawValue))"

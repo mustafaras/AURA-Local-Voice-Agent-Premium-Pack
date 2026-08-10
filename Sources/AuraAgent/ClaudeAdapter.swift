@@ -200,7 +200,8 @@ public actor ClaudeAdapter {
             ClaudeBudgetExceededEvent(
               runID: runID, kind: .costUSD, limit: costBudget, observed: totalCostUSD),
             actor: actor, correlationID: correlationID, causationID: causationID)
-          continuation.yield(.budgetExceeded(kind: "costUSD", limit: costBudget, observed: totalCostUSD))
+          continuation.yield(
+            .budgetExceeded(kind: "costUSD", limit: costBudget, observed: totalCostUSD))
         }
 
       case .completed(let result):

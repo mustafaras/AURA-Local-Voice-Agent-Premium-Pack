@@ -66,7 +66,8 @@ func expiredGrantDoesNotAllowMutation() async throws {
   // the absence of a valid grant produces a deny.
   let destructiveDecision = await engine.evaluate(policyRequest(capability: .fileDelete))
   guard case .deny = destructiveDecision else {
-    Issue.record("expected deny for expired grant covering destructive tier, got \(destructiveDecision)")
+    Issue.record(
+      "expected deny for expired grant covering destructive tier, got \(destructiveDecision)")
     return
   }
   // Also assert the originally expired fileWrite grant is not active.

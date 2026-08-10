@@ -223,7 +223,8 @@ struct AuraVSCodeTests {
       statePath: stateFile.path,
       authenticator: authenticator,
       expectedExtensionID: "ai.aura.vscode-bridge")
-    #expect((await bridge.editorState(maxStalenessSeconds: 60))?.activeFilePath == "/tmp/replay.swift")
+    #expect(
+      (await bridge.editorState(maxStalenessSeconds: 60))?.activeFilePath == "/tmp/replay.swift")
 
     var tampered = first
     tampered = VSCodeBridgeEnvelope(payload: first.payload, authenticationTag: "tampered")
@@ -235,7 +236,8 @@ struct AuraVSCodeTests {
       extensionID: "ai.aura.vscode-bridge",
       nonce: "nonce-2")
     try encoder.encode(second).write(to: stateFile)
-    #expect((await bridge.editorState(maxStalenessSeconds: 60))?.activeFilePath == "/tmp/replay.swift")
+    #expect(
+      (await bridge.editorState(maxStalenessSeconds: 60))?.activeFilePath == "/tmp/replay.swift")
 
     try encoder.encode(first).write(to: stateFile)
     #expect(await bridge.editorState(maxStalenessSeconds: 60) == nil)

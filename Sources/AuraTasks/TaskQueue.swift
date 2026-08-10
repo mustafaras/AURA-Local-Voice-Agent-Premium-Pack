@@ -1,7 +1,6 @@
-import Foundation
-
 /// Priority queue of `AuraTask` instances ordered by `TaskPriority` and FIFO within the same priority.
 import AuraCore
+import Foundation
 
 struct TaskQueue {
   private var storage: [AuraTask] = []

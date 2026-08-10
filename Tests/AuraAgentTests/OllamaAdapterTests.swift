@@ -68,7 +68,8 @@ func ollamaAdapterLocalInferenceAllowedByDefaultWithoutConfirmation() async thro
 
 @Test
 func ollamaAdapterCloudInferenceDeniedByDefaultFallsBackWhenProvided() async throws {
-  let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaCloudDeny"))
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaCloudDeny"))
   let policyEngine = try await makeOllamaPolicyEngine(eventBus: bus)
   let client = succeedingClassifyClient(model: OllamaTestFixtures.cloudModel())
   await client.setGenerateHandler { model, _, _, _ in
@@ -169,7 +170,8 @@ func ollamaAdapterCloudInferenceConfirmPathDeniedWhenPresenterRefuses() async th
 func ollamaAdapterHealthCheckFailureUsesFallback() async throws {
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaHealth"))
   let policyEngine = try await makeOllamaPolicyEngine(eventBus: bus)
-  let client = FakeOllamaAPIClient(healthResult: .failure(AuraError.ollamaError("connection refused")))
+  let client = FakeOllamaAPIClient(
+    healthResult: .failure(AuraError.ollamaError("connection refused")))
   let adapter = try makeAdapter(policyEngine: policyEngine, apiClient: client, eventBus: bus)
 
   let result = try await adapter.classify(
@@ -184,7 +186,8 @@ func ollamaAdapterHealthCheckFailureThrowsWithoutFallback() async throws {
   let bus = AuraEventBus(
     logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaHealthThrow"))
   let policyEngine = try await makeOllamaPolicyEngine(eventBus: bus)
-  let client = FakeOllamaAPIClient(healthResult: .failure(AuraError.ollamaError("connection refused")))
+  let client = FakeOllamaAPIClient(
+    healthResult: .failure(AuraError.ollamaError("connection refused")))
   let adapter = try makeAdapter(policyEngine: policyEngine, apiClient: client, eventBus: bus)
 
   await #expect(throws: AuraError.self) {
@@ -289,7 +292,8 @@ func ollamaAdapterDegradesWhenModelStillExceedsBudgetAfterEvictingEverything() a
 }
 
 @Test
-func ollamaAdapterAllowsColdLoadWhenDiskSizeExceedsBudgetButEstimatedResidentSizeFits() async throws {
+func ollamaAdapterAllowsColdLoadWhenDiskSizeExceedsBudgetButEstimatedResidentSizeFits() async throws
+{
   // Reproduces the real gemma4:latest coldstart rejection from
   // EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01 and EV-R2-20260803-REAL-DESKTOP-SESSION-01:
   // 9.6 GB on-disk size against a 6 GB budget used to be rejected outright,
@@ -346,7 +350,8 @@ func ollamaAdapterSkipsBudgetCheckWhenModelAlreadyResident() async throws {
 
 @Test
 func ollamaAdapterReasonReturnsFreeFormText() async throws {
-  let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaReasonOK"))
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaReasonOK"))
   let policyEngine = try await makeOllamaPolicyEngine(eventBus: bus)
   let client = succeedingClassifyClient()
   await client.setGenerateHandler { model, _, format, _ in

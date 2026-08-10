@@ -415,7 +415,8 @@ final class AuraAppModel: ObservableObject {
           throw AuraError.invalidConfiguration("AURA runtime is not started")
         }
         let panel = NSSavePanel()
-        panel.nameFieldStringValue = "aura-memory-\(Self.exportDateFormatter.string(from: Date())).json"
+        panel.nameFieldStringValue =
+          "aura-memory-\(Self.exportDateFormatter.string(from: Date())).json"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         try data.write(to: url, options: .atomic)
         lastOperationMessage = "Non-audit memory export saved."
@@ -548,7 +549,8 @@ final class AuraAppModel: ObservableObject {
         try? await Task.sleep(nanoseconds: 500_000_000)
         waited += 0.5
       }
-      await logger.info("TEXT_DEMO turn complete after \(waited)s, final status \(status.rawValue)", actor: .system)
+      await logger.info(
+        "TEXT_DEMO turn complete after \(waited)s, final status \(status.rawValue)", actor: .system)
     }
     await logger.info("TEXT_DEMO script complete", actor: .system)
   }
@@ -613,7 +615,8 @@ final class AuraAppModel: ObservableObject {
   }
 
   private func updateRuntimeWarnings() {
-    let degraded = runtimeHealth
+    let degraded =
+      runtimeHealth
       .filter { $0.status != .ready }
       .map { "\($0.componentID): \($0.detail)" }
     runtimeWarnings = ["Acoustic wake-word model unavailable; use Push to Talk."] + degraded
@@ -684,13 +687,16 @@ final class AuraAppModel: ObservableObject {
   private func applyToolResult(_ event: ToolResultEvent) {
     lastOperationMessage = event.summary
     appendConversation(
-      .init(role: .system, text: event.summary, isDegraded: !event.succeeded, sourceSummary: event.toolID))
+      .init(
+        role: .system, text: event.summary, isDegraded: !event.succeeded,
+        sourceSummary: event.toolID))
   }
 
   private func applyIntentBlocked(_ event: IntentBlockedEvent) {
     lastOperationMessage = event.reason
     appendConversation(
-      .init(role: .system, text: "Blocked: \(event.reason)", isDegraded: true, sourceSummary: "Policy"))
+      .init(
+        role: .system, text: "Blocked: \(event.reason)", isDegraded: true, sourceSummary: "Policy"))
   }
 
   private func appendConversation(_ message: AuraConversationMessage) {

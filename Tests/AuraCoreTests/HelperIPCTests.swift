@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+
 @testable import AuraCore
 
 private let helperIssuedAt = Date(timeIntervalSince1970: 1_000)
@@ -21,7 +22,8 @@ private func shellRequest(
 @Test
 func helperIPCValidRequestBindsPlanPayloadAndFreshness() throws {
   let request = shellRequest()
-  try HelperIPCValidator.validate(request, expectedHelper: .shell, now: helperIssuedAt.addingTimeInterval(1))
+  try HelperIPCValidator.validate(
+    request, expectedHelper: .shell, now: helperIssuedAt.addingTimeInterval(1))
 
   #expect(request.header.planHash.count == 64)
   #expect(request.header.payloadSHA256Hex == sha256Hex(request.payload))
@@ -47,7 +49,8 @@ func helperIPCDeniesCapabilityEscalationAcrossHelperKinds() {
 func helperIPCRejectsExpiredTamperedAndWrongKindRequests() throws {
   let expired = shellRequest(expiresAt: helperIssuedAt.addingTimeInterval(1))
   #expect(throws: AuraError.self) {
-    try HelperIPCValidator.validate(expired, expectedHelper: .shell, now: helperIssuedAt.addingTimeInterval(2))
+    try HelperIPCValidator.validate(
+      expired, expectedHelper: .shell, now: helperIssuedAt.addingTimeInterval(2))
   }
 
   let original = shellRequest()
@@ -67,7 +70,8 @@ func helperIPCReplayGuardConsumesNonceExactlyOnce() async throws {
   let request = shellRequest()
   try await guardStore.consume(request, expectedHelper: .shell, now: helperIssuedAt)
   do {
-    try await guardStore.consume(request, expectedHelper: .shell, now: helperIssuedAt.addingTimeInterval(1))
+    try await guardStore.consume(
+      request, expectedHelper: .shell, now: helperIssuedAt.addingTimeInterval(1))
     Issue.record("helper IPC nonce replay unexpectedly succeeded")
   } catch {
     #expect(error == .securityError("helper IPC nonce replay detected"))

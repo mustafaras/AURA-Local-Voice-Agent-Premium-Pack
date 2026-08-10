@@ -45,8 +45,10 @@ A production-oriented implementation pack for a continuously available, privacy-
 3. Read `docs/01_MASTER_SPEC.md`.
 4. Read `docs/architecture/02_ARCHITECTURE.md`.
 5. Initialize `ledger/PROJECT_LEDGER.md`.
-6. Execute prompts in `prompts/implementation/` in numeric order.
-7. Run the review prompts after every milestone.
+6. For governed work, use the canonical active prompt in
+   `AURA_RUNTIME_COMPLETION/state/current-state.json` and its manifest; do not
+   infer work from historical prompt-path references.
+7. Run the relevant review or closeout prompt after every milestone.
 8. Do not begin a later phase until the prior phase's acceptance gate passes.
 
 ## Build and run the current application
@@ -96,7 +98,9 @@ or helper is unavailable. The reference must be 3–30 seconds of clean PCM WAV,
 mono or stereo, at 16–48 kHz. A human-listened Turkish turn is still required
 before accepting a reference recording for regular use.
 
-Run all 19 test bundles with coverage. The enforced line-coverage ratchet is
+Run all 21 test bundles with coverage. The repository source and
+`scripts/aura-test.sh` currently enumerate 21 Swift test bundles. The enforced
+line-coverage ratchet is
 70%, against the currently measured 70.12% result:
 
 ```sh

@@ -15,6 +15,7 @@ public protocol ScreenWindowSource: Sendable {
 
   /// Capture `windowID`, optionally scoped to `region` (window-relative,
   /// normalized `[0, 1]`). `region == nil` captures the whole window.
-  func captureImage(windowID: Int, region: CaptureRegion?, maxDimension: Int) async throws(AuraError)
+  func captureImage(windowID: Int, region: CaptureRegion?, maxDimension: Int)
+    async throws(AuraError)
     -> CGImage
 }

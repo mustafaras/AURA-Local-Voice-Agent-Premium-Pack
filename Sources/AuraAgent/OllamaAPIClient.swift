@@ -268,7 +268,8 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
     do {
       try policy.validate(url)
     } catch {
-      throw .invalidConfiguration("ollama baseURL failed network policy: \(error.localizedDescription)")
+      throw .invalidConfiguration(
+        "ollama baseURL failed network policy: \(error.localizedDescription)")
     }
     self.baseURL = url
     self.requestTimeoutSeconds = configuration.requestTimeoutSeconds
@@ -330,7 +331,8 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
       }
     }
     let _: OllamaGenerateResponse = try await post(
-      "/api/generate", body: Body(model: model, keepAlive: 0), timeoutSeconds: requestTimeoutSeconds)
+      "/api/generate", body: Body(model: model, keepAlive: 0), timeoutSeconds: requestTimeoutSeconds
+    )
   }
 
   // MARK: - Transport
@@ -375,7 +377,8 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
         throw AuraError.securityError("Ollama request path is outside /api/")
       }
     } catch {
-      throw AuraError.ollamaError("network policy denied Ollama request: \(error.localizedDescription)")
+      throw AuraError.ollamaError(
+        "network policy denied Ollama request: \(error.localizedDescription)")
     }
     let (data, urlResponse): (Data, URLResponse)
     do {
@@ -392,7 +395,8 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
     do {
       try endpointPolicy.validate(responseURL)
     } catch {
-      throw AuraError.ollamaError("network policy denied Ollama response: \(error.localizedDescription)")
+      throw AuraError.ollamaError(
+        "network policy denied Ollama response: \(error.localizedDescription)")
     }
     guard data.count <= endpointPolicy.maximumResponseBytes else {
       throw AuraError.ollamaError("Ollama response exceeded the configured byte bound")

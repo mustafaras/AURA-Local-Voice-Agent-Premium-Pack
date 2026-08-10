@@ -89,13 +89,15 @@ public actor Conversation {
     continuationTask?.cancel()
     continuationTask = nil
     pendingContinuation = nil
-    activeTurnContext = turnContext ?? TurnContext(
-      sessionID: sessionID,
-      activationSource: .pushToTalk,
-      actor: .user,
-      authority: .userUtterance,
-      sensitivity: privacyMode ? .sensitive : .internalLevel,
-      timingOrigin: monotonicClock())
+    activeTurnContext =
+      turnContext
+      ?? TurnContext(
+        sessionID: sessionID,
+        activationSource: .pushToTalk,
+        actor: .user,
+        authority: .userUtterance,
+        sensitivity: privacyMode ? .sensitive : .internalLevel,
+        timingOrigin: monotonicClock())
     transition(
       to: .listening, reason: privacyMode ? "privacy-mode activation" : "wake-word activation")
     currentTurnText = ""
@@ -236,7 +238,7 @@ public actor Conversation {
           model: context.backendIDs.model,
           tool: context.backendIDs.tool))
     }
-            emit(event)
+    emit(event)
 
     if ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_TEXT"] == "1" {
       await logger.info(

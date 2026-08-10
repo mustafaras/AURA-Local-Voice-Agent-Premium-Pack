@@ -26,8 +26,8 @@ struct AuraMenuView: View {
         get: { model.productUIState.onboarding.isPresented },
         set: { isPresented in
           if !isPresented { model.closeOnboarding() }
-        }))
-    {
+        })
+    ) {
       AuraOnboardingView(model: model)
     }
     .sheet(item: $model.memoryCorrectionTarget) { record in
@@ -50,9 +50,12 @@ struct AuraMenuView: View {
           .fixedSize(horizontal: false, vertical: true)
       }
       Spacer(minLength: 8)
-      Picker("Language", selection: Binding(
-        get: { model.productUIState.language },
-        set: { model.setUILanguage($0) })) {
+      Picker(
+        "Language",
+        selection: Binding(
+          get: { model.productUIState.language },
+          set: { model.setUILanguage($0) })
+      ) {
         Text("EN").tag(AuraUILanguage.english)
         Text("TR").tag(AuraUILanguage.turkish)
       }
@@ -75,8 +78,8 @@ struct AuraMenuView: View {
       "Sections",
       selection: Binding(
         get: { model.productUIState.selectedTab },
-        set: { model.selectTab($0) }))
-    {
+        set: { model.selectTab($0) })
+    ) {
       ForEach(AuraProductTab.allCases) { tab in
         Label(copy(tab.copyKey), systemImage: tab.symbolName).tag(tab)
       }
@@ -214,13 +217,16 @@ struct AuraMenuView: View {
                 .foregroundStyle(task.state == .failed ? .red : .secondary)
             }
             ProgressView(value: task.percentComplete)
-              .accessibilityLabel("\(copy("tasks.progress")): \(Int(task.percentComplete * 100)) percent")
-            Text(task.currentStepDescription.isEmpty
-              ? "\(task.completedSteps)/\(task.totalSteps)"
-              : task.currentStepDescription)
-              .font(.caption)
-              .foregroundStyle(.secondary)
-              .fixedSize(horizontal: false, vertical: true)
+              .accessibilityLabel(
+                "\(copy("tasks.progress")): \(Int(task.percentComplete * 100)) percent")
+            Text(
+              task.currentStepDescription.isEmpty
+                ? "\(task.completedSteps)/\(task.totalSteps)"
+                : task.currentStepDescription
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
             if let error = task.errorMessage {
               Text("Failed: \(error)")
                 .font(.caption)
@@ -235,9 +241,10 @@ struct AuraMenuView: View {
                 Button(copy("tasks.cancel"), role: .destructive) {
                   model.cancelTask(task.id)
                 }
-                .accessibilityHint(language == .turkish
-                  ? "Bu kalıcı görevin çalışmasını durdurmayı ister"
-                  : "Requests cancellation of this durable task")
+                .accessibilityHint(
+                  language == .turkish
+                    ? "Bu kalıcı görevin çalışmasını durdurmayı ister"
+                    : "Requests cancellation of this durable task")
               }
             }
           }
@@ -283,7 +290,8 @@ struct AuraMenuView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-          "\(capability.title), \(capability.state), \(capability.detail), \(locality(capability.locality))")
+          "\(capability.title), \(capability.state), \(capability.detail), \(locality(capability.locality))"
+        )
       }
       if model.capabilityRows.isEmpty {
         Text("No registered capabilities are available to inspect.")
@@ -305,11 +313,15 @@ struct AuraMenuView: View {
       }
       GroupBox("Voice") {
         VStack(alignment: .leading, spacing: 5) {
-          Label("Speech recognition: \(model.permissions.speechRecognition.title)", systemImage: "waveform")
+          Label(
+            "Speech recognition: \(model.permissions.speechRecognition.title)",
+            systemImage: "waveform")
           Label("System speech synthesis: configured local pipeline", systemImage: "speaker.wave.2")
-          Text("Reference-voice cloning is not enabled by this surface and requires explicit consent.")
-            .font(.caption).foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
+          Text(
+            "Reference-voice cloning is not enabled by this surface and requires explicit consent."
+          )
+          .font(.caption).foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
       }
@@ -339,7 +351,8 @@ struct AuraMenuView: View {
       GroupBox("Permission indicators") {
         VStack(alignment: .leading, spacing: 5) {
           permissionIndicator("Microphone", model.permissions.microphone.title)
-          permissionIndicator("Active speech recognition", model.permissions.speechRecognition.title)
+          permissionIndicator(
+            "Active speech recognition", model.permissions.speechRecognition.title)
           permissionIndicator("Screen observation", model.permissions.screenRecording.title)
           Label(copy("conversation.cloudDisabled"), systemImage: "icloud.slash")
             .fixedSize(horizontal: false, vertical: true)
@@ -352,9 +365,10 @@ struct AuraMenuView: View {
         } label: {
           Label(copy("privacy.export"), systemImage: "square.and.arrow.up")
         }
-        .accessibilityHint(language == .turkish
-          ? "Denetim ve güvenlik kayıtları dışarı aktarılmaz"
-          : "Audit and security records are excluded")
+        .accessibilityHint(
+          language == .turkish
+            ? "Denetim ve güvenlik kayıtları dışarı aktarılmaz"
+            : "Audit and security records are excluded")
         Spacer()
         Text("\(model.memoryRows.count) records")
           .font(.caption).foregroundStyle(.secondary)
@@ -393,12 +407,14 @@ struct AuraMenuView: View {
       GroupBox("Runtime diagnostics") {
         VStack(alignment: .leading, spacing: 5) {
           ForEach(model.runtimeHealth, id: \RuntimeHealth.componentID) { (health: RuntimeHealth) in
-            let diagnosticLabel = "\(health.componentID): \(health.status.rawValue). \(health.detail)"
+            let diagnosticLabel =
+              "\(health.componentID): \(health.status.rawValue). \(health.detail)"
             Label(
               "\(health.componentID): \(health.status.rawValue)",
-              systemImage: health.status == .ready ? "checkmark.circle" : "exclamationmark.triangle")
-              .foregroundStyle(health.status == .ready ? Color.secondary : Color.orange)
-              .accessibilityLabel(diagnosticLabel)
+              systemImage: health.status == .ready ? "checkmark.circle" : "exclamationmark.triangle"
+            )
+            .foregroundStyle(health.status == .ready ? Color.secondary : Color.orange)
+            .accessibilityLabel(diagnosticLabel)
           }
           ForEach(model.runtimeWarnings, id: \.self) { warning in
             Text(warning).font(.caption).foregroundStyle(.orange)
@@ -462,7 +478,8 @@ struct AuraMenuView: View {
   }
 
   private func locality(_ value: String) -> String {
-    value == "local" ? (language == .turkish ? "Yerel" : "Local")
+    value == "local"
+      ? (language == .turkish ? "Yerel" : "Local")
       : (language == .turkish ? "Bulut" : "Cloud")
   }
 
@@ -567,12 +584,14 @@ private struct MemoryCorrectionSheet: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text("Correct memory").font(.headline)
-      TextEditor(text: Binding(
-        get: { draft.statement },
-        set: { draft.statement = $0 }))
-        .frame(minHeight: 120)
-        .border(.secondary)
-        .accessibilityLabel("Corrected memory statement")
+      TextEditor(
+        text: Binding(
+          get: { draft.statement },
+          set: { draft.statement = $0 })
+      )
+      .frame(minHeight: 120)
+      .border(.secondary)
+      .accessibilityLabel("Corrected memory statement")
       HStack {
         Button("Cancel", role: .cancel) { model.memoryCorrectionTarget = nil }
         Spacer()
@@ -609,7 +628,8 @@ private struct AuraOnboardingView: View {
         Button(copy("onboarding.close")) { model.closeOnboarding() }
       }
       ProgressView(value: Double(model.productUIState.onboarding.stage.rawValue), total: 12)
-        .accessibilityLabel("Setup step \(model.productUIState.onboarding.stage.rawValue + 1) of 13")
+        .accessibilityLabel(
+          "Setup step \(model.productUIState.onboarding.stage.rawValue + 1) of 13")
       Text(copy(model.productUIState.onboarding.stage.copyKey))
         .font(.title3.bold())
       Text(explanation)
@@ -699,9 +719,12 @@ struct AuraSettingsView: View {
   var body: some View {
     Form {
       Section("Product UI") {
-        Picker("Language", selection: Binding(
-          get: { model.productUIState.language },
-          set: { model.setUILanguage($0) })) {
+        Picker(
+          "Language",
+          selection: Binding(
+            get: { model.productUIState.language },
+            set: { model.setUILanguage($0) })
+        ) {
           Text("English").tag(AuraUILanguage.english)
           Text("Türkçe").tag(AuraUILanguage.turkish)
         }
@@ -732,11 +755,14 @@ struct AuraSettingsView: View {
           isOn: Binding(
             get: { model.localRecommendationsEnabled },
             set: { model.setLocalRecommendationsEnabled($0) }))
-        Text("Uses bounded aggregate metrics only. Recommendations are never applied automatically.")
-          .foregroundStyle(.secondary)
+        Text(
+          "Uses bounded aggregate metrics only. Recommendations are never applied automatically."
+        )
+        .foregroundStyle(.secondary)
         LabeledContent("Effective keys", value: "\(model.effectiveConfiguration.count)")
         LabeledContent("Audit records", value: "\(model.configurationAuditCount)")
-        ForEach(model.effectiveConfiguration.filter(\.differsFromDefault).prefix(8), id: \.key) { entry in
+        ForEach(model.effectiveConfiguration.filter(\.differsFromDefault).prefix(8), id: \.key) {
+          entry in
           LabeledContent(entry.key, value: entry.value.displayValue)
         }
         Button("Refresh Configuration Inspection") { model.refreshConfigurationInspection() }

@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `FINAL`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Audited baseline:** `e1004795e56df8c171422261eace96543649cf51` on `main` (`HEAD == origin/main`; delivery metadata projection is intentionally dirty)
+> **Audited baseline:** `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9` on `main` (`HEAD == origin/main`; H-000 control-plane projection edits are intentionally dirty)
 
 ## Canonical status
 
@@ -12,13 +12,38 @@
 The repository-hygiene program is a separate, synchronized control overlay at
 `docs/operations/REPO_HYGIENE_PROGRAM.md`. Its machine state is
 `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json`, currently
-`H-000` / `pending`; its 11-prompt manifest, focused ledger, contracts,
+`H-005` / `ready`; its 11-prompt manifest, focused ledger, contracts,
 Tier-0/Tier-1 read order, and validator must agree before a hygiene prompt can
 advance. This overlay does not close R2–R12, FINAL, beta, release, security,
-permission, or live-hardware gates. The current preparation authority is
-edit-only: no cleanup, Git object mutation, install, commit, push, merge,
-release, or deploy is authorized. Start with H-000 and run the mandatory
-`15_SESSION_CLOSEOUT.prompt.md` after every attempt.
+permission, or live-hardware gates. The current authority is reset at closeout;
+no standing mutation authority remains:
+no cleanup, Git object mutation, install, commit, push, merge, release, or
+deploy is authorized. H-000 is complete for chain order. After exact user
+authority to create a clean clone, H-001 verified a fresh remote clone with
+strict fsck exit 0, matching main tip/closure, clean status, and a current
+worktree preservation mapping. The original local object database still fails
+fsck and remains untouched. H-001 is complete for chain order. Exact
+`ONAY: H-002` was received and H-002 completed a read-only ownership and
+disposition inventory: 18 tracked control-plane modifications, 0 untracked,
+and 69,939 ignored paths. Every path has an explicit disposition and recovery
+reference in `/tmp/aura-h002-worktree-inventory.sV4ynZ/`; generated `.build`,
+Python environment/cache, and macOS metadata groups remain in place. Exact
+`ONAY: H-003` was received. H-003 added the minimum explicit root `/.venv/`
+rule, documented generated boundaries, and added positive/negative
+clean-fixture regression coverage; no generated artifact is tracked and source,
+fixture, manifest, and evidence paths remain visible. Exact `ONAY: H-004` was
+then received. H-004 reconciled the active macOS 27+/arm64/Swift 6.4 baseline,
+21 Swift test targets, active prompt references, and Swift Testing path
+discovery/fail-closed behavior. Exact `ONAY: H-005` was then received.
+H-005 added `.swift-format` schema version 1 and explicit CI
+strict-concurrency/warnings-as-errors flags. Under explicit bounded-remediation
+authority, all 1,019 configured formatter findings across 116 files were
+resolved in reviewed batches; recursive strict formatter lint, strict build,
+and the 21-bundle/794-test wrapper pass. SwiftLint 0.65.0 is provisioned, but
+full SourceKit-backed lint is blocked by the CLT-only developer directory and
+its no-SourceKit fallback is not a pass. H-005 is ready and held at the active
+boundary; session authority has expired, no cleanup/deletion/quarantine is
+allowed, and H-006 must not open without exact `ONAY: H-006`.
 
 The strict BOOTSTRAP preflight and R0 governance repair are complete. Canonical machine state is in
 `AURA_RUNTIME_COMPLETION/state/current-state.json`; the ordered manifest has

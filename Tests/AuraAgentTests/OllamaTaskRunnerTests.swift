@@ -46,7 +46,8 @@ private func makeOllamaTaskPolicyEngine(eventBus: AuraEventBus) async throws -> 
 
 @Test
 func ollamaTaskRunnerHappyPathReasoningCompletesTaskViaEngine() async throws {
-  let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaTaskHappy"))
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaTaskHappy"))
   let policyEngine = try await makeOllamaTaskPolicyEngine(eventBus: bus)
   let client = FakeOllamaAPIClient(modelsResult: .success([OllamaTestFixtures.localModel()]))
   await client.setGenerateHandler { model, _, _, _ in
@@ -61,7 +62,8 @@ func ollamaTaskRunnerHappyPathReasoningCompletesTaskViaEngine() async throws {
 
   let runner = OllamaTaskRunner(adapter: adapter, sessionID: UUID(), defaultCapability: .reasoning)
   let capture = OllamaTaskCapture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 
@@ -92,7 +94,8 @@ func ollamaTaskRunnerClassificationUsesLabelsFromContext() async throws {
 
   let runner = OllamaTaskRunner(adapter: adapter, sessionID: UUID())
   let capture = OllamaTaskCapture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 
@@ -123,7 +126,8 @@ func ollamaTaskRunnerClassificationWithoutLabelsFailsTask() async throws {
 
   let runner = OllamaTaskRunner(adapter: adapter, sessionID: UUID())
   let capture = OllamaTaskCapture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 
@@ -151,7 +155,8 @@ func ollamaTaskRunnerFailsTaskWhenOllamaUnavailableAndNoFallback() async throws 
 
   let runner = OllamaTaskRunner(adapter: adapter, sessionID: UUID(), defaultCapability: .reasoning)
   let capture = OllamaTaskCapture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 

@@ -142,7 +142,8 @@ public actor ConfirmationTransactionStore {
       throw ConfirmationTransactionError.invalidState(transaction.state)
     }
     guard now() < transaction.expiresAt else {
-      transactions[response.requestID] = transaction.changing(state: .cancelled, outcomeSummary: "expired")
+      transactions[response.requestID] = transaction.changing(
+        state: .cancelled, outcomeSummary: "expired")
       throw ConfirmationTransactionError.expired
     }
     guard response.nonce == transaction.nonce,
@@ -195,11 +196,13 @@ public actor ConfirmationTransactionStore {
     context: TurnContext,
     planHash: String? = nil
   ) throws -> ConfirmationTransaction {
-    guard let requestID = transactions.values.first(where: { transaction in
-      transaction.state == .authorized
-        && transaction.turnContext?.sessionID == context.sessionID
-        && transaction.turnContext?.correlationID == context.correlationID
-    })?.requestID else {
+    guard
+      let requestID = transactions.values.first(where: { transaction in
+        transaction.state == .authorized
+          && transaction.turnContext?.sessionID == context.sessionID
+          && transaction.turnContext?.correlationID == context.correlationID
+      })?.requestID
+    else {
       throw ConfirmationTransactionError.notFound
     }
     guard let transaction = transactions[requestID] else {
@@ -217,11 +220,13 @@ public actor ConfirmationTransactionStore {
     verified: Bool,
     summary: String
   ) throws -> ConfirmationTransaction {
-    guard let requestID = transactions.values.first(where: { transaction in
-      transaction.state == .executing
-        && transaction.turnContext?.sessionID == context.sessionID
-        && transaction.turnContext?.correlationID == context.correlationID
-    })?.requestID else {
+    guard
+      let requestID = transactions.values.first(where: { transaction in
+        transaction.state == .executing
+          && transaction.turnContext?.sessionID == context.sessionID
+          && transaction.turnContext?.correlationID == context.correlationID
+      })?.requestID
+    else {
       throw ConfirmationTransactionError.notFound
     }
     _ = try markExecuted(requestID: requestID, summary: summary)

@@ -4,7 +4,7 @@ sequence: 3
 gap_id: HYGIENE-03
 depends_on: H-002
 next_prompt: H-004
-state: pending
+state: ready
 ---
 
 # H-003 — Ignore rules and generated-file hygiene

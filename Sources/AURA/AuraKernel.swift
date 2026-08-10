@@ -287,7 +287,9 @@ actor AuraKernel {
     try await taskEngine.cancel(id: id)
   }
 
-  func capabilityHealthSnapshot() async throws(AuraError) -> [(CapabilityManifest, CapabilityAvailability?)] {
+  func capabilityHealthSnapshot() async throws(AuraError) -> [(
+    CapabilityManifest, CapabilityAvailability?
+  )] {
     guard started, let capabilityRegistry else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
     }
@@ -295,7 +297,8 @@ actor AuraKernel {
     let manifests = await capabilityRegistry.allManifests()
     var result: [(CapabilityManifest, CapabilityAvailability?)] = []
     for manifest in manifests {
-      result.append((manifest, await capabilityRegistry.availability(qualifiedID: manifest.qualifiedID)))
+      result.append(
+        (manifest, await capabilityRegistry.availability(qualifiedID: manifest.qualifiedID)))
     }
     return result
   }
@@ -344,7 +347,8 @@ actor AuraKernel {
       encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
       return try encoder.encode(document)
     } catch {
-      throw AuraError.memoryError("memory export could not be encoded: \(error.localizedDescription)")
+      throw AuraError.memoryError(
+        "memory export could not be encoded: \(error.localizedDescription)")
     }
   }
 
@@ -371,9 +375,11 @@ actor AuraKernel {
     // always app/window scoped; a session cannot start without a real
     // approved window belonging to the allowlisted application.
     let windows = try await screenEngine.listApprovedWindows()
-    guard let window = windows.first(where: {
-      $0.applicationBundleIdentifier == appBundleIdentifier
-    }) else {
+    guard
+      let window = windows.first(where: {
+        $0.applicationBundleIdentifier == appBundleIdentifier
+      })
+    else {
       throw AuraError.computerUseError(
         "no approved window found for \(appBundleIdentifier)")
     }
@@ -420,7 +426,9 @@ actor AuraKernel {
     self.voiceResourceGovernor = voiceResourceGovernor
     await runtimeHealthRegistry.recordReady(
       "voice-resources",
-      detail: "bounded local voice reservations active for \(await voiceResourceGovernor.physicalMemoryMB()) MB physical memory")
+      detail:
+        "bounded local voice reservations active for \(await voiceResourceGovernor.physicalMemoryMB()) MB physical memory"
+    )
     configurationEngine = try await ConfigurationEngine.load(
       store: AuraStoreConfigurationStateStore(store: store))
 
@@ -436,7 +444,8 @@ actor AuraKernel {
       logger: AuraLogger(subsystem: bundleID, category: "automation"))
     self.automation = automation
     await runtimeHealthRegistry.recordReady("shell", detail: "typed shell constructed")
-    await runtimeHealthRegistry.recordReady("automation", detail: "structured automation constructed")
+    await runtimeHealthRegistry.recordReady(
+      "automation", detail: "structured automation constructed")
 
     let memory = MemoryEngine(store: store, eventBus: eventBus)
     self.memoryEngine = memory
@@ -534,8 +543,10 @@ actor AuraKernel {
       screenshotRetentionDays: configuration.privacy.screenshotRetentionDays)
     self.screenEngine = screenEngine
     await runtimeHealthRegistry.record(
-      componentID: "screen", status: configuration.screen.enabled ? .loading : .disabledByConfiguration,
-      detail: configuration.screen.enabled ? "screen context awaiting capture" : "screen capture disabled by configuration")
+      componentID: "screen",
+      status: configuration.screen.enabled ? .loading : .disabledByConfiguration,
+      detail: configuration.screen.enabled
+        ? "screen context awaiting capture" : "screen capture disabled by configuration")
     computerUseLoop = ComputerUseControlLoop(
       screenEngine: screenEngine,
       policyEngine: policyEngine,
@@ -550,7 +561,8 @@ actor AuraKernel {
     // validation (see `ComputerUseBetaAllowlist.validating`). Computer use
     // is therefore never a universal shortcut around missing adapters.
     self.computerUseAllowlist = ComputerUseBetaAllowlist.initial
-    await runtimeHealthRegistry.recordReady("computer-use", detail: "bounded computer-use loop constructed")
+    await runtimeHealthRegistry.recordReady(
+      "computer-use", detail: "bounded computer-use loop constructed")
     vscodeAdapter = VSCodeAdapter(
       configuration: configuration.vscode,
       shell: shell,
@@ -559,7 +571,8 @@ actor AuraKernel {
     secretScanner = SecretScanner()
     injectionClassifier = PromptInjectionClassifier(configuration: configuration.security)
     networkAllowlist = NetworkAllowlist(configuration: configuration.security)
-    await runtimeHealthRegistry.recordReady("security", detail: "secret scanner and prompt-injection controls constructed")
+    await runtimeHealthRegistry.recordReady(
+      "security", detail: "secret scanner and prompt-injection controls constructed")
     await runtimeHealthRegistry.recordReady("network", detail: "network allowlist constructed")
     await runtimeHealthRegistry.recordReady("vscode", detail: "VS Code adapter constructed")
 
@@ -579,7 +592,8 @@ actor AuraKernel {
         componentID: "plugins", status: .degraded,
         detail: "\(pluginHealthDetail); registry remains fail-closed")
     } else {
-      await runtimeHealthRegistry.recordReady("plugins", detail: "verified plugin runtime constructed")
+      await runtimeHealthRegistry.recordReady(
+        "plugins", detail: "verified plugin runtime constructed")
     }
     pluginRegistry = try await PluginRegistry(
       verifier: verifier,
@@ -610,7 +624,8 @@ actor AuraKernel {
       policyEngine: policyEngine,
       eventBus: eventBus)
     self.worktreeManager = worktreeManager
-    await runtimeHealthRegistry.recordReady("worktrees", detail: "isolated worktree manager constructed")
+    await runtimeHealthRegistry.recordReady(
+      "worktrees", detail: "isolated worktree manager constructed")
     self.codingTaskCoordinator = CodingTaskCoordinator(
       taskEngine: taskEngine,
       backendRunner: agentTaskRunner,
@@ -624,7 +639,8 @@ actor AuraKernel {
       policyEngine: policyEngine,
       validationShell: shell,
       eventBus: eventBus)
-    await runtimeHealthRegistry.recordReady("multi-agent", detail: "bounded multi-agent orchestrator constructed")
+    await runtimeHealthRegistry.recordReady(
+      "multi-agent", detail: "bounded multi-agent orchestrator constructed")
 
     let dialogueBackend: (any DialogueReasoningBackend)? = ollamaAdapter
     let structuredNLUBackend: (any StructuredNLUBackend)? = ollamaAdapter
@@ -721,7 +737,8 @@ actor AuraKernel {
     await runtimeHealthRegistry.record(
       componentID: "audio", status: .loading,
       detail: "awaiting explicit speech permission and start")
-    await runtimeHealthRegistry.recordReady("conversation", detail: "turn state machine constructed")
+    await runtimeHealthRegistry.recordReady(
+      "conversation", detail: "turn state machine constructed")
     await runtimeHealthRegistry.recordReady("intent", detail: "intent dispatch constructed")
   }
 

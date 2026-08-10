@@ -1,5 +1,5 @@
-import AuraCore
 import AuraContext
+import AuraCore
 import Foundation
 import Testing
 
@@ -88,7 +88,8 @@ func resolveMutationTierCandidateWithWeakEvidenceAlsoBlocks() {
   let resolution = resolver.resolve(reference: "overwrite it", candidates: [candidate])
 
   guard case .blockedWeakEvidence = resolution else {
-    Issue.record("expected blockedWeakEvidence for a mutation-tier weak candidate, got \(resolution)")
+    Issue.record(
+      "expected blockedWeakEvidence for a mutation-tier weak candidate, got \(resolution)")
     return
   }
 }

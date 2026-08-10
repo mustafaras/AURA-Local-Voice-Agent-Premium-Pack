@@ -79,7 +79,8 @@ func routerRejectsDestructiveShellIntentWithoutConfirmation() async throws {
     intent, actor: .intent, sessionID: harness.sessionID, correlationID: UUID(),
     causationID: UUID())
   guard case .blockedPendingConfirmationDenied = outcome else {
-    Issue.record("destructive shell intent without explicit confirmation must be blocked; got \(outcome)")
+    Issue.record(
+      "destructive shell intent without explicit confirmation must be blocked; got \(outcome)")
     return
   }
 }

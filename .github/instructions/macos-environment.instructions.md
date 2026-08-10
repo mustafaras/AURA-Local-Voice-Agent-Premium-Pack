@@ -10,13 +10,18 @@ applyTo: "Sources/**, Tests/**, Package.swift, .github/workflows/*.yml"
 
 ## Required Development Environment
 
-AURA is a **macOS 26+ / Apple Silicon / Swift 6+** application. It cannot be fully built, tested, or signed on Windows or Linux.
+AURA is a **macOS 27+ / Apple Silicon / Swift 6.4** application. The
+CommandLineTools profile is supported for local development through
+`scripts/aura-test.sh`; full Xcode is required for release packaging, signing,
+notarization, and clean-machine validation. It cannot be fully built, tested,
+or signed on Windows or Linux.
 
-Before starting implementation, verify the following on a **Mac running macOS 26 or later** with Apple Silicon:
+Before starting implementation, verify the following on a **Mac running macOS 27 or later** with Apple Silicon:
 
 ```bash
-swift --version      # Must report Swift 6.0 or later
-xcodebuild -version  # Must report Xcode 26.0 or later
+swift --version      # Canonical development baseline: Apple Swift 6.4
+xcode-select -p      # Selects the active Xcode or CommandLineTools profile
+xcodebuild -version  # Required for release; may fail on the supported CLT profile
 ```
 
 ### Why macOS is required
@@ -45,13 +50,14 @@ On your Mac, open this repository in VS Code or Xcode and run the following sequ
 ```bash
 # 1. Verify toolchain
 swift --version
-xcodebuild -version
+xcode-select -p
+# xcodebuild -version is required when release evidence is in scope.
 
 # 2. Initial build
 swift build
 
-# 3. Run all tests
-swift test --enable-code-coverage
+# 3. Run all Swift test bundles through the repository wrapper
+./scripts/aura-test.sh /tmp/aurabuild
 
 # 4. Verify strict concurrency warnings are zero
 swift build -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors
@@ -72,7 +78,9 @@ This instruction file is referenced by the `ledger/CURRENT_STATE.md` and `ledger
 1. Read `AGENTS.md`.
 2. Read `ledger/CURRENT_STATE.md`.
 3. Read `ledger/PROJECT_LEDGER.md`.
-4. Read `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md`.
+4. Read the relevant current specification under `docs/` and, for governed
+   work, the active prompt named by
+   `AURA_RUNTIME_COMPLETION/state/current-state.json`.
 5. Run `swift build`.
 6. If the build succeeds, run `swift test`.
 7. If tests pass, update `ledger/CURRENT_STATE.md` and append to `ledger/PROJECT_LEDGER.md`.

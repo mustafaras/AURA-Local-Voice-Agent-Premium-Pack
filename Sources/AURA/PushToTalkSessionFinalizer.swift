@@ -77,14 +77,16 @@ actor PushToTalkSessionFinalizer {
     vad.reset()
     isActive = true
     heardSpeech = false
-    activeTurnContext = event.turnContext ?? TurnContext(
-      sessionID: sessionID,
-      correlationID: envelope.correlationID,
-      causationID: envelope.id,
-      activationSource: .pushToTalk,
-      actor: envelope.actor,
-      authority: .userUtterance,
-      sensitivity: envelope.sensitivity)
+    activeTurnContext =
+      event.turnContext
+      ?? TurnContext(
+        sessionID: sessionID,
+        correlationID: envelope.correlationID,
+        causationID: envelope.id,
+        activationSource: .pushToTalk,
+        actor: envelope.actor,
+        authority: .userUtterance,
+        sensitivity: envelope.sensitivity)
     generation = UUID()
     let armedGeneration = generation
     deadlineTask = Task { [weak self] in
@@ -105,11 +107,12 @@ actor PushToTalkSessionFinalizer {
     deadlineTask = nil
 
     let context = activeTurnContext
-    let envelope = context?.envelope(
-      actor: .user,
-      sensitivity: .sensitive,
-      payload: WakeActivationEvent(
-        isActive: false, privacyMode: false, turnContext: context))
+    let envelope =
+      context?.envelope(
+        actor: .user,
+        sensitivity: .sensitive,
+        payload: WakeActivationEvent(
+          isActive: false, privacyMode: false, turnContext: context))
       ?? EventEnvelope(
         correlationID: sessionID,
         causationID: sessionID,

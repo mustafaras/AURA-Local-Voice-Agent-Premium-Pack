@@ -1,15 +1,15 @@
 # AURA Repository Hygiene Program
 
-**Status:** Planned; control plane prepared, execution not started
+**Status:** H-005 ready; active prompt remains H-005 pending exact `ONAY: H-006`
 **Owner:** Repository maintainer
-**Baseline:** `main` / `e1004795e56df8c171422261eace96543649cf51`
+**Baseline:** `main` / `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`
 **Scope:** Source, tests, build artifacts, Git object database, tooling, CI, secrets, dependencies, documentation, ledgers, and agent context
 
 This is the canonical human-readable plan for the repository-hygiene pass. It is intentionally separate from the product second-pass chain in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. The two programs may share evidence, but a repository-hygiene task must not silently close a product, release, beta, permission, or live-hardware gate.
 
 ## Executive verdict
 
-The repository is source-buildable and its local Python/runtime and governance checks are green, but it is not hygiene-ready for release work. The highest-risk finding is a damaged Git object database: `git fsck --full --strict --no-reflogs` reported 199 bad SHA-1 file entries and 8,901 dangling objects. The active documentation also contains toolchain and test-count drift, build/test scripts contain hard-coded Command Line Tools paths, the CI does not exercise several important gates, and the ledgers/context are large enough to create avoidable amnesia and synchronization risk.
+The repository baseline is reproducible at `main` / `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`, with `HEAD == origin/main` and a clean worktree before the H-000 control-plane update. It is not hygiene-ready for release work. The original checkout's latest read-only H-001 check of `git fsck --full --strict --no-reflogs` exits 8 with 199 bad SHA-1 file entries, 8,909 dangling objects, and two invalid `refs/.DS_Store` records. The `.DS_Store` records are classified as generated macOS metadata and are separate from the Git object-database finding. A fresh remote clone now passes strict fsck and matches the local main reachable closure; H-001 is ready and held pending explicit transition approval. The original `.git` remains untouched and its repair is not authorized.
 
 No cleanup, deletion, garbage collection, re-pack, dependency installation, secret rotation, commit, push, merge, release, or deployment was performed while preparing this program.
 
@@ -17,13 +17,13 @@ No cleanup, deletion, garbage collection, re-pack, dependency installation, secr
 
 | Area | Observed evidence | Interpretation | Confidence |
 |---|---|---|---|
-| Git integrity | `git fsck --full --strict --no-reflogs` exits non-zero; 199 `bad sha1 file` entries and 8,901 dangling objects; `HEAD` remains readable | P0 recovery gate before any object cleanup | High |
+| Git integrity | Original checkout fsck exits 8; fresh remote clone fsck exits 0; local/clone main reachable closure hashes match | Independent rollback/reference artifact is verified; original object repair remains a separate explicit-authority decision | High |
 | Source build | Fresh temporary `swift build --build-path <temp>` passed | Code is buildable under the selected CLT toolchain; linker path warnings remain | High |
 | Python runtime | `PYTHONPATH=Runtime/chatterbox python3 -m unittest discover -s Runtime/chatterbox/tests` passed 4/4 | Runtime tests are locally healthy but absent from CI | High |
 | Governance | Runtime validator, second-pass validator, and 26 script tests passed | Existing control plane is healthy for its recorded scope | High |
-| Worktree | Dirty by design with prior product/state/release/second-pass changes and untracked program files | Prompts must preserve ownership and classify before mutation | High |
-| Tooling | `swift-format`, `swiftlint`, `shellcheck`, `yamllint`, `actionlint`, `gitleaks`, `trufflehog`, and `pre-commit` are unavailable; full Xcode is unavailable | Tool availability is a gate, not permission to install silently | High |
-| Drift | README says 19 test bundles while `scripts/aura-test.sh` enumerates 21; active docs mix macOS 26/27 and Swift 6/6.4 | Canonical active baseline must be selected and historical records preserved | High |
+| Worktree | Baseline status is clean: 589 tracked, 0 untracked, 69,939 ignored paths; H-000 control-plane edits are intentionally expected afterward | No pre-existing dirty user-owned path was found; complete path lists are in the H-000 evidence package | High |
+| Tooling | `swift-format` is discoverable through the active CLT `xcrun` path and reports `main`; its configured strict report now exits 0 after bounded remediation. SwiftLint 0.65.0 is provisioned, but full SourceKit-backed mode fails under the CLT-only developer directory; shellcheck, yamllint, actionlint, gitleaks, trufflehog, and pre-commit remain unavailable; full Xcode is unavailable | Tool availability and residual lint findings remain explicit gates; the SwiftLint partial mode is not a full pass | High |
+| Drift | Before H-004, README said 19 test bundles while `scripts/aura-test.sh` enumerated 21; an active instruction mixed macOS 26/27 and Swift 6/6.4; Package.swift and the wrapper embedded a CLT developer path | H-004 canonicalizes active claims, preserves historical records, and uses discovered/fail-closed toolchain paths | High |
 | Generated files | `.build` about 1.7G; Chatterbox `.venv` about 1.2G; caches and `.DS_Store` files are ignored and untracked | Quarantine/classification is needed before cleanup | High |
 | Source risk | Production `try!`, `as!`, `@unchecked Sendable`, detached tasks, and gated `print()` sites exist | Requires bounded audit, not blind replacement | Medium/High |
 | Secrets | Narrow tracked scan found no real credential; one intentional token-shaped test fixture is present | Add scanner policy and fixture sentinel before claiming secret hygiene | Medium |
@@ -42,6 +42,17 @@ Capture branch/HEAD/remote, worktree status, ignored/untracked inventory, tool v
 **Depends on:** none
 **Exit:** baseline evidence and ownership classification exist; otherwise remain blocked.
 
+**H-000 live result (2026-08-09):** Read-only baseline capture is reproducible
+at `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`. The worktree had no dirty or
+untracked paths. Ignored paths are classified as generated/build/cache or OS
+metadata. `.git/refs/.DS_Store` is confirmed Apple Desktop Services metadata:
+`file` identifies it as such, `.gitignore:1:.DS_Store` explains its ignored
+status, sibling `.DS_Store` files exist under `.git/logs` and `.git/objects`,
+`git cat-file` rejects it as a non-object, and `git show-ref --head` succeeds
+for the valid refs. H-000 is `ready`; `active_prompt` remains `H-000` pending
+explicit `ONAY: H-001`. H-001 remains fail-closed until an independently
+verified backup or clean clone and explicit recovery authority exist.
+
 ### HYGIENE-01 — Git object database recovery
 
 Investigate bad object entries and dangling-object state. Establish a verified external backup or clean clone before any repair. Garbage collection, prune, repack, object deletion, reset, and clean are forbidden until explicit recovery authority and a rollback path exist.
@@ -49,6 +60,8 @@ Investigate bad object entries and dangling-object state. Establish a verified e
 **Prompt:** `H-001_GIT_OBJECT_DATABASE_RECOVERY.prompt.md`
 **Depends on:** HYGIENE-00
 **Exit:** recovery evidence proves a healthy authoritative repository and preserves dirty work; otherwise remain blocked.
+
+**H-001 live result (2026-08-09):** Read-only verification confirmed `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`, relation `0/0`, and the unchanged inventory of 589 tracked, 0 untracked, and 69,939 ignored paths. The original checkout still reports fsck exit 8 with 199 malformed object-file entries and 8,909 dangling objects; no local repair was attempted. Under explicit user authority, a fresh clone from the configured GitHub remote was created at `/tmp/aura-h001-clean-clone.OmXuQp/repository`; its strict fsck exited 0 with zero findings, status was clean, clone HEAD/origin main matched, and the local/clone main reachable closure hashes matched. The current worktree patch and zero-untracked mapping are captured under `/tmp/aura-h001-recovery-verification.u2JbVL/`. H-001 is `ready`, remains active, and is held pending exact `ONAY: H-002`; H-002 must not open automatically. Evidence: `EV-REPO-HYGIENE-H-001-20260809-02`.
 
 ### HYGIENE-02 — Dirty worktree and artifact quarantine
 
@@ -58,6 +71,24 @@ Separate user-owned work from generated artifacts and build caches. Quarantine o
 **Depends on:** HYGIENE-01
 **Exit:** every dirty/untracked path has an owner, disposition, and recovery reference.
 
+**H-002 live result (2026-08-09):** After exact `ONAY: H-002`, the read-only
+inventory at `/tmp/aura-h002-worktree-inventory.sV4ynZ/` mapped 18 tracked
+control-plane modifications, 0 untracked paths, and 69,939 ignored paths.
+`ownership-disposition.tsv` contains 69,957 path rows with explicit owner,
+class, preservation/disposition, and recovery reference; `group-disposition.md`
+records provenance, size, reproducibility, preservation, rollback, and
+falsification details. The groups are session-owned control-plane changes;
+generated `.build` (25,647 entries), Python environments (44,270), Python
+cache entries (13 in the ignored-list classification), and `.DS_Store` entries
+(9 in that classification). No user-owned product path, untracked source or
+control path, historical-control-plane addition, or unknown path was found.
+No quarantine, move, deletion, cleanup, or Git mutation occurred because H-002
+authority is edit-only. Size scans recorded `.build` 1.7G,
+`Runtime/chatterbox/.venv` 1.2G, root `.venv` 16M, Python cache directories
+107,124 KiB, and `.DS_Store` files 124 KiB. H-002 is `ready` and remains
+active; H-003 is not opened and requires exact `ONAY: H-003`.
+Evidence: `EV-REPO-HYGIENE-H-002-20260809-01`.
+
 ### HYGIENE-03 — Ignore rules and generated-file hygiene
 
 Make ignore rules explicit and minimal, verify that generated artifacts are not tracked, and add regression checks for caches, local environments, IDE state, and OS metadata. Preserve intentional fixtures and manifests.
@@ -65,6 +96,19 @@ Make ignore rules explicit and minimal, verify that generated artifacts are not 
 **Prompt:** `H-003_IGNORE_RULES_AND_GENERATED_FILE_HYGIENE.prompt.md`
 **Depends on:** HYGIENE-02
 **Exit:** ignore coverage is proven by a clean fixture/inventory test and no accidental tracking is introduced.
+
+**H-003 live result (2026-08-09):** The read-only audit found zero tracked
+ignored files and zero tracked generated-pattern matches. Root `.venv` was
+the only boundary relying on a generated inner `.venv/.gitignore`; the minimum
+repository rule `/.venv/` was added. Root and Chatterbox ignore files now have
+rationale comments, and `scripts/tests/test_repo_hygiene_ignore_rules.py`
+proves positive generated-path coverage, negative source/fixture/manifest
+visibility, zero tracked ignored paths, root-rule attribution, and an isolated
+clean fixture. The focused test passed 2/2 and `git diff --check` passed. CI
+checkout behavior was inspected and not changed: `.github/workflows/ci.yml`
+uses `actions/checkout@v4` without an explicit repository-local cleanup or
+sparse/fetch policy. H-003 is ready and remains active; H-004 requires exact
+`ONAY: H-004`. Evidence: `EV-REPO-HYGIENE-H-003-20260809-01`.
 
 ### HYGIENE-04 — Canonical toolchain and documentation drift
 
@@ -74,6 +118,20 @@ Choose one active baseline consistent with `AGENTS.md`, `README.md`, `TOOLCHAIN.
 **Depends on:** HYGIENE-03
 **Exit:** active documentation, scripts, CI, and package metadata agree and the limitation matrix is explicit.
 
+**H-004 live result (2026-08-10):** The canonical development baseline is
+macOS 27+/arm64/Swift 6.4/macOS SDK 27.0+ with CommandLineTools-compatible
+local development; full Xcode remains required for release evidence. Source
+and wrapper enumeration both contain the same 21 Swift test targets. README
+and the active macOS instruction now state that baseline and the wrapper is the
+canonical local test runner. `Package.swift` receives the Testing macro path
+through `AURA_TESTING_MACROS_PATH`; `scripts/aura-test.sh` discovers the active
+developer and Swift paths with `xcode-select`/`xcrun`, validates required Swift
+Testing components, and fails closed when support is incomplete. The stale
+`prompts/implementation` references in active README/GitHub guidance were
+replaced with the canonical active-state/prompt paths. Historical ledger counts
+and decision records remain unchanged. H-004 is ready for chain-order
+continuation only; H-005 requires exact `ONAY: H-005`.
+
 ### HYGIENE-05 — Swift formatting, lint, and strict-concurrency gate
 
 Define pinned formatter/linter configuration and a reproducible command. Validate strict concurrency and warnings policy. Installation requires separate authority; unavailable tools remain a recorded blocker.
@@ -81,6 +139,23 @@ Define pinned formatter/linter configuration and a reproducible command. Validat
 **Prompt:** `H-005_SWIFT_FORMAT_LINT_AND_STRICT_CONCURRENCY.prompt.md`
 **Depends on:** HYGIENE-04
 **Exit:** configuration and tool versions are reproducible, or a blocked capability has an owner and safe next action.
+
+**H-005 remediation result (2026-08-10):** The repository `.swift-format`
+configuration (`version: 1`, 2-space indentation, 100-column limit, explicit
+rule map) and CI strict compiler flags remain in force. Under the explicit
+user authority `EVET: H-005 bounded formatter remediation + SwiftLint/toolchain
+provision`, the original 1,019 findings across 116 files were partitioned into
+12 batches of at most 10 files (the final batch had 6), reviewed with
+per-batch formatter lint and diff checks, and the three semantic trailing-
+closure findings were corrected explicitly. The exact recursive formatter
+lint now exits 0 with zero diagnostics; strict production build exits 0 and
+the canonical wrapper passes 21/21 bundles and 794/794 tests. SwiftLint
+0.65.0 is provisioned and configured by `.swiftlint.yml`; its full command
+exits 133 because SourceKit cannot load `sourcekitdInProc` under the active
+CommandLineTools-only directory. `--disable-sourcekit` exits 2 with findings
+and is retained only as a partial diagnostic. H-005 is ready, with the
+SourceKit capability explicitly blocked under the toolchain-owner risk. The
+active prompt remains H-005 until exact `ONAY: H-006`.
 
 ### HYGIENE-06 — Unsafe constructs and debug-output audit
 

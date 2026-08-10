@@ -129,7 +129,8 @@ public actor ContextBuilder {
     // Mandatory live context cannot be hidden by an override. Optional
     // exclusions are applied before token selection.
     allItems.removeAll {
-      let excluded = !$0.stage.isMandatory
+      let excluded =
+        !$0.stage.isMandatory
         && request.inclusionOverride.excludedSourceIDs.contains($0.sourceID)
       if excluded {
         exclusions.append("excluded by per-turn user override: \($0.sourceID)")

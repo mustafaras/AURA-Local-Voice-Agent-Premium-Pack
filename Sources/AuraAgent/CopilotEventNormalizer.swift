@@ -22,7 +22,8 @@ public enum CopilotNormalizedEvent: Sendable, Equatable {
   /// A confirmed but not deeply-typed `session.*` informational event
   /// (`mcp_servers_loaded`, `skills_loaded`, `tools_updated`).
   case session(rawType: String, sequence: Int)
-  case sessionError(errorType: String, errorCode: String?, message: String, statusCode: Int?, sequence: Int)
+  case sessionError(
+    errorType: String, errorCode: String?, message: String, statusCode: Int?, sequence: Int)
   /// A confirmed `user.message` event. (`assistant.message` was never
   /// observed — both authorized smoke test invocations hit an account-level
   /// quota error before the model produced any text — so it is not decoded

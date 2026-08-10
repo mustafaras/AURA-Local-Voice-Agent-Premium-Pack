@@ -101,7 +101,8 @@ public struct AuraShellAgentBackendCommandRunner: AgentBackendCommandRunning {
     arguments: [String]
   ) async -> Result<ProcessResult, AuraError> {
     guard let shell = shells[backend] else {
-      return .failure(.invalidConfiguration("no derived shell is configured for " + backend.rawValue))
+      return .failure(
+        .invalidConfiguration("no derived shell is configured for " + backend.rawValue))
     }
     let command = Command(
       executable: executablePath,
@@ -142,7 +143,8 @@ public struct CLIAgentBackendHealthProbe: AgentBackendHealthProbing {
   public func probe(backend: AgentBackendID, workspacePath: String?) async -> AgentBackendHealth {
     let path = executablePaths[backend] ?? ""
     guard !path.isEmpty, FileManager.default.isExecutableFile(atPath: path) else {
-      return unavailable(backend: backend, path: path, detail: "configured executable is not executable")
+      return unavailable(
+        backend: backend, path: path, detail: "configured executable is not executable")
     }
     let versionResult = await runner.run(
       backend: backend,
@@ -161,7 +163,8 @@ public struct CLIAgentBackendHealthProbe: AgentBackendHealthProbing {
       return unavailable(backend: backend, path: path, detail: error.localizedDescription)
     }
     guard !version.isEmpty else {
-      return unavailable(backend: backend, path: path, detail: "--version returned no version evidence")
+      return unavailable(
+        backend: backend, path: path, detail: "--version returned no version evidence")
     }
 
     let helpResult = await runner.run(
@@ -176,15 +179,19 @@ public struct CLIAgentBackendHealthProbe: AgentBackendHealthProbing {
         state: .degraded,
         executablePath: path,
         version: String(version.prefix(160)),
-        interfaceDescription: "--version and --help passed; expected typed flags: " + flags.joined(separator: ", "),
+        interfaceDescription: "--version and --help passed; expected typed flags: "
+          + flags.joined(separator: ", "),
         authentication: .unverified,
         modelAvailability: "unverified",
         sandboxPolicy: "adapter configuration and policy grant required",
         cancellation: "process cancellation path configured; live turn not run",
         networkPolicy: "backend-specific policy; not exercised by health probe",
-        workingDirectoryPolicy: workspacePath.map { "allowlisted workspace: " + $0 } ?? "workspace not resolved",
+        workingDirectoryPolicy: workspacePath.map { "allowlisted workspace: " + $0 }
+          ?? "workspace not resolved",
         budgetPolicy: "adapter-configured timeout/output/cost/file bounds",
-        detail: "local CLI version/interface verified; authentication and model availability still require onboarding evidence")
+        detail:
+          "local CLI version/interface verified; authentication and model availability still require onboarding evidence"
+      )
     case .success(let result):
       return unavailable(
         backend: backend,
@@ -231,7 +238,8 @@ public struct UnprobedAgentBackendHealthProbe: AgentBackendHealthProbing {
     let exists = !path.isEmpty && FileManager.default.isExecutableFile(atPath: path)
     let state: AgentBackendHealthState = exists ? .degraded : .unavailable
     let pathDescription = path.isEmpty ? "an empty path" : path
-    let detail = exists
+    let detail =
+      exists
       ? "executable is present, but version, authentication, model availability, and live cancellation have not been probed"
       : "configured executable is unavailable at " + pathDescription
     return AgentBackendHealth(
@@ -244,7 +252,8 @@ public struct UnprobedAgentBackendHealthProbe: AgentBackendHealthProbing {
       sandboxPolicy: "adapter configuration required; dangerous bypass flags are unreachable",
       cancellation: "adapter cancellation path configured; live process probe pending",
       networkPolicy: "backend-specific policy; not inferred from executable presence",
-      workingDirectoryPolicy: workspacePath.map { "allowlisted workspace: " + $0 } ?? "workspace not resolved",
+      workingDirectoryPolicy: workspacePath.map { "allowlisted workspace: " + $0 }
+        ?? "workspace not resolved",
       budgetPolicy: "adapter-configured output/time/cost/file limits; live probe pending",
       detail: detail)
   }

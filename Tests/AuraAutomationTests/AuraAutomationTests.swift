@@ -68,7 +68,8 @@ struct AuraAutomationTests {
 
   @Test func checkAccessibilityPermissionEmitsDeniedEventOnCleanInstall() async {
     let spy = AccessibilityHealthSpy(injectedState: .denied)
-    let logger = AuraLogger(subsystem: "ai.aura.tests", category: "AccessibilityPermissionTests", minimumLevel: .debug)
+    let logger = AuraLogger(
+      subsystem: "ai.aura.tests", category: "AccessibilityPermissionTests", minimumLevel: .debug)
     let eventBus = AuraEventBus(logger: logger)
     let box = EventBox()
     await eventBus.subscribe(AccessibilityPermissionEvent.self) { envelope in
@@ -93,7 +94,8 @@ struct AuraAutomationTests {
 
   @Test func checkAccessibilityPermissionEmitsGrantedEventWhenTrusted() async {
     let spy = AccessibilityHealthSpy(injectedState: .granted)
-    let logger = AuraLogger(subsystem: "ai.aura.tests", category: "AccessibilityPermissionTests", minimumLevel: .debug)
+    let logger = AuraLogger(
+      subsystem: "ai.aura.tests", category: "AccessibilityPermissionTests", minimumLevel: .debug)
     let eventBus = AuraEventBus(logger: logger)
     let box = EventBox()
     await eventBus.subscribe(AccessibilityPermissionEvent.self) { envelope in

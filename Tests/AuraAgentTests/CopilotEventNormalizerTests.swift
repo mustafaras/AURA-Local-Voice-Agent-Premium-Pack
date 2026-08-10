@@ -44,14 +44,19 @@ func copilotNormalizerParsesModelCallStart() {
 
 @Test
 func copilotNormalizerParsesModelCallFailure() {
-  let line = #"{"type":"model.call_failure","data":{"model":"gpt-5-mini","statusCode":402,"errorMessage":"quota"}}"#
+  let line =
+    #"{"type":"model.call_failure","data":{"model":"gpt-5-mini","statusCode":402,"errorMessage":"quota"}}"#
   let event = CopilotEventNormalizer.normalize(line: line, sequence: 5)
-  #expect(event == .modelCallFailure(model: "gpt-5-mini", statusCode: 402, errorMessage: "quota", sequence: 5))
+  #expect(
+    event
+      == .modelCallFailure(model: "gpt-5-mini", statusCode: 402, errorMessage: "quota", sequence: 5)
+  )
 }
 
 @Test
 func copilotNormalizerParsesSessionError() {
-  let line = #"{"type":"session.error","data":{"errorType":"quota","errorCode":"quota_exceeded","message":"You have exceeded your monthly quota","statusCode":402}}"#
+  let line =
+    #"{"type":"session.error","data":{"errorType":"quota","errorCode":"quota_exceeded","message":"You have exceeded your monthly quota","statusCode":402}}"#
   let event = CopilotEventNormalizer.normalize(line: line, sequence: 6)
   #expect(
     event
@@ -69,7 +74,8 @@ func copilotNormalizerParsesAssistantIdle() {
 
 @Test
 func copilotNormalizerParsesSuccessfulResult() {
-  let line = #"{"type":"result","exitCode":0,"usage":{"premiumRequests":1,"totalApiDurationMs":500,"sessionDurationMs":1500,"codeChanges":{"linesAdded":2,"linesRemoved":1,"filesModified":["a.txt","b.txt"]}}}"#
+  let line =
+    #"{"type":"result","exitCode":0,"usage":{"premiumRequests":1,"totalApiDurationMs":500,"sessionDurationMs":1500,"codeChanges":{"linesAdded":2,"linesRemoved":1,"filesModified":["a.txt","b.txt"]}}}"#
   let event = CopilotEventNormalizer.normalize(line: line, sequence: 8)
   #expect(
     event
@@ -80,7 +86,8 @@ func copilotNormalizerParsesSuccessfulResult() {
 
 @Test
 func copilotNormalizerParsesFailedResult() {
-  let line = #"{"type":"result","exitCode":1,"usage":{"premiumRequests":0,"totalApiDurationMs":0,"sessionDurationMs":1800,"codeChanges":{"linesAdded":0,"linesRemoved":0,"filesModified":[]}}}"#
+  let line =
+    #"{"type":"result","exitCode":1,"usage":{"premiumRequests":0,"totalApiDurationMs":0,"sessionDurationMs":1800,"codeChanges":{"linesAdded":0,"linesRemoved":0,"filesModified":[]}}}"#
   let event = CopilotEventNormalizer.normalize(line: line, sequence: 9)
   #expect(event == .turnFailed(message: nil))
 }
@@ -135,7 +142,8 @@ func copilotNormalizerParsesRealQuotaErrorFixtureWithoutUnrecognizedLines() thro
     }
 
     guard case .turnFailed = events.last else {
-      Issue.record("\(fixtureName): expected turnFailed last, got \(String(describing: events.last))")
+      Issue.record(
+        "\(fixtureName): expected turnFailed last, got \(String(describing: events.last))")
       continue
     }
 
@@ -149,6 +157,7 @@ func copilotNormalizerParsesRealQuotaErrorFixtureWithoutUnrecognizedLines() thro
       if case .sessionError(let errorType, _, _, _, _) = event { return errorType }
       return nil
     }
-    #expect(sessionErrors == ["quota"], "\(fixtureName) should surface the real quota session.error")
+    #expect(
+      sessionErrors == ["quota"], "\(fixtureName) should surface the real quota session.error")
   }
 }

@@ -168,7 +168,7 @@ def main() -> int:
         return 1
     print("REPO-HYGIENE VALIDATION PASSED")
     print("- 11 prompts are linear, present, and marker-complete")
-    print("- state is synchronized at H-000/pending")
+    print(f"- state is synchronized at {state.get('active_prompt')}/{state.get('active_state')}")
     print("- control contracts, read-first context, gap headings, and ledger exist")
     return 0
 

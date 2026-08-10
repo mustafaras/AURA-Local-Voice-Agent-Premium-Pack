@@ -57,9 +57,13 @@ public actor VSCodeFileBridge: VSCodeExtensionBridge {
     self.expectedExtensionID = expectedExtensionID
     self.maxPayloadBytes = maxPayloadBytes
     let stateURL = statePath.map(URL.init(fileURLWithPath:))
-    self.commandPath = commandPath ?? stateURL?.deletingLastPathComponent()
+    self.commandPath =
+      commandPath
+      ?? stateURL?.deletingLastPathComponent()
       .appendingPathComponent("vscode-command.json").path
-    self.responsePath = responsePath ?? stateURL?.deletingLastPathComponent()
+    self.responsePath =
+      responsePath
+      ?? stateURL?.deletingLastPathComponent()
       .appendingPathComponent("vscode-response.json").path
     self.commandTimeoutSeconds = commandTimeoutSeconds
   }
@@ -110,7 +114,8 @@ public actor VSCodeFileBridge: VSCodeExtensionBridge {
   }
 
   public func execute(_ command: VSCodeBridgeCommand) async throws(AuraError)
-    -> VSCodeBridgeCommandResult {
+    -> VSCodeBridgeCommandResult
+  {
     guard requireAuthentication else {
       throw AuraError.securityError("unauthenticated VS Code bridge cannot execute commands")
     }
@@ -280,7 +285,8 @@ public struct VSCodeStaticBridge: VSCodeExtensionBridge {
   public func health() async -> VSCodeBridgeHealth { bridgeHealth }
 
   public func execute(_ command: VSCodeBridgeCommand) async throws(AuraError)
-    -> VSCodeBridgeCommandResult {
+    -> VSCodeBridgeCommandResult
+  {
     if let result = commandResults[command] {
       return result
     }

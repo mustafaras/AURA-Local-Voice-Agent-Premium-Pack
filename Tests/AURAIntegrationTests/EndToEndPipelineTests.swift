@@ -1,4 +1,3 @@
-@testable import AURA
 import AuraAgent
 import AuraAudio
 import AuraCore
@@ -9,6 +8,8 @@ import AuraShell
 import AuraTasks
 import Foundation
 import Testing
+
+@testable import AURA
 
 /// The headline proof for this integration phase: wake → STT → intent
 /// classification → policy-gated tool dispatch → response → TTS, exercised
@@ -247,7 +248,8 @@ func endToEndPipelineNeverGuessesAnUnresolvedApplication() async throws {
 /// monotonic clock and mock TTS engine that the wake-to-ack test uses.
 @Test
 func endToEndPipelineCompletesSimpleCommandUnderBudget() async throws {
-  let bus = AuraEventBus(logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "e2e-simple"))
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "e2e-simple"))
 
   let policyEngine = try await makeTestPolicyEngine(
     eventBus: bus, grantConfirmationNoneFor: [.appActivate])

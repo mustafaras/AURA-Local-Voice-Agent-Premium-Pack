@@ -13,7 +13,9 @@ public struct ComputerUsePostcondition: Sendable {
   public let summary: String
   private let check: @Sendable (ComputerUseObservation) -> Bool
 
-  public init(id: String, summary: String, check: @escaping @Sendable (ComputerUseObservation) -> Bool) {
+  public init(
+    id: String, summary: String, check: @escaping @Sendable (ComputerUseObservation) -> Bool
+  ) {
     self.id = id
     self.summary = summary
     self.check = check
@@ -39,7 +41,9 @@ public enum ComputerUseAppFixtures: Sendable {
     /// Semantic postconditions, one per plan step (same count as `plan.steps`).
     public let postconditions: [ComputerUsePostcondition]
 
-    public init(objectiveKey: String, plan: ComputerUsePlan, postconditions: [ComputerUsePostcondition]) {
+    public init(
+      objectiveKey: String, plan: ComputerUsePlan, postconditions: [ComputerUsePostcondition]
+    ) {
       self.objectiveKey = objectiveKey
       self.plan = plan
       self.postconditions = postconditions
@@ -60,12 +64,14 @@ public enum ComputerUseAppFixtures: Sendable {
               anchor: UIAnchor(),
               semanticIntent: .observe,
               targetAppBundleIdentifier: "com.apple.finder",
-              rationale: "reveal a selected file preview (observation only)"),
+              rationale: "reveal a selected file preview (observation only)")
           ]),
-          postconditions: [ComputerUsePostcondition(
-            id: "windowTitleContains",
-            summary: "finder window title is unchanged",
-            check: { $0.screen.windowTitle != nil })]),
+          postconditions: [
+            ComputerUsePostcondition(
+              id: "windowTitleContains",
+              summary: "finder window title is unchanged",
+              check: { $0.screen.windowTitle != nil })
+          ])
       ]
     case "com.apple.Terminal":
       return [
@@ -77,12 +83,14 @@ public enum ComputerUseAppFixtures: Sendable {
               anchor: UIAnchor(),
               semanticIntent: .observe,
               targetAppBundleIdentifier: "com.apple.Terminal",
-              rationale: "read-only prompt refresh (observation only)"),
+              rationale: "read-only prompt refresh (observation only)")
           ]),
-          postconditions: [ComputerUsePostcondition(
-            id: "terminalPromptPresent",
-            summary: "terminal prompt is present",
-            check: { $0.controlCandidates.contains { $0.role == "AXTextArea" } })]),
+          postconditions: [
+            ComputerUsePostcondition(
+              id: "terminalPromptPresent",
+              summary: "terminal prompt is present",
+              check: { $0.controlCandidates.contains { $0.role == "AXTextArea" } })
+          ])
       ]
     default:
       // Apps without fixtures cannot be planned — structural, not a guess.

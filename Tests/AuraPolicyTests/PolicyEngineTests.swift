@@ -305,12 +305,13 @@ func changedPlanCannotReuseConfirmationApproval() async throws {
     Issue.record("Expected confirmation challenge")
     return
   }
-  guard case .allow = await engine.submitConfirmation(
-    PolicyConfirmationResponse(
-      requestID: challenge.requestID,
-      nonce: challenge.nonce,
-      responseHash: challenge.expectedHash,
-      accepted: true))
+  guard
+    case .allow = await engine.submitConfirmation(
+      PolicyConfirmationResponse(
+        requestID: challenge.requestID,
+        nonce: challenge.nonce,
+        responseHash: challenge.expectedHash,
+        accepted: true))
   else {
     Issue.record("Expected confirmation approval")
     return
@@ -320,7 +321,8 @@ func changedPlanCannotReuseConfirmationApproval() async throws {
     capability: .shellExec,
     actor: .user,
     target: PolicyTarget(command: "/bin/echo", arguments: ["two"]))
-  #expect(await engine.beginAuthorizedExecution(context: context, planHash: changedPlanHash) == false)
+  #expect(
+    await engine.beginAuthorizedExecution(context: context, planHash: changedPlanHash) == false)
 
   let originalPlanHash = PolicyPlanHasher.hash(
     capability: .shellExec,

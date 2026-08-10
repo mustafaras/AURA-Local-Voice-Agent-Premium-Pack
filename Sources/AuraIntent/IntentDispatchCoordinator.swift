@@ -45,14 +45,16 @@ public actor IntentDispatchCoordinator {
   }
 
   private func handle(_ envelope: EventEnvelope<TurnCompletedEvent>) async {
-    let context = envelope.payload.turnContext ?? TurnContext(
-      sessionID: sessionID,
-      correlationID: envelope.correlationID,
-      causationID: envelope.id,
-      activationSource: .text,
-      actor: envelope.actor,
-      authority: .userUtterance,
-      sensitivity: envelope.sensitivity)
+    let context =
+      envelope.payload.turnContext
+      ?? TurnContext(
+        sessionID: sessionID,
+        correlationID: envelope.correlationID,
+        causationID: envelope.id,
+        activationSource: .text,
+        actor: envelope.actor,
+        authority: .userUtterance,
+        sensitivity: envelope.sensitivity)
     let intent = await intentEngine.classify(
       envelope.payload, context: context.advancing(causationID: envelope.id))
     let dialogueContext = await intentEngine.dialogueContextItems()

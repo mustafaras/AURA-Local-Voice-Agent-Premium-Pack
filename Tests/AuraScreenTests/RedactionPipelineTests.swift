@@ -3,10 +3,13 @@ import AuraScreen
 import Foundation
 import Testing
 
-private func region(_ text: String, x: Double = 0.1, y: Double = 0.1, w: Double = 0.3, h: Double = 0.05)
+private func region(
+  _ text: String, x: Double = 0.1, y: Double = 0.1, w: Double = 0.3, h: Double = 0.05
+)
   -> RecognizedTextRegion
 {
-  RecognizedTextRegion(text: text, boundingBoxX: x, boundingBoxY: y, boundingBoxWidth: w, boundingBoxHeight: h)
+  RecognizedTextRegion(
+    text: text, boundingBoxX: x, boundingBoxY: y, boundingBoxWidth: w, boundingBoxHeight: h)
 }
 
 // MARK: - Built-in categories (always active, independent of configured patterns)

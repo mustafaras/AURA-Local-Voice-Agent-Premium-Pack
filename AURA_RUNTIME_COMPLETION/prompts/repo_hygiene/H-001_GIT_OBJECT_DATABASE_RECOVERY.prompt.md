@@ -4,7 +4,7 @@ sequence: 1
 gap_id: HYGIENE-01
 depends_on: H-000
 next_prompt: H-002
-state: pending
+state: ready
 ---
 
 # H-001 — Git object database recovery

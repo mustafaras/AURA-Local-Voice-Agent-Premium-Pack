@@ -1,5 +1,5 @@
-import AuraAutomation
 import AuraAgent
+import AuraAutomation
 import AuraCore
 import AuraPolicy
 import AuraShell
@@ -146,8 +146,7 @@ public actor ToolRouter {
   /// the original session, actor, correlation, and causation metadata.
   public func route(
     _ intent: TypedIntent,
-    context: TurnContext
-    , dialogueContext: [DialogueContextItem] = []
+    context: TurnContext, dialogueContext: [DialogueContextItem] = []
   ) async -> IntentExecutionOutcome {
     let contract = await resolveContract(for: intent.kind)
     let routingContext = context.withBackendIDs(
@@ -238,14 +237,16 @@ public actor ToolRouter {
     causationID: UUID,
     dialogueContext: [DialogueContextItem]
   ) async -> IntentExecutionOutcome {
-    let context = intent.turnContext ?? TurnContext(
-      sessionID: sessionID,
-      correlationID: correlationID,
-      causationID: causationID,
-      activationSource: .text,
-      actor: actor,
-      authority: .userUtterance,
-      sensitivity: .sensitive)
+    let context =
+      intent.turnContext
+      ?? TurnContext(
+        sessionID: sessionID,
+        correlationID: correlationID,
+        causationID: causationID,
+        activationSource: .text,
+        actor: actor,
+        authority: .userUtterance,
+        sensitivity: .sensitive)
     let response = await dialogueEngine.respond(
       to: intent,
       context: context,
@@ -294,7 +295,8 @@ public actor ToolRouter {
       }
       let summary = terminate ? "Quit \(bundleID)." : "Activated \(bundleID)."
       await emit(
-        ToolResultEvent(intentID: intent.id, toolID: contract.id, succeeded: true, summary: summary),
+        ToolResultEvent(
+          intentID: intent.id, toolID: contract.id, succeeded: true, summary: summary),
         correlationID: correlationID, causationID: causationID)
       return .executed(summary: summary, hasSpokenResponse: true)
     } catch {
@@ -319,7 +321,8 @@ public actor ToolRouter {
       return .failed(reason: "missing \(IntentSlotName.executable) slot")
     }
     let argumentsText = intent.slotValue(IntentSlotName.arguments) ?? ""
-    let arguments = argumentsText.isEmpty ? [] : argumentsText.split(separator: " ").map(String.init)
+    let arguments =
+      argumentsText.isEmpty ? [] : argumentsText.split(separator: " ").map(String.init)
     let command = Command(executable: executable, arguments: arguments)
 
     let commandText = ([executable] + arguments).joined(separator: " ")
@@ -383,7 +386,8 @@ public actor ToolRouter {
     guard let objective = intent.slotValue(IntentSlotName.objective) else {
       return .failed(reason: "missing \(IntentSlotName.objective) slot")
     }
-    let backend = intent.slotValue(IntentSlotName.backend) ?? configuration.defaultCodingAgentBackend
+    let backend =
+      intent.slotValue(IntentSlotName.backend) ?? configuration.defaultCodingAgentBackend
     guard AgentBackendTaskRunner.supportedBackends.contains(backend) else {
       return .failed(reason: "unsupported coding-agent backend: \(backend)")
     }
@@ -472,14 +476,16 @@ public actor ToolRouter {
     correlationID: UUID,
     causationID: UUID
   ) async -> PolicyResolution {
-    let turnContext = intent.turnContext ?? TurnContext(
-      sessionID: sessionID,
-      correlationID: correlationID,
-      causationID: causationID,
-      activationSource: .text,
-      actor: actor,
-      authority: .userUtterance,
-      sensitivity: .sensitive)
+    let turnContext =
+      intent.turnContext
+      ?? TurnContext(
+        sessionID: sessionID,
+        correlationID: correlationID,
+        causationID: causationID,
+        activationSource: .text,
+        actor: actor,
+        authority: .userUtterance,
+        sensitivity: .sensitive)
     let request = PolicyEvaluationRequest(
       capability: capability, actor: actor, target: target, sessionID: sessionID,
       correlationID: correlationID, causationID: causationID,
@@ -536,7 +542,8 @@ public actor ToolRouter {
       if language == .mixed {
         return "\(unresolvedApp) app’i tanımıyorum. Which application did you mean?"
       }
-      return "I don't know an application called \"\(unresolvedApp)\". Which application did you mean?"
+      return
+        "I don't know an application called \"\(unresolvedApp)\". Which application did you mean?"
     }
     if let unresolvedExecutable = intent.slotValue(IntentSlotName.executable) {
       if language == .turkish {

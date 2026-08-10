@@ -854,3 +854,154 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Limitation:** AURA CI runs `31316309132` and `31316436632` are queued because the only self-hosted runner is offline. No CI pass or release evidence is claimed.
 - **Deployment:** No deploy/release/signing/notarization/install action occurred; the repository has no configured deploy target and the artifact builder is explicitly development-only.
 - **Evidence:** `EV-REPO-HYGIENE-20260809-DELIVERY-02`.
+
+### 2026-08-09T14:01:19Z — REPO_HYGIENE_H000_CLOSEOUT — blocked handoff
+
+- **Actor:** Codex engineering session `AURA-REPO-HYGIENE-H000-20260809`; mandatory `15_SESSION_CLOSEOUT.prompt.md` procedure; edit-only authority.
+- **Active prompt:** H-000, `blocked`; H-001 was not opened or applied.
+- **Verified start/end repository:** `main`; `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`; baseline was clean before the control-plane edits; post-update dirt is expected and limited to the documented projection/test files.
+- **Objective and delivered scope:** Captured the complete read-only baseline and tamper-evident inventory, classified generated/cache/OS metadata and unknown Git metadata, synchronized H-000 state/docs/ledgers/evidence/risk/current-state/handoff projections, and updated the hygiene validator/test to represent the permitted blocked state. No product source or Git object was changed.
+- **Verification:** `python3 scripts/validate_repo_hygiene_program.py` passed with `H-000/blocked`; focused hygiene tests passed 3/3; `python3 scripts/validate_runtime_completion.py --ci` passed; full deterministic script tests passed 29/29; JSON parsing, `git diff --check`, and `zsh -n scripts/aura-test.sh` passed. `git fsck --full --strict --no-reflogs` remains exit 8; `xcodebuild -version` remains unavailable under CommandLineTools.
+- **Evidence:** `EV-REPO-HYGIENE-H-000-20260809-01`; `/tmp/aura-h000-baseline.bMfvvE/`; risks `RISK-REPO-HYGIENE-GIT-OBJECT-DATABASE`, `RISK-REPO-HYGIENE-UNKNOWN-GIT-METADATA-OWNERSHIP`, and `RISK-REPO-HYGIENE-TOOLING-UNAVAILABLE`.
+- **Acceptance verdict:** Baseline/inventory/evidence/ownership classification and cognitive completion records are present. H-000 cannot be completed because `.git/refs/.DS_Store` ownership/provenance is unresolved; H-001 cannot start because an independently verified backup or clean clone and explicit recovery authority are absent.
+- **Authority boundary:** No cleanup, deletion, `git clean/reset/gc/prune/repack`, object recovery, history rewrite, install, permission mutation, app launch/install, commit, push, merge, release, deployment, or product-code edit occurred.
+- **Next safe action:** Stop and await user direction. Keep `active_prompt=H-000`; resolve Git metadata ownership/provenance and provide a verified backup/clean clone plus explicit recovery authority before considering H-001.
+
+### 2026-08-09T14:16:41Z — REPO_HYGIENE_H000_OWNERSHIP_RECHECK — classification resolved
+
+- **Actor:** Codex engineering session `AURA-REPO-HYGIENE-H000-OWNERSHIP-20260809`; H-000 only; edit-only authority.
+- **Finding:** `.git/refs/.DS_Store` is confirmed generated macOS metadata, not a Git object or authored ref. `file` identifies Apple Desktop Services Store; `.gitignore:1:.DS_Store` matches it; 17 sibling `.DS_Store` files exist, including under `.git/logs` and `.git/objects`; `git cat-file` rejects the target as a non-object; `git show-ref --head` succeeds for valid refs.
+- **Resolution:** Closed `RISK-REPO-HYGIENE-UNKNOWN-GIT-METADATA-OWNERSHIP` with `EV-REPO-HYGIENE-H-000-20260809-02`. H-000 is `ready`; `active_prompt` remains `H-000`; no automatic transition occurred.
+- **Remaining blocker:** H-001 remains fail-closed because `git fsck` still exits 8 with 199 bad object files and 8,907 dangling objects. An independently verified backup or clean clone and explicit recovery authority are still required.
+- **Verification:** Ownership artifact captured at `/tmp/aura-h000-ownership.MRc9C3/`; no cleanup, deletion, Git object mutation, install, permission change, app action, commit, push, merge, release, or deploy occurred.
+- **Next safe action:** Await exact user approval `ONAY: H-001`; if received, begin H-001 read-only and preserve its recovery fail-closed boundary.
+
+### 2026-08-09T14:52:10Z — REPO_HYGIENE_H001_BLOCKED — read-only recovery audit
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H001-20260809`; exact user approval `ONAY: H-001`; edit-only control-plane authority.
+- **Scope:** Re-read H-001 authority/context and performed only read-only branch, inventory, ref, remote-tip, object-layout, fsck, count-objects, reachable-walk, and recovery-provenance checks. H-002 and later prompt files were not opened.
+- **Result:** `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`, relation `0/0`; inventory `589/0/69,939`. `git fsck --full --strict --no-reflogs` exited 8 with 199 malformed object-file entries, 8,909 dangling objects, and two generated `.DS_Store` invalid-ref lines. `git count-objects -vH` reported 199 garbage entries. No actual missing markers appeared in the reachable object walk, and `HEAD^{commit}` remained readable.
+- **Recovery verdict:** Local `backup-before-*` refs share the same `.git`; the remote tip match does not prove a clean clone/backup; no independent recovery artifact or separate repair authority was supplied. H-001 is blocked, `active_prompt` remains H-001, and H-002 remains unopened.
+- **Evidence:** `EV-REPO-HYGIENE-H-001-20260809-01`; `/tmp/aura-h001-object-recovery.8kaV1q/`. Open risks: `RISK-REPO-HYGIENE-GIT-OBJECT-DATABASE`, `RISK-REPO-HYGIENE-NO-VERIFIED-RECOVERY-ARTIFACT`.
+- **Authority boundary:** No cleanup, `git clean/reset/gc/prune/repack`, object deletion, history rewrite, installation, permission mutation, app action, commit, push, merge, release, deployment, or product-code edit occurred.
+- **Next safe action:** Repository maintainer supplies an independently verified recovery artifact, preservation mapping, and explicit recovery decision; then a separate authorized repair session may be considered. Do not open H-002.
+
+### 2026-08-09T14:52:10Z — REPO_HYGIENE_H001_CLOSEOUT_BLOCKED — mandatory session closeout
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H001-20260809`; mandatory `15_SESSION_CLOSEOUT.prompt.md`; edit-only control-plane authority.
+- **Active prompt:** H-001, `blocked`; H-002 and later prompts were not opened.
+- **Verified start/end:** branch `main`; `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`; relation `0/0`; final worktree dirt is limited to expected control-plane projection files, with no `Sources/`, `Tests/`, or `Runtime/` diff paths.
+- **Delivered:** H-001 read-only recovery evidence, append-only focused ledger/evidence/risk projections, state transition to `H-001/blocked`, current-state/active-context/project-ledger/session-handoff synchronization, and the mandatory closeout record. No product or `.git` object change occurred.
+- **Evidence/tests:** `EV-REPO-HYGIENE-H-001-20260809-01`, `EV-REPO-HYGIENE-H-001-CLOSEOUT-20260809-01`; repository-hygiene validator passed; focused hygiene tests passed 3/3; runtime-completion CI governance passed; full script tests passed 29/29; JSON parsing, `zsh -n scripts/aura-test.sh`, and `git diff --check` passed. Initial handoff-size validation failure was corrected before this final pass.
+- **Acceptance verdict:** H-001 remains blocked because no independent clean clone/verified backup or separate recovery authority exists and strict fsck remains non-zero. No decision-register or capability-status change was made.
+- **Authority boundary:** No cleanup, `git clean/reset/gc/prune/repack`, object deletion, history rewrite, install, permission mutation, app action, commit, push, merge, release, or deploy occurred.
+- **Residual risk/owner:** Repository maintainer owns `RISK-REPO-HYGIENE-GIT-OBJECT-DATABASE` and `RISK-REPO-HYGIENE-NO-VERIFIED-RECOVERY-ARTIFACT`.
+- **Next safe action:** Supply and verify the independent recovery artifact, preservation map, and explicit recovery decision. Keep H-001 active/blocked; do not open H-002.
+
+### 2026-08-09T16:15:57Z — REPO_HYGIENE_H001_CLONE_VERIFIED — recovery artifact ready
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H001-CLONE-20260809`; user-authorized clone creation and verification only.
+- **Active prompt:** H-001, `ready`; H-002 and later prompts were not opened.
+- **Delivered:** Fresh remote clone at `/tmp/aura-h001-clean-clone.OmXuQp/repository` and preservation evidence under `/tmp/aura-h001-recovery-verification.u2JbVL/`.
+- **Verification:** Clone creation exited 0; clone strict fsck exited 0 with zero findings; clone status was clean; clone HEAD/origin main matched local HEAD; local and clone main reachable-object closure hashes matched; current worktree patch and zero-untracked mapping were captured. Original local fsck remains exit 8 and was not mutated.
+- **Acceptance verdict:** H-001 recovery-artifact acceptance is satisfied and state is `H-001/ready`; the original local repair risk remains open and requires separate authority. No decision-register or capability-status change was made.
+- **Evidence:** `EV-REPO-HYGIENE-H-001-20260809-02`; closed risk `RISK-REPO-HYGIENE-NO-VERIFIED-RECOVERY-ARTIFACT`; open risk `RISK-REPO-HYGIENE-GIT-OBJECT-DATABASE`.
+- **Authority boundary:** No `git clean/reset/gc/prune/repack`, object deletion, history rewrite, install, permission mutation, app action, commit, push, merge, release, or deploy occurred.
+- **Next safe action:** Stop and await exact `ONAY: H-002`; do not open H-002 automatically.
+
+### 2026-08-09T16:20:43Z — REPO_HYGIENE_H001_CLONE_CLOSEOUT_READY — mandatory session closeout
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H001-CLONE-CLOSEOUT-20260809`; mandatory `15_SESSION_CLOSEOUT.prompt.md`; clone-only authority.
+- **Active prompt:** H-001, `ready`; H-002 and later prompts were not opened.
+- **Verified state:** `main`; `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`; relation `0/0`; independent clone fsck exit 0 and closure match; original fsck exit 8 and unchanged.
+- **Evidence/tests:** `EV-REPO-HYGIENE-H-001-20260809-02`, `EV-REPO-HYGIENE-H-001-CLOSEOUT-20260809-02`; hygiene validator passed; focused 3/3; runtime governance passed; full script suite 29/29; JSON, shell syntax, and diff checks passed. The combined-wrapper heredoc mistake was corrected by separate successful checks.
+- **Acceptance verdict:** H-001 recovery-artifact gate is ready. Original local object repair remains an open maintainer-owned risk; no decision-register or capability-status change was made.
+- **Authority boundary:** No cleanup, object mutation, install, permission mutation, app action, commit, push, merge, release, or deploy occurred.
+- **Next safe action:** Await exact `ONAY: H-002`; do not open H-002 automatically or repair the original `.git`.
+
+### 2026-08-09T16:29:41Z — REPO_HYGIENE_H002_DISPOSITION_MAP — read-only ownership inventory
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H002-20260809`; exact user approval `ONAY: H-002`; edit-only control-plane authority.
+- **Objective/result:** Map every dirty, untracked, ignored, generated, environment, OS-metadata, historical-control-plane, and unknown path to owner, provenance, preservation/disposition, and recovery reference. At live `main` / `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`, status/inventory commands passed; the worktree has 18 tracked control-plane modifications, 0 untracked paths, and 69,939 ignored paths. The path-level map has 69,957 rows under `/tmp/aura-h002-worktree-inventory.sV4ynZ/ownership-disposition.tsv`.
+- **Classification/disposition:** Tracked dirt is session-owned hygiene control-plane work and is preserved in place. Ignored groups are generated `.build` (25,647), Python environments (44,270), Python cache entries (13 in the ignored-list classification), and `.DS_Store` (9 in that classification), also preserved in place. Size evidence records `.build` 1.7G, `Runtime/chatterbox/.venv` 1.2G, root `.venv` 16M, Python cache directories 107,124 KiB, and `.DS_Store` files 124 KiB. No untracked source/control files, user-owned product paths, historical-control-plane additions, or unknown paths were found.
+- **Authority/evidence:** No quarantine destination was created because quarantine/move/deletion authority is false; no `git clean`, deletion, reset, Git-object mutation, install, permission change, commit, push, merge, release, or deploy occurred. Evidence: `EV-REPO-HYGIENE-H-002-20260809-01`; path-level/group records under `/tmp/aura-h002-worktree-inventory.sV4ynZ/`; H-001 clean-clone rollback/reference remains available.
+- **Acceptance/cognitive gate:** Coverage, ownership, evidence, rollback reference, falsifier, residual risk/owner, and next-prompt safety are recorded in the focused hygiene ledger. H-002 is `ready`; no H-003 action occurred.
+- **Next safe action:** Stop and await exact `ONAY: H-003`; do not open H-003 automatically.
+- **SESSION_CLOSEOUT:** Mandatory `15_SESSION_CLOSEOUT.prompt.md` was read and executed. Final branch/HEAD/remote/status, diff scope, ownership, authority expiry, evidence, risks, current state, session handoff, and exact next action were reviewed. The first runtime validator caught the session-handoff evidence maximum after adding H-002 evidence; a redundant older H-001 closeout ID was removed and all final checks passed.
+
+### 2026-08-09T16:37:40Z — REPO_HYGIENE_H002_CLOSEOUT_READY — mandatory session closeout
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H002-20260809`; mandatory `15_SESSION_CLOSEOUT.prompt.md`; H-002 edit-only authority, expired at handoff.
+- **Active prompt/state:** H-002 / `ready`; H-003 and later prompts remain unopened and unapplied.
+- **Verified state:** `main`, `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`, relation `0/0`; 18 expected control-plane modifications, 0 untracked, 69,939 ignored; no product-path diff.
+- **Verification:** Hygiene validator passed at H-002/ready; focused hygiene tests 3/3; runtime-completion CI validator passed; full script suite 29/29; JSON parsing passed; `git diff --check` passed. The handoff evidence-array limit was corrected before the final successful run.
+- **Acceptance/residuals:** H-002 ownership/disposition coverage is ready. Generated artifacts remain in place as an explicit authority blocker; `RISK-REPO-HYGIENE-GENERATED-ARTIFACTS-IN-PLACE` and the original local Git object-database risk remain open. No product, Git object, permission, install, delivery, or cleanup mutation occurred.
+- **Evidence:** `EV-REPO-HYGIENE-H-002-20260809-01`, `EV-REPO-HYGIENE-H-002-CLOSEOUT-20260809-01`; inventory artifacts under `/tmp/aura-h002-worktree-inventory.sV4ynZ/`.
+- **Next safe action:** Stop and await exact `ONAY: H-003`; do not auto-advance.
+### 2026-08-09T16:50:50Z — REPO_HYGIENE_H003_IGNORE_RULES — explicit generated boundaries and fixture regression
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H003-20260809`; exact `ONAY: H-003`; edit-only control-plane authority.
+- **Objective/result:** Audit ignore rules, tracked generated artifacts, authored source/fixture/manifest visibility, clean-fixture behavior, and CI checkout configuration. The root `.venv` was the only observed generated boundary relying on an inner environment-created `.gitignore`; root `/.venv/` is now explicit. `git ls-files -ci --exclude-standard` and the tracked generated-pattern audit both return zero.
+- **Delivered:** Added `/.venv/` and rationale comments to `.gitignore`; added rationale comments to `Runtime/chatterbox/.gitignore`; added the intentional session-owned regression test `scripts/tests/test_repo_hygiene_ignore_rules.py`. No broad wildcard or tracked-file removal was introduced.
+- **Verification:** Positive `git check-ignore` matrix covers `.build`, root/nested `.venv`, Python caches, `.DS_Store`, `xcuserdata`, and `DerivedData`; negative matrix keeps source, tracked fixtures, golden corpus, manifest, and hygiene state visible. Isolated clean fixture test passed 2/2; `git diff --check` passed. CI workflow inspection found `actions/checkout@v4` twice with no explicit repository-local cleanup/fetch/sparse setting; unchanged and recorded as a residual risk.
+- **Acceptance/cognitive gate:** Generated files are ignored by explicit tested rules, intentional fixtures remain visible, and no tracked artifact is silently lost. Exact gap, root cause, resolution, falsifier, residual risk/owner, and H-004 safety are recorded in the focused hygiene ledger.
+- **Evidence:** `EV-REPO-HYGIENE-H-003-20260809-01`; `/tmp/aura-h003-ignore-audit.tfZN0W/README.md`.
+- **Next safe action:** Stop and await exact `ONAY: H-004`; do not open H-004 automatically.
+### 2026-08-09T16:54:03Z — REPO_HYGIENE_H003_CLOSEOUT_READY — mandatory session closeout
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H003-20260809`; mandatory `15_SESSION_CLOSEOUT.prompt.md`; H-003 edit-only authority expired at handoff.
+- **Active prompt/state:** H-003 / `ready`; H-004 and later prompts remain unopened and unapplied.
+- **Verified state:** `main`; `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`; relation `0/0`; 21 tracked control-plane modifications and one intentional untracked session-owned regression test; no product source/runtime implementation diff, with `Runtime/chatterbox/.gitignore` as the intended control-plane config change.
+- **Verification:** Hygiene validator passed at H-003/ready; focused hygiene tests 3/3; ignore/fixture tests 2/2; runtime-completion CI validator passed; full script suite 31/31; JSON parsing, `git diff --check`, and tracked-artifact audit passed. Handoff schema limit was corrected by removing stale H-004–H-010 file references without opening those prompt contents.
+- **Acceptance/residuals:** H-003 ignore-rule and generated-file acceptance is ready. Root `/.venv/` is explicit, authored source/fixture/manifest visibility remains intact, no tracked generated artifact exists, and clean-fixture regression passes. CI checkout-defaults risk and original local Git object-database risk remain open.
+- **Evidence:** `EV-REPO-HYGIENE-H-003-20260809-01`, `EV-REPO-HYGIENE-H-003-CLOSEOUT-20260809-01`; audit report `/tmp/aura-h003-ignore-audit.tfZN0W/README.md`.
+- **Authority boundary:** No cleanup, deletion, quarantine, `git clean`, Git mutation, product edit, install, permission change, commit, push, merge, release, or deploy occurred.
+- **Next safe action:** Await exact `ONAY: H-004`; do not auto-advance.
+
+### 2026-08-10T06:28:05Z — REPO_HYGIENE_H004_CANONICAL_TOOLCHAIN_READY
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H004-20260810`; exact `ONAY: H-004`; edit-only control-plane authority.
+- **Objective/result:** Reconcile active toolchain, test-count, path, and documentation claims. Canonical development baseline is macOS 27+/arm64/Swift 6.4/macOS SDK 27.0+ with CommandLineTools-compatible local development; full Xcode remains release-only evidence. Source and wrapper enumerate the same 21 Swift test targets.
+- **Delivered:** README and active GitHub guidance were reconciled; stale active `prompts/implementation` guidance was replaced; `Package.swift` now accepts `AURA_TESTING_MACROS_PATH`; `scripts/aura-test.sh` discovers and validates Swift Testing paths through `xcode-select`/`xcrun`, supports explicit framework/library overrides, and fails closed when required components are absent. Historical ledger facts remain unchanged.
+- **Verification:** Source build exit 0; wrapper `AuraCoreTests` exit 0 with 27/27; missing-tool fail-closed test exited 2; package dump reported 21 test targets; hygiene validator passed at H-004/ready; runtime-completion CI governance passed; full script suite 31/31; JSON/YAML/documentation/shell/diff/tracked-artifact checks passed. `xcodebuild` exit 1 and `swift-format` exit 127 remain explicit host limitations. Evidence: `EV-REPO-HYGIENE-H-004-20260810-01`; report `/tmp/aura-h004-toolchain-audit.wQZVx7/README.md`.
+- **Acceptance/cognitive gate:** Exact gap, mechanism/root cause, supported resolution, falsification test, residual risk/owner, and H-005 safety are recorded in the focused H-004 ledger entry. `RISK-REPO-HYGIENE-DOC-TOOLCHAIN-DRIFT` is closed; full-Xcode/formatter and complete matrix limitations remain assigned to the appropriate later gates.
+- **Authority boundary:** No cleanup, deletion, Git recovery mutation, installation, permission change, app action, commit, push, merge, release, or deploy occurred. H-004 authority is expired at handoff.
+- **Next safe action:** H-004 is ready for chain-order continuation only. Stop and await exact `ONAY: H-005`; do not open H-005 automatically.
+
+### 2026-08-10T07:05:56Z — REPO_HYGIENE_H005_BLOCKED — formatter/lint/concurrency gate
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H005-20260810`; exact user approval `ONAY: H-005`; only H-005 was opened/applied and H-006+ were not opened.
+- **Objective/result:** Encode a reproducible `.swift-format` policy and explicit CI strict-concurrency/warnings-as-errors build flags. The strict production build passed exit 0; configured report-mode formatting lint found 1,019 existing findings across 116 Swift source/test files; SwiftLint is unavailable through PATH and xcrun. H-005 is blocked, not falsely passed.
+- **Delivered:** Added `.swift-format` schema `version: 1` with explicit rules; changed CI production build to pass `-Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors`; documented exact quality commands in `TOOLCHAIN.md`; synchronized the toolchain manifest, hygiene program, risk register, evidence index, state, and focused ledger. No product source/test implementation was changed and no mass formatting or installation occurred.
+- **Evidence/tests:** `EV-REPO-HYGIENE-H-005-20260810-01`; strict build log `/tmp/aura-h005-strict-final.KOVnrZ/build.log` (exit 0); configured lint report `/tmp/aura-h005-swift-format-configured.e9YEc8/report.txt` (exit 1, 1,019 diagnostics); formatter path/version/help and compiler flag help passed; `command -v swiftlint` exit 1 and `xcrun --find swiftlint` exit 72. Full projection validators and closeout checks remain to be run before handoff.
+- **Acceptance/blockers:** Formatting acceptance is blocked by the unreviewed 1,019 findings and absent semver-pinned formatter/SwiftLint capability. Repository maintainer/source owners/toolchain owner must authorize bounded remediation and/or toolchain installation separately. Existing CLT linker warnings, full-Xcode/CI observation, and original Git object-database risk remain open.
+- **Authority boundary:** Edit-only control-plane authority was used; cleanup, deletion, Git mutation, product edits, installation, permission changes, app action, commit, push, merge, release, and deploy were not performed. Authority resets at closeout.
+- **Next safe action:** Keep H-005 active/blocked; do not open H-006. Obtain explicit authority for a bounded finding review and any required formatter/linter toolchain provision, then resume H-005.
+
+### 2026-08-10T07:14:49Z — REPO_HYGIENE_H005_CLOSEOUT_BLOCKED — mandatory session closeout
+
+- **Actor:** Codex session `AURA-REPO-HYGIENE-H005-20260810`; mandatory `15_SESSION_CLOSEOUT` procedure; authority expired at handoff.
+- **Active prompt/state:** H-005 / `blocked`; H-006 and later prompts remain unopened and unapplied. `EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-01` records the closeout.
+- **Verified state:** `main`; `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`; relation `0/0`; 31 tracked control-plane modifications, two intentional untracked control-plane files, 69,940 ignored paths, zero tracked-ignored paths, and no `Sources/` or `Tests/` product diff.
+- **Verification:** Final strict build passed exit 0 at `/tmp/aura-h005-strict-closeout-final.log`; `.swift-format` matched `xcrun swift-format dump-configuration`; hygiene validator passed at H-005/blocked; runtime-completion CI validator passed; full script suite passed 31/31; focused hygiene tests passed 5/5; JSON/YAML/shell/diff checks passed. Formatter lint remains exit 1 with 1,019 existing findings; SwiftLint remains unavailable.
+- **Acceptance/residuals:** H-005 is correctly blocked because the cognitive gate and formatter/lint acceptance are incomplete. `RISK-REPO-HYGIENE-TOOLING-UNAVAILABLE`, `RISK-REPO-HYGIENE-FORMAT-FINDINGS`, original Git object-database risk, generated-artifact risk, and full-Xcode/CI observation remain open with named owners. No cleanup, deletion, Git mutation, product edit, install, permission change, app action, commit, push, merge, release, or deploy occurred.
+- **Next safe action:** Keep H-005 active/blocked. Obtain explicit authority for bounded finding remediation and/or semver-pinned formatter/SwiftLint provision, rerun exact gates, and only then reassess H-005. Do not open H-006 automatically; future transition requires exact `ONAY: H-006` after H-005 is complete.
+
+### 2026-08-10T08:01:21Z — REPO_HYGIENE_H005_REMEDIATION_READY
+
+- **Actor/authority:** Codex session `AURA-REPO-HYGIENE-H005-20260810`; exact user authority `EVET: H-005 bounded formatter remediation + SwiftLint/toolchain provision`; H-006+ prompt files were not opened or applied.
+- **Verified repository:** `main`; `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`; relation `0/0`; 116 tracked source/test files carry the authorized formatter remediation, while the pre-existing control-plane dirt remains preserved. No commit, push, merge, cleanup, Git repair, app action, permission change, release, or deploy occurred.
+- **Delivered:** Added `.swiftlint.yml`; provisioned SwiftLint `0.65.0`; applied 12 bounded formatter batches (maximum 10 files, final batch 6) and explicitly corrected three trailing-closure call sites. Existing `.swift-format`, CI strict-concurrency/warnings-as-errors flags, `TOOLCHAIN.md`, toolchain manifest/schema, risks, focused ledger, state, evidence, and handoff projections were synchronized.
+- **Verification:** Recursive strict `swift-format lint` exited 0 with zero diagnostics; strict `swift build --target AURA` with `-strict-concurrency=complete -warnings-as-errors` exited 0; canonical `scripts/aura-test.sh /tmp/aura-h005-tests-final` exited 0 with 21/21 bundles and 794/794 tests; `swiftlint rules --config .swiftlint.yml --config-only` exited 0. Full SwiftLint exited 133 on SourceKit load; the explicit `--disable-sourcekit` diagnostic exited 2 with findings. These are recorded as a blocker, not a false pass.
+- **Acceptance verdict:** H-005 is `ready` at its active boundary: the formatter/compiler/regression acceptance is complete and the unavailable full SourceKit capability has a named owner, exact command, and safe next action. `RISK-REPO-HYGIENE-FORMAT-FINDINGS` is closed; `RISK-REPO-HYGIENE-SWIFTLINT-SOURCEKIT-BLOCKED` remains open. Full-Xcode/CI observation, other hygiene tools, original Git object-database integrity, generated artifacts, and later prompts remain outside this gate.
+- **Evidence:** `EV-REPO-HYGIENE-H-005-20260810-02` and `EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02`.
+- **Authority boundary/next action:** Session authority expires at closeout. Keep `active_prompt` at H-005, do not auto-advance or open H-006, and await exact `ONAY: H-006`. The toolchain owner must separately provide a SourceKit-compatible environment before any full SwiftLint pass claim.
+
+### 2026-08-10T08:11:34Z — REPO_HYGIENE_H005_CLOSEOUT_READY
+
+- **Actor/procedure:** Codex session `AURA-REPO-HYGIENE-H005-20260810`; mandatory `15_SESSION_CLOSEOUT` procedure reread and executed after remediation; session authority expired at handoff.
+- **Active prompt/state:** H-005 / `ready`; active prompt remains H-005, H-006+ remain unopened, and no automatic transition was performed. The ordered completed prefix remains H-000 through H-004.
+- **Repository/diff:** `main`; `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`; relation `0/0`; 116 tracked Swift source/test paths carry the explicitly authorized formatter diff; existing control-plane dirt and ignored artifacts are preserved; no original `.git` mutation occurred.
+- **Closeout checks:** Hygiene validator exit 0 at H-005/ready; runtime-completion CI validator exit 0; focused hygiene tests 5/5; full script suite 31/31; JSON, shell, and diff checks pass; recursive strict formatter lint exit 0; strict build exit 0; canonical wrapper 21/21 bundles and 794/794 tests. Full SwiftLint remains explicitly blocked at SourceKit load exit 133; no-SourceKit fallback exit 2 is partial only.
+- **Acceptance/residuals:** H-005 is ready because formatting, strict compiler, and regression evidence are complete and the unavailable full SwiftLint capability has a named owner and falsification path. `RISK-REPO-HYGIENE-FORMAT-FINDINGS` is closed; SourceKit/full-Xcode/CI, other hygiene tools, Git object-database, generated artifacts, and later hygiene risks remain open. No release, deploy, install beyond the authorized SwiftLint provision, or CI execution is claimed.
+- **Evidence/next action:** `EV-REPO-HYGIENE-H-005-20260810-02`, `EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02`; stop and await exact `ONAY: H-006`. Do not open H-006 or change active prompt state automatically.

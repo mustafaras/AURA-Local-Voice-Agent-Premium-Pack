@@ -780,10 +780,10 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
     silenceEndFrames: UInt32 = 30,
     continuationWindowSeconds: Double = 1.25,
     deterministicStopCommands: Set<String> = [
-      "stop", "cancel", "abort", "quit", "dur", "iptal", "vazgeç"
+      "stop", "cancel", "abort", "quit", "dur", "iptal", "vazgeç",
     ],
     deterministicPauseResumeCommands: Set<String> = [
-      "pause", "resume", "continue", "duraklat", "sürdür", "devam et"
+      "pause", "resume", "continue", "duraklat", "sürdür", "devam et",
     ]
   ) {
     self.listenTimeoutSeconds = listenTimeoutSeconds

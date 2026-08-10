@@ -73,7 +73,8 @@ private func makePolicyEngine(
 private func makeManager(
   repoRoot: String, eventBus: AuraEventBus, policyEngine: PolicyEngine
 ) -> WorktreeManager {
-  WorktreeManager(configuration: WorktreeConfiguration(), policyEngine: policyEngine, eventBus: eventBus)
+  WorktreeManager(
+    configuration: WorktreeConfiguration(), policyEngine: policyEngine, eventBus: eventBus)
 }
 
 // MARK: - Creation and isolation

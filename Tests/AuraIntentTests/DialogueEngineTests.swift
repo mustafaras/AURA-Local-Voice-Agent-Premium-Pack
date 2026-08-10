@@ -73,7 +73,8 @@ func dialogueEngineUsesLocalReasoningBackendAndKeepsProvenance() async {
   let engine = DialogueEngine(
     reasoningBackend: DialogueBackendStub(
       result: .success(
-        OllamaCapabilityResult(text: "Rayleigh scattering explains it.", model: "local:latest", degraded: false))))
+        OllamaCapabilityResult(
+          text: "Rayleigh scattering explains it.", model: "local:latest", degraded: false))))
   let context = TurnContext(
     sessionID: UUID(),
     activationSource: .text,
@@ -151,7 +152,8 @@ func dialogueEngineBoundsResponseAndPromptData() async {
   let engine = DialogueEngine(
     reasoningBackend: DialogueBackendStub(
       result: .success(OllamaCapabilityResult(text: longText, model: "local", degraded: false))),
-    configuration: DialogueEngineConfiguration(maxPromptCharacters: 1_000, maxResponseCharacters: 256))
+    configuration: DialogueEngineConfiguration(
+      maxPromptCharacters: 1_000, maxResponseCharacters: 256))
   let context = TurnContext(
     sessionID: UUID(),
     activationSource: .text,
@@ -166,7 +168,8 @@ func dialogueEngineBoundsResponseAndPromptData() async {
 
 @Test
 func structuredModelActionProposalCannotBecomeExecutableIntent() async {
-  let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraIntentTests", category: "structured-nlu"))
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AuraIntentTests", category: "structured-nlu"))
   let engine = IntentEngine(
     classifier: RuleBasedUtteranceClassifier(),
     structuredNLUBackend: StructuredNLUBackendStub(

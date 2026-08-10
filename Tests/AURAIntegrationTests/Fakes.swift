@@ -82,7 +82,9 @@ func makeTestStore() async throws -> AuraStore {
 
 func makeTestPolicyEngine(
   eventBus: AuraEventBus,
-  allowByDefaultTiers: Set<PermissionRiskTier> = [.observation, .reversible, .mutation, .destructive],
+  allowByDefaultTiers: Set<PermissionRiskTier> = [
+    .observation, .reversible, .mutation, .destructive,
+  ],
   grantConfirmationNoneFor: [Capability] = []
 ) async throws(AuraError) -> PolicyEngine {
   let config = PolicyConfiguration(

@@ -26,7 +26,11 @@ final class AuraTask: @unchecked Sendable {
 
   var latestCheckpointName: String? {
     get { lock.withLock { _latestCheckpointName } }
-    set { lock.lock(); _latestCheckpointName = newValue; lock.unlock() }
+    set {
+      lock.lock()
+      _latestCheckpointName = newValue
+      lock.unlock()
+    }
   }
 
   var state: TaskState {

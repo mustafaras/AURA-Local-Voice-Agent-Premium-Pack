@@ -5,8 +5,8 @@ import AuraContext
 import AuraCore
 import AuraIntent
 import AuraMemory
-import AuraPolicy
 import AuraPlugins
+import AuraPolicy
 import AuraSecurity
 import AuraShell
 import AuraStore
@@ -149,7 +149,8 @@ private final class AccessibilityObserverStub: AccessibilityObserving, @unchecke
   }
 }
 
-private func makeAutomation(spy: ApplicationControllerSpy, eventBus: AuraEventBus) -> AuraAutomation {
+private func makeAutomation(spy: ApplicationControllerSpy, eventBus: AuraEventBus) -> AuraAutomation
+{
   AuraAutomation(
     config: AutomationConfiguration(),
     applicationController: spy,
@@ -211,7 +212,9 @@ struct RouterHarness {
 }
 
 func makeRouterHarness(
-  allowByDefaultTiers: Set<PermissionRiskTier> = [.observation, .reversible, .mutation, .destructive],
+  allowByDefaultTiers: Set<PermissionRiskTier> = [
+    .observation, .reversible, .mutation, .destructive,
+  ],
   grantConfirmationNoneFor: [Capability] = [],
   confirmationPresenter: any IntentConfirmationPresenting = IntentAlwaysDenyConfirmationPresenter()
 ) async throws -> RouterHarness {
@@ -225,7 +228,8 @@ func makeRouterHarness(
   let shell = AuraShell(configuration: ShellConfiguration())
   let store = try await makeTestStore()
   let taskEngine = await AuraTaskEngine(store: store, eventBus: bus)
-  let (agentRunner, sessionID) = makeAgentBackendTaskRunner(policyEngine: policyEngine, eventBus: bus)
+  let (agentRunner, sessionID) = makeAgentBackendTaskRunner(
+    policyEngine: policyEngine, eventBus: bus)
   let capabilityRegistry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: capabilityRegistry)
   let router = ToolRouter(

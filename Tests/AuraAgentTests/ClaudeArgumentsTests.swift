@@ -53,7 +53,9 @@ func claudeArgumentsMapToolProfiles() throws {
   let writableArgs = try ClaudeArguments.make(request: writable, configuration: configuration)
 
   let readOnlyToolsIndex = readOnlyArgs.firstIndex(of: "--tools")!
-  #expect(readOnlyArgs[readOnlyArgs.index(after: readOnlyToolsIndex)] == configuration.readOnlyTools.joined(separator: ","))
+  #expect(
+    readOnlyArgs[readOnlyArgs.index(after: readOnlyToolsIndex)]
+      == configuration.readOnlyTools.joined(separator: ","))
   let writableToolsIndex = writableArgs.firstIndex(of: "--tools")!
   #expect(
     writableArgs[writableArgs.index(after: writableToolsIndex)]

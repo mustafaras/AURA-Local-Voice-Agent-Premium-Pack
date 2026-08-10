@@ -99,7 +99,8 @@ public struct PromptInjectionClassifier: Sendable {
 
     guard !signals.isEmpty else { return .clean }
     let totalSeverity = signals.reduce(0) { $0 + $1.severity.rawValue }
-    return totalSeverity >= blockSeverityThreshold ? .blocked(signals: signals) : .suspicious(signals: signals)
+    return totalSeverity >= blockSeverityThreshold
+      ? .blocked(signals: signals) : .suspicious(signals: signals)
   }
 
   // MARK: - Rule set
@@ -111,7 +112,8 @@ public struct PromptInjectionClassifier: Sendable {
   private static let defaultRules: [InjectionRule] = [
     InjectionRule(
       id: "instructionOverride.ignorePrevious", category: "instructionOverride", severity: .high,
-      pattern: "ignore (all|any|the)?\\s*(previous|prior|above|earlier)\\s*(instructions|rules|prompt)"
+      pattern:
+        "ignore (all|any|the)?\\s*(previous|prior|above|earlier)\\s*(instructions|rules|prompt)"
     ),
     InjectionRule(
       id: "instructionOverride.disregard", category: "instructionOverride", severity: .high,
@@ -120,8 +122,11 @@ public struct PromptInjectionClassifier: Sendable {
       id: "instructionOverride.forget", category: "instructionOverride", severity: .medium,
       pattern: "forget (everything|what) (you were|i) (told|said)"),
     InjectionRule(
-      id: "instructionOverride.nonEnglishIgnore", category: "instructionOverride", severity: .medium,
-      pattern: "(ignorez|ignorer|ignora|ignoriere|ignoriert|игнорируйте|無視)\\s.*(instructions|instrucciones|istruzioni|anweisungen|инструкции|命令|指示)"),
+      id: "instructionOverride.nonEnglishIgnore", category: "instructionOverride",
+      severity: .medium,
+      pattern:
+        "(ignorez|ignorer|ignora|ignoriere|ignoriert|игнорируйте|無視)\\s.*(instructions|instrucciones|istruzioni|anweisungen|инструкции|命令|指示)"
+    ),
     InjectionRule(
       id: "roleHijack.youAreNow", category: "roleHijack", severity: .high,
       pattern: "you are now (a|an) "),

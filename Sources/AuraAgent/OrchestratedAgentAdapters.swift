@@ -48,29 +48,32 @@ public struct CodexOrchestratedAgent: OrchestratedAgentRunning {
     let inner = await adapter.run(
       request: request, actor: actor, sessionID: sessionID, correlationID: correlationID,
       causationID: causationID)
-    return Self.remap(inner, onCancel: { await self.adapter.cancel(correlationID: correlationID) })
-    { event in
-      switch event {
-      case .agentText(let role, let text, _):
-        return .text(role: role, content: text)
-      case .approvalDecision(_, let allowed, let reason):
-        return allowed ? nil : .approvalDenied(reason: reason)
-      case .turnCompleted:
-        return .turnCompleted
-      case .turnFailed(let message):
-        return .turnFailed(message: message)
-      case .codexError(let message):
-        return .turnFailed(message: message)
-      // `.itemError` is a nested, non-fatal per-item warning (e.g. a
-      // metadata-lookup fallback notice) — `CodexTaskRunner` itself treats
-      // it as ignorable (`default: break`), not a turn failure; mirrored
-      // here via the `default` branch below.
-      case .budgetExceeded(let kind, let limit, let observed):
-        return .budgetExceeded(kind: kind, limit: limit, observed: observed)
-      default:
-        return nil
+    return Self.remap(
+      inner,
+      onCancel: { await self.adapter.cancel(correlationID: correlationID) },
+      { event in
+        switch event {
+        case .agentText(let role, let text, _):
+          return .text(role: role, content: text)
+        case .approvalDecision(_, let allowed, let reason):
+          return allowed ? nil : .approvalDenied(reason: reason)
+        case .turnCompleted:
+          return .turnCompleted
+        case .turnFailed(let message):
+          return .turnFailed(message: message)
+        case .codexError(let message):
+          return .turnFailed(message: message)
+        // `.itemError` is a nested, non-fatal per-item warning (e.g. a
+        // metadata-lookup fallback notice) — `CodexTaskRunner` itself treats
+        // it as ignorable (`default: break`), not a turn failure; mirrored
+        // here via the `default` branch below.
+        case .budgetExceeded(let kind, let limit, let observed):
+          return .budgetExceeded(kind: kind, limit: limit, observed: observed)
+        default:
+          return nil
+        }
       }
-    }
+    )
   }
 
   public func cancel(correlationID: UUID) async {
@@ -143,25 +146,27 @@ public struct ClaudeOrchestratedAgent: OrchestratedAgentRunning {
       request: request, actor: actor, sessionID: sessionID, correlationID: correlationID,
       causationID: causationID)
     return CodexOrchestratedAgent.remap(
-      inner, onCancel: { await self.adapter.cancel(correlationID: correlationID) }
-    ) { event in
-      switch event {
-      case .message(let role, let text, _):
-        return .text(role: role, content: text)
-      case .approvalDecision(_, let allowed, let reason):
-        return allowed ? nil : .approvalDenied(reason: reason)
-      case .turnCompleted:
-        return .turnCompleted
-      case .turnFailed(let message, _):
-        return .turnFailed(message: message)
-      case .claudeError(let message):
-        return .turnFailed(message: message)
-      case .budgetExceeded(let kind, let limit, let observed):
-        return .budgetExceeded(kind: kind, limit: limit, observed: observed)
-      default:
-        return nil
+      inner,
+      onCancel: { await self.adapter.cancel(correlationID: correlationID) },
+      { event in
+        switch event {
+        case .message(let role, let text, _):
+          return .text(role: role, content: text)
+        case .approvalDecision(_, let allowed, let reason):
+          return allowed ? nil : .approvalDenied(reason: reason)
+        case .turnCompleted:
+          return .turnCompleted
+        case .turnFailed(let message, _):
+          return .turnFailed(message: message)
+        case .claudeError(let message):
+          return .turnFailed(message: message)
+        case .budgetExceeded(let kind, let limit, let observed):
+          return .budgetExceeded(kind: kind, limit: limit, observed: observed)
+        default:
+          return nil
+        }
       }
-    }
+    )
   }
 
   public func cancel(correlationID: UUID) async {
@@ -202,25 +207,27 @@ public struct CopilotOrchestratedAgent: OrchestratedAgentRunning {
       request: request, actor: actor, sessionID: sessionID, correlationID: correlationID,
       causationID: causationID)
     return CodexOrchestratedAgent.remap(
-      inner, onCancel: { await self.adapter.cancel(correlationID: correlationID) }
-    ) { event in
-      switch event {
-      case .message(let role, let content, _):
-        return .text(role: role, content: content)
-      case .approvalDecision(_, let allowed, let reason):
-        return allowed ? nil : .approvalDenied(reason: reason)
-      case .turnCompleted:
-        return .turnCompleted
-      case .turnFailed(let message):
-        return .turnFailed(message: message)
-      case .copilotError(let message):
-        return .turnFailed(message: message)
-      case .budgetExceeded(let kind, let limit, let observed):
-        return .budgetExceeded(kind: kind, limit: limit, observed: observed)
-      default:
-        return nil
+      inner,
+      onCancel: { await self.adapter.cancel(correlationID: correlationID) },
+      { event in
+        switch event {
+        case .message(let role, let content, _):
+          return .text(role: role, content: content)
+        case .approvalDecision(_, let allowed, let reason):
+          return allowed ? nil : .approvalDenied(reason: reason)
+        case .turnCompleted:
+          return .turnCompleted
+        case .turnFailed(let message):
+          return .turnFailed(message: message)
+        case .copilotError(let message):
+          return .turnFailed(message: message)
+        case .budgetExceeded(let kind, let limit, let observed):
+          return .budgetExceeded(kind: kind, limit: limit, observed: observed)
+        default:
+          return nil
+        }
       }
-    }
+    )
   }
 
   public func cancel(correlationID: UUID) async {

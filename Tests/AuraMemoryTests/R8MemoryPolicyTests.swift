@@ -49,7 +49,9 @@ func r8VerifiedToolFactsRequireEvidenceAndRetainPurpose() async throws {
     return
   }
   #expect(record.purpose == "verified build inspection")
-  #expect(try await engine.inspect(memoryClass: .projectFact).first?.purpose == "verified build inspection")
+  #expect(
+    try await engine.inspect(memoryClass: .projectFact).first?.purpose
+      == "verified build inspection")
 }
 
 @Test
