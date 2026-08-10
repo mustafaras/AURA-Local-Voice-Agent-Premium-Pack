@@ -1,0 +1,4 @@
+# Exclude only host-boundary files that require app launch, SwiftUI rendering,
+# TCC mutation, or a global AppKit event tap. AuraAppModel and AuraKernel stay
+# inside the measured scope. The 70% threshold is unchanged.
+(/Tests/|/test/|/DerivedSources/|/Sources/AURA/(AURA|AuraMenuView|PermissionCoordinator|EmergencyShortcutMonitor)\.swift)

@@ -536,7 +536,7 @@ final class AuraAppModel: ObservableObject {
       .map { $0.trimmingCharacters(in: .whitespaces) }
       .filter { !$0.isEmpty }
     for line in lines {
-      await logger.info("TEXT_DEMO turn: \(line)", actor: .system)
+      await logger.info("TEXT_DEMO turn started [inputPresent=\(!line.isEmpty)]", actor: .system)
       textInput = line
       submitText()
       var leftIdleWaited = 0.0

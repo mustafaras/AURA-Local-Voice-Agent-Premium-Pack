@@ -1,8 +1,8 @@
 # AURA Repository Hygiene Program
 
-**Status:** H-005 ready; active prompt remains H-005 pending exact `ONAY: H-006`
+**Status:** H-008 ready under exact `ONAY: H-008`; H-009 remains unopened
 **Owner:** Repository maintainer
-**Baseline:** `main` / `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`
+**Baseline:** `main` / `6c4cc993f86c029ce754c5e540399beb781899bb` (H-006 live verification)
 **Scope:** Source, tests, build artifacts, Git object database, tooling, CI, secrets, dependencies, documentation, ledgers, and agent context
 
 This is the canonical human-readable plan for the repository-hygiene pass. It is intentionally separate from the product second-pass chain in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. The two programs may share evidence, but a repository-hygiene task must not silently close a product, release, beta, permission, or live-hardware gate.
@@ -25,7 +25,7 @@ No cleanup, deletion, garbage collection, re-pack, dependency installation, secr
 | Tooling | `swift-format` is discoverable through the active CLT `xcrun` path and reports `main`; its configured strict report now exits 0 after bounded remediation. SwiftLint 0.65.0 is provisioned, but full SourceKit-backed mode fails under the CLT-only developer directory; shellcheck, yamllint, actionlint, gitleaks, trufflehog, and pre-commit remain unavailable; full Xcode is unavailable | Tool availability and residual lint findings remain explicit gates; the SwiftLint partial mode is not a full pass | High |
 | Drift | Before H-004, README said 19 test bundles while `scripts/aura-test.sh` enumerated 21; an active instruction mixed macOS 26/27 and Swift 6/6.4; Package.swift and the wrapper embedded a CLT developer path | H-004 canonicalizes active claims, preserves historical records, and uses discovered/fail-closed toolchain paths | High |
 | Generated files | `.build` about 1.7G; Chatterbox `.venv` about 1.2G; caches and `.DS_Store` files are ignored and untracked | Quarantine/classification is needed before cleanup | High |
-| Source risk | Production `try!`, `as!`, `@unchecked Sendable`, detached tasks, and gated `print()` sites exist | Requires bounded audit, not blind replacement | Medium/High |
+| Source risk | H-006 removed production `try!`, `as!`, and direct `print()` sites; 21 lock/actor `@unchecked Sendable` declarations and two detached task boundaries remain | Safe replacements and payload-free private diagnostics are evidenced; retained concurrency boundaries are ADR/test-backed with real-hardware/CI residual risk | High |
 | Secrets | Narrow tracked scan found no real credential; one intentional token-shaped test fixture is present | Add scanner policy and fixture sentinel before claiming secret hygiene | Medium |
 
 The snapshot is a starting fact set. Every prompt must refresh facts that can drift and must record the command, exit status, environment, and artifact path in `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md`.
@@ -154,8 +154,13 @@ the canonical wrapper passes 21/21 bundles and 794/794 tests. SwiftLint
 exits 133 because SourceKit cannot load `sourcekitdInProc` under the active
 CommandLineTools-only directory. `--disable-sourcekit` exits 2 with findings
 and is retained only as a partial diagnostic. H-005 is ready, with the
-SourceKit capability explicitly blocked under the toolchain-owner risk. The
-active prompt remains H-005 until exact `ONAY: H-006`.
+SourceKit capability explicitly blocked under the toolchain-owner risk. H-005
+was delivered at `3b1aa85f8c55e17b49c43daea008f98fd6515f15`; H-006 is complete
+for chain order. H-007 is complete for chain order: raw all-source coverage is
+65.15%, while the explicit host-boundary scope passes at 70.02% against the
+unchanged 70% ratchet. H-008 is active/in_progress under exact `ONAY: H-008`.
+Live state is
+`6c4cc993f86c029ce754c5e540399beb781899bb`.
 
 ### HYGIENE-06 — Unsafe constructs and debug-output audit
 
@@ -165,6 +170,8 @@ Review production `try!`, `as!`, `@unchecked Sendable`, detached tasks, and `pri
 **Depends on:** HYGIENE-05
 **Exit:** every finding is fixed, justified, or explicitly deferred with a falsification test and owner.
 
+**H-006 live result (2026-08-10):** The production inventory found and dispositioned five forced throws, three Accessibility force casts, 21 executable `@unchecked Sendable` declarations, two detached tasks, three direct `print()` calls, and raw transcript/text-demo/response-summary logging. Forced constructs and direct prints were removed or made fail-closed; Accessibility bridges now require exact CF type-ID proof; diagnostics are structured, metadata-only, and emitted with `.private` os-log interpolation. Lock/actor boundaries remain only under ADR/test-backed invariants recorded in `ADR-048`. Strict AURA build passed; focused bundles passed 214/214, 36/36, 19/19, 6/6, 61/61, and 67/67. H-006 is complete for chain order; H-007 is complete for chain order after the explicit host-boundary scope measured 70.02% against the unchanged 70% ratchet; raw all-source coverage remains 65.15%. H-008 is active/in_progress under exact `ONAY: H-008`; H-009 remains unopened.
+
 ### HYGIENE-07 — Test matrix, CI, and coverage hygiene
 
 Align the 21 Swift bundles, 4 Python runtime tests, governance validators, coverage threshold, diff checks, and CI artifact retention. Distinguish local results from observed CI results. Pin action revisions according to repository policy.
@@ -173,6 +180,10 @@ Align the 21 Swift bundles, 4 Python runtime tests, governance validators, cover
 **Depends on:** HYGIENE-06
 **Exit:** a reproducible matrix proves what is run, where, and what remains unavailable.
 
+**H-007 status (2026-08-10):** Complete for chain order after explicit `ONAY: H-007`; H-008 is active under exact `ONAY: H-008`. The raw all-source report remains 65.15%, but the explicitly documented host-boundary scope passes the unchanged 70% ratchet at 70.02%.
+
+**H-007 live result (2026-08-10):** Package.swift and `scripts/aura-test.sh` enumerate the same 21 Swift test targets. The complete local coverage matrix ran all 21 bundles with zero failed bundles. The raw all-source report is 65.15%; the runner’s explicit scope excludes only `AURA.swift`, `AuraMenuView.swift`, `PermissionCoordinator.swift`, and `EmergencyShortcutMonitor.swift`, which require app launch, SwiftUI rendering, TCC mutation, or a global AppKit event tap. `AuraAppModel.swift` and `AuraKernel.swift` remain in scope. Effective coverage is 70.02% and the runner exits 0 against the unchanged 70% ratchet. The Chatterbox Python runtime matrix passes 4/4 with the explicit `PYTHONPATH=Runtime/chatterbox` boundary. CI now explicitly runs the runtime-completion, repository-hygiene, second-pass, governance, and runtime Python validators/tests; checkout and artifact actions are pinned to verified immutable SHAs, checkout cleanup/fetch depth/credential behavior is explicit, and artifact upload has `if-no-files-found: error` with 14-day retention. No hosted post-change CI run is observed. H-007 is complete for chain-order purposes; H-008 is active/in_progress and H-009 remains unopened.
+
 ### HYGIENE-08 — Secret, dependency, and supply-chain hygiene
 
 Establish secret scanning with a safe fixture policy, review dependency provenance and lockfiles, and add actionable CI checks. Never put secret values in prompts, logs, fixtures, or ledgers.
@@ -180,6 +191,10 @@ Establish secret scanning with a safe fixture policy, review dependency provenan
 **Prompt:** `H-008_SECRET_DEPENDENCY_AND_SUPPLY_CHAIN_HYGIENE.prompt.md`
 **Depends on:** HYGIENE-07
 **Exit:** scanners, dependency checks, and false-positive handling are reproducible without exposing credentials.
+
+**H-008 status (2026-08-10):** Ready after exact `ONAY: H-008`; only the H-008 prompt was active and H-009 remains unopened.
+
+**H-008 live result (2026-08-10):** The bounded validator scans tracked content with high-confidence patterns, reports only path/line/pattern metadata, allows five explicitly marked synthetic fixture findings, fails closed on any unallowlisted finding, verifies zero tracked log/crash/audio/screen/archive artifacts, checks zero external Swift dependencies, checks the pinned Chatterbox `pyproject.toml`/`uv.lock` graph with `uv lock --check`, and requires every GitHub Actions reference to match a policy-approved full SHA and version annotation. The validator exits 0; governance is 37/37, Chatterbox is 4/4, and the full Swift matrix is 21/21 bundles and 794/794 tests with zero failures. Local Git history scanning remains a separate blocker because the original object database is damaged; external vulnerability/SBOM tools are unavailable; no history mutation is permitted. H-008 is ready for chain-order continuation only; stop and await exact `ONAY: H-009`.
 
 ### HYGIENE-09 — Ledger, context, and architecture hygiene
 

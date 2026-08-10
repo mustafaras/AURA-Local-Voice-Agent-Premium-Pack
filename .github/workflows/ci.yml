@@ -14,13 +14,29 @@ jobs:
     runs-on: [self-hosted, macOS, swift-6.4]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          clean: true
+          fetch-depth: 1
+          persist-credentials: false
 
       - name: Validate runtime-completion governance
         run: python3 scripts/validate_runtime_completion.py --ci
 
       - name: Run governance validator tests
         run: python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+
+      - name: Run Chatterbox Python runtime tests
+        run: PYTHONPATH=Runtime/chatterbox python3 -m unittest discover -s Runtime/chatterbox/tests -p 'test_*.py'
+
+      - name: Validate repository hygiene control plane
+        run: python3 scripts/validate_repo_hygiene_program.py
+
+      - name: Validate second-pass control plane
+        run: python3 scripts/validate_second_pass_program.py
+
+      - name: Validate secret, dependency, and supply-chain hygiene
+        run: python3 scripts/validate_repo_hygiene_supply_chain.py
 
       - name: Check shell scripts and diff hygiene
         run: |
@@ -32,7 +48,11 @@ jobs:
     runs-on: [self-hosted, macOS, swift-6.4]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          clean: true
+          fetch-depth: 1
+          persist-credentials: false
 
       - name: Verify Swift version
         run: |
@@ -55,7 +75,7 @@ jobs:
         run: ./scripts/build-release-artifact.sh
 
       - name: Retain development-unverified artifact and manifest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: aura-development-unverified-${{ github.sha }}
           if-no-files-found: error

@@ -19,15 +19,16 @@ import Foundation
 /// disagreement (never a silent approval), satisfying "no raw model output
 /// may become an executable action."
 public enum ReviewVerdictParser {
-  private static let approvePattern = try! NSRegularExpression(
+  private static let approvePattern: NSRegularExpression? = try? NSRegularExpression(
     pattern: #"VERDICT:\s*APPROVE\s*$"#, options: [.caseInsensitive])
-  private static let requestChangesPattern = try! NSRegularExpression(
+  private static let requestChangesPattern: NSRegularExpression? = try? NSRegularExpression(
     pattern: #"VERDICT:\s*REQUEST_CHANGES:\s*(.*)$"#,
     options: [.caseInsensitive, .dotMatchesLineSeparators])
 
   public static func parse(_ text: String) -> ReviewVerdict {
     let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !trimmed.isEmpty else { return .unparseable }
+    guard let approvePattern, let requestChangesPattern else { return .unparseable }
 
     let fullRange = NSRange(trimmed.startIndex..., in: trimmed)
 

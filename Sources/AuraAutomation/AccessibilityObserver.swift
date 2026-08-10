@@ -87,7 +87,10 @@ public actor AccessibilityObserver: AccessibilityObserving {
     guard error == .success, let elementRef else {
       return nil
     }
-    let element = elementRef as! AXUIElement
+    guard CFGetTypeID(elementRef) == AXUIElementGetTypeID() else { return nil }
+    // ApplicationServices imports AXUIElement as an opaque CF type; the exact
+    // type-ID proof bounds this bridge after rejecting every other CF object.
+    let element = unsafeDowncast(elementRef, to: AXUIElement.self)
     let observedRole = copyStringAttribute(
       element: element, attribute: (kAXRoleAttribute as NSString) as String)
     let observedTitle = copyStringAttribute(

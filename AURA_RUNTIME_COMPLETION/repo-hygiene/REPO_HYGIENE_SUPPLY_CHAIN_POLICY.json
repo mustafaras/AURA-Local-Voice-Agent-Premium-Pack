@@ -1,0 +1,54 @@
+{
+  "$schema": "./REPO_HYGIENE_SUPPLY_CHAIN_POLICY.schema.json",
+  "schema_version": "1.0.0",
+  "program_id": "AURA-REPO-HYGIENE",
+  "secret_scan": {
+    "tracked_only": true,
+    "patterns": [
+      {"name": "private_key_block", "regex": "-----BEGIN [A-Z0-9 ]+ PRIVATE KEY-----"},
+      {"name": "github_token", "regex": "\\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\\b"},
+      {"name": "aws_access_key", "regex": "\\bAKIA[0-9A-Z]{16}\\b"},
+      {"name": "openai_style_key", "regex": "\\bsk-[A-Za-z0-9]{48,}\\b"},
+      {"name": "google_api_key", "regex": "\\bAIza[0-9A-Za-z_-]{20,}\\b"},
+      {"name": "slack_token", "regex": "\\bxox[baprs]-[A-Za-z0-9-]{20,}\\b"},
+      {"name": "basic_auth_url", "regex": "https?://[^/\\s:@]+:[^/\\s@]+@"},
+      {"name": "jwt", "regex": "\\beyJ[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\b"},
+      {"name": "generic_credential_assignment", "regex": "(?i)\\b(?:api[_-]?key|access[_-]?token|auth(?:orization)?|password|passwd|secret)\\s*[:=]\\s*[\\\"'][^\\\"'\\n]{20,}[\\\"']"}
+    ],
+    "fixture_allowlist": [
+      {"path": "Tests/AuraAgentTests/RepositoryInstructionsScannerTests.swift", "pattern": "private_key_block", "marker": "REPO_HYGIENE_SECRET_FIXTURE: private_key_block"},
+      {"path": "Tests/AuraProductivityTests/AuraProductivityTests.swift", "pattern": "generic_credential_assignment", "marker": "REPO_HYGIENE_SECRET_FIXTURE: generic_credential_assignment"},
+      {"path": "Tests/AuraSecurityTests/NetworkAllowlistTests.swift", "pattern": "basic_auth_url", "marker": "REPO_HYGIENE_SECRET_FIXTURE: basic_auth_url"},
+      {"path": "Tests/AuraSecurityTests/SecretScannerTests.swift", "pattern": "private_key_block", "marker": "REPO_HYGIENE_SECRET_FIXTURE: private_key_block"},
+      {"path": "Tests/AuraSecurityTests/SecretScannerTests.swift", "pattern": "jwt", "marker": "REPO_HYGIENE_SECRET_FIXTURE: jwt"}
+    ],
+    "artifact_suffixes_forbidden_when_tracked": [".log", ".crash", ".ips", ".wav", ".mp3", ".m4a", ".caf", ".png", ".jpg", ".jpeg", ".heic", ".zip", ".tar", ".gz"]
+  },
+  "swift": {
+    "package_file": "Package.swift",
+    "expected_external_dependencies": []
+  },
+  "python": {
+    "project_file": "Runtime/chatterbox/pyproject.toml",
+    "lock_file": "Runtime/chatterbox/uv.lock",
+    "requires_python": "==3.11.*",
+    "direct_git_sources": [
+      {"name": "chatterbox-tts", "url": "https://github.com/resemble-ai/chatterbox.git", "rev": "5de7a54aa4e5e2baadb0182dde554908b48b85c2"},
+      {"name": "resemble-perth", "url": "https://github.com/resemble-ai/Perth.git", "rev": "ce86c49d029f42272c1902eccb675556b9ed2330"}
+    ],
+    "registry": "https://pypi.org/simple"
+  },
+  "github_actions": {
+    "workflow_paths": [".github/workflows/ci.yml"],
+    "required_action_pins": [
+      {"uses": "actions/checkout", "sha": "11bd71901bbe5b1630ceea73d27597364c9af683", "version": "v4.2.2"},
+      {"uses": "actions/upload-artifact", "sha": "ea165f8d65b6e75b540449e92b4886f43607fa02", "version": "v4.6.2"}
+    ],
+    "require_sha_pins": true
+  },
+  "history_scan": {
+    "status": "not_run_local_object_database_blocker",
+    "intended_command": "git log --all --format=%H --objects | run the same tracked-content scan on an independently verified clean clone",
+    "owner": "repository maintainer"
+  }
+}

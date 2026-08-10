@@ -27,7 +27,10 @@ public actor AccessibilitySecureFieldDetector: SecureFieldDetecting {
     let error = AXUIElementCopyAttributeValue(
       axApp, (kAXFocusedUIElementAttribute as NSString) as CFString, &elementRef)
     guard error == .success, let elementRef else { return false }
-    let element = elementRef as! AXUIElement
+    guard CFGetTypeID(elementRef) == AXUIElementGetTypeID() else { return false }
+    // ApplicationServices imports AXUIElement as an opaque CF type; the exact
+    // type-ID proof bounds this bridge after rejecting every other CF object.
+    let element = unsafeDowncast(elementRef, to: AXUIElement.self)
 
     var subroleRef: CFTypeRef?
     let subroleError = AXUIElementCopyAttributeValue(

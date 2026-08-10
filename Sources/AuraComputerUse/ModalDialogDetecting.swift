@@ -69,7 +69,10 @@ public actor AccessibilityModalDialogDetector: ModalDialogDetecting {
     let err = AXUIElementCopyAttributeValue(
       axApp, kAXFocusedWindowAttribute as CFString, &windowRef)
     guard err == .success, let windowRef else { return nil }
-    let window = windowRef as! AXUIElement
+    guard CFGetTypeID(windowRef) == AXUIElementGetTypeID() else { return nil }
+    // ApplicationServices imports AXUIElement as an opaque CF type; the exact
+    // type-ID proof bounds this bridge after rejecting every other CF object.
+    let window = unsafeDowncast(windowRef, to: AXUIElement.self)
 
     var modalRef: CFTypeRef?
     let modalErr = AXUIElementCopyAttributeValue(window, kAXModalAttribute as CFString, &modalRef)

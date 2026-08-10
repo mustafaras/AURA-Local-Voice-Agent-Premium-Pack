@@ -51,6 +51,7 @@ export AURA_TESTING_MACROS_PATH="$TESTING_MACROS_PATH"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+COVERAGE_SCOPE_FILE="$ROOT/scripts/aura-coverage-scope.regex"
 
 BUILD_ARGS=(--build-path "$BUILD_PATH")
 if [[ "$ENABLE_COVERAGE" == "1" ]]; then
@@ -185,7 +186,22 @@ echo "==> Done. Failed bundles: $failed"
 if [[ "$failed" == "0" && "$ENABLE_COVERAGE" == "1" ]]; then
     echo "==> Calculating source coverage"
     profile_data="$BUILD_PATH/coverage/default.profdata"
-    xcrun llvm-profdata merge -sparse "$BUILD_PATH"/coverage/*.profraw -o "$profile_data"
+    coverage_profiles=("$BUILD_PATH"/coverage/*.profraw(N))
+    if [[ ${#coverage_profiles[@]} -eq 0 ]]; then
+        echo "FAILED: no LLVM profile files were produced"
+        exit 1
+    fi
+    if [[ ! -f "$COVERAGE_SCOPE_FILE" ]]; then
+        echo "FAILED: coverage scope file is missing: $COVERAGE_SCOPE_FILE"
+        exit 1
+    fi
+    coverage_ignore_regex="$(awk 'BEGIN { first = 1 } /^[[:space:]]*#/ || /^[[:space:]]*$/ { next } { if (!first) printf "|"; printf "(%s)", $0; first = 0 }' "$COVERAGE_SCOPE_FILE")"
+    if [[ -z "$coverage_ignore_regex" ]]; then
+        echo "FAILED: coverage scope file is empty: $COVERAGE_SCOPE_FILE"
+        exit 1
+    fi
+    echo "==> Coverage scope: $COVERAGE_SCOPE_FILE"
+    xcrun llvm-profdata merge -sparse "${coverage_profiles[@]}" -o "$profile_data"
     binaries=("$BUILD_PATH"/out/Products/Debug/*.xctest/Contents/MacOS/*Tests)
     coverage_args=()
     for ((index = 2; index <= ${#binaries[@]}; index++)); do
@@ -196,7 +212,7 @@ if [[ "$failed" == "0" && "$ENABLE_COVERAGE" == "1" ]]; then
         "${binaries[1]}" \
         "${coverage_args[@]}" \
         -instr-profile "$profile_data" \
-        -ignore-filename-regex='(/Tests/|/test/|/DerivedSources/)' \
+        -ignore-filename-regex="$coverage_ignore_regex" \
         > "$coverage_report"
     cat "$coverage_report"
     line_coverage="$(awk '/^TOTAL/ {gsub("%", "", $10); print $10}' "$coverage_report")"

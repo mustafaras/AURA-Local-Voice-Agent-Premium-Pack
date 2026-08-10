@@ -4,7 +4,7 @@ sequence: 6
 gap_id: HYGIENE-06
 depends_on: H-005
 next_prompt: H-007
-state: pending
+state: completed
 ---
 
 # H-006 — Unsafe constructs and debug output

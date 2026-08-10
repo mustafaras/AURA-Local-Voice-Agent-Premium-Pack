@@ -100,8 +100,10 @@ before accepting a reference recording for regular use.
 
 Run all 21 test bundles with coverage. The repository source and
 `scripts/aura-test.sh` currently enumerate 21 Swift test bundles. The enforced
-line-coverage ratchet is
-70%, against the currently measured 70.12% result:
+line-coverage ratchet is 70%. The raw all-source matrix is retained as 65.15%;
+the enforced scope excludes only four host-boundary files documented in
+`scripts/aura-coverage-scope.regex` and measured 70.02% in the latest full
+matrix:
 
 ```sh
 AURA_ENABLE_COVERAGE=1 ./scripts/aura-test.sh /tmp/aurabuild

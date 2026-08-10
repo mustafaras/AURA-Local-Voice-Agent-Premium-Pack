@@ -31,12 +31,14 @@ func scannerDetectsPrivateKeyBlock() {
   let scanner = SecretScanner()
   #expect(
     scanner.containsSecret(
+      // REPO_HYGIENE_SECRET_FIXTURE: private_key_block
       "-----BEGIN RSA PRIVATE KEY-----\nMIIB...\n-----END RSA PRIVATE KEY-----"))
 }
 
 @Test
 func scannerDetectsJWT() {
   let scanner = SecretScanner()
+  // REPO_HYGIENE_SECRET_FIXTURE: jwt
   let jwt =
     "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U"
   #expect(scanner.containsSecret(jwt))
