@@ -2,15 +2,15 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-10T08:19:34Z",
-  "session_id": "AURA-REPO-HYGIENE-H005-DELIVERY-20260810",
+  "updated_at": "2026-08-10T10:53:40Z",
+  "session_id": "AURA-REPO-HYGIENE-H007-20260810",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "3b1aa85f8c55e17b49c43daea008f98fd6515f15",
-    "remote_head": "3b1aa85f8c55e17b49c43daea008f98fd6515f15",
-    "working_tree_state": "clean",
+    "verified_head": "6c4cc993f86c029ce754c5e540399beb781899bb",
+    "remote_head": "6c4cc993f86c029ce754c5e540399beb781899bb",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
@@ -41,8 +41,8 @@
       ,"H-003 ignore-rule evidence is recorded under EV-REPO-HYGIENE-H-003-20260809-01: root /.venv/ is now explicit, tracked generated artifacts remain at zero, authored source/fixture/manifest paths remain visible, and the isolated fixture regression passes 2/2. H-003 is ready and held pending exact ONAY: H-004; CI checkout defaults remain an explicit open risk."
       ,"H-003 closeout is recorded under EV-REPO-HYGIENE-H-003-CLOSEOUT-20260809-01: hygiene validator, focused 3/3, ignore 2/2, runtime governance, full 31/31 script tests, JSON, diff, and tracked-artifact audits pass; authority is reset for the next session."
       ,"H-004 canonical toolchain/documentation evidence is recorded under EV-REPO-HYGIENE-H-004-20260810-01: the active macOS 27+/arm64/Swift 6.4/SDK 27 baseline and 21 Swift test targets are reconciled; Package.swift and scripts/aura-test.sh use discovered/fail-closed Swift Testing paths; source build, AuraCoreTests 27/27, validators, JSON/YAML, documentation references, shell syntax, and diff checks pass. Full Xcode remains unavailable; H-005 was the next approved prompt."
-      ,"H-005 bounded formatter/toolchain evidence and mandatory closeout are recorded under EV-REPO-HYGIENE-H-005-20260810-02 and EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02: .swift-format schema version 1 and explicit CI strict flags are present; 1,019 findings across 116 files were remediated in reviewed batches; recursive formatter lint, strict build, and 21/21 bundles with 794/794 tests pass. SwiftLint 0.65.0 is provisioned, while full SourceKit-backed lint remains explicitly blocked under the toolchain-owner risk. H-005 is ready and remains active pending exact ONAY: H-006."
-      ,"H-005 delivery is recorded at merge commit 3b1aa85f8c55e17b49c43daea008f98fd6515f15 after feature commit d3c77b4c172f0b3600cf3ddba403b2853f4b92f5 was pushed and merged. The worktree is clean; active_prompt remains H-005 and H-006 is not opened."
+      ,"H-005 bounded formatter/toolchain evidence and mandatory closeout are recorded under EV-REPO-HYGIENE-H-005-20260810-02 and EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02: .swift-format schema version 1 and explicit CI strict flags are present; 1,019 findings across 116 files were remediated in reviewed batches; recursive formatter lint, strict build, and 21/21 bundles with 794/794 tests pass. SwiftLint 0.65.0 is provisioned, while full SourceKit-backed lint remains explicitly blocked under the toolchain-owner risk. H-005 is complete for chain order."
+      ,"H-005 delivery is recorded at merge commit 3b1aa85f8c55e17b49c43daea008f98fd6515f15 after feature commit d3c77b4c172f0b3600cf3ddba403b2853f4b92f5 was pushed and merged. The synchronized state projection is at 6c4cc993f86c029ce754c5e540399beb781899bb; H-006 and H-007 are complete for chain order with their evidence preserved. H-007 remediation is recorded under EV-REPO-HYGIENE-H-007-20260810-02 and EV-REPO-HYGIENE-H-007-CLOSEOUT-20260810-02; its explicit host-boundary scope passes at 70.02% against the unchanged 70% ratchet, while raw all-source coverage remains 65.15%. H-008 is ready under EV-REPO-HYGIENE-H-008-20260810-01: current-tree secret/dependency/workflow checks pass, history and vulnerability/SBOM limitations remain explicit, and H-009 remains unopened."
     ]
   },
   "program_status": "in_progress",
@@ -498,7 +498,7 @@
     "R11 has only a local development_unverified artifact/manifest slice; full Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed CI evidence remain open.",
     "R12 has no authorized beta cohort, telemetry/SLO evidence, scenario results, incident review, independent sign-offs, or approved release-candidate package.",
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
-    "Repository hygiene H-005 is active and ready: bounded formatter remediation is complete and recursive formatter lint, strict build, and the 21-bundle/794-test wrapper pass. SwiftLint 0.65.0 is provisioned, but full SourceKit-backed lint remains an explicit toolchain-owner blocker; its partial fallback is not a pass. Keep H-005 active and do not open H-006 without exact ONAY: H-006."
+    "Repository hygiene H-008 is ready under exact ONAY: H-008. H-007 remains preserved as complete for chain order; H-008's current-tree secret/dependency/workflow validator passes, and the full local Swift matrix ran 21/21 bundles with 794/794 tests and zero failures. Historical secret absence, vulnerability/SBOM scans, hosted CI, and the original Git object-database risk remain open. Stop and await exact ONAY: H-009; keep H-009 unopened."
   ],
   "next_action": "Return to R11: obtain separately authorized full-Xcode, signing/notarization, clean-machine, updater, recovery, migration, uninstall, and observed-CI evidence; then return to R12 for authorized beta/RC evidence before rerunning FINAL."
 }

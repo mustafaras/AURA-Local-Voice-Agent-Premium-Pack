@@ -327,6 +327,7 @@ public actor IntentEngine {
   private let structuredNLUBackend: (any StructuredNLUBackend)?
   private let configuration: IntentEngineConfiguration
   private let eventBus: AuraEventBus
+  private let logger: AuraLogger
   private let sessionID: UUID
   private let now: @Sendable () -> Date
   private var lastContextResult: DeepContextResult?
@@ -346,6 +347,7 @@ public actor IntentEngine {
     structuredNLUBackend: (any StructuredNLUBackend)? = nil,
     configuration: IntentEngineConfiguration = IntentEngineConfiguration(),
     eventBus: AuraEventBus,
+    logger: AuraLogger = AuraLogger(subsystem: "AuraIntent", category: "intent-engine"),
     sessionID: UUID = UUID(),
     now: @escaping @Sendable () -> Date = Date.init
   ) {
@@ -354,6 +356,7 @@ public actor IntentEngine {
     self.structuredNLUBackend = structuredNLUBackend
     self.configuration = configuration
     self.eventBus = eventBus
+    self.logger = logger
     self.sessionID = sessionID
     self.now = now
     if let contextBuilder {
@@ -414,19 +417,26 @@ public actor IntentEngine {
           correlationID: context.correlationID,
           causationID: context.causationID)
         if ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_TEXT"] == "1" {
-          print(
-            "TEXT_DEMO structuredNLU raw: dialogueAct=\(proposal.dialogueAct) "
-              + "capabilityID=\(proposal.capabilityID) confidence=\(proposal.confidence) "
-              + "language=\(proposal.language) ambiguityReason=\(proposal.ambiguityReason)")
+          await logger.info(
+            "TEXT_DEMO structuredNLU proposal: dialogueAct=\(proposal.dialogueAct) "
+              + "confidence=\(proposal.confidence) language=\(proposal.language)",
+            correlationID: context.correlationID,
+            actor: .intent)
         }
         if let structuredProposal = structuredProposal(from: proposal) {
           result = result.applying(structuredProposal)
         } else if ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_TEXT"] == "1" {
-          print("TEXT_DEMO structuredNLU raw proposal failed to parse into StructuredNLUProposal")
+          await logger.warning(
+            "TEXT_DEMO structuredNLU proposal failed typed parsing",
+            correlationID: context.correlationID,
+            actor: .intent)
         }
       } catch {
         if ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_TEXT"] == "1" {
-          print("TEXT_DEMO structuredNLU propose() threw: \(error)")
+          await logger.warning(
+            "TEXT_DEMO structuredNLU proposal failed: errorType=\(String(describing: type(of: error)))",
+            correlationID: context.correlationID,
+            actor: .intent)
         }
         // DialogueEngine owns the honest degraded response when reasoning is unavailable.
       }

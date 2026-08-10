@@ -12,7 +12,7 @@
 The repository-hygiene program is a separate, synchronized control overlay at
 `docs/operations/REPO_HYGIENE_PROGRAM.md`. Its machine state is
 `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json`, currently
-`H-005` / `ready`; its 11-prompt manifest, focused ledger, contracts,
+`H-008` / `ready`; its 11-prompt manifest, focused ledger, contracts,
 Tier-0/Tier-1 read order, and validator must agree before a hygiene prompt can
 advance. This overlay does not close R2–R12, FINAL, beta, release, security,
 permission, or live-hardware gates. The current authority is reset at closeout;
@@ -41,9 +41,19 @@ authority, all 1,019 configured formatter findings across 116 files were
 resolved in reviewed batches; recursive strict formatter lint, strict build,
 and the 21-bundle/794-test wrapper pass. SwiftLint 0.65.0 is provisioned, but
 full SourceKit-backed lint is blocked by the CLT-only developer directory and
-its no-SourceKit fallback is not a pass. H-005 is ready and held at the active
-boundary; session authority has expired, no cleanup/deletion/quarantine is
-allowed, and H-006 must not open without exact `ONAY: H-006`.
+its no-SourceKit fallback is not a pass. H-005 was delivered and is complete
+for chain order; H-006 is complete under exact `ONAY: H-006`, with
+`EV-REPO-HYGIENE-H-006-20260810-01` recording the bounded unsafe/debug audit,
+strict build, focused tests, and cognitive gate. H-007 is active and ready
+under exact `ONAY: H-007`; H-008 remains unopened. The raw all-source matrix is
+65.15%, while the explicit four-file host-boundary scope passes at 70.02%
+against the unchanged 70% ratchet. H-007 edit-only authority expired at
+closeout; no cleanup/deletion/quarantine is allowed. H-008 is now active under
+exact `ONAY: H-008`: its fail-closed tracked-content secret scan, dependency
+lock/provenance checks, and SHA-pinned workflow checks are implemented and
+focused-tested; H-009 remains unopened. Local Git history scanning remains
+blocked by the damaged original object database, and external vulnerability/
+SBOM scanners remain unavailable.
 
 The strict BOOTSTRAP preflight and R0 governance repair are complete. Canonical machine state is in
 `AURA_RUNTIME_COMPLETION/state/current-state.json`; the ordered manifest has

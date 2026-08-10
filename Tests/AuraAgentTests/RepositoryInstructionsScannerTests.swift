@@ -58,6 +58,7 @@ func scannerDetectsSecretInCopilotInstructionsFile() throws {
 func scannerDetectsPrivateKeyHeader() throws {
   let repo = try makeTempRepo()
   defer { try? FileManager.default.removeItem(at: repo) }
+  // REPO_HYGIENE_SECRET_FIXTURE: private_key_block
   try "-----BEGIN RSA PRIVATE KEY-----\nMIIC...\n-----END RSA PRIVATE KEY-----"
     .write(to: repo.appendingPathComponent("AGENTS.md"), atomically: true, encoding: .utf8)
 

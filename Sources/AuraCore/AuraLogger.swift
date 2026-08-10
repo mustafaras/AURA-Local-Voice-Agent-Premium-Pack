@@ -81,15 +81,15 @@ public actor AuraLogger {
 
     switch level {
     case .trace, .debug:
-      osLog.debug("\(fullMessage, privacy: .public)")
+      osLog.debug("\(fullMessage, privacy: .private)")
     case .info:
-      osLog.info("\(fullMessage, privacy: .public)")
+      osLog.info("\(fullMessage, privacy: .private)")
     case .warning:
-      osLog.warning("\(fullMessage, privacy: .public)")
+      osLog.warning("\(fullMessage, privacy: .private)")
     case .error:
-      osLog.error("\(fullMessage, privacy: .public)")
+      osLog.error("\(fullMessage, privacy: .private)")
     case .critical:
-      osLog.critical("\(fullMessage, privacy: .public)")
+      osLog.critical("\(fullMessage, privacy: .private)")
     }
 
     // In bootstrap we simply emit to os.Logger; future phases may add file/ledger routing.

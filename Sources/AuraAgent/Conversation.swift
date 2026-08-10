@@ -212,7 +212,7 @@ public actor Conversation {
     if let turnContext {
       activeTurnContext = turnContext
     }
-    await logger.debug("Partial transcript: \(event.text)", actor: .audio)
+    await logger.debug("Partial transcript received [textPresent=\(!event.text.isEmpty)]", actor: .audio)
   }
 
   /// End the active listening turn with the concrete local STT failure.
@@ -242,7 +242,7 @@ public actor Conversation {
 
     if ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_TEXT"] == "1" {
       await logger.info(
-        "TEXT_DEMO response [act=\(event.hasSpokenResponse ? "spoken" : "silent")]: \(event.summary)",
+        "TEXT_DEMO response [act=\(event.hasSpokenResponse ? "spoken" : "silent"), summaryPresent=\(!event.summary.isEmpty)]",
         actor: .system)
     }
 
@@ -384,7 +384,8 @@ public actor Conversation {
       if Task.isCancelled { break }
       emit(TTSChunkEvent(promptID: promptID, chunk: chunk))
       if case .failed(let detail) = chunk {
-        await logger.error("TTS failed: \(detail)", actor: .audio)
+        await logger.error(
+          "TTS failed [detailPresent=\(!detail.isEmpty)]", actor: .audio)
         emit(TTSStoppedEvent(promptID: promptID, reason: .error))
         timeoutTask.cancel()
         break
@@ -513,7 +514,9 @@ public actor Conversation {
       emit(ConversationStateEvent(state: newState, previousState: oldState, reason: reason))
     }
     Task {
-      await logger.debug("Conversation -> \(newState.rawValue): \(reason)", actor: .audio)
+      await logger.debug(
+        "Conversation transition [state=\(newState.rawValue), reasonPresent=\(!reason.isEmpty)]",
+        actor: .audio)
     }
   }
 

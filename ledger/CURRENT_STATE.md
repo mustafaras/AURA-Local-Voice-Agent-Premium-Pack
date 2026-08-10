@@ -7,7 +7,7 @@ Projection refreshed from live repository and command evidence on 2026-08-10.
 
 The authoritative current state is
 `AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == 3b1aa85f8c55e17b49c43daea008f98fd6515f15`. R2 through R12 remain
+origin/main == 6c4cc993f86c029ce754c5e540399beb781899bb`. R2 through R12 remain
 `in_progress` with deferred/live/manual/security/release/beta gates recorded in
 `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. FINAL/CLOSEOUT is active by
 explicit user request for a blocked acceptance audit and maintainer handoff;
@@ -24,14 +24,18 @@ the machine-readable state remains authoritative.
 The repository-hygiene audit is now encoded as the canonical plan
 `docs/operations/REPO_HYGIENE_PROGRAM.md` and the synchronized H-000–H-010
 control plane under `AURA_RUNTIME_COMPLETION/repo-hygiene/`. H-000 through
-H-004 are complete for chain-order purposes; H-005 is active and `ready`
-after the formatter/lint/strict-concurrency gate. No cleanup, quarantine, or
+H-006 and H-007 are complete for chain-order purposes; H-008 is active and
+`ready` after exact user approval. H-007's explicit host-boundary scope
+measured 70.02% against the unchanged 70% line-coverage ratchet; raw all-source
+coverage remains 65.15%. No cleanup, quarantine, or
 Git object recovery mutation has been performed. The H-005 delivery is now
-merged and pushed at `HEAD == origin/main == 3b1aa85f8c55e17b49c43daea008f98fd6515f15`
-with 592 tracked, 0 untracked, and 70,058 ignored paths; the worktree is
-clean. The current source/test
-diff is the explicitly authorized formatter remediation; no product behavior
-change was intended;
+merged and pushed at `3b1aa85f8c55e17b49c43daea008f98fd6515f15`, followed by
+the synchronized state projection commit at live `HEAD == origin/main ==
+6c4cc993f86c029ce754c5e540399beb781899bb`. The worktree is intentionally
+dirty with the reviewed H-006 source/control-plane changes; generated paths
+remain preserved in place. H-006 removed production `try!`, `as!`, and direct
+`print()` matches, bounded the AX bridges, and made reviewed diagnostics
+metadata-only/private;
 `Runtime/chatterbox/.gitignore` remains the intended H-003 control-plane
 configuration change. The original checkout's `git fsck` remains non-zero
 (exit 8; 199 bad SHA-1 file entries, 8,909 dangling objects, and two invalid
@@ -44,10 +48,18 @@ Swift Testing paths. H-005 strict production build and the canonical
 0 after bounded remediation of 1,019 findings across 116 Swift files.
 SwiftLint 0.65.0 is provisioned, but full SourceKit-backed lint remains
 explicitly blocked by the active CLT-only developer directory; its no-SourceKit
-fallback is partial and not a pass. H-005 is ready and remains active pending
-exact `ONAY: H-006`. Evidence:
+fallback is partial and not a pass. H-005 was delivered at
+`3b1aa85f8c55e17b49c43daea008f98fd6515f15`; H-006 is complete for chain
+order and H-007 is complete for chain order; H-008 is ready under exact
+`ONAY: H-008`; H-009 remains unopened. H-008's fail-closed current-tree
+secret/dependency/workflow validator passes, and the full local matrix is
+21/21 bundles and 794/794 tests. Evidence:
 `EV-REPO-HYGIENE-H-005-20260810-02` and
-`EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02`.
+`EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02`,
+`EV-REPO-HYGIENE-H-006-20260810-01`, and
+`EV-REPO-HYGIENE-H-006-CLOSEOUT-20260810-01`, and
+`EV-REPO-HYGIENE-H-007-20260810-01`, and
+`EV-REPO-HYGIENE-H-008-20260810-01`.
 
 - R11 local artifact/manifest evidence `EV-R11-20260809-ARTIFACT-MANIFEST-01`
   remains valid: the reproducible ZIP is `development_unverified`, its recorded

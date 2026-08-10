@@ -466,11 +466,23 @@ public enum PolicyPlanHasher {
       target: target,
       arguments: arguments,
       environment: environment)
-    let encoder = JSONEncoder()
-    encoder.outputFormatting = [.sortedKeys]
-    let data = try! encoder.encode(fingerprint)
+    let data = encode(fingerprint)
     let digest = SHA256.hash(data: data)
     return digest.map { String(format: "%02x", $0) }.joined()
+  }
+
+  /// `Fingerprint` is intentionally composed only of repository-owned Codable
+  /// value types. Encoding failure therefore indicates a source invariant
+  /// regression; fail explicitly instead of hiding it behind a forced throw.
+  private static func encode(_ fingerprint: Fingerprint) -> Data {
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.sortedKeys]
+    do {
+      return try encoder.encode(fingerprint)
+    } catch {
+      preconditionFailure(
+        "PolicyPlanHasher fingerprint encoding invariant failed: \(String(describing: error))")
+    }
   }
 
   public static func hash(_ request: PolicyEvaluationRequest) -> String {

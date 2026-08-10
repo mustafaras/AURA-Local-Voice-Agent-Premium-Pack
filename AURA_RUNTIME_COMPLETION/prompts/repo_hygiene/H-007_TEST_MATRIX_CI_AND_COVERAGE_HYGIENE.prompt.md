@@ -4,7 +4,7 @@ sequence: 7
 gap_id: HYGIENE-07
 depends_on: H-006
 next_prompt: H-008
-state: pending
+state: completed
 ---
 
 # H-007 — Test matrix CI and coverage hygiene

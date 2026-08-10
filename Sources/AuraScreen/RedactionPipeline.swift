@@ -13,12 +13,12 @@ public struct RedactionPipeline: Sendable {
   /// Financial-data shape: a run of 13-19 digits (allowing space/dash
   /// separators), independent of the user-configurable `redactionPatterns`
   /// list — this category is always detected, not opt-in.
-  private static let financialDataPattern = try! NSRegularExpression(
+  private static let financialDataPattern: NSRegularExpression? = try? NSRegularExpression(
     pattern: "\\b(?:\\d[ -]?){13,19}\\b")
 
   /// Authentication-code shape: a labeled 4-8 digit code, independent of the
   /// user-configurable `redactionPatterns` list.
-  private static let authenticationCodePattern = try! NSRegularExpression(
+  private static let authenticationCodePattern: NSRegularExpression? = try? NSRegularExpression(
     pattern: "\\b(?:code|otp)[:\\s]+\\d{4,8}\\b", options: [.caseInsensitive])
 
   public init() {}
@@ -75,11 +75,19 @@ public struct RedactionPipeline: Sendable {
   }
 
   private func builtInCategory(for text: String) -> RedactionCategory? {
+    // A built-in pattern is a privacy invariant. If Foundation ever rejects
+    // one of these fixed literals, mask the OCR region rather than allowing
+    // sensitive text to pass through because detection became unavailable.
+    guard let financialDataPattern = Self.financialDataPattern,
+      let authenticationCodePattern = Self.authenticationCodePattern
+    else {
+      return .patternMatchedSecret
+    }
     let range = NSRange(text.startIndex..<text.endIndex, in: text)
-    if Self.financialDataPattern.firstMatch(in: text, range: range) != nil {
+    if financialDataPattern.firstMatch(in: text, range: range) != nil {
       return .financialData
     }
-    if Self.authenticationCodePattern.firstMatch(in: text, range: range) != nil {
+    if authenticationCodePattern.firstMatch(in: text, range: range) != nil {
       return .authenticationCode
     }
     return nil

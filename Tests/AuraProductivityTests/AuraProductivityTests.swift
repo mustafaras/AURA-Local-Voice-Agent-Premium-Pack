@@ -202,6 +202,7 @@ func oauthPKCERejectsUntrustedRedirectAndExpiredKeychainToken() async throws {
   let secretStore = ProductivitySecretStoreFake()
   let store = KeychainOAuthTokenStore(secretStore: secretStore, now: { now })
   let reference = try OAuthTokenReference(provider: .gmail, accountID: "person@example.com")
+  // REPO_HYGIENE_SECRET_FIXTURE: generic_credential_assignment
   try await store.save(
     try OAuthTokenMaterial(
       accessToken: "expired-access-token",

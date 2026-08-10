@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "program_id", "secret_scan", "swift", "python", "github_actions", "history_scan"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "program_id": {"const": "AURA-REPO-HYGIENE"},
+    "secret_scan": {"type": "object"},
+    "swift": {"type": "object"},
+    "python": {"type": "object"},
+    "github_actions": {"type": "object"},
+    "history_scan": {"type": "object"}
+  },
+  "additionalProperties": false
+}

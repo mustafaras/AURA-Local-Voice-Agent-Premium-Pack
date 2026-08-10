@@ -76,6 +76,7 @@ func endpointPolicyRejectsUserInfoAndRedirectEscape() throws {
     allowedSchemes: ["https"],
     allowedPorts: [443])
   #expect(throws: AuraError.self) {
+    // REPO_HYGIENE_SECRET_FIXTURE: basic_auth_url
     try policy.validate(URL(string: "https://user:pass@api.example.com/v1")!)
   }
   #expect(throws: AuraError.self) {

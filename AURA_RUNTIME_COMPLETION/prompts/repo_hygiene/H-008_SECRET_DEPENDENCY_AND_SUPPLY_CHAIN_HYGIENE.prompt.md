@@ -4,7 +4,7 @@ sequence: 8
 gap_id: HYGIENE-08
 depends_on: H-007
 next_prompt: H-009
-state: pending
+state: ready
 ---
 
 # H-008 — Secret dependency and supply-chain hygiene
