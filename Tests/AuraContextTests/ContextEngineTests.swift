@@ -1,5 +1,5 @@
-import AuraCore
 import AuraContext
+import AuraCore
 import AuraMemory
 import AuraStore
 import Foundation
@@ -16,7 +16,8 @@ private func makeEngine(configuration: ContextConfiguration = ContextConfigurati
   let store = try await makeTempStore()
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraContextTests", category: "engine"))
   let memory = MemoryEngine(store: store, eventBus: bus)
-  let engine = ContextEngine(store: store, memory: memory, eventBus: bus, configuration: configuration)
+  let engine = ContextEngine(
+    store: store, memory: memory, eventBus: bus, configuration: configuration)
   return (engine, store, memory)
 }
 
@@ -105,7 +106,8 @@ func bundleSurfacesRecentLedgerEntriesAndDecisions() async throws {
   #expect(ledgerSummaries.contains { $0.contains("15_MEMORY") })
 
   let decisionSummaries = bundle.items.filter { $0.stage == .recentDecisions }.map(\.summary)
-  #expect(decisionSummaries.contains("Append-only records, corrections supersede rather than overwrite"))
+  #expect(
+    decisionSummaries.contains("Append-only records, corrections supersede rather than overwrite"))
 }
 
 @Test

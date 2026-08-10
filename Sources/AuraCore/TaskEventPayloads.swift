@@ -71,7 +71,8 @@ public struct TaskProgressEvent: EventPayload {
     self.completedSteps = completedSteps
     self.totalSteps = totalSteps
     self.currentStepDescription = currentStepDescription
-    self.percentComplete = totalSteps > 0
+    self.percentComplete =
+      totalSteps > 0
       ? Double(completedSteps) / Double(totalSteps)
       : 0
     self.updatedAt = updatedAt

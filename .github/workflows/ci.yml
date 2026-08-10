@@ -40,7 +40,7 @@ jobs:
           swift --version
 
       - name: Build production targets
-        run: swift build
+        run: swift build -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors
 
       - name: Run tests
         env:

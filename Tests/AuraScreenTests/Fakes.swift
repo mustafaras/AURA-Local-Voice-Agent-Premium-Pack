@@ -1,7 +1,8 @@
 import AuraCore
-@testable import AuraScreen
 import CoreGraphics
 import Foundation
+
+@testable import AuraScreen
 
 /// A tiny, deterministic real `CGImage` for tests that need to exercise
 /// image-shaped code paths (content hashing, dimension math) without a live
@@ -31,7 +32,8 @@ actor ScriptedWindowSource: ScreenWindowSource {
     windows
   }
 
-  func captureImage(windowID: Int, region: CaptureRegion?, maxDimension: Int) async throws(AuraError)
+  func captureImage(windowID: Int, region: CaptureRegion?, maxDimension: Int)
+    async throws(AuraError)
     -> CGImage
   {
     captureImageCallCount += 1

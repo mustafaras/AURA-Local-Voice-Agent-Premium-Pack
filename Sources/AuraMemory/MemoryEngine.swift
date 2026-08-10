@@ -200,7 +200,8 @@ public actor MemoryEngine {
       return .recorded(record)
     }
 
-    let conflicting = try await contradictionDetector.detect(draft: draft, excludingRecordID: record.id)
+    let conflicting = try await contradictionDetector.detect(
+      draft: draft, excludingRecordID: record.id)
     guard let conflicting else {
       return .recorded(record)
     }
@@ -337,7 +338,10 @@ public actor MemoryEngine {
     actor: ActorID = .user,
     sessionID: UUID = UUID()
   ) async throws(AuraError) -> MemoryRecord {
-    guard let existing = try await store.memoryRecords(matching: .all).first(where: { $0.id == recordID })
+    guard
+      let existing = try await store.memoryRecords(matching: .all).first(where: {
+        $0.id == recordID
+      })
     else {
       throw AuraError.memoryError("no memory record with id \(recordID)")
     }
@@ -367,7 +371,8 @@ public actor MemoryEngine {
     }
 
     await emit(
-      MemoryCorrectedEvent(previousRecordID: existing.id, newRecordID: newRecord.id, reason: reason),
+      MemoryCorrectedEvent(
+        previousRecordID: existing.id, newRecordID: newRecord.id, reason: reason),
       actor: actor, correlationID: UUID(), causationID: UUID())
     return newRecord
   }
@@ -416,7 +421,6 @@ public actor MemoryEngine {
     return MemoryProvenanceExport(recordsWithProvenance: entries, conflicts: bundle.conflicts)
   }
 
-
   // MARK: - Retention enforcement
 
   /// Purge records whose retention policy has expired as of `referenceDate`.
@@ -464,7 +468,6 @@ public actor MemoryEngine {
   ) async throws(AuraError) -> [ProvenanceBelief] {
     try await activeBeliefs(memoryClass: memoryClass, subject: subject, scope: scope)
   }
-
 
   // MARK: - Validation
 
@@ -561,7 +564,9 @@ public actor MemoryEngine {
   /// not use indefinite or audit retention.
   private func validateSensitiveRetention(_ draft: MemoryRecordDraft) throws(AuraError) {
     guard draft.sensitivity == .secret else { return }
-    let transientClasses: Set<MemoryClass> = [.ephemeralAudio, .workingConversation, .sessionSummary]
+    let transientClasses: Set<MemoryClass> = [
+      .ephemeralAudio, .workingConversation, .sessionSummary,
+    ]
     guard transientClasses.contains(draft.memoryClass) else { return }
     switch draft.retention {
     case .indefinite, .auditRetention:
@@ -603,9 +608,9 @@ public actor MemoryEngine {
       case .policy: return .derivedPolicy
       case .user: return .userConfirmed
       case .system, .audio, .screen, .automation, .memory,
-           .agentCodex, .agentClaude, .agentCopilot, .agentOllama,
-           .orchestrator, .task, .context, .computerUse, .security,
-           .plugin, .intent, .unknown:
+        .agentCodex, .agentClaude, .agentCopilot, .agentOllama,
+        .orchestrator, .task, .context, .computerUse, .security,
+        .plugin, .intent, .unknown:
         return .derivedTool
       }
     case .inferred: return .inferred

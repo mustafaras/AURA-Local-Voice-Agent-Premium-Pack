@@ -39,7 +39,8 @@ actor FakeOllamaAPIClient: OllamaAPIClient {
   }
 
   func setGenerateHandler(
-    _ handler: @escaping @Sendable (String, String, OllamaFormatSchema?, Double) throws ->
+    _ handler:
+      @escaping @Sendable (String, String, OllamaFormatSchema?, Double) throws ->
       OllamaGenerateResponse
   ) {
     generateHandler = handler

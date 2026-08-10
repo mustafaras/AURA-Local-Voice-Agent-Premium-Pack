@@ -265,7 +265,8 @@ public struct UserPreferenceProfile: Codable, Sendable, Equatable {
     activationPreference: String? = nil,
     localOnly: Bool = true,
     quietHours: PreferenceQuietHours? = nil,
-    enabledMemoryClasses: Set<MemoryClass> = Set(MemoryClass.allCases.filter { $0 != .auditSecurity }),
+    enabledMemoryClasses: Set<MemoryClass> = Set(
+      MemoryClass.allCases.filter { $0 != .auditSecurity }),
     retentionOverrides: [MemoryClass: MemoryRetentionPolicy] = [:]
   ) {
     self.preferredLanguage = preferredLanguage
@@ -292,7 +293,9 @@ public struct UserPreferenceProfile: Codable, Sendable, Equatable {
     guard !enabledMemoryClasses.contains(.auditSecurity) else {
       throw AuraError.memoryError("audit/security memory cannot be user-enabled or disabled")
     }
-    guard workingDirectories.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) else {
+    guard
+      workingDirectories.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
+    else {
       throw AuraError.memoryError("working directory preferences must not be empty")
     }
     try quietHours?.validate()

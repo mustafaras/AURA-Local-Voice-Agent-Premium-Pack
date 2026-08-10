@@ -56,7 +56,7 @@ public actor AuraTaskEngine {
       case .pending, .running:
         tasksByID[task.id] = task
         _ = queue.enqueue(task)
-        // Running tasks were interrupted; treat as pending for retry.
+      // Running tasks were interrupted; treat as pending for retry.
       case .paused:
         tasksByID[task.id] = task
       case .completed, .failed, .cancelled:

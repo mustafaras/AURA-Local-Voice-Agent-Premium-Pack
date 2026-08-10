@@ -30,12 +30,12 @@ class RepoHygieneProgramTests(unittest.TestCase):
         self.assertEqual([item["sequence"] for item in prompts], list(range(11)))
         self.assertEqual([item["depends_on"] for item in prompts], [None] + [f"H-{i:03d}" for i in range(10)])
 
-    def test_initial_state_is_pending_at_first_prompt(self):
+    def test_ready_state_keeps_first_uncompleted_prompt_active_until_user_approval(self):
         state = json.loads(STATE.read_text(encoding="utf-8"))
-        self.assertEqual(state["program_status"], "planned")
-        self.assertEqual(state["active_prompt"], "H-000")
-        self.assertEqual(state["active_state"], "pending")
-        self.assertEqual(state["completed_prompts"], [])
+        self.assertEqual(state["program_status"], "in_progress")
+        self.assertEqual(state["active_prompt"], "H-005")
+        self.assertEqual(state["active_state"], "ready")
+        self.assertEqual(state["completed_prompts"], ["H-000", "H-001", "H-002", "H-003", "H-004"])
         self.assertEqual(state["blocked_prompts"], [])
 
 

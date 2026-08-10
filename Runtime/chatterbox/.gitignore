@@ -1,3 +1,6 @@
+# Python bytecode is reproducible from tracked runtime source.
 __pycache__/
 *.py[cod]
+
+# The Chatterbox runtime environment is installed locally and is not source.
 .venv/

@@ -190,7 +190,8 @@ public actor CopilotAdapter {
     continuation.yield(
       .runStarted(
         toolProfile: request.toolProfile.rawValue, workingDirectory: request.workingDirectory,
-        model: request.model, customInstructionsLoaded: configuration.loadCustomInstructionsByDefault)
+        model: request.model,
+        customInstructionsLoaded: configuration.loadCustomInstructionsByDefault)
     )
     await emitAudit(
       CopilotRunStartedEvent(
@@ -304,7 +305,8 @@ public actor CopilotAdapter {
       await emitAudit(
         CopilotErrorEvent(runID: runID, category: .processExitedNonZero, message: message ?? ""),
         actor: actor, correlationID: correlationID, causationID: causationID)
-    case .turnCompleted(_, let sessionDurationMs, let premiumRequests, let filesModifiedCount,
+    case .turnCompleted(
+      _, let sessionDurationMs, let premiumRequests, let filesModifiedCount,
       let linesAdded, let linesRemoved):
       await emitAudit(
         CopilotTurnCompletedEvent(

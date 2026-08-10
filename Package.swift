@@ -1,7 +1,20 @@
 // swift-tools-version: 6.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import Foundation
 import PackageDescription
+
+let testingSwiftSettings: [SwiftSetting] = {
+    var settings: [SwiftSetting] = [.swiftLanguageMode(.v6)]
+    if let macrosPath = ProcessInfo.processInfo.environment["AURA_TESTING_MACROS_PATH"],
+       !macrosPath.isEmpty {
+        settings.append(.unsafeFlags([
+            "-Xfrontend", "-load-resolved-plugin",
+            "-Xfrontend", "\(macrosPath)##TestingMacros"
+        ]))
+    }
+    return settings
+}()
 
 let package = Package(
     name: "AURA",
@@ -138,91 +151,43 @@ let package = Package(
         .testTarget(
             name: "AuraCoreTests",
             dependencies: ["AuraCore"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraAudioTests",
             dependencies: ["AuraAudio"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraAutomationTests",
             dependencies: ["AuraAutomation"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraAgentTests",
             dependencies: ["AuraAgent", "AuraAudio", "AuraShell", "AuraPolicy", "AuraTasks", "AuraStore", "AuraVSCode"],
             resources: [.copy("Fixtures")],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraStoreTests",
             dependencies: ["AuraStore"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraSTTTests",
             dependencies: ["AuraSTT"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraPolicyTests",
             dependencies: ["AuraPolicy"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraShellTests",
             dependencies: ["AuraShell"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .target(
             name: "AuraVSCode",
@@ -280,13 +245,7 @@ let package = Package(
         .testTarget(
             name: "AuraComputerUseTests",
             dependencies: ["AuraComputerUse", "AuraPolicy", "AuraScreen"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .target(
             name: "AuraSecurity",
@@ -338,24 +297,12 @@ let package = Package(
         .testTarget(
             name: "AuraSecurityTests",
             dependencies: ["AuraSecurity", "AuraPolicy", "AuraStore"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraPluginsTests",
             dependencies: ["AuraPlugins", "AuraPolicy", "AuraStore"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .target(
             name: "AuraIntent",
@@ -385,24 +332,12 @@ let package = Package(
         .testTarget(
             name: "AuraProductivityTests",
             dependencies: ["AuraProductivity", "AuraSecurity", "AuraCore", "AuraIntent"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraConfigTests",
             dependencies: ["AuraConfig", "AuraStore"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraAdversarialTests",
@@ -418,79 +353,37 @@ let package = Package(
                 "AuraStore",
                 "AuraCore"
             ],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraIntentTests",
             dependencies: ["AuraIntent", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraStore", "AuraMemory", "AuraContext"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraVSCodeTests",
             dependencies: ["AuraVSCode", "AuraPolicy"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraTasksTests",
             dependencies: ["AuraTasks"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraMemoryTests",
             dependencies: ["AuraMemory", "AuraStore"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraContextTests",
             dependencies: ["AuraContext", "AuraMemory", "AuraStore"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AuraScreenTests",
             dependencies: ["AuraScreen", "AuraPolicy"],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         ),
         .testTarget(
             name: "AURAIntegrationTests",
@@ -511,13 +404,7 @@ let package = Package(
                 "AuraIntent",
                 "AuraConfig"
             ],
-            swiftSettings: [
-                .swiftLanguageMode(.v6),
-                .unsafeFlags([
-                    "-Xfrontend", "-load-resolved-plugin",
-                    "-Xfrontend", "/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib##TestingMacros"
-                ])
-            ]
+            swiftSettings: testingSwiftSettings
         )
     ]
 )

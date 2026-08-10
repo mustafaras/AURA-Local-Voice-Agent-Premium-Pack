@@ -35,14 +35,16 @@ actor ConversationEventBridge {
     await eventBus.subscribe(WakeActivationEvent.self) { [weak self] envelope in
       guard envelope.payload.isActive else { return }
       guard let self else { return }
-      let context = envelope.payload.turnContext ?? TurnContext(
-        sessionID: self.sessionID,
-        correlationID: envelope.correlationID,
-        causationID: envelope.id,
-        activationSource: .wakeWord,
-        actor: envelope.actor,
-        authority: .userUtterance,
-        sensitivity: envelope.sensitivity)
+      let context =
+        envelope.payload.turnContext
+        ?? TurnContext(
+          sessionID: self.sessionID,
+          correlationID: envelope.correlationID,
+          causationID: envelope.id,
+          activationSource: .wakeWord,
+          actor: envelope.actor,
+          authority: .userUtterance,
+          sensitivity: envelope.sensitivity)
       await self.conversation.wakeActivationStarted(
         privacyMode: envelope.payload.privacyMode,
         turnContext: context.advancing(causationID: envelope.id))

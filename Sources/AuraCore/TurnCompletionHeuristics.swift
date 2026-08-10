@@ -18,7 +18,8 @@ public enum TurnCompletionHeuristics {
     if trimmed.hasSuffix("(") || trimmed.hasSuffix("[") || trimmed.hasSuffix("{") {
       return true
     }
-    let last = trimmed
+    let last =
+      trimmed
       .lowercased()
       .split(whereSeparator: { $0.isWhitespace || ".!?;:,.".contains($0) })
       .last

@@ -4,7 +4,7 @@ sequence: 4
 gap_id: HYGIENE-04
 depends_on: H-003
 next_prompt: H-005
-state: pending
+state: ready
 ---
 
 # H-004 — Canonical toolchain and documentation drift

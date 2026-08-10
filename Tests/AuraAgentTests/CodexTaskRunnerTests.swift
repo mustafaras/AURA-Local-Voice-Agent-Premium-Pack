@@ -160,7 +160,8 @@ func codexAdapterDenyPathNeverInvokesExecutor() async throws {
     configuration: CodexConfiguration(), policyEngine: policyEngine,
     processExecutor: executor, eventBus: bus)
 
-  let request = CodexRunRequest(prompt: "do it", workingDirectory: allowedWorkingDirectory, sandbox: .workspaceWrite)
+  let request = CodexRunRequest(
+    prompt: "do it", workingDirectory: allowedWorkingDirectory, sandbox: .workspaceWrite)
   let stream = await adapter.run(
     request: request, actor: .agentCodex, sessionID: UUID(), correlationID: UUID(),
     causationID: UUID())
@@ -187,7 +188,8 @@ func codexAdapterAllowByDefaultPathInvokesExecutor() async throws {
 
   // .readOnly maps to Capability.agentCodexReadOnly (.reversible), allowed by
   // default in this test's policy configuration.
-  let request = CodexRunRequest(prompt: "reply ping", workingDirectory: allowedWorkingDirectory, sandbox: .readOnly)
+  let request = CodexRunRequest(
+    prompt: "reply ping", workingDirectory: allowedWorkingDirectory, sandbox: .readOnly)
   let stream = await adapter.run(
     request: request, actor: .agentCodex, sessionID: UUID(), correlationID: UUID(),
     causationID: UUID())
@@ -257,7 +259,10 @@ func codexAdapterConfirmPathDeniedWhenPresenterRefuses() async throws {
     causationID: UUID())
   let events = try await drain(stream)
 
-  #expect(events.contains { if case .approvalDecision(_, false, _) = $0 { return true } else { return false } })
+  #expect(
+    events.contains {
+      if case .approvalDecision(_, false, _) = $0 { return true } else { return false }
+    })
   #expect(await executor.runInvoked == false)
 }
 
@@ -275,13 +280,21 @@ func codexAdapterFileWriteBudgetCancelsRun() async throws {
     configuration: configuration, policyEngine: policyEngine,
     processExecutor: executor, eventBus: bus)
 
-  let request = CodexRunRequest(prompt: "edit files", workingDirectory: allowedWorkingDirectory, sandbox: .readOnly)
+  let request = CodexRunRequest(
+    prompt: "edit files", workingDirectory: allowedWorkingDirectory, sandbox: .readOnly)
   let stream = await adapter.run(
     request: request, actor: .agentCodex, sessionID: UUID(), correlationID: UUID(),
     causationID: UUID())
   let events = try await drain(stream)
 
-  #expect(events.contains { if case .budgetExceeded(let kind, _, _) = $0 { return kind == "fileWrites" } else { return false } })
+  #expect(
+    events.contains {
+      if case .budgetExceeded(let kind, _, _) = $0 {
+        return kind == "fileWrites"
+      } else {
+        return false
+      }
+    })
   #expect(await executor.cancelledExecutionIDs.isEmpty == false)
 }
 
@@ -298,7 +311,8 @@ func codexAdapterCancelStopsInFlightRun() async throws {
     processExecutor: executor, eventBus: bus)
   let correlationID = UUID()
 
-  let request = CodexRunRequest(prompt: "reply ping", workingDirectory: allowedWorkingDirectory, sandbox: .readOnly)
+  let request = CodexRunRequest(
+    prompt: "reply ping", workingDirectory: allowedWorkingDirectory, sandbox: .readOnly)
   let stream = await adapter.run(
     request: request, actor: .agentCodex, sessionID: UUID(), correlationID: correlationID,
     causationID: correlationID)
@@ -343,13 +357,15 @@ func codexTaskRunnerThrowsWhenProcessTimesOutWithoutJSONLFailure() async throws 
     defaultSandbox: .readOnly)
 
   let capture = Capture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 
   _ = try await engine.enqueue(request: TaskRequest(objective: "reply ping"), runner: runner)
 
-  let completed = await capture.waitForEvent(TaskCompletedEvent.self, timeoutNanoseconds: 1_000_000_000)
+  let completed = await capture.waitForEvent(
+    TaskCompletedEvent.self, timeoutNanoseconds: 1_000_000_000)
   #expect(completed?.outcome == .failed)
 }
 
@@ -372,7 +388,8 @@ func codexTaskRunnerHappyPathCompletesTaskViaEngine() async throws {
     defaultSandbox: .readOnly)
 
   let capture = Capture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 
@@ -380,7 +397,8 @@ func codexTaskRunnerHappyPathCompletesTaskViaEngine() async throws {
     request: TaskRequest(objective: "reply ping"), runner: runner)
   #expect(status.state == .pending)
 
-  let completed = await capture.waitForEvent(TaskCompletedEvent.self, timeoutNanoseconds: 1_000_000_000)
+  let completed = await capture.waitForEvent(
+    TaskCompletedEvent.self, timeoutNanoseconds: 1_000_000_000)
   #expect(completed?.outcome == .succeeded)
   #expect(await engine.status(id: status.id)?.state == .completed)
 }

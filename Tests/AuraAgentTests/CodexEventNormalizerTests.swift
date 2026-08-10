@@ -52,21 +52,24 @@ func normalizerParsesTurnFailedFromNestedErrorMessage() {
 
 @Test
 func normalizerParsesAgentMessageItem() {
-  let line = #"{"type":"item.completed","item":{"id":"item_3","type":"agent_message","text":"ping"}}"#
+  let line =
+    #"{"type":"item.completed","item":{"id":"item_3","type":"agent_message","text":"ping"}}"#
   let event = CodexEventNormalizer.normalize(line: line, sequence: 4)
   #expect(event == .agentText(role: "agent_message", text: "ping", sequence: 4))
 }
 
 @Test
 func normalizerParsesReasoningItem() {
-  let line = #"{"type":"item.completed","item":{"id":"item_2","type":"reasoning","text":"thinking"}}"#
+  let line =
+    #"{"type":"item.completed","item":{"id":"item_2","type":"reasoning","text":"thinking"}}"#
   let event = CodexEventNormalizer.normalize(line: line, sequence: 3)
   #expect(event == .agentText(role: "reasoning", text: "thinking", sequence: 3))
 }
 
 @Test
 func normalizerParsesItemLevelError() {
-  let line = #"{"type":"item.completed","item":{"id":"item_0","type":"error","message":"degraded"}}"#
+  let line =
+    #"{"type":"item.completed","item":{"id":"item_0","type":"error","message":"degraded"}}"#
   let event = CodexEventNormalizer.normalize(line: line, sequence: 1)
   #expect(event == .itemError(message: "degraded", sequence: 1))
 }

@@ -353,7 +353,8 @@ struct ConversationTests {
     await conversation.stableSegmentReceived(STTStableSegmentEvent(text: "hello", confidence: 0.9))
     clockBox.current = 0.200
     await conversation.responsePlanReceived(
-      ResponsePlanEvent(planID: "plan-1", summary: "Hello", hasSpokenResponse: true, isSimpleCommand: true))
+      ResponsePlanEvent(
+        planID: "plan-1", summary: "Hello", hasSpokenResponse: true, isSimpleCommand: true))
 
     try? await Task.sleep(nanoseconds: 200_000_000)
 
@@ -399,7 +400,8 @@ struct ConversationTests {
       STTStableSegmentEvent(text: "what time is it", confidence: 0.9, deterministicCommand: nil))
     clockBox.current = 0.200
     await conversation.responsePlanReceived(
-      ResponsePlanEvent(planID: "plan-1", summary: "The time", hasSpokenResponse: true, isSimpleCommand: true))
+      ResponsePlanEvent(
+        planID: "plan-1", summary: "The time", hasSpokenResponse: true, isSimpleCommand: true))
 
     try? await Task.sleep(nanoseconds: 200_000_000)
 
@@ -441,7 +443,8 @@ struct ConversationTests {
     await conversation.stableSegmentReceived(STTStableSegmentEvent(text: "hello", confidence: 0.9))
     clockBox.current = 0.200
     await conversation.responsePlanReceived(
-      ResponsePlanEvent(planID: "plan-1", summary: "Hello", hasSpokenResponse: true, isSimpleCommand: false))
+      ResponsePlanEvent(
+        planID: "plan-1", summary: "Hello", hasSpokenResponse: true, isSimpleCommand: false))
 
     try? await Task.sleep(nanoseconds: 200_000_000)
 

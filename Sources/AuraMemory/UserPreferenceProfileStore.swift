@@ -20,8 +20,10 @@ public actor UserPreferenceProfileStore {
   }
 
   public func load() async throws(AuraError) -> UserPreferenceProfile? {
-    guard let record = try await memory.currentState(
-      memoryClass: .userPreference, subject: Self.subject).first
+    guard
+      let record = try await memory.currentState(
+        memoryClass: .userPreference, subject: Self.subject
+      ).first
     else { return nil }
     do {
       let data = Data(record.statement.utf8)
@@ -31,7 +33,8 @@ public actor UserPreferenceProfileStore {
     } catch let error as AuraError {
       throw error
     } catch {
-      throw AuraError.memoryError("stored preference profile is invalid: (error.localizedDescription)")
+      throw AuraError.memoryError(
+        "stored preference profile is invalid: (error.localizedDescription)")
     }
   }
 
@@ -53,7 +56,8 @@ public actor UserPreferenceProfileStore {
     }
 
     let current = try await memory.currentState(
-      memoryClass: .userPreference, subject: Self.subject).first
+      memoryClass: .userPreference, subject: Self.subject
+    ).first
     let draft = MemoryRecordDraft(
       memoryClass: .userPreference,
       subject: Self.subject,
@@ -73,9 +77,12 @@ public actor UserPreferenceProfileStore {
 
   @discardableResult
   public func clear(actor: ActorID = .user) async throws(AuraError) -> MemoryDeletionReceipt? {
-    guard let record = try await memory.currentState(
-      memoryClass: .userPreference, subject: Self.subject).first
+    guard
+      let record = try await memory.currentState(
+        memoryClass: .userPreference, subject: Self.subject
+      ).first
     else { return nil }
-    return try await memory.deleteRecord(id: record.id, reason: "user cleared preference profile", actor: actor)
+    return try await memory.deleteRecord(
+      id: record.id, reason: "user cleared preference profile", actor: actor)
   }
 }

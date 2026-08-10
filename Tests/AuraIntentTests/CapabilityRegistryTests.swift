@@ -91,8 +91,9 @@ func initialCapabilitySetRegistersR6VSCodeRoutesDisabledUntilLiveBridge() async 
     "vscode.run_task", "vscode.cancel_task", "vscode.run_tests",
     "vscode.cancel_tests", "vscode.terminal_sessions", "vscode.bridge_health",
   ] {
-    guard case .disabled(let reason)? = await registry.availability(
-      id: id, version: "1.0.0")
+    guard
+      case .disabled(let reason)? = await registry.availability(
+        id: id, version: "1.0.0")
     else {
       Issue.record("expected \(id) to be registered disabled")
       continue
@@ -105,8 +106,9 @@ func initialCapabilitySetRegistersR6VSCodeRoutesDisabledUntilLiveBridge() async 
 func initialCapabilitySetDisabledEntriesCarryTruthfulReasons() async {
   let registry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: registry)
-  guard case .disabled(let reason)? = await registry.availability(
-    id: "filesystem.open_file", version: "1.0.0")
+  guard
+    case .disabled(let reason)? = await registry.availability(
+      id: "filesystem.open_file", version: "1.0.0")
   else {
     Issue.record("expected filesystem.open_file to be registered disabled")
     return
@@ -128,8 +130,9 @@ func computerUseRunRegisteredDisabledUntilApproved() async {
   // `computerUse.run` is registered but truthfully `.disabled`: it is
   // implemented (DeterministicComputerUsePlanner) but not yet wired into a
   // live user path and requires an approved, live-validated beta app.
-  guard case .disabled(let reason)? = await registry.availability(
-    id: "computerUse.run", version: "1.0.0")
+  guard
+    case .disabled(let reason)? = await registry.availability(
+      id: "computerUse.run", version: "1.0.0")
   else {
     Issue.record("expected computerUse.run to be registered disabled")
     return

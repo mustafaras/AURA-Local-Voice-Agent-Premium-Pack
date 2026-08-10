@@ -1,8 +1,16 @@
+# macOS Finder metadata is local OS state, never authored repository content.
 .DS_Store
+
+# Python bytecode is reproducible from tracked source and must not be tracked.
 __pycache__/
 *.py[cod]
+
+# Local Swift/Xcode build output and the root development Python environment.
 /.build
+/.venv/
 /Packages
+
+# IDE and platform-generated state.
 xcuserdata/
 DerivedData/
 .swiftpm/configuration/registries.json

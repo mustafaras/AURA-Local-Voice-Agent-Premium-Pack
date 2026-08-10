@@ -39,8 +39,11 @@ public struct ComputerUseVerifier: Sendable {
     // Semantic predicate failed. Note explicitly whether content changed,
     // to record that a hash change alone did NOT constitute success.
     if contentChanged {
-      return .failed(reason: "content changed but semantic postcondition '\(postcondition.id)' not satisfied")
+      return .failed(
+        reason: "content changed but semantic postcondition '\(postcondition.id)' not satisfied")
     }
-    return .failed(reason: "semantic postcondition '\(postcondition.id)' not satisfied and no content change observed")
+    return .failed(
+      reason:
+        "semantic postcondition '\(postcondition.id)' not satisfied and no content change observed")
   }
 }

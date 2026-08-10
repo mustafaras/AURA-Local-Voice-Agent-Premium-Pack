@@ -1,13 +1,15 @@
 import AuraCore
 import AuraPolicy
-@testable import AuraScreen
 import CoreGraphics
 import Foundation
 import Testing
 
+@testable import AuraScreen
+
 private func makePolicyEngine(denyScreenCapture: Bool = false) async throws -> PolicyEngine {
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraScreenTests", category: "policy"))
-  let engine = try await PolicyEngine(configuration: PolicyConfiguration(), eventBus: bus, store: nil)
+  let engine = try await PolicyEngine(
+    configuration: PolicyConfiguration(), eventBus: bus, store: nil)
   if denyScreenCapture {
     try await engine.upsertDenyRule(
       DenyRule(capability: .screenCapture, reason: "test deny rule"))
@@ -263,7 +265,9 @@ func captureRespectsSecureFieldFocusAndMasksEntireFrame() async throws {
         text: "unrelated visible text", boundingBoxX: 0.1, boundingBoxY: 0.1, boundingBoxWidth: 0.3,
         boundingBoxHeight: 0.05)
     ])
-  let secureFieldDetector = ScriptedSecureFieldDetector(focusedBundleIdentifiers: ["com.example.normal"])
+  let secureFieldDetector = ScriptedSecureFieldDetector(focusedBundleIdentifiers: [
+    "com.example.normal"
+  ])
   let (engine, _) = try await makeEngine(
     windows: windows, configuration: configuration, textRecognizer: recognizer,
     secureFieldDetector: secureFieldDetector)
@@ -452,7 +456,8 @@ func absoluteSourceRectTranslatesWindowRelativeRegionToDisplaySpace() {
   let windowFrame = CGRect(x: 100, y: 50, width: 800, height: 600)
   let region = CaptureRegion(x: 0.25, y: 0.5, width: 0.5, height: 0.25)
 
-  let rect = ScreenCaptureKitWindowSource.absoluteSourceRect(windowFrame: windowFrame, region: region)
+  let rect = ScreenCaptureKitWindowSource.absoluteSourceRect(
+    windowFrame: windowFrame, region: region)
 
   #expect(rect.origin.x == 300)
   #expect(rect.origin.y == 350)

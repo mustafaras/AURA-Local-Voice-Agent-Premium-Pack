@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-09T13:28:10Z",
-  "session_id": "AURA-FINAL-CLOSEOUT-20260809",
-  "last_verified_commit": "0a8d61e5aa63c2471031c1c11ffc835354538f26",
+  "updated_at": "2026-08-10T08:11:34Z",
+  "session_id": "AURA-REPO-HYGIENE-H005-20260810",
+  "last_verified_commit": "ee95b7c2e5caba9f77debf3c57e0873feb45ebf9",
   "active_prompt": {
     "id": "FINAL",
     "file": "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "state": "in_progress",
     "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. The full 0–15 audit is recorded under EV-OPEN-GAPS-20260809-FULL-AUDIT-01 with OPEN-00–OPEN-15 and S00–S14 closure steps; FINAL/CLOSEOUT remains blocked at live HEAD e1004795e56df8c171422261eace96543649cf51, with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The synchronized second-pass overlay is active at SP-000/pending. The separate repository-hygiene overlay is synchronized at H-000/pending under docs/operations/REPO_HYGIENE_PROGRAM.md and cannot advance without its validator and cognitive completion gate.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. The full 0–15 audit is recorded under EV-OPEN-GAPS-20260809-FULL-AUDIT-01 with OPEN-00–OPEN-15 and S00–S14 closure steps; FINAL/CLOSEOUT remains blocked at live HEAD ee95b7c2e5caba9f77debf3c57e0873feb45ebf9, with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The synchronized second-pass overlay is active at SP-000/pending. The repository-hygiene overlay is active at H-005/ready: bounded formatter remediation is complete, recursive formatter lint and strict build pass, and the canonical wrapper passes 21/21 bundles and 794/794 tests. SwiftLint 0.65.0 is provisioned, but full SourceKit-backed lint remains explicitly blocked under the toolchain-owner risk; H-006 must not open without exact approval. The original `.git` remains unrepaired.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -18,7 +18,6 @@
     "Created schema-backed program state, capability matrix, prompt manifest, context index, session handoff, and evidence-record contracts.",
     "Created separate append-only program ledger, decision register, risk register, and evidence index.",
     "Seeded an audited capability matrix that distinguishes implementation, runtime registration, user reachability, and evidence level.",
-    "Verified through GitHub comparison that the suite added 38 files without modifying or deleting pre-existing files.",
     "Re-ran the strict BOOTSTRAP preflight: live repository, JSON/schema, manifest/dependency/reference, authority, and toolchain evidence are recorded; legacy stale prose is explicitly assigned to R0.",
     "Confirmed that the ordered manifest intentionally contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is mandatory but outside the ordered implementation manifest.",
     "Completed R0 with scripts/validate_runtime_completion.py, 13 deterministic governance tests, toolchain-manifest.json, TOOLCHAIN.md, ADR-045, CI governance ordering, capability-matrix audit, and synchronized decision/evidence records.",
@@ -41,7 +40,8 @@
     "R10 first-pass boundary slice was source/build and focused-test verified under EV-R10-20260809-BOUNDARY-SLICE-01: helper envelope protocol v2 with capability/plan/payload/freshness/nonce/response bindings, covered endpoint/Ollama restrictions, and OAuth PKCE/state/Keychain expiry contracts. The pipe is not authenticated XPC, helper executors are echo-only, and universal network/provider/OAuth/injection/plugin/operations/independent-review gates remain open.",
     "R10 delivery was verified: feature commit 2f6d8f5b was pushed to origin/feature/r10-security-boundaries; merge e1ecf82e was pushed to origin/main. No deploy/release/signing/TCC/dependency/model action was performed. User then explicitly approved transition to R11; R11 starts with edit-only release-readiness authority.",
     "R11 artifact/manifest first slice was implemented and locally verified under EV-R11-20260809-ARTIFACT-MANIFEST-01: development_unverified reproducible ZIP, 13-file bundle inventory/SBOM, checksum-bound manifest, fail-closed release status, 4/4 focused tests, 17/17 governance tests, and release validation blocked by missing full Xcode.",
-    "R11 CI artifact-evidence workflow configuration was added under edit-only authority: successful build/test jobs invoke the existing development_unverified artifact builder and retain only the ZIP/manifest for 14 days. YAML, governance, and script tests pass; no post-change CI run has been observed."
+    "R11 CI artifact-evidence workflow configuration was added under edit-only authority: successful build/test jobs invoke the existing development_unverified artifact builder and retain only the ZIP/manifest for 14 days. YAML, governance, and script tests pass; no post-change CI run has been observed.",
+    "H-005 bounded formatter remediation and SwiftLint 0.65.0 provision completed: 12 reviewed batches, formatter exit 0, strict build exit 0, and 21/21 bundles with 794/794 tests. Full SourceKit lint remains blocked by the CLT-only directory; H-005 is ready at its active boundary pending exact `ONAY: H-006`."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
@@ -237,11 +237,10 @@
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-003_IGNORE_RULES_AND_GENERATED_FILE_HYGIENE.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-004_CANONICAL_TOOLCHAIN_AND_DOCUMENTATION_DRIFT.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-005_SWIFT_FORMAT_LINT_AND_STRICT_CONCURRENCY.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-006_UNSAFE_CONSTRUCTS_AND_DEBUG_OUTPUT.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-007_TEST_MATRIX_CI_AND_COVERAGE_HYGIENE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-008_SECRET_DEPENDENCY_AND_SUPPLY_CHAIN_HYGIENE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-009_LEDGER_CONTEXT_AND_ARCHITECTURE_HYGIENE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-010_FINAL_REPO_HYGIENE_GATE_AND_CLOSEOUT.prompt.md",
+    ".swift-format and .swiftlint.yml",
+    ".gitignore",
+    "Runtime/chatterbox/.gitignore",
+    "scripts/tests/test_repo_hygiene_ignore_rules.py",
     "scripts/validate_repo_hygiene_program.py",
     "scripts/tests/test_validate_repo_hygiene_program.py"
   ],
@@ -251,16 +250,16 @@
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-01",
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
     "EV-R0-20260802-FULL-SUITE-01",
-    "EV-R0-20260802-FULL-SUITE-RERUN-01",
+    "EV-REPO-HYGIENE-H-005-20260810-02",
+    "EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02",
     "EV-R0-20260802-APP-SMOKE-01",
     "EV-R0-20260802-CAPABILITY-AUDIT-01",
     "EV-R0-20260802-STATE-VALIDATOR-01",
     "EV-R0-20260802-TOOLCHAIN-MANIFEST-01",
     "EV-R0-20260802-CI-CONFIG-01",
     "EV-R0-20260802-LEGACY-REDIRECT-01",
-    "EV-R0-20260802-TODO-AUDIT-01",
     "EV-R0-20260802-POST-COMMIT-VALIDATION-01",
-    "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01",
+    "EV-REPO-HYGIENE-H-004-20260810-01",
     "EV-R1-20260802-FULL-SUITE-01",
     "EV-R1-20260802-TRACE-HEALTH-01",
     "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01",
@@ -427,6 +426,36 @@
       "name": "Repository-hygiene focused validator tests: 3 tests",
       "result": "passed",
       "evidence_id": "EV-REPO-HYGIENE-20260809-PROGRAM-01"
+    },
+    {
+      "name": "H-000 baseline, hygiene validator, runtime governance, and closeout checks",
+      "result": "passed",
+      "evidence_id": "EV-REPO-HYGIENE-H-000-20260809-01"
+    },
+    {
+      "name": "H-000 Git integrity and ownership classification gate",
+      "result": "passed",
+      "evidence_id": "EV-REPO-HYGIENE-H-000-20260809-02"
+    },
+    {
+      "name": "H-003 ignore-rule and clean-fixture regression test: 2 tests",
+      "result": "passed",
+      "evidence_id": "EV-REPO-HYGIENE-H-003-20260809-01"
+    },
+    {
+      "name": "H-003 tracked-generated audit, positive/negative check-ignore matrix, and diff check",
+      "result": "passed",
+      "evidence_id": "EV-REPO-HYGIENE-H-003-20260809-01"
+    },
+    {
+      "name": "H-005 strict-concurrency, formatter remediation, and regression suite",
+      "result": "passed",
+      "evidence_id": "EV-REPO-HYGIENE-H-005-20260810-02"
+    },
+    {
+      "name": "H-005 full SourceKit-backed SwiftLint capability",
+      "result": "blocked",
+      "evidence_id": "EV-REPO-HYGIENE-H-005-20260810-02"
     }
   ],
   "blockers": [
@@ -434,7 +463,7 @@
     "R11 remains in_progress: full-Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed-CI evidence are missing.",
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
-    "Repository hygiene H-000 is pending; Git recovery, cleanup, tool installation, and delivery actions remain unauthorized."
+    "Repository hygiene H-005 is active and ready: bounded formatter remediation is complete; recursive formatter lint, strict build, and the 21-bundle/794-test wrapper pass. SwiftLint 0.65.0 is provisioned, but full SourceKit-backed lint is blocked by the CLT-only developer directory and the no-SourceKit fallback is not a pass. Keep H-005 active and do not open H-006 without exact ONAY: H-006."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
@@ -454,9 +483,15 @@
     "RISK-CLOSED-TOOL-ROUTER",
     "RISK-NO-BETA-CONSENT-BOUNDARY",
     "RISK-NO-RC-EVIDENCE-PACKAGE",
-    "RISK-FINAL-ACCEPTANCE-BLOCKED"
+    "RISK-FINAL-ACCEPTANCE-BLOCKED",
+    "RISK-REPO-HYGIENE-GIT-OBJECT-DATABASE",
+    "RISK-REPO-HYGIENE-TOOLING-UNAVAILABLE",
+    "RISK-REPO-HYGIENE-SWIFTLINT-SOURCEKIT-BLOCKED",
+    "RISK-REPO-HYGIENE-FORMAT-FINDINGS",
+    "RISK-REPO-HYGIENE-GENERATED-ARTIFACTS-IN-PLACE",
+    "RISK-REPO-HYGIENE-CI-CHECKOUT-DEFAULTS"
   ],
-  "next_action": "Return to R11 for separately authorized full-Xcode/release/operations evidence, then return to R12 for authorized beta/RC evidence; rerun FINAL only after those owning-track gates pass.",
+  "next_action": "H-005 is ready at the active boundary. Keep active_prompt at H-005 and await exact `ONAY: H-006`; do not open H-006 automatically. The next safe action after that approval is to read the mandatory H-006 authority/context sequence and only then inspect H-006. Full SourceKit-backed SwiftLint remains owned by the toolchain owner; do not claim a full lint pass from --disable-sourcekit. Preserve the original `.git` repair and all release/beta boundaries.",
   "required_first_reads": [
     "AGENTS.md",
     "README.md",
@@ -471,5 +506,5 @@
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "docs/operations/BETA_READINESS.md"
   ],
-  "notes": "FINAL/CLOSEOUT is a blocked handoff, not a release decision. The governance/hygiene delivery is merged on main; the working tree is clean at the latest local state-sync commit. Commit, push, merge, signing, notarization, installation, release, deployment, telemetry, and beta enrollment remain unauthorized unless separately requested; this turn authorized Git delivery but not a release deployment. Second-pass synchronization: SP-000/pending; see SECOND_PASS_STATE.json, SECOND_PASS_PROMPT_MANIFEST.json, SECOND_PASS_OPEN_GAPS.md, and SECOND_PASS_LEDGER.md. Repository-hygiene synchronization: H-000/pending; see REPO_HYGIENE_PROGRAM.md, REPO_HYGIENE_STATE.json, REPO_HYGIENE_PROMPT_MANIFEST.json, REPO_HYGIENE_LEDGER.md, and REPO_HYGIENE_READ_FIRST.md. Evidence: EV-SECOND-PASS-20260809-CONTROL-PLANE-01, EV-SECOND-PASS-20260809-CONTROL-PLANE-02, and EV-REPO-HYGIENE-20260809-PROGRAM-01."
+  "notes": "FINAL/CLOSEOUT is a blocked handoff, not a release decision. No commit, push, merge, signing, installation, release, deployment, telemetry, or beta enrollment occurred. Second-pass synchronization remains SP-000/pending. Repository-hygiene synchronization is H-005/blocked: `.swift-format` schema version 1 and explicit strict compiler flags are present; the strict build passes; configured lint reports 1,019 existing findings across 116 Swift files; SwiftLint is unavailable. Keep H-005 active and do not open H-006. Original local Git repair remains unauthorized. Evidence: EV-REPO-HYGIENE-H-005-20260810-01."
 }

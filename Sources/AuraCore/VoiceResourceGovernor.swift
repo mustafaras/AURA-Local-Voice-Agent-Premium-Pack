@@ -222,14 +222,16 @@ public actor VoiceResourceGovernor {
       let lowerPriorityActive = reservations.keys.contains {
         Self.priority(for: $0) < priority
       }
-      let reason = lowerPriorityActive
+      let reason =
+        lowerPriorityActive
         ? "resident budget is full; caller must preempt lower-priority work explicitly"
         : "resident budget is full; no lower-priority workload may be preempted implicitly"
       return decision(granted: false, workload: workload, amount: amount, reason: reason)
     }
 
     reservations[workload, default: 0] += amount
-    return decision(granted: true, workload: workload, amount: amount, reason: "reservation admitted")
+    return decision(
+      granted: true, workload: workload, amount: amount, reason: "reservation admitted")
   }
 
   public func release(_ workload: VoiceWorkload, estimatedMemoryMB: UInt64? = nil) {
@@ -270,9 +272,10 @@ public actor VoiceResourceGovernor {
       thermalState: thermalState,
       residentMemoryBudgetMB: configuration.residentMemoryBudgetMB,
       reservedMemoryMB: reservations.values.reduce(0, +),
-      activeWorkloads: Dictionary(uniqueKeysWithValues: reservations.map {
-        ($0.key.rawValue, $0.value)
-      }),
+      activeWorkloads: Dictionary(
+        uniqueKeysWithValues: reservations.map {
+          ($0.key.rawValue, $0.value)
+        }),
       openCircuits: openCircuits.sorted { $0.rawValue < $1.rawValue },
       observedAt: now())
   }

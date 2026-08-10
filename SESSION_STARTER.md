@@ -1,7 +1,7 @@
 # AURA Session Starter — FINAL Active/Blocked; R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 Open
 
 > Conversation date: 9 August 2026
-> Live HEAD: `e1004795e56df8c171422261eace96543649cf51` — `docs(state): record R10 delivery and activate R11`
+> Live HEAD: `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9` — `docs(delivery): record governance merge and deployment boundary`
 > Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry before changing files.
 
 ## Canonical State Notice — 2026-08-09
@@ -9,7 +9,7 @@
 This starter is a **historical compatibility document**. Use
 `AURA_RUNTIME_COMPLETION/state/current-state.json` and
 `AURA_RUNTIME_COMPLETION/context/session-handoff.json` as the authoritative
-state. Live `HEAD == origin/main == e1004795e56df8c171422261eace96543649cf51`;
+state. Live `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`;
 the active prompt is **FINAL**. R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open and their second-pass
 gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
 The historical phase and push claims below are not current state.

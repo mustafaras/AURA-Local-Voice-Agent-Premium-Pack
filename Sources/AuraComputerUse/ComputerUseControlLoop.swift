@@ -118,7 +118,8 @@ public actor ComputerUseControlLoop {
       guard observation.appBundleIdentifier == target.appBundleIdentifier else {
         await emit(
           ComputerUseIdentityChangedEvent(
-            runID: runID, iteration: iteration, expectedBundleIdentifier: target.appBundleIdentifier,
+            runID: runID, iteration: iteration,
+            expectedBundleIdentifier: target.appBundleIdentifier,
             observedBundleIdentifier: observation.appBundleIdentifier),
           correlationID: correlationID, actor: actor)
         let outcome = ComputerUseLoopOutcome.identityChanged(iterations: iteration)

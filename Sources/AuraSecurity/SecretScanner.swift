@@ -38,7 +38,10 @@ public struct SecretScanner: Sendable {
     for (name, regex) in compiledPatterns {
       regex.enumerateMatches(in: text, options: [], range: fullRange) { result, _, _ in
         guard let result else { return }
-        matches.append(SecretMatch(patternName: name, range: result.range.location..<result.range.location + result.range.length))
+        matches.append(
+          SecretMatch(
+            patternName: name,
+            range: result.range.location..<result.range.location + result.range.length))
       }
     }
     return matches

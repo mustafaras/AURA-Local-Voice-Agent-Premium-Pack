@@ -149,8 +149,10 @@ public actor CapabilityPlanner {
   /// `04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`'s "plan cycle and
   /// budget rejection" test requires.
   public func buildPlan(
-    steps stepRequests: [(capabilityID: String, arguments: [String: String],
-      requiredArgumentNames: [String], dependsOnStepIndices: [Int])]
+    steps stepRequests: [(
+      capabilityID: String, arguments: [String: String],
+      requiredArgumentNames: [String], dependsOnStepIndices: [Int]
+    )]
   ) async -> Result<Plan, PlanValidationFailure> {
     guard stepRequests.count <= maxStepsPerPlan else {
       return .failure(.planTooLarge(stepCount: stepRequests.count, maxSteps: maxStepsPerPlan))
@@ -187,8 +189,10 @@ public actor CapabilityPlanner {
     requiredArgumentNames: [String] = []
   ) async -> Result<Plan, PlanValidationFailure> {
     await buildPlan(steps: [
-      (capabilityID: capabilityID, arguments: arguments,
-        requiredArgumentNames: requiredArgumentNames, dependsOnStepIndices: [])
+      (
+        capabilityID: capabilityID, arguments: arguments,
+        requiredArgumentNames: requiredArgumentNames, dependsOnStepIndices: []
+      )
     ])
   }
 }

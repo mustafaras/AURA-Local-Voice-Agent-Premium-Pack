@@ -191,7 +191,8 @@ public enum ClaudeEventNormalizer {
     switch subtype {
     case "hook_started", "hook_response":
       guard let hook = try? JSONDecoder().decode(HookPayload.self, from: data) else {
-        return .unrecognizedTopLevel(rawType: "system.\(subtype)", sequence: sequence, rawLine: rawLine)
+        return .unrecognizedTopLevel(
+          rawType: "system.\(subtype)", sequence: sequence, rawLine: rawLine)
       }
       return .hookEvent(
         hookName: hook.hookName, hookEvent: hook.hookEvent, outcome: hook.outcome,
@@ -208,7 +209,8 @@ public enum ClaudeEventNormalizer {
         mcpServerCount: mcpServerCount, claudeCodeVersion: initPayload.claudeCodeVersion,
         apiKeySource: initPayload.apiKeySource)
     default:
-      return .unrecognizedTopLevel(rawType: "system.\(subtype)", sequence: sequence, rawLine: rawLine)
+      return .unrecognizedTopLevel(
+        rawType: "system.\(subtype)", sequence: sequence, rawLine: rawLine)
     }
   }
 

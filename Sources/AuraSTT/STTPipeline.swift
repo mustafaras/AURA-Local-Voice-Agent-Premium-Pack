@@ -101,16 +101,18 @@ public actor STTPipeline {
     if event.isActive {
       guard state == .activated || state == .idle else { return }
       activationTime = monotonicClock()
-      let context = (event.turnContext ?? TurnContext(
-        sessionID: sessionID,
-        correlationID: envelope.correlationID,
-        causationID: envelope.id,
-        activationSource: .wakeWord,
-        actor: envelope.actor,
-        authority: .userUtterance,
-        sensitivity: envelope.sensitivity,
-        timingOrigin: activationTime
-      )).advancing(causationID: envelope.id)
+      let context =
+        (event.turnContext
+        ?? TurnContext(
+          sessionID: sessionID,
+          correlationID: envelope.correlationID,
+          causationID: envelope.id,
+          activationSource: .wakeWord,
+          actor: envelope.actor,
+          authority: .userUtterance,
+          sensitivity: envelope.sensitivity,
+          timingOrigin: activationTime
+        )).advancing(causationID: envelope.id)
       activeTurnContext = context.withBackendIDs(
         TurnBackendIDs(
           stt: engine.engineID,
@@ -217,7 +219,7 @@ public actor STTPipeline {
           turnContext: context),
         context: context,
         causationID: result.resultID)
-      )
+    )
   }
 
   /// Cancel the current transcription session immediately.

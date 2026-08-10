@@ -169,9 +169,11 @@ func copilotAdapterDenyPathNeverInvokesExecutor() async throws {
     causationID: UUID())
   let events = try await drainCopilot(stream)
 
-  guard case .approvalDecision(_, let allowed, _) = events.last(where: {
-    if case .approvalDecision = $0 { return true } else { return false }
-  }) else {
+  guard
+    case .approvalDecision(_, let allowed, _) = events.last(where: {
+      if case .approvalDecision = $0 { return true } else { return false }
+    })
+  else {
     Issue.record("expected an approvalDecision, got \(events)")
     return
   }
@@ -197,9 +199,11 @@ func copilotAdapterAllowByDefaultPathInvokesExecutorAndParsesSuccessfulRun() asy
   let events = try await drainCopilot(stream)
 
   #expect(await executor.runInvoked)
-  guard case .turnCompleted(let exitCode, _, _, let filesModifiedCount, _, _) = events.last(where: {
-    if case .turnCompleted = $0 { return true } else { return false }
-  }) else {
+  guard
+    case .turnCompleted(let exitCode, _, _, let filesModifiedCount, _, _) = events.last(where: {
+      if case .turnCompleted = $0 { return true } else { return false }
+    })
+  else {
     Issue.record("expected turnCompleted, got \(events)")
     return
   }
@@ -233,9 +237,11 @@ func copilotAdapterConfirmPathRoundTripsThroughPolicyEngine() async throws {
     causationID: UUID())
   let events = try await drainCopilot(stream)
 
-  guard case .approvalRequested = events.first(where: {
-    if case .approvalRequested = $0 { return true } else { return false }
-  }) else {
+  guard
+    case .approvalRequested = events.first(where: {
+      if case .approvalRequested = $0 { return true } else { return false }
+    })
+  else {
     Issue.record("expected approvalRequested, got \(events)")
     return
   }
@@ -308,10 +314,12 @@ func copilotAdapterBlocksRunWhenRepositoryInstructionsContainSecrets() async thr
     causationID: UUID())
   let events = try await drainCopilot(stream)
 
-  guard case .repositoryInstructionsScanned(_, let secretsDetected, let blockedFiles) = events
-    .first(where: {
-      if case .repositoryInstructionsScanned = $0 { return true } else { return false }
-    })
+  guard
+    case .repositoryInstructionsScanned(_, let secretsDetected, let blockedFiles) =
+      events
+      .first(where: {
+        if case .repositoryInstructionsScanned = $0 { return true } else { return false }
+      })
   else {
     Issue.record("expected repositoryInstructionsScanned, got \(events)")
     return
@@ -382,7 +390,9 @@ func copilotAdapterFlagsFileWriteBudgetExceededAfterCompletion() async throws {
 
   #expect(
     events.contains {
-      if case .budgetExceeded(let kind, _, _) = $0 { return kind == "fileWrites" } else {
+      if case .budgetExceeded(let kind, _, _) = $0 {
+        return kind == "fileWrites"
+      } else {
         return false
       }
     })
@@ -450,7 +460,8 @@ func copilotTaskRunnerThrowsWhenProcessTimesOutWithoutResultLine() async throws 
     defaultWorkingDirectory: copilotTaskAllowedWorkingDirectory, defaultToolProfile: .readOnly)
 
   let capture = CopilotTestCapture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 
@@ -480,7 +491,8 @@ func copilotTaskRunnerHappyPathCompletesTaskViaEngine() async throws {
     defaultWorkingDirectory: copilotTaskAllowedWorkingDirectory, defaultToolProfile: .readOnly)
 
   let capture = CopilotTestCapture()
-  await bus.subscribe(TaskCompletedEvent.self) { (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) {
+    (envelope: EventEnvelope<TaskCompletedEvent>) async in
     await capture.append(envelope.payload)
   }
 

@@ -54,7 +54,9 @@ public struct ComputerUseBetaAllowlist: Sendable, Equatable {
 
   /// Returns a copy with the given app marked `.liveValidated` (the only way
   /// to open an entry, and only ever done after real validation evidence).
-  public func validating(_ bundleIdentifier: String, appName: String? = nil) -> ComputerUseBetaAllowlist {
+  public func validating(_ bundleIdentifier: String, appName: String? = nil)
+    -> ComputerUseBetaAllowlist
+  {
     var updated = apps
     let current = apps[bundleIdentifier]
     updated[bundleIdentifier] = ComputerUseBetaApp(
@@ -68,12 +70,19 @@ public struct ComputerUseBetaAllowlist: Sendable, Equatable {
   /// `.disabled`; each is opened only by explicit `.validating(...)` after
   /// live fixtures pass.
   public static let initial: ComputerUseBetaAllowlist = ComputerUseBetaAllowlist(apps: [
-    ComputerUseBetaApp(appBundleIdentifier: "com.apple.finder", appName: "Finder", validationState: .disabled),
-    ComputerUseBetaApp(appBundleIdentifier: "com.apple.Safari", appName: "Safari", validationState: .disabled),
-    ComputerUseBetaApp(appBundleIdentifier: "com.microsoft.VSCode", appName: "VS Code", validationState: .disabled),
-    ComputerUseBetaApp(appBundleIdentifier: "com.apple.Terminal", appName: "Terminal", validationState: .disabled),
-    ComputerUseBetaApp(appBundleIdentifier: "com.apple.Notes", appName: "Notes", validationState: .disabled),
-    ComputerUseBetaApp(appBundleIdentifier: "com.apple.iCal", appName: "Calendar", validationState: .disabled),
-    ComputerUseBetaApp(appBundleIdentifier: "com.apple.mail", appName: "Mail", validationState: .disabled),
+    ComputerUseBetaApp(
+      appBundleIdentifier: "com.apple.finder", appName: "Finder", validationState: .disabled),
+    ComputerUseBetaApp(
+      appBundleIdentifier: "com.apple.Safari", appName: "Safari", validationState: .disabled),
+    ComputerUseBetaApp(
+      appBundleIdentifier: "com.microsoft.VSCode", appName: "VS Code", validationState: .disabled),
+    ComputerUseBetaApp(
+      appBundleIdentifier: "com.apple.Terminal", appName: "Terminal", validationState: .disabled),
+    ComputerUseBetaApp(
+      appBundleIdentifier: "com.apple.Notes", appName: "Notes", validationState: .disabled),
+    ComputerUseBetaApp(
+      appBundleIdentifier: "com.apple.iCal", appName: "Calendar", validationState: .disabled),
+    ComputerUseBetaApp(
+      appBundleIdentifier: "com.apple.mail", appName: "Mail", validationState: .disabled),
   ])
 }

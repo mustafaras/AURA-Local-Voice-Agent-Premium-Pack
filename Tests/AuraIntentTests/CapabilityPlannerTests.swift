@@ -35,7 +35,8 @@ func plannerRejectsModelProposedOutOfSchemaCapability() async {
 @Test
 func plannerRejectsDisabledCapability() async {
   let planner = CapabilityPlanner(registry: await makeRegistry())
-  let result = await planner.validateStep(capabilityID: "url.open", arguments: ["url": "https://example.com"])
+  let result = await planner.validateStep(
+    capabilityID: "url.open", arguments: ["url": "https://example.com"])
   guard case .failure(.capabilityUnavailable(let id, let reason)) = result else {
     Issue.record("expected capabilityUnavailable failure, got \(result)")
     return
@@ -88,9 +89,14 @@ func plannerAcceptsValidSingleStepAndRecomputesRiskFromRegistryNotCaller() async
 func plannerBuildsMultiStepPlanWithDependencyOrdering() async {
   let planner = CapabilityPlanner(registry: await makeRegistry())
   let result = await planner.buildPlan(steps: [
-    (capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [], dependsOnStepIndices: []),
-    (capabilityID: "app.activate", arguments: ["bundleIdentifier": "com.example.app"],
-      requiredArgumentNames: ["bundleIdentifier"], dependsOnStepIndices: [0]),
+    (
+      capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
+      dependsOnStepIndices: []
+    ),
+    (
+      capabilityID: "app.activate", arguments: ["bundleIdentifier": "com.example.app"],
+      requiredArgumentNames: ["bundleIdentifier"], dependsOnStepIndices: [0]
+    ),
   ])
   guard case .success(let plan) = result else {
     Issue.record("expected success, got \(result)")
@@ -104,9 +110,18 @@ func plannerBuildsMultiStepPlanWithDependencyOrdering() async {
 func plannerRejectsPlanExceedingMaxSteps() async {
   let planner = CapabilityPlanner(registry: await makeRegistry(), maxStepsPerPlan: 2)
   let result = await planner.buildPlan(steps: [
-    (capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [], dependsOnStepIndices: []),
-    (capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [], dependsOnStepIndices: []),
-    (capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [], dependsOnStepIndices: []),
+    (
+      capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
+      dependsOnStepIndices: []
+    ),
+    (
+      capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
+      dependsOnStepIndices: []
+    ),
+    (
+      capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
+      dependsOnStepIndices: []
+    ),
   ])
   guard case .failure(.planTooLarge(let stepCount, let maxSteps)) = result else {
     Issue.record("expected planTooLarge failure, got \(result)")
@@ -120,8 +135,14 @@ func plannerRejectsPlanExceedingMaxSteps() async {
 func plannerRejectsForwardDependencyAsCycle() async {
   let planner = CapabilityPlanner(registry: await makeRegistry())
   let result = await planner.buildPlan(steps: [
-    (capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [], dependsOnStepIndices: [1]),
-    (capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [], dependsOnStepIndices: []),
+    (
+      capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
+      dependsOnStepIndices: [1]
+    ),
+    (
+      capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
+      dependsOnStepIndices: []
+    ),
   ])
   #expect(result.isFailure)
 }
@@ -130,7 +151,10 @@ func plannerRejectsForwardDependencyAsCycle() async {
 func plannerRejectsSelfDependencyAsCycle() async {
   let planner = CapabilityPlanner(registry: await makeRegistry())
   let result = await planner.buildPlan(steps: [
-    (capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [], dependsOnStepIndices: [0])
+    (
+      capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
+      dependsOnStepIndices: [0]
+    )
   ])
   guard case .failure(.dependencyCycle) = result else {
     Issue.record("expected dependencyCycle failure, got \(result)")

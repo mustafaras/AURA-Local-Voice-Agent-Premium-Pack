@@ -27,7 +27,8 @@ public actor AuraAutomation {
     self.bus = eventBus
     self.logger = logger
     self.applicationController = ApplicationController(logger: logger)
-    self.accessibilityHealth = AccessibilityHealth(logger: logger) as any AccessibilityHealthChecking
+    self.accessibilityHealth =
+      AccessibilityHealth(logger: logger) as any AccessibilityHealthChecking
     self.accessibilityObserver = AccessibilityObserver(logger: logger)
   }
 

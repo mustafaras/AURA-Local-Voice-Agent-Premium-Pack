@@ -112,11 +112,12 @@ func codexOrchestratedAgentMapsRealSuccessFixtureToTextAndCompletion() async thr
 
   #expect(events.contains(.text(role: "agent_message", content: "ping")))
   #expect(events.contains(.turnCompleted))
-  #expect(events.allSatisfy {
-    if case .approvalDenied = $0 { return false }
-    if case .turnFailed = $0 { return false }
-    return true
-  })
+  #expect(
+    events.allSatisfy {
+      if case .approvalDenied = $0 { return false }
+      if case .turnFailed = $0 { return false }
+      return true
+    })
 }
 
 @Test

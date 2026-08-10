@@ -95,9 +95,9 @@ public actor BeliefRevision {
     case .policy: return .derivedPolicy
     case .user: return .userConfirmed
     case .system, .audio, .screen, .automation, .memory,
-         .agentCodex, .agentClaude, .agentCopilot, .agentOllama,
-         .orchestrator, .task, .context, .computerUse, .security,
-         .plugin, .intent, .unknown:
+      .agentCodex, .agentClaude, .agentCopilot, .agentOllama,
+      .orchestrator, .task, .context, .computerUse, .security,
+      .plugin, .intent, .unknown:
       return .derivedTool
     }
   }

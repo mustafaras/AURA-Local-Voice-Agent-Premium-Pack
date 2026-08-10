@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/toolchain-manifest.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-02T14:35:31Z",
-  "repository_commit": "083aaa833a7cb6ee938029275a33381eb8dd7cb9",
+  "updated_at": "2026-08-10T08:11:34Z",
+  "repository_commit": "ee95b7c2e5caba9f77debf3c57e0873feb45ebf9",
   "supported": {
     "development": {
       "os": "macOS 27+",
@@ -37,17 +37,21 @@
     "python_chatterbox": "3.11.15",
     "git_version": "2.54.0",
     "github_remote_probe": "passed",
-    "swift_format_available": false
+    "swift_format_available": true,
+    "swiftlint_version": "0.65.0",
+    "swiftlint_sourcekit_compatible": false
   },
   "required_cli": [
     { "name": "swift", "required": true, "validation": "swift --version" },
+    { "name": "xcode-select", "required": true, "validation": "xcode-select -p" },
     { "name": "xcrun", "required": true, "validation": "xcrun --sdk macosx --show-sdk-version" },
     { "name": "git", "required": true, "validation": "git --version" },
     { "name": "python3", "required": true, "validation": "python3 --version" },
     { "name": "perl", "required": true, "validation": "perl --version" },
     { "name": "xattr", "required": true, "validation": "xattr -h" },
     { "name": "xcodebuild", "required": false, "validation": "xcodebuild -version" },
-    { "name": "swift-format", "required": false, "validation": "swift-format --version" }
+    { "name": "swift-format", "required": false, "validation": "xcrun --find swift-format && xcrun swift-format --version" },
+    { "name": "swiftlint", "required": false, "validation": "swiftlint version" }
   ],
   "python": {
     "system": "Python 3.14.6 is observed but is not the Chatterbox runtime.",
@@ -73,7 +77,8 @@
   },
   "limitations": [
     "The observed host has CommandLineTools but no active Xcode/xcodebuild.",
-    "swift-format is not installed on the observed host.",
+    "swift-format is available only through the active xcrun toolchain; its observed --version output is main rather than an independent semantic version.",
+    "SwiftLint 0.65.0 is provisioned through Homebrew, but its SourceKit-backed mode cannot load sourcekitd under the observed CommandLineTools-only developer directory; the --disable-sourcekit result is partial and is not a full lint pass.",
     "No CI workflow run was observed during this local validation; workflow configuration is not CI execution evidence.",
     "The Package.swift deployment target remains macOS 27 because no availability audit supports lowering it."
   ]

@@ -31,7 +31,8 @@ actor ScriptedWindowSource: ScreenWindowSource {
     windows
   }
 
-  func captureImage(windowID: Int, region: CaptureRegion?, maxDimension: Int) async throws(AuraError)
+  func captureImage(windowID: Int, region: CaptureRegion?, maxDimension: Int)
+    async throws(AuraError)
     -> CGImage
   {
     guard windows.contains(where: { $0.windowID == windowID }) else {

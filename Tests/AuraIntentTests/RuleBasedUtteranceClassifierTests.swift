@@ -10,7 +10,8 @@ func classifierRecognizesKnownAppActivate() {
   let result = classifier.classify(normalized: "activate safari", raw: "activate safari")
   #expect(result.kind == .appActivate)
   #expect(result.semanticCategory == .appActivate)
-  #expect(result.slots.first { $0.name == IntentSlotName.bundleIdentifier }?.value == "com.apple.Safari")
+  #expect(
+    result.slots.first { $0.name == IntentSlotName.bundleIdentifier }?.value == "com.apple.Safari")
   #expect(result.confidence >= 0.6)
 }
 
@@ -18,7 +19,8 @@ func classifierRecognizesKnownAppActivate() {
 func classifierRecognizesOpenAsActivateSynonym() {
   let result = classifier.classify(normalized: "open mail", raw: "open mail")
   #expect(result.kind == .appActivate)
-  #expect(result.slots.first { $0.name == IntentSlotName.bundleIdentifier }?.value == "com.apple.mail")
+  #expect(
+    result.slots.first { $0.name == IntentSlotName.bundleIdentifier }?.value == "com.apple.mail")
 }
 
 @Test
@@ -27,7 +29,8 @@ func classifierRecognizesTurkishApplicationCommandAndLanguage() {
   #expect(result.kind == .appActivate)
   #expect(result.language == .turkish)
   #expect(result.dialogueAct == .execute)
-  #expect(result.slots.first { $0.name == IntentSlotName.bundleIdentifier }?.value == "com.apple.Safari")
+  #expect(
+    result.slots.first { $0.name == IntentSlotName.bundleIdentifier }?.value == "com.apple.Safari")
 }
 
 @Test
@@ -63,7 +66,8 @@ func classifierRecognizesKnownAppTerminate() {
   let result = classifier.classify(normalized: "quit safari", raw: "quit safari")
   #expect(result.kind == .appTerminate)
   #expect(result.semanticCategory == .appTerminate)
-  #expect(result.slots.first { $0.name == IntentSlotName.bundleIdentifier }?.value == "com.apple.Safari")
+  #expect(
+    result.slots.first { $0.name == IntentSlotName.bundleIdentifier }?.value == "com.apple.Safari")
 }
 
 @Test
@@ -104,7 +108,8 @@ func classifierRecognizesNamedCodingAgentBackend() {
     normalized: "codex fix the failing test", raw: "codex fix the failing test")
   #expect(result.kind == .codingAgentRun)
   #expect(result.slots.first { $0.name == IntentSlotName.backend }?.value == "codex")
-  #expect(result.slots.first { $0.name == IntentSlotName.objective }?.value == "fix the failing test")
+  #expect(
+    result.slots.first { $0.name == IntentSlotName.objective }?.value == "fix the failing test")
 }
 
 @Test

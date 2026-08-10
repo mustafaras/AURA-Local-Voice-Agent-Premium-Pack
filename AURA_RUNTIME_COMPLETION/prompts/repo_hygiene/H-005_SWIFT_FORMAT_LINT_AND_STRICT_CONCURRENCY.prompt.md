@@ -4,7 +4,7 @@ sequence: 5
 gap_id: HYGIENE-05
 depends_on: H-004
 next_prompt: H-006
-state: pending
+state: ready
 ---
 
 # H-005 — Swift format lint and strict concurrency

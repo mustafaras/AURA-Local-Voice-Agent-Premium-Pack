@@ -29,13 +29,16 @@ func scannerDetectsAWSAccessKey() {
 @Test
 func scannerDetectsPrivateKeyBlock() {
   let scanner = SecretScanner()
-  #expect(scanner.containsSecret("-----BEGIN RSA PRIVATE KEY-----\nMIIB...\n-----END RSA PRIVATE KEY-----"))
+  #expect(
+    scanner.containsSecret(
+      "-----BEGIN RSA PRIVATE KEY-----\nMIIB...\n-----END RSA PRIVATE KEY-----"))
 }
 
 @Test
 func scannerDetectsJWT() {
   let scanner = SecretScanner()
-  let jwt = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U"
+  let jwt =
+    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U"
   #expect(scanner.containsSecret(jwt))
 }
 

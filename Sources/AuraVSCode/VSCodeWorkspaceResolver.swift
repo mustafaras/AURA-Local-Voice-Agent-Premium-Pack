@@ -118,7 +118,9 @@ public struct VSCodeWorkspaceResolver: Sendable {
     guard !path.isEmpty, path.hasPrefix("/") else { return nil }
     guard FileManager.default.fileExists(atPath: path) else { return nil }
     var isDirectory: ObjCBool = false
-    guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory), isDirectory.boolValue else {
+    guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory),
+      isDirectory.boolValue
+    else {
       return nil
     }
     return URL(fileURLWithPath: path).standardizedFileURL.resolvingSymlinksInPath().path

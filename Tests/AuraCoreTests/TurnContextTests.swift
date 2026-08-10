@@ -23,7 +23,8 @@ struct TurnContextTests {
     let nextCausationID = UUID()
     let advanced = context.advancing(
       causationID: nextCausationID,
-      backendIDs: TurnBackendIDs(stt: "native-speech", tts: "system", tool: "automation.appActivate"))
+      backendIDs: TurnBackendIDs(
+        stt: "native-speech", tts: "system", tool: "automation.appActivate"))
 
     #expect(advanced.sessionID == sessionID)
     #expect(advanced.turnID == turnID)

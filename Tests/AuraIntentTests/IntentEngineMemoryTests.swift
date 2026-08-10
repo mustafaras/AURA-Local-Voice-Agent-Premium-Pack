@@ -70,7 +70,8 @@ func intentEngineAppendsWorkingConversationRecordForClassifiedIntent() async thr
   #expect(classified.first?.kind == "appActivate")
 
   let records = try await store.memoryRecords(
-    matching: MemoryQuery(memoryClass: .workingConversation, scope: MemoryScope(sessionID: sessionID)))
+    matching: MemoryQuery(
+      memoryClass: .workingConversation, scope: MemoryScope(sessionID: sessionID)))
   #expect(records.count == 1)
   let record = records[0]
   #expect(record.subject.hasPrefix("intent:"))
@@ -99,7 +100,8 @@ func intentEngineAnnotatesProvenanceForClassifiedIntent() async throws {
   _ = await engine.classify(turn, correlationID: correlationID, causationID: UUID())
 
   let records = try await store.memoryRecords(
-    matching: MemoryQuery(memoryClass: .workingConversation, scope: MemoryScope(sessionID: sessionID)))
+    matching: MemoryQuery(
+      memoryClass: .workingConversation, scope: MemoryScope(sessionID: sessionID)))
   #expect(records.count == 1)
   let record = records[0]
 
@@ -150,13 +152,17 @@ func intentEngineSessionScopeIsolatesRecords() async throws {
     sessionID: sessionB
   )
 
-  _ = await engineA.classify(makeTurn(text: "open safari"), correlationID: UUID(), causationID: UUID())
-  _ = await engineB.classify(makeTurn(text: "quit mail"), correlationID: UUID(), causationID: UUID())
+  _ = await engineA.classify(
+    makeTurn(text: "open safari"), correlationID: UUID(), causationID: UUID())
+  _ = await engineB.classify(
+    makeTurn(text: "quit mail"), correlationID: UUID(), causationID: UUID())
 
   let recordsA = try await store.memoryRecords(
-    matching: MemoryQuery(memoryClass: .workingConversation, scope: MemoryScope(sessionID: sessionA)))
+    matching: MemoryQuery(
+      memoryClass: .workingConversation, scope: MemoryScope(sessionID: sessionA)))
   let recordsB = try await store.memoryRecords(
-    matching: MemoryQuery(memoryClass: .workingConversation, scope: MemoryScope(sessionID: sessionB)))
+    matching: MemoryQuery(
+      memoryClass: .workingConversation, scope: MemoryScope(sessionID: sessionB)))
   #expect(recordsA.count == 1)
   #expect(recordsB.count == 1)
   #expect(recordsA[0].statement.contains("appActivate"))

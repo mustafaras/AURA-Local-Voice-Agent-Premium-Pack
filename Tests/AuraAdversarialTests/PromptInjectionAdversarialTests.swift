@@ -43,7 +43,8 @@ func multiLanguageInstructionOverrideDetectedAsSuspiciousOrBlocked() {
   // injection text must not be treated as clean; it is currently flagged
   // suspicious because the high-severity English rule cannot match. We
   // document this as a residual gap and require at least a non-clean signal.
-  #expect(verdict != .clean, "non-English instruction override must be detected as suspicious or blocked")
+  #expect(
+    verdict != .clean, "non-English instruction override must be detected as suspicious or blocked")
 }
 
 @Test

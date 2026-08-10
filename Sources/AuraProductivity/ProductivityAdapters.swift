@@ -313,9 +313,11 @@ public struct GmailReadAdapter: MailReadAdapter, Sendable {
       try await transport.search(
         accountID: account, query: query, limit: boundedLimit, accessToken: token)
     }
-    guard raw.allSatisfy({
-      !makeHeader($0).subject.isBlocked
-    }) else {
+    guard
+      raw.allSatisfy({
+        !makeHeader($0).subject.isBlocked
+      })
+    else {
       throw .privacyBlocked(reason: "mail subject matched an injection-blocking rule")
     }
     return raw.map { makeHeader($0) }

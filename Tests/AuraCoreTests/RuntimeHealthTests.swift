@@ -28,9 +28,10 @@ struct RuntimeHealthTests {
 
     let snapshot = await registry.snapshot()
     #expect(snapshot.contains { $0.componentID == "ollama" && $0.status == .failed })
-    #expect(snapshot.contains {
-      $0.componentID == "microphone" && $0.status == .permissionBlocked
-    })
+    #expect(
+      snapshot.contains {
+        $0.componentID == "microphone" && $0.status == .permissionBlocked
+      })
   }
 
   private actor RuntimeHealthEventCapture {

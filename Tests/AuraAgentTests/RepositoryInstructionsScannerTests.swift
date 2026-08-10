@@ -90,7 +90,8 @@ func scannerFindsFilesInInstructionsAgentsAndPromptsDirectories() throws {
       encoding: .utf8)
   // A non-matching file in the same directory must not be picked up.
   try "irrelevant"
-    .write(to: instructionsDir.appendingPathComponent("readme.txt"), atomically: true, encoding: .utf8)
+    .write(
+      to: instructionsDir.appendingPathComponent("readme.txt"), atomically: true, encoding: .utf8)
 
   let result = RepositoryInstructionsScanner.scan(repositoryRoot: repo.path)
   #expect(result.filesScanned.count == 3)

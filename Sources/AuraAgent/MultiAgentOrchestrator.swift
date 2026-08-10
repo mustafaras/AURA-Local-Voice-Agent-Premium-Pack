@@ -181,8 +181,9 @@ public actor MultiAgentOrchestrator {
         return outcome
       }
 
-      let diffText = (try? await worktreeManager.diff(
-        taskID: runID, actor: actor, sessionID: sessionID)) ?? "(diff unavailable)"
+      let diffText =
+        (try? await worktreeManager.diff(
+          taskID: runID, actor: actor, sessionID: sessionID)) ?? "(diff unavailable)"
 
       var validation: ValidationOutcome?
       if let validationCommand {
@@ -280,7 +281,8 @@ public actor MultiAgentOrchestrator {
       worktreePath: handle.path, branch: handle.branch, iterations: iteration,
       conflicts: conflicts)
     await emit(
-      OrchestrationEscalatedEvent(runID: runID, iterations: iteration, conflictCount: conflicts.count),
+      OrchestrationEscalatedEvent(
+        runID: runID, iterations: iteration, conflictCount: conflicts.count),
       actor: actor, correlationID: runID, causationID: runID)
     await completeRun(runID: runID, outcome: outcome, iterations: iteration, actor: actor)
     return outcome
@@ -305,7 +307,9 @@ public actor MultiAgentOrchestrator {
     guard tasks.count <= configuration.maxSpecialistTasks else {
       let reason =
         "specialist swarm size \(tasks.count) exceeds configured maximum \(configuration.maxSpecialistTasks)"
-      return tasks.map { SpecialistResult(taskID: $0.taskID, outcome: .budgetExceeded(reason: reason)) }
+      return tasks.map {
+        SpecialistResult(taskID: $0.taskID, outcome: .budgetExceeded(reason: reason))
+      }
     }
 
     return await withTaskGroup(of: SpecialistResult.self) { group in

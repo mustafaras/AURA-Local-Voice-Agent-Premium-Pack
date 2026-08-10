@@ -127,13 +127,14 @@ public actor ComputerUseConfirmationStore {
     guard checkpoint.observationStructuralHash == recaptured.structuralHash else {
       return .structuralChanged
     }
-    let resolvedAnchor: UIAnchor = recaptured.controlCandidates.first.map { candidate in
-      UIAnchor(
-        accessibilityRole: candidate.role, accessibilityTitle: candidate.title,
-        accessibilityIdentifier: candidate.identifier,
-        fallbackNormalizedX: candidate.fallbackNormalizedX,
-        fallbackNormalizedY: candidate.fallbackNormalizedY)
-    } ?? checkpoint.anchor
+    let resolvedAnchor: UIAnchor =
+      recaptured.controlCandidates.first.map { candidate in
+        UIAnchor(
+          accessibilityRole: candidate.role, accessibilityTitle: candidate.title,
+          accessibilityIdentifier: candidate.identifier,
+          fallbackNormalizedX: candidate.fallbackNormalizedX,
+          fallbackNormalizedY: candidate.fallbackNormalizedY)
+      } ?? checkpoint.anchor
     guard checkpoint.anchor == resolvedAnchor else {
       // If a candidate is present it must resolve to the same anchor the
       // plan targeted; if none is present the plan's own anchor still binds.

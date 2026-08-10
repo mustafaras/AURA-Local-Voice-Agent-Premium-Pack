@@ -75,7 +75,8 @@ func ollamaRegistryPrefersThinkingCapableModelsForReasoning() async throws {
   _ = try await registry.refresh(actor: ollamaTestActor, correlationID: UUID(), causationID: UUID())
 
   // Without the reasoning preference, the smaller non-thinking model wins.
-  let classificationRouted = await registry.route(capability: .classification, allowCloudModels: false)
+  let classificationRouted = await registry.route(
+    capability: .classification, allowCloudModels: false)
   #expect(classificationRouted?.name == "plain:latest")
 
   // For reasoning, the thinking-capable model is preferred even though larger.

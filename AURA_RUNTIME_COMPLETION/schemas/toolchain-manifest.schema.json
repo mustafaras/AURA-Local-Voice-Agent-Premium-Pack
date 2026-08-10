@@ -49,7 +49,9 @@
         "python_chatterbox",
         "git_version",
         "github_remote_probe",
-        "swift_format_available"
+        "swift_format_available",
+        "swiftlint_version",
+        "swiftlint_sourcekit_compatible"
       ],
       "properties": {
         "macos_version": { "type": "string", "minLength": 1 },
@@ -65,7 +67,9 @@
         "python_chatterbox": { "type": "string", "minLength": 1 },
         "git_version": { "type": "string", "minLength": 1 },
         "github_remote_probe": { "enum": ["passed", "failed", "not_run"] },
-        "swift_format_available": { "type": "boolean" }
+        "swift_format_available": { "type": "boolean" },
+        "swiftlint_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "swiftlint_sourcekit_compatible": { "type": "boolean" }
       }
     },
     "required_cli": {

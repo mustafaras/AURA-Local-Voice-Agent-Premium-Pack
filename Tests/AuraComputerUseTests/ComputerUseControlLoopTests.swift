@@ -315,7 +315,8 @@ func emergencyStopActiveBeforeRunHaltsImmediately() async throws {
   #expect(await planner.proposeCallCount == 0)
 }
 
-@Test("An emergency stop triggered mid-plan (between Plan and Act) halts before the next step executes")
+@Test(
+  "An emergency stop triggered mid-plan (between Plan and Act) halts before the next step executes")
 func emergencyStopTriggeredMidPlanHaltsBeforeNextStep() async throws {
   let windows = [makeWindow(id: 1, bundleID: targetApp)]
   let executor = ScriptedActionExecutor()
@@ -337,7 +338,8 @@ func emergencyStopTriggeredMidPlanHaltsBeforeNextStep() async throws {
 
 // MARK: - Structured-concurrency cancellation
 
-@Test("Cancelling the enclosing Task halts the loop before the next step executes, like emergency stop")
+@Test(
+  "Cancelling the enclosing Task halts the loop before the next step executes, like emergency stop")
 func taskCancellationMidPlanHaltsBeforeNextStep() async throws {
   let windows = [makeWindow(id: 1, bundleID: targetApp)]
   let executor = ScriptedActionExecutor()
@@ -397,7 +399,9 @@ func zeroRateLimitNeverThrottles() async throws {
 
 // MARK: - Accessibility-preferred anchoring audit signal
 
-@Test("The step execution outcome faithfully reports whether accessibility or coordinate anchoring was used")
+@Test(
+  "The step execution outcome faithfully reports whether accessibility or coordinate anchoring was used"
+)
 func stepEventReportsAccessibilityUsage() async throws {
   let windows = [makeWindow(id: 1, bundleID: targetApp)]
   let executor = ScriptedActionExecutor()

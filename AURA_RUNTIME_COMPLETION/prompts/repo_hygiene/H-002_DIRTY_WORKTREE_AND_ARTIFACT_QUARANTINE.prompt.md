@@ -4,7 +4,7 @@ sequence: 2
 gap_id: HYGIENE-02
 depends_on: H-001
 next_prompt: H-003
-state: pending
+state: ready
 ---
 
 # H-002 — Dirty worktree and artifact quarantine

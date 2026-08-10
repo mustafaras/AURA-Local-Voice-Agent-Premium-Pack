@@ -94,7 +94,8 @@ func keychainOAuthStoreKeepsOnlyReferenceOutsideSecretStore() async throws {
   let secretStore = ProductivitySecretStoreFake()
   let store = KeychainOAuthTokenStore(secretStore: secretStore)
   let reference = try OAuthTokenReference(provider: .gmail, accountID: "person@example.com")
-  let material = try OAuthTokenMaterial(accessToken: "access-secret", refreshToken: "refresh-secret")
+  let material = try OAuthTokenMaterial(
+    accessToken: "access-secret", refreshToken: "refresh-secret")
 
   try await store.save(material, for: reference)
   let savedToken = try await store.accessToken(for: reference)
@@ -262,15 +263,18 @@ func accountAndProfileAmbiguityFailsClosed() {
 func calendarConflictAndContactTieRequireExplicitResolution() throws {
   let base = Date(timeIntervalSince1970: 0)
   let first = try CalendarTimeRange(start: base, end: base.addingTimeInterval(3_600))
-  let overlap = try CalendarTimeRange(start: base.addingTimeInterval(1_800), end: base.addingTimeInterval(5_400))
+  let overlap = try CalendarTimeRange(
+    start: base.addingTimeInterval(1_800), end: base.addingTimeInterval(5_400))
   #expect(CalendarConflictDetector.conflicts(candidate: overlap, existing: [first]))
 
   let name = ExternalContent(
     sourceID: "contact:a:name", text: "Alex", provenance: .contactRecord)
-  let resolution = ScopedContactResolution(query: "Alex", candidates: [
-    ContactCandidate(id: "a", displayName: name),
-    ContactCandidate(id: "b", displayName: name),
-  ])
+  let resolution = ScopedContactResolution(
+    query: "Alex",
+    candidates: [
+      ContactCandidate(id: "a", displayName: name),
+      ContactCandidate(id: "b", displayName: name),
+    ])
   #expect(resolution.requiresClarification)
   #expect(throws: ProductivityError.self) { try resolution.uniqueCandidate() }
 }

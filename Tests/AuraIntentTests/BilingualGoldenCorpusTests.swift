@@ -19,7 +19,8 @@ func bilingualGoldenCorpusMeetsFastPathTarget() {
       raw: "Open Safari?", normalized: "open safari", expectedKind: .appActivate,
       expectedLanguage: .english, expectedAmbiguous: false),
     BilingualGoldenCase(
-      raw: "Could you open Safari?", normalized: "could you open safari", expectedKind: .appActivate,
+      raw: "Could you open Safari?", normalized: "could you open safari",
+      expectedKind: .appActivate,
       expectedLanguage: .english, expectedAmbiguous: false),
     BilingualGoldenCase(
       raw: "Lütfen Safari'yi açabilir misin?", normalized: "lütfen safariyi açabilir misin",
@@ -31,10 +32,12 @@ func bilingualGoldenCorpusMeetsFastPathTarget() {
       raw: "Run echo hello", normalized: "run echo hello", expectedKind: .shellExecute,
       expectedLanguage: .english, expectedAmbiguous: false),
     BilingualGoldenCase(
-      raw: "Çalıştır echo merhaba", normalized: "çalıştır echo merhaba", expectedKind: .shellExecute,
+      raw: "Çalıştır echo merhaba", normalized: "çalıştır echo merhaba",
+      expectedKind: .shellExecute,
       expectedLanguage: .turkish, expectedAmbiguous: false),
     BilingualGoldenCase(
-      raw: "Çalıştır git status please", normalized: "çalıştır git status please", expectedKind: .unknown,
+      raw: "Çalıştır git status please", normalized: "çalıştır git status please",
+      expectedKind: .unknown,
       expectedLanguage: .mixed, expectedAmbiguous: true),
     BilingualGoldenCase(
       raw: "Quit Mail", normalized: "quit mail", expectedKind: .appTerminate,
@@ -46,7 +49,8 @@ func bilingualGoldenCorpusMeetsFastPathTarget() {
       raw: "Gökyüzü neden mavi?", normalized: "gökyüzü neden mavi", expectedKind: .converse,
       expectedLanguage: .turkish, expectedAmbiguous: false),
     BilingualGoldenCase(
-      raw: "Please bugün hava nasıl?", normalized: "please bugün hava nasıl", expectedKind: .converse,
+      raw: "Please bugün hava nasıl?", normalized: "please bugün hava nasıl",
+      expectedKind: .converse,
       expectedLanguage: .mixed, expectedAmbiguous: false),
   ]
 

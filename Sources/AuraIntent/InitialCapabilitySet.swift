@@ -381,7 +381,10 @@ public enum InitialCapabilitySet {
       version: "1.0.0",
       presentation: CapabilityPresentation(
         titleByLocale: [.english: title, .turkish: title],
-        descriptionByLocale: [.english: "Inspect " + action + " through the typed VS Code bridge.", .turkish: "Tipli VS Code köprüsü üzerinden " + action + " bilgisini inceler."]),
+        descriptionByLocale: [
+          .english: "Inspect " + action + " through the typed VS Code bridge.",
+          .turkish: "Tipli VS Code köprüsü üzerinden " + action + " bilgisini inceler.",
+        ]),
       inputSchemaDescription: "no arbitrary command text",
       outputSchemaDescription: output,
       owningAdapter: "VSCodeExtensionBridge",
@@ -408,7 +411,10 @@ public enum InitialCapabilitySet {
       version: "1.0.0",
       presentation: CapabilityPresentation(
         titleByLocale: [.english: title, .turkish: title],
-        descriptionByLocale: [.english: "Run a named, bounded " + action + " through VS Code.", .turkish: "VS Code üzerinden adlandırılmış, sınırlandırılmış " + action + " çalıştırır."]),
+        descriptionByLocale: [
+          .english: "Run a named, bounded " + action + " through VS Code.",
+          .turkish: "VS Code üzerinden adlandırılmış, sınırlandırılmış " + action + " çalıştırır.",
+        ]),
       inputSchemaDescription: input + "; no arbitrary command text",
       outputSchemaDescription: "typed task/test outcome and normalized status",
       owningAdapter: "VSCodeExtensionBridge",
@@ -419,7 +425,8 @@ public enum InitialCapabilitySet {
         timeoutSeconds: 120, supportsCancellation: true, isRetryable: false),
       confirmationRule: "reversible tier policy decision required",
       verificationMethod: "typed bridge outcome plus task/test diagnostics and exit status",
-      rollbackStrategy: "cancellation is explicit; task/test side effects are not automatically rolled back",
+      rollbackStrategy:
+        "cancellation is explicit; task/test side effects are not automatically rolled back",
       sensitivity: .sensitive)
   }
 
@@ -433,17 +440,22 @@ public enum InitialCapabilitySet {
           "Onaylanmış, canlı doğrulanmış bir uygulamaya karşı sınırlı bir bilgisayar-kullanımı görevi çalıştırır.",
       ]),
     inputSchemaDescription: "appBundleIdentifier: String, objective: String",
-    outputSchemaDescription: "bounded control-loop outcome (completed/no-progress/emergency-stopped/etc.)",
+    outputSchemaDescription:
+      "bounded control-loop outcome (completed/no-progress/emergency-stopped/etc.)",
     owningAdapter: "ComputerUseControlLoop.run + DeterministicComputerUsePlanner",
     requiredCapability: .computerUseRun,
-    sideEffects: ["drives a live UI within the approved app; blocked for unapproved apps by the beta allowlist"],
+    sideEffects: [
+      "drives a live UI within the approved app; blocked for unapproved apps by the beta allowlist"
+    ],
     isIdempotent: false,
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 120, supportsCancellation: true, isRetryable: false),
     confirmationRule: "mutation tier default (confirmation required unless granted); "
       + "mandatory-confirmation intents always require confirmation",
-    verificationMethod: "ComputerUseVerifier semantic postconditions; a content-hash change alone is insufficient",
-    rollbackStrategy: "none — computer-use actions are not automatically rolled back; emergency stop halts")
+    verificationMethod:
+      "ComputerUseVerifier semantic postconditions; a content-hash change alone is insufficient",
+    rollbackStrategy:
+      "none — computer-use actions are not automatically rolled back; emergency stop halts")
 
   public static let filesystemOpenFile = CapabilityManifest(
     id: "filesystem.open_file", version: "1.0.0",
@@ -517,8 +529,10 @@ public enum InitialCapabilitySet {
     owningAdapter: "not yet implemented",
     requiredCapability: .urlOpen,
     sideEffects: ["launches the default web browser"],
-    requiredNetworkDomains: ["any (user-supplied URL; browser-mediated, not a direct AURA "
-      + "network request)"],
+    requiredNetworkDomains: [
+      "any (user-supplied URL; browser-mediated, not a direct AURA "
+        + "network request)"
+    ],
     isIdempotent: true,
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 10, supportsCancellation: false, isRetryable: true),
@@ -531,7 +545,8 @@ public enum InitialCapabilitySet {
     presentation: CapabilityPresentation(
       titleByLocale: [.english: "Read Browser Page", .turkish: "Tarayıcı Sayfasını Oku"],
       descriptionByLocale: [
-        .english: "Read the approved Safari profile's active visible page through a structured bridge.",
+        .english:
+          "Read the approved Safari profile's active visible page through a structured bridge.",
         .turkish: "Onaylı Safari profilindeki görünür sayfayı yapılandırılmış köprüyle okur.",
       ]),
     inputSchemaDescription: "approvedProfileID: String",
@@ -542,7 +557,8 @@ public enum InitialCapabilitySet {
     isIdempotent: true,
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 15, supportsCancellation: true, isRetryable: true),
-    confirmationRule: "never required for read-only observation; profile/domain scope still applies",
+    confirmationRule:
+      "never required for read-only observation; profile/domain scope still applies",
     verificationMethod: "bridge response profile ID and HTTPS host match the approved scope",
     rollbackStrategy: "not applicable — no side effects",
     sensitivity: .sensitive)
@@ -566,7 +582,8 @@ public enum InitialCapabilitySet {
     isIdempotent: true,
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 20, supportsCancellation: true, isRetryable: true),
-    confirmationRule: "never required for read-only observation; account scope and privacy policy apply",
+    confirmationRule:
+      "never required for read-only observation; account scope and privacy policy apply",
     verificationMethod: "provider response is bound to the approved account and read-only scope",
     rollbackStrategy: "not applicable — no side effects",
     sensitivity: .sensitive)
@@ -588,7 +605,8 @@ public enum InitialCapabilitySet {
     isIdempotent: true,
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 15, supportsCancellation: true, isRetryable: true),
-    confirmationRule: "never required for read-only observation; authorization remains user-controlled",
+    confirmationRule:
+      "never required for read-only observation; authorization remains user-controlled",
     verificationMethod: "EventKit event identifiers and requested range are returned",
     rollbackStrategy: "not applicable — no side effects",
     sensitivity: .sensitive)

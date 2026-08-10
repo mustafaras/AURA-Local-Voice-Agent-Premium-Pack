@@ -40,7 +40,11 @@ private func signedManifest(
   return (manifest: signed, bundleData: bundleData, privateKey: privateKey)
 }
 
-private func registry(trusting fixture: (manifest: PluginManifest, bundleData: Data, privateKey: Curve25519.Signing.PrivateKey)) -> PluginTrustRegistry {
+private func registry(
+  trusting fixture: (
+    manifest: PluginManifest, bundleData: Data, privateKey: Curve25519.Signing.PrivateKey
+  )
+) -> PluginTrustRegistry {
   PluginTrustRegistry(keysByVendor: [
     fixture.manifest.vendorName: fixture.privateKey.publicKey
   ])

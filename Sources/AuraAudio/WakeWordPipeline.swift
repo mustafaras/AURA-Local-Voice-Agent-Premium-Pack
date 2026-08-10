@@ -286,13 +286,15 @@ public actor WakeWordPipeline {
   private func emitWakeActivationEvent(active: Bool, privacyMode: Bool) async {
     let context: TurnContext?
     if active {
-      let current = activeTurnContext ?? TurnContext(
-        sessionID: sessionID,
-        activationSource: .wakeWord,
-        actor: .user,
-        authority: .userUtterance,
-        sensitivity: privacyMode ? .sensitive : .internalLevel,
-        timingOrigin: monotonicClock())
+      let current =
+        activeTurnContext
+        ?? TurnContext(
+          sessionID: sessionID,
+          activationSource: .wakeWord,
+          actor: .user,
+          authority: .userUtterance,
+          sensitivity: privacyMode ? .sensitive : .internalLevel,
+          timingOrigin: monotonicClock())
       activeTurnContext = current
       context = current
     } else {
@@ -321,8 +323,9 @@ public actor WakeWordPipeline {
     sensitivity: SensitivityLevel = .internalLevel
   ) async {
     let traceContext = context ?? activeTurnContext
-    let envelope = traceContext?.envelope(
-      actor: .audio, sensitivity: sensitivity, payload: payload)
+    let envelope =
+      traceContext?.envelope(
+        actor: .audio, sensitivity: sensitivity, payload: payload)
       ?? EventEnvelope(
         correlationID: sessionID,
         causationID: sessionID,

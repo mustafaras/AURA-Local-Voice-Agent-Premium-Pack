@@ -1,0 +1,15 @@
+included:
+  - Sources
+  - Tests
+
+excluded:
+  - .build
+  - Runtime
+  - AURA_RUNTIME_COMPLETION
+  - .git
+
+# Keep SwiftLint's default rule set visible. The formatter's 100-column policy
+# is the repository baseline, so line length is made an error here as well.
+line_length:
+  warning: 100
+  error: 100
