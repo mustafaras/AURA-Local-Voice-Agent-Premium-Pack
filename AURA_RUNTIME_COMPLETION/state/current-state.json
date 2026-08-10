@@ -2,7 +2,7 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-10T13:08:41Z",
+  "updated_at": "2026-08-10T13:34:34Z",
   "session_id": "AURA-REPO-HYGIENE-H007-20260810",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
@@ -10,7 +10,7 @@
     "active_branch": "main",
     "verified_head": "47775180c224f87fa5a58703f793515ffcb2c35c",
     "remote_head": "47775180c224f87fa5a58703f793515ffcb2c35c",
-    "working_tree_state": "dirty_expected",
+    "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
@@ -42,8 +42,7 @@
       ,"H-003 closeout is recorded under EV-REPO-HYGIENE-H-003-CLOSEOUT-20260809-01: hygiene validator, focused 3/3, ignore 2/2, runtime governance, full 31/31 script tests, JSON, diff, and tracked-artifact audits pass; authority is reset for the next session."
       ,"H-004 canonical toolchain/documentation evidence is recorded under EV-REPO-HYGIENE-H-004-20260810-01: the active macOS 27+/arm64/Swift 6.4/SDK 27 baseline and 21 Swift test targets are reconciled; Package.swift and scripts/aura-test.sh use discovered/fail-closed Swift Testing paths; source build, AuraCoreTests 27/27, validators, JSON/YAML, documentation references, shell syntax, and diff checks pass. Full Xcode remains unavailable; H-005 was the next approved prompt."
       ,"H-005 bounded formatter/toolchain evidence and mandatory closeout are recorded under EV-REPO-HYGIENE-H-005-20260810-02 and EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02: .swift-format schema version 1 and explicit CI strict flags are present; 1,019 findings across 116 files were remediated in reviewed batches; recursive formatter lint, strict build, and 21/21 bundles with 794/794 tests pass. SwiftLint 0.65.0 is provisioned, while full SourceKit-backed lint remains explicitly blocked under the toolchain-owner risk. H-005 is complete for chain order."
-      ,"H-005 delivery is recorded at merge commit 3b1aa85f8c55e17b49c43daea008f98fd6515f15 after feature commit d3c77b4c172f0b3600cf3ddba403b2853f4b92f5 was pushed and merged. The H-008 hygiene delivery feature commit abed46b69387fa9cb19c8db5adcaaef9c8e66afa was pushed and merged to main at 47775180c224f87fa5a58703f793515ffcb2c35c; the synchronized state projection follows. H-006 and H-007 are complete for chain order with their evidence preserved. H-007 remediation is recorded under EV-REPO-HYGIENE-H-007-20260810-02 and EV-REPO-HYGIENE-H-007-CLOSEOUT-20260810-02; its explicit host-boundary scope passes at 70.02% against the unchanged 70% ratchet, while raw all-source coverage remains 65.15%. H-008 is ready under EV-REPO-HYGIENE-H-008-20260810-01 and EV-REPO-HYGIENE-H-008-DELIVERY-20260810-01: current-tree secret/dependency/workflow checks pass, history and vulnerability/SBOM limitations remain explicit, and H-009 remains unopened. Six byte-identical mode-600 local backup copies with a ` 2` filename suffix are preserved untracked and excluded from delivery pending explicit ownership/disposition.",
-      "Six byte-identical mode-600 local backup copies with a ` 2` filename suffix are preserved as untracked local artifacts and excluded from delivery; their owner/disposition is not inferred and no deletion or quarantine authority is active."
+      ,"H-005 delivery is recorded at merge commit 3b1aa85f8c55e17b49c43daea008f98fd6515f15 after feature commit d3c77b4c172f0b3600cf3ddba403b2853f4b92f5 was pushed and merged. The H-008 hygiene delivery feature commit abed46b69387fa9cb19c8db5adcaaef9c8e66afa was pushed and merged to main at 47775180c224f87fa5a58703f793515ffcb2c35c; the synchronized state projection follows. H-006 and H-007 are complete for chain order with their evidence preserved. H-007 remediation is recorded under EV-REPO-HYGIENE-H-007-20260810-02 and EV-REPO-HYGIENE-H-007-CLOSEOUT-20260810-02; its explicit host-boundary scope passes at 70.02% against the unchanged 70% ratchet, while raw all-source coverage remains 65.15%. H-008 is ready under EV-REPO-HYGIENE-H-008-20260810-01, EV-REPO-HYGIENE-H-008-DELIVERY-20260810-01, and EV-REPO-HYGIENE-H-008-QUARANTINE-20260810-01: current-tree secret/dependency/workflow checks pass, the six byte-identical duplicate copies were SHA-validated and moved to the recoverable quarantine at /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810, history and vulnerability/SBOM limitations remain explicit, and H-009 remains unopened."
     ]
   },
   "program_status": "in_progress",

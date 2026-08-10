@@ -52,7 +52,7 @@ against the unchanged 70% ratchet. H-007 edit-only authority expired at
 closeout; no cleanup/deletion/quarantine is allowed. H-008 is now active under
 exact `ONAY: H-008`: its fail-closed tracked-content secret scan, dependency
 lock/provenance checks, and SHA-pinned workflow checks are implemented and
-focused-tested and delivered at merge commit `47775180c224f87fa5a58703f793515ffcb2c35c`; H-009 remains unopened. Local Git history scanning remains
+focused-tested and delivered at merge commit `47775180c224f87fa5a58703f793515ffcb2c`; the six duplicate backups are SHA-validated in the recoverable quarantine `/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`; H-009 remains unopened. Local Git history scanning remains
 blocked by the damaged original object database, and external vulnerability/
 SBOM scanners remain unavailable.
 

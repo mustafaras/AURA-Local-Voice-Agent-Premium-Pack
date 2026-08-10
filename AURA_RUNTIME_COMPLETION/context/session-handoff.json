@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-10T13:08:41Z",
+  "updated_at": "2026-08-10T13:34:34Z",
   "session_id": "AURA-REPO-HYGIENE-H008-20260810",
   "last_verified_commit": "47775180c224f87fa5a58703f793515ffcb2c35c",
   "active_prompt": {
@@ -10,7 +10,7 @@
     "state": "in_progress",
     "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. The full 0–15 audit is recorded under EV-OPEN-GAPS-20260809-FULL-AUDIT-01 with OPEN-00–OPEN-15 and S00–S14 closure steps; FINAL/CLOSEOUT remains blocked at live HEAD 47775180c224f87fa5a58703f793515ffcb2c35c, with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The synchronized second-pass overlay is active at SP-000/pending. The repository-hygiene overlay is H-008/ready after the verified feature commit, branch push, no-ff main merge, and main push; current-tree secret/dependency/workflow checks pass, five synthetic fixture findings are explicitly marked, and full local Swift regression is 21/21 bundles and 794/794 tests. H-007 is complete for chain order; H-009 and later prompts are unopened. Historical secret absence, vulnerability/SBOM scanning, hosted CI, and the original `.git` remain explicit limitations.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. The full 0–15 audit is recorded under EV-OPEN-GAPS-20260809-FULL-AUDIT-01 with OPEN-00–OPEN-15 and S00–S14 closure steps; FINAL/CLOSEOUT remains blocked at live HEAD 47775180c224f87fa5a58703f793515ffcb2c35c, with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The synchronized second-pass overlay is active at SP-000/pending. The repository-hygiene overlay is H-008/ready after verified delivery and SHA-validated quarantine of six duplicate backup copies at /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810; current-tree secret/dependency/workflow checks pass, five synthetic fixture findings are explicitly marked, and full local Swift regression is 21/21 bundles and 794/794 tests. H-007 is complete for chain order; H-009 and later prompts are unopened. Historical secret absence, vulnerability/SBOM scanning, hosted CI, and the original `.git` remain explicit limitations.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -462,7 +462,7 @@
     "R11 remains in_progress: full-Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed-CI evidence are missing.",
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
-    "Repository hygiene H-008 is ready after delivery at merge commit 47775180c224f87fa5a58703f793515ffcb2c35c under exact ONAY: H-008: the fail-closed current-tree secret/dependency/workflow validator passes, five synthetic fixtures are explicitly marked, and the full local Swift matrix ran 21/21 bundles with 794/794 tests and zero failures. Keep H-009 unopened; historical secret absence, vulnerability/SBOM scanning, hosted CI, and the original Git object-database risk remain open."
+    "Repository hygiene H-008 is ready after delivery at merge commit 47775180c224f87fa5a58703f793515ffcb2c35c and SHA-validated quarantine of six duplicate backup copies under /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810. The fail-closed current-tree secret/dependency/workflow validator passes, five synthetic fixtures are explicitly marked, and the full local Swift matrix ran 21/21 bundles with 794/794 tests and zero failures. Keep H-009 unopened; historical secret absence, vulnerability/SBOM scanning, hosted CI, and the original Git object-database risk remain open."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
@@ -494,7 +494,7 @@
     "RISK-REPO-HYGIENE-SECRET-SCAN-CURRENT-TREE",
     "RISK-REPO-HYGIENE-DEPENDENCY-SUPPLY-CHAIN"
   ],
-  "next_action": "H-008 is ready after the verified feature commit, branch push, no-ff main merge, and main push at 47775180c224f87fa5a58703f793515ffcb2c35c. Stop and await exact ONAY: H-009; do not open or apply H-009 automatically. Preserve the history-scan, vulnerability/SBOM, hosted-CI, and original `.git` limitations.",
+  "next_action": "H-008 is ready after verified delivery and SHA-validated quarantine of the six duplicate backup copies at /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810. Stop and await exact ONAY: H-009; do not open or apply H-009 automatically. Preserve the history-scan, vulnerability/SBOM, hosted-CI, and original `.git` limitations.",
   "required_first_reads": [
     "AGENTS.md",
     "README.md",
@@ -509,5 +509,5 @@
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "docs/operations/BETA_READINESS.md"
   ],
-  "notes": "FINAL/CLOSEOUT is a blocked handoff, not a release decision. No signing, installation, release, deployment, telemetry, or beta enrollment occurred. Second-pass synchronization remains SP-000/pending. Repository-hygiene synchronization is H-008/ready after the verified feature commit, branch push, no-ff main merge, and main push at 47775180c224f87fa5a58703f793515ffcb2c35c; H-007/H-008 evidence and closeout remain preserved. H-009 must remain unopened until exact ONAY: H-009. Historical secret absence, vulnerability/SBOM scanning, hosted CI, and original local Git repair remain unauthorized or unverified."
+  "notes": "FINAL/CLOSEOUT is a blocked handoff, not a release decision. No signing, installation, release, deployment, telemetry, or beta enrollment occurred. Second-pass synchronization remains SP-000/pending. Repository-hygiene synchronization is H-008/ready after verified delivery and SHA-validated quarantine of six duplicate backup copies at /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810; H-007/H-008 evidence and closeout remain preserved. H-009 must remain unopened until exact ONAY: H-009. Historical secret absence, vulnerability/SBOM scanning, hosted CI, and original local Git repair remain unauthorized or unverified."
 }

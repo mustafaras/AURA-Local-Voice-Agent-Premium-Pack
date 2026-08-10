@@ -1058,3 +1058,10 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Verification:** Before delivery, all H-008 validators and the full 21/21 Swift / 794/794 test matrix passed. After merge, projection commits `3fd2ba5` and `4c1d070` were pushed; final local/remote main matched at `0/0`, the runtime/hygiene/second-pass/supply-chain validators passed, script tests passed 37/37, and Chatterbox passed 4/4.
 - **Safety/limitations:** No cleanup, Git recovery mutation, history rewrite, installation, permission change, app launch, release, deploy, or secret transmission occurred. Original Git history, vulnerability/SBOM, hosted-CI, and external git commit limitations remain explicit. Six byte-identical mode-600 ` 2`-suffix copies remain untracked and preserved pending disposition.
 - **Next action:** Stop at H-008 and await exact `ONAY: H-009`; do not open or apply H-009 automatically. Obtain explicit disposition before any cleanup/quarantine of the six preserved copies.
+
+### 2026-08-10T13:34:34Z — REPO_HYGIENE_H008_QUARANTINE_RESOLVED
+
+- **Actor/authority:** Codex session `AURA-REPO-HYGIENE-H008-20260810`; bounded H-008 remediation authority; H-009 and later prompts were not opened.
+- **Gap/resolution:** Six byte-identical mode-600 duplicate backup files caused the only remaining dirty-worktree ownership gap. They were moved without deletion to `/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`; every SHA-256 matched its tracked original and the repository became clean.
+- **Verification:** Repository hygiene, runtime-completion, second-pass, supply-chain validators, 37/37 script tests, 4/4 Chatterbox tests, JSON/YAML/shell/diff checks, and the previously recorded 21/21 Swift / 794/794 matrix remain passing. State is H-008/ready; authority is reset.
+- **Residual/next:** Quarantine retention is repository-maintainer owned; original Git history, vulnerability/SBOM, hosted-CI, and external git commit limitations remain. Stop at H-008 and await exact `ONAY: H-009`; do not open H-009 automatically.

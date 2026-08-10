@@ -33,10 +33,11 @@ state projection follows that delivery. No cleanup, quarantine, or
 Git object recovery mutation has been performed. The H-005 delivery is now
 merged and pushed at `3b1aa85f8c55e17b49c43daea008f98fd6515f15`, followed by
 the synchronized state projection commit at live `HEAD == origin/main ==
-6c4cc993f86c029ce754c5e540399beb781899bb`. The worktree is intentionally
-dirty with the reviewed H-006 source/control-plane changes; generated paths
-remain preserved in place. H-006 removed production `try!`, `as!`, and direct
-`print()` matches, bounded the AX bridges, and made reviewed diagnostics
+6c4cc993f86c029ce754c5e540399beb781899bb`. The worktree is clean after the
+H-008 duplicate-backup quarantine; the six byte-identical mode-600 copies are
+preserved outside the repository at
+`/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`. H-006 removed production
+`try!`, `as!`, and direct `print()` matches, bounded the AX bridges, and made reviewed diagnostics
 metadata-only/private;
 `Runtime/chatterbox/.gitignore` remains the intended H-003 control-plane
 configuration change. The original checkout's `git fsck` remains non-zero
