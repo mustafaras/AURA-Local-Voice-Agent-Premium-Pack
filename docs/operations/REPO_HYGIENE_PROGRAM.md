@@ -2,7 +2,7 @@
 
 **Status:** H-008 ready under exact `ONAY: H-008`; H-009 remains unopened
 **Owner:** Repository maintainer
-**Baseline:** `main` / `47775180c224f87fa5a58703f793515ffcb2c35c` (verified H-008 delivery merge)
+**Baseline:** `main` / `6c4cc993f86c029ce754c5e540399beb781899bb` (H-006 live verification)
 **Scope:** Source, tests, build artifacts, Git object database, tooling, CI, secrets, dependencies, documentation, ledgers, and agent context
 
 This is the canonical human-readable plan for the repository-hygiene pass. It is intentionally separate from the product second-pass chain in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. The two programs may share evidence, but a repository-hygiene task must not silently close a product, release, beta, permission, or live-hardware gate.
@@ -194,7 +194,7 @@ Establish secret scanning with a safe fixture policy, review dependency provenan
 
 **H-008 status (2026-08-10):** Ready after exact `ONAY: H-008`; only the H-008 prompt was active and H-009 remains unopened.
 
-**H-008 live result (2026-08-10):** The bounded validator scans tracked content with high-confidence patterns, reports only path/line/pattern metadata, allows five explicitly marked synthetic fixture findings, fails closed on any unallowlisted finding, verifies zero tracked log/crash/audio/screen/archive artifacts, checks zero external Swift dependencies, checks the pinned Chatterbox `pyproject.toml`/`uv.lock` graph with `uv lock --check`, and requires every GitHub Actions reference to match a policy-approved full SHA and version annotation. The validator exits 0; governance is 37/37, Chatterbox is 4/4, and the full Swift matrix is 21/21 bundles and 794/794 tests with zero failures. The feature commit `abed46b69387fa9cb19c8db5adcaaef9c8e66afa` was pushed to `origin/repo-hygiene/h008-delivery`, merged no-ff to `main`, and pushed as `47775180c224f87fa5a58703f793515ffcb2c35c`; the post-merge state projection is being synchronized separately. Local Git history scanning remains a separate blocker because the original object database is damaged; external vulnerability/SBOM tools are unavailable; no history mutation is permitted. H-008 is ready for chain-order continuation only; stop and await exact `ONAY: H-009`.
+**H-008 live result (2026-08-10):** The bounded validator scans tracked content with high-confidence patterns, reports only path/line/pattern metadata, allows five explicitly marked synthetic fixture findings, fails closed on any unallowlisted finding, verifies zero tracked log/crash/audio/screen/archive artifacts, checks zero external Swift dependencies, checks the pinned Chatterbox `pyproject.toml`/`uv.lock` graph with `uv lock --check`, and requires every GitHub Actions reference to match a policy-approved full SHA and version annotation. The validator exits 0; governance is 37/37, Chatterbox is 4/4, and the full Swift matrix is 21/21 bundles and 794/794 tests with zero failures. Local Git history scanning remains a separate blocker because the original object database is damaged; external vulnerability/SBOM tools are unavailable; no history mutation is permitted. H-008 is ready for chain-order continuation only; stop and await exact `ONAY: H-009`.
 
 ### HYGIENE-09 — Ledger, context, and architecture hygiene
 
