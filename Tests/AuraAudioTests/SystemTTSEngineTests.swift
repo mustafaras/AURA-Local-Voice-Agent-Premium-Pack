@@ -10,6 +10,9 @@ import Testing
 /// These tests avoid making audible sound by keeping prompts short and
 /// by interrupting synthesis where the framework permits. They verify the
 /// public `TTSEngine` contract: start, speak, stop, pause/resume, and health.
+/// Speech callbacks require an explicit user-present opt-in via
+/// `AURA_ENABLE_SYSTEM_TTS_LIVE_TESTS=1`; installed voices alone do not prove
+/// that a headless host can drive `AVSpeechSynthesizer`.
 @Suite("System TTS Engine")
 struct SystemTTSEngineTests {
 
@@ -30,6 +33,7 @@ struct SystemTTSEngineTests {
   }
 
   @Test func speakEmitsProgressAndComplete() async throws {
+    guard liveSystemTTSTestsAreEnabled() else { return }
     let engine = SystemTTSEngine()
     _ = try await engine.start()
 
@@ -50,6 +54,7 @@ struct SystemTTSEngineTests {
   }
 
   @Test func stopSpeakingInterruptsStream() async throws {
+    guard liveSystemTTSTestsAreEnabled() else { return }
     let engine = SystemTTSEngine()
     _ = try await engine.start()
 
@@ -69,6 +74,7 @@ struct SystemTTSEngineTests {
   }
 
   @Test func pauseAndResumeAreIdempotent() async throws {
+    guard liveSystemTTSTestsAreEnabled() else { return }
     let engine = SystemTTSEngine()
     _ = try await engine.start()
     await engine.pauseSpeaking()
@@ -117,4 +123,8 @@ struct SystemTTSEngineTests {
 
     #expect(selected?.identifier == yeldaID)
   }
+}
+
+private func liveSystemTTSTestsAreEnabled() -> Bool {
+  ProcessInfo.processInfo.environment["AURA_ENABLE_SYSTEM_TTS_LIVE_TESTS"] == "1"
 }
