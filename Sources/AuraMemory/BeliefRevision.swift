@@ -127,7 +127,7 @@ public actor BeliefRevision {
     // Only count target nodes whose source node is in this record's graph.
     let nodesForWinner = subgraph.nodes.filter { $0.recordID == winner.id }
     let winnerNodeIDs = Set(nodesForWinner.map { $0.id })
-    let locallySuperseded = supersededIDs.filter { supersededID in
+    let locallySuperseded = supersededIDs.filter { _ in
       supersederIDs.contains { winnerNodeIDs.contains($0) }
     }
     let recordIDs = subgraph.nodes

@@ -14,10 +14,10 @@ jobs:
     runs-on: [self-hosted, macOS, swift-6.4]
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           clean: true
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Validate runtime-completion governance
@@ -48,10 +48,10 @@ jobs:
     runs-on: [self-hosted, macOS, swift-6.4]
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           clean: true
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Verify Swift version
@@ -75,7 +75,7 @@ jobs:
         run: ./scripts/build-release-artifact.sh
 
       - name: Retain development-unverified artifact and manifest
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: aura-development-unverified-${{ github.sha }}
           if-no-files-found: error

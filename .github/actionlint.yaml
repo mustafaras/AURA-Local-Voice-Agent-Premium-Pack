@@ -1,0 +1,7 @@
+self-hosted-runner:
+  labels:
+    - self-hosted
+    - macOS
+    - swift-6.4
+
+config-variables: null

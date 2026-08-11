@@ -116,15 +116,15 @@ public actor VSCodeCLI {
         return ["--update-extensions", extensionID]
       }
 
-    case .runTask(_, _):
+    case .runTask:
       // VS Code CLI has no native task runner flag; use extension bridge.
       // This branch returns a marker so the adapter routes to the bridge.
       return ["--agents"]
 
-    case .runTests(_, _):
+    case .runTests:
       return ["--agents"]  // Routed to extension bridge / terminal fallback.
 
-    case .terminalCommand(_, _, _):
+    case .terminalCommand:
       return ["--agents"]  // Terminal injection bypasses the CLI.
 
     case .openAgents:

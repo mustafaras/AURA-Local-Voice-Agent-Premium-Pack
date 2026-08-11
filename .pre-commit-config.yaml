@@ -1,0 +1,49 @@
+repos:
+  - repo: local
+    hooks:
+      - id: swift-format
+        name: swift-format strict
+        entry: xcrun swift-format lint --recursive --strict --configuration .swift-format Sources Tests
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: actionlint
+        name: actionlint
+        entry: actionlint -no-color -config-file .github/actionlint.yaml
+        language: system
+        pass_filenames: false
+        files: ^\.github/workflows/.*\.(yaml|yml)$
+
+      - id: yamllint
+        name: yamllint
+        entry: yamllint -s -c .yamllint.yml
+        language: system
+        types: [yaml]
+
+      - id: zsh-syntax
+        name: zsh syntax
+        entry: zsh -n
+        language: system
+        files: \.sh$
+
+      - id: runtime-completion-validator
+        name: runtime completion validator
+        entry: python3 scripts/validate_runtime_completion.py --ci
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: repo-hygiene-validator
+        name: repository hygiene validator
+        entry: python3 scripts/validate_repo_hygiene_program.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: diff-check
+        name: git diff check
+        entry: git diff --check
+        language: system
+        pass_filenames: false
+        always_run: true

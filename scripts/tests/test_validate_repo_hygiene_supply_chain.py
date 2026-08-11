@@ -57,6 +57,7 @@ class RepoHygieneSupplyChainTests(unittest.TestCase):
         self.assertEqual(POLICY["swift"]["expected_external_dependencies"], [])
         for source in POLICY["python"]["direct_git_sources"]:
             self.assertRegex(source["rev"], r"^[0-9a-f]{40}$")
+        self.assertEqual(POLICY["python"]["direct_registry_dependencies"], ["torchcodec==0.15.0"])
 
 
 if __name__ == "__main__":

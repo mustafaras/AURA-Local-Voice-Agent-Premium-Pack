@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-10T13:34:34Z",
-  "session_id": "AURA-REPO-HYGIENE-H008-20260810",
+  "updated_at": "2026-08-11T11:40:41Z",
+  "session_id": "AURA-REPO-HYGIENE-REMEDIATION-20260811",
   "last_verified_commit": "47775180c224f87fa5a58703f793515ffcb2c35c",
   "active_prompt": {
     "id": "FINAL",
@@ -10,7 +10,7 @@
     "state": "in_progress",
     "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. The full 0–15 audit is recorded under EV-OPEN-GAPS-20260809-FULL-AUDIT-01 with OPEN-00–OPEN-15 and S00–S14 closure steps; FINAL/CLOSEOUT remains blocked at live HEAD 47775180c224f87fa5a58703f793515ffcb2c35c, with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The synchronized second-pass overlay is active at SP-000/pending. The repository-hygiene overlay is H-008/ready after verified delivery and SHA-validated quarantine of six duplicate backup copies at /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810; current-tree secret/dependency/workflow checks pass, five synthetic fixture findings are explicitly marked, and full local Swift regression is 21/21 bundles and 794/794 tests. H-007 is complete for chain order; H-009 and later prompts are unopened. Historical secret absence, vulnerability/SBOM scanning, hosted CI, and the original `.git` remain explicit limitations.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The synchronized second-pass overlay is SP-000/pending. The repository-hygiene overlay is H-010/blocked on remediation branch repo-hygiene/remediation-20260811 at a15a96af0307c115a4e97f8db333f6ab4dad8a4c; the audited product/content baseline remains 47775180c224f87fa5a58703f793515ffcb2c35c under ADR-045. H-009 is complete for chain order. H-010 ran the final validators, test matrix, inventory, and synchronization checks. Separate HYGIENE-REMEDIATION-01 now includes Git adoption/history, dependency, and final hosted-CI evidence: current object integrity, reachable-history secret scanning, lock-graph dependency risk, and hosted-CI observation for run 31487128834 are closed. Full Xcode/SourceKit remains blocked. No H-011 exists.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -40,22 +40,16 @@
     "R10 first-pass boundary slice was source/build and focused-test verified under EV-R10-20260809-BOUNDARY-SLICE-01: helper envelope protocol v2 with capability/plan/payload/freshness/nonce/response bindings, covered endpoint/Ollama restrictions, and OAuth PKCE/state/Keychain expiry contracts. The pipe is not authenticated XPC, helper executors are echo-only, and universal network/provider/OAuth/injection/plugin/operations/independent-review gates remain open.",
     "R10 delivery was verified: feature commit 2f6d8f5b was pushed to origin/feature/r10-security-boundaries; merge e1ecf82e was pushed to origin/main. No deploy/release/signing/TCC/dependency/model action was performed. User then explicitly approved transition to R11; R11 starts with edit-only release-readiness authority.",
     "R11 artifact/manifest first slice was implemented and locally verified under EV-R11-20260809-ARTIFACT-MANIFEST-01: development_unverified reproducible ZIP, 13-file bundle inventory/SBOM, checksum-bound manifest, fail-closed release status, 4/4 focused tests, 17/17 governance tests, and release validation blocked by missing full Xcode.",
-    "R11 CI artifact-evidence workflow configuration was added under edit-only authority: successful build/test jobs invoke the existing development_unverified artifact builder and retain only the ZIP/manifest for 14 days. YAML, governance, and script tests pass; no post-change CI run has been observed.",
-    "H-005 is complete; H-006 and H-007 are complete for chain order; H-008 is ready after merge 4777518 with validators and 21/21 Swift bundles (794/794 tests) passing; H-009 remains unopened."
+    "R11 CI artifact-evidence workflow configuration was added under edit-only authority: successful build/test jobs invoke the existing development_unverified artifact builder and retain only the ZIP/manifest for 14 days. YAML, governance, and script tests pass; the final remediation hosted run 31487128834 observed the pushed workflow and artifact upload, while R11 release gates remain open.",
+    "H-005 is complete; H-006 through H-009 are complete for chain order; H-010 is blocked after its final gate and mandatory closeout. No H-011 exists."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+    "Sources/AuraAgent/ReviewVerdictParser.swift",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "README.md",
-    "AURA_RUNTIME_COMPLETION/schemas/capability-matrix.schema.json",
-    "AURA_RUNTIME_COMPLETION/schemas/context-index.schema.json",
-    "AURA_RUNTIME_COMPLETION/schemas/evidence-record.schema.json",
-    "AURA_RUNTIME_COMPLETION/schemas/program-state.schema.json",
-    "AURA_RUNTIME_COMPLETION/schemas/prompt-manifest.schema.json",
     "AURA_RUNTIME_COMPLETION/schemas/session-handoff.schema.json",
     "AURA_RUNTIME_COMPLETION/schemas/toolchain-manifest.schema.json",
     "AURA_RUNTIME_COMPLETION/schemas/beta-readiness.schema.json",
@@ -220,7 +214,7 @@
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-003_IGNORE_RULES_AND_GENERATED_FILE_HYGIENE.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-004_CANONICAL_TOOLCHAIN_AND_DOCUMENTATION_DRIFT.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-005_SWIFT_FORMAT_LINT_AND_STRICT_CONCURRENCY.prompt.md",
-    "Sources/AuraAgent/ReviewVerdictParser.swift",
+    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
     "Sources/AuraAutomation/AccessibilityObserver.swift",
     "Sources/AuraComputerUse/ModalDialogDetecting.swift",
     "Sources/AuraCore/AuraLogger.swift",
@@ -241,38 +235,46 @@
     "Runtime/chatterbox/.gitignore",
     "scripts/tests/test_repo_hygiene_ignore_rules.py",
     "scripts/validate_repo_hygiene_program.py",
-    "scripts/tests/test_validate_repo_hygiene_program.py"
+    "scripts/tests/test_validate_repo_hygiene_program.py",
+    "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_CONTEXT_SUMMARY.md",
+    "AURA_RUNTIME_COMPLETION/repo-hygiene/H-009_ARCHITECTURE_AUDIT.md",
+    ".github/actionlint.yaml",
+    ".gitleaks.toml",
+    ".pre-commit-config.yaml",
+    ".yamllint.yml",
+    "AURA_RUNTIME_COMPLETION/repo-hygiene/EXTERNAL_SCANNER_POLICY.md",
+    "AURA_RUNTIME_COMPLETION/repo-hygiene/TRUFFLEHOG_EXCLUDE_PATHS.txt"
   ],
   "evidence_ids": [
-    "EV-REPO-HYGIENE-20260809-DELIVERY-02",
-    "EV-REPO-HYGIENE-20260809-PROGRAM-01",
-    "EV-REPO-HYGIENE-H-007-20260810-02",
-    "EV-REPO-HYGIENE-H-005-20260810-02",
     "EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02",
     "EV-REPO-HYGIENE-H-006-20260810-01",
     "EV-REPO-HYGIENE-H-006-CLOSEOUT-20260810-01",
     "EV-REPO-HYGIENE-H-008-20260810-01",
     "EV-REPO-HYGIENE-H-008-CLOSEOUT-20260810-01",
-    "EV-R0-20260802-STATE-VALIDATOR-01",
-    "EV-R0-20260802-TOOLCHAIN-MANIFEST-01",
-    "EV-R0-20260802-CI-CONFIG-01",
+    "EV-REPO-HYGIENE-H-009-20260810-01",
+    "EV-REPO-HYGIENE-H-009-CLOSEOUT-20260810-01",
+    "EV-REPO-HYGIENE-H-010-20260810-01",
+    "EV-REPO-HYGIENE-H-010-CLOSEOUT-20260810-01",
+    "EV-REPO-HYGIENE-H-010-RECONCILIATION-20260810-01",
+    "EV-REPO-HYGIENE-REMEDIATION-20260810-01",
+    "EV-REPO-HYGIENE-REMEDIATION-VERIFY-20260811-01",
     "EV-R0-20260802-LEGACY-REDIRECT-01",
     "EV-R0-20260802-POST-COMMIT-VALIDATION-01",
     "EV-REPO-HYGIENE-H-004-20260810-01",
     "EV-R1-20260802-FULL-SUITE-01",
-    "EV-REPO-HYGIENE-H-007-CLOSEOUT-20260810-03",
     "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01",
-    "EV-R1-20260802-HEALTH-DETAIL-01",
+    "EV-REPO-HYGIENE-TOOLCHAIN-20260811-01",
     "EV-R1-20260802-PLAN-BINDING-01",
-    "EV-R1-20260802-AUDIO-CLEANUP-01",
-    "EV-R1-20260802-FULL-SUITE-FINAL-01",
+    "EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01",
+    "EV-REPO-HYGIENE-GIT-ADOPTION-20260811-01",
+    "EV-REPO-HYGIENE-HOSTED-CI-FINAL-20260811-01",
     "EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01",
     "EV-R2-20260802-OLLAMA-STRUCTURED-01",
     "EV-R2-20260802-INTEGRATION-DIALOGUE-01",
     "EV-R2-20260802-FULL-SUITE-SLICE-01",
     "EV-R2-20260802-FULL-SUITE-FINAL-01",
     "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01",
-    "EV-R2-20260802-FULL-SUITE-FINAL-02",
+    "EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01",
     "EV-R2-20260802-DIALOGUE-HEALTH-01",
     "EV-R2-20260802-AGENT-RISK-01",
     "EV-R2-20260802-FULL-SUITE-FINAL-03",
@@ -455,6 +457,26 @@
       "name": "H-005 full SourceKit-backed SwiftLint capability",
       "result": "blocked",
       "evidence_id": "EV-REPO-HYGIENE-H-005-20260810-02"
+    },
+    {
+      "name": "H-009 bounded context/source map and architecture-boundary audit",
+      "result": "passed",
+      "evidence_id": "EV-REPO-HYGIENE-H-009-20260810-01"
+    },
+    {
+      "name": "H-010 final hygiene validators, inventory, graph, and test matrix",
+      "result": "passed",
+      "evidence_id": "EV-REPO-HYGIENE-H-010-20260810-01"
+    },
+    {
+      "name": "H-010 strict formatter, SourceKit lint, and full-Xcode capability",
+      "result": "blocked",
+      "evidence_id": "EV-REPO-HYGIENE-H-010-20260810-01"
+    },
+    {
+      "name": "HYGIENE-REMEDIATION-01 backup, clean clone, scanners, source remediation, and local gates",
+      "result": "blocked",
+      "evidence_id": "EV-REPO-HYGIENE-REMEDIATION-20260810-01"
     }
   ],
   "blockers": [
@@ -462,7 +484,7 @@
     "R11 remains in_progress: full-Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed-CI evidence are missing.",
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
-    "Repository hygiene H-008 is ready after delivery at merge commit 47775180c224f87fa5a58703f793515ffcb2c35c and SHA-validated quarantine of six duplicate backup copies under /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810. The fail-closed current-tree secret/dependency/workflow validator passes, five synthetic fixtures are explicitly marked, and the full local Swift matrix ran 21/21 bundles with 794/794 tests and zero failures. Keep H-009 unopened; historical secret absence, vulnerability/SBOM scanning, hosted CI, and the original Git object-database risk remain open."
+    "Repository hygiene H-010 is blocked on full Xcode/SourceKit after the final validators, inventory, graph/import, formatter/lint, and canonical Swift matrix checks. Separate remediation evidence closes current Git object integrity/history-secret scanning, the current lock-graph dependency risk, and final hosted-CI observation for run 31487128834. Full-Xcode/SourceKit remains open; the damaged pre-adoption `.git` is preserved for rollback. No product delivery mutation or H-011 transition occurred."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
@@ -492,9 +514,11 @@
     "RISK-REPO-HYGIENE-UNSAFE-CONSTRUCTS",
     "RISK-REPO-HYGIENE-DIAGNOSTIC-PAYLOAD-EXPOSURE",
     "RISK-REPO-HYGIENE-SECRET-SCAN-CURRENT-TREE",
-    "RISK-REPO-HYGIENE-DEPENDENCY-SUPPLY-CHAIN"
+    "RISK-REPO-HYGIENE-DEPENDENCY-SUPPLY-CHAIN",
+    "RISK-REPO-HYGIENE-CONTEXT-BLOAT",
+    "RISK-REPO-HYGIENE-ARCHITECTURE-BOUNDARY-DRIFT"
   ],
-  "next_action": "H-008 is ready after verified delivery and SHA-validated quarantine of the six duplicate backup copies at /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810. Stop and await exact ONAY: H-009; do not open or apply H-009 automatically. Preserve the history-scan, vulnerability/SBOM, hosted-CI, and original `.git` limitations.",
+  "next_action": "H-010 remains active/blocked after separate HYGIENE-REMEDIATION-01. The fsck-clean candidate `.git` is adopted and the damaged pre-adoption database is preserved for rollback; final hosted-CI observation is closed by run 31487128834, and full-Xcode/SourceKit authentication/provisioning remains with the named toolchain owner. Re-open dependency review if the lock/upstream/runtime graph changes. No H-011 or automatic transition exists.",
   "required_first_reads": [
     "AGENTS.md",
     "README.md",
@@ -509,5 +533,5 @@
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "docs/operations/BETA_READINESS.md"
   ],
-  "notes": "FINAL/CLOSEOUT is a blocked handoff, not a release decision. No signing, installation, release, deployment, telemetry, or beta enrollment occurred. Second-pass synchronization remains SP-000/pending. Repository-hygiene synchronization is H-008/ready after verified delivery and SHA-validated quarantine of six duplicate backup copies at /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810; H-007/H-008 evidence and closeout remain preserved. H-009 must remain unopened until exact ONAY: H-009. Historical secret absence, vulnerability/SBOM scanning, hosted CI, and original local Git repair remain unauthorized or unverified."
+  "notes": "FINAL/CLOSEOUT is a blocked handoff, not a release decision. No signing, installation, release, deployment, telemetry, or beta enrollment occurred. The user explicitly authorized the repository remediation delivery step; the remediation branch/commit is separately recorded. Second-pass synchronization remains SP-000/pending. Repository-hygiene synchronization is H-010/blocked; the H-009 authored context summary and architecture audit plus H-010 final evidence point back to authoritative state, manifest, ledgers, evidence, risks, and ADRs. No H-011 exists. Current Git object integrity/history-secret scanning, dependency advisory risk, and final hosted-CI observation for run 31487128834 are closed; full-Xcode/SourceKit remains open."
 }

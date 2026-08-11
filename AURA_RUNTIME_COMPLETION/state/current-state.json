@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-10T13:34:34Z",
-  "session_id": "AURA-REPO-HYGIENE-H007-20260810",
+  "updated_at": "2026-08-11T11:40:41Z",
+  "session_id": "AURA-REPO-HYGIENE-REMEDIATION-20260811",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
-    "active_branch": "main",
-    "verified_head": "47775180c224f87fa5a58703f793515ffcb2c35c",
-    "remote_head": "47775180c224f87fa5a58703f793515ffcb2c35c",
+    "active_branch": "repo-hygiene/remediation-20260811",
+    "verified_head": "7f1c03367b9cd67dfa306eb67f4edbdc53c0cd3e",
+    "remote_head": "6e53e6a941756e4b34f24f5de3c9c29bdc8147bf",
     "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -43,6 +43,10 @@
       ,"H-004 canonical toolchain/documentation evidence is recorded under EV-REPO-HYGIENE-H-004-20260810-01: the active macOS 27+/arm64/Swift 6.4/SDK 27 baseline and 21 Swift test targets are reconciled; Package.swift and scripts/aura-test.sh use discovered/fail-closed Swift Testing paths; source build, AuraCoreTests 27/27, validators, JSON/YAML, documentation references, shell syntax, and diff checks pass. Full Xcode remains unavailable; H-005 was the next approved prompt."
       ,"H-005 bounded formatter/toolchain evidence and mandatory closeout are recorded under EV-REPO-HYGIENE-H-005-20260810-02 and EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02: .swift-format schema version 1 and explicit CI strict flags are present; 1,019 findings across 116 files were remediated in reviewed batches; recursive formatter lint, strict build, and 21/21 bundles with 794/794 tests pass. SwiftLint 0.65.0 is provisioned, while full SourceKit-backed lint remains explicitly blocked under the toolchain-owner risk. H-005 is complete for chain order."
       ,"H-005 delivery is recorded at merge commit 3b1aa85f8c55e17b49c43daea008f98fd6515f15 after feature commit d3c77b4c172f0b3600cf3ddba403b2853f4b92f5 was pushed and merged. The H-008 hygiene delivery feature commit abed46b69387fa9cb19c8db5adcaaef9c8e66afa was pushed and merged to main at 47775180c224f87fa5a58703f793515ffcb2c35c; the synchronized state projection follows. H-006 and H-007 are complete for chain order with their evidence preserved. H-007 remediation is recorded under EV-REPO-HYGIENE-H-007-20260810-02 and EV-REPO-HYGIENE-H-007-CLOSEOUT-20260810-02; its explicit host-boundary scope passes at 70.02% against the unchanged 70% ratchet, while raw all-source coverage remains 65.15%. H-008 is ready under EV-REPO-HYGIENE-H-008-20260810-01, EV-REPO-HYGIENE-H-008-DELIVERY-20260810-01, and EV-REPO-HYGIENE-H-008-QUARANTINE-20260810-01: current-tree secret/dependency/workflow checks pass, the six byte-identical duplicate copies were SHA-validated and moved to the recoverable quarantine at /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810, history and vulnerability/SBOM limitations remain explicit, and H-009 remains unopened."
+      ,"H-009 evidence is recorded under EV-REPO-HYGIENE-H-009-20260810-01 and H-010 final-gate/reconciliation evidence under EV-REPO-HYGIENE-H-010-20260810-01 and EV-REPO-HYGIENE-H-010-RECONCILIATION-20260810-01: the bounded context/source map, architecture audit, final validators, inventory, blocker disposition, and handoff duplicate correction are synchronized to live control-plane state; product/content verified_head remains the 47775180 content merge under ADR-045, while current live HEAD is a projection-only descendant. H-010 is blocked with no H-011 transition."
+      ,"H-009 evidence is recorded under EV-REPO-HYGIENE-H-009-20260810-01 and H-010 final-gate/reconciliation evidence under EV-REPO-HYGIENE-H-010-20260810-01 and EV-REPO-HYGIENE-H-010-RECONCILIATION-20260810-01: the bounded context/source map, architecture audit, final validators, inventory, blocker disposition, and handoff duplicate correction are synchronized to live control-plane state; product/content verified_head remains the 47775180 content merge under ADR-045, while current live HEAD is a projection-only descendant. H-010 is blocked with no H-011 transition."
+      ,"Separate HYGIENE-REMEDIATION-01 evidence is recorded under EV-REPO-HYGIENE-REMEDIATION-20260810-01 and EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01: a recoverable pre-change backup and independent fsck-clean clone exist; formatter/source, local scanner, pre-commit, strict build, test, and validator gates pass. The damaged pre-adoption Git database is preserved for rollback; full Xcode/SourceKit remains open, while hosted-CI observation is closed by run 31484275244."
+      ,"EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01 records the authorized lock-graph remediation: OSV and Grype are zero on the authoritative graph, runtime/helper evidence passes, and the generated .venv exclusion is policy-bound. The fsck-clean recovery candidate remains unadopted; no commit, push, merge, H-011, or automatic transition occurred."
     ]
   },
   "program_status": "in_progress",
@@ -455,6 +459,15 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-REPO-HYGIENE-HOSTED-CI-FINAL-20260811-01",
+    "EV-REPO-HYGIENE-COVERAGE-HOST-BOUNDARY-20260811-01",
+    "EV-REPO-HYGIENE-HOSTED-CI-20260811-01",
+    "EV-REPO-HYGIENE-GIT-ADOPTION-20260811-01",
+    "EV-REPO-HYGIENE-TOOLCHAIN-20260811-01",
+    "EV-REPO-HYGIENE-REMEDIATION-VERIFY-20260811-01",
+    "EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01",
+    "EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01",
+    "EV-REPO-HYGIENE-REMEDIATION-20260810-01",
     "EV-REPO-HYGIENE-H-003-CLOSEOUT-20260809-01",
     "EV-REPO-HYGIENE-H-003-20260809-01",
     "EV-REPO-HYGIENE-H-002-CLOSEOUT-20260809-01",
@@ -498,7 +511,7 @@
     "R11 has only a local development_unverified artifact/manifest slice; full Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed CI evidence remain open.",
     "R12 has no authorized beta cohort, telemetry/SLO evidence, scenario results, incident review, independent sign-offs, or approved release-candidate package.",
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
-    "Repository hygiene H-008 is ready under exact ONAY: H-008. H-007 remains preserved as complete for chain order; H-008's current-tree secret/dependency/workflow validator passes, and the full local Swift matrix ran 21/21 bundles with 794/794 tests and zero failures. Historical secret absence, vulnerability/SBOM scans, hosted CI, and the original Git object-database risk remain open. Stop and await exact ONAY: H-009; keep H-009 unopened."
+    "Repository hygiene H-010 remains blocked at the active-prompt boundary. Separate HYGIENE-REMEDIATION-01 improved evidence and local tooling; current Git object integrity/history-secret scanning, the lock-graph dependency risk, and final hosted-CI observation for run 31487128834 are closed. Full Xcode/SourceKit remains open. No H-011 exists."
   ],
-  "next_action": "Return to R11: obtain separately authorized full-Xcode, signing/notarization, clean-machine, updater, recovery, migration, uninstall, and observed-CI evidence; then return to R12 for authorized beta/RC evidence before rerunning FINAL."
+  "next_action": "Return to R11: obtain separately authorized full-Xcode, signing/notarization, clean-machine, updater, recovery, migration, uninstall, and observed-CI evidence; the current repository Git object database is fsck-clean and the damaged pre-adoption database is preserved for rollback. Re-run the dependency scan if the lock/upstream/runtime graph changes, then return to R12 for authorized beta/RC evidence before rerunning FINAL."
 }

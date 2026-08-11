@@ -10,6 +10,8 @@ VALIDATOR = ROOT / "scripts/validate_repo_hygiene_program.py"
 MANIFEST = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json"
 STATE = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json"
 COVERAGE_SCOPE = ROOT / "scripts/aura-coverage-scope.regex"
+CONTEXT_SUMMARY = ROOT / "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_CONTEXT_SUMMARY.md"
+ARCHITECTURE_AUDIT = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/H-009_ARCHITECTURE_AUDIT.md"
 
 
 class RepoHygieneProgramTests(unittest.TestCase):
@@ -31,13 +33,23 @@ class RepoHygieneProgramTests(unittest.TestCase):
         self.assertEqual([item["sequence"] for item in prompts], list(range(11)))
         self.assertEqual([item["depends_on"] for item in prompts], [None] + [f"H-{i:03d}" for i in range(10)])
 
-    def test_exactly_approved_prompt_is_active_in_progress(self):
+    def test_final_gate_remains_active_and_blocked(self):
         state = json.loads(STATE.read_text(encoding="utf-8"))
-        self.assertEqual(state["program_status"], "in_progress")
-        self.assertEqual(state["active_prompt"], "H-008")
-        self.assertEqual(state["active_state"], "ready")
-        self.assertEqual(state["completed_prompts"], ["H-000", "H-001", "H-002", "H-003", "H-004", "H-005", "H-006", "H-007"])
-        self.assertEqual(state["blocked_prompts"], [])
+        self.assertEqual(state["program_status"], "blocked")
+        self.assertEqual(state["active_prompt"], "H-010")
+        self.assertEqual(state["active_state"], "blocked")
+        self.assertEqual(state["completed_prompts"], ["H-000", "H-001", "H-002", "H-003", "H-004", "H-005", "H-006", "H-007", "H-008", "H-009"])
+        self.assertEqual(state["blocked_prompts"], ["H-010"])
+
+    def test_h009_bounded_audit_artifacts_exist(self):
+        self.assertTrue(CONTEXT_SUMMARY.is_file())
+        self.assertTrue(ARCHITECTURE_AUDIT.is_file())
+        summary = CONTEXT_SUMMARY.read_text(encoding="utf-8")
+        audit = ARCHITECTURE_AUDIT.read_text(encoding="utf-8")
+        self.assertIn("not a source of truth", summary)
+        self.assertIn("Source-of-truth map", summary)
+        for marker in ("Symptom", "Mechanism", "Falsification", "Residual risk", "Next gate"):
+            self.assertIn(marker, audit)
 
     def test_coverage_scope_is_explicit_and_keeps_composition_in_scope(self):
         self.assertTrue(COVERAGE_SCOPE.is_file())

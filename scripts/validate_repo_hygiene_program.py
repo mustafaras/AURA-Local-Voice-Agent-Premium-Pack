@@ -23,6 +23,8 @@ READ_FIRST = ROOT / "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_READ_FIRST.md"
 CONTRACT = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md"
 PROMPT_CONTRACT = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md"
 LEDGER = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md"
+CONTEXT_SUMMARY = ROOT / "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_CONTEXT_SUMMARY.md"
+ARCHITECTURE_AUDIT = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/H-009_ARCHITECTURE_AUDIT.md"
 
 REQUIRED_PROMPT_MARKERS = (
     "## Cognitive completion gate",
@@ -160,6 +162,41 @@ def main() -> int:
         fail(errors, "initial state must activate H-000")
     if blocked and blocked != [active]:
         fail(errors, "only the active prompt may be blocked")
+
+    if active == "H-009" or "H-009" in completed:
+        for path in (CONTEXT_SUMMARY, ARCHITECTURE_AUDIT):
+            if not path.is_file():
+                fail(errors, f"H-009 missing required audit artifact: {path.relative_to(ROOT)}")
+        if CONTEXT_SUMMARY.is_file():
+            summary = CONTEXT_SUMMARY.read_text(encoding="utf-8")
+            for marker in (
+                "not a source of truth",
+                "REPO_HYGIENE_STATE.json",
+                "REPO_HYGIENE_PROMPT_MANIFEST.json",
+                "REPO_HYGIENE_LEDGER.md",
+                "H-009_ARCHITECTURE_AUDIT.md",
+            ):
+                if marker not in summary:
+                    fail(errors, f"H-009 context summary missing marker: {marker}")
+        if ARCHITECTURE_AUDIT.is_file():
+            audit = ARCHITECTURE_AUDIT.read_text(encoding="utf-8")
+            for marker in (
+                "Symptom",
+                "Mechanism",
+                "Layer",
+                "Root cause",
+                "Evidence",
+                "Confidence",
+                "Severity",
+                "Owner",
+                "Falsification",
+                "Residual risk",
+                "Next gate",
+                "ADR-034",
+                "ADR-044",
+            ):
+                if marker not in audit:
+                    fail(errors, f"H-009 architecture audit missing marker: {marker}")
 
     if errors:
         print("REPO-HYGIENE VALIDATION FAILED")

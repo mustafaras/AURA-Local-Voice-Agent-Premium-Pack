@@ -36,6 +36,7 @@
       {"name": "chatterbox-tts", "url": "https://github.com/resemble-ai/chatterbox.git", "rev": "5de7a54aa4e5e2baadb0182dde554908b48b85c2"},
       {"name": "resemble-perth", "url": "https://github.com/resemble-ai/Perth.git", "rev": "ce86c49d029f42272c1902eccb675556b9ed2330"}
     ],
+    "direct_registry_dependencies": ["torchcodec==0.15.0"],
     "registry": "https://pypi.org/simple"
   },
   "github_actions": {

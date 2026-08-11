@@ -2,8 +2,9 @@
 """Fail-closed secret, dependency, and workflow provenance checks for H-008.
 
 The scanner deliberately reports only path, line, and pattern names. It never
-prints matched text. History scanning is a separate operation because this
-checkout's Git object database is already a known recovery boundary.
+prints matched text. History scanning is a separate operation because it
+requires an explicit reachable-history scan and must not be inferred from a
+current-tree scan.
 """
 
 from __future__ import annotations
@@ -197,8 +198,9 @@ def check_python_dependencies(policy: dict[str, Any]) -> tuple[list[str], str]:
     errors.append("uv.lock requires-python does not match policy")
 
   expected_sources = {item["name"]: item for item in config["direct_git_sources"]}
+  expected_registry_dependencies = set(config.get("direct_registry_dependencies", []))
   project_dependencies = set(project_data.get("dependencies", []))
-  if project_dependencies != set(expected_sources):
+  if project_dependencies != set(expected_sources) | expected_registry_dependencies:
     errors.append("pyproject direct dependencies do not match the policy source set")
   uv_sources = project.get("tool", {}).get("uv", {}).get("sources", {})
   for name, expected in expected_sources.items():
@@ -221,6 +223,14 @@ def check_python_dependencies(policy: dict[str, Any]) -> tuple[list[str], str]:
       expected_git = f"{expected['url']}?rev={expected['rev']}"
       if metadata_deps.get(name) != expected_git:
         errors.append(f"uv.lock virtual metadata pin mismatch: {name}")
+    metadata_registry = {
+      f"{item.get('name')}{item.get('specifier')}": item
+      for item in virtual.get("metadata", {}).get("requires-dist", [])
+      if isinstance(item, dict) and item.get("specifier")
+    }
+    for requirement in expected_registry_dependencies:
+      if requirement not in metadata_registry:
+        errors.append(f"uv.lock virtual metadata registry dependency mismatch: {requirement}")
 
   for name, expected in expected_sources.items():
     package = by_name.get(name)
@@ -326,7 +336,7 @@ def main() -> int:
   print(f"Swift dependency provenance: {swift_summary}")
   print(f"Python dependency provenance: {python_summary}")
   print(f"GitHub Actions provenance: {workflow_summary}; all references are policy-approved full SHA pins")
-  print("History scan: NOT RUN on the damaged local object database; independent clean-clone history scan remains required")
+  print("History scan: adopted-Git history scan is recorded separately; this validator covers current tracked content and provenance")
   if errors:
     for error in errors:
       print(f"ERROR: {error}")

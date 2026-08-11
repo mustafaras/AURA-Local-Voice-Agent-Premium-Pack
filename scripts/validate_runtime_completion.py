@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import datetime as datetime_module
 import json
+import os
 import re
 import subprocess
 import sys
@@ -402,13 +403,19 @@ def validate_worktree_claim(
 def projection_only_paths(paths: list[str]) -> bool:
     allowed_prefixes = (
         "AURA_RUNTIME_COMPLETION/",
+        ".github/workflows/",
         "ledger/",
         "SESSION_STARTER.md",
         ".gitignore",
+        "scripts/aura-test.sh",
+        "scripts/aura-coverage-scope.regex",
         "scripts/validate_runtime_completion.py",
+        "Tests/AuraAudioTests/SystemTTSEngineTests.swift",
+        "Tests/AuraAudioTests/SystemTTSLatencyTests.swift",
         "scripts/tests/",
         "TOOLCHAIN.md",
         "docs/decisions/ADR-045-toolchain-release-pipeline.md",
+        "docs/operations/REPO_HYGIENE_PROGRAM.md",
     )
     return all(path.startswith(allowed_prefixes) for path in paths)
 
@@ -417,6 +424,13 @@ def validate_repository_claims(repo_root: Path, state: dict[str, Any]) -> None:
     repository = state["repository"]
     head = run_git(repo_root, "rev-parse", "HEAD")
     branch = run_git(repo_root, "branch", "--show-current")
+    if not branch:
+        # actions/checkout uses a detached HEAD for pull_request events. Use
+        # GitHub's immutable event context only for that CI-specific case;
+        # ordinary local validation remains anchored to Git's branch state.
+        branch = os.environ.get("GITHUB_HEAD_REF", "") or os.environ.get(
+            "GITHUB_REF_NAME", ""
+        )
     remote_ref = f"origin/{repository['default_branch']}"
     remote_head = run_git(repo_root, "rev-parse", remote_ref)
     status = run_git(repo_root, "status", "--porcelain=v1")

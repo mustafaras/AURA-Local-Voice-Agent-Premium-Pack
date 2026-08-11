@@ -66,7 +66,7 @@ final class AuraAppModel: ObservableObject {
   @Published private(set) var lastPlanSummary: String?
   @Published private(set) var lastOperationMessage = ""
   @Published var productUIState = AuraProductUIState()
-  @Published var memoryCorrectionTarget: AuraMemoryRow? = nil
+  @Published var memoryCorrectionTarget: AuraMemoryRow?
 
   private let confirmationPresenter = UIConfirmationPresenter()
   private let emergencyShortcutMonitor = EmergencyShortcutMonitor()
