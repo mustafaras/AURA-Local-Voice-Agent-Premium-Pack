@@ -118,6 +118,13 @@ run_bundle() {
     local name=$(basename "$bundle" .xctest)
     local log="$BUILD_PATH/out/Products/Debug/$name.log"
     local binary="$bundle/Contents/MacOS/$name"
+    local timeout_seconds="${AURA_TEST_TIMEOUT_SECONDS:-60}"
+    if [[ "$name" == "AuraAudioTests" ]]; then
+        # AVAudioEngine teardown can block briefly on a headless CI host after
+        # the Swift Testing suite has finished. Keep the hard timeout, but
+        # give this hardware-bound bundle a bounded, explicit allowance.
+        timeout_seconds="${AURA_AUDIO_TEST_TIMEOUT_SECONDS:-180}"
+    fi
 
     echo "=== $name ==="
     if [[ ! -x "$binary" ]]; then
@@ -125,7 +132,7 @@ run_bundle() {
         return 1
     fi
     set +e
-    perl -e 'alarm shift; exec @ARGV' 60 \
+    perl -e 'alarm shift; exec @ARGV' "$timeout_seconds" \
     env DYLD_FRAMEWORK_PATH="$TESTING_FRAMEWORK" \
         DYLD_LIBRARY_PATH="$TESTING_LIB" \
         DYLD_INSERT_LIBRARIES="$TESTING_LIB/lib_TestingInterop.dylib" \
