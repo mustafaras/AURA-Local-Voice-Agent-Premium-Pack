@@ -415,6 +415,7 @@ def projection_only_paths(paths: list[str]) -> bool:
         "scripts/tests/",
         "TOOLCHAIN.md",
         "docs/decisions/ADR-045-toolchain-release-pipeline.md",
+        "docs/operations/REPO_HYGIENE_PROGRAM.md",
     )
     return all(path.startswith(allowed_prefixes) for path in paths)
 
