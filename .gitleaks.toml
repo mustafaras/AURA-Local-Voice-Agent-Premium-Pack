@@ -1,0 +1,12 @@
+[allowlist]
+description = "Known deterministic test and control-plane fixtures"
+paths = [
+  '''(^|/)AURA_RUNTIME_COMPLETION/context/session-handoff\.json$''',
+  '''(^|/)AURA_RUNTIME_COMPLETION/state/current-state\.json$''',
+  '''(^|/)Tests/AuraAdversarialTests/PluginSupplyChainAdversarialTests\.swift$''',
+  '''(^|/)Tests/AuraAdversarialTests/SupplyChainVerificationAdversarialTests\.swift$''',
+  '''(^|/)Tests/AuraAgentTests/Fixtures/copilot_smoke_quota_error(2)?\.jsonl$''',
+  '''(^|/)Tests/AuraPluginsTests/Fakes\.swift$''',
+  '''(^|/)Tests/AuraScreenTests/RedactionPipelineTests\.swift$''',
+  '''(^|/)Tests/AuraSecurityTests/SecretScannerTests\.swift$''',
+]

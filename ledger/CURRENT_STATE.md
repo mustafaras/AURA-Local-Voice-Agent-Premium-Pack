@@ -6,8 +6,10 @@ Projection refreshed from live repository and command evidence on 2026-08-10.
 ## Canonical State Notice — 2026-08-09
 
 The authoritative current state is
-`AURA_RUNTIME_COMPLETION/state/current-state.json`, aligned to live `HEAD ==
-origin/main == 47775180c224f87fa5a58703f793515ffcb2c35c`. R2 through R12 remain
+`AURA_RUNTIME_COMPLETION/state/current-state.json`, with live repository
+`HEAD == origin/main == 6e53e6a941756e4b34f24f5de3c9c29bdc8147bf`; its
+audited product/content baseline remains
+`47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045. R2 through R12 remain
 `in_progress` with deferred/live/manual/security/release/beta gates recorded in
 `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. FINAL/CLOSEOUT is active by
 explicit user request for a blocked acceptance audit and maintainer handoff;
@@ -24,13 +26,14 @@ the machine-readable state remains authoritative.
 The repository-hygiene audit is now encoded as the canonical plan
 `docs/operations/REPO_HYGIENE_PROGRAM.md` and the synchronized H-000–H-010
 control plane under `AURA_RUNTIME_COMPLETION/repo-hygiene/`. H-000 through
-H-006 and H-007 are complete for chain-order purposes; H-008 is active and
-`ready` after exact user approval. H-007's explicit host-boundary scope
+H-009 are complete for chain-order purposes; H-010 is active and `blocked`
+after the final gate preserved explicit evidence-backed limitations. H-007's explicit host-boundary scope
 measured 70.02% against the unchanged 70% line-coverage ratchet; raw all-source
 coverage remains 65.15%. The verified H-008 feature commit was pushed and
 merged to `main` at `47775180c224f87fa5a58703f793515ffcb2c35c`; the synchronized
-state projection follows that delivery. No cleanup, quarantine, or
-Git object recovery mutation has been performed. The H-005 delivery is now
+state projection follows that delivery. The H-008 duplicate-backup quarantine
+was recoverable and SHA-validated; no original Git object recovery mutation has
+been performed. The H-005 delivery is now
 merged and pushed at `3b1aa85f8c55e17b49c43daea008f98fd6515f15`, followed by
 the synchronized state projection commit at live `HEAD == origin/main ==
 6c4cc993f86c029ce754c5e540399beb781899bb`. The worktree is clean after the
@@ -53,8 +56,9 @@ SwiftLint 0.65.0 is provisioned, but full SourceKit-backed lint remains
 explicitly blocked by the active CLT-only developer directory; its no-SourceKit
 fallback is partial and not a pass. H-005 was delivered at
 `3b1aa85f8c55e17b49c43daea008f98fd6515f15`; H-006 is complete for chain
-order and H-007 is complete for chain order; H-008 is ready under exact
-`ONAY: H-008`; H-009 remains unopened. H-008's fail-closed current-tree
+order and H-007 is complete for chain order; H-008 and H-009 are complete for
+chain-order purposes; H-010's final gate ran the available checks and preserved
+formal blockers. H-008's fail-closed current-tree
 secret/dependency/workflow validator passes, and the full local matrix is
 21/21 bundles and 794/794 tests. Evidence:
 `EV-REPO-HYGIENE-H-005-20260810-02` and
@@ -62,7 +66,22 @@ secret/dependency/workflow validator passes, and the full local matrix is
 `EV-REPO-HYGIENE-H-006-20260810-01`, and
 `EV-REPO-HYGIENE-H-006-CLOSEOUT-20260810-01`, and
 `EV-REPO-HYGIENE-H-007-20260810-01`, and
-`EV-REPO-HYGIENE-H-008-20260810-01`.
+`EV-REPO-HYGIENE-H-008-20260810-01`, and
+`EV-REPO-HYGIENE-H-009-20260810-01`, and
+`EV-REPO-HYGIENE-H-010-20260810-01`.
+
+Separate remediation evidence `EV-REPO-HYGIENE-REMEDIATION-20260810-01` records
+the recoverable backup, independently verified clean clone, formatter/source
+fix, provisioned scanners, exact false-positive policies, pre-commit/local
+validation, and the remaining original-Git, full-Xcode/SourceKit, dependency,
+and hosted-CI blockers. Follow-up evidence
+`EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01` closes the current
+lock-graph dependency advisory risk: OSV and Grype are zero under the explicit
+generated-environment boundary, and runtime/audio/helper checks pass. H-010
+remains blocked only by full-Xcode/SourceKit and hosted-CI evidence; the
+original `.git` was adopted from the fsck-clean candidate and its damaged
+pre-adoption copy is preserved for rollback. This remediation does not create
+or authorize H-011.
 
 - R11 local artifact/manifest evidence `EV-R11-20260809-ARTIFACT-MANIFEST-01`
   remains valid: the reproducible ZIP is `development_unverified`, its recorded

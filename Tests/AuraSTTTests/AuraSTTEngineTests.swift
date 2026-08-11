@@ -39,7 +39,7 @@ struct AuraSTTEngineTests {
       stabilizationDelayFrames: 2
     )
 
-    let _ = try await engine.start()
+    _ = try await engine.start()
     let stream = engine.results
     let resultsBox = ResultBox()
     let resultsTask = Task.detached {
@@ -82,7 +82,7 @@ struct AuraSTTEngineTests {
       stabilizationDelayFrames: 2
     )
 
-    let _ = try await engine.start()
+    _ = try await engine.start()
     let stream = engine.results
     let resultsBox = ResultBox()
     let cancelTask = Task {
@@ -116,7 +116,7 @@ struct AuraSTTEngineTests {
     #expect(!beforeStart.ready)
 
     do {
-      let _ = try await engine.start()
+      _ = try await engine.start()
     } catch {
       #expect(Bool(true), "Empty script may fail start, which is acceptable")
       return

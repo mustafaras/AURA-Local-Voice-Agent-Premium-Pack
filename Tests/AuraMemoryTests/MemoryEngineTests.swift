@@ -631,7 +631,7 @@ func memoryEngineActiveBeliefsExcludeShadowedRecords() async throws {
     return
   }
 
-  let _ = try await engine.deleteRecord(id: record.id, reason: "user requested deletion")
+  _ = try await engine.deleteRecord(id: record.id, reason: "user requested deletion")
 
   let beliefs = try await engine.activeBeliefs(
     memoryClass: .userPreference, subject: "user.theme")

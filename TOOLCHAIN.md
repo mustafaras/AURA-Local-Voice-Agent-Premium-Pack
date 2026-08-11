@@ -12,9 +12,9 @@ Release builds require full Xcode, a supported macOS SDK, Developer ID signing, 
 
 - macOS: 27.0, Apple Silicon arm64, 16 GiB unified-memory profile.
 - Developer directory: `/Library/Developer/CommandLineTools`.
-- Swift: Apple Swift 6.4 (`swiftlang-6.4.0.27.1`, `clang-2100.3.27.1`).
+- Swift: Apple Swift 6.4 (`swiftlang-6.4.0.30.4`, `clang-2100.3.30.1`) from Apple Command Line Tools 27.0 beta 5.
 - macOS SDK: 27.0.
-- Xcode: unavailable on the observed host; `xcodebuild` is not available under the active CommandLineTools directory.
+- Xcode: unavailable on the observed host; `xcodebuild` is not available under the active CommandLineTools directory. `xcodes` 2.0.3 is provisioned, but authenticated Apple distribution is still required.
 - Python: system and repository validator environment 3.14.6; Chatterbox runtime 3.11.15.
 - Git: 2.54.0; the configured GitHub remote was reachable during bootstrap.
 - `swift-format`: discoverable through `xcrun --find swift-format` at

@@ -212,7 +212,10 @@ public actor Conversation {
     if let turnContext {
       activeTurnContext = turnContext
     }
-    await logger.debug("Partial transcript received [textPresent=\(!event.text.isEmpty)]", actor: .audio)
+    await logger.debug(
+      "Partial transcript received [textPresent=\(!event.text.isEmpty)]",
+      actor: .audio
+    )
   }
 
   /// End the active listening turn with the concrete local STT failure.

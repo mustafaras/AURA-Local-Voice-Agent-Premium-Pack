@@ -1065,3 +1065,57 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Gap/resolution:** Six byte-identical mode-600 duplicate backup files caused the only remaining dirty-worktree ownership gap. They were moved without deletion to `/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`; every SHA-256 matched its tracked original and the repository became clean.
 - **Verification:** Repository hygiene, runtime-completion, second-pass, supply-chain validators, 37/37 script tests, 4/4 Chatterbox tests, JSON/YAML/shell/diff checks, and the previously recorded 21/21 Swift / 794/794 matrix remain passing. State is H-008/ready; authority is reset.
 - **Residual/next:** Quarantine retention is repository-maintainer owned; original Git history, vulnerability/SBOM, hosted-CI, and external git commit limitations remain. Stop at H-008 and await exact `ONAY: H-009`; do not open H-009 automatically.
+### 2026-08-10T14:28:11Z — REPO_HYGIENE_H009_CONTEXT_ARCHITECTURE
+
+- **EV-REPO-HYGIENE-H-009-20260810-01** — H-009 ledger/context/architecture hygiene under exact `ONAY: H-009`. The append-only ledgers were measured, stale latest projection claims were reconciled, and a derived source-of-truth pointer plus twelve-layer architecture audit were added. SwiftPM reports 23 production and 21 test targets, zero dependency cycles, and zero source self-imports; the main app remains non-sandboxed while ADR-034 is In Progress and ADR-044 Proposed. H-009 is ready, `active_prompt` remains H-009, H-000 through H-008 are the completed prefix, authority is reset, and the next action is exact `ONAY: H-010`. No product source, architecture, entitlement, Git object, install, cleanup, or delivery action occurred.
+
+### 2026-08-10T14:40:16Z — REPO_HYGIENE_H009_CLOSEOUT_READY
+
+- **Evidence:** `EV-REPO-HYGIENE-H-009-CLOSEOUT-20260810-01`; mandatory `15_SESSION_CLOSEOUT` procedure executed. Branch `main`, `HEAD == origin/main == 6e53e6a941756e4b34f24f5de3c9c29bdc8147bf`, relation `0/0`; expected H-009 control-plane dirt only and no product/source path diff.
+- **Verification:** H-009 state/summary/audit projections, runtime-completion, repository-hygiene, second-pass, supply-chain, JSON, focused 5/5, full script 38/38, Chatterbox 4/4, shell syntax, diff, package graph/cycle/import, and handoff-limit checks passed. Authority flags reset false.
+- **Verdict/risks:** H-009 is `ready` for chain-order continuation. Context-bloat and architecture-boundary risks remain mitigating with named owners; original Git fsck, helper migration, hosted CI, full-Xcode/SourceKit, vulnerability/SBOM, live, and release gates remain open. No product, Git, install, commit, push, merge, release, or deploy action occurred.
+- **Next action:** Stop at H-009 and await exact `ONAY: H-010`; H-010 is not opened automatically.
+
+### 2026-08-10T15:05:13Z — REPO_HYGIENE_H010_FINAL_GATE_BLOCKED
+
+- **Actor/authority:** Codex session `AURA-REPO-HYGIENE-H010-20260810`; exact user approval `ONAY: H-010`; control-plane-only authority. No cleanup, Git repair, install, permission, app, delivery, release, deployment, beta, or H-011 action occurred.
+- **Final gate result:** Current `main` / `HEAD == origin/main == 6e53e6a941756e4b34f24f5de3c9c29bdc8147bf` / relation `0 0`; 598 tracked, 2 authored untracked H-009 documents, 70,218 ignored paths, 16 expected status paths, no product/source diff. Hygiene/runtime/second-pass/supply-chain validators, 38/38 repository tests, Chatterbox 4/4, strict build, 21/21 Swift bundles with 794/794 tests and 70.02% effective coverage, JSON/YAML, shell, SwiftPM graph/import, and diff checks passed.
+- **Formal blockers:** Original fsck exit 8 with 199 malformed object files, 8,923 dangling findings, and two invalid `.DS_Store` refs; swift-format exit 1 at `Sources/AuraAgent/Conversation.swift:215`; SourceKit SwiftLint exit 133; fallback exit 2 with 675/179 violations; full Xcode exit 1 under CLT; historical/vulnerability/SBOM scans unavailable or not run; hosted CI unobserved. Evidence: `EV-REPO-HYGIENE-H-010-20260810-01` and `EV-REPO-HYGIENE-H-010-CLOSEOUT-20260810-01`; risk: `RISK-REPO-HYGIENE-FINAL-GATE-BLOCKED`.
+- **Verdict/next:** H-010 remains active/blocked; all six cognitive-gate answers, ownership, falsification paths, residual risks, and mandatory closeout are in the focused hygiene ledger. The manifest has no H-011. Stop without auto-transition or global repository/product/release claim.
+
+### 2026-08-10T15:13:49Z — REPO_HYGIENE_H010_CLOSEOUT_RECONCILIATION
+
+- **Correction:** A final validator caught and the session removed one duplicate `files_changed` entry in `context/session-handoff.json`; no semantic scope changed.
+- **Verification:** Runtime-completion and repository-hygiene validators passed; full repository script tests passed 38/38; final projection passed with 50 unique evidence IDs, 200 unique changed-file paths, `HEAD == origin/main == 6e53e6a941756e4b34f24f5de3c9c29bdc8147bf`, 17 expected control-plane status paths, and no product/source diff.
+- **State/authority:** H-010 remains `active_prompt=H-010`, `active_state=blocked`; authority is reset false; no H-011 exists and no delivery/release action occurred.
+
+### 2026-08-10T16:31:27Z — REPO_HYGIENE_REMEDIATION_CLOSEOUT_REFRESH
+
+- **Evidence:** `EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01` refreshes clean-clone/original-fsck, formatter/build, 21/21 Swift/70.01% coverage, scanner, SBOM, and local-validator evidence after projection synchronization. All local gates pass except the intentionally unresolved OSV/Grype advisories and full SourceKit capability; no hosted CI result was inferred.
+- **Disposition:** H-010 remains blocked at the active-prompt boundary. Original `.git` is preserved; no destructive repair, commit, push, merge, H-011, or automatic transition occurred. Owners and falsification paths remain in the focused hygiene ledger and scanner policy.
+
+### 2026-08-10T16:16:45Z — REPO_HYGIENE_SEPARATE_REMEDIATION
+
+- **Scope/authority:** `ONAY: HYGIENE-REMEDIATION-01` authorized recoverable backup/clean-clone work, source/configuration remediation, approved scanner/toolchain provisioning, and validation only. Destructive `.git` repair, commit, push, merge, and H-011 transition remain unauthorized.
+- **Evidence:** Independent clean clone fsck exited 0; strict formatter/build, 21 Swift bundles/coverage, 38/38 repository tests, 4/4 Chatterbox tests, pre-commit, actionlint, yamllint, zsh, Gitleaks, and TruffleHog passed. Evidence: `EV-REPO-HYGIENE-REMEDIATION-20260810-01`.
+- **Disposition:** Original local fsck exit 8, full SourceKit/full Xcode, OSV/Grype dependency findings, and hosted CI remain open. H-010 remains blocked; no global repository/product/release completion claim follows.
+
+### 2026-08-11T07:05:00Z — REPO_HYGIENE_DEPENDENCY_REMEDIATION
+
+- **Authority/scope:** Separate `HYGIENE-REMEDIATION-01` continuation; dependency/toolchain provisioning and source/configuration remediation were authorized. Original `.git` destructive repair, history rewrite, commit, push, merge, and H-011 transition remain unauthorized.
+- **Gap/root cause:** The prior Chatterbox lock graph produced 48 OSV advisories and 19 Grype matches because the upstream-pinned dependency set was stale for the current scanner database and torchaudio runtime backend. Upstream `chatterbox` remains pinned at `5de7a54aa4e5e2baadb0182dde554908b48b85c2`; the remediation used explicit, reviewable uv overrides and added the required `torchcodec==0.15.0` registry dependency.
+- **Resolution/evidence:** `uv lock --check`, the supply-chain validator, OSV, Syft, and Grype passed for the authoritative lock graph; OSV and Grype report zero findings when generated `**/.venv/**` is excluded by policy. Isolated Python 3.11 import, Chatterbox multilingual import, TorchCodec-backed torchaudio save/load, and Chatterbox helper tests pass 4/4. FFmpeg 8.1.2_1 was provisioned. Full evidence and artifact hashes are in `EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01` and the focused hygiene ledger.
+- **Boundary/residual:** This closes the current dependency-advisory risk for the pinned lock graph, not upstream maintenance, historical Git integrity, full Xcode/SourceKit lint, hosted CI, signing, release, or deployment. The original fsck remains exit 8; the independent recovery candidate is fsck-clean but has not been adopted. H-010 remains active/blocked and no H-011 exists.
+- **Next safe action:** Preserve the original `.git`, obtain explicit authority before adopting/swapping the clean recovery candidate or performing any Git delivery, and obtain full-Xcode/SourceKit and hosted-CI evidence from their owners. Re-open the dependency risk if the upstream revision, lock graph, scanner policy, or runtime backend changes.
+
+### 2026-08-11T07:17:59Z — REPO_HYGIENE_REMEDIATION_FINAL_VERIFY
+
+- **Verification:** Strict AURA build exited 0. The fresh final wrapper exited 0 with 21/21 bundles, 794/794 tests, and 70.02% coverage; report SHA-256 `0d17fdb1878416b8d7b07b2af766317a128b26bafa7f9283c6d17d6a7bc44686`. JSON/lock/diff, all local validators, 38 repository tests, 4 Chatterbox tests, pre-commit, OSV, Syft, and Grype passed.
+- **Integrity boundary:** Original fsck remains exit 8 with 199 bad objects and 8,925 dangling findings; its final log hash is `5bc0bf295c0df08c28271e53d9f71098771c9874e7255e4fe86a71f42e8ee1b6`. The separate recovery candidate remains fsck-clean with empty-log hash `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`; it has not been adopted.
+- **Disposition:** Current lock-graph dependency risk is closed. H-010 remains blocked by original-Git adoption authority, full Xcode/SourceKit, and hosted-CI observation. No commit, push, merge, destructive repair, history rewrite, H-011 transition, release, or deploy occurred.
+
+### 2026-08-11T08:44:19Z — REPO_HYGIENE_GIT_ADOPTION_AND_TOOLCHAIN
+
+- **Git resolution:** Under explicit user authorization, an independently verified fsck-clean candidate `.git` was adopted. The damaged original `.git` was byte-verified and preserved outside the repository with an inverse rollback path. Adopted fsck and `show-ref` exit 0, 133 reachable commits, 2,443 reachable objects, `HEAD == origin/main`, and 0/0 relation. Gitleaks history and TruffleHog history scans pass with no verified findings. Evidence: `EV-REPO-HYGIENE-GIT-ADOPTION-20260811-01`.
+- **Toolchain resolution/blocker:** Official Apple Command Line Tools 27.0 beta 5 were installed and `xcodes` 2.0.3 was provisioned. Full Xcode cannot be installed from this session because no verified Xcode artifact exists and Apple’s official download path requires user-controlled Apple ID authentication; the invalid-certificate unofficial source was not bypassed. Full SourceKit SwiftLint remains exit 133; fallback is partial and exits 2. Evidence: `EV-REPO-HYGIENE-TOOLCHAIN-20260811-01`.
+- **Boundary/next:** Current Git object integrity/history-secret risk is closed. H-010 remains blocked only on full Xcode/SourceKit and hosted-CI observation. Hosted CI requires a separate remediation branch commit and push; no H-011 or automatic prompt transition is permitted.
