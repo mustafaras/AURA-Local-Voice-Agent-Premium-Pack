@@ -403,6 +403,7 @@ def validate_worktree_claim(
 def projection_only_paths(paths: list[str]) -> bool:
     allowed_prefixes = (
         "AURA_RUNTIME_COMPLETION/",
+        ".github/workflows/",
         "ledger/",
         "SESSION_STARTER.md",
         ".gitignore",
