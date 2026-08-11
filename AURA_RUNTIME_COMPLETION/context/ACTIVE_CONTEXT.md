@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `FINAL`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Live repository:** `main` at merge commit `68a6b6730334a5b0175ba5f4c2c271699b8ae146`; PR #2 is merged
+> **Live repository:** `main` at verified projection commit `80b1862a3e4c6559f5e3291eaea02f90c6900b87` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status

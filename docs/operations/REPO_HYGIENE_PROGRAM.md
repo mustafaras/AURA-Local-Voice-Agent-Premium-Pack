@@ -2,7 +2,7 @@
 
 **Status:** H-010 blocked after final gate; preserve evidence and do not invent H-011
 **Owner:** Repository maintainer
-**Live repository:** `main` / merge commit `68a6b6730334a5b0175ba5f4c2c271699b8ae146`; PR #2 is merged
+**Live repository:** `main` / verified projection commit `80b1862a3e4c6559f5e3291eaea02f90c6900b87` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
 **Verified content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` (projection-only descendants under ADR-045)
 **Scope:** Source, tests, build artifacts, Git object database, tooling, CI, secrets, dependencies, documentation, ledgers, and agent context
 

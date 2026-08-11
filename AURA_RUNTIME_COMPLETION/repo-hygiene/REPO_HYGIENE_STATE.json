@@ -3,12 +3,12 @@
   "schema_version":"1.0.0",
   "program_id":"AURA-REPO-HYGIENE",
   "program_status":"blocked",
-  "updated_at":"2026-08-11T12:19:00Z",
+  "updated_at":"2026-08-11T12:51:40Z",
   "session_id":"AURA-REPO-HYGIENE-REMEDIATION-20260811",
   "repository":{
     "branch":"main",
-    "head":"68a6b6730334a5b0175ba5f4c2c271699b8ae146",
-    "remote_head":"68a6b6730334a5b0175ba5f4c2c271699b8ae146",
+    "head":"80b1862a3e4c6559f5e3291eaea02f90c6900b87",
+    "remote_head":"80b1862a3e4c6559f5e3291eaea02f90c6900b87",
     "working_tree_state":"clean"
   },
   "active_prompt":"H-010",
