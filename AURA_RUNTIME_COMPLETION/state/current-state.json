@@ -10,7 +10,7 @@
     "active_branch": "repo-hygiene/remediation-20260811",
     "verified_head": "7f1c03367b9cd67dfa306eb67f4edbdc53c0cd3e",
     "remote_head": "6e53e6a941756e4b34f24f5de3c9c29bdc8147bf",
-    "working_tree_state": "dirty_expected",
+    "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
