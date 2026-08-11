@@ -2,7 +2,7 @@
 
 **Status:** H-010 blocked after final gate; preserve evidence and do not invent H-011
 **Owner:** Repository maintainer
-**Live remediation branch:** `repo-hygiene/remediation-20260811` / `84d9abfae0f1cf061bbd8096f4fec16cab13a0de`; PR #2 is open with `CLEAN` merge state
+**Live remediation branch:** `repo-hygiene/remediation-20260811` / `a15a96af0307c115a4e97f8db333f6ab4dad8a4c`; PR #2 is open with `CLEAN` merge state
 **Verified content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` (projection-only descendants under ADR-045)
 **Scope:** Source, tests, build artifacts, Git object database, tooling, CI, secrets, dependencies, documentation, ledgers, and agent context
 
@@ -233,6 +233,8 @@ Run all available validators, tests, scans, diff checks, inventory checks, and c
 **Coverage/host-boundary remediation result (2026-08-11):** The first hosted remediation run executed all 21 Swift bundles and 794 tests but measured 69.11% because the headless runner cannot provide user-present native Speech/AVFoundation callbacks. The versioned scope therefore names exactly six host-boundary files: the original four app/UI/TCC/event-boundary files plus `Sources/AuraAudio/SystemTTSEngine.swift` and `Sources/AuraSTT/SystemSTTEngine.swift`. The 70% threshold is unchanged; `AuraAppModel`, `AuraKernel`, non-native adapters, and deterministic production contracts remain in scope. The local canonical wrapper now exits 0 with 21/21 bundles, 794/794 tests, and 70.19% effective coverage; raw source-only coverage remains visible at 64.29%. Evidence: `EV-REPO-HYGIENE-COVERAGE-HOST-BOUNDARY-20260811-01`.
 
 **Hosted-CI remediation result (2026-08-11):** Hosted run `31484275244` on `repo-hygiene/remediation-20260811` at `84d9abfae0f1cf061bbd8096f4fec16cab13a0de` completed successfully for both governance and build-and-test. The hosted log records the runtime-completion, repository-hygiene, second-pass, and supply-chain validators passing; 21/21 Swift bundles, 794/794 tests, and 70.18% coverage against the unchanged 70% threshold. Development-unverified artifact `9099207783` uploaded with 14-day retention and digest `330ad1c3800718622b7df945272c6990df6d3a59cd320962247edb5956d04758`. Hosted-CI observation is closed for that pushed commit. Full Xcode/SourceKit remains the sole repository-hygiene final-gate blocker in this remediation track; H-010 remains blocked and no H-011 exists.
+
+**Final hosted-CI verification (2026-08-11):** Run `31487128834` on `a15a96af0307c115a4e97f8db333f6ab4dad8a4c` completed successfully for governance and build-and-test. It records 38 governance tests, 21/21 Swift bundles, 794/794 tests, 0 failed bundles, and 70.16% coverage against the unchanged 70% threshold. Artifact `9099755058` is unexpired, 9,583,369 bytes, retained for 14 days, and has digest `5be2d3cbb81bb3ade84e8525c8cedbff4e937618a36762e68569eabaaba4ae02`. Full Xcode/SourceKit remains the sole repository-hygiene blocker in this remediation track; H-010 remains blocked and no H-011 exists.
 
 **Prompt:** `H-010_FINAL_REPO_HYGIENE_GATE_AND_CLOSEOUT.prompt.md`
 **Depends on:** HYGIENE-09

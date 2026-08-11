@@ -2,7 +2,7 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-11T11:21:21Z",
+  "updated_at": "2026-08-11T11:40:41Z",
   "session_id": "AURA-REPO-HYGIENE-REMEDIATION-20260811",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
@@ -459,6 +459,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-REPO-HYGIENE-HOSTED-CI-FINAL-20260811-01",
     "EV-REPO-HYGIENE-COVERAGE-HOST-BOUNDARY-20260811-01",
     "EV-REPO-HYGIENE-HOSTED-CI-20260811-01",
     "EV-REPO-HYGIENE-GIT-ADOPTION-20260811-01",
@@ -510,7 +511,7 @@
     "R11 has only a local development_unverified artifact/manifest slice; full Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed CI evidence remain open.",
     "R12 has no authorized beta cohort, telemetry/SLO evidence, scenario results, incident review, independent sign-offs, or approved release-candidate package.",
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
-    "Repository hygiene H-010 remains blocked at the active-prompt boundary. Separate HYGIENE-REMEDIATION-01 improved evidence and local tooling; current Git object integrity/history-secret scanning, the lock-graph dependency risk, and hosted-CI observation for run 31484275244 are closed. Full Xcode/SourceKit remains open. No H-011 exists."
+    "Repository hygiene H-010 remains blocked at the active-prompt boundary. Separate HYGIENE-REMEDIATION-01 improved evidence and local tooling; current Git object integrity/history-secret scanning, the lock-graph dependency risk, and final hosted-CI observation for run 31487128834 are closed. Full Xcode/SourceKit remains open. No H-011 exists."
   ],
   "next_action": "Return to R11: obtain separately authorized full-Xcode, signing/notarization, clean-machine, updater, recovery, migration, uninstall, and observed-CI evidence; the current repository Git object database is fsck-clean and the damaged pre-adoption database is preserved for rollback. Re-run the dependency scan if the lock/upstream/runtime graph changes, then return to R12 for authorized beta/RC evidence before rerunning FINAL."
 }
