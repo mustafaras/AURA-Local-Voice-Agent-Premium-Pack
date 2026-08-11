@@ -2,7 +2,7 @@
 
 **Status:** H-010 blocked after final gate; preserve evidence and do not invent H-011
 **Owner:** Repository maintainer
-**Live remediation branch:** `repo-hygiene/remediation-20260811` / `a15a96af0307c115a4e97f8db333f6ab4dad8a4c`; PR #2 is open with `CLEAN` merge state
+**Live repository:** `main` / merge commit `68a6b6730334a5b0175ba5f4c2c271699b8ae146`; PR #2 is merged
 **Verified content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` (projection-only descendants under ADR-045)
 **Scope:** Source, tests, build artifacts, Git object database, tooling, CI, secrets, dependencies, documentation, ledgers, and agent context
 

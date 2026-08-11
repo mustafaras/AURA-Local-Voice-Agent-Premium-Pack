@@ -3,12 +3,12 @@
   "schema_version":"1.0.0",
   "program_id":"AURA-REPO-HYGIENE",
   "program_status":"blocked",
-  "updated_at":"2026-08-11T11:40:41Z",
+  "updated_at":"2026-08-11T11:58:14Z",
   "session_id":"AURA-REPO-HYGIENE-REMEDIATION-20260811",
   "repository":{
-    "branch":"repo-hygiene/remediation-20260811",
-    "head":"a15a96af0307c115a4e97f8db333f6ab4dad8a4c",
-    "remote_head":"6e53e6a941756e4b34f24f5de3c9c29bdc8147bf",
+    "branch":"main",
+    "head":"68a6b6730334a5b0175ba5f4c2c271699b8ae146",
+    "remote_head":"68a6b6730334a5b0175ba5f4c2c271699b8ae146",
     "working_tree_state":"clean"
   },
   "active_prompt":"H-010",
@@ -35,5 +35,5 @@
     "ledger":"AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md",
     "validator":"scripts/validate_repo_hygiene_program.py"
   },
-  "next_action":"H-010 remains blocked after separate remediation evidence. The fsck-clean recovery candidate is adopted and the damaged pre-adoption Git database is preserved for rollback. Final hosted-CI observation is closed by run 31487128834; resolve full-Xcode/SourceKit authentication/provisioning under the named toolchain owner and rerun the final gate. The current lock-graph dependency advisory risk is closed and must be re-opened on lock/upstream/scanner/runtime change. No H-011 exists and no automatic transition or release action is permitted."
+  "next_action":"H-010 remains blocked after separate remediation evidence. The fsck-clean recovery candidate is adopted and the damaged pre-adoption Git database is preserved for rollback. The remediation branch was merged to main at 68a6b673; rerun main hosted CI after the state projection is synchronized. Full-Xcode/SourceKit authentication/provisioning remains with the named toolchain owner. The current lock-graph dependency advisory risk is closed and must be re-opened on lock/upstream/scanner/runtime change. No H-011 exists and no automatic transition or release action is permitted."
 }
