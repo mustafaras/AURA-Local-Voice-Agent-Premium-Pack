@@ -61,8 +61,8 @@ under `EV-REPO-HYGIENE-H-009-20260810-01` and
 SHA-validated in the recoverable quarantine
 `/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`. H-010 is blocked; the
 original damaged database is preserved for rollback and full SourceKit/full-
-Xcode capability remains unresolved. Hosted CI is now observed and passing
-under `EV-REPO-HYGIENE-HOSTED-CI-FINAL-20260811-01`; current formatter, lock-graph
+Xcode capability remains unresolved. Merged-main hosted CI is observed and passing
+under `EV-REPO-HYGIENE-MAIN-CI-FINAL-20260811-01`; current formatter, lock-graph
 vulnerability/SBOM, and local validator gates pass. No H-011 exists and no
 automatic transition is permitted.
 

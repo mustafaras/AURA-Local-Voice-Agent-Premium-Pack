@@ -1142,3 +1142,8 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 
 - **Failure evidence:** Merge commit `68a6b6730334a5b0175ba5f4c2c271699b8ae146` moved the live branch to `main`. Hosted run `31488840340` correctly failed closed in governance because `current-state.json` still declared `repo-hygiene/remediation-20260811`; build-and-test was skipped.
 - **Resolution:** Synchronize the canonical state and human/context projections to `main`, the merge HEAD, and `origin/main`, then rerun hosted CI. No product/source or test semantics changed; H-010 remains blocked on full Xcode/SourceKit and no H-011 is opened.
+
+### 2026-08-11T12:19:00Z — REPO_HYGIENE_MAIN_CI_FINAL_VERIFICATION
+
+- **Evidence:** Main run `31489153250` on `5ee844322c356bbc1ac60ecd09ed0d2b055bc632` passed governance and build-and-test. It records 38 governance tests, all four governance validators, 21/21 Swift bundles, 0 failed bundles, 794/794 tests, and 70.22% coverage. Artifact `9100851997` uploaded unexpired at 9,583,047 bytes with digest `28f0621542bf90816ec9ba57afd4269172f06ca23f4b8e62ee6cbf8ac61c5b3c`.
+- **Verdict:** Merged main hosted-CI evidence is now complete. Full Xcode/SourceKit remains the sole repository-hygiene blocker; H-010 stays active/blocked, no H-011 exists, and release/product/live/ADR-034/ADR-044 gates remain separate.

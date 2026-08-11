@@ -236,6 +236,8 @@ Run all available validators, tests, scans, diff checks, inventory checks, and c
 
 **Final hosted-CI verification (2026-08-11):** Run `31487128834` on `a15a96af0307c115a4e97f8db333f6ab4dad8a4c` completed successfully for governance and build-and-test. It records 38 governance tests, 21/21 Swift bundles, 794/794 tests, 0 failed bundles, and 70.16% coverage against the unchanged 70% threshold. Artifact `9099755058` is unexpired, 9,583,369 bytes, retained for 14 days, and has digest `5be2d3cbb81bb3ade84e8525c8cedbff4e937618a36762e68569eabaaba4ae02`. Full Xcode/SourceKit remains the sole repository-hygiene blocker in this remediation track; H-010 remains blocked and no H-011 exists.
 
+**Merged-main hosted-CI verification (2026-08-11):** After correcting the branch projection, main run `31489153250` on `5ee844322c356bbc1ac60ecd09ed0d2b055bc632` passed governance and build-and-test with 38 governance tests, 21/21 Swift bundles, 794/794 tests, 0 failed bundles, and 70.22% coverage. Artifact `9100851997` is unexpired, 9,583,047 bytes, retained for 14 days, and has digest `28f0621542bf90816ec9ba57afd4269172f06ca23f4b8e62ee6cbf8ac61c5b3c`. Full Xcode/SourceKit remains the sole repository-hygiene blocker in this track; H-010 remains blocked and no H-011 exists.
+
 **Prompt:** `H-010_FINAL_REPO_HYGIENE_GATE_AND_CLOSEOUT.prompt.md`
 **Depends on:** HYGIENE-09
 **Exit:** all acceptance criteria pass or are explicitly blocked with evidence; state remains synchronized.
