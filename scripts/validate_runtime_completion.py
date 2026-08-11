@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import datetime as datetime_module
 import json
+import os
 import re
 import subprocess
 import sys
@@ -417,6 +418,13 @@ def validate_repository_claims(repo_root: Path, state: dict[str, Any]) -> None:
     repository = state["repository"]
     head = run_git(repo_root, "rev-parse", "HEAD")
     branch = run_git(repo_root, "branch", "--show-current")
+    if not branch:
+        # actions/checkout uses a detached HEAD for pull_request events. Use
+        # GitHub's immutable event context only for that CI-specific case;
+        # ordinary local validation remains anchored to Git's branch state.
+        branch = os.environ.get("GITHUB_HEAD_REF", "") or os.environ.get(
+            "GITHUB_REF_NAME", ""
+        )
     remote_ref = f"origin/{repository['default_branch']}"
     remote_head = run_git(repo_root, "rev-parse", remote_ref)
     status = run_git(repo_root, "status", "--porcelain=v1")
