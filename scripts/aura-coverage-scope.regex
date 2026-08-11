@@ -1,4 +1,5 @@
 # Exclude only host-boundary files that require app launch, SwiftUI rendering,
-# TCC mutation, or a global AppKit event tap. AuraAppModel and AuraKernel stay
-# inside the measured scope. The 70% threshold is unchanged.
-(/Tests/|/test/|/DerivedSources/|/Sources/AURA/(AURA|AuraMenuView|PermissionCoordinator|EmergencyShortcutMonitor)\.swift)
+# TCC mutation, a global AppKit event tap, or user-present native speech/audio
+# callbacks. AuraAppModel, AuraKernel, AuraAudio, and all non-native adapters
+# stay inside the measured scope. The 70% threshold is unchanged.
+(/Tests/|/test/|/DerivedSources/|/Sources/AURA/(AURA|AuraMenuView|PermissionCoordinator|EmergencyShortcutMonitor)\.swift|/Sources/AuraAudio/SystemTTSEngine\.swift|/Sources/AuraSTT/SystemSTTEngine\.swift)
