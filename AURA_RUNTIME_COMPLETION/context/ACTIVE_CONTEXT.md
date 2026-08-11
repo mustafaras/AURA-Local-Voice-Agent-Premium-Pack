@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `FINAL`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Live repository:** `6e53e6a941756e4b34f24f5de3c9c29bdc8147bf` on `main` (`HEAD == origin/main`; dirty_expected remediation worktree)
+> **Live repository:** remediation branch `repo-hygiene/remediation-20260811` at `84d9abfae0f1cf061bbd8096f4fec16cab13a0de`; PR #2 is open and `CLEAN`
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
@@ -59,11 +59,12 @@ summary, package/dependency audit, and privileged-boundary audit are recorded
 under `EV-REPO-HYGIENE-H-009-20260810-01` and
 `EV-REPO-HYGIENE-H-010-20260810-01`; the six H-008 duplicate backups remain
 SHA-validated in the recoverable quarantine
-`/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`. H-010 is blocked;
-the original Git history scan, full SourceKit/full-Xcode capability, and
-hosted CI remain unresolved. Current formatter, lock-graph vulnerability/SBOM,
-and local validator gates pass. No H-011 exists and no automatic transition is
-permitted.
+`/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`. H-010 is blocked; the
+original damaged database is preserved for rollback and full SourceKit/full-
+Xcode capability remains unresolved. Hosted CI is now observed and passing
+under `EV-REPO-HYGIENE-HOSTED-CI-20260811-01`; current formatter, lock-graph
+vulnerability/SBOM, and local validator gates pass. No H-011 exists and no
+automatic transition is permitted.
 
 Separate remediation authorization `ONAY: HYGIENE-REMEDIATION-01` produced
 `EV-REPO-HYGIENE-REMEDIATION-20260810-01`: the clean clone passes strict fsck,
@@ -74,8 +75,9 @@ lock-graph OSV/Grype dependency risk with zero findings under the documented
 generated-environment boundary and passing runtime/audio/helper checks.
 `EV-REPO-HYGIENE-GIT-ADOPTION-20260811-01` closes current object integrity and
 reachable-history secret scanning; the damaged pre-adoption `.git` remains
-preserved for rollback. Full SourceKit/full-Xcode, hosted CI, and the H-010
-blocked state remain open. No H-011 exists.
+preserved for rollback. `EV-REPO-HYGIENE-HOSTED-CI-20260811-01` closes the
+hosted-CI observation for the pushed remediation commit. Full SourceKit/full-
+Xcode remains blocked and H-010 remains blocked. No H-011 exists.
 
 The strict BOOTSTRAP preflight and R0 governance repair are complete. Canonical machine state is in
 `AURA_RUNTIME_COMPLETION/state/current-state.json`; the ordered manifest has
