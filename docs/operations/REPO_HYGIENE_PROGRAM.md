@@ -2,7 +2,7 @@
 
 **Status:** H-010 blocked after final gate; preserve evidence and do not invent H-011
 **Owner:** Repository maintainer
-**Live repository:** `main` / verified projection commit `80b1862a3e4c6559f5e3291eaea02f90c6900b87` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
+**Live repository:** `main` / verified hosted-CI commit `a20617302591628c704a6cf099f4c18b0525c80b` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
 **Verified content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` (projection-only descendants under ADR-045)
 **Scope:** Source, tests, build artifacts, Git object database, tooling, CI, secrets, dependencies, documentation, ledgers, and agent context
 
@@ -237,6 +237,8 @@ Run all available validators, tests, scans, diff checks, inventory checks, and c
 **Final hosted-CI verification (2026-08-11):** Run `31487128834` on `a15a96af0307c115a4e97f8db333f6ab4dad8a4c` completed successfully for governance and build-and-test. It records 38 governance tests, 21/21 Swift bundles, 794/794 tests, 0 failed bundles, and 70.16% coverage against the unchanged 70% threshold. Artifact `9099755058` is unexpired, 9,583,369 bytes, retained for 14 days, and has digest `5be2d3cbb81bb3ade84e8525c8cedbff4e937618a36762e68569eabaaba4ae02`. Full Xcode/SourceKit remains the sole repository-hygiene blocker in this remediation track; H-010 remains blocked and no H-011 exists.
 
 **Merged-main hosted-CI verification (2026-08-11):** After correcting the branch projection, main run `31489153250` on `5ee844322c356bbc1ac60ecd09ed0d2b055bc632` passed governance and build-and-test with 38 governance tests, 21/21 Swift bundles, 794/794 tests, 0 failed bundles, and 70.22% coverage. Artifact `9100851997` is unexpired, 9,583,047 bytes, retained for 14 days, and has digest `28f0621542bf90816ec9ba57afd4269172f06ca23f4b8e62ee6cbf8ac61c5b3c`. Full Xcode/SourceKit remains the sole repository-hygiene blocker in this track; H-010 remains blocked and no H-011 exists.
+
+**Current-main hosted-CI verification (2026-08-11):** Main run `31493509364` on `a20617302591628c704a6cf099f4c18b0525c80b` completed with governance and build-and-test success. The hosted log SHA-256 is `4fa552a311bdbaeb75099e82748b05852ee2289b45fe2cc8521fe9a298f7369c`; it records 38 governance tests, all repository-hygiene/second-pass/supply-chain validators passing, 21/21 Swift bundles, 794/794 tests, 0 failed bundles, and 70.18% coverage against the unchanged 70% threshold. Artifact `9103153666` is unexpired, 9,583,080 bytes, retained for 14 days, and has digest `445a2624e4ef28dfad509d875f71e20de28cc699340dd4e86129e26d9d5d5261`. The ephemeral runner was deregistered and removed after the run. Full Xcode/SourceKit remains the sole repository-hygiene blocker in this track; H-010 remains blocked and no H-011 exists.
 
 **Prompt:** `H-010_FINAL_REPO_HYGIENE_GATE_AND_CLOSEOUT.prompt.md`
 **Depends on:** HYGIENE-09
