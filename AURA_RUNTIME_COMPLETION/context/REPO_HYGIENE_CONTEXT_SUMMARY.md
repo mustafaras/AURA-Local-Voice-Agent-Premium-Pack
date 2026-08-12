@@ -86,3 +86,16 @@ after the required Tier-0 files, then checking:
 This summary does not close product, release, beta, CI-hosted, full-Xcode,
 historical-secret, or original-Git-object-database gates. H-010 remains a
 separate explicit next-prompt boundary and is not opened by this summary.
+
+## H-010 final local-gate pointer — 2026-08-12T11:28:10Z
+
+The latest H-010 evidence supersedes the earlier blocked local-lint/coverage
+snapshot: feature commit `de320a05ba9195b982e887e13c2116ba3698bc8a` passes
+strict SwiftLint with zero violations in 1,066 files, the unchanged canonical
+wrapper with 21/21 bundles, 795 tests, and 70.57% coverage, plus formatter,
+build, full tests, and fsck. In-repository untracked count is zero. The 219
+byte-identical copy artifacts are preserved in recoverable external quarantine
+`/Users/m_ras/Desktop/AURA-H010-QUARANTINE-20260812`. Feature push is complete;
+no-ff merge/main push and exact final hosted-CI observation remain pending.
+Read `REPO_HYGIENE_STATE.json` and the latest focused-ledger entry before
+declaring H-010 complete. No H-011 exists.

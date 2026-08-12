@@ -11,15 +11,12 @@ func captureRespectsSecureFieldFocusAndMasksEntireFrame() async throws {
   var configuration = ScreenContextConfiguration()
   configuration.enabled = true
   let windows = [makeWindow(id: 1, bundleID: "com.example.normal")]
-  let recognizer = ScriptedTextRecognizer(
-    regionsToReturn: [
-      RecognizedTextRegion(
-        text: "unrelated visible text", boundingBoxX: 0.1, boundingBoxY: 0.1, boundingBoxWidth: 0.3,
-        boundingBoxHeight: 0.05)
-    ])
-  let secureFieldDetector = ScriptedSecureFieldDetector(focusedBundleIdentifiers: [
-    "com.example.normal"
-  ])
+  let region = RecognizedTextRegion(
+    text: "unrelated visible text", boundingBoxX: 0.1, boundingBoxY: 0.1, boundingBoxWidth: 0.3,
+    boundingBoxHeight: 0.05)
+  let recognizer = ScriptedTextRecognizer(regionsToReturn: [region])
+  let secureFieldDetector = ScriptedSecureFieldDetector(
+    focusedBundleIdentifiers: ["com.example.normal"])
   let (engine, _) = try await makeEngine(
     windows: windows, configuration: configuration, textRecognizer: recognizer,
     secureFieldDetector: secureFieldDetector)
@@ -57,10 +54,9 @@ func freshnessDeadlineReflectsConfiguredWindowAndObservationStartsFresh() async 
 func sensitiveWindowTitleIsRedactedInObservation() async throws {
   var configuration = ScreenContextConfiguration()
   configuration.enabled = true
-  let windows = [
-    makeWindow(
-      id: 1, title: "Statement - Card 4111111111111111.pdf", bundleID: "com.example.normal")
-  ]
+  let window = makeWindow(
+    id: 1, title: "Statement - Card 4111111111111111.pdf", bundleID: "com.example.normal")
+  let windows = [window]
   let (engine, _) = try await makeEngine(windows: windows, configuration: configuration)
 
   let outcome = try await engine.captureWindow(windowID: 1)

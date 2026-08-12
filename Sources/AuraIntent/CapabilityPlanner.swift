@@ -188,11 +188,11 @@ public actor CapabilityPlanner {
           return .failure(.invalidDependencyIndex(stepIndex: index, dependsOn: dependsOn))
         }
       }
-      switch await validateStep(
+      let validationResult = await validateStep(
         capabilityID: request.capabilityID, arguments: request.arguments,
         requiredArgumentNames: request.requiredArgumentNames,
         dependsOnStepIndices: request.dependsOnStepIndices)
-      {
+      switch validationResult {
       case .success(let step): steps.append(step)
       case .failure(let failure): return .failure(failure)
       }
@@ -206,11 +206,9 @@ public actor CapabilityPlanner {
     arguments: [String: String],
     requiredArgumentNames: [String] = []
   ) async -> Result<Plan, PlanValidationFailure> {
-    await buildPlan(steps: [
-      PlanStepRequest(
-        capabilityID: capabilityID, arguments: arguments,
-        requiredArgumentNames: requiredArgumentNames, dependsOnStepIndices: []
-      )
-    ])
+    let request = PlanStepRequest(
+      capabilityID: capabilityID, arguments: arguments,
+      requiredArgumentNames: requiredArgumentNames, dependsOnStepIndices: [])
+    return await buildPlan(steps: [request])
   }
 }

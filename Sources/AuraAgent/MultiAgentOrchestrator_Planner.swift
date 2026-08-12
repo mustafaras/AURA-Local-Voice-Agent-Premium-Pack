@@ -56,12 +56,13 @@ extension MultiAgentOrchestrator {
         objective: objective, repositoryRoot: repositoryRoot),
       actor: actor, correlationID: context.runID, causationID: context.runID)
 
-    switch await runPlannerPhase(context: context, state: state) {
+    let plannerResult = await runPlannerPhase(context: context, state: state)
+    switch plannerResult {
     case .outcome(let outcome): return await finish(outcome, context: context, state: state)
     case .value(let planText):
-      switch await runImplementationPhase(
+      let implementationResult = await runImplementationPhase(
         context: context, state: state, planText: planText)
-      {
+      switch implementationResult {
       case .outcome(let outcome): return await finish(outcome, context: context, state: state)
       case .handle(let handle):
         let outcome = await runReviewLoop(context: context, state: state, handle: handle)

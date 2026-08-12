@@ -169,15 +169,10 @@ final class ApplicationControllerSpy: ApplicationControlling, @unchecked Sendabl
 
   func runningApplications() -> [NativeApplicationDescriptor] {
     runningApplicationsCallCount += 1
-    return [
-      NativeApplicationDescriptor(
-        bundleIdentifier: "com.example.app",
-        name: "Example",
-        processID: 123,
-        isActive: true,
-        isHidden: false
-      )
-    ]
+    let application = NativeApplicationDescriptor(
+      bundleIdentifier: "com.example.app", name: "Example", processID: 123,
+      isActive: true, isHidden: false)
+    return [application]
   }
 
   func launchApplication(bundleIdentifier: String, timeout: TimeInterval) async throws(AuraError)

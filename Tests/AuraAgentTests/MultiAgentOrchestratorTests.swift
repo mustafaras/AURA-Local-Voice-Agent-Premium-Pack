@@ -239,13 +239,11 @@ struct MultiAgentOrchestratorTests {
 
     let planner = FakeOrchestratedAgent(scripts: [[.turnCompleted]])
     let implementer = FakeOrchestratedAgent(scripts: [[.turnCompleted]])
-    let reviewer = FakeOrchestratedAgent(
-      scripts: [
-        [
-          .text(role: "assistant", content: "VERDICT: REQUEST_CHANGES: still broken"),
-          .turnCompleted,
-        ]
-      ])
+    let reviewerScript: [OrchestrationAgentEvent] = [
+      .text(role: "assistant", content: "VERDICT: REQUEST_CHANGES: still broken"),
+      .turnCompleted,
+    ]
+    let reviewer = FakeOrchestratedAgent(scripts: [reviewerScript])
 
     let outcome = await orchestrator.runPlannerImplementerReviewer(
       objective: "add a feature", repositoryRoot: repoRoot, planner: planner,

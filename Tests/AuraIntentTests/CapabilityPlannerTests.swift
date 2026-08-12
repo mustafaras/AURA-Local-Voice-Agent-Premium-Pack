@@ -150,12 +150,10 @@ func plannerRejectsForwardDependencyAsCycle() async {
 @Test
 func plannerRejectsSelfDependencyAsCycle() async {
   let planner = CapabilityPlanner(registry: await makeRegistry())
-  let result = await planner.buildPlan(steps: [
-    PlanStepRequest(
-      capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
-      dependsOnStepIndices: [0]
-    )
-  ])
+  let request = PlanStepRequest(
+    capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
+    dependsOnStepIndices: [0])
+  let result = await planner.buildPlan(steps: [request])
   guard case .failure(.dependencyCycle) = result else {
     Issue.record("expected dependencyCycle failure, got \(result)")
     return

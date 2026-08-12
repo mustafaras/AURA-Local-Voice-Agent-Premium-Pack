@@ -35,10 +35,10 @@ extension OllamaAdapter {
     let correlationID = context.correlationID
     let causationID = context.causationID
     let capability = OllamaTaskCapability.classification
-    switch await preflight(
+    let preflightResult = await preflight(
       capability: capability, actor: actor, sessionID: sessionID, correlationID: correlationID,
       causationID: causationID)
-    {
+    switch preflightResult {
     case .degraded(let reason):
       await emitDegraded(
         capability: capability, reason: reason, actor: actor,
@@ -89,13 +89,13 @@ extension OllamaAdapter {
     correlationID: UUID,
     causationID: UUID
   ) async throws(AuraError) -> OllamaNLUResult {
-    switch await preflight(
+    let preflightResult = await preflight(
       capability: .classification,
       actor: actor,
       sessionID: sessionID,
       correlationID: correlationID,
       causationID: causationID)
-    {
+    switch preflightResult {
     case .degraded(let reason):
       await emitDegraded(
         capability: .classification,
@@ -106,39 +106,40 @@ extension OllamaAdapter {
       throw AuraError.ollamaError(
         "ollama unavailable for structured NLU (reason: \(reason.rawValue))")
     case .ready(let model):
+      return try await runStructuredNLU(
+        prompt: prompt, model: model, actor: actor,
+        correlationID: correlationID, causationID: causationID)
+    }
+  }
+
+  private func runStructuredNLU(
+    prompt: String,
+    model: OllamaRegisteredModel,
+    actor: ActorID,
+    correlationID: UUID,
+    causationID: UUID
+  ) async throws(AuraError) -> OllamaNLUResult {
+    await emitAudit(
+      OllamaInferenceStartedEvent(
+        runID: correlationID, model: model.name,
+        capability: OllamaTaskCapability.classification.rawValue,
+        isLocalModel: model.isLocal, structuredOutputRequested: true),
+      actor: actor, correlationID: correlationID, causationID: causationID)
+    do {
+      let result = try await OllamaStructuredRequest.propose(
+        apiClient: apiClient, model: model.name, prompt: prompt,
+        keepAliveSeconds: configuration.keepAliveSeconds)
       await emitAudit(
-        OllamaInferenceStartedEvent(
-          runID: correlationID,
-          model: model.name,
-          capability: OllamaTaskCapability.classification.rawValue,
-          isLocalModel: model.isLocal,
-          structuredOutputRequested: true),
-        actor: actor,
-        correlationID: correlationID,
-        causationID: causationID)
-      do {
-        let result = try await OllamaStructuredRequest.propose(
-          apiClient: apiClient,
-          model: model.name,
-          prompt: prompt,
-          keepAliveSeconds: configuration.keepAliveSeconds)
-        await emitAudit(
-          OllamaInferenceCompletedEvent(runID: correlationID, model: model.name),
-          actor: actor,
-          correlationID: correlationID,
-          causationID: causationID)
-        return result
-      } catch {
-        await emitAudit(
-          OllamaErrorEvent(
-            runID: correlationID,
-            category: .structuredValidationFailed,
-            message: "structured NLU response rejected"),
-          actor: actor,
-          correlationID: correlationID,
-          causationID: causationID)
-        throw error
-      }
+        OllamaInferenceCompletedEvent(runID: correlationID, model: model.name),
+        actor: actor, correlationID: correlationID, causationID: causationID)
+      return result
+    } catch {
+      await emitAudit(
+        OllamaErrorEvent(
+          runID: correlationID, category: .structuredValidationFailed,
+          message: "structured NLU response rejected"),
+        actor: actor, correlationID: correlationID, causationID: causationID)
+      throw error
     }
   }
 
@@ -152,10 +153,10 @@ extension OllamaAdapter {
     deterministicFallback: (@Sendable (String) -> String)? = nil
   ) async throws(AuraError) -> OllamaCapabilityResult {
     let capability = OllamaTaskCapability.summarization
-    switch await preflight(
+    let preflightResult = await preflight(
       capability: capability, actor: actor, sessionID: sessionID, correlationID: correlationID,
       causationID: causationID)
-    {
+    switch preflightResult {
     case .degraded(let reason):
       await emitDegraded(
         capability: capability, reason: reason, actor: actor,
@@ -209,10 +210,10 @@ extension OllamaAdapter {
     causationID: UUID
   ) async throws(AuraError) -> OllamaCapabilityResult {
     let capability = OllamaTaskCapability.reasoning
-    switch await preflight(
+    let preflightResult = await preflight(
       capability: capability, actor: actor, sessionID: sessionID, correlationID: correlationID,
       causationID: causationID)
-    {
+    switch preflightResult {
     case .degraded(let reason):
       await emitDegraded(
         capability: capability, reason: reason, actor: actor,

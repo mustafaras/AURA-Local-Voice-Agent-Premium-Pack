@@ -30,11 +30,10 @@ struct AuraSTTEngineTests {
 
   @Test("emits partial then stable segment for scripted frames")
   func partialThenStable() async throws {
+    let segment = DeterministicMockSTTEngine.MockSegment(
+      text: "hello", expectedFrameCount: 6, alternatives: ["hullo", "allo"])
     let engine = DeterministicMockSTTEngine(
-      script: [
-        DeterministicMockSTTEngine.MockSegment(
-          text: "hello", expectedFrameCount: 6, alternatives: ["hullo", "allo"])
-      ],
+      script: [segment],
       partialBoundaryFrames: 3,
       stabilizationDelayFrames: 2
     )

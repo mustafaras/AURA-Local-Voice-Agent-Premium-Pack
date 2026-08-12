@@ -55,43 +55,35 @@ public enum ComputerUseAppFixtures: Sendable {
   public static func knownTasks(for appBundleIdentifier: String) -> [KnownTask]? {
     switch appBundleIdentifier {
     case "com.apple.finder":
-      return [
-        KnownTask(
-          objectiveKey: "reveal_downloads",
-          plan: ComputerUsePlan(steps: [
-            ComputerUseActionStep(
-              kind: .keyPress(key: "space", modifiers: []),
-              anchor: UIAnchor(),
-              semanticIntent: .observe,
-              targetAppBundleIdentifier: "com.apple.finder",
-              rationale: "reveal a selected file preview (observation only)")
-          ]),
-          postconditions: [
-            ComputerUsePostcondition(
-              id: "windowTitleContains",
-              summary: "finder window title is unchanged",
-              check: { $0.screen.windowTitle != nil })
-          ])
-      ]
+      let step = ComputerUseActionStep(
+        kind: .keyPress(key: "space", modifiers: []),
+        anchor: UIAnchor(),
+        semanticIntent: .observe,
+        targetAppBundleIdentifier: "com.apple.finder",
+        rationale: "reveal a selected file preview (observation only)")
+      let postcondition = ComputerUsePostcondition(
+        id: "windowTitleContains",
+        summary: "finder window title is unchanged",
+        check: { $0.screen.windowTitle != nil })
+      let task = KnownTask(
+        objectiveKey: "reveal_downloads",
+        plan: ComputerUsePlan(steps: [step]), postconditions: [postcondition])
+      return [task]
     case "com.apple.Terminal":
-      return [
-        KnownTask(
-          objectiveKey: "print_working_directory",
-          plan: ComputerUsePlan(steps: [
-            ComputerUseActionStep(
-              kind: .keyPress(key: "return", modifiers: []),
-              anchor: UIAnchor(),
-              semanticIntent: .observe,
-              targetAppBundleIdentifier: "com.apple.Terminal",
-              rationale: "read-only prompt refresh (observation only)")
-          ]),
-          postconditions: [
-            ComputerUsePostcondition(
-              id: "terminalPromptPresent",
-              summary: "terminal prompt is present",
-              check: { $0.controlCandidates.contains { $0.role == "AXTextArea" } })
-          ])
-      ]
+      let step = ComputerUseActionStep(
+        kind: .keyPress(key: "return", modifiers: []),
+        anchor: UIAnchor(),
+        semanticIntent: .observe,
+        targetAppBundleIdentifier: "com.apple.Terminal",
+        rationale: "read-only prompt refresh (observation only)")
+      let postcondition = ComputerUsePostcondition(
+        id: "terminalPromptPresent",
+        summary: "terminal prompt is present",
+        check: { $0.controlCandidates.contains { $0.role == "AXTextArea" } })
+      let task = KnownTask(
+        objectiveKey: "print_working_directory",
+        plan: ComputerUsePlan(steps: [step]), postconditions: [postcondition])
+      return [task]
     default:
       // Apps without fixtures cannot be planned — structural, not a guess.
       return nil

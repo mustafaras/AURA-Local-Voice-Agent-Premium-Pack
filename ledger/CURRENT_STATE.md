@@ -372,3 +372,21 @@ copy artifacts, all byte-identical to tracked counterparts (`219/219`), with
 no other untracked path and no product tracked diff. They remain preserved and
 unstaged pending explicit cleanup/quarantine authority; worktree state is
 `dirty_expected`.
+
+### H-010 final local-gate overlay — 2026-08-12T11:28:10Z
+
+The H-010 local blockers are resolved on feature commit
+`de320a05ba9195b982e887e13c2116ba3698bc8a`: strict SwiftLint exits `0` with
+zero violations in 1,066 files; strict formatter, warnings-as-errors build,
+full tests, and adopted-repository fsck pass; and the canonical wrapper exits
+`0` with 21/21 bundles, 795 tests, and 70.57% line coverage against the
+unchanged 70% threshold. The formatter-compatible SwiftLint contract contains
+no `disabled_rules`, no new path exclusions, and no threshold change.
+
+The 219 byte-identical copy artifacts were moved without deletion to the
+recoverable external quarantine
+`/Users/m_ras/Desktop/AURA-H010-QUARANTINE-20260812`; the repository's current
+in-repository untracked count is zero. Feature push is complete. H-010 remains
+blocked only until the no-ff merge/main push and exact final hosted-CI result
+are observed and projected; no H-011 or product/release completion claim
+follows. Evidence: `EV-REPO-HYGIENE-H-010-FINAL-20260812-01`.

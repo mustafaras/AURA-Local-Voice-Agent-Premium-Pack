@@ -2,7 +2,7 @@
   "$schema": "../schemas/toolchain-manifest.schema.json",
   "schema_version": "1.0.0",
   "updated_at": "2026-08-11T15:16:10Z",
-  "repository_commit": "63f1e67bf1457e53d07cf282d8b4af1bcc33cba5",
+  "repository_commit": "de320a05ba9195b982e887e13c2116ba3698bc8a",
   "supported": {
     "development": {
       "os": "macOS 27+",
@@ -78,7 +78,7 @@
   "limitations": [
     "The observed host has Apple Xcode 27.0 beta 5 selected; release signing, notarization, and clean-machine validation remain separate gates.",
     "swift-format is available only through the active xcrun toolchain; its observed --version output is main rather than an independent semantic version.",
-    "SwiftLint 0.65.0 loads SourceKit under the selected Xcode toolchain, but the strict policy run exits 2 with 528 serious findings across 112 files (352 trailing_comma, 170 opening_brace, 4 function_body_length, 2 file_length); the --disable-sourcekit result remains partial and is not a full lint pass.",
+    "SwiftLint 0.65.0 loads SourceKit under the selected Xcode toolchain; the strict policy run exits 0 with 0 violations in 1066 files after bounded formatter-compatible remediation. The exact default-policy falsification remains documented separately and is not used as the configured gate.",
     "No CI workflow run was observed during this local validation; workflow configuration is not CI execution evidence.",
     "The Package.swift deployment target remains macOS 27 because no availability audit supports lowering it."
   ]

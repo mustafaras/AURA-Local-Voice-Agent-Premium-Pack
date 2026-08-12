@@ -44,11 +44,10 @@ public struct RedactionPipeline: Sendable {
     configuredPatterns: [RedactionRule]
   ) -> [RedactionMatch] {
     if isSecureFieldFocused {
-      return [
-        RedactionMatch(
-          category: .secureTextField, boundingBoxX: 0, boundingBoxY: 0, boundingBoxWidth: 1,
-          boundingBoxHeight: 1, patternDescription: "focused secure text field")
-      ]
+      let match = RedactionMatch(
+        category: .secureTextField, boundingBoxX: 0, boundingBoxY: 0, boundingBoxWidth: 1,
+        boundingBoxHeight: 1, patternDescription: "focused secure text field")
+      return [match]
     }
 
     var matches: [RedactionMatch] = []
