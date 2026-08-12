@@ -8,9 +8,9 @@
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "de34f1d24d5c1c452cfe87760125e441d0eb6c19",
-    "remote_head": "de34f1d24d5c1c452cfe87760125e441d0eb6c19",
-    "working_tree_state": "dirty_expected",
+    "verified_head": "822f339e2b353e1dc6ac126eb6aa7f592bfa0e91",
+    "remote_head": "822f339e2b353e1dc6ac126eb6aa7f592bfa0e91",
+    "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
@@ -54,7 +54,7 @@
       ,"Document-archive maintenance moved the terminal H-000..H-010 prompt definitions to AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12 and updated the hygiene manifest; this is expected control-plane dirt pending explicit delivery."
       ,"Second-pass context maintenance moved completed first-pass prompt/context prose to AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12 and AURA_RUNTIME_COMPLETION/archive/first-pass-context/2026-08-12; ADR/subsystem docs remain named on-demand Tier-1 references."
       ,"The control-plane archive and structural cleanup was delivered as feature commit 19046eb05b6db9a93f20575ab0dd7b60197743d5, pushed to origin, merged by PR #3 as de34f1d24d5c1c452cfe87760125e441d0eb6c19, and verified with HEAD == origin/main and a clean worktree. Main CI run 31613321170 is queued; no repository-defined signed/notarized/public deployment target exists, so no deploy claim follows."
-      ,"Post-delivery state, handoff, and ledger projections are session-owned control-plane changes pending this delivery commit; no product source, prompt transition, or release/deployment claim is implied."
+      ,"Post-delivery state, handoff, and ledger projections were delivered in projection commit 822f339e2b353e1dc6ac126eb6aa7f592bfa0e91 and merged to main; no product source, prompt transition, or release/deployment claim is implied."
     ]
   },
   "program_status": "in_progress",
@@ -525,5 +525,5 @@
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "Keep H-010 terminal and SP-000 pending. Main merge de34f1d24d5c1c452cfe87760125e441d0eb6c19 is delivered; CI run 31613321170 is queued and must not be called a pass. No repository-defined signed/notarized/public deploy target exists. Continue only under explicit second-pass or owning product/release authority; no H-011 or automatic prompt transition."
+  "next_action": "Keep H-010 terminal and SP-000 pending. Archive/cleanup and state projections are delivered; main CI run 31613321170 is queued and must not be called a pass. No repository-defined signed/notarized/public deploy target exists. Continue only under explicit second-pass or owning product/release authority; no H-011 or automatic prompt transition."
 }
