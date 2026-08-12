@@ -409,6 +409,7 @@ def projection_only_paths(paths: list[str]) -> bool:
         ".gitignore",
         "scripts/aura-test.sh",
         "scripts/aura-coverage-scope.regex",
+        "scripts/validate_repo_hygiene_program.py",
         "scripts/validate_runtime_completion.py",
         "Tests/AuraAudioTests/SystemTTSEngineTests.swift",
         "Tests/AuraAudioTests/SystemTTSLatencyTests.swift",
