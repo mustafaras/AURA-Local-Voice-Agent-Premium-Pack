@@ -249,6 +249,8 @@ Run all available validators, tests, scans, diff checks, inventory checks, and c
 
 **H-010 main projection synchronization (2026-08-12T11:41:26Z):** The feature was merged no-ff and pushed to `main` at `d0527d923d2ed02be3daf291e8181c900508a59a`; `HEAD == origin/main`. State, capability, toolchain, and handoff projections are being synchronized to this main SHA. Hosted run `31592649228` for the merge SHA remained queued before this projection sync; the final synchronized-main hosted run is still required and no hosted success is claimed yet.
 
+**H-010 hosted-runner blocker (2026-08-12T11:50:09Z):** Final synchronized-main projection `d1e77129c607a40a209b5d1c5207cc83f38a5851` is locally and remotely equal with all local validators green. Hosted run `31593417301` has governance job `94103274792` queued with zero completed steps; the GitHub self-hosted runner inventory is empty. This is an external availability blocker, not a local gate failure; no hosted PASS/FAIL is inferred. Evidence: `EV-REPO-HYGIENE-H-010-HOSTED-BLOCKED-20260812-01`.
+
 **H-010 post-merge ownership inventory (2026-08-12):** A complete read-only untracked scan found 219 paths ending in ` 2.swift`; all 219 are byte-identical to their tracked counterparts, with zero different/missing pairs and no other untracked path. They remain preserved and unstaged pending explicit cleanup/quarantine authority; this does not close H-010's independent lint/coverage blockers.
 
 **Prompt:** `H-010_FINAL_REPO_HYGIENE_GATE_AND_CLOSEOUT.prompt.md`

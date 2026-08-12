@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-12T11:41:26Z",
-  "session_id": "AURA-REPO-HYGIENE-H010-FINAL-MAIN-SYNC-20260812",
+  "updated_at": "2026-08-12T11:50:09Z",
+  "session_id": "AURA-REPO-HYGIENE-H010-HOSTED-BLOCKED-20260812",
   "last_verified_commit": "d0527d923d2ed02be3daf291e8181c900508a59a",
   "active_prompt": {
     "id": "FINAL",
@@ -540,7 +540,7 @@
     "RISK-REPO-HYGIENE-SWIFTLINT-FORMATTER-POLICY-CONFLICT",
     "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION"
   ],
-  "next_action": "H-010 local gates pass and are delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: strict SwiftLint 0 violations, strict formatter/build/full tests/fsck pass, and the canonical wrapper exits 0 with 21/21 bundles, 795 tests, and 70.57% coverage. The 219 byte-identical copies are preserved in recoverable external quarantine and in-repository untracked count is 0. Observe hosted CI for this synchronized main projection, then update the H-010 completion state; do not open H-011 or claim product/release completion.",
+  "next_action": "H-010 local gates pass and are delivered on main projection commit d1e77129c607a40a209b5d1c5207cc83f38a5851: strict SwiftLint 0 violations, strict formatter/build/full tests/fsck pass, and the canonical wrapper exits 0 with 21/21 bundles, 795 tests, and 70.57% coverage. The 219 byte-identical copies are preserved in recoverable external quarantine and in-repository untracked count is 0. Hosted run 31593417301 is queued with no active self-hosted runner and no completed steps; record remains fail-closed until runner availability and a completed result. Do not open H-011 or claim product/release completion.",
   "required_first_reads": [
     "AGENTS.md",
     "README.md",
@@ -555,5 +555,5 @@
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "docs/operations/BETA_READINESS.md"
   ],
-  "notes": "FINAL/CLOSEOUT is a blocked handoff, not a release decision. No signing, installation, release, deployment, telemetry, or beta enrollment occurred. H-010 local lint/coverage blockers are resolved under EV-REPO-HYGIENE-H-010-FINAL-20260812-01; the feature push is complete, while no-ff merge/main push and exact final hosted-CI observation remain pending. The 219 copy artifacts are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. Second-pass synchronization remains SP-000/pending. No H-011 exists; product, beta, second-pass, ADR-034/ADR-044, signing, release, and deployment gates remain separate."
+  "notes": "FINAL/CLOSEOUT is a blocked handoff, not a release decision. No signing, installation, release, deployment, telemetry, or beta enrollment occurred. H-010 local lint/coverage blockers are resolved under EV-REPO-HYGIENE-H-010-FINAL-20260812-01 and delivered at main projection d1e77129c607a40a209b5d1c5207cc83f38a5851. Hosted run 31593417301 remains queued because the active self-hosted runner inventory is empty; no hosted pass or fail is inferred. The 219 copy artifacts are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. Second-pass synchronization remains SP-000/pending. No H-011 exists; product, beta, second-pass, ADR-034/ADR-044, signing, release, and deployment gates remain separate."
 }

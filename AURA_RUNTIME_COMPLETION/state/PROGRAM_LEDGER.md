@@ -1207,3 +1207,9 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Delivery:** Feature commits `de320a05` and `8e12424` were merged no-ff into `main` as `d0527d923d2ed02be3daf291e8181c900508a59a`; `git push origin main` exited `0` and local `HEAD == origin/main`.
 - **Projection:** Machine state, current-state, capability/toolchain manifests, handoff, docs, and ledgers now identify the synchronized main SHA. Local lint/formatter/build/full-test/fsck/coverage and zero-untracked evidence remain unchanged and green.
 - **Hosted boundary:** Run `31592649228` for the merge SHA was queued with governance job `94100880532` and no completed steps. It is not a pass; a completed hosted result for the synchronized main projection is required before H-010 can be completed.
+
+### 2026-08-12T11:50:09Z — REPO_HYGIENE_H010_HOSTED_RUNNER_BLOCKED
+
+- **Final local state:** Projection commit `d1e77129c607a40a209b5d1c5207cc83f38a5851` is pushed to `main`; `HEAD == origin/main`, worktree is clean before this evidence-only update, and all four local validators pass. Local strict lint/formatter/build/full tests/fsck/coverage evidence remains green.
+- **Hosted observation:** Run `31593417301` for the synchronized main SHA has governance job `94103274792` queued with zero completed steps. `gh api .../actions/runners` returned an empty runner inventory.
+- **Disposition:** Hosted CI cannot be classified PASS or FAIL until an authorized runner becomes available and the run completes. H-010 remains `active_prompt=H-010`, `active_state=blocked`; no H-011, release, deploy, signing, or notarization follows.

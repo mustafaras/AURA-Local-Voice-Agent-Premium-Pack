@@ -104,3 +104,8 @@ The feature was merged no-ff and pushed to `main` at
 `d0527d923d2ed02be3daf291e8181c900508a59a`; the state projections now point
 to this synchronized main SHA. Hosted run `31592649228` remained queued with
 no completed steps, so the final hosted result is still open.
+
+The synchronized projection was pushed as `d1e77129c607a40a209b5d1c5207cc83f38a5851`.
+Its hosted run `31593417301` is also queued because the self-hosted runner
+inventory is empty; no hosted PASS/FAIL is claimed. Keep H-010 blocked until
+an authorized runner executes the final workflow.

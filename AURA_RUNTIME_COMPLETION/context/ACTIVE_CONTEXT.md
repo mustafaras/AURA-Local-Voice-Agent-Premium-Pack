@@ -431,3 +431,10 @@ The feature was merged no-ff and pushed to `main` at
 state projections now point to that SHA. Hosted run `31592649228` was queued
 for the merge SHA without completed steps; it is not a pass. The final
 synchronized-main hosted result remains required.
+
+The final hosted run `31593417301` for synchronized main projection
+`d1e77129c607a40a209b5d1c5207cc83f38a5851` is queued with governance job
+`94103274792` and no completed steps. GitHub reports no active self-hosted
+runner. This is an external fail-closed blocker; no hosted result is inferred
+and H-010 remains blocked. Evidence:
+`EV-REPO-HYGIENE-H-010-HOSTED-BLOCKED-20260812-01`.

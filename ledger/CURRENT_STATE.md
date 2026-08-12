@@ -396,3 +396,9 @@ The feature was then merged no-ff and pushed to `main` at
 post-merge state projection is synchronized to this SHA. Hosted run
 `31592649228` for the merge SHA remained queued and is not a pass; the final
 synchronized-main hosted result remains required.
+
+Final hosted observation is currently fail-closed: run `31593417301` for
+`d1e77129c607a40a209b5d1c5207cc83f38a5851` is queued, governance job
+`94103274792` has no completed steps, and the GitHub self-hosted runner
+inventory is empty. No hosted PASS/FAIL is inferred. Evidence:
+`EV-REPO-HYGIENE-H-010-HOSTED-BLOCKED-20260812-01`.
