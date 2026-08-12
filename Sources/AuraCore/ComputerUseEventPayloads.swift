@@ -111,7 +111,7 @@ public struct ComputerUseStepEvent: EventPayload {
 /// Emitted when a mandatory-confirmation intent reached a bare `.allow`
 /// decision and was blocked unconditionally regardless of grant
 /// configuration.
-public struct ComputerUseMandatoryConfirmationBlockedEvent: EventPayload {
+public struct ComputerUseConfirmationBlockedEvent: EventPayload {
   public static let eventType = "computerUse.loop.mandatoryConfirmationBlocked"
 
   public let runID: UUID
@@ -119,8 +119,12 @@ public struct ComputerUseMandatoryConfirmationBlockedEvent: EventPayload {
   public let stepID: UUID
   public let semanticIntent: ComputerUseSemanticIntent
 
-  public init(runID: UUID, iteration: Int, stepID: UUID, semanticIntent: ComputerUseSemanticIntent)
-  {
+  public init(
+    runID: UUID,
+    iteration: Int,
+    stepID: UUID,
+    semanticIntent: ComputerUseSemanticIntent
+  ) {
     self.runID = runID
     self.iteration = iteration
     self.stepID = stepID

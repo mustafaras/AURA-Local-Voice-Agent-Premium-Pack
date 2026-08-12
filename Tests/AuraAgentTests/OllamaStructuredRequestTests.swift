@@ -77,7 +77,8 @@ func ollamaStructuredRequestProposeDecodesTypedNLUResponse() async throws {
     return OllamaGenerateResponse(
       model: model,
       response:
-        #"{"dialogue_act":"answer","language":"mixed","capability_id":"","confidence":"0.91","ambiguity_reason":""}"#,
+        #"{"dialogue_act":"answer","language":"mixed","capability_id":"","confidence":"#
+        + #""0.91","ambiguity_reason":""}"#,
       done: true)
   }
 

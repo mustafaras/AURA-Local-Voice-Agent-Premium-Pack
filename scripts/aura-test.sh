@@ -1,7 +1,7 @@
 #!/bin/zsh
-# AURA test runner for the Apple CommandLineTools Swift 6.4 toolchain.
+# AURA test runner for Apple Swift 6.4 toolchains.
 #
-# SwiftPM's bundled `swift test` fails in this environment because iCloud
+# SwiftPM's bundled `swift test` can fail in this environment because iCloud
 # extended attributes on the .build directory break ad-hoc codesign, and the
 # Swift Testing helper cannot load unsigned bundles. This wrapper builds test
 # targets in /tmp and invokes swiftpm-testing-helper with the system Testing
@@ -27,13 +27,28 @@ if [[ -z "$AURA_SWIFT_PATH" || ! -x "$AURA_SWIFT_PATH" ]]; then
 fi
 
 # Derive the SwiftPM helper and macro plugin from the discovered Swift toolchain.
-# Testing.framework and its interop library may be supplied explicitly for a
-# non-CommandLineTools Xcode layout; missing paths fail closed below.
+# Full Xcode stores the macOS Testing runtime under its platform developer
+# directory, while CommandLineTools exposes the older direct layout. Explicit
+# overrides remain available for other supported layouts; missing paths fail
+# closed below.
 AURA_SWIFT_USR="$(cd "$(dirname "$AURA_SWIFT_PATH")/.." && pwd)"
 HELPER="$AURA_SWIFT_USR/libexec/swift/pm/swiftpm-testing-helper"
 TESTING_MACROS_PATH="$AURA_SWIFT_USR/lib/swift/host/plugins/testing/libTestingMacros.dylib"
-TESTING_FRAMEWORK="${AURA_TESTING_FRAMEWORK_PATH:-$AURA_DEVELOPER_DIR/Library/Developer/Frameworks}"
-TESTING_LIB="${AURA_TESTING_LIB_PATH:-$AURA_DEVELOPER_DIR/Library/Developer/usr/lib}"
+MACOS_PLATFORM_DEVELOPER="$AURA_DEVELOPER_DIR/Platforms/MacOSX.platform/Developer"
+if [[ -n "${AURA_TESTING_FRAMEWORK_PATH:-}" ]]; then
+    TESTING_FRAMEWORK="$AURA_TESTING_FRAMEWORK_PATH"
+elif [[ -d "$MACOS_PLATFORM_DEVELOPER/Library/Frameworks/Testing.framework" ]]; then
+    TESTING_FRAMEWORK="$MACOS_PLATFORM_DEVELOPER/Library/Frameworks"
+else
+    TESTING_FRAMEWORK="$AURA_DEVELOPER_DIR/Library/Developer/Frameworks"
+fi
+if [[ -n "${AURA_TESTING_LIB_PATH:-}" ]]; then
+    TESTING_LIB="$AURA_TESTING_LIB_PATH"
+elif [[ -f "$MACOS_PLATFORM_DEVELOPER/usr/lib/lib_TestingInterop.dylib" ]]; then
+    TESTING_LIB="$MACOS_PLATFORM_DEVELOPER/usr/lib"
+else
+    TESTING_LIB="$AURA_DEVELOPER_DIR/Library/Developer/usr/lib"
+fi
 
 if [[ ! -x "$HELPER" || ! -f "$TESTING_MACROS_PATH" ||
     ! -d "$TESTING_FRAMEWORK/Testing.framework" ||

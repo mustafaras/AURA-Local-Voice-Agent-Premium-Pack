@@ -116,10 +116,7 @@ actor ScriptedActionExecutor: UIActionExecuting {
     _ kind: ComputerUseActionKind,
     anchor: UIAnchor,
     applicationBundleIdentifier: String,
-    windowFrameX: Double,
-    windowFrameY: Double,
-    windowFrameWidth: Double,
-    windowFrameHeight: Double
+    windowFrame: UIWindowFrame
   ) async throws(AuraError) -> UIActionExecutionResult {
     if shouldThrow {
       throw AuraError.computerUseError("scripted failure")

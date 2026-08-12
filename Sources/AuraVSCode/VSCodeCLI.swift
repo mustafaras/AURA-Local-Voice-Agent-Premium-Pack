@@ -78,27 +78,20 @@ public actor VSCodeCLI {
   private func arguments(for command: VSCodeCommand) -> [String] {
     switch command {
     case .openWorkspace(let path, let newWindow):
-      var args = [path]
-      if newWindow { args.insert("--new-window", at: 0) }
-      return args
+      return pathArguments(path: path, newWindow: newWindow)
 
     case .openFolder(let path, let newWindow, let addToWorkspace):
-      if addToWorkspace { return ["--add", path] }
-      var args = [path]
-      if newWindow { args.insert("--new-window", at: 0) }
-      return args
+      return folderArguments(
+        path: path,
+        newWindow: newWindow,
+        addToWorkspace: addToWorkspace)
 
     case .openFile(let path, let line, let column, let waitForClose):
-      var args: [String] = []
-      if let line = line {
-        let colSuffix = column.map { ":\($0)" } ?? ""
-        args.append("--goto")
-        args.append("\(path):\(line)\(colSuffix)")
-      } else {
-        args.append(path)
-      }
-      if waitForClose { args.append("--wait") }
-      return args
+      return fileArguments(
+        path: path,
+        line: line,
+        column: column,
+        waitForClose: waitForClose)
 
     case .openDiff(let left, let right):
       return ["--diff", left, right]
@@ -107,14 +100,7 @@ public actor VSCodeCLI {
       return ["--add", path]
 
     case .manageExtension(let extensionID, let action):
-      switch action {
-      case .install:
-        return ["--install-extension", extensionID]
-      case .uninstall:
-        return ["--uninstall-extension", extensionID]
-      case .update:
-        return ["--update-extensions", extensionID]
-      }
+      return extensionArguments(extensionID: extensionID, action: action)
 
     case .runTask:
       // VS Code CLI has no native task runner flag; use extension bridge.
@@ -129,6 +115,49 @@ public actor VSCodeCLI {
 
     case .openAgents:
       return ["--agents"]
+    }
+  }
+
+  private func pathArguments(path: String, newWindow: Bool) -> [String] {
+    var args = [path]
+    if newWindow { args.insert("--new-window", at: 0) }
+    return args
+  }
+
+  private func folderArguments(
+    path: String,
+    newWindow: Bool,
+    addToWorkspace: Bool
+  ) -> [String] {
+    if addToWorkspace { return ["--add", path] }
+    return pathArguments(path: path, newWindow: newWindow)
+  }
+
+  private func fileArguments(
+    path: String,
+    line: Int?,
+    column: Int?,
+    waitForClose: Bool
+  ) -> [String] {
+    var args: [String]
+    if let line {
+      let colSuffix = column.map { ":\($0)" } ?? ""
+      args = ["--goto", "\(path):\(line)\(colSuffix)"]
+    } else {
+      args = [path]
+    }
+    if waitForClose { args.append("--wait") }
+    return args
+  }
+
+  private func extensionArguments(
+    extensionID: String,
+    action: VSCodeCommand.ExtensionAction
+  ) -> [String] {
+    switch action {
+    case .install: return ["--install-extension", extensionID]
+    case .uninstall: return ["--uninstall-extension", extensionID]
+    case .update: return ["--update-extensions", extensionID]
     }
   }
 

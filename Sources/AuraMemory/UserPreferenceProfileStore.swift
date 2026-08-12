@@ -58,10 +58,13 @@ public actor UserPreferenceProfileStore {
     let current = try await memory.currentState(
       memoryClass: .userPreference, subject: Self.subject
     ).first
+    guard let statement = String(bytes: data, encoding: .utf8) else {
+      throw AuraError.serializationError("failed to encode user preference profile as UTF-8")
+    }
     let draft = MemoryRecordDraft(
       memoryClass: .userPreference,
       subject: Self.subject,
-      statement: String(decoding: data, as: UTF8.self),
+      statement: statement,
       evidenceReferences: ["user-preference:(sessionID.uuidString)"],
       provenance: .userStated,
       confidence: 1.0,

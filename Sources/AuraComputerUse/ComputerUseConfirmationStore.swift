@@ -111,37 +111,20 @@ public actor ComputerUseConfirmationStore {
     guard let checkpoint = checkpoints[checkpointID] else {
       return .expired
     }
-    guard !checkpoint.consumed else { return .alreadyConsumed }
-    guard referenceDate < checkpoint.expiresAt else { return .expired }
-    guard checkpoint.planFingerprint == planFingerprint else { return .structuralChanged }
-    guard checkpoint.appBundleIdentifier == (recaptured.appBundleIdentifier ?? "") else {
-      return .appIdentityChanged(
-        expected: checkpoint.appBundleIdentifier, observed: recaptured.appBundleIdentifier)
+    if let failure = basicFailure(
+      checkpoint: checkpoint, planFingerprint: planFingerprint, referenceDate: referenceDate)
+    {
+      return failure
     }
-    guard checkpoint.windowID == recaptured.windowID else {
-      return .windowChanged(expected: checkpoint.windowID, observed: recaptured.windowID)
+    if let failure = identityFailure(checkpoint: checkpoint, recaptured: recaptured) {
+      return failure
     }
-    guard checkpoint.observationContentHash == recaptured.contentHash else {
-      return .contentChanged
+    if let failure = observationFailure(checkpoint: checkpoint, recaptured: recaptured) {
+      return failure
     }
-    guard checkpoint.observationStructuralHash == recaptured.structuralHash else {
-      return .structuralChanged
+    if let failure = anchorFailure(checkpoint: checkpoint, recaptured: recaptured) {
+      return failure
     }
-    let resolvedAnchor: UIAnchor =
-      recaptured.controlCandidates.first.map { candidate in
-        UIAnchor(
-          accessibilityRole: candidate.role, accessibilityTitle: candidate.title,
-          accessibilityIdentifier: candidate.identifier,
-          fallbackNormalizedX: candidate.fallbackNormalizedX,
-          fallbackNormalizedY: candidate.fallbackNormalizedY)
-      } ?? checkpoint.anchor
-    guard checkpoint.anchor == resolvedAnchor else {
-      // If a candidate is present it must resolve to the same anchor the
-      // plan targeted; if none is present the plan's own anchor still binds.
-      return .anchorChanged
-    }
-    if recaptured.secureFieldFocused { return .secureFieldStateChanged }
-    if recaptured.modalState != .none { return .unexpectedModalPresent }
 
     // Consume: one-time execution.
     checkpoints[checkpointID] = ComputerUseConfirmationCheckpoint(
@@ -156,5 +139,60 @@ public actor ComputerUseConfirmationStore {
       expiresAt: checkpoint.expiresAt,
       consumed: true)
     return .valid
+  }
+
+  private func basicFailure(
+    checkpoint: ComputerUseConfirmationCheckpoint,
+    planFingerprint: String,
+    referenceDate: Date
+  ) -> ComputerUseConfirmationValidity? {
+    if checkpoint.consumed { return .alreadyConsumed }
+    if referenceDate >= checkpoint.expiresAt { return .expired }
+    if checkpoint.planFingerprint != planFingerprint { return .structuralChanged }
+    return nil
+  }
+
+  private func identityFailure(
+    checkpoint: ComputerUseConfirmationCheckpoint,
+    recaptured: ComputerUseObservation
+  ) -> ComputerUseConfirmationValidity? {
+    let observedApp = recaptured.appBundleIdentifier ?? ""
+    guard checkpoint.appBundleIdentifier == observedApp else {
+      return .appIdentityChanged(
+        expected: checkpoint.appBundleIdentifier, observed: recaptured.appBundleIdentifier)
+    }
+    guard checkpoint.windowID == recaptured.windowID else {
+      return .windowChanged(expected: checkpoint.windowID, observed: recaptured.windowID)
+    }
+    return nil
+  }
+
+  private func observationFailure(
+    checkpoint: ComputerUseConfirmationCheckpoint,
+    recaptured: ComputerUseObservation
+  ) -> ComputerUseConfirmationValidity? {
+    if checkpoint.observationContentHash != recaptured.contentHash { return .contentChanged }
+    if checkpoint.observationStructuralHash != recaptured.structuralHash {
+      return .structuralChanged
+    }
+    return nil
+  }
+
+  private func anchorFailure(
+    checkpoint: ComputerUseConfirmationCheckpoint,
+    recaptured: ComputerUseObservation
+  ) -> ComputerUseConfirmationValidity? {
+    let resolvedAnchor =
+      recaptured.controlCandidates.first.map { candidate in
+        UIAnchor(
+          accessibilityRole: candidate.role, accessibilityTitle: candidate.title,
+          accessibilityIdentifier: candidate.identifier,
+          fallbackNormalizedX: candidate.fallbackNormalizedX,
+          fallbackNormalizedY: candidate.fallbackNormalizedY)
+      } ?? checkpoint.anchor
+    guard checkpoint.anchor == resolvedAnchor else { return .anchorChanged }
+    if recaptured.secureFieldFocused { return .secureFieldStateChanged }
+    if recaptured.modalState != .none { return .unexpectedModalPresent }
+    return nil
   }
 }

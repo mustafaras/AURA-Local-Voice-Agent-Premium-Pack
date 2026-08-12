@@ -70,13 +70,21 @@ public struct CopilotTaskRunner: TaskRunner {
       causationID: taskID
     )
 
+    try await consume(stream: stream, taskID: taskID, plan: plan, context: context)
+  }
+
+  private func consume(
+    stream: AsyncThrowingStream<CopilotNormalizedEvent, Error>,
+    taskID: UUID,
+    plan: TaskPlan,
+    context: TaskExecutionContext
+  ) async throws(AuraError) {
     var iterator = stream.makeAsyncIterator()
     while true {
       await context.checkCancellation()
-      if await context.isCancelled {
+      guard !(await context.isCancelled) else {
         throw AuraError.taskCancelled(taskID)
       }
-
       let next: CopilotNormalizedEvent?
       do {
         next = try await iterator.next()
@@ -85,36 +93,37 @@ public struct CopilotTaskRunner: TaskRunner {
       } catch {
         throw AuraError.copilotError("copilot stream failed: \(error)")
       }
-      guard let event = next else { break }
+      guard let event = next else { return }
+      try await handle(event: event, plan: plan, context: context)
+    }
+  }
 
-      switch event {
-      case .approvalDecision(_, let allowed, let reason):
-        if !allowed {
-          throw AuraError.copilotError(reason ?? "copilot run denied by policy")
-        }
-      case .copilotError(let message):
-        // repositoryInstructionsBlocked and other pre-flight failures also
-        // surface here since they yield .copilotError before ever spawning.
-        throw AuraError.copilotError(message)
-      case .message(let role, let content, _):
-        await context.reportProgress(
-          completedSteps: 0, totalSteps: plan.totalSteps,
-          currentStepDescription: "\(role): \(content.prefix(120))"
-        )
-      case .turnFailed(let message):
-        throw AuraError.copilotError(message ?? "copilot turn failed")
-      case .budgetExceeded(let kind, let limit, let observed):
-        throw AuraError.copilotError(
-          "copilot budget exceeded: \(kind) limit=\(limit) observed=\(observed)")
-      case .turnCompleted(let exitCode, _, _, let filesModifiedCount, _, _):
-        await context.reportProgress(
-          completedSteps: 1, totalSteps: plan.totalSteps,
-          currentStepDescription:
-            "Copilot turn completed (exit \(exitCode), \(filesModifiedCount) files modified)"
-        )
-      default:
-        break
-      }
+  private func handle(
+    event: CopilotNormalizedEvent,
+    plan: TaskPlan,
+    context: TaskExecutionContext
+  ) async throws(AuraError) {
+    switch event {
+    case .approvalDecision(_, let allowed, let reason) where !allowed:
+      throw AuraError.copilotError(reason ?? "copilot run denied by policy")
+    case .copilotError(let message):
+      throw AuraError.copilotError(message)
+    case .message(let role, let content, _):
+      await context.reportProgress(
+        completedSteps: 0, totalSteps: plan.totalSteps,
+        currentStepDescription: "\(role): \(content.prefix(120))")
+    case .turnFailed(let message):
+      throw AuraError.copilotError(message ?? "copilot turn failed")
+    case .budgetExceeded(let kind, let limit, let observed):
+      throw AuraError.copilotError(
+        "copilot budget exceeded: \(kind) limit=\(limit) observed=\(observed)")
+    case .turnCompleted(let exitCode, _, _, let filesModifiedCount, _, _):
+      await context.reportProgress(
+        completedSteps: 1, totalSteps: plan.totalSteps,
+        currentStepDescription:
+          "Copilot turn completed (exit \(exitCode), \(filesModifiedCount) files modified)")
+    default:
+      break
     }
   }
 }

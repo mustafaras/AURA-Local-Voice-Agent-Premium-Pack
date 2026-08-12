@@ -2,15 +2,15 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-11T13:38:20Z",
-  "session_id": "AURA-REPO-HYGIENE-REMEDIATION-20260811",
+  "updated_at": "2026-08-12T07:33:36Z",
+  "session_id": "AURA-REPO-HYGIENE-H010-SWIFTLINT-20260812",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
-    "active_branch": "main",
+    "active_branch": "repo-hygiene/h010-swiftlint-remediation-20260812",
     "verified_head": "7f1c03367b9cd67dfa306eb67f4edbdc53c0cd3e",
-    "remote_head": "991ff7b28ca49d10ad28ade8c3c4a3a20b423217",
-    "working_tree_state": "clean",
+    "remote_head": "63f1e67bf1457e53d07cf282d8b4af1bcc33cba5",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
@@ -47,6 +47,8 @@
       ,"H-009 evidence is recorded under EV-REPO-HYGIENE-H-009-20260810-01 and H-010 final-gate/reconciliation evidence under EV-REPO-HYGIENE-H-010-20260810-01 and EV-REPO-HYGIENE-H-010-RECONCILIATION-20260810-01: the bounded context/source map, architecture audit, final validators, inventory, blocker disposition, and handoff duplicate correction are synchronized to live control-plane state; product/content verified_head remains the 47775180 content merge under ADR-045, while current live HEAD is a projection-only descendant. H-010 is blocked with no H-011 transition."
       ,"Separate HYGIENE-REMEDIATION-01 evidence is recorded under EV-REPO-HYGIENE-REMEDIATION-20260810-01 and EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01: a recoverable pre-change backup and independent fsck-clean clone exist; formatter/source, local scanner, pre-commit, strict build, test, and validator gates pass. The damaged pre-adoption Git database is preserved for rollback; full Xcode/SourceKit remains open, while hosted-CI observation is closed by run 31484275244."
       ,"EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01 records the authorized lock-graph remediation: OSV and Grype are zero on the authoritative graph, runtime/helper evidence passes, and the generated .venv exclusion is policy-bound. The fsck-clean recovery candidate remains unadopted; no commit, push, merge, H-011, or automatic transition occurred."
+      ,"EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01 and EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01 record successful user-controlled Xcode 27.0 beta 5 provisioning, SourceKit/strict build/formatter/default 21-bundle matrix verification, and the remaining full SwiftLint policy blocker of 1,330 serious findings across 628 files."
+      ,"EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01 and EV-REPO-HYGIENE-H-010-CLOSEOUT-20260812-01 record bounded Sources/Tests remediation without policy weakening: strict formatter/build/full tests pass, SwiftLint exits 2 with 528 findings across 112 files, and the canonical wrapper exits 1 at 66.10% under the unchanged 70% coverage threshold. H-010 remains active/blocked and no H-011 exists."
     ]
   },
   "program_status": "in_progress",
@@ -459,6 +461,9 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-REPO-HYGIENE-H-010-CLOSEOUT-20260811-01",
+    "EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01",
+    "EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01",
     "EV-REPO-HYGIENE-MAIN-CI-FINAL-20260811-01",
     "EV-REPO-HYGIENE-HOSTED-CI-FINAL-20260811-01",
     "EV-REPO-HYGIENE-COVERAGE-HOST-BOUNDARY-20260811-01",
@@ -512,7 +517,7 @@
     "R11 has only a local development_unverified artifact/manifest slice; full Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed CI evidence remain open.",
     "R12 has no authorized beta cohort, telemetry/SLO evidence, scenario results, incident review, independent sign-offs, or approved release-candidate package.",
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
-    "Repository hygiene H-010 remains blocked at the active-prompt boundary. Separate HYGIENE-REMEDIATION-01 improved evidence and local tooling; current Git object integrity/history-secret scanning, the lock-graph dependency risk, and merged-main hosted-CI observation for run 31489153250 are closed. Full Xcode/SourceKit remains open. No H-011 exists."
+    "Repository hygiene H-010 remains blocked after bounded Sources/Tests remediation: Xcode/SourceKit, strict formatter/build/full tests, and fsck pass; full SwiftLint exits 2 with 528 serious findings across 112 files, and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. The original six-file coverage scope is preserved and the damaged pre-adoption .git remains preserved for rollback. No H-011 exists."
   ],
-  "next_action": "Return to R11: obtain separately authorized full-Xcode, signing/notarization, clean-machine, updater, recovery, migration, uninstall, and observed-CI evidence; the current repository Git object database is fsck-clean and the damaged pre-adoption database is preserved for rollback. Re-run the dependency scan if the lock/upstream/runtime graph changes, then return to R12 for authorized beta/RC evidence before rerunning FINAL."
+  "next_action": "H-010 remains active/blocked at current main projection 63f1e67bf1457e53d07cf282d8b4af1bcc33cba5. Xcode/SourceKit capability, strict formatter/build/full tests, and fsck pass; full SwiftLint exits 2 with 528 serious findings across 112 files and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. Source/toolchain/coverage owners need a non-weakening remediation and exact full gate rerun before H-010 can complete. No H-011 or automatic transition exists."
 }

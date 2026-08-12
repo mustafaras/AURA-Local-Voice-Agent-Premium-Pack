@@ -10,8 +10,9 @@ public enum STTBenchmark {
     let refTokens = reference.lowercased().components(separatedBy: .whitespacesAndNewlines).filter {
       !$0.isEmpty
     }
-    let hypTokens = hypothesis.lowercased().components(separatedBy: .whitespacesAndNewlines).filter
-    { !$0.isEmpty }
+    let hypTokens = hypothesis.lowercased()
+      .components(separatedBy: .whitespacesAndNewlines)
+      .filter { !$0.isEmpty }
     guard !refTokens.isEmpty else { return hypTokens.isEmpty ? 0 : 1 }
     let distance = levenshtein(refTokens, hypTokens)
     return Double(distance) / Double(refTokens.count)
@@ -19,9 +20,9 @@ public enum STTBenchmark {
 
   /// Entity error rate over a set of expected entity strings. Returns the
   /// fraction of expected entities missing from the hypothesis.
-  public static func entityErrorRate(reference: String, hypothesis: String, entities: Set<String>)
-    -> Double
-  {
+  public static func entityErrorRate(
+    reference: String, hypothesis: String, entities: Set<String>
+  ) -> Double {
     let normalizedHyp = hypothesis.lowercased()
     let missing = entities.filter { entity in
       !normalizedHyp.contains(entity.lowercased())
@@ -31,27 +32,30 @@ public enum STTBenchmark {
   }
 
   /// Levenshtein distance on arrays of tokens.
-  public static func levenshtein<T: Equatable>(_ a: [T], _ b: [T]) -> Int {
-    let n = a.count
-    let m = b.count
-    guard n > 0 else { return m }
-    guard m > 0 else { return n }
+  public static func levenshtein<T: Equatable>(
+    _ referenceTokens: [T], _ hypothesisTokens: [T]
+  ) -> Int {
+    let referenceCount = referenceTokens.count
+    let hypothesisCount = hypothesisTokens.count
+    guard referenceCount > 0 else { return hypothesisCount }
+    guard hypothesisCount > 0 else { return referenceCount }
 
-    var previous = Array(0...m)
-    var current = Array(repeating: 0, count: m + 1)
+    var previous = Array(0...hypothesisCount)
+    var current = Array(repeating: 0, count: hypothesisCount + 1)
 
-    for i in 1...n {
-      current[0] = i
-      for j in 1...m {
-        let cost = a[i - 1] == b[j - 1] ? 0 : 1
-        current[j] = min(
-          previous[j] + 1,
-          current[j - 1] + 1,
-          previous[j - 1] + cost
+    for referenceIndex in 1...referenceCount {
+      current[0] = referenceIndex
+      for hypothesisIndex in 1...hypothesisCount {
+        let cost =
+          referenceTokens[referenceIndex - 1] == hypothesisTokens[hypothesisIndex - 1] ? 0 : 1
+        current[hypothesisIndex] = min(
+          previous[hypothesisIndex] + 1,
+          current[hypothesisIndex - 1] + 1,
+          previous[hypothesisIndex - 1] + cost
         )
       }
       swap(&previous, &current)
     }
-    return previous[m]
+    return previous[hypothesisCount]
   }
 }

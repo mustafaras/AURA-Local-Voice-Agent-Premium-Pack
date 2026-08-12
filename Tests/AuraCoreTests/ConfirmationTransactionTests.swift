@@ -55,23 +55,8 @@ struct ConfirmationTransactionTests {
   @Test func expiryPlanChangeAndReplayFailClosed() async throws {
     let issued = Date(timeIntervalSince1970: 10)
     let expiredNow = Date(timeIntervalSince1970: 20)
-    let context = TurnContext(
-      sessionID: UUID(),
-      activationSource: .pushToTalk,
-      actor: .user,
-      authority: .userUtterance,
-      sensitivity: .sensitive)
-    let challenge = PolicyConfirmationChallenge(
-      requestID: UUID(),
-      sessionID: context.sessionID,
-      nonce: "nonce",
-      issuedAt: issued,
-      requestedAction: .shellExec,
-      targetSummary: "echo",
-      riskTier: .mutation,
-      expiresAt: issued.addingTimeInterval(1),
-      expectedHash: "original-plan",
-      turnContext: context)
+    let context = makeExpiryContext()
+    let challenge = makeExpiryChallenge(issued: issued, context: context)
     let store = ConfirmationTransactionStore(now: { expiredNow })
     _ = await store.propose(challenge: challenge)
     let response = PolicyConfirmationResponse(
@@ -135,4 +120,20 @@ struct ConfirmationTransactionTests {
       #expect(error == .notFound)
     }
   }
+}
+
+private func makeExpiryContext() -> TurnContext {
+  TurnContext(
+    sessionID: UUID(), activationSource: .pushToTalk, actor: .user,
+    authority: .userUtterance, sensitivity: .sensitive)
+}
+
+private func makeExpiryChallenge(
+  issued: Date, context: TurnContext
+) -> PolicyConfirmationChallenge {
+  PolicyConfirmationChallenge(
+    requestID: UUID(), sessionID: context.sessionID, nonce: "nonce", issuedAt: issued,
+    requestedAction: .shellExec, targetSummary: "echo", riskTier: .mutation,
+    expiresAt: issued.addingTimeInterval(1), expectedHash: "original-plan",
+    turnContext: context)
 }

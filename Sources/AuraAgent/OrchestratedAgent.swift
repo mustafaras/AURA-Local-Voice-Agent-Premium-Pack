@@ -25,6 +25,35 @@ public enum OrchestrationAgentEvent: Sendable, Equatable {
   case budgetExceeded(kind: String, limit: Double, observed: Double)
 }
 
+/// Inputs shared by every backend wrapper for one orchestration turn.
+public struct OrchestratedAgentRunRequest: Sendable, Equatable {
+  public let objective: String
+  public let workingDirectory: String
+  public let writable: Bool
+  public let actor: ActorID
+  public let sessionID: UUID
+  public let correlationID: UUID
+  public let causationID: UUID
+
+  public init(
+    objective: String,
+    workingDirectory: String,
+    writable: Bool,
+    actor: ActorID,
+    sessionID: UUID,
+    correlationID: UUID,
+    causationID: UUID
+  ) {
+    self.objective = objective
+    self.workingDirectory = workingDirectory
+    self.writable = writable
+    self.actor = actor
+    self.sessionID = sessionID
+    self.correlationID = correlationID
+    self.causationID = causationID
+  }
+}
+
 /// A single backend an orchestration role can run against.
 ///
 /// Concrete conformers (`CodexOrchestratedAgent`, `ClaudeOrchestratedAgent`,
@@ -41,13 +70,7 @@ public protocol OrchestratedAgentRunning: Sendable {
   /// the same two-tier distinction every wrapped adapter already enforces
   /// through its own `PolicyEngine.evaluate` call.
   func run(
-    objective: String,
-    workingDirectory: String,
-    writable: Bool,
-    actor: ActorID,
-    sessionID: UUID,
-    correlationID: UUID,
-    causationID: UUID
+    _ request: OrchestratedAgentRunRequest
   ) async -> AsyncThrowingStream<OrchestrationAgentEvent, Error>
 
   /// Cancel an in-flight run by correlation ID.

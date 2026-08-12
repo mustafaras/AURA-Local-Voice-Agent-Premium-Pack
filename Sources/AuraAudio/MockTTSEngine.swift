@@ -148,16 +148,16 @@ private final class UnsafeContinuationBox: @unchecked Sendable {
 
   func yield(_ chunk: TTSChunk) {
     lock.lock()
-    let c = continuation
+    let continuationSnapshot = continuation
     lock.unlock()
-    c?.yield(chunk)
+    continuationSnapshot?.yield(chunk)
   }
 
   func finish() {
     lock.lock()
-    let c = continuation
+    let continuationSnapshot = continuation
     continuation = nil
     lock.unlock()
-    c?.finish()
+    continuationSnapshot?.finish()
   }
 }

@@ -50,13 +50,13 @@ struct AuraSTTEngineTests {
     }
 
     for frame in 0..<6 {
-      let f = AudioFrame(
+      let frame = AudioFrame(
         samples: [Float(frame)],
         timestamp: Double(frame) * 0.016,
         sequenceIndex: UInt64(frame),
         isDiscontinuity: false
       )
-      engine.ingest(f, activationTime: 0)
+      engine.ingest(frame, activationTime: 0)
     }
 
     engine.finalizeSession()
@@ -92,13 +92,13 @@ struct AuraSTTEngineTests {
     }
 
     for frame in 0..<4 {
-      let f = AudioFrame(
+      let frame = AudioFrame(
         samples: [Float(frame)],
         timestamp: Double(frame) * 0.016,
         sequenceIndex: UInt64(frame),
         isDiscontinuity: false
       )
-      engine.ingest(f, activationTime: 0)
+      engine.ingest(frame, activationTime: 0)
     }
 
     engine.cancel()

@@ -178,8 +178,10 @@ public actor AuraShell {
         removed: before.entries.filter { entry in
           !after.entries.contains(where: { $0.relativePath == entry.relativePath })
         }.map(\.relativePath),
-        modified: zip(before.entries, after.entries).compactMap { (b, a) in
-          b.relativePath == a.relativePath && b.sha256 != a.sha256 ? a.relativePath : nil
+        modified: zip(before.entries, after.entries).compactMap { (beforeEntry, afterEntry) in
+          beforeEntry.relativePath == afterEntry.relativePath
+            && beforeEntry.sha256 != afterEntry.sha256
+            ? afterEntry.relativePath : nil
         }
       )
       let envelope = EventEnvelope<ShellFilesystemChangedEvent>(

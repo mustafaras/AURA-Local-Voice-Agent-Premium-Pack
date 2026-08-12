@@ -16,87 +16,50 @@ public enum VSCodePolicyAdapter {
     correlationID: String
   ) -> PolicyEvaluationRequest {
     let executionID = UUID(uuidString: correlationID) ?? UUID()
+    let (capability, target) = commandTarget(for: command)
+    return PolicyEvaluationRequest(
+      capability: capability,
+      actor: actor,
+      target: target,
+      sessionID: executionID,
+      correlationID: executionID,
+      causationID: executionID)
+  }
+
+  private static func commandTarget(
+    for command: VSCodeCommand
+  ) -> (Capability, PolicyTarget) {
     switch command {
-    case .openWorkspace(let path, _):
-      return openRequest(for: path, actor: actor, executionID: executionID)
-    case .openFolder(let path, _, _):
-      return openRequest(for: path, actor: actor, executionID: executionID)
-    case .openFile(let path, _, _, _):
-      return openRequest(for: path, actor: actor, executionID: executionID)
-    case .addFolder(let path):
-      return openRequest(for: path, actor: actor, executionID: executionID)
+    case .openWorkspace(let path, _), .openFolder(let path, _, _),
+      .openFile(let path, _, _, _), .addFolder(let path):
+      return (.vscodeOpen, PolicyTarget(filePath: path))
     case .openDiff(let left, let right):
-      return PolicyEvaluationRequest(
-        capability: .vscodeOpen,
-        actor: actor,
-        target: PolicyTarget(filePath: left, directoryPath: right),
-        sessionID: executionID,
-        correlationID: executionID,
-        causationID: executionID
-      )
-
+      return (.vscodeOpen, PolicyTarget(filePath: left, directoryPath: right))
     case .manageExtension(let extensionID, let action):
-      return PolicyEvaluationRequest(
-        capability: .vscodeManageExtension,
-        actor: actor,
-        target: PolicyTarget(
-          filePath: extensionID,
-          arguments: [action.rawValue]
-        ),
-        sessionID: executionID,
-        correlationID: executionID,
-        causationID: executionID
+      return (
+        .vscodeManageExtension,
+        PolicyTarget(
+          filePath: extensionID, arguments: [action.rawValue])
       )
-
     case .runTask(let name, _):
-      return PolicyEvaluationRequest(
-        capability: .vscodeRunTask,
-        actor: actor,
-        target: PolicyTarget(
-          filePath: "vscode-task://\(name)",
-          arguments: [name]
-        ),
-        sessionID: executionID,
-        correlationID: executionID,
-        causationID: executionID
-      )
-
+      return (.vscodeRunTask, PolicyTarget(filePath: "vscode-task://\(name)", arguments: [name]))
     case .runTests(let target, _):
-      return PolicyEvaluationRequest(
-        capability: .vscodeRunTests,
-        actor: actor,
-        target: PolicyTarget(
+      return (
+        .vscodeRunTests,
+        PolicyTarget(
           filePath: "vscode-tests://\(target ?? "default")",
-          arguments: target.map { [$0] } ?? []
-        ),
-        sessionID: executionID,
-        correlationID: executionID,
-        causationID: executionID
+          arguments: target.map { [$0] } ?? [])
       )
-
     case .terminalCommand(let command, _, _):
-      return PolicyEvaluationRequest(
-        capability: .vscodeInjectTerminal,
-        actor: actor,
-        target: PolicyTarget(
+      return (
+        .vscodeInjectTerminal,
+        PolicyTarget(
           command: command.executable,
           arguments: command.arguments,
-          environmentKeys: Array(command.environment.keys)
-        ),
-        sessionID: executionID,
-        correlationID: executionID,
-        causationID: executionID
+          environmentKeys: Array(command.environment.keys))
       )
-
     case .openAgents:
-      return PolicyEvaluationRequest(
-        capability: .vscodeOpen,
-        actor: actor,
-        target: PolicyTarget(filePath: "agents"),
-        sessionID: executionID,
-        correlationID: executionID,
-        causationID: executionID
-      )
+      return (.vscodeOpen, PolicyTarget(filePath: "agents"))
     }
   }
 
@@ -107,47 +70,7 @@ public enum VSCodePolicyAdapter {
     correlationID: String
   ) -> PolicyEvaluationRequest {
     let executionID = UUID(uuidString: correlationID) ?? UUID()
-    let capability: Capability
-    let target: PolicyTarget
-    switch command.kind {
-    case .health:
-      capability = .vscodeBridgeHealth
-      target = PolicyTarget(filePath: "vscode-bridge://health")
-    case .workspace:
-      capability = .vscodeWorkspaceStatus
-      target = PolicyTarget(filePath: "vscode-workspace://active")
-    case .editor:
-      capability = .vscodeObserveState
-      target = PolicyTarget(filePath: "vscode-editor://active")
-    case .diagnostics:
-      capability = .vscodeDiagnostics
-      target = PolicyTarget(filePath: "vscode-diagnostics://workspace")
-    case .tasks:
-      capability = .vscodeObserveState
-      target = PolicyTarget(filePath: "vscode-tasks://list")
-    case .tests:
-      capability = .vscodeObserveState
-      target = PolicyTarget(filePath: "vscode-tests://list")
-    case .terminalSessions:
-      capability = .vscodeObserveState
-      target = PolicyTarget(filePath: "vscode-terminals://list")
-    case .runTask:
-      capability = .vscodeRunTask
-      target = PolicyTarget(
-        filePath: "vscode-task://" + (command.name ?? ""),
-        arguments: [command.name ?? ""].filter { !$0.isEmpty })
-    case .cancelTask:
-      capability = .vscodeCancelTask
-      target = PolicyTarget(filePath: "vscode-task-cancel://" + (command.taskID ?? ""))
-    case .runTests:
-      capability = .vscodeRunTests
-      target = PolicyTarget(
-        filePath: "vscode-tests://" + (command.target ?? "default"),
-        arguments: command.target.map { [$0] } ?? [])
-    case .cancelTests:
-      capability = .vscodeCancelTests
-      target = PolicyTarget(filePath: "vscode-tests-cancel://" + (command.testID ?? ""))
-    }
+    let (capability, target) = bridgeTarget(for: command)
     return PolicyEvaluationRequest(
       capability: capability,
       actor: actor,
@@ -156,6 +79,75 @@ public enum VSCodePolicyAdapter {
       correlationID: executionID,
       causationID: executionID
     )
+  }
+
+  private static func bridgeTarget(
+    for command: VSCodeBridgeCommand
+  ) -> (Capability, PolicyTarget) {
+    switch command.kind {
+    case .health, .workspace, .editor, .diagnostics, .tasks, .tests, .terminalSessions:
+      return observationTarget(for: command.kind)
+    case .runTask, .cancelTask, .runTests, .cancelTests:
+      return operationTarget(for: command)
+    }
+  }
+
+  private static func observationTarget(
+    for kind: VSCodeBridgeCommand.Kind
+  ) -> (Capability, PolicyTarget) {
+    switch kind {
+    case .health:
+      return (.vscodeBridgeHealth, PolicyTarget(filePath: "vscode-bridge://health"))
+    case .workspace:
+      return (.vscodeWorkspaceStatus, PolicyTarget(filePath: "vscode-workspace://active"))
+    case .editor:
+      return (.vscodeObserveState, PolicyTarget(filePath: "vscode-editor://active"))
+    case .diagnostics:
+      return (.vscodeDiagnostics, PolicyTarget(filePath: "vscode-diagnostics://workspace"))
+    case .tasks:
+      return (.vscodeObserveState, PolicyTarget(filePath: "vscode-tasks://list"))
+    case .tests:
+      return (.vscodeObserveState, PolicyTarget(filePath: "vscode-tests://list"))
+    case .terminalSessions:
+      return (.vscodeObserveState, PolicyTarget(filePath: "vscode-terminals://list"))
+    default:
+      return (.vscodeObserveState, PolicyTarget(filePath: "vscode-bridge://invalid"))
+    }
+  }
+
+  private static func operationTarget(
+    for command: VSCodeBridgeCommand
+  ) -> (Capability, PolicyTarget) {
+    switch command.kind {
+    case .runTask:
+      return (
+        .vscodeRunTask,
+        PolicyTarget(
+          filePath: "vscode-task://" + (command.name ?? ""),
+          arguments: [command.name ?? ""].filter { !$0.isEmpty })
+      )
+    case .cancelTask:
+      return (
+        .vscodeCancelTask,
+        PolicyTarget(
+          filePath: "vscode-task-cancel://" + (command.taskID ?? ""))
+      )
+    case .runTests:
+      return (
+        .vscodeRunTests,
+        PolicyTarget(
+          filePath: "vscode-tests://" + (command.target ?? "default"),
+          arguments: command.target.map { [$0] } ?? [])
+      )
+    case .cancelTests:
+      return (
+        .vscodeCancelTests,
+        PolicyTarget(
+          filePath: "vscode-tests-cancel://" + (command.testID ?? ""))
+      )
+    default:
+      return (.vscodeObserveState, PolicyTarget(filePath: "vscode-bridge://invalid"))
+    }
   }
 
   private static func openRequest(

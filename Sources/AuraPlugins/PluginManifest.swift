@@ -149,64 +149,10 @@ public struct PluginManifest: Codable, Sendable, Equatable, Identifiable {
   }
 
   public func validate() throws(AuraError) {
-    guard schemaVersion == Self.currentSchemaVersion else {
-      throw AuraError.invalidConfiguration("unsupported plugin manifest schemaVersion")
-    }
-    guard Self.isReverseDNS(id) else {
-      throw AuraError.invalidConfiguration(
-        "plugin manifest id must be a lowercase reverse-DNS identifier")
-    }
-    guard Self.isSemanticVersion(version) else {
-      throw AuraError.invalidConfiguration(
-        "plugin manifest version must be semantic version major.minor.patch")
-    }
-    guard !vendorName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-      Self.isSafeIdentifier(vendorKeyID)
-    else {
-      throw AuraError.invalidConfiguration("plugin vendorName and vendorKeyID must be valid")
-    }
-    guard Self.isSafeRelativePath(entrypoint) else {
-      throw AuraError.invalidConfiguration("plugin entrypoint must be a safe relative path")
-    }
-    guard (60...2_592_000).contains(grantLifetimeSeconds) else {
-      throw AuraError.invalidConfiguration("plugin grantLifetimeSeconds must be 60...2592000")
-    }
-    guard contentHashSHA256Hex.count == 64,
-      contentHashSHA256Hex == contentHashSHA256Hex.lowercased(),
-      contentHashSHA256Hex.allSatisfy({ $0.isHexDigit })
-    else {
-      throw AuraError.invalidConfiguration(
-        "plugin content hash must be 64 lowercase hex characters")
-    }
-    guard let signature = Data(base64Encoded: signatureBase64), signature.count == 64 else {
-      throw AuraError.invalidConfiguration("plugin signature must be a base64 Ed25519 signature")
-    }
-    guard Set(capabilities.map(\.identifier)).count == capabilities.count else {
-      throw AuraError.invalidConfiguration("plugin capabilities must be unique")
-    }
-    if !capabilities.isEmpty {
-      guard !requiredPermissions.isEmpty, !requiredPermissions.contains(.any) else {
-        throw AuraError.invalidConfiguration(
-          "plugins with capabilities require explicit scoped permissions; .any is forbidden")
-      }
-    }
-    for schema in inputSchemas + outputSchemas {
-      try schema.validate()
-    }
-    guard inputSchemas.map(\.name).uniquedCount == inputSchemas.count,
-      outputSchemas.map(\.name).uniquedCount == outputSchemas.count
-    else {
-      throw AuraError.invalidConfiguration("plugin schema names must be unique per direction")
-    }
-    for bundleID in supportedApplicationBundleIDs where !Self.isReverseDNS(bundleID) {
-      throw AuraError.invalidConfiguration("invalid supported application bundle identifier")
-    }
-    for domain in networkDomains where !Self.isNetworkDomain(domain) {
-      throw AuraError.invalidConfiguration("invalid plugin network domain")
-    }
-    for dependency in executableDependencies where !Self.isSafeRelativePath(dependency) {
-      throw AuraError.invalidConfiguration("plugin executable dependencies must be relative paths")
-    }
+    try validateIdentity()
+    try validateIntegrity()
+    try validateCapabilitiesAndSchemas()
+    try validateReferences()
   }
 
   /// Canonical sorted JSON, excluding only the signature itself.
@@ -298,6 +244,78 @@ public struct PluginManifest: Codable, Sendable, Equatable, Identifiable {
     case .environment(let values): return "environment:\(values.sorted().joined(separator: ","))"
     case .network(let host, let ports):
       return "network:\(host):\(ports.lowerBound)-\(ports.upperBound)"
+    }
+  }
+}
+
+extension PluginManifest {
+  private func validateIdentity() throws(AuraError) {
+    guard schemaVersion == Self.currentSchemaVersion else {
+      throw AuraError.invalidConfiguration("unsupported plugin manifest schemaVersion")
+    }
+    guard Self.isReverseDNS(id) else {
+      throw AuraError.invalidConfiguration(
+        "plugin manifest id must be a lowercase reverse-DNS identifier")
+    }
+    guard Self.isSemanticVersion(version) else {
+      throw AuraError.invalidConfiguration(
+        "plugin manifest version must be semantic version major.minor.patch")
+    }
+    guard !vendorName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+      Self.isSafeIdentifier(vendorKeyID)
+    else {
+      throw AuraError.invalidConfiguration("plugin vendorName and vendorKeyID must be valid")
+    }
+    guard Self.isSafeRelativePath(entrypoint) else {
+      throw AuraError.invalidConfiguration("plugin entrypoint must be a safe relative path")
+    }
+    guard (60...2_592_000).contains(grantLifetimeSeconds) else {
+      throw AuraError.invalidConfiguration("plugin grantLifetimeSeconds must be 60...2592000")
+    }
+  }
+
+  private func validateIntegrity() throws(AuraError) {
+    guard contentHashSHA256Hex.count == 64,
+      contentHashSHA256Hex == contentHashSHA256Hex.lowercased(),
+      contentHashSHA256Hex.allSatisfy({ $0.isHexDigit })
+    else {
+      throw AuraError.invalidConfiguration(
+        "plugin content hash must be 64 lowercase hex characters")
+    }
+    guard let signature = Data(base64Encoded: signatureBase64), signature.count == 64 else {
+      throw AuraError.invalidConfiguration("plugin signature must be a base64 Ed25519 signature")
+    }
+  }
+
+  private func validateCapabilitiesAndSchemas() throws(AuraError) {
+    guard Set(capabilities.map(\.identifier)).count == capabilities.count else {
+      throw AuraError.invalidConfiguration("plugin capabilities must be unique")
+    }
+    if !capabilities.isEmpty {
+      guard !requiredPermissions.isEmpty, !requiredPermissions.contains(.any) else {
+        throw AuraError.invalidConfiguration(
+          "plugins with capabilities require explicit scoped permissions; .any is forbidden")
+      }
+    }
+    for schema in inputSchemas + outputSchemas {
+      try schema.validate()
+    }
+    guard inputSchemas.map(\.name).uniquedCount == inputSchemas.count,
+      outputSchemas.map(\.name).uniquedCount == outputSchemas.count
+    else {
+      throw AuraError.invalidConfiguration("plugin schema names must be unique per direction")
+    }
+  }
+
+  private func validateReferences() throws(AuraError) {
+    for bundleID in supportedApplicationBundleIDs where !Self.isReverseDNS(bundleID) {
+      throw AuraError.invalidConfiguration("invalid supported application bundle identifier")
+    }
+    for domain in networkDomains where !Self.isNetworkDomain(domain) {
+      throw AuraError.invalidConfiguration("invalid plugin network domain")
+    }
+    for dependency in executableDependencies where !Self.isSafeRelativePath(dependency) {
+      throw AuraError.invalidConfiguration("plugin executable dependencies must be relative paths")
     }
   }
 }

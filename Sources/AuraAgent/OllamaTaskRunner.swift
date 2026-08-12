@@ -73,8 +73,10 @@ public struct OllamaTaskRunner: TaskRunner {
         )
       }
       result = try await adapter.classify(
-        prompt: request.objective, labels: labels, actor: actor, sessionID: sessionID,
-        correlationID: taskID, causationID: taskID)
+        prompt: request.objective,
+        labels: labels,
+        context: OllamaInferenceContext(
+          actor: actor, sessionID: sessionID, correlationID: taskID, causationID: taskID))
 
     case .summarization:
       result = try await adapter.summarize(

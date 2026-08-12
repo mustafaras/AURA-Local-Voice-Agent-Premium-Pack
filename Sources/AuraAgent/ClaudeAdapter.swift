@@ -3,6 +3,124 @@ import AuraPolicy
 import AuraShell
 import Foundation
 
+struct ClaudePerformContext {
+  let actor: ActorID
+  let sessionID: UUID
+  let correlationID: UUID
+  let causationID: UUID
+  let runID: UUID
+  let continuation: AsyncThrowingStream<ClaudeNormalizedEvent, Error>.Continuation
+}
+
+extension ClaudeAdapter {
+  private func makeCommand(_ request: ClaudeRunRequest) throws -> Command {
+    let timeout = min(
+      request.timeoutSeconds ?? configuration.defaultTimeoutSeconds,
+      configuration.maxTimeoutSeconds)
+    let arguments = try ClaudeArguments.make(request: request, configuration: configuration)
+    return Command(
+      executable: configuration.executablePath,
+      arguments: arguments,
+      workingDirectory: request.workingDirectory,
+      timeoutSeconds: timeout,
+      riskTier: request.toolProfile == .workspaceWrite ? .destructive : .reversible,
+      standardInputText: request.objective)
+  }
+
+  private func emitLaunchFailure(_ error: Error, context: ClaudePerformContext) async {
+    await emitAudit(
+      ClaudeErrorEvent(
+        runID: context.runID, category: .cliLaunchFailed,
+        message: "argument construction failed: \(error)"),
+      actor: context.actor,
+      correlationID: context.correlationID,
+      causationID: context.causationID)
+    context.continuation.yield(.claudeError(message: "argument construction failed"))
+  }
+
+  private func emitRunStarted(_ request: ClaudeRunRequest, context: ClaudePerformContext) async {
+    context.continuation.yield(
+      .runStarted(
+        permissionMode: "dontAsk", workingDirectory: request.workingDirectory,
+        ephemeral: configuration.ephemeralByDefault, model: request.model))
+    await emitAudit(
+      ClaudeRunStartedEvent(
+        runID: context.runID, permissionMode: "dontAsk", model: request.model,
+        workingDirectory: request.workingDirectory, ephemeral: configuration.ephemeralByDefault),
+      actor: context.actor,
+      correlationID: context.correlationID,
+      causationID: context.causationID)
+  }
+
+  private func consume(
+    _ stream: AsyncThrowingStream<ProcessStreamEvent, Error>,
+    command: Command,
+    request: ClaudeRunRequest,
+    context: ClaudePerformContext
+  ) async throws {
+    var sequence = 0
+    for try await event in stream {
+      switch event {
+      case .line(let outputLine):
+        await handleLine(outputLine, sequence: &sequence, request: request, context: context)
+      case .completed(let result):
+        await handleCompletion(result, command: command, context: context)
+      }
+    }
+  }
+
+  private func handleLine(
+    _ outputLine: ProcessOutputLine,
+    sequence: inout Int,
+    request: ClaudeRunRequest,
+    context: ClaudePerformContext
+  ) async {
+    sequence += 1
+    let normalized = ClaudeEventNormalizer.normalize(line: outputLine.text, sequence: sequence)
+    await emitAuditForNormalizedEvent(
+      normalized, runID: context.runID, actor: context.actor,
+      correlationID: context.correlationID, causationID: context.causationID)
+    context.continuation.yield(normalized)
+    guard case .turnCompleted(_, let totalCostUSD, _, _, _, _) = normalized,
+      let costBudget = request.maxCostUSD ?? configuration.maxEstimatedCostUSD,
+      totalCostUSD > costBudget
+    else { return }
+    await emitAudit(
+      ClaudeBudgetExceededEvent(
+        runID: context.runID, kind: .costUSD, limit: costBudget, observed: totalCostUSD),
+      actor: context.actor,
+      correlationID: context.correlationID,
+      causationID: context.causationID)
+    context.continuation.yield(
+      .budgetExceeded(kind: "costUSD", limit: costBudget, observed: totalCostUSD))
+  }
+
+  private func handleCompletion(
+    _ result: ProcessResult,
+    command: Command,
+    context: ClaudePerformContext
+  ) async {
+    let processFailed =
+      result.wasCancelled || result.wasTimedOut
+      || !command.expectedExitCodes.contains(result.exitCode)
+    guard processFailed else { return }
+    let category: ClaudeErrorEvent.Category? =
+      result.wasCancelled ? .cancelled : result.wasTimedOut ? .timedOut : nil
+    let reason =
+      result.wasCancelled
+      ? "process cancelled"
+      : result.wasTimedOut
+        ? "process timed out" : "process exited with unexpected code \(result.exitCode)"
+    await emitAudit(
+      ClaudeErrorEvent(
+        runID: context.runID, category: category ?? .processExitedNonZero, message: reason),
+      actor: context.actor,
+      correlationID: context.correlationID,
+      causationID: context.causationID)
+    context.continuation.yield(.turnFailed(message: reason, apiErrorStatus: nil))
+  }
+}
+
 /// Coordinates a single Claude Code run: policy gate, upfront approval,
 /// process execution, JSONL normalization, budget observation, and
 /// cancellation.
@@ -54,8 +172,16 @@ public actor ClaudeAdapter {
       let task = Task {
         do {
           try await self.perform(
-            request: request, actor: actor, sessionID: sessionID, correlationID: correlationID,
-            causationID: causationID, runID: runID, continuation: continuation)
+            request: request,
+            context: ClaudePerformContext(
+              actor: actor,
+              sessionID: sessionID,
+              correlationID: correlationID,
+              causationID: causationID,
+              runID: runID,
+              continuation: continuation
+            )
+          )
           continuation.finish()
         } catch {
           continuation.finish(throwing: error)
@@ -83,30 +209,47 @@ public actor ClaudeAdapter {
 
   private func perform(
     request: ClaudeRunRequest,
-    actor: ActorID,
-    sessionID: UUID,
-    correlationID: UUID,
-    causationID: UUID,
-    runID: UUID,
-    continuation: AsyncThrowingStream<ClaudeNormalizedEvent, Error>.Continuation
+    context: ClaudePerformContext
   ) async throws {
-    let policyRequest = ClaudePolicyAdapter.request(
-      for: request, actor: actor, sessionID: sessionID, correlationID: correlationID,
-      causationID: causationID)
-    let decision = await policyEngine.evaluate(policyRequest)
+    guard await authorize(request: request, context: context) else { return }
 
+    let command: Command
+    do {
+      command = try makeCommand(request)
+    } catch {
+      await emitLaunchFailure(error, context: context)
+      return
+    }
+
+    await emitRunStarted(request, context: context)
+
+    let innerStream = await processExecutor.run(
+      command: command,
+      actor: context.actor,
+      sessionID: context.sessionID,
+      executionID: context.correlationID)
+    try await consume(innerStream, command: command, request: request, context: context)
+  }
+
+  private func authorize(
+    request: ClaudeRunRequest,
+    context: ClaudePerformContext
+  ) async -> Bool {
+    let policyRequest = ClaudePolicyAdapter.request(
+      for: request,
+      actor: context.actor,
+      sessionID: context.sessionID,
+      correlationID: context.correlationID,
+      causationID: context.causationID)
+    let decision = await policyEngine.evaluate(policyRequest)
     switch decision {
     case .allow:
-      break
-
+      return true
     case .deny(let reason, _):
-      await denyAndEmit(
-        requestID: policyRequest.id, reason: reason, runID: runID, actor: actor,
-        correlationID: correlationID, causationID: causationID, continuation: continuation)
-      return
-
+      await denyAndEmit(requestID: policyRequest.id, reason: reason, context: context)
+      return false
     case .confirm(let challenge, _):
-      continuation.yield(
+      context.continuation.yield(
         .approvalRequested(
           requestID: challenge.requestID, riskTier: challenge.riskTier,
           targetSummary: challenge.targetSummary, expiresAt: challenge.expiresAt))
@@ -115,118 +258,23 @@ public actor ClaudeAdapter {
           requestID: challenge.requestID, sessionID: challenge.sessionID,
           riskTier: challenge.riskTier, targetSummary: challenge.targetSummary,
           expiresAt: challenge.expiresAt),
-        actor: actor, correlationID: correlationID, causationID: causationID)
-
+        actor: context.actor,
+        correlationID: context.correlationID,
+        causationID: context.causationID)
       let response = await approvalPresenter.present(challenge: challenge)
       let resolved = await policyEngine.submitConfirmation(response)
       switch resolved {
       case .allow:
-        break
+        return true
       case .deny(let reason, _):
-        await denyAndEmit(
-          requestID: challenge.requestID, reason: reason, runID: runID, actor: actor,
-          correlationID: correlationID, causationID: causationID, continuation: continuation)
-        return
+        await denyAndEmit(requestID: challenge.requestID, reason: reason, context: context)
+        return false
       case .confirm:
-        // submitConfirmation never re-issues a challenge; handled defensively.
         await denyAndEmit(
           requestID: challenge.requestID,
-          reason: "unexpected re-confirmation after submitConfirmation", runID: runID,
-          actor: actor, correlationID: correlationID, causationID: causationID,
-          continuation: continuation)
-        return
-      }
-    }
-
-    let command: Command
-    do {
-      let timeout = min(
-        request.timeoutSeconds ?? configuration.defaultTimeoutSeconds,
-        configuration.maxTimeoutSeconds)
-      let arguments = try ClaudeArguments.make(request: request, configuration: configuration)
-      command = Command(
-        executable: configuration.executablePath,
-        arguments: arguments,
-        workingDirectory: request.workingDirectory,
-        timeoutSeconds: timeout,
-        riskTier: request.toolProfile == .workspaceWrite ? .destructive : .reversible,
-        standardInputText: request.objective
-      )
-    } catch {
-      await emitAudit(
-        ClaudeErrorEvent(
-          runID: runID, category: .cliLaunchFailed,
-          message: "argument construction failed: \(error)"),
-        actor: actor, correlationID: correlationID, causationID: causationID)
-      continuation.yield(.claudeError(message: "argument construction failed"))
-      return
-    }
-
-    continuation.yield(
-      .runStarted(
-        permissionMode: "dontAsk", workingDirectory: request.workingDirectory,
-        ephemeral: configuration.ephemeralByDefault, model: request.model))
-    await emitAudit(
-      ClaudeRunStartedEvent(
-        runID: runID, permissionMode: "dontAsk", model: request.model,
-        workingDirectory: request.workingDirectory, ephemeral: configuration.ephemeralByDefault),
-      actor: actor, correlationID: correlationID, causationID: causationID)
-
-    let innerStream = await processExecutor.run(
-      command: command, actor: actor, sessionID: sessionID, executionID: correlationID)
-    let costBudget = request.maxCostUSD ?? configuration.maxEstimatedCostUSD
-    var sequence = 0
-
-    for try await streamEvent in innerStream {
-      switch streamEvent {
-      case .line(let outputLine):
-        sequence += 1
-        let normalized = ClaudeEventNormalizer.normalize(line: outputLine.text, sequence: sequence)
-
-        await emitAuditForNormalizedEvent(
-          normalized, runID: runID, actor: actor, correlationID: correlationID,
-          causationID: causationID)
-        continuation.yield(normalized)
-
-        // `--max-budget-usd` is enforced natively by the CLI; this is a
-        // post-hoc observability check comparing the CLI's own reported
-        // final cost against the configured budget, not a live pre-emptive
-        // cancel (the run has already finished by the time `totalCostUSD`
-        // is known).
-        if case .turnCompleted(_, let totalCostUSD, _, _, _, _) = normalized,
-          let costBudget, totalCostUSD > costBudget
-        {
-          await emitAudit(
-            ClaudeBudgetExceededEvent(
-              runID: runID, kind: .costUSD, limit: costBudget, observed: totalCostUSD),
-            actor: actor, correlationID: correlationID, causationID: causationID)
-          continuation.yield(
-            .budgetExceeded(kind: "costUSD", limit: costBudget, observed: totalCostUSD))
-        }
-
-      case .completed(let result):
-        let processFailed =
-          result.wasCancelled || result.wasTimedOut
-          || !command.expectedExitCodes.contains(result.exitCode)
-        let outcome: ClaudeErrorEvent.Category? =
-          result.wasCancelled ? .cancelled : result.wasTimedOut ? .timedOut : nil
-
-        if processFailed {
-          let reason =
-            result.wasCancelled
-            ? "process cancelled"
-            : result.wasTimedOut
-              ? "process timed out" : "process exited with unexpected code \(result.exitCode)"
-          await emitAudit(
-            ClaudeErrorEvent(
-              runID: runID, category: outcome ?? .processExitedNonZero, message: reason),
-            actor: actor, correlationID: correlationID, causationID: causationID)
-          // Claude's own `result` JSONL line may never arrive if the
-          // process was killed before it could write it (cancellation,
-          // timeout, crash). Surface process-level failure explicitly so
-          // callers never mistake a killed process for a quiet success.
-          continuation.yield(.turnFailed(message: reason, apiErrorStatus: nil))
-        }
+          reason: "unexpected re-confirmation after submitConfirmation",
+          context: context)
+        return false
       }
     }
   }
@@ -234,16 +282,15 @@ public actor ClaudeAdapter {
   private func denyAndEmit(
     requestID: UUID,
     reason: String,
-    runID: UUID,
-    actor: ActorID,
-    correlationID: UUID,
-    causationID: UUID,
-    continuation: AsyncThrowingStream<ClaudeNormalizedEvent, Error>.Continuation
+    context: ClaudePerformContext
   ) async {
     await emitAudit(
-      ClaudeErrorEvent(runID: runID, category: .policyDenied, message: reason),
-      actor: actor, correlationID: correlationID, causationID: causationID)
-    continuation.yield(.approvalDecision(requestID: requestID, allowed: false, reason: reason))
+      ClaudeErrorEvent(runID: context.runID, category: .policyDenied, message: reason),
+      actor: context.actor,
+      correlationID: context.correlationID,
+      causationID: context.causationID)
+    context.continuation.yield(
+      .approvalDecision(requestID: requestID, allowed: false, reason: reason))
   }
 
   private func emitAuditForNormalizedEvent(

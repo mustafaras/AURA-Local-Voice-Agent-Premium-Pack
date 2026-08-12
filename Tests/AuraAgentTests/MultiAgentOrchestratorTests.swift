@@ -6,21 +6,21 @@ import AuraStore
 import Foundation
 import Testing
 
-/// Exercises `MultiAgentOrchestrator`'s control flow — bounded review
-/// iterations, evidence-based adjudication, conflict recording, escalation,
-/// the agent-invocation budget guard, and the specialist swarm pattern —
-/// against fake `OrchestratedAgentRunning` role agents (no real CLI
-/// spawned), but a REAL `WorktreeManager` operating on a real scratch `git`
-/// repository, matching this codebase's precedent of never mocking the
-/// safety-relevant boundary (worktree isolation) while faking the
-/// model-facing boundary (agent responses).
+// Exercises `MultiAgentOrchestrator`'s control flow — bounded review
+// iterations, evidence-based adjudication, conflict recording, escalation,
+// the agent-invocation budget guard, and the specialist swarm pattern —
+// against fake `OrchestratedAgentRunning` role agents (no real CLI
+// spawned), but a REAL `WorktreeManager` operating on a real scratch `git`
+// repository, matching this codebase's precedent of never mocking the
+// safety-relevant boundary (worktree isolation) while faking the
+// model-facing boundary (agent responses).
 
 // MARK: - Fake role agent
 
-private actor FakeOrchestratedAgent: OrchestratedAgentRunning {
+actor FakeOrchestratedAgent: OrchestratedAgentRunning {
   nonisolated let backendName: String
-  private var scripts: [[OrchestrationAgentEvent]]
-  private var callIndex = 0
+  var scripts: [[OrchestrationAgentEvent]]
+  var callIndex = 0
   private(set) var invocationCount = 0
   private(set) var receivedObjectives: [String] = []
   private(set) var receivedWorkingDirectories: [String] = []
@@ -31,12 +31,11 @@ private actor FakeOrchestratedAgent: OrchestratedAgentRunning {
   }
 
   func run(
-    objective: String, workingDirectory: String, writable: Bool, actor: ActorID,
-    sessionID: UUID, correlationID: UUID, causationID: UUID
+    _ request: OrchestratedAgentRunRequest
   ) async -> AsyncThrowingStream<OrchestrationAgentEvent, Error> {
     invocationCount += 1
-    receivedObjectives.append(objective)
-    receivedWorkingDirectories.append(workingDirectory)
+    receivedObjectives.append(request.objective)
+    receivedWorkingDirectories.append(request.workingDirectory)
     let index = min(callIndex, max(scripts.count - 1, 0))
     callIndex += 1
     let events = scripts.isEmpty ? [] : scripts[index]
@@ -54,7 +53,7 @@ private actor FakeOrchestratedAgent: OrchestratedAgentRunning {
 // MARK: - Scratch git repo helpers
 
 @discardableResult
-private func runGit(_ arguments: [String], cwd: String) throws -> String {
+func runGit(_ arguments: [String], cwd: String) throws -> String {
   let process = Process()
   process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
   process.arguments = arguments
@@ -74,7 +73,7 @@ private func runGit(_ arguments: [String], cwd: String) throws -> String {
   return output
 }
 
-private func makeScratchGitRepo() throws -> String {
+func makeScratchGitRepo() throws -> String {
   let root = NSHomeDirectory() + "/.aura-orchestrator-tests/\(UUID().uuidString)"
   try FileManager.default.createDirectory(atPath: root, withIntermediateDirectories: true)
   try runGit(["init", "-q"], cwd: root)
@@ -86,35 +85,35 @@ private func makeScratchGitRepo() throws -> String {
   return root
 }
 
-private func removeScratchRepo(_ root: String) {
+func removeScratchRepo(_ root: String) {
   try? FileManager.default.removeItem(atPath: root)
 }
 
 // MARK: - Policy / store helpers
 
-private func makeTempStore() async throws -> AuraStore {
+func makeOrchestrationTempStore() async throws -> AuraStore {
   let path = NSTemporaryDirectory().appending(UUID().uuidString).appending(".db")
   return try await AuraStore(path: path)
 }
 
-private func makeAllowingPolicyEngine(eventBus: AuraEventBus) async throws -> PolicyEngine {
+func makeAllowingPolicyEngine(eventBus: AuraEventBus) async throws -> PolicyEngine {
   try await PolicyEngine(
     configuration: PolicyConfiguration(
       defaultConfirmationTier: .destructive,
       allowByDefaultTiers: [.observation, .reversible, .mutation],
       denyByDefaultTiers: [.destructive]
     ),
-    eventBus: eventBus, store: try await makeTempStore())
+    eventBus: eventBus, store: try await makeOrchestrationTempStore())
 }
 
-private func makeValidationShell() -> AuraShell {
+func makeValidationShell() -> AuraShell {
   AuraShell(
     configuration: ShellConfiguration(allowedWorkingDirectories: ["$HOME/*", "$TMPDIR/*"]))
 }
 
 // MARK: - Event capture
 
-private actor Capture {
+actor OrchestrationCapture {
   var payloads: [any EventPayload] = []
 
   func append(_ payload: any EventPayload) {
@@ -176,9 +175,8 @@ struct MultiAgentOrchestratorTests {
 
     let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchCorrect"))
     let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
-    let capture = Capture()
-    await bus.subscribe(OrchestrationConflictRecordedEvent.self) {
-      (envelope: EventEnvelope<OrchestrationConflictRecordedEvent>) async in
+    let capture = OrchestrationCapture()
+    await bus.subscribe(OrchestrationConflictRecordedEvent.self) { envelope in
       await capture.append(envelope.payload)
     }
     let worktreeManager = WorktreeManager(
@@ -229,9 +227,8 @@ struct MultiAgentOrchestratorTests {
     let bus = AuraEventBus(
       logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchEscalate"))
     let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
-    let capture = Capture()
-    await bus.subscribe(OrchestrationEscalatedEvent.self) {
-      (envelope: EventEnvelope<OrchestrationEscalatedEvent>) async in
+    let capture = OrchestrationCapture()
+    await bus.subscribe(OrchestrationEscalatedEvent.self) { envelope in
       await capture.append(envelope.payload)
     }
     let worktreeManager = WorktreeManager(
@@ -310,9 +307,8 @@ struct MultiAgentOrchestratorTests {
 
     let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchBudget"))
     let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
-    let capture = Capture()
-    await bus.subscribe(OrchestrationBudgetExceededEvent.self) {
-      (envelope: EventEnvelope<OrchestrationBudgetExceededEvent>) async in
+    let capture = OrchestrationCapture()
+    await bus.subscribe(OrchestrationBudgetExceededEvent.self) { envelope in
       await capture.append(envelope.payload)
     }
     let worktreeManager = WorktreeManager(
@@ -342,163 +338,5 @@ struct MultiAgentOrchestratorTests {
   }
 
   // MARK: - Planner failure never creates a worktree
-
-  @Test
-  func orchestratorPlannerFailureNeverCreatesWorktree() async throws {
-    let repoRoot = try makeScratchGitRepo()
-    defer { removeScratchRepo(repoRoot) }
-
-    let bus = AuraEventBus(
-      logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchPlannerFail"))
-    let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
-    let worktreeManager = WorktreeManager(
-      configuration: WorktreeConfiguration(), policyEngine: policyEngine, eventBus: bus)
-    let orchestrator = MultiAgentOrchestrator(
-      worktreeManager: worktreeManager, policyEngine: policyEngine, eventBus: bus)
-
-    let planner = FakeOrchestratedAgent(scripts: [[.turnFailed(message: "planner crashed")]])
-    let implementer = FakeOrchestratedAgent(scripts: [[.turnCompleted]])
-    let reviewer = FakeOrchestratedAgent(scripts: [[.turnCompleted]])
-
-    let outcome = await orchestrator.runPlannerImplementerReviewer(
-      objective: "add a feature", repositoryRoot: repoRoot, planner: planner,
-      implementer: implementer,
-      reviewer: reviewer)
-
-    guard case .failed(let reason) = outcome else {
-      Issue.record("expected failed, got \(outcome)")
-      return
-    }
-    #expect(reason.contains("planner crashed"))
-    #expect(await implementer.invocationCount == 0)
-    #expect(await worktreeManager.activeCount() == 0)
-  }
-
-  // MARK: - Post-worktree failure still surfaces the worktree for inspection
-
-  @Test
-  func orchestratorImplementerFailureEmbedsWorktreePathInReason() async throws {
-    let repoRoot = try makeScratchGitRepo()
-    defer { removeScratchRepo(repoRoot) }
-
-    let bus = AuraEventBus(
-      logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchImplFail"))
-    let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
-    let worktreeManager = WorktreeManager(
-      configuration: WorktreeConfiguration(), policyEngine: policyEngine, eventBus: bus)
-    let orchestrator = MultiAgentOrchestrator(
-      worktreeManager: worktreeManager, policyEngine: policyEngine, eventBus: bus)
-
-    let planner = FakeOrchestratedAgent(scripts: [[.turnCompleted]])
-    let implementer = FakeOrchestratedAgent(scripts: [[.turnFailed(message: "disk full")]])
-    let reviewer = FakeOrchestratedAgent(scripts: [[.turnCompleted]])
-
-    let outcome = await orchestrator.runPlannerImplementerReviewer(
-      objective: "add a feature", repositoryRoot: repoRoot, planner: planner,
-      implementer: implementer,
-      reviewer: reviewer)
-
-    guard case .failed(let reason) = outcome else {
-      Issue.record("expected failed, got \(outcome)")
-      return
-    }
-    #expect(reason.contains("disk full"))
-    #expect(reason.contains(".aura-worktrees"))
-    // The orphaned worktree is left in place for inspection, not silently
-    // deleted.
-    #expect(await worktreeManager.activeCount() == 1)
-  }
-
-  // MARK: - Specialist swarm
-
-  @Test
-  func orchestratorSpecialistSwarmRunsIsolatedTasksConcurrently() async throws {
-    let repoRoot = try makeScratchGitRepo()
-    defer { removeScratchRepo(repoRoot) }
-
-    let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchSwarm"))
-    let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
-    let worktreeManager = WorktreeManager(
-      configuration: WorktreeConfiguration(), policyEngine: policyEngine, eventBus: bus)
-    let orchestrator = MultiAgentOrchestrator(
-      worktreeManager: worktreeManager, policyEngine: policyEngine, eventBus: bus)
-
-    let tasks = (0..<3).map { SpecialistTask(objective: "task \($0)") }
-
-    let results = await orchestrator.runSpecialistSwarm(
-      tasks: tasks, repositoryRoot: repoRoot,
-      agentForTask: { _ in FakeOrchestratedAgent(scripts: [[.turnCompleted]]) })
-
-    #expect(results.count == 3)
-    let paths = Set(
-      results.compactMap { result -> String? in
-        guard case .approved(let path, _, _) = result.outcome else { return nil }
-        return path
-      })
-    #expect(paths.count == 3)
-    #expect(await worktreeManager.activeCount() == 3)
-  }
-
-  @Test
-  func orchestratorSpecialistSwarmIsolatesOneTaskFailureFromOthers() async throws {
-    let repoRoot = try makeScratchGitRepo()
-    defer { removeScratchRepo(repoRoot) }
-
-    let bus = AuraEventBus(
-      logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchSwarmFail"))
-    let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
-    let worktreeManager = WorktreeManager(
-      configuration: WorktreeConfiguration(), policyEngine: policyEngine, eventBus: bus)
-    let orchestrator = MultiAgentOrchestrator(
-      worktreeManager: worktreeManager, policyEngine: policyEngine, eventBus: bus)
-
-    let failingTask = SpecialistTask(objective: "the failing one")
-    let tasks = [failingTask, SpecialistTask(objective: "ok 1"), SpecialistTask(objective: "ok 2")]
-
-    let results = await orchestrator.runSpecialistSwarm(
-      tasks: tasks, repositoryRoot: repoRoot,
-      agentForTask: { task in
-        task.taskID == failingTask.taskID
-          ? FakeOrchestratedAgent(scripts: [[.turnFailed(message: "boom")]])
-          : FakeOrchestratedAgent(scripts: [[.turnCompleted]])
-      })
-
-    let failedCount = results.filter {
-      if case .failed = $0.outcome { return true } else { return false }
-    }.count
-    let approvedCount = results.filter {
-      if case .approved = $0.outcome { return true } else { return false }
-    }.count
-    #expect(failedCount == 1)
-    #expect(approvedCount == 2)
-  }
-
-  @Test
-  func orchestratorSpecialistSwarmRejectsOversizedRequest() async throws {
-    let repoRoot = try makeScratchGitRepo()
-    defer { removeScratchRepo(repoRoot) }
-
-    let bus = AuraEventBus(
-      logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchSwarmOversize"))
-    let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
-    let worktreeManager = WorktreeManager(
-      configuration: WorktreeConfiguration(), policyEngine: policyEngine, eventBus: bus)
-    let orchestrator = MultiAgentOrchestrator(
-      worktreeManager: worktreeManager, policyEngine: policyEngine,
-      configuration: .init(maxSpecialistTasks: 2), eventBus: bus)
-
-    let tasks = (0..<3).map { SpecialistTask(objective: "task \($0)") }
-
-    let results = await orchestrator.runSpecialistSwarm(
-      tasks: tasks, repositoryRoot: repoRoot,
-      agentForTask: { _ in FakeOrchestratedAgent(scripts: [[.turnCompleted]]) })
-
-    #expect(results.count == 3)
-    #expect(
-      results.allSatisfy {
-        if case .budgetExceeded = $0.outcome { return true } else { return false }
-      })
-    #expect(await worktreeManager.activeCount() == 0)
-  }
 
 }

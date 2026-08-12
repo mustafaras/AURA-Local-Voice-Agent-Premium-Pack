@@ -93,8 +93,10 @@ public actor TaskStoreBackend {
   }
 
   /// Load a named checkpoint for a task.
-  public func loadCheckpoint(taskID: UUID, name: String) async throws(AuraError) -> TaskCheckpoint?
-  {
+  public func loadCheckpoint(
+    taskID: UUID,
+    name: String
+  ) async throws(AuraError) -> TaskCheckpoint? {
     guard let json = try await store.value(forKey: checkpointKey(taskID: taskID, name: name)) else {
       return nil
     }

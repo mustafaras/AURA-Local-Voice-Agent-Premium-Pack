@@ -3783,3 +3783,26 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 
 - **Verification refresh:** `EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01` records clean-clone fsck exit 0, original fsck exit 8 with 199 malformed-object entries/8,924 dangling findings/2 invalid refs, strict formatter/build pass, 21/21 Swift bundles at 70.01%, Gitleaks/TruffleHog zero verified findings, OSV 48 advisories, 150-component Syft SBOM, and Grype 19 matches (7 high/5 medium/7 low). Runtime/hygiene/second-pass/supply-chain, 38/38 repository, 4/4 Chatterbox, pre-commit, and shell/YAML/diff checks pass.
 - **Boundary:** H-010 remains blocked. Full SourceKit/full Xcode, dependency remediation, original-Git recovery, and hosted-CI observation remain open; no destructive `.git` action, commit, push, merge, H-011, or global hygiene/release claim occurred.
+
+### 2026-08-11T15:16:10Z — REPO_HYGIENE_H010_XCODE_REVALIDATION
+
+- **Scope/result:** User-controlled Xcode 27.0 beta 5 provisioning completed. xcode-select and xcodebuild now select a valid full-Xcode developer directory; SourceKit, strict formatter, strict build, and the default 21-bundle/794-test/70.18% wrapper gate pass after scripts/aura-test.sh learned the Xcode MacOSX.platform Testing runtime layout.
+- **Blocked truth:** Full SwiftLint is no longer a SourceKit capability crash, but its exact strict policy command exits 2 with 1,330 serious findings across 628 files. H-010 remains active/blocked; source-owner bounded remediation is required before any clean-lint claim.
+- **Evidence/authority:** EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01 and EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01. No product source semantics, destructive Git repair, release, deploy, or H-011 transition occurred. Mandatory closeout is required; the next safe action is to stop at H-010/blocked.
+
+### 2026-08-11T15:46:05Z — REPO_HYGIENE_H010_CLOSEOUT
+
+- **Closeout:** Mandatory H-010 closeout completed after Xcode/SourceKit revalidation. Main is `HEAD == origin/main == 63f1e67bf1457e53d07cf282d8b4af1bcc33cba5`, relation `0/0`; adopted fsck, repository/runtime/second-pass/supply-chain validators, 38/38 tests, shell, diff, strict formatter/build, and the default 21/21/794/70.18% wrapper gates pass.
+- **Blocked result:** Full SwiftLint executes with SourceKit but exits 2 with 1,330 serious findings across 628 files. H-010 remains active/blocked; the original damaged `.git` remains preserved outside the checkout; no product-source diff, H-011, commit, push, merge, release, or deploy occurred.
+- **Evidence/next action:** `EV-REPO-HYGIENE-H-010-CLOSEOUT-20260811-01`. Stop and await explicit bounded source-owner authorization before lint remediation; do not claim global hygiene completion.
+
+### 2026-08-12 — H-010 bounded SwiftLint remediation revalidation
+
+The explicit H-010 bounded authority was applied only to `Sources/Tests` and
+required gate repetition. Strict formatter, strict build, and strict full
+tests pass; full SwiftLint executes with SourceKit but exits 2 with 528 serious
+findings across 112 files. The canonical 21-bundle wrapper has zero failed
+bundles but exits 1 at 66.10% against the unchanged 70% coverage threshold.
+The original coverage scope was restored and no lint/coverage policy was
+weakened. H-010 remains active/blocked; no H-011, commit, push, merge, release,
+or deploy occurred. Evidence: `EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01`.

@@ -262,7 +262,7 @@ func impossibleMandatoryTokenBudgetFailsClosed() async throws {
 
 @Test
 func contextConfigurationPartialDecodePreservesPhase22Defaults() throws {
-  let data = try #require(#"{"maxTokenBudget":256,"maxGraphDepth":2}"#.data(using: .utf8))
+  let data = Data(#"{"maxTokenBudget":256,"maxGraphDepth":2}"#.utf8)
   let decoded = try JSONDecoder().decode(ContextConfiguration.self, from: data)
 
   #expect(decoded.maxTokenBudget == 256)

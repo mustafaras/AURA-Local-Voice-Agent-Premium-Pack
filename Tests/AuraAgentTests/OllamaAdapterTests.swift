@@ -59,8 +59,10 @@ func ollamaAdapterLocalInferenceAllowedByDefaultWithoutConfirmation() async thro
   let adapter = try makeAdapter(policyEngine: policyEngine, apiClient: client, eventBus: bus)
 
   let result = try await adapter.classify(
-    prompt: "please help urgently", labels: ["urgent", "normal"], actor: .agentOllama,
-    sessionID: UUID(), correlationID: UUID(), causationID: UUID())
+    prompt: "please help urgently",
+    labels: ["urgent", "normal"],
+    context: OllamaInferenceContext(
+      actor: .agentOllama, sessionID: UUID(), correlationID: UUID(), causationID: UUID()))
   #expect(result.text == "urgent")
   #expect(result.degraded == false)
   #expect(result.model == "gemma4:latest")
@@ -81,8 +83,10 @@ func ollamaAdapterCloudInferenceDeniedByDefaultFallsBackWhenProvided() async thr
     configuration: configuration, policyEngine: policyEngine, apiClient: client, eventBus: bus)
 
   let result = try await adapter.classify(
-    prompt: "x", labels: ["urgent", "normal"], actor: .agentOllama, sessionID: UUID(),
-    correlationID: UUID(), causationID: UUID(),
+    prompt: "x",
+    labels: ["urgent", "normal"],
+    context: OllamaInferenceContext(
+      actor: .agentOllama, sessionID: UUID(), correlationID: UUID(), causationID: UUID()),
     deterministicFallback: { _, labels in labels.first ?? "unknown" })
   #expect(result.degraded)
   #expect(result.model == nil)
@@ -102,8 +106,10 @@ func ollamaAdapterCloudInferenceDeniedByDefaultThrowsWithoutFallback() async thr
 
   await #expect(throws: AuraError.self) {
     try await adapter.classify(
-      prompt: "x", labels: ["urgent", "normal"], actor: .agentOllama, sessionID: UUID(),
-      correlationID: UUID(), causationID: UUID())
+      prompt: "x",
+      labels: ["urgent", "normal"],
+      context: OllamaInferenceContext(
+        actor: .agentOllama, sessionID: UUID(), correlationID: UUID(), causationID: UUID()))
   }
 }
 
@@ -130,8 +136,10 @@ func ollamaAdapterCloudInferenceConfirmPathRoundTripsThroughPolicyEngine() async
     approvalPresenter: OllamaAlwaysAllowApprovalPresenter(), apiClient: client, eventBus: bus)
 
   let result = try await adapter.classify(
-    prompt: "x", labels: ["urgent", "normal"], actor: .agentOllama, sessionID: UUID(),
-    correlationID: UUID(), causationID: UUID())
+    prompt: "x",
+    labels: ["urgent", "normal"],
+    context: OllamaInferenceContext(
+      actor: .agentOllama, sessionID: UUID(), correlationID: UUID(), causationID: UUID()))
   #expect(result.text == "normal")
   #expect(result.degraded == false)
   #expect(await client.generateCallCount == 1)
@@ -158,8 +166,10 @@ func ollamaAdapterCloudInferenceConfirmPathDeniedWhenPresenterRefuses() async th
 
   await #expect(throws: AuraError.self) {
     try await adapter.classify(
-      prompt: "x", labels: ["urgent", "normal"], actor: .agentOllama, sessionID: UUID(),
-      correlationID: UUID(), causationID: UUID())
+      prompt: "x",
+      labels: ["urgent", "normal"],
+      context: OllamaInferenceContext(
+        actor: .agentOllama, sessionID: UUID(), correlationID: UUID(), causationID: UUID()))
   }
   #expect(await client.generateCallCount == 0)
 }
@@ -175,8 +185,11 @@ func ollamaAdapterHealthCheckFailureUsesFallback() async throws {
   let adapter = try makeAdapter(policyEngine: policyEngine, apiClient: client, eventBus: bus)
 
   let result = try await adapter.classify(
-    prompt: "x", labels: ["a", "b"], actor: .agentOllama, sessionID: UUID(), correlationID: UUID(),
-    causationID: UUID(), deterministicFallback: { _, labels in labels.first ?? "?" })
+    prompt: "x",
+    labels: ["a", "b"],
+    context: OllamaInferenceContext(
+      actor: .agentOllama, sessionID: UUID(), correlationID: UUID(), causationID: UUID()),
+    deterministicFallback: { _, labels in labels.first ?? "?" })
   #expect(result.degraded)
   #expect(result.text == "a")
 }
@@ -221,8 +234,11 @@ func ollamaAdapterThermalCriticalEntersDegradedModeEvenWhenHealthy() async throw
     thermalStateProvider: { .critical })
 
   let result = try await adapter.classify(
-    prompt: "x", labels: ["a", "b"], actor: .agentOllama, sessionID: UUID(), correlationID: UUID(),
-    causationID: UUID(), deterministicFallback: { _, labels in labels.last ?? "?" })
+    prompt: "x",
+    labels: ["a", "b"],
+    context: OllamaInferenceContext(
+      actor: .agentOllama, sessionID: UUID(), correlationID: UUID(), causationID: UUID()),
+    deterministicFallback: { _, labels in labels.last ?? "?" })
   #expect(result.degraded)
   #expect(await client.generateCallCount == 0)
 }
@@ -292,7 +308,8 @@ func ollamaAdapterDegradesWhenModelStillExceedsBudgetAfterEvictingEverything() a
 }
 
 @Test
-func ollamaAdapterAllowsColdLoadWhenDiskSizeExceedsBudgetButEstimatedResidentSizeFits() async throws
+func ollamaAdapterAllowsColdLoadWhenDiskSizeExceedsBudgetButEstimatedResidentSizeFits()
+  async throws
 {
   // Reproduces the real gemma4:latest coldstart rejection from
   // EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01 and EV-R2-20260803-REAL-DESKTOP-SESSION-01:

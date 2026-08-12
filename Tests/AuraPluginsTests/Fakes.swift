@@ -39,7 +39,12 @@ enum PluginFixtures {
       requiredPermissions: permissions,
       contentHashSHA256Hex: hashHex,
       signatureBase64: Data(repeating: 0, count: 64).base64EncodedString())
-    let signature = try! privateKey.signature(for: unsigned.signedPayload)
+    let signature: Data
+    do {
+      signature = try privateKey.signature(for: unsigned.signedPayload)
+    } catch {
+      preconditionFailure("test fixture signing failed: \(error)")
+    }
     let signed = PluginManifest(
       id: unsigned.id, version: unsigned.version, vendorName: unsigned.vendorName,
       vendorKeyID: unsigned.vendorKeyID, signingAlgorithm: unsigned.signingAlgorithm,

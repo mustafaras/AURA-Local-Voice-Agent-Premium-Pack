@@ -95,9 +95,9 @@ public actor FilesystemEvidence {
     let afterByPath = Dictionary(uniqueKeysWithValues: after.entries.map { ($0.relativePath, $0) })
     let allPaths = Set(beforeByPath.keys).union(afterByPath.keys).sorted()
     for path in allPaths {
-      let b = beforeByPath[path]
-      let a = afterByPath[path]
-      switch (b, a) {
+      let beforeEntry = beforeByPath[path]
+      let afterEntry = afterByPath[path]
+      switch (beforeEntry, afterEntry) {
       case (.none, .some(let added)):
         components.append("+ \(added.relativePath) \(added.sha256)")
       case (.some(let removed), .none):

@@ -4,6 +4,22 @@ import CoreGraphics
 import CryptoKit
 import Foundation
 
+private struct RetainedRawFrame {
+  let id: UUID
+  let image: CGImage
+  let capturedAt: Date
+}
+
+private struct ScreenCaptureRedaction {
+  let redactions: [RedactionMatch]
+  let redactedTitle: String?
+}
+
+private enum ScreenCapturePreflight {
+  case blocked(ScreenCaptureBlockReason)
+  case ready(ScreenWindowDescriptor)
+}
+
 /// Orchestrates approved-window screen capture: policy gating, sensitive-app
 /// and self exclusion, redaction, freshness metadata, and zero-retention by
 /// default.
@@ -33,7 +49,7 @@ public actor ScreenContextEngine {
   /// session cannot grow without limit or outlive its configured retention
   /// window. Empty for the entire lifetime of the engine under default
   /// configuration.
-  private var retainedRawFrames: [(id: UUID, image: CGImage, capturedAt: Date)] = []
+  private var retainedRawFrames: [RetainedRawFrame] = []
   private let maxRetainedFrames = 20
 
   public init(
@@ -80,29 +96,38 @@ public actor ScreenContextEngine {
     await emit(
       ScreenCaptureRequestedEvent(windowID: windowID), actor: actor, correlationID: correlationID)
 
-    guard configuration.enabled else {
-      return await block(
-        .disabledByConfiguration, windowID: windowID, actor: actor, correlationID: correlationID)
+    switch try await preflight(
+      windowID: windowID, region: region, actor: actor,
+      sessionID: sessionID, correlationID: correlationID)
+    {
+    case .blocked(let reason):
+      return await block(reason, windowID: windowID, actor: actor, correlationID: correlationID)
+    case .ready(let descriptor):
+      return try await captureApprovedWindow(
+        windowID: windowID, region: region, actor: actor,
+        correlationID: correlationID, descriptor: descriptor)
     }
+  }
 
-    if let region, !region.isValid {
-      return await block(
-        .invalidRegion, windowID: windowID, actor: actor, correlationID: correlationID)
-    }
-
+  private func preflight(
+    windowID: Int,
+    region: CaptureRegion?,
+    actor: ActorID,
+    sessionID: UUID,
+    correlationID: UUID
+  ) async throws(AuraError) -> ScreenCapturePreflight {
+    guard configuration.enabled else { return .blocked(.disabledByConfiguration) }
+    if let region, !region.isValid { return .blocked(.invalidRegion) }
     let windows = try await windowSource.listCapturableWindows()
     guard let descriptor = windows.first(where: { $0.windowID == windowID }) else {
-      return await block(
-        .windowNotFound, windowID: windowID, actor: actor, correlationID: correlationID)
+      return .blocked(.windowNotFound)
     }
-
     guard isApproved(descriptor) else {
       let reason: ScreenCaptureBlockReason =
         descriptor.applicationBundleIdentifier == assistantBundleIdentifier
         ? .assistantSelfExclusion : .sensitiveApplication
-      return await block(reason, windowID: windowID, actor: actor, correlationID: correlationID)
+      return .blocked(reason)
     }
-
     let policyRequest = PolicyEvaluationRequest(
       capability: .screenCapture,
       actor: actor,
@@ -112,75 +137,32 @@ public actor ScreenContextEngine {
       causationID: correlationID
     )
     let decision = await policyEngine.evaluate(policyRequest)
-    guard case .allow = decision else {
-      return await block(
-        .policyDenied, windowID: windowID, actor: actor, correlationID: correlationID)
-    }
+    guard case .allow = decision else { return .blocked(.policyDenied) }
+    return .ready(descriptor)
+  }
 
+  private func captureApprovedWindow(
+    windowID: Int,
+    region: CaptureRegion?,
+    actor: ActorID,
+    correlationID: UUID,
+    descriptor: ScreenWindowDescriptor
+  ) async throws(AuraError) -> ScreenCaptureOutcome {
     let image = try await windowSource.captureImage(
       windowID: windowID, region: region, maxDimension: configuration.maxCaptureDimension)
 
-    let recognizedText: [RecognizedTextRegion]
-    if configuration.ocrRedactionEnabled {
-      recognizedText = try await textRecognizer.recognizeText(in: image)
-    } else {
-      recognizedText = []
-    }
-
-    let isSecureFieldFocused: Bool
-    if let bundleID = descriptor.applicationBundleIdentifier {
-      isSecureFieldFocused = await secureFieldDetector.isSecureFieldFocused(
-        applicationBundleIdentifier: bundleID)
-    } else {
-      isSecureFieldFocused = false
-    }
-
-    // `recognizedText` bounding boxes are already relative to the captured
-    // (possibly cropped) image. User-defined regions are always window-
-    // relative, so when a sub-region was captured they must be clipped to
-    // the captured area and re-expressed relative to it — otherwise a
-    // region entirely outside the captured area would either be silently
-    // wrong or, worse, be reported as covering the wrong part of the image.
-    let userRegionsForThisCapture = Self.regionsRelativeToCapture(
-      configuration.userDefinedRedactionRegions, capturedRegion: region)
-
-    let redactions = redactionPipeline.redactions(
-      recognizedText: recognizedText,
-      isSecureFieldFocused: isSecureFieldFocused,
-      userDefinedRegions: userRegionsForThisCapture,
-      configuredPatterns: configuration.redactionPatterns
-    )
-
-    let titleRedactor = OutputRedactor(rules: configuration.redactionPatterns)
-    let redactedTitle = descriptor.title.map { titleRedactor.redact($0) }
-
-    let capturedWidthInPoints = (region?.width ?? 1) * descriptor.frameWidth
-    let capturedAt = Date()
-    let observation = ScreenObservation(
-      capturedAt: capturedAt,
-      freshnessDeadline: capturedAt.addingTimeInterval(configuration.freshnessSeconds),
-      appBundleIdentifier: descriptor.applicationBundleIdentifier,
-      appName: descriptor.applicationName,
-      windowID: windowID,
-      windowTitle: redactedTitle,
-      frameX: descriptor.frameX,
-      frameY: descriptor.frameY,
-      frameWidth: descriptor.frameWidth,
-      frameHeight: descriptor.frameHeight,
-      capturedRegion: region,
-      displayScale: Double(image.width) / max(capturedWidthInPoints, 1),
-      redactions: redactions,
-      contentHash: Self.contentHash(of: image),
-      summary: Self.summary(appName: descriptor.applicationName, redactions: redactions),
-      rawImageRetained: configuration.retainRawFrames
-    )
+    let redaction = try await redactCapture(
+      image: image, descriptor: descriptor, region: region)
+    let observation = makeObservation(
+      image: image, descriptor: descriptor, windowID: windowID, region: region,
+      redaction: redaction)
 
     if configuration.retainRawFrames {
-      retainRawFrame(id: observation.id, image: image, capturedAt: capturedAt)
+      retainRawFrame(id: observation.id, image: image, capturedAt: observation.capturedAt)
       await emit(
         ScreenRawFrameRetainedEvent(
           observationID: observation.id, retentionDays: screenshotRetentionDays,
-          retainedAt: capturedAt),
+          retainedAt: observation.capturedAt),
         actor: actor, correlationID: correlationID)
     }
 
@@ -188,10 +170,57 @@ public actor ScreenContextEngine {
       ScreenObservationRecordedEvent(
         observationID: observation.id, windowID: windowID,
         appBundleIdentifier: descriptor.applicationBundleIdentifier,
-        redactionCount: redactions.count, contentHash: observation.contentHash),
+        redactionCount: observation.redactions.count, contentHash: observation.contentHash),
       actor: actor, correlationID: correlationID)
 
     return .captured(observation)
+  }
+
+  private func redactCapture(
+    image: CGImage,
+    descriptor: ScreenWindowDescriptor,
+    region: CaptureRegion?
+  ) async throws(AuraError) -> ScreenCaptureRedaction {
+    let recognizedText =
+      configuration.ocrRedactionEnabled
+      ? try await textRecognizer.recognizeText(in: image) : []
+    let secureFieldFocused: Bool
+    if let bundleID = descriptor.applicationBundleIdentifier {
+      secureFieldFocused = await secureFieldDetector.isSecureFieldFocused(
+        applicationBundleIdentifier: bundleID)
+    } else {
+      secureFieldFocused = false
+    }
+    let userRegions = Self.regionsRelativeToCapture(
+      configuration.userDefinedRedactionRegions, capturedRegion: region)
+    let redactions = redactionPipeline.redactions(
+      recognizedText: recognizedText, isSecureFieldFocused: secureFieldFocused,
+      userDefinedRegions: userRegions, configuredPatterns: configuration.redactionPatterns)
+    let titleRedactor = OutputRedactor(rules: configuration.redactionPatterns)
+    return ScreenCaptureRedaction(
+      redactions: redactions, redactedTitle: descriptor.title.map { titleRedactor.redact($0) })
+  }
+
+  private func makeObservation(
+    image: CGImage,
+    descriptor: ScreenWindowDescriptor,
+    windowID: Int,
+    region: CaptureRegion?,
+    redaction: ScreenCaptureRedaction
+  ) -> ScreenObservation {
+    let capturedWidthInPoints = (region?.width ?? 1) * descriptor.frameWidth
+    let capturedAt = Date()
+    return ScreenObservation(
+      capturedAt: capturedAt,
+      freshnessDeadline: capturedAt.addingTimeInterval(configuration.freshnessSeconds),
+      appBundleIdentifier: descriptor.applicationBundleIdentifier,
+      appName: descriptor.applicationName, windowID: windowID,
+      windowTitle: redaction.redactedTitle, frameX: descriptor.frameX, frameY: descriptor.frameY,
+      frameWidth: descriptor.frameWidth, frameHeight: descriptor.frameHeight,
+      capturedRegion: region, displayScale: Double(image.width) / max(capturedWidthInPoints, 1),
+      redactions: redaction.redactions, contentHash: Self.contentHash(of: image),
+      summary: Self.summary(appName: descriptor.applicationName, redactions: redaction.redactions),
+      rawImageRetained: configuration.retainRawFrames)
   }
 
   /// Number of raw frames currently retained (diagnostics only).
@@ -235,16 +264,18 @@ public actor ScreenContextEngine {
       return capturedRegion == nil ? regions : []
     }
     return regions.compactMap { region in
-      let x0 = max(region.x, capturedRegion.x)
-      let y0 = max(region.y, capturedRegion.y)
-      let x1 = min(region.x + region.width, capturedRegion.x + capturedRegion.width)
-      let y1 = min(region.y + region.height, capturedRegion.y + capturedRegion.height)
-      guard x1 > x0, y1 > y0 else { return nil }
+      let clippedMinX = max(region.originX, capturedRegion.originX)
+      let clippedMinY = max(region.originY, capturedRegion.originY)
+      let clippedMaxX = min(
+        region.originX + region.width, capturedRegion.originX + capturedRegion.width)
+      let clippedMaxY = min(
+        region.originY + region.height, capturedRegion.originY + capturedRegion.height)
+      guard clippedMaxX > clippedMinX, clippedMaxY > clippedMinY else { return nil }
       return UserDefinedRedactionRegion(
-        x: (x0 - capturedRegion.x) / capturedRegion.width,
-        y: (y0 - capturedRegion.y) / capturedRegion.height,
-        width: (x1 - x0) / capturedRegion.width,
-        height: (y1 - y0) / capturedRegion.height
+        originX: (clippedMinX - capturedRegion.originX) / capturedRegion.width,
+        originY: (clippedMinY - capturedRegion.originY) / capturedRegion.height,
+        width: (clippedMaxX - clippedMinX) / capturedRegion.width,
+        height: (clippedMaxY - clippedMinY) / capturedRegion.height
       )
     }
   }
@@ -253,7 +284,7 @@ public actor ScreenContextEngine {
 
   private func retainRawFrame(id: UUID, image: CGImage, capturedAt: Date) {
     purgeExpiredRawFrames(referenceDate: capturedAt)
-    retainedRawFrames.append((id, image, capturedAt))
+    retainedRawFrames.append(RetainedRawFrame(id: id, image: image, capturedAt: capturedAt))
     if retainedRawFrames.count > maxRetainedFrames {
       retainedRawFrames.removeFirst(retainedRawFrames.count - maxRetainedFrames)
     }
@@ -285,7 +316,8 @@ public actor ScreenContextEngine {
       .sorted()
       .joined(separator: ", ")
     return
-      "Captured window of \(appDescription); redacted \(redactions.count) region(s): \(categoryCounts)."
+      "Captured window of \(appDescription); redacted \(redactions.count) "
+      + "region(s): \(categoryCounts)."
   }
 
   private func emit<Payload: EventPayload>(

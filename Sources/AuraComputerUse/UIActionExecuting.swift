@@ -17,6 +17,22 @@ public struct UIActionExecutionResult: Sendable, Equatable {
   }
 }
 
+/// Approved window geometry used to translate normalized UI anchors into
+/// display coordinates.
+public struct UIWindowFrame: Sendable, Equatable {
+  public let originX: Double
+  public let originY: Double
+  public let width: Double
+  public let height: Double
+
+  public init(originX: Double, originY: Double, width: Double, height: Double) {
+    self.originX = originX
+    self.originY = originY
+    self.width = width
+    self.height = height
+  }
+}
+
 /// Abstracts generated pointer/keyboard input so `ComputerUseControlLoop`'s
 /// own bounds/policy/emergency-stop logic is testable with a deterministic
 /// fake, independent of live Accessibility/CGEvent state — mirroring the
@@ -31,10 +47,7 @@ public protocol UIActionExecuting: Sendable {
     _ kind: ComputerUseActionKind,
     anchor: UIAnchor,
     applicationBundleIdentifier: String,
-    windowFrameX: Double,
-    windowFrameY: Double,
-    windowFrameWidth: Double,
-    windowFrameHeight: Double
+    windowFrame: UIWindowFrame
   ) async throws(AuraError) -> UIActionExecutionResult
 }
 
@@ -76,10 +89,7 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
     _ kind: ComputerUseActionKind,
     anchor: UIAnchor,
     applicationBundleIdentifier: String,
-    windowFrameX: Double,
-    windowFrameY: Double,
-    windowFrameWidth: Double,
-    windowFrameHeight: Double
+    windowFrame: UIWindowFrame
   ) async throws(AuraError) -> UIActionExecutionResult {
     guard await !emergencyStop.isActive else {
       throw AuraError.computerUseError("Emergency stop is active; refusing to generate input")
@@ -116,8 +126,7 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
         return UIActionExecutionResult(usedAccessibilityAnchor: true)
       }
       let point = try globalPoint(
-        anchor: anchor, windowFrameX: windowFrameX, windowFrameY: windowFrameY,
-        windowFrameWidth: windowFrameWidth, windowFrameHeight: windowFrameHeight)
+        anchor: anchor, windowFrame: windowFrame)
       try postMouseClick(kind: kind, at: point)
       return UIActionExecutionResult(usedAccessibilityAnchor: false)
 
@@ -127,8 +136,7 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
         return UIActionExecutionResult(usedAccessibilityAnchor: true)
       }
       let point = try globalPoint(
-        anchor: anchor, windowFrameX: windowFrameX, windowFrameY: windowFrameY,
-        windowFrameWidth: windowFrameWidth, windowFrameHeight: windowFrameHeight)
+        anchor: anchor, windowFrame: windowFrame)
       try postMouseClick(kind: .click, at: point)
       try postUnicodeText(text)
       return UIActionExecutionResult(usedAccessibilityAnchor: false)
@@ -137,8 +145,7 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
       // Scrolling is inherently positional; there is no Accessibility
       // "perform scroll" action, so this always requires a coordinate.
       let point = try globalPoint(
-        anchor: anchor, windowFrameX: windowFrameX, windowFrameY: windowFrameY,
-        windowFrameWidth: windowFrameWidth, windowFrameHeight: windowFrameHeight)
+        anchor: anchor, windowFrame: windowFrame)
       try postScroll(deltaX: deltaX, deltaY: deltaY, at: point)
       return UIActionExecutionResult(usedAccessibilityAnchor: false)
 
@@ -222,20 +229,18 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
 
   private func globalPoint(
     anchor: UIAnchor,
-    windowFrameX: Double,
-    windowFrameY: Double,
-    windowFrameWidth: Double,
-    windowFrameHeight: Double
+    windowFrame: UIWindowFrame
   ) throws(AuraError) -> CGPoint {
     guard anchor.hasCoordinateFallback, anchor.coordinateFallbackInBounds,
-      let nx = anchor.fallbackNormalizedX, let ny = anchor.fallbackNormalizedY
+      let normalizedX = anchor.fallbackNormalizedX,
+      let normalizedY = anchor.fallbackNormalizedY
     else {
       throw AuraError.computerUseError(
         "No accessibility element resolved and no valid coordinate fallback available")
     }
-    let x = windowFrameX + nx * windowFrameWidth
-    let y = windowFrameY + ny * windowFrameHeight
-    return CGPoint(x: x, y: y)
+    let resolvedX = windowFrame.originX + normalizedX * windowFrame.width
+    let resolvedY = windowFrame.originY + normalizedY * windowFrame.height
+    return CGPoint(x: resolvedX, y: resolvedY)
   }
 
   // MARK: - CGEvent synthesis
@@ -251,7 +256,7 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
       let down = CGEvent(
         mouseEventSource: source, mouseType: downType, mouseCursorPosition: point,
         mouseButton: button),
-      let up = CGEvent(
+      let mouseUp = CGEvent(
         mouseEventSource: source, mouseType: upType, mouseCursorPosition: point,
         mouseButton: button)
     else {
@@ -259,10 +264,10 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
     }
     if case .doubleClick = kind {
       down.setIntegerValueField(.mouseEventClickState, value: 2)
-      up.setIntegerValueField(.mouseEventClickState, value: 2)
+      mouseUp.setIntegerValueField(.mouseEventClickState, value: 2)
     }
     down.post(tap: .cghidEventTap)
-    up.post(tap: .cghidEventTap)
+    mouseUp.post(tap: .cghidEventTap)
   }
 
   /// Standard non-printable virtual keycodes this phase supports for
@@ -289,20 +294,22 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
     if let code = Self.namedVirtualKeyCodes[key.lowercased()] {
       guard
         let down = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(code), keyDown: true),
-        let up = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(code), keyDown: false)
+        let keyUp = CGEvent(
+          keyboardEventSource: source, virtualKey: CGKeyCode(code), keyDown: false)
       else {
         throw AuraError.computerUseError("Failed to create synthetic key event")
       }
       let flags = Self.modifierFlags(for: modifiers)
       down.flags = flags
-      up.flags = flags
+      keyUp.flags = flags
       down.post(tap: .cghidEventTap)
-      up.post(tap: .cghidEventTap)
+      keyUp.post(tap: .cghidEventTap)
       return
     }
     guard modifiers.isEmpty, key.count == 1 else {
       throw AuraError.computerUseError(
-        "Unsupported key press '\(key)' with modifiers \(modifiers) — only the fixed named-key set supports modifiers"
+        "Unsupported key press '\(key)' with modifiers \(modifiers) — only the "
+          + "fixed named-key set supports modifiers"
       )
     }
     try postUnicodeText(key)
@@ -326,15 +333,15 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
     let source = CGEventSource(stateID: .hidSystemState)
     guard
       let down = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true),
-      let up = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false)
+      let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false)
     else {
       throw AuraError.computerUseError("Failed to create synthetic keyboard event")
     }
     let characters: [UniChar] = Array(text.utf16)
     down.keyboardSetUnicodeString(stringLength: characters.count, unicodeString: characters)
-    up.keyboardSetUnicodeString(stringLength: characters.count, unicodeString: characters)
+    keyUp.keyboardSetUnicodeString(stringLength: characters.count, unicodeString: characters)
     down.post(tap: .cghidEventTap)
-    up.post(tap: .cghidEventTap)
+    keyUp.post(tap: .cghidEventTap)
   }
 
   private func postScroll(deltaX: Double, deltaY: Double, at point: CGPoint) throws(AuraError) {

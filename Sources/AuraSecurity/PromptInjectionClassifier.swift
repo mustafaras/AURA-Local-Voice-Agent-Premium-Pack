@@ -125,7 +125,8 @@ public struct PromptInjectionClassifier: Sendable {
       id: "instructionOverride.nonEnglishIgnore", category: "instructionOverride",
       severity: .medium,
       pattern:
-        "(ignorez|ignorer|ignora|ignoriere|ignoriert|игнорируйте|無視)\\s.*(instructions|instrucciones|istruzioni|anweisungen|инструкции|命令|指示)"
+        "(ignorez|ignorer|ignora|ignoriere|ignoriert|игнорируйте|無視)\\s.*"
+        + "(instructions|instrucciones|istruzioni|anweisungen|инструкции|命令|指示)"
     ),
     InjectionRule(
       id: "roleHijack.youAreNow", category: "roleHijack", severity: .high,

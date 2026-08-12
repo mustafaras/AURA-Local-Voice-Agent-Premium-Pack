@@ -14,6 +14,12 @@ import Testing
 // `PluginManifest`. Hash, signature, vendor trust, and manifest structural
 // integrity are verified with real Ed25519 signatures from `CryptoKit`.
 
+private struct SupplyChainFixture {
+  let manifest: PluginManifest
+  let bundleData: Data
+  let privateKey: Curve25519.Signing.PrivateKey
+}
+
 private func makeSignedManifest(
   id: String = "com.example.testplugin",
   version: String = "1.0.0",
@@ -21,7 +27,7 @@ private func makeSignedManifest(
   capabilities: [Capability] = [.fileRead],
   requiredPermissions: [ResourcePattern]? = nil,
   bundleContent: String = "plugin bundle payload"
-) -> (manifest: PluginManifest, bundleData: Data, privateKey: Curve25519.Signing.PrivateKey) {
+) -> SupplyChainFixture {
   let privateKey = Curve25519.Signing.PrivateKey()
   let bundleData = Data(bundleContent.utf8)
   let hashHex = SHA256.hash(data: bundleData).compactMap { String(format: "%02x", $0) }.joined()
@@ -32,7 +38,12 @@ private func makeSignedManifest(
     id: id, version: version, vendorName: vendorName, capabilities: capabilities,
     requiredPermissions: permissions, contentHashSHA256Hex: hashHex,
     signatureBase64: Data(repeating: 0, count: 64).base64EncodedString())
-  let signature = try! privateKey.signature(for: unsigned.signedPayload)
+  let signature: Data
+  do {
+    signature = try privateKey.signature(for: unsigned.signedPayload)
+  } catch {
+    preconditionFailure("test fixture signing failed: \(error)")
+  }
   let signed = PluginManifest(
     id: unsigned.id, version: unsigned.version, vendorName: unsigned.vendorName,
     vendorKeyID: unsigned.vendorKeyID, signingAlgorithm: unsigned.signingAlgorithm,
@@ -45,14 +56,10 @@ private func makeSignedManifest(
     migrationNotes: unsigned.migrationNotes, auditLevel: unsigned.auditLevel,
     contentHashSHA256Hex: unsigned.contentHashSHA256Hex,
     signatureBase64: signature.base64EncodedString())
-  return (manifest: signed, bundleData: bundleData, privateKey: privateKey)
+  return SupplyChainFixture(manifest: signed, bundleData: bundleData, privateKey: privateKey)
 }
 
-private func registry(
-  trusting fixture: (
-    manifest: PluginManifest, bundleData: Data, privateKey: Curve25519.Signing.PrivateKey
-  )
-) -> PluginTrustRegistry {
+private func registry(trusting fixture: SupplyChainFixture) -> PluginTrustRegistry {
   PluginTrustRegistry(keysByVendor: [
     fixture.manifest.vendorName: fixture.privateKey.publicKey
   ])

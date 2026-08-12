@@ -53,53 +53,10 @@ public final class STTRouter: STTEngine, @unchecked Sendable {
   public var results: AsyncStream<STTTranscriptResult> { stream }
 
   public func start() async throws -> STTHealth {
-    if let current = lock.withLock({ selected }) {
-      if lock.withLock({ healthValue.ready }) {
-        return healthValueSnapshot()
-      }
-      do {
-        let health = try await current.start()
-        if health.ready {
-          select(current, health: health)
-          return healthValueSnapshot()
-        }
-        lock.withLock { selected = nil }
-      } catch {
-        lock.withLock { selected = nil }
-      }
-    }
-
-    if let governor, !lock.withLock({ resourceReserved }) {
-      let decision = await governor.reserve(
-        .stt, estimatedMemoryMB: reservationMB, priority: .speech)
-      guard decision.granted else {
-        let health = STTHealth(
-          ready: false,
-          status: "resource-denied",
-          detail: decision.reason,
-          engineID: engineID,
-          locale: locale.identifier,
-          supportsOffline: true)
-        lock.withLock { healthValue = health }
-        throw AuraError.sttEngineError(decision.reason)
-      }
-      lock.withLock { resourceReserved = true }
-    }
-
-    var failures: [String] = []
-    for candidate in candidates {
-      do {
-        let health = try await candidate.start()
-        guard health.ready else {
-          failures.append(candidate.engineID + ": " + health.detail)
-          continue
-        }
-        select(candidate, health: health)
-        return healthValueSnapshot()
-      } catch {
-        failures.append(candidate.engineID + ": " + error.localizedDescription)
-      }
-    }
+    if let reused = await reuseSelectedEngine() { return reused }
+    try await reserveResourcesIfNeeded()
+    let (started, failures) = await startCandidates()
+    if let started { return started }
 
     if let governor, lock.withLock({ resourceReserved }) {
       await governor.release(.stt, estimatedMemoryMB: reservationMB)
@@ -118,6 +75,55 @@ public final class STTRouter: STTEngine, @unchecked Sendable {
       supportsOffline: true)
     lock.withLock { healthValue = health }
     throw AuraError.sttEngineError(detail)
+  }
+
+  private func reuseSelectedEngine() async -> STTHealth? {
+    guard let current = lock.withLock({ selected }) else { return nil }
+    if lock.withLock({ healthValue.ready }) { return healthValueSnapshot() }
+    do {
+      let health = try await current.start()
+      guard health.ready else {
+        lock.withLock { selected = nil }
+        return nil
+      }
+      select(current, health: health)
+      return healthValueSnapshot()
+    } catch {
+      lock.withLock { selected = nil }
+      return nil
+    }
+  }
+
+  private func reserveResourcesIfNeeded() async throws(AuraError) {
+    guard let governor, !lock.withLock({ resourceReserved }) else { return }
+    let decision = await governor.reserve(
+      .stt, estimatedMemoryMB: reservationMB, priority: .speech)
+    guard decision.granted else {
+      let health = STTHealth(
+        ready: false, status: "resource-denied", detail: decision.reason,
+        engineID: engineID, locale: locale.identifier, supportsOffline: true)
+      lock.withLock { healthValue = health }
+      throw AuraError.sttEngineError(decision.reason)
+    }
+    lock.withLock { resourceReserved = true }
+  }
+
+  private func startCandidates() async -> (STTHealth?, [String]) {
+    var failures: [String] = []
+    for candidate in candidates {
+      do {
+        let health = try await candidate.start()
+        guard health.ready else {
+          failures.append(candidate.engineID + ": " + health.detail)
+          continue
+        }
+        select(candidate, health: health)
+        return (healthValueSnapshot(), failures)
+      } catch {
+        failures.append(candidate.engineID + ": " + error.localizedDescription)
+      }
+    }
+    return (nil, failures)
   }
 
   public func ingest(_ frame: AudioFrame, activationTime: TimeInterval) async {

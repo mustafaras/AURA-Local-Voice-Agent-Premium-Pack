@@ -61,13 +61,14 @@ struct AuraCoreTests {
   }
 
   @Test func configurationLoadingMergesDefaults() async throws {
-    let json = """
+    let json = Data(
+      """
       {
           "audio": {
               "sampleRate": 48000
           }
       }
-      """.data(using: .utf8)!
+      """.utf8)
 
     let config = try AuraConfiguration.load(from: json)
     #expect(config.audio.sampleRate == 48_000)

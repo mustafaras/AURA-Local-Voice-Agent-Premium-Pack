@@ -15,7 +15,7 @@ func waitActionSucceedsWithoutRequiringAccessibilityTrust() async throws {
   let executor = AXCGEventActionExecutor(emergencyStop: EmergencyStopController(eventBus: .shared))
   let result = try await executor.execute(
     .wait(seconds: 0.01), anchor: UIAnchor(), applicationBundleIdentifier: "com.example.app",
-    windowFrameX: 0, windowFrameY: 0, windowFrameWidth: 800, windowFrameHeight: 600)
+    windowFrame: UIWindowFrame(originX: 0, originY: 0, width: 800, height: 600))
   #expect(result.usedAccessibilityAnchor == false)
 }
 
@@ -25,14 +25,13 @@ func clickActionDegradesSafelyWithoutGeneratingInput() async {
   await #expect(throws: AuraError.self) {
     _ = try await executor.execute(
       .click, anchor: UIAnchor(accessibilityRole: "AXButton"),
-      applicationBundleIdentifier: "invalid.aura.tests.nonexistent", windowFrameX: 0,
-      windowFrameY: 0,
-      windowFrameWidth: 800, windowFrameHeight: 600)
+      applicationBundleIdentifier: "invalid.aura.tests.nonexistent",
+      windowFrame: UIWindowFrame(originX: 0, originY: 0, width: 800, height: 600))
   }
 }
 
 @Test(
-  "The real executor refuses to generate input while emergency stop is active, independent of any caller checking first"
+  "The real executor refuses input while emergency stop is active"
 )
 func executorItselfRefusesInputWhileEmergencyStopped() async throws {
   let emergencyStop = EmergencyStopController(eventBus: .shared)
@@ -45,7 +44,7 @@ func executorItselfRefusesInputWhileEmergencyStopped() async throws {
   await #expect(throws: AuraError.self) {
     _ = try await executor.execute(
       .wait(seconds: 0.01), anchor: UIAnchor(), applicationBundleIdentifier: "com.example.app",
-      windowFrameX: 0, windowFrameY: 0, windowFrameWidth: 800, windowFrameHeight: 600)
+      windowFrame: UIWindowFrame(originX: 0, originY: 0, width: 800, height: 600))
   }
 }
 

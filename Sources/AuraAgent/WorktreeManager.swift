@@ -3,6 +3,15 @@ import AuraPolicy
 import AuraShell
 import Foundation
 
+private struct WorktreeCreationContext {
+  let taskID: UUID
+  let repositoryRoot: String
+  let path: String
+  let branch: String
+  let baseRef: String
+  let actor: ActorID
+}
+
 /// Creates and removes isolated `git worktree`s for multi-agent orchestration
 /// tasks.
 ///
@@ -91,30 +100,44 @@ public actor WorktreeManager {
       command: command, actor: actor, sessionID: sessionID, correlationID: taskID,
       causationID: taskID)
 
+    return try await finalizeCreation(
+      result,
+      context: WorktreeCreationContext(
+        taskID: taskID, repositoryRoot: repositoryRoot, path: path,
+        branch: branch, baseRef: baseRef, actor: actor))
+  }
+
+  private func finalizeCreation(
+    _ result: Result<ProcessResult, AuraError>,
+    context: WorktreeCreationContext
+  ) async throws(AuraError) -> WorktreeHandle {
     switch result {
     case .success(let processResult) where processResult.exitCode == 0:
       let handle = WorktreeHandle(
-        taskID: taskID, repositoryRoot: repositoryRoot, path: path, branch: branch,
-        baseRef: baseRef)
-      activeWorktrees[taskID] = handle
+        taskID: context.taskID, repositoryRoot: context.repositoryRoot,
+        path: context.path, branch: context.branch, baseRef: context.baseRef)
+      activeWorktrees[context.taskID] = handle
       await emit(
-        WorktreeCreatedEvent(taskID: taskID, path: path, branch: branch, baseRef: baseRef),
-        actor: actor, correlationID: taskID, causationID: taskID)
+        WorktreeCreatedEvent(
+          taskID: context.taskID, path: context.path,
+          branch: context.branch, baseRef: context.baseRef),
+        actor: context.actor, correlationID: context.taskID, causationID: context.taskID)
       return handle
 
     case .success(let processResult):
-      reservedPaths.remove(path)
+      reservedPaths.remove(context.path)
       let reason = "git worktree add exited \(processResult.exitCode): \(processResult.stderr)"
       await emit(
-        WorktreeCreationFailedEvent(taskID: taskID, reason: reason), actor: actor,
-        correlationID: taskID, causationID: taskID)
+        WorktreeCreationFailedEvent(taskID: context.taskID, reason: reason),
+        actor: context.actor, correlationID: context.taskID, causationID: context.taskID)
       throw AuraError.orchestrationError(reason)
 
     case .failure(let error):
-      reservedPaths.remove(path)
+      reservedPaths.remove(context.path)
       await emit(
-        WorktreeCreationFailedEvent(taskID: taskID, reason: error.localizedDescription),
-        actor: actor, correlationID: taskID, causationID: taskID)
+        WorktreeCreationFailedEvent(
+          taskID: context.taskID, reason: error.localizedDescription),
+        actor: context.actor, correlationID: context.taskID, causationID: context.taskID)
       throw error
     }
   }
@@ -183,8 +206,11 @@ public actor WorktreeManager {
   /// Read the diff between a worktree's current state and its base ref.
   /// Read-only evidence capture, analogous to `FilesystemEvidence` snapshots
   /// elsewhere in the codebase — not policy-gated, since it mutates nothing.
-  public func diff(taskID: UUID, actor: ActorID, sessionID: UUID) async throws(AuraError) -> String
-  {
+  public func diff(
+    taskID: UUID,
+    actor: ActorID,
+    sessionID: UUID
+  ) async throws(AuraError) -> String {
     guard let handle = activeWorktrees[taskID] else {
       throw AuraError.taskNotFound(taskID)
     }

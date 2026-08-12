@@ -10,15 +10,21 @@ private func makeTempStore() async throws -> AuraStore {
   return try await AuraStore(path: path)
 }
 
+private struct ContextEngineFixture {
+  let engine: ContextEngine
+  let store: AuraStore
+  let memory: MemoryEngine
+}
+
 private func makeEngine(configuration: ContextConfiguration = ContextConfiguration()) async throws
-  -> (ContextEngine, AuraStore, MemoryEngine)
+  -> ContextEngineFixture
 {
   let store = try await makeTempStore()
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraContextTests", category: "engine"))
   let memory = MemoryEngine(store: store, eventBus: bus)
   let engine = ContextEngine(
     store: store, memory: memory, eventBus: bus, configuration: configuration)
-  return (engine, store, memory)
+  return ContextEngineFixture(engine: engine, store: store, memory: memory)
 }
 
 private func makeLedgerEntry(
@@ -34,7 +40,7 @@ private func makeLedgerEntry(
 
 @Test
 func bundleAlwaysIncludesUtteranceAndConversationState() async throws {
-  let (engine, _, _) = try await makeEngine()
+  let engine = try await makeEngine().engine
   let bundle = try await engine.reconstruct(
     utterance: "what time is it", sessionID: UUID(), conversationState: .listening)
 
@@ -46,7 +52,7 @@ func bundleAlwaysIncludesUtteranceAndConversationState() async throws {
 
 @Test
 func bundleIncludesPendingConfirmationAndTaskWhenProvided() async throws {
-  let (engine, _, _) = try await makeEngine()
+  let engine = try await makeEngine().engine
   let challenge = PolicyConfirmationChallenge(
     requestID: UUID(), sessionID: UUID(), nonce: "n", issuedAt: Date(),
     requestedAction: .fileDelete, targetSummary: "~/Desktop/report.docx",
@@ -68,7 +74,7 @@ func bundleIncludesPendingConfirmationAndTaskWhenProvided() async throws {
 
 @Test
 func bundleIncludesActiveWorkspaceWhenProvided() async throws {
-  let (engine, _, _) = try await makeEngine()
+  let engine = try await makeEngine().engine
   let workspace = ActiveWorkspaceSnapshot(
     appBundleIdentifier: "com.microsoft.VSCode", appDisplayName: "Visual Studio Code",
     workspaceFolderPaths: ["/Users/dev/AURA"], activeFilePath: "/Users/dev/AURA/main.swift")
@@ -87,7 +93,9 @@ func bundleIncludesActiveWorkspaceWhenProvided() async throws {
 
 @Test
 func bundleSurfacesRecentLedgerEntriesAndDecisions() async throws {
-  let (engine, store, _) = try await makeEngine()
+  let fixture = try await makeEngine()
+  let engine = fixture.engine
+  let store = fixture.store
   let now = Date()
   try await store.append(
     makeLedgerEntry(
@@ -118,7 +126,9 @@ func moreRecentLedgerEntryOutranksOlderOneUnderTightBudget() async throws {
   configuration.maxPreferences = 1
   configuration.maxSemanticMatches = 1
   configuration.maxBundleItems = 1
-  let (engine, store, _) = try await makeEngine(configuration: configuration)
+  let fixture = try await makeEngine(configuration: configuration)
+  let engine = fixture.engine
+  let store = fixture.store
   let now = Date()
   try await store.append(
     makeLedgerEntry(taskID: "OLD", title: "Old phase", timestamp: now.addingTimeInterval(-90_000)))
@@ -140,7 +150,9 @@ func moreRecentLedgerEntryOutranksOlderOneUnderTightBudget() async throws {
 func scopeMatchingPreferenceOutranksMismatchedScopePreference() async throws {
   var configuration = ContextConfiguration()
   configuration.maxBundleItems = 1
-  let (engine, _, memory) = try await makeEngine(configuration: configuration)
+  let fixture = try await makeEngine(configuration: configuration)
+  let engine = fixture.engine
+  let memory = fixture.memory
   let sessionA = UUID()
   let sessionB = UUID()
 
@@ -171,7 +183,9 @@ func scopeMatchingPreferenceOutranksMismatchedScopePreference() async throws {
 
 @Test
 func semanticRetrievalMatchesRelevantFactAndSkipsUnrelatedOne() async throws {
-  let (engine, _, memory) = try await makeEngine()
+  let fixture = try await makeEngine()
+  let engine = fixture.engine
+  let memory = fixture.memory
   try await memory.append(
     MemoryRecordDraft(
       memoryClass: .projectFact, subject: "project.toolchain",
@@ -201,7 +215,9 @@ func bundleIsBoundedByConfiguredBudgetEvenWithManyCandidates() async throws {
   var configuration = ContextConfiguration()
   configuration.maxPreferences = 20
   configuration.maxBundleItems = 3
-  let (engine, _, memory) = try await makeEngine(configuration: configuration)
+  let fixture = try await makeEngine(configuration: configuration)
+  let engine = fixture.engine
+  let memory = fixture.memory
   for index in 0..<10 {
     try await memory.append(
       MemoryRecordDraft(
@@ -230,7 +246,9 @@ func trueMostRecentLedgerEntrySurfacesEvenWithManyOlderEntries() async throws {
   var configuration = ContextConfiguration()
   configuration.maxLedgerEntries = 1
   configuration.maxBundleItems = 1
-  let (engine, store, _) = try await makeEngine(configuration: configuration)
+  let fixture = try await makeEngine(configuration: configuration)
+  let engine = fixture.engine
+  let store = fixture.store
   let now = Date()
   for index in 0..<30 {
     try await store.append(
@@ -252,7 +270,7 @@ func trueMostRecentLedgerEntrySurfacesEvenWithManyOlderEntries() async throws {
 
 @Test
 func engineResolveReferenceEmitsBlockedWeakEvidenceForWeakDestructiveCandidate() async throws {
-  let (engine, _, _) = try await makeEngine()
+  let engine = try await makeEngine().engine
   let candidate = ReferenceCandidate(
     sourceID: .memoryRecord(recordID: UUID()), description: "~/Desktop/notes.txt",
     capability: .fileDelete, authority: .inferred, confidence: 0.4, observedAt: Date(),

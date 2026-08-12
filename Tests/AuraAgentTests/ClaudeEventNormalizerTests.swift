@@ -9,7 +9,8 @@ import Testing
 @Test
 func normalizerParsesHookStarted() {
   let line =
-    #"{"type":"system","subtype":"hook_started","hook_name":"SessionStart:startup","hook_event":"SessionStart"}"#
+    #"{"type":"system","subtype":"hook_started","hook_name":"SessionStart:startup","#
+    + #""hook_event":"SessionStart"}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 1)
   #expect(
     event
@@ -20,7 +21,8 @@ func normalizerParsesHookStarted() {
 @Test
 func normalizerParsesHookResponse() {
   let line =
-    #"{"type":"system","subtype":"hook_response","hook_name":"SessionStart:startup","hook_event":"SessionStart","outcome":"success"}"#
+    #"{"type":"system","subtype":"hook_response","hook_name":"SessionStart:startup","#
+    + #""hook_event":"SessionStart","outcome":"success"}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 2)
   #expect(
     event
@@ -47,7 +49,8 @@ func normalizerParsesSessionInit() {
 @Test
 func normalizerParsesAssistantTextMessage() {
   let line =
-    #"{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"ping"}]}}"#
+    #"{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","#
+    + #""text":"ping"}]}}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 4)
   #expect(event == .message(role: "assistant", text: "ping", sequence: 4))
 }
@@ -62,7 +65,8 @@ func normalizerCarriesNonTextContentBlocksOpaquely() {
 @Test
 func normalizerParsesRateLimitEvent() {
   let line =
-    #"{"type":"rate_limit_event","rate_limit_info":{"status":"allowed","rateLimitType":"five_hour"}}"#
+    #"{"type":"rate_limit_event","rate_limit_info":{"status":"allowed","rateLimitType":"#
+    + #""five_hour"}}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 6)
   #expect(event == .rateLimitEvent(status: "allowed", rateLimitType: "five_hour", sequence: 6))
 }
@@ -70,7 +74,9 @@ func normalizerParsesRateLimitEvent() {
 @Test
 func normalizerParsesSuccessfulResult() {
   let line =
-    #"{"type":"result","subtype":"success","is_error":false,"result":"ping","num_turns":1,"duration_ms":1486,"stop_reason":"end_turn","total_cost_usd":0.0263853,"permission_denials":[]}"#
+    #"{"type":"result","subtype":"success","is_error":false,"result":"ping","#
+    + #""num_turns":1,"duration_ms":1486,"stop_reason":"end_turn","total_cost_usd":0.0263853,"#
+    + #""permission_denials":[]}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 7)
   #expect(
     event
@@ -82,7 +88,8 @@ func normalizerParsesSuccessfulResult() {
 @Test
 func normalizerParsesFailedResult() {
   let line =
-    #"{"type":"result","subtype":"error_during_execution","is_error":true,"result":"something broke","api_error_status":500}"#
+    #"{"type":"result","subtype":"error_during_execution","is_error":true,"result":"#
+    + #""something broke","api_error_status":500}"#
   let event = ClaudeEventNormalizer.normalize(line: line, sequence: 8)
   #expect(event == .turnFailed(message: "something broke", apiErrorStatus: 500))
 }
@@ -116,7 +123,7 @@ func claudeNormalizerFallsBackToUnrecognizedForBlankLine() {
 
 // MARK: - Fixture-based tests against real, authorized `claude -p` output.
 
-private func loadFixtureLines(_ name: String) throws -> [String] {
+private func claudeLoadFixtureLines(_ name: String) throws -> [String] {
   let url = URL(fileURLWithPath: #filePath)
     .deletingLastPathComponent()
     .appendingPathComponent("Fixtures")
@@ -127,7 +134,7 @@ private func loadFixtureLines(_ name: String) throws -> [String] {
 
 @Test
 func claudeNormalizerParsesRealSuccessfulRunFixtureWithoutUnrecognizedLines() throws {
-  let lines = try loadFixtureLines("claude_smoke_success.jsonl")
+  let lines = try claudeLoadFixtureLines("claude_smoke_success.jsonl")
   #expect(lines.count == 6)
 
   let events = lines.enumerated().map { index, line in

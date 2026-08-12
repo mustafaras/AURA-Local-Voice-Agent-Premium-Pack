@@ -56,30 +56,30 @@ func manifestRejectsEmptyVendorName() {
 
 @Test
 func signedPayloadIsDeterministicRegardlessOfArrayOrder() {
-  let a = PluginManifest(
+  let firstManifest = PluginManifest(
     id: "com.example.plugin", version: "1.0.0", vendorName: "Vendor",
     capabilities: [.fileRead, .fileWrite],
     supportedApplicationBundleIDs: ["com.a", "com.b"],
     contentHashSHA256Hex: String(repeating: "a", count: 64),
     signatureBase64: Data(repeating: 0, count: 64).base64EncodedString())
-  let b = PluginManifest(
+  let secondManifest = PluginManifest(
     id: "com.example.plugin", version: "1.0.0", vendorName: "Vendor",
     capabilities: [.fileWrite, .fileRead],
     supportedApplicationBundleIDs: ["com.b", "com.a"],
     contentHashSHA256Hex: String(repeating: "a", count: 64),
     signatureBase64: Data(repeating: 0, count: 64).base64EncodedString())
-  #expect(a.signedPayload == b.signedPayload)
+  #expect(firstManifest.signedPayload == secondManifest.signedPayload)
 }
 
 @Test
 func signedPayloadChangesWhenContentHashChanges() {
-  let a = PluginManifest(
+  let firstManifest = PluginManifest(
     id: "com.example.plugin", version: "1.0.0", vendorName: "Vendor",
     contentHashSHA256Hex: String(repeating: "a", count: 64),
     signatureBase64: Data(repeating: 0, count: 64).base64EncodedString())
-  let b = PluginManifest(
+  let secondManifest = PluginManifest(
     id: "com.example.plugin", version: "1.0.0", vendorName: "Vendor",
     contentHashSHA256Hex: String(repeating: "b", count: 64),
     signatureBase64: Data(repeating: 0, count: 64).base64EncodedString())
-  #expect(a.signedPayload != b.signedPayload)
+  #expect(firstManifest.signedPayload != secondManifest.signedPayload)
 }

@@ -1,6 +1,10 @@
 import AuraCore
 import Foundation
 
+private enum CodexThreadStartedCodingKeys: String, CodingKey {
+  case threadID = "thread_id"
+}
+
 /// A normalized Codex event.
 ///
 /// Some cases are produced by parsing a `codex exec --json` line
@@ -71,8 +75,10 @@ public enum CodexEventNormalizer {
 
   private struct ThreadStartedPayload: Decodable {
     let threadID: String?
-    enum CodingKeys: String, CodingKey {
-      case threadID = "thread_id"
+
+    init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodexThreadStartedCodingKeys.self)
+      threadID = try container.decodeIfPresent(String.self, forKey: .threadID)
     }
   }
 

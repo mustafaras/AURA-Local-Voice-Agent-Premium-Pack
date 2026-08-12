@@ -59,49 +59,11 @@ public actor ContextEngine {
     actor: ActorID = .context,
     correlationID: UUID = UUID()
   ) async throws(AuraError) -> ContextBundle {
-    var mandatory: [ContextItem] = []
-
-    mandatory.append(
-      ContextItem(
-        stage: .currentUtterance, sourceID: .utterance, summary: utterance,
-        authority: .userStated, confidence: 1.0, observedAt: referenceDate,
-        hasDirectEvidence: true, scopeMatch: true, sensitivity: .sensitive))
-
-    mandatory.append(
-      ContextItem(
-        stage: .conversationState, sourceID: .conversationState,
-        summary: "conversation state: \(conversationState.rawValue)", authority: .systemDerived,
-        confidence: 1.0, observedAt: referenceDate, hasDirectEvidence: true, scopeMatch: true,
-        sensitivity: .internalLevel))
-
-    if let pendingConfirmation {
-      mandatory.append(
-        ContextItem(
-          stage: .pendingConfirmationOrTask,
-          sourceID: .pendingConfirmation(requestID: pendingConfirmation.requestID),
-          summary:
-            "pending confirmation: \(pendingConfirmation.requestedAction.identifier) on \(pendingConfirmation.targetSummary)",
-          authority: .systemDerived, confidence: 1.0, observedAt: pendingConfirmation.issuedAt,
-          hasDirectEvidence: true, scopeMatch: true, sensitivity: .sensitive))
-    }
-    if let pendingTask {
-      mandatory.append(
-        ContextItem(
-          stage: .pendingConfirmationOrTask,
-          sourceID: .pendingTask(taskID: pendingTask.id),
-          summary: "pending task (\(pendingTask.state.rawValue)): \(pendingTask.objective)",
-          authority: .systemDerived, confidence: 1.0, observedAt: pendingTask.updatedAt,
-          hasDirectEvidence: true, scopeMatch: true, sensitivity: .sensitive))
-    }
-
-    if let activeWorkspace {
-      mandatory.append(
-        ContextItem(
-          stage: .activeAppOrWorkspace, sourceID: .activeWorkspace,
-          summary: activeWorkspace.summary, authority: .observed, confidence: 1.0,
-          observedAt: activeWorkspace.capturedAt, hasDirectEvidence: true, scopeMatch: true,
-          sensitivity: .sensitive))
-    }
+    let mandatory = mandatoryItems(
+      MandatoryContextInput(
+        utterance: utterance, conversationState: conversationState,
+        pendingConfirmation: pendingConfirmation, pendingTask: pendingTask,
+        activeWorkspace: activeWorkspace, referenceDate: referenceDate))
 
     let ledgerEntries = try await recentLedgerEntries()
     let unresolvedContradictions = try await memory.conflicts(unresolvedOnly: true)
@@ -119,7 +81,8 @@ public actor ContextEngine {
     candidates.removeAll { item in
       guard !deliveryPolicy.permits(item.sensitivity) else { return false }
       exclusions.append(
-        "excluded \(item.sourceID): sensitivity not permitted for \(deliveryPolicy.destination.rawValue)"
+        "excluded \(item.sourceID): sensitivity not permitted for "
+          + "\(deliveryPolicy.destination.rawValue)"
       )
       return true
     }
@@ -209,8 +172,10 @@ public actor ContextEngine {
     return Array(all.suffix(max(configuration.maxLedgerEntries * 4, 20)))
   }
 
-  private func ledgerItems(from entries: [ProjectLedgerEntry], referenceDate: Date) -> [ContextItem]
-  {
+  private func ledgerItems(
+    from entries: [ProjectLedgerEntry],
+    referenceDate: Date
+  ) -> [ContextItem] {
     let items = entries.map { entry -> ContextItem in
       let title = entry.title.isEmpty ? entry.currentState : entry.title
       return ContextItem(
@@ -299,8 +264,11 @@ public actor ContextEngine {
   /// cap is used again for the final cross-category budget cut in
   /// `reconstruct`, so scope/authority/confidence/evidence actually influence
   /// which candidates survive every truncation point, not just the last one.
-  private func rankAndCap(_ items: [ContextItem], limit: Int, referenceDate: Date) -> [ContextItem]
-  {
+  private func rankAndCap(
+    _ items: [ContextItem],
+    limit: Int,
+    referenceDate: Date
+  ) -> [ContextItem] {
     items
       .map {
         $0.withScore(

@@ -158,15 +158,24 @@ public struct PluginHelperProcessHost: PluginRuntimeHosting {
     }
     let envelope = PluginHelperEnvelope(
       manifest: manifest, artifactPath: artifactURL.path, request: request)
+    let input = try encodeRequest(envelope)
+    let collected = try await runHelper(input)
+    return try decodeResponse(collected, request: request)
+  }
+
+  private func encodeRequest(_ envelope: PluginHelperEnvelope) throws(AuraError) -> Data {
     let encoder = JSONEncoder()
     encoder.outputFormatting = .sortedKeys
-    let input: Data
     do {
-      input = try encoder.encode(envelope)
+      return try encoder.encode(envelope)
     } catch {
       throw AuraError.serializationError("unable to encode plugin helper request")
     }
+  }
 
+  private func runHelper(
+    _ input: Data
+  ) async throws(AuraError) -> (data: Data, exceeded: Bool) {
     let process = Process()
     let standardInput = Pipe()
     let standardOutput = Pipe()
@@ -215,6 +224,12 @@ public struct PluginHelperProcessHost: PluginRuntimeHosting {
     guard process.terminationStatus == 0, !collected.exceeded else {
       throw AuraError.pluginError("plugin helper failed or exceeded response limit")
     }
+    return collected
+  }
+
+  private func decodeResponse(
+    _ collected: (data: Data, exceeded: Bool), request: PluginRuntimeRequest
+  ) throws(AuraError) -> PluginRuntimeResponse {
     let response: PluginRuntimeResponse
     do {
       response = try JSONDecoder().decode(PluginRuntimeResponse.self, from: collected.data)
@@ -247,41 +262,72 @@ public struct PluginHelperEnvelope: Codable, Sendable, Equatable {
 /// pattern must be satisfied, matching `PolicyEngine`'s grant semantics.
 public enum PluginRuntimeAllowlist {
   public static func allows(_ target: PolicyTarget, manifest: PluginManifest) -> Bool {
-    if let appID = target.appID, !manifest.supportedApplicationBundleIDs.contains(appID) {
-      return false
-    }
-    if let host = target.networkHost,
-      !manifest.networkDomains.contains(where: { host == $0 || host.hasSuffix("." + $0) })
-    {
+    guard appAllowed(target, manifest: manifest), networkAllowed(target, manifest: manifest) else {
       return false
     }
     return manifest.requiredPermissions.allSatisfy { pattern in
-      switch pattern {
-      case .any:
-        return false
-      case .appID(let value):
-        return target.appID == value
-      case .filePath(let glob):
-        guard let path = target.filePath else { return false }
-        return matchesGlob(path, pattern: glob)
-      case .directory(let directory, let recursive):
-        guard let path = target.filePath ?? target.directoryPath else { return false }
-        guard path == directory || path.hasPrefix(directory + "/") else { return false }
-        return recursive || !String(path.dropFirst(directory.count + 1)).contains("/")
-      case .command(let regex):
-        guard let command = target.command else { return false }
-        return command.range(of: regex, options: .regularExpression) != nil
-      case .argument(let allowed):
-        return Set(target.arguments).isSubset(of: allowed)
-      case .environment(let keys):
-        return Set(target.environmentKeys).isSubset(of: keys)
-      case .network(let host, let ports):
-        guard let targetHost = target.networkHost, matchesGlob(targetHost, pattern: host) else {
-          return false
-        }
-        return target.networkPort.map(ports.contains) ?? true
-      }
+      permissionAllowed(pattern, target: target)
     }
+  }
+
+  private static func appAllowed(_ target: PolicyTarget, manifest: PluginManifest) -> Bool {
+    guard let appID = target.appID else { return true }
+    return manifest.supportedApplicationBundleIDs.contains(appID)
+  }
+
+  private static func networkAllowed(_ target: PolicyTarget, manifest: PluginManifest) -> Bool {
+    guard let host = target.networkHost else { return true }
+    return manifest.networkDomains.contains { host == $0 || host.hasSuffix("." + $0) }
+  }
+
+  private static func permissionAllowed(
+    _ pattern: ResourcePattern, target: PolicyTarget
+  ) -> Bool {
+    switch pattern {
+    case .any:
+      return false
+    case .appID(let value):
+      return target.appID == value
+    case .filePath(let glob):
+      return filePermissionAllowed(glob, target: target)
+    case .directory(let directory, let recursive):
+      return directoryPermissionAllowed(directory, recursive: recursive, target: target)
+    case .command(let regex):
+      return commandPermissionAllowed(regex, target: target)
+    case .argument(let allowed):
+      return Set(target.arguments).isSubset(of: allowed)
+    case .environment(let keys):
+      return Set(target.environmentKeys).isSubset(of: keys)
+    case .network(let host, let ports):
+      return networkPermissionAllowed(host, ports: ports, target: target)
+    }
+  }
+
+  private static func filePermissionAllowed(_ glob: String, target: PolicyTarget) -> Bool {
+    guard let path = target.filePath else { return false }
+    return matchesGlob(path, pattern: glob)
+  }
+
+  private static func directoryPermissionAllowed(
+    _ directory: String, recursive: Bool, target: PolicyTarget
+  ) -> Bool {
+    guard let path = target.filePath ?? target.directoryPath else { return false }
+    guard path == directory || path.hasPrefix(directory + "/") else { return false }
+    return recursive || !String(path.dropFirst(directory.count + 1)).contains("/")
+  }
+
+  private static func commandPermissionAllowed(_ regex: String, target: PolicyTarget) -> Bool {
+    guard let command = target.command else { return false }
+    return command.range(of: regex, options: .regularExpression) != nil
+  }
+
+  private static func networkPermissionAllowed(
+    _ host: String, ports: ClosedRange<Int>, target: PolicyTarget
+  ) -> Bool {
+    guard let targetHost = target.networkHost, matchesGlob(targetHost, pattern: host) else {
+      return false
+    }
+    return target.networkPort.map(ports.contains) ?? true
   }
 
   private static func matchesGlob(_ value: String, pattern: String) -> Bool {

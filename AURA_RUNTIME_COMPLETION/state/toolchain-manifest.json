@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/toolchain-manifest.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-10T08:19:34Z",
-  "repository_commit": "3b1aa85f8c55e17b49c43daea008f98fd6515f15",
+  "updated_at": "2026-08-11T15:16:10Z",
+  "repository_commit": "63f1e67bf1457e53d07cf282d8b4af1bcc33cba5",
   "supported": {
     "development": {
       "os": "macOS 27+",
@@ -11,7 +11,7 @@
       "sdk": "macOS SDK 27.0+",
       "deployment_target": "macOS 27",
       "xcode_required": false,
-      "strategy": "CommandLineTools-compatible local development uses scripts/aura-test.sh; full Xcode is preferred when available."
+      "strategy": "CommandLineTools-compatible and full-Xcode local development use scripts/aura-test.sh with fail-closed Testing runtime discovery."
     },
     "release": {
       "os": "macOS 27+",
@@ -27,11 +27,11 @@
     "macos_version": "27.0",
     "architecture": "arm64",
     "hardware_profile": "Apple Silicon MacBook Air; 16 GiB unified memory profile",
-    "developer_directory": "/Library/Developer/CommandLineTools",
+    "developer_directory": "/Applications/Xcode-27.0.0-beta.5.app/Contents/Developer",
     "swift_version": "Apple Swift 6.4 (swiftlang-6.4.0.30.4 clang-2100.3.30.1)",
     "sdk_version": "27.0",
-    "xcodebuild_available": false,
-    "xcodebuild_version": null,
+    "xcodebuild_available": true,
+    "xcodebuild_version": "Xcode 27.0; Build version 27A5237l",
     "python_system": "3.14.6",
     "python_venv": "3.14.6",
     "python_chatterbox": "3.11.15",
@@ -39,7 +39,7 @@
     "github_remote_probe": "passed",
     "swift_format_available": true,
     "swiftlint_version": "0.65.0",
-    "swiftlint_sourcekit_compatible": false
+    "swiftlint_sourcekit_compatible": true
   },
   "required_cli": [
     { "name": "swift", "required": true, "validation": "swift --version" },
@@ -76,9 +76,9 @@
     "deprecation": "When Swift, SDK, Python, model, or CLI baselines change, update this manifest and ADR-045, rerun the validator, and append evidence before changing CI."
   },
   "limitations": [
-    "The observed host has Apple CommandLineTools 27.0 beta 5 but no active Xcode/xcodebuild.",
+    "The observed host has Apple Xcode 27.0 beta 5 selected; release signing, notarization, and clean-machine validation remain separate gates.",
     "swift-format is available only through the active xcrun toolchain; its observed --version output is main rather than an independent semantic version.",
-    "SwiftLint 0.65.0 is provisioned through Homebrew, but its SourceKit-backed mode cannot load sourcekitd under the observed CommandLineTools-only developer directory; the --disable-sourcekit result is partial and is not a full lint pass.",
+    "SwiftLint 0.65.0 loads SourceKit under the selected Xcode toolchain, but the strict policy run exits 2 with 528 serious findings across 112 files (352 trailing_comma, 170 opening_brace, 4 function_body_length, 2 file_length); the --disable-sourcekit result remains partial and is not a full lint pass.",
     "No CI workflow run was observed during this local validation; workflow configuration is not CI execution evidence.",
     "The Package.swift deployment target remains macOS 27 because no availability audit supports lowering it."
   ]

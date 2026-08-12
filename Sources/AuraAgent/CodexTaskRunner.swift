@@ -68,13 +68,21 @@ public struct CodexTaskRunner: TaskRunner {
       causationID: taskID
     )
 
+    try await consume(stream: stream, taskID: taskID, plan: plan, context: context)
+  }
+
+  private func consume(
+    stream: AsyncThrowingStream<CodexNormalizedEvent, Error>,
+    taskID: UUID,
+    plan: TaskPlan,
+    context: TaskExecutionContext
+  ) async throws(AuraError) {
     var iterator = stream.makeAsyncIterator()
     while true {
       await context.checkCancellation()
-      if await context.isCancelled {
+      guard !(await context.isCancelled) else {
         throw AuraError.taskCancelled(taskID)
       }
-
       let next: CodexNormalizedEvent?
       do {
         next = try await iterator.next()
@@ -83,33 +91,36 @@ public struct CodexTaskRunner: TaskRunner {
       } catch {
         throw AuraError.codexError("codex stream failed: \(error)")
       }
-      guard let event = next else { break }
+      guard let event = next else { return }
+      try await handle(event: event, plan: plan, context: context)
+    }
+  }
 
-      switch event {
-      case .approvalDecision(_, let allowed, let reason):
-        if !allowed {
-          throw AuraError.codexError(reason ?? "codex run denied by policy")
-        }
-      case .agentText(let role, let text, _):
-        await context.reportProgress(
-          completedSteps: 0, totalSteps: plan.totalSteps,
-          currentStepDescription: "\(role): \(text.prefix(120))"
-        )
-      case .turnFailed(let message):
-        throw AuraError.codexError(message ?? "codex turn failed")
-      case .codexError(let message):
-        throw AuraError.codexError(message)
-      case .budgetExceeded(let kind, let limit, let observed):
-        throw AuraError.codexError(
-          "codex budget exceeded: \(kind) limit=\(limit) observed=\(observed)")
-      case .turnCompleted:
-        await context.reportProgress(
-          completedSteps: 1, totalSteps: plan.totalSteps,
-          currentStepDescription: "Codex turn completed"
-        )
-      default:
-        break
-      }
+  private func handle(
+    event: CodexNormalizedEvent,
+    plan: TaskPlan,
+    context: TaskExecutionContext
+  ) async throws(AuraError) {
+    switch event {
+    case .approvalDecision(_, let allowed, let reason) where !allowed:
+      throw AuraError.codexError(reason ?? "codex run denied by policy")
+    case .agentText(let role, let text, _):
+      await context.reportProgress(
+        completedSteps: 0, totalSteps: plan.totalSteps,
+        currentStepDescription: "\(role): \(text.prefix(120))")
+    case .turnFailed(let message):
+      throw AuraError.codexError(message ?? "codex turn failed")
+    case .codexError(let message):
+      throw AuraError.codexError(message)
+    case .budgetExceeded(let kind, let limit, let observed):
+      throw AuraError.codexError(
+        "codex budget exceeded: \(kind) limit=\(limit) observed=\(observed)")
+    case .turnCompleted:
+      await context.reportProgress(
+        completedSteps: 1, totalSteps: plan.totalSteps,
+        currentStepDescription: "Codex turn completed")
+    default:
+      break
     }
   }
 }

@@ -7,9 +7,9 @@ import Testing
 /// Collects envelopes from the event bus in a thread-safe way for test
 /// inspection. The box is `@unchecked Sendable` because it is protected by
 /// `NSLock`, matching the pattern used in `AuraSTTEngineTests`.
-private final class EventBox: @unchecked Sendable {
-  private let lock = NSLock()
-  private var payloads: [any EventPayload] = []
+final class EventBox: @unchecked Sendable {
+  let lock = NSLock()
+  var payloads: [any EventPayload] = []
 
   func append(_ payload: any EventPayload) {
     lock.lock()
@@ -33,13 +33,21 @@ private final class EventBox: @unchecked Sendable {
 @Suite("Conversation State Machine", .serialized)
 struct ConversationTests {
 
+  struct ConversationFixture {
+    let conversation: Conversation
+    let eventBus: AuraEventBus
+    let logger: AuraLogger
+    let engine: MockTTSEngine
+    let box: EventBox
+  }
+
   /// Creates a conversation wired to an event box that captures all
   /// conversation and TTS payloads used by the tests.
-  private func makeConversation(
+  func makeConversation(
     conversationConfig: ConversationConfiguration = ConversationConfiguration(),
     ttsConfig: TTSConfiguration = TTSConfiguration(),
     engine: MockTTSEngine? = nil
-  ) async -> (Conversation, AuraEventBus, AuraLogger, MockTTSEngine, EventBox) {
+  ) async -> ConversationFixture {
     let logger = AuraLogger(
       subsystem: "ai.aura.tests", category: "ConversationTests", minimumLevel: .debug)
     let eventBus = AuraEventBus(logger: logger)
@@ -81,10 +89,11 @@ struct ConversationTests {
       eventBus: eventBus,
       logger: logger
     )
-    return (conversation, eventBus, logger, ttsEngine, box)
+    return ConversationFixture(
+      conversation: conversation, eventBus: eventBus, logger: logger, engine: ttsEngine, box: box)
   }
 
-  private func stateEvents(_ box: EventBox) -> [ConversationStateEvent] {
+  func stateEvents(_ box: EventBox) -> [ConversationStateEvent] {
     box.events.compactMap { $0 as? ConversationStateEvent }
   }
 
@@ -92,7 +101,9 @@ struct ConversationTests {
 
   @Test("wake activation moves idle to listening")
   func wakeActivationMovesToListening() async throws {
-    let (conversation, _, _, _, box) = await makeConversation()
+    let fixture = await makeConversation()
+    let conversation = fixture.conversation
+    let box = fixture.box
 
     await conversation.wakeActivationStarted(privacyMode: false)
     try? await Task.sleep(nanoseconds: 30_000_000)
@@ -104,7 +115,9 @@ struct ConversationTests {
 
   @Test("stable STT segment completes turn and moves to thinking")
   func stableSegmentCompletesTurn() async throws {
-    let (conversation, _, _, _, box) = await makeConversation()
+    let fixture = await makeConversation()
+    let conversation = fixture.conversation
+    let box = fixture.box
 
     await conversation.wakeActivationStarted(privacyMode: false)
     await conversation.stableSegmentReceived(
@@ -122,7 +135,9 @@ struct ConversationTests {
   @Test("incomplete stable segment gets a bounded continuation window")
   func incompleteStableSegmentWaitsBriefly() async throws {
     let config = ConversationConfiguration(continuationWindowSeconds: 0.01)
-    let (conversation, _, _, _, box) = await makeConversation(conversationConfig: config)
+    let fixture = await makeConversation(conversationConfig: config)
+    let conversation = fixture.conversation
+    let box = fixture.box
 
     await conversation.wakeActivationStarted(privacyMode: false)
     await conversation.stableSegmentReceived(
@@ -142,7 +157,9 @@ struct ConversationTests {
       deterministicStopCommands: ["stop"],
       deterministicPauseResumeCommands: []
     )
-    let (conversation, _, _, engine, _) = await makeConversation(conversationConfig: config)
+    let fixture = await makeConversation(conversationConfig: config)
+    let conversation = fixture.conversation
+    let engine = fixture.engine
 
     await conversation.wakeActivationStarted(privacyMode: false)
     await conversation.stableSegmentReceived(
@@ -157,7 +174,10 @@ struct ConversationTests {
 
   @Test("response plan with summary starts TTS")
   func responsePlanStartsTTS() async throws {
-    let (conversation, _, _, engine, box) = await makeConversation()
+    let fixture = await makeConversation()
+    let conversation = fixture.conversation
+    let engine = fixture.engine
+    let box = fixture.box
 
     await conversation.wakeActivationStarted(privacyMode: false)
     await conversation.stableSegmentReceived(
@@ -182,7 +202,7 @@ struct ConversationTests {
 
   @Test("response plan without spoken response returns to idle")
   func responsePlanWithoutSpeechReturnsIdle() async throws {
-    let (conversation, _, _, _, _) = await makeConversation()
+    let conversation = (await makeConversation()).conversation
 
     await conversation.wakeActivationStarted(privacyMode: false)
     await conversation.stableSegmentReceived(
@@ -200,7 +220,10 @@ struct ConversationTests {
   @Test("barge-in during speaking stops TTS and returns to listening")
   func bargeInDuringSpeaking() async throws {
     let ttsConfig = TTSConfiguration(enableBargeIn: true)
-    let (conversation, _, _, engine, box) = await makeConversation(ttsConfig: ttsConfig)
+    let fixture = await makeConversation(ttsConfig: ttsConfig)
+    let conversation = fixture.conversation
+    let engine = fixture.engine
+    let box = fixture.box
 
     await conversation.wakeActivationStarted(privacyMode: false)
     await conversation.stableSegmentReceived(
@@ -241,8 +264,9 @@ struct ConversationTests {
   func bargeInGraceWindowSuppressesRepeatedInterruptions() async throws {
     let config = ConversationConfiguration(bargeInGraceMilliseconds: 1000)
     let ttsConfig = TTSConfiguration(enableBargeIn: true)
-    let (conversation, _, _, _, box) = await makeConversation(
-      conversationConfig: config, ttsConfig: ttsConfig)
+    let fixture = await makeConversation(conversationConfig: config, ttsConfig: ttsConfig)
+    let conversation = fixture.conversation
+    let box = fixture.box
 
     await conversation.wakeActivationStarted(privacyMode: false)
     await conversation.stableSegmentReceived(
@@ -268,194 +292,10 @@ struct ConversationTests {
 
   // MARK: - Queueing and sequencing
 
-  @Test("queued prompts are spoken in order")
-  func queuedPromptsSpokenInOrder() async throws {
-    let (conversation, _, _, _, box) = await makeConversation()
-
-    await conversation.wakeActivationStarted(privacyMode: false)
-    await conversation.stableSegmentReceived(
-      STTStableSegmentEvent(text: "hello", confidence: 0.9)
-    )
-    await conversation.responsePlanReceived(
-      ResponsePlanEvent(planID: "plan-1", summary: "First", hasSpokenResponse: true)
-    )
-
-    // Wait until the first prompt is actively speaking, then append a second.
-    var attempts = 0
-    while await conversation.state != .speaking, attempts < 50 {
-      try? await Task.sleep(nanoseconds: 10_000_000)
-      attempts += 1
-    }
-
-    await conversation.responsePlanReceived(
-      ResponsePlanEvent(planID: "plan-2", summary: "Second", hasSpokenResponse: true)
-    )
-
-    try? await Task.sleep(nanoseconds: 300_000_000)
-
-    let started = box.events.compactMap { $0 as? TTSStartedEvent }
-    #expect(started.count == 2)
-    #expect(started[0].text == "First")
-    #expect(started[1].text == "Second")
-  }
-
-  // MARK: - TTS chunk passthrough
-
-  @Test("TTS chunks are emitted for spoken response")
-  func ttsChunksEmitted() async throws {
-    let (conversation, _, _, _, box) = await makeConversation()
-
-    await conversation.wakeActivationStarted(privacyMode: false)
-    await conversation.stableSegmentReceived(
-      STTStableSegmentEvent(text: "hello", confidence: 0.9)
-    )
-    await conversation.responsePlanReceived(
-      ResponsePlanEvent(planID: "plan-1", summary: "Hello world", hasSpokenResponse: true)
-    )
-
-    try? await Task.sleep(nanoseconds: 200_000_000)
-
-    let chunks = box.events.compactMap { $0 as? TTSChunkEvent }
-    #expect(chunks.count >= 2)
-    #expect(
-      chunks.contains { chunk in
-        if case .complete = chunk.chunk { return true }
-        return false
-      })
-  }
-
-  // MARK: - Latency measurement
-
-  @Test("wake-to-ack latency is measured and labeled mock engine")
-  func wakeToAckLatencyMeasured() async throws {
-    let clockBox = EventBoxClock(initial: 0.0)
-    let clock: @Sendable () -> TimeInterval = { clockBox.current }
-
-    let logger = AuraLogger(
-      subsystem: "ai.aura.tests", category: "ConversationLatencyTests", minimumLevel: .debug)
-    let eventBus = AuraEventBus(logger: logger)
-    let box = EventBox()
-    await eventBus.subscribe(LatencyMeasuredEvent.self) { envelope in
-      box.append(envelope.payload)
-    }
-
-    let conversation = Conversation(
-      configuration: ConversationConfiguration(),
-      ttsConfiguration: TTSConfiguration(),
-      ttsEngine: MockTTSEngine(engineID: "mock-tts"),
-      eventBus: eventBus,
-      logger: logger,
-      monotonicClock: clock)
-
-    clockBox.current = 0.0
-    await conversation.wakeActivationStarted(privacyMode: false)
-    clockBox.current = 0.100
-    await conversation.stableSegmentReceived(STTStableSegmentEvent(text: "hello", confidence: 0.9))
-    clockBox.current = 0.200
-    await conversation.responsePlanReceived(
-      ResponsePlanEvent(
-        planID: "plan-1", summary: "Hello", hasSpokenResponse: true, isSimpleCommand: true))
-
-    try? await Task.sleep(nanoseconds: 200_000_000)
-
-    let latencies = box.events.compactMap { $0 as? LatencyMeasuredEvent }
-    #expect(latencies.count == 2)
-    let wakeToAck = latencies.first { $0.kind == .wakeToAck }
-    let completion = latencies.first { $0.kind == .simpleCommandCompletion }
-    #expect(wakeToAck != nil)
-    #expect(wakeToAck?.latencySeconds == 0.200)
-    #expect(completion != nil)
-    #expect(completion?.isMockEngine == true)
-    #expect(completion?.budgetSeconds == 1.5)
-    #expect((completion?.latencySeconds ?? 0) >= 0)
-  }
-
-  @Test("simple-command completion latency is measured after TTS")
-  func simpleCommandCompletionLatencyMeasured() async throws {
-    let clockBox = EventBoxClock(initial: 0.0)
-    let clock: @Sendable () -> TimeInterval = { clockBox.current }
-
-    let logger = AuraLogger(
-      subsystem: "ai.aura.tests", category: "ConversationLatencyTests", minimumLevel: .debug)
-    let eventBus = AuraEventBus(logger: logger)
-    let box = EventBox()
-    await eventBus.subscribe(LatencyMeasuredEvent.self) { envelope in
-      box.append(envelope.payload)
-    }
-
-    let conversation = Conversation(
-      configuration: ConversationConfiguration(
-        deterministicStopCommands: ["stop"],
-        deterministicPauseResumeCommands: []),
-      ttsConfiguration: TTSConfiguration(),
-      ttsEngine: MockTTSEngine(engineID: "mock-tts"),
-      eventBus: eventBus,
-      logger: logger,
-      monotonicClock: clock)
-
-    clockBox.current = 0.0
-    await conversation.wakeActivationStarted(privacyMode: false)
-    clockBox.current = 0.100
-    await conversation.stableSegmentReceived(
-      STTStableSegmentEvent(text: "what time is it", confidence: 0.9, deterministicCommand: nil))
-    clockBox.current = 0.200
-    await conversation.responsePlanReceived(
-      ResponsePlanEvent(
-        planID: "plan-1", summary: "The time", hasSpokenResponse: true, isSimpleCommand: true))
-
-    try? await Task.sleep(nanoseconds: 200_000_000)
-
-    let latencies = box.events.compactMap { $0 as? LatencyMeasuredEvent }
-    let wakeToAck = latencies.first { $0.kind == .wakeToAck }
-    let completion = latencies.first { $0.kind == .simpleCommandCompletion }
-    #expect(wakeToAck != nil)
-    #expect(wakeToAck?.latencySeconds == 0.200)
-    #expect(completion != nil)
-    #expect(completion?.isMockEngine == true)
-    #expect(completion?.budgetSeconds == 1.5)
-    #expect((completion?.latencySeconds ?? 0) >= 0)
-  }
-
-  @Test("non-simple response plan does not emit simple-command completion")
-  func nonSimpleResponsePlanOmitsCompletionLatency() async throws {
-    let clockBox = EventBoxClock(initial: 0.0)
-    let clock: @Sendable () -> TimeInterval = { clockBox.current }
-
-    let logger = AuraLogger(
-      subsystem: "ai.aura.tests", category: "ConversationLatencyTests", minimumLevel: .debug)
-    let eventBus = AuraEventBus(logger: logger)
-    let box = EventBox()
-    await eventBus.subscribe(LatencyMeasuredEvent.self) { envelope in
-      box.append(envelope.payload)
-    }
-
-    let conversation = Conversation(
-      configuration: ConversationConfiguration(),
-      ttsConfiguration: TTSConfiguration(),
-      ttsEngine: MockTTSEngine(engineID: "mock-tts"),
-      eventBus: eventBus,
-      logger: logger,
-      monotonicClock: clock)
-
-    clockBox.current = 0.0
-    await conversation.wakeActivationStarted(privacyMode: false)
-    clockBox.current = 0.100
-    await conversation.stableSegmentReceived(STTStableSegmentEvent(text: "hello", confidence: 0.9))
-    clockBox.current = 0.200
-    await conversation.responsePlanReceived(
-      ResponsePlanEvent(
-        planID: "plan-1", summary: "Hello", hasSpokenResponse: true, isSimpleCommand: false))
-
-    try? await Task.sleep(nanoseconds: 200_000_000)
-
-    let latencies = box.events.compactMap { $0 as? LatencyMeasuredEvent }
-    let completion = latencies.first { $0.kind == .simpleCommandCompletion }
-    #expect(completion == nil)
-  }
 }
 
 /// A thread-safe mutable clock source for deterministic latency tests.
-private final class EventBoxClock: @unchecked Sendable {
+final class EventBoxClock: @unchecked Sendable {
   private let lock = NSLock()
   private var storage: TimeInterval
 

@@ -136,68 +136,118 @@ public enum CopilotEventNormalizer {
       return .unrecognized(rawLine: trimmed)
     }
 
-    switch topLevel.type {
+    return normalizeTopLevel(
+      type: topLevel.type, data: data, rawLine: trimmed, sequence: sequence)
+  }
+
+  private static func normalizeTopLevel(
+    type: String,
+    data: Data,
+    rawLine: String,
+    sequence: Int
+  ) -> CopilotNormalizedEvent {
+    switch type {
     case "session.mcp_servers_loaded", "session.skills_loaded", "session.tools_updated":
-      return .session(rawType: topLevel.type, sequence: sequence)
+      return .session(rawType: type, sequence: sequence)
 
     case "session.error":
-      guard let envelope = try? JSONDecoder().decode(SessionErrorEnvelope.self, from: data) else {
-        return .unrecognizedTopLevel(rawType: topLevel.type, sequence: sequence, rawLine: trimmed)
-      }
-      return .sessionError(
-        errorType: envelope.data.errorType, errorCode: envelope.data.errorCode,
-        message: envelope.data.message, statusCode: envelope.data.statusCode, sequence: sequence)
+      return sessionError(data: data, rawType: type, rawLine: rawLine, sequence: sequence)
 
     case "user.message":
-      guard let envelope = try? JSONDecoder().decode(UserMessageEnvelope.self, from: data) else {
-        return .unrecognizedTopLevel(rawType: topLevel.type, sequence: sequence, rawLine: trimmed)
-      }
-      return .message(role: "user", content: envelope.data.content, sequence: sequence)
+      return userMessage(data: data, rawType: type, rawLine: rawLine, sequence: sequence)
 
     case "assistant.turn_start":
-      let envelope = try? JSONDecoder().decode(TurnEnvelope.self, from: data)
-      return .turnStart(
-        turnID: envelope?.data.turnId, model: envelope?.data.model, sequence: sequence)
+      return turnStart(data: data, sequence: sequence)
 
     case "assistant.turn_end":
-      let envelope = try? JSONDecoder().decode(TurnEnvelope.self, from: data)
-      return .turnEnd(turnID: envelope?.data.turnId, sequence: sequence)
+      return turnEnd(data: data, sequence: sequence)
 
     case "assistant.idle":
       return .assistantIdle(sequence: sequence)
 
     case "model.call_start":
-      guard let envelope = try? JSONDecoder().decode(ModelCallStartEnvelope.self, from: data)
-      else {
-        return .unrecognizedTopLevel(rawType: topLevel.type, sequence: sequence, rawLine: trimmed)
-      }
-      return .modelCallStart(model: envelope.data.model, sequence: sequence)
+      return modelCallStart(data: data, rawType: type, rawLine: rawLine, sequence: sequence)
 
     case "model.call_failure":
-      guard let envelope = try? JSONDecoder().decode(ModelCallFailureEnvelope.self, from: data)
-      else {
-        return .unrecognizedTopLevel(rawType: topLevel.type, sequence: sequence, rawLine: trimmed)
-      }
-      return .modelCallFailure(
-        model: envelope.data.model, statusCode: envelope.data.statusCode,
-        errorMessage: envelope.data.errorMessage, sequence: sequence)
+      return modelCallFailure(data: data, rawType: type, rawLine: rawLine, sequence: sequence)
 
     case "result":
-      guard let result = try? JSONDecoder().decode(ResultPayload.self, from: data) else {
-        return .unrecognizedTopLevel(rawType: topLevel.type, sequence: sequence, rawLine: trimmed)
-      }
-      if result.exitCode == 0 {
-        return .turnCompleted(
-          exitCode: result.exitCode, sessionDurationMs: result.usage.sessionDurationMs,
-          premiumRequests: result.usage.premiumRequests,
-          filesModifiedCount: result.usage.codeChanges.filesModified.count,
-          linesAdded: result.usage.codeChanges.linesAdded,
-          linesRemoved: result.usage.codeChanges.linesRemoved)
-      }
-      return .turnFailed(message: nil)
+      return resultEvent(data: data, rawType: type, rawLine: rawLine, sequence: sequence)
 
     default:
-      return .unrecognizedTopLevel(rawType: topLevel.type, sequence: sequence, rawLine: trimmed)
+      return .unrecognizedTopLevel(rawType: type, sequence: sequence, rawLine: rawLine)
     }
+  }
+
+  private static func invalidEvent(
+    rawType: String, rawLine: String, sequence: Int
+  ) -> CopilotNormalizedEvent {
+    .unrecognizedTopLevel(rawType: rawType, sequence: sequence, rawLine: rawLine)
+  }
+
+  private static func sessionError(
+    data: Data, rawType: String, rawLine: String, sequence: Int
+  ) -> CopilotNormalizedEvent {
+    guard let envelope = try? JSONDecoder().decode(SessionErrorEnvelope.self, from: data) else {
+      return invalidEvent(rawType: rawType, rawLine: rawLine, sequence: sequence)
+    }
+    return .sessionError(
+      errorType: envelope.data.errorType, errorCode: envelope.data.errorCode,
+      message: envelope.data.message, statusCode: envelope.data.statusCode, sequence: sequence)
+  }
+
+  private static func userMessage(
+    data: Data, rawType: String, rawLine: String, sequence: Int
+  ) -> CopilotNormalizedEvent {
+    guard let envelope = try? JSONDecoder().decode(UserMessageEnvelope.self, from: data) else {
+      return invalidEvent(rawType: rawType, rawLine: rawLine, sequence: sequence)
+    }
+    return .message(role: "user", content: envelope.data.content, sequence: sequence)
+  }
+
+  private static func turnStart(data: Data, sequence: Int) -> CopilotNormalizedEvent {
+    let envelope = try? JSONDecoder().decode(TurnEnvelope.self, from: data)
+    return .turnStart(
+      turnID: envelope?.data.turnId, model: envelope?.data.model, sequence: sequence)
+  }
+
+  private static func turnEnd(data: Data, sequence: Int) -> CopilotNormalizedEvent {
+    let envelope = try? JSONDecoder().decode(TurnEnvelope.self, from: data)
+    return .turnEnd(turnID: envelope?.data.turnId, sequence: sequence)
+  }
+
+  private static func modelCallStart(
+    data: Data, rawType: String, rawLine: String, sequence: Int
+  ) -> CopilotNormalizedEvent {
+    guard let envelope = try? JSONDecoder().decode(ModelCallStartEnvelope.self, from: data) else {
+      return invalidEvent(rawType: rawType, rawLine: rawLine, sequence: sequence)
+    }
+    return .modelCallStart(model: envelope.data.model, sequence: sequence)
+  }
+
+  private static func modelCallFailure(
+    data: Data, rawType: String, rawLine: String, sequence: Int
+  ) -> CopilotNormalizedEvent {
+    guard let envelope = try? JSONDecoder().decode(ModelCallFailureEnvelope.self, from: data) else {
+      return invalidEvent(rawType: rawType, rawLine: rawLine, sequence: sequence)
+    }
+    return .modelCallFailure(
+      model: envelope.data.model, statusCode: envelope.data.statusCode,
+      errorMessage: envelope.data.errorMessage, sequence: sequence)
+  }
+
+  private static func resultEvent(
+    data: Data, rawType: String, rawLine: String, sequence: Int
+  ) -> CopilotNormalizedEvent {
+    guard let result = try? JSONDecoder().decode(ResultPayload.self, from: data) else {
+      return invalidEvent(rawType: rawType, rawLine: rawLine, sequence: sequence)
+    }
+    guard result.exitCode == 0 else { return .turnFailed(message: nil) }
+    return .turnCompleted(
+      exitCode: result.exitCode, sessionDurationMs: result.usage.sessionDurationMs,
+      premiumRequests: result.usage.premiumRequests,
+      filesModifiedCount: result.usage.codeChanges.filesModified.count,
+      linesAdded: result.usage.codeChanges.linesAdded,
+      linesRemoved: result.usage.codeChanges.linesRemoved)
   }
 }

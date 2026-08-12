@@ -40,7 +40,11 @@ actor EventBusCapture {
 
 func makeTempDirectory() -> URL {
   let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-  try! FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+  do {
+    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+  } catch {
+    preconditionFailure("test temporary directory creation failed: \(error)")
+  }
   return dir
 }
 
@@ -149,8 +153,10 @@ private final class AccessibilityObserverStub: AccessibilityObserving, @unchecke
   }
 }
 
-private func makeAutomation(spy: ApplicationControllerSpy, eventBus: AuraEventBus) -> AuraAutomation
-{
+private func makeAutomation(
+  spy: ApplicationControllerSpy,
+  eventBus: AuraEventBus
+) -> AuraAutomation {
   AuraAutomation(
     config: AutomationConfiguration(),
     applicationController: spy,
