@@ -18,8 +18,12 @@ Read these files in order before editing:
 2. this contract
 3. `AURA_RUNTIME_COMPLETION/state/current-state.json`
 4. `AURA_RUNTIME_COMPLETION/context/session-handoff.json`
-5. `AURA_RUNTIME_COMPLETION/context/READ_FIRST.md`
-6. the active prompt specified by `current-state.json`
+5. If the active track is second-pass (`SP-*`), read
+   `AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md` and its
+   referenced Tier-0 control files. If the active track is the legacy
+   first-pass/FINAL track, use the archived first-pass context under
+   `AURA_RUNTIME_COMPLETION/archive/first-pass-context/2026-08-12/`.
+6. the active prompt specified by the authoritative state file
 
 Then inspect only the phase-relevant files listed by the active prompt. Read the full master plan only when a phase requirement is unclear or a material architectural choice is being made.
 
@@ -49,6 +53,7 @@ Keep the working context minimal and high-signal.
 - current state JSON
 - session handoff JSON
 - active prompt
+- for `SP-*`, the second-pass Tier-0/Tier-1 context contract
 
 ### Tier 1 — phase context
 

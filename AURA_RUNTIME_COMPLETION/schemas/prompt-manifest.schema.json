@@ -24,7 +24,10 @@
           "order": { "type": "integer", "minimum": 0, "maximum": 99 },
           "id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL)$" },
           "name": { "type": "string", "minLength": 3, "maxLength": 200 },
-          "file": { "type": "string", "pattern": "^AURA_RUNTIME_COMPLETION/prompts/.+\\.prompt\\.md$" },
+          "file": {
+            "type": "string",
+            "pattern": "^AURA_RUNTIME_COMPLETION/(?:prompts|archive/first-pass-prompts/2026-08-12)/.+\\.prompt\\.md$"
+          },
           "dependencies": {
             "type": "array",
             "uniqueItems": true,

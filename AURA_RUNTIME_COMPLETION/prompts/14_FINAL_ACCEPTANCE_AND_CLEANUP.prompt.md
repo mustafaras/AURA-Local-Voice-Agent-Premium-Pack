@@ -17,7 +17,8 @@ Read:
 - risk, decision, evidence, and program ledgers;
 - RC evidence package;
 - accepted ADRs 034–047;
-- master plan final checklist;
+- archived master plan final checklist at
+  `AURA_RUNTIME_COMPLETION/archive/first-pass-context/2026-08-12/MASTER_PLAN.md`;
 - README, AGENTS, active specs, operations/support/install/uninstall/privacy/security docs;
 - release artifact metadata and hashes;
 - legacy current-state/session-starter/prompt references that may be stale.

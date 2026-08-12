@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/context-index.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-07-31T12:11:00Z",
+  "updated_at": "2026-08-12T15:10:00Z",
   "global_budget": {
     "startup_max_words": 6000,
     "handoff_max_words": 1800,
@@ -15,9 +15,14 @@
       "files": [
         "AGENTS.md",
         "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
+        "AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md",
+        "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
+        "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+        "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
+        "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
         "AURA_RUNTIME_COMPLETION/state/current-state.json",
         "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-        "AURA_RUNTIME_COMPLETION/context/READ_FIRST.md"
+        "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md"
       ]
     },
     {
@@ -25,11 +30,13 @@
       "name": "Active prompt context",
       "load_rule": "Load the active prompt, relevant capability entries, direct production files, direct tests, and accepted ADRs named by the prompt.",
       "files": [
-        "AURA_RUNTIME_COMPLETION/prompts/prompt-manifest.json",
+        "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
         "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
         "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
         "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-        "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md"
+        "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+        "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+        "ledger/PROJECT_LEDGER.md"
       ]
     },
     {
@@ -37,14 +44,11 @@
       "name": "Conditional architecture and history",
       "load_rule": "Load only to resolve a material architecture question, verify a historical claim, or investigate a regression.",
       "files": [
-        "docs/roadmap/AURA_FULLY_OPERATIONAL_ASSISTANT_MASTER_PLAN.md",
-        "AURA_RUNTIME_COMPLETION/context/KNOWN_FACTS.md",
-        "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-        "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
-        "ledger/PROJECT_LEDGER.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-context/2026-08-12/",
+        "docs/decisions",
+        "docs/subsystems",
         "ledger/CURRENT_STATE.md",
-        "SESSION_STARTER.md",
-        "docs/decisions"
+        "SESSION_STARTER.md"
       ]
     },
     {
@@ -64,7 +68,7 @@
     {
       "prompt_id": "BOOTSTRAP",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/00_SESSION_BOOTSTRAP.prompt.md",
         "AURA_RUNTIME_COMPLETION/prompts/prompt-manifest.json",
         "AURA_RUNTIME_COMPLETION/schemas",
         "AURA_RUNTIME_COMPLETION/state/current-state.json",
@@ -86,7 +90,7 @@
     {
       "prompt_id": "R0",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
         "AURA_RUNTIME_COMPLETION/state",
         "AURA_RUNTIME_COMPLETION/context",
         "AGENTS.md",
@@ -106,7 +110,7 @@
     {
       "prompt_id": "R1",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
         "Sources/AURA/AuraKernel.swift",
         "Sources/AuraIntent/IntentDispatchCoordinator.swift",
         "Sources/AuraIntent/ToolRouter.swift",
@@ -129,7 +133,7 @@
     {
       "prompt_id": "R2",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
         "Sources/AuraIntent",
         "Sources/AuraAgent/OllamaAdapter.swift",
         "Sources/AuraContext",
@@ -148,7 +152,7 @@
     {
       "prompt_id": "R3",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md",
         "Sources/AuraIntent",
         "Sources/AuraPolicy",
         "Sources/AuraCore/IntentPolicyTypes.swift",
@@ -168,7 +172,7 @@
     {
       "prompt_id": "R4",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
         "Sources/AuraComputerUse",
         "Sources/AuraScreen",
         "Sources/AuraPolicy",
@@ -188,7 +192,7 @@
     {
       "prompt_id": "R5",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
         "Sources/AuraSecurity",
         "Sources/AuraPolicy",
         "network and secret handling",
@@ -209,7 +213,7 @@
     {
       "prompt_id": "R6",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
         "Sources/AuraVSCode",
         "Sources/AuraAgent",
         "Sources/AuraTasks",
@@ -230,7 +234,7 @@
     {
       "prompt_id": "R7",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
         "Sources/AuraAudio",
         "Sources/AuraSTT",
         "Sources/AuraAgent/Conversation.swift",
@@ -251,7 +255,7 @@
     {
       "prompt_id": "R8",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md",
         "Sources/AuraMemory",
         "Sources/AuraContext",
         "Sources/AuraStore",
@@ -271,7 +275,7 @@
     {
       "prompt_id": "R9",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
         "Sources/AURA",
         "runtime health/task/capability/model/memory interfaces",
         "UI tests and accessibility protocols"
@@ -288,7 +292,7 @@
     {
       "prompt_id": "R10",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
         "docs/security/30_THREAT_MODEL.md",
         "Sources/AuraSecurity",
         "Sources/AuraPolicy",
@@ -310,7 +314,7 @@
     {
       "prompt_id": "R11",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md",
         "build/sign/package scripts",
         "Info.plists and entitlements",
         "update/recovery docs",
@@ -328,7 +332,7 @@
     {
       "prompt_id": "R12",
       "required": [
-        "AURA_RUNTIME_COMPLETION/prompts/13_R12_BETA_VALIDATION_AND_RC.prompt.md",
+        "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/13_R12_BETA_VALIDATION_AND_RC.prompt.md",
         "SLO definitions",
         "all open release gates",
         "risk register",

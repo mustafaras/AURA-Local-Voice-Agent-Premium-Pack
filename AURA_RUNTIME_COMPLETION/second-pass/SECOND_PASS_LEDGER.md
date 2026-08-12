@@ -53,3 +53,30 @@ Corrections are appended, never rewritten.
 - **Residual risks:** `RISK-SECOND-PASS-SYNC-DRIFT` remains `Mitigating`; every prompt attempt still requires its own evidence and closeout.
 - **Acceptance verdict:** Prompt Markdown is normalized; `SP-000` remains `pending`.
 - **Next prompt/action:** `SP-000`; do not start `SP-001` without SP-000 completion evidence and validator pass.
+
+### 2026-08-12T15:20:00Z — SECOND_PASS_CONTEXT_SURFACE_ARCHIVED — SP-000 pending
+
+- **Prompt ID:** Control-plane maintenance; no `SP-*` prompt was executed.
+- **Gap IDs:** None closed; `OPEN-00`–`OPEN-15` remain unchanged.
+- **Predecessor evidence:** `EV-SECOND-PASS-20260809-CONTROL-PLANE-02`.
+- **Objective:** Reduce default context noise by separating completed first-pass prompt/context prose from the active second-pass surface without deleting evidence or changing prompt order.
+- **Authority:** Documentation/state/test authority only. No product source, TCC, install, provider/account, telemetry, beta, signing, release, deploy, commit, push, or merge authority.
+- **Exact work:** Archived first-pass prompt definitions 00–13 and legacy startup/context prose; updated the first-pass manifest/schema, second-pass read contract, context index, open-gap links, runtime pointer README, archive index, handoff, risk projection, and append-only ledgers. ADR/subsystem `docs/` remain canonical on-demand Tier-1 references.
+- **Cognitive resolution record:** The exact gap was excessive default-visible first-pass material after the repository's remaining work had moved to the second-pass chain. The mechanism was historical prompt/context files remaining in active directories despite the Tier-0/Tier-1 contract. The fix is falsified by any missing manifest target, broken required reference, validator failure, or accidental SP/state transition; all final checks passed. Confidence: high for control-plane routing, not a product-gate claim.
+- **Evidence:** `EV-SECOND-PASS-CONTEXT-ARCHIVE-20260812-01` — static/contract class; all four validators, 38/38 deterministic tests, JSON, shell, and diff checks passed.
+- **Residual risks:** `RISK-REPO-HYGIENE-CONTEXT-BLOAT` remains `Mitigating` because append-only ledgers and named ADR/subsystem references remain available; repository maintainer owns future Tier-1 pointer refresh. `RISK-SECOND-PASS-SYNC-DRIFT` remains `Mitigating`.
+- **Acceptance verdict:** Archive and routing are complete for this maintenance scope; `SP-000` remains `pending`, no prompt was completed, and no gap was closed.
+- **Next prompt/action:** On explicit authorization, read the second-pass Tier-0 contract and execute only `SP-000`; do not open `SP-001` automatically.
+
+### 2026-08-12T15:45:00Z — SECOND_PASS_REPO_SURFACE_CLEANUP — SP-000 pending
+
+- **Prompt ID:** Control-plane cleanup; no `SP-*` prompt was executed.
+- **Gap IDs:** None closed; `OPEN-00`–`OPEN-15` remain unchanged.
+- **Objective:** Remove empty structural directories and one unreferenced legacy guide that add visual noise without deleting active evidence or canonical controls.
+- **Authority:** Documentation/state cleanup only. No product source, dependency/tool install, permission, Git-object, prompt transition, commit, push, merge, release, or deployment authority.
+- **Exact work:** Removed the empty `AURA_RUNTIME_COMPLETION/prompts/repo_hygiene`, `anti_amnesia`, and root `schemas` directories; moved `AURA_RUNTIME_COMPLETION/state/README.md` to the dated first-pass archive. Preserved generated build/cache surfaces and all canonical second-pass/hygiene/ADR/ledger/schema files.
+- **Cognitive resolution record:** The observed gap was empty legacy directories and an unreferenced directory guide remaining after first-pass migration. The mechanism was filesystem directories surviving after tracked contents moved. Falsification is any non-empty target, active reference, validator failure, or missing required schema/control file; final scans and validators must remain green.
+- **Evidence:** `EV-SECOND-PASS-REPO-SURFACE-CLEANUP-20260812-01` — static/contract class.
+- **Residual risks:** Generated ignored caches and `.DS_Store` files remain intentionally outside this cleanup boundary; context-bloat and second-pass synchronization risks remain mitigated, not closed.
+- **Acceptance verdict:** Structural cleanup complete for the proven safe targets; `SP-000` remains `pending` and no gap was closed.
+- **Next prompt/action:** On explicit authorization, read the second-pass Tier-0 contract and execute only `SP-000`.

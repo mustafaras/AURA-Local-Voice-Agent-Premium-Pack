@@ -3832,3 +3832,22 @@ new hosted-CI result is claimed. Evidence:
 - **Finding:** H-010 gates were complete, but current derived projections still exposed superseded blocked snapshots and older commit pointers. This was documentation/control-plane drift only.
 - **Resolution:** Reconciled live `main`/`origin/main` `b4610f0a06d3a408f76a38c9b05175ef0de82b11`, H-010 machine state, read-first context, active context, human program, current-state, handoff, evidence, and risk projections. Hosted proof remains bound to workflow/source SHA `6d4d6da`; later descendants are control-plane-only.
 - **Verification/boundary:** Runtime, hygiene, second-pass, supply-chain, 38-test, JSON/YAML, shell, diff, clean-worktree, and remote-equality checks pass. Historical blocked entries remain append-only and are explicitly superseded. No product source, second-pass state, H-011, release, or deployment action occurred. Evidence: `EV-REPO-HYGIENE-H-010-PROJECTION-RECONCILIATION-20260812-01`.
+
+### 2026-08-12T14:46:13Z — CONTROLLED_COMPLETED_PROMPT_ARCHIVE
+
+- **Objective/result:** Reduced default repository context without removing evidence. The eleven completed H-000…H-010 hygiene prompt definitions were moved with `git mv` to `AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/`; `REPO_HYGIENE_PROMPT_MANIFEST.json` is the canonical locator and `AURA_RUNTIME_COMPLETION/archive/README.md` defines the loading boundary.
+- **Preserved boundary:** Active FINAL and pending SP-000…SP-033 prompts, ADRs, current handoff/context, state/evidence/risk registers, and append-only ledgers remain in place. No H-011, prompt transition, product source, Git-object, release, deployment, or permission action occurred.
+- **Verification/next action:** Repository-hygiene, second-pass, supply-chain, JSON, and diff checks passed. The archive is an expected uncommitted control-plane change; explicit delivery is the next safe action before asserting a clean worktree.
+
+### 2026-08-12T15:20:00Z — SECOND_PASS_CONTEXT_SURFACE_ARCHIVED
+
+- **Scope:** Documentation/state hygiene only. Completed first-pass prompt definitions 00–13 and superseded first-pass startup/context prose were moved to dated recoverable archives; no historical ledger was rewritten or deleted.
+- **Preserved:** Active FINAL, all pending `SP-000`–`SP-033` prompts, second-pass state/contracts, current handoff, ledgers, evidence/risk registers, and canonical ADR/subsystem `docs/` remain available.
+- **Verification:** Runtime, second-pass, repository-hygiene, and supply-chain validators passed; deterministic script tests passed 38/38; JSON, shell, and diff checks passed. `SP-000` remains pending and no product/release claim follows.
+- **Boundary:** No prompt transition, source change, dependency/tool install, permission action, Git-object action, commit, push, merge, release, or deployment occurred. The archive is expected uncommitted control-plane dirt pending explicit delivery.
+
+### 2026-08-12T15:45:00Z — SECOND_PASS_REPO_SURFACE_CLEANUP
+
+- **Scope:** Removed only three verified-empty legacy directories and moved the unreferenced `AURA_RUNTIME_COMPLETION/state/README.md` to the recoverable dated archive. No historical ledger was rewritten and no active second-pass or product file was deleted.
+- **Preserved boundary:** Build/cache/user metadata surfaces remain untouched; canonical schemas, ADRs, source/tests, ledgers, evidence/risk registers, hygiene controls, and all `SP-*` prompts remain available.
+- **Verification/next action:** Full governance/second-pass/supply-chain validation, 38/38 script tests, JSON, shell, diff, empty-directory, and active-reference checks passed. Keep `SP-000/pending`; no automatic prompt transition or Git delivery follows.

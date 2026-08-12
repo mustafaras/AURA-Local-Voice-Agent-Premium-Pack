@@ -184,7 +184,7 @@ scope; these items are prerequisites for the program-wide final gate.
 
 ## OPEN-03 — R2: Bilingual NLU and Dialogue
 
-Prompt: [`03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md`](prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md)
+Prompt: [`03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md`](archive/first-pass-prompts/2026-08-12/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md)
 
 - Perform the user-present microphone/TCC Push-to-Talk verification and record
   `EV-R2-20260804-LIVE-VOICE-DEMO-01`.
@@ -198,7 +198,7 @@ Prompt: [`03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md`](prompts/03_R2_BILINGUAL_N
 
 ## OPEN-04 — R3: Capability Registry and Typed Planner
 
-Prompt: [`04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`](prompts/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md)
+Prompt: [`04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`](archive/first-pass-prompts/2026-08-12/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md)
 
 - Build the remaining filesystem and URL adapters.
 - Add NLU/UI reachability for the four capabilities that currently have only
@@ -210,7 +210,7 @@ Prompt: [`04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`](prompts/04_R3_CAPABI
 
 ## OPEN-05 — R4: Computer-Use Productization
 
-Prompt: [`05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md`](prompts/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md)
+Prompt: [`05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md`](archive/first-pass-prompts/2026-08-12/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md)
 
 - Keep `computerUse.run` disabled until explicit live validation authorizes
   the approved applications.
@@ -225,7 +225,7 @@ Prompt: [`05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md`](prompts/05_R4_COMPUTER_U
 
 ## OPEN-06 — R5: Browser, Mail, Calendar, and Contacts Adapters
 
-Prompt: [`06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md`](prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md)
+Prompt: [`06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md`](archive/first-pass-prompts/2026-08-12/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md)
 
 The deterministic first slice is recorded by
 `EV-R5-20260808-READ-FIRST-ADAPTERS-01`, but R5 remains `in_progress`.
@@ -246,7 +246,7 @@ The deterministic first slice is recorded by
 
 ## OPEN-07 — R6: VS Code and Coding-Agent Completion
 
-Prompt: [`07_R6_VSCODE_AND_CODING_AGENTS.prompt.md`](prompts/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md)
+Prompt: [`07_R6_VSCODE_AND_CODING_AGENTS.prompt.md`](archive/first-pass-prompts/2026-08-12/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md)
 
 R6's first-pass implementation is recorded by
 `EV-R6-20260808-POLICY-BRIDGE-01` and
@@ -277,7 +277,7 @@ second pass and do not close the R6 prompt gate.
 
 ## OPEN-08 — R7: Wake Word, STT/TTS Routing, and Resource Governor
 
-Prompt: [`08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md`](prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md)
+Prompt: [`08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md`](archive/first-pass-prompts/2026-08-12/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md)
 
 R7's first local implementation slice is recorded from the first pass;
 the unresolved gates below are recorded for the future second pass as required
@@ -317,7 +317,7 @@ or ADR-042 approval.
 
 ## OPEN-09 — R8: Memory, Personalization, and Explainability
 
-Prompt: [`09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md`](prompts/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md)
+Prompt: [`09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md`](archive/first-pass-prompts/2026-08-12/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md)
 
 R8's local first-pass slice is implemented and focused-tested under
 `EV-R8-20260808-MEMORY-POLICY-01` and
@@ -353,7 +353,7 @@ or decision-acceptance gates.
 
 ## OPEN-10 — R9: Product UI, Accessibility, and Onboarding
 
-Prompt: [`10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md`](prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md)
+Prompt: [`10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md`](archive/first-pass-prompts/2026-08-12/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md)
 
 The first-pass R9 product slice is implemented locally and source-build
 verified. The menu-bar/window surface now has conversation, task,
@@ -394,7 +394,7 @@ Evidence is recorded under `EV-R9-20260808-UI-BUILD-02` and
 
 ## OPEN-11 — R10: Security and Privilege Separation
 
-Prompt: [`11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md`](prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md)
+Prompt: [`11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md`](archive/first-pass-prompts/2026-08-12/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md)
 
 R10's first-pass slice followed the user-authorized commit/push/merge and
 continuation. R9 remains `in_progress`; its open manual,
@@ -433,7 +433,7 @@ verified or explicitly accepted by the authorized release owner.
 
 ## OPEN-12 — R11: Release Engineering and Continuous Operations
 
-Prompt: [`12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md`](prompts/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md)
+Prompt: [`12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md`](archive/first-pass-prompts/2026-08-12/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md)
 
 R11 was activated after explicit user approval following R10 delivery. The first
 safe slice is release-readiness work only; no external release authority is
@@ -469,7 +469,7 @@ gates.
 
 ## OPEN-13 — R12: Beta Validation and Release Candidate
 
-Prompt: [`13_R12_BETA_VALIDATION_AND_RC.prompt.md`](prompts/13_R12_BETA_VALIDATION_AND_RC.prompt.md)
+Prompt: [`13_R12_BETA_VALIDATION_AND_RC.prompt.md`](archive/first-pass-prompts/2026-08-12/13_R12_BETA_VALIDATION_AND_RC.prompt.md)
 
 R12 was activated by explicit user request even though R11 remains `in_progress`.
 This is a deliberate dependency exception recorded in the canonical state; it
