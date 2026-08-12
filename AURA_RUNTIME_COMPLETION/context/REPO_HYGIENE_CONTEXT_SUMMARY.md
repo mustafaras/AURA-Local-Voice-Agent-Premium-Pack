@@ -1,20 +1,29 @@
 # H-009 Bounded Context Summary and Source Map
 
-**Status:** Authored derived pointer; not a source of truth
-**Snapshot:** 2026-08-10T14:28:11Z
+**Status:** Authored derived pointer; H-010 terminal closure synchronized; not a source of truth
+**Snapshot:** 2026-08-12T14:19:57Z
 **Program:** `AURA-REPO-HYGIENE`
-**Live repository:** `main`, `HEAD == origin/main == 6e53e6a941756e4b34f24f5de3c9c29bdc8147bf`, relation `0/0`, clean worktree, 70,094 ignored paths
+**Live repository:** `main`, `HEAD == origin/main == b4610f0a06d3a408f76a38c9b05175ef0de82b11`, relation `0/0`, clean worktree, 77,422 ignored paths
 
 This document is a bounded successor summary for a fresh session. It reduces
 context loading without rewriting any append-only ledger. Every current claim
 below points to the authoritative file that owns it. If this summary conflicts
 with an authority, the authority wins and this pointer is stale.
 
+## Current authoritative H-010 closure — 2026-08-12T14:19:57Z
+
+H-010 is terminally `completed` in `REPO_HYGIENE_STATE.json`. The current live
+projection is `b4610f0a06d3a408f76a38c9b05175ef0de82b11`; hosted workflow/source
+evidence is bound to `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`, with later
+descendants containing control-plane-only changes. All H-000…H-010 prompts are
+complete, no H-011 exists, and older blocked paragraphs in this derived summary
+are historical evidence only.
+
 ## Source-of-truth map
 
 | Fact class | Authoritative source | Use in a fresh session |
 |---|---|---|
-| Active prompt, ordered completion, blocked state, live hygiene Git fields | `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json` | Read first; do not infer the next prompt from prose |
+| Active prompt, ordered completion, terminal state, live hygiene Git fields | `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json` | Read first; do not infer a successor from prose |
 | Prompt order and dependency | `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json` | Confirm the active prompt and its predecessor |
 | Human gap definition and roadmap | `docs/operations/REPO_HYGIENE_PROGRAM.md` | Read only the matching `HYGIENE-*` section |
 | Hygiene evidence history | `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md` | Read the latest matching evidence entries; history is append-only |
@@ -25,7 +34,7 @@ with an authority, the authority wins and this pointer is stale.
 | Next-session handoff and bounded file/evidence arrays | `AURA_RUNTIME_COMPLETION/context/session-handoff.json` | Use as the concise handoff after Tier-0 reads |
 | Architecture and security boundaries | `docs/architecture/02_ARCHITECTURE.md`, relevant ADRs, and `H-009_ARCHITECTURE_AUDIT.md` | Treat ADR status and evidence limits as binding |
 
-The live hygiene repository head is `6e53e6a…`. The runtime verified content
+The live hygiene repository head is `b4610f0…`. The runtime verified content
 baseline is `47775180c224f87fa5a58703f793515ffcb2c35c` because the descendants
 after that merge are projection-only commits. This is the ADR-045 distinction
 between the live repository tip and the last audited product/content baseline;
@@ -78,16 +87,19 @@ it is superseded by the newest evidence-backed projection entry.
 A new session can recover the active hygiene truth by reading this pointer
 after the required Tier-0 files, then checking:
 
-- `REPO_HYGIENE_STATE.json` for the active prompt and state;
-- the latest `EV-REPO-HYGIENE-H-009-*` entry for evidence and the six-question gate;
+- `REPO_HYGIENE_STATE.json` for the terminal prompt and state;
+- the latest `EV-REPO-HYGIENE-H-010-*` entry for evidence and the six-question gate;
 - the matching evidence/risk rows and `session-handoff.json` for projection limits;
 - `H-009_ARCHITECTURE_AUDIT.md` for the architecture boundary conclusion.
 
-This summary does not close product, release, beta, CI-hosted, full-Xcode,
-historical-secret, or original-Git-object-database gates. H-010 remains a
-separate explicit next-prompt boundary and is not opened by this summary.
+This summary does not close product, release, beta, historical-secret, or
+broader FINAL gates. H-010 itself is complete at the repository-hygiene
+boundary; the separate second-pass chain remains `SP-000` / `pending` and is
+not opened by this summary.
 
-## H-010 final local-gate pointer — 2026-08-12T11:28:10Z
+## Historical H-010 evidence timeline
+
+### H-010 final local-gate pointer — 2026-08-12T11:28:10Z
 
 The latest H-010 evidence supersedes the earlier blocked local-lint/coverage
 snapshot: feature commit `de320a05ba9195b982e887e13c2116ba3698bc8a` passes
@@ -96,7 +108,8 @@ wrapper with 21/21 bundles, 795 tests, and 70.57% coverage, plus formatter,
 build, full tests, and fsck. In-repository untracked count is zero. The 219
 byte-identical copy artifacts are preserved in recoverable external quarantine
 `/Users/m_ras/Desktop/AURA-H010-QUARANTINE-20260812`. Feature push is complete;
-no-ff merge/main push and exact final hosted-CI observation remain pending.
+no-ff merge/main push and exact final hosted-CI observation were pending at that
+historical timestamp; later evidence supersedes this wording.
 Read `REPO_HYGIENE_STATE.json` and the latest focused-ledger entry before
 declaring H-010 complete. No H-011 exists.
 
@@ -107,8 +120,8 @@ no completed steps, so the final hosted result is still open.
 
 The synchronized projection was pushed as `d1e77129c607a40a209b5d1c5207cc83f38a5851`.
 Its hosted run `31593417301` is also queued because the self-hosted runner
-inventory is empty; no hosted PASS/FAIL is claimed. Keep H-010 blocked until
-an authorized runner executes the final workflow.
+inventory was empty and no hosted PASS/FAIL was claimed at that historical
+timestamp. Final hosted run `31598491689` supersedes this wording.
 
 ## H-010 terminal hosted-CI closure — 2026-08-12T13:00:00Z
 

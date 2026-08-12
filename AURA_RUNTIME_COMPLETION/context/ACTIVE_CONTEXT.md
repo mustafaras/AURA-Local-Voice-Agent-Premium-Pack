@@ -8,12 +8,23 @@
 
 ## Canonical status
 
-## Repository hygiene overlay
+## Current terminal H-010 closure
+
+Repository hygiene H-010 is `completed` at current `main` / `origin/main`
+`b4610f0a06d3a408f76a38c9b05175ef0de82b11`. The hosted workflow/source proof
+was executed on `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`; descendants after
+that SHA are control-plane-only projections. SwiftLint, formatter, build, full
+tests, fsck, coverage, local validators, hosted governance/build/test, and
+development-unverified artifact upload passed for the recorded boundaries. H-010
+is the terminal hygiene prompt; all H-000…H-010 prompts are complete and no
+H-011 exists. The chronology below is historical and cannot reopen H-010.
+
+## Repository hygiene overlay — historical chronology
 
 The repository-hygiene program is a separate, synchronized control overlay at
 `docs/operations/REPO_HYGIENE_PROGRAM.md`. Its machine state is
 `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json`, currently
-`H-010` / `blocked`; its 11-prompt manifest, focused ledger, contracts,
+`H-010` / `completed`; its 11-prompt manifest, focused ledger, contracts,
 Tier-0/Tier-1 read order, and validator must agree before a hygiene prompt can
 advance. This overlay does not close R2–R12, FINAL, beta, release, security,
 permission, or live-hardware gates. The current authority is reset at closeout;
@@ -41,14 +52,14 @@ H-005 added `.swift-format` schema version 1 and explicit CI
 strict-concurrency/warnings-as-errors flags. Under explicit bounded-remediation
 authority, all 1,019 configured formatter findings across 116 files were
 resolved in reviewed batches; recursive strict formatter lint, strict build,
-and the 21-bundle/794-test wrapper pass. SwiftLint 0.65.0 is provisioned and now loads SourceKit under the selected Xcode toolchain, but its strict policy run exits 2 with 1,330 serious findings across 628 files. H-005 was delivered and is complete
+and the 21-bundle/794-test wrapper pass. Historical intermediate SwiftLint evidence reported exit 2 with 1,330 findings; the later final H-010 evidence resolved that result. H-005 was delivered and is complete
 for chain order; H-006 is complete under exact `ONAY: H-006`, with
 `EV-REPO-HYGIENE-H-006-20260810-01` recording the bounded unsafe/debug audit,
 strict build, focused tests, and cognitive gate. H-007 is complete for chain
 order and H-008 is complete after its verified delivery. H-009 is complete for
 chain-order purposes after its bounded context summary and architecture audit
-were synchronized. H-010 ran the final gate and is blocked on explicit
-evidence-backed limitations. The raw all-source matrix is
+were synchronized. Historical intermediate H-010 evidence was blocked on explicit
+limitations; the terminal H-010 closure above supersedes it. The raw all-source matrix is
 65.15%, while the explicit four-file host-boundary scope passes at 70.02%
 against the unchanged 70% ratchet. H-007 edit-only authority expired at
 closeout; no standing cleanup/deletion/quarantine authority remains. H-009 was
@@ -57,10 +68,10 @@ summary, package/dependency audit, and privileged-boundary audit are recorded
 under `EV-REPO-HYGIENE-H-009-20260810-01` and
 `EV-REPO-HYGIENE-H-010-20260810-01`; the six H-008 duplicate backups remain
 SHA-validated in the recoverable quarantine
-`/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`. H-010 is blocked; the
+`/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`. Historical H-010 wording below is superseded; the
 original damaged database is preserved for rollback, while Xcode/SourceKit
 capability and wrapper discovery are now resolved. The strict full SwiftLint
-policy still exits 2 with 1,330 serious findings across 628 files. Merged-main hosted CI is observed and passing
+policy later reached zero violations in the final run. Merged-main hosted CI is observed and passing
 under `EV-REPO-HYGIENE-MAIN-CI-FINAL-20260811-01`; current formatter, lock-graph
 vulnerability/SBOM, and local validator gates pass. No H-011 exists and no
 automatic transition is permitted.
@@ -68,9 +79,9 @@ automatic transition is permitted.
 Post-merge read-only ownership verification found 219 untracked Swift paths
 ending in ` 2.swift`; each is byte-identical to its tracked counterpart, with
 zero different or missing pairs and no other untracked path. They remain
-preserved and unstaged pending explicit cleanup/quarantine authority, so the
-worktree projection is correctly `dirty_expected`. This does not change the
-H-010 blocked verdict.
+preserved and unstaged pending explicit cleanup/quarantine authority. This was
+an intermediate ownership snapshot and does not override the terminal H-010
+closure above.
 
 Separate remediation authorization `ONAY: HYGIENE-REMEDIATION-01` produced
 `EV-REPO-HYGIENE-REMEDIATION-20260810-01`: the clean clone passes strict fsck,
@@ -83,8 +94,8 @@ generated-environment boundary and passing runtime/audio/helper checks.
 reachable-history secret scanning; the damaged pre-adoption `.git` remains
 preserved for rollback. `EV-REPO-HYGIENE-HOSTED-CI-FINAL-20260811-01` closes the
 hosted-CI observation for the pushed remediation commit. Xcode/SourceKit
-capability is resolved, but the strict full SwiftLint policy remains blocked by
-1,330 owned findings and H-010 remains blocked. No H-011 exists.
+capability is resolved. The 1,330-finding result and blocked wording are
+superseded by the final zero-finding local and hosted evidence. No H-011 exists.
 
 The strict BOOTSTRAP preflight and R0 governance repair are complete. Canonical machine state is in
 `AURA_RUNTIME_COMPLETION/state/current-state.json`; the ordered manifest has
@@ -422,8 +433,9 @@ zero violations in 1,066 files; strict formatter/build/full tests/fsck pass;
 and the canonical wrapper exits `0` with 21/21 bundles, 795 tests, and 70.57%
 coverage against the unchanged 70% threshold. The repository has zero
 in-repository untracked paths. The 219 byte-identical copy artifacts are
-preserved in recoverable external quarantine. Feature push is complete; no-ff
-merge/main push and exact final hosted-CI observation remain pending. Evidence:
+preserved in recoverable external quarantine. Feature push is complete; the
+later no-ff main push and final hosted-CI observation supersede the earlier
+pending wording. Evidence:
 `EV-REPO-HYGIENE-H-010-FINAL-20260812-01`. No H-011 exists.
 
 The feature was merged no-ff and pushed to `main` at
@@ -434,9 +446,9 @@ synchronized-main hosted result remains required.
 
 The final hosted run `31593417301` for synchronized main projection
 `d1e77129c607a40a209b5d1c5207cc83f38a5851` is queued with governance job
-`94103274792` and no completed steps. GitHub reports no active self-hosted
-runner. This is an external fail-closed blocker; no hosted result is inferred
-and H-010 remains blocked. Evidence:
+`94103274792` and no completed steps. GitHub reported no active self-hosted
+runner at that historical timestamp. This observation is superseded by the
+final hosted run below. Evidence:
 `EV-REPO-HYGIENE-H-010-HOSTED-BLOCKED-20260812-01`.
 
 ## H-010 terminal hosted-CI closure — 2026-08-12T13:00:00Z

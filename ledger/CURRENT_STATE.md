@@ -1,7 +1,19 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-11.
+Projection refreshed from live repository and command evidence on 2026-08-12.
+
+## Authoritative current status — 2026-08-12T14:19:57Z
+
+Repository hygiene H-010 is terminally complete. The current live repository is
+`main` / `HEAD == origin/main == b4610f0a06d3a408f76a38c9b05175ef0de82b11`.
+The hosted workflow/source evidence was executed on
+`6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`; descendants after that SHA are
+control-plane-only projection commits. H-010 state is `completed`, all H-000
+through H-010 prompts are complete, and no H-011 exists. Earlier blocked H-010
+paragraphs below are historical snapshots and do not override the machine state
+or this terminal closure. Product, beta, signing, release, deployment, live,
+ADR-034/044, and FINAL gates remain separate.
 
 ## Canonical State Notice — 2026-08-09
 
@@ -19,27 +31,28 @@ validator remain the only release evidence; CI artifact retention is configured
 but unobserved. This legacy projection is retained for historical compatibility;
 the machine-readable state remains authoritative.
 
-## Latest Verification Snapshot — 2026-08-10
+## Historical verification snapshots
 
-## Repository Hygiene Refresh — 2026-08-11
+### Repository Hygiene Refresh — 2026-08-11 (superseded)
 
-The canonical hygiene state remains `H-010` / `blocked` at
+The superseded 2026-08-11 hygiene snapshot recorded `H-010` / `blocked` at
 `HEAD == origin/main == 63f1e67bf1457e53d07cf282d8b4af1bcc33cba5`. User-controlled
 Xcode 27.0 beta 5 provisioning succeeded; `xcodebuild`, SourceKit, strict
 formatter/build, and the default 21-bundle/794-test/70.18% wrapper gate pass.
 The wrapper now discovers the full-Xcode `MacOSX.platform` Testing runtime.
 Full SwiftLint executes with SourceKit but exits 2 with 1,330 serious findings
-across 628 files, so H-010 remains blocked on bounded source/test lint
+across 628 files, so that historical snapshot remained blocked on bounded source/test lint
 remediation. No H-011 exists and no product/release completion claim follows.
 Evidence: `EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01` and
 `EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01`.
 
-### Repository hygiene program overlay
+### Repository hygiene program overlay — historical chronology
 
 The repository-hygiene audit is now encoded as the canonical plan
 `docs/operations/REPO_HYGIENE_PROGRAM.md` and the synchronized H-000–H-010
 control plane under `AURA_RUNTIME_COMPLETION/repo-hygiene/`. H-000 through
-H-009 are complete for chain-order purposes; H-010 is active and `blocked`
+H-009 were complete for chain-order purposes at that snapshot; H-010 was then
+active and `blocked`
 after the final gate preserved explicit evidence-backed limitations. H-007's explicit host-boundary scope
 measured 70.02% against the unchanged 70% line-coverage ratchet; raw all-source
 coverage remains 65.15%. The verified H-008 feature commit was pushed and
@@ -351,20 +364,21 @@ canonical machine state.
   violation), then run the full repository coverage gate. Do not commit, push,
   merge, or release without explicit authorization.
 
-### H-010 current hygiene overlay — 2026-08-12
+### H-010 current hygiene overlay — 2026-08-12 (superseded intermediate snapshot)
 
 H-010 bounded `Sources/Tests` remediation was executed under explicit user
 authority. Xcode/SourceKit, strict formatter, strict build, and full strict
 tests pass. The exact SwiftLint policy still exits 2 with 528 serious findings;
 the canonical wrapper runs all 21 bundles with zero bundle failures but exits 1
-at 66.10% coverage under the unchanged 70% threshold. H-010 remains blocked,
+at 66.10% coverage under the unchanged 70% threshold. This intermediate snapshot
+was blocked,
 the original six-file scope is preserved, and no H-011 or Git delivery action
 occurred. Evidence: `EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01`.
 
-Git delivery is synchronized: feature commit `ab83672` was pushed and merged
+Historical Git delivery snapshot: feature commit `ab83672` was pushed and merged
 to `main` at `f6958c4fe21c838f4956e3cd59d96f6e42d1de4f`, which is also
-`origin/main`. H-010 remains blocked on strict SwiftLint and coverage; no
-H-011 or new hosted-CI claim exists. Evidence:
+`origin/main`. The later final local/hosted evidence superseded its blocked
+disposition; no H-011 exists. Evidence:
 `EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01`.
 
 Post-merge read-only ownership verification found 219 untracked ` 2.swift`

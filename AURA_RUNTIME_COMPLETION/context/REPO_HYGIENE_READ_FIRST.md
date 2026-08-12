@@ -26,14 +26,14 @@ needed slice; do not paste entire ledgers into a context window.
 
 ## Separate remediation boundary — 2026-08-10
 
-`ONAY: HYGIENE-REMEDIATION-01` is a separate remediation authority, not a
-prompt transition. It permits recoverable backup/clean-clone work, source and
-configuration remediation, approved tool/scanner provisioning, and validation.
-It does not change `REPO_HYGIENE_STATE.json`: `active_prompt=H-010` and
-`active_state=blocked` remain authoritative. See
-`EV-REPO-HYGIENE-REMEDIATION-20260810-01` and
-`AURA_RUNTIME_COMPLETION/repo-hygiene/EXTERNAL_SCANNER_POLICY.md` for results
-and residual blockers.
+`ONAY: HYGIENE-REMEDIATION-01` was a separate remediation authority, not a
+prompt transition. Its recoverable backup/clean-clone work, source/configuration
+remediation, approved scanner/toolchain provisioning, and validation are
+historical evidence. The later H-010 final remediation and hosted observation
+closed the terminal hygiene gate; `REPO_HYGIENE_STATE.json` is now
+`active_prompt=H-010`, `active_state=completed`, `program_status=completed`.
+See `EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01` and the latest
+projection-reconciliation evidence. No H-011 exists.
 
 ## Context discipline
 

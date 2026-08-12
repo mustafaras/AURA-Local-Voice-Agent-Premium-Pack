@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-12T13:00:00Z",
-  "session_id": "AURA-REPO-HYGIENE-H010-HOSTED-CLOSEOUT-20260812",
-  "last_verified_commit": "6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8",
+  "updated_at": "2026-08-12T14:19:57Z",
+  "session_id": "AURA-REPO-HYGIENE-H010-PROJECTION-RECONCILIATION-20260812",
+  "last_verified_commit": "b4610f0a06d3a408f76a38c9b05175ef0de82b11",
   "active_prompt": {
     "id": "FINAL",
     "file": "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "state": "in_progress",
     "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is complete at main SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8: strict SwiftLint, formatter, build, full tests, fsck, coverage, governance, hosted CI, and development-unverified artifact upload pass for their recorded boundaries. No H-011 exists and no product/release claim follows.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is terminally complete at current main projection b4610f0a06d3a408f76a38c9b05175ef0de82b11; hosted governance/build/test evidence was executed on workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8 and later descendants contain control-plane-only projections. Strict SwiftLint, formatter, build, full tests, fsck, coverage, governance, hosted CI, and development-unverified artifact upload pass for their recorded boundaries. No H-011 exists and no product/release claim follows.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -234,13 +234,15 @@
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json",
     "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+    "AURA_RUNTIME_COMPLETION/state/current-state.json",
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "docs/operations/REPO_HYGIENE_PROGRAM.md",
     "ledger/CURRENT_STATE.md",
     "ledger/PROJECT_LEDGER.md"
   ],
   "evidence_ids": [
+    "EV-REPO-HYGIENE-H-010-PROJECTION-RECONCILIATION-20260812-01",
     "EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01",
-    "EV-REPO-HYGIENE-H-010-CLOSEOUT-20260811-01",
     "EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01",
     "EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01",
     "EV-REPO-HYGIENE-H-006-20260810-01",
@@ -495,6 +497,11 @@
       "name": "H-010 final hosted-CI governance, build, test, coverage, and artifact closure",
       "result": "passed",
       "evidence_id": "EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01"
+    },
+    {
+      "name": "H-010 terminal projection reconciliation and no-drift validation",
+      "result": "passed",
+      "evidence_id": "EV-REPO-HYGIENE-H-010-PROJECTION-RECONCILIATION-20260812-01"
     }
   ],
   "blockers": [
@@ -502,7 +509,7 @@
     "R11 remains in_progress: full-Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed-CI evidence are missing.",
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
-    "Repository hygiene H-010 is complete at main SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8: local and hosted governance/build/test/coverage/artifact gates pass for their recorded boundaries. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. The temporary hosted runner was deregistered. No H-011 exists."
+    "Repository hygiene H-010 is terminally complete at current main projection b4610f0a06d3a408f76a38c9b05175ef0de82b11. Hosted governance/build/test evidence applies to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; later descendants are control-plane-only projections. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. The temporary hosted runner was deregistered. No H-011 exists."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
@@ -538,7 +545,7 @@
     "RISK-REPO-HYGIENE-SWIFTLINT-FORMATTER-POLICY-CONFLICT",
     "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION"
   ],
-  "next_action": "Repository-hygiene H-010 is complete at main SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8. Stop at the terminal H-010 boundary; no H-011 exists. Continue only independent R11/R12/FINAL work under its own explicit authority; do not infer product, beta, signing, release, or deployment completion.",
+  "next_action": "Repository-hygiene H-010 is terminally complete at current main projection b4610f0a06d3a408f76a38c9b05175ef0de82b11. Hosted evidence applies to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; later descendants are control-plane-only projections. Stop at the terminal H-010 boundary; no H-011 exists. Continue only independent R11/R12/FINAL work under its own explicit authority; do not infer product, beta, signing, release, or deployment completion.",
   "required_first_reads": [
     "AGENTS.md",
     "README.md",
