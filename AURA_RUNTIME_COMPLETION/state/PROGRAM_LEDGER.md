@@ -1193,3 +1193,11 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Evidence:** The complete untracked inventory contains 219 Swift paths ending in ` 2.swift`; pairwise `cmp` verification found 219 byte-identical tracked counterparts, zero different pairs, and zero missing counterparts. No other untracked path and no tracked product diff was found.
 - **Disposition:** The copy artifacts are preserved and unstaged. No cleanup, move, quarantine, deletion, or Git-object mutation occurred. The canonical worktree projection remains `dirty_expected` until separately authorized disposition.
 - **Status:** H-010 remains active/blocked because strict SwiftLint is exit 2 with 528 findings and coverage is 66.10% against the unchanged 70% threshold; no H-011 exists.
+
+### 2026-08-12T11:28:10Z — REPO_HYGIENE_H010_FINAL_LOCAL_GATES
+
+- **Authorization/scope:** Explicit continuation of the active H-010 bounded `Sources/Tests` remediation. No H-011 was opened; no destructive Git repair, history rewrite, release, deploy, signing, or notarization occurred.
+- **Resolution evidence:** Feature commit `de320a05ba9195b982e887e13c2116ba3698bc8a` passes exact strict SwiftLint with 0 violations in 1,066 files; strict formatter, warnings-as-errors build, full tests, and adopted-repository fsck pass; the canonical wrapper exits 0 with 21/21 bundles, 795 tests, 0 failed bundles, and 70.57% coverage against the unchanged 70% threshold. No `disabled_rules`, new path exclusions, or coverage-threshold change was introduced.
+- **Ownership evidence:** The prior 219 byte-identical ` 2.swift` copy artifacts were moved without deletion to recoverable external quarantine `/Users/m_ras/Desktop/AURA-H010-QUARANTINE-20260812`; quarantine count is 219, aggregate SHA-256 is `b3953f95116093835b721868c72b24972ba31d315895c2cd99d0f365045afe44`, and current in-repository untracked count is 0.
+- **Delivery state:** Commit `de320a05` was pushed to `origin/repo-hygiene/h010-final-20260812`. H-010 remains active/blocked pending no-ff merge/main push and hosted-CI observation for the final delivered commit; after that evidence, state projections may be advanced. Product/release/live/ADR-034/ADR-044 gates remain independent.
+- **Evidence:** `EV-REPO-HYGIENE-H-010-FINAL-20260812-01`; focused ledger report hashes are the authoritative command evidence.

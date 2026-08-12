@@ -413,3 +413,15 @@ coverage scope was restored; no policy weakening or exclusion expansion was
 accepted. Evidence: `EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01`
 and `EV-REPO-HYGIENE-H-010-CLOSEOUT-20260812-01`. H-011 does not exist; stop
 at H-010 and do not claim global hygiene, product, or release completion.
+
+## Repository-hygiene overlay — H-010 final local gates (2026-08-12T11:28:10Z)
+
+The local H-010 blockers are resolved on feature commit
+`de320a05ba9195b982e887e13c2116ba3698bc8a`: strict SwiftLint exits `0` with
+zero violations in 1,066 files; strict formatter/build/full tests/fsck pass;
+and the canonical wrapper exits `0` with 21/21 bundles, 795 tests, and 70.57%
+coverage against the unchanged 70% threshold. The repository has zero
+in-repository untracked paths. The 219 byte-identical copy artifacts are
+preserved in recoverable external quarantine. Feature push is complete; no-ff
+merge/main push and exact final hosted-CI observation remain pending. Evidence:
+`EV-REPO-HYGIENE-H-010-FINAL-20260812-01`. No H-011 exists.
