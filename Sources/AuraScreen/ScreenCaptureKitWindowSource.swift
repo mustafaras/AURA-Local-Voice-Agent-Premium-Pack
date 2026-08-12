@@ -98,8 +98,8 @@ public actor ScreenCaptureKitWindowSource: ScreenWindowSource {
   /// window's size.
   static func absoluteSourceRect(windowFrame: CGRect, region: CaptureRegion) -> CGRect {
     CGRect(
-      x: windowFrame.origin.x + region.x * windowFrame.size.width,
-      y: windowFrame.origin.y + region.y * windowFrame.size.height,
+      x: windowFrame.origin.x + region.originX * windowFrame.size.width,
+      y: windowFrame.origin.y + region.originY * windowFrame.size.height,
       width: region.width * windowFrame.size.width,
       height: region.height * windowFrame.size.height
     )

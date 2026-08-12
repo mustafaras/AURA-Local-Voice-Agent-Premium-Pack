@@ -159,6 +159,23 @@ func networkPolicyRechecksRedirectHosts() throws {
 }
 
 @Test
+func calendarEventSnapshotPreservesBoundedCalendarData() throws {
+  let start = Date(timeIntervalSince1970: 100)
+  let range = try CalendarTimeRange(start: start, end: start.addingTimeInterval(3_600))
+  let title = ExternalContent(
+    sourceID: "calendar:event-1:title", text: "Planning", provenance: .eventContent)
+  let snapshot = CalendarEventSnapshot(
+    id: "event-1", calendarID: "calendar-1", title: title, range: range,
+    timeZoneIdentifier: "Europe/Istanbul", location: nil, recurrenceDescription: nil)
+
+  #expect(snapshot.id == "event-1")
+  #expect(snapshot.calendarID == "calendar-1")
+  #expect(snapshot.title.text == "Planning")
+  #expect(snapshot.range == range)
+  #expect(snapshot.timeZoneIdentifier == "Europe/Istanbul")
+}
+
+@Test
 func oauthPKCEBindsStateRedirectAndReadOnlyScopes() throws {
   let session = try OAuthPKCESession(
     manifest: .gmailReadFirst,

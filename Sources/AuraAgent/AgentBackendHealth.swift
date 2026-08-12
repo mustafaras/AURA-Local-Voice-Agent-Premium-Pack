@@ -173,25 +173,8 @@ public struct CLIAgentBackendHealthProbe: AgentBackendHealthProbing {
       arguments: ["--help"])
     switch helpResult {
     case .success(let result) where result.exitCode == 0:
-      let flags = expectedInterfaceFlags[backend] ?? []
-      return AgentBackendHealth(
-        backend: backend,
-        state: .degraded,
-        executablePath: path,
-        version: String(version.prefix(160)),
-        interfaceDescription: "--version and --help passed; expected typed flags: "
-          + flags.joined(separator: ", "),
-        authentication: .unverified,
-        modelAvailability: "unverified",
-        sandboxPolicy: "adapter configuration and policy grant required",
-        cancellation: "process cancellation path configured; live turn not run",
-        networkPolicy: "backend-specific policy; not exercised by health probe",
-        workingDirectoryPolicy: workspacePath.map { "allowlisted workspace: " + $0 }
-          ?? "workspace not resolved",
-        budgetPolicy: "adapter-configured timeout/output/cost/file bounds",
-        detail:
-          "local CLI version/interface verified; authentication and model availability still require onboarding evidence"
-      )
+      return readyHealth(
+        backend: backend, path: path, version: version, workspacePath: workspacePath)
     case .success(let result):
       return unavailable(
         backend: backend,
@@ -200,6 +183,32 @@ public struct CLIAgentBackendHealthProbe: AgentBackendHealthProbing {
     case .failure(let error):
       return unavailable(backend: backend, path: path, detail: error.localizedDescription)
     }
+  }
+
+  private func readyHealth(
+    backend: AgentBackendID,
+    path: String,
+    version: String,
+    workspacePath: String?
+  ) -> AgentBackendHealth {
+    let flags = expectedInterfaceFlags[backend] ?? []
+    return AgentBackendHealth(
+      backend: backend,
+      state: .degraded,
+      executablePath: path,
+      version: String(version.prefix(160)),
+      interfaceDescription: "--version and --help passed; expected typed flags: "
+        + flags.joined(separator: ", "),
+      authentication: .unverified,
+      modelAvailability: "unverified",
+      sandboxPolicy: "adapter configuration and policy grant required",
+      cancellation: "process cancellation path configured; live turn not run",
+      networkPolicy: "backend-specific policy; not exercised by health probe",
+      workingDirectoryPolicy: workspacePath.map { "allowlisted workspace: " + $0 }
+        ?? "workspace not resolved",
+      budgetPolicy: "adapter-configured timeout/output/cost/file bounds",
+      detail: "local CLI version/interface verified; authentication and model "
+        + "availability still require onboarding evidence")
   }
 
   private func unavailable(
@@ -240,7 +249,8 @@ public struct UnprobedAgentBackendHealthProbe: AgentBackendHealthProbing {
     let pathDescription = path.isEmpty ? "an empty path" : path
     let detail =
       exists
-      ? "executable is present, but version, authentication, model availability, and live cancellation have not been probed"
+      ? "executable is present, but version, authentication, model availability, "
+        + "and live cancellation have not been probed"
       : "configured executable is unavailable at " + pathDescription
     return AgentBackendHealth(
       backend: backend,

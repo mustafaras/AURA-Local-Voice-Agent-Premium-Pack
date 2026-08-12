@@ -23,6 +23,27 @@ public struct PlanStep: Sendable, Equatable {
   public var qualifiedCapabilityID: String { "\(capabilityID)@\(capabilityVersion)" }
 }
 
+/// Caller-supplied step request validated by `CapabilityPlanner` before it is
+/// materialized into an immutable `PlanStep`.
+public struct PlanStepRequest: Sendable, Equatable {
+  public let capabilityID: String
+  public let arguments: [String: String]
+  public let requiredArgumentNames: [String]
+  public let dependsOnStepIndices: [Int]
+
+  public init(
+    capabilityID: String,
+    arguments: [String: String],
+    requiredArgumentNames: [String],
+    dependsOnStepIndices: [Int]
+  ) {
+    self.capabilityID = capabilityID
+    self.arguments = arguments
+    self.requiredArgumentNames = requiredArgumentNames
+    self.dependsOnStepIndices = dependsOnStepIndices
+  }
+}
+
 /// An immutable, hash-identified sequence of `PlanStep`s.
 /// `04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`: "Plans must be
 /// immutable after confirmation. Replanning creates a new plan identity" —
@@ -149,10 +170,7 @@ public actor CapabilityPlanner {
   /// `04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`'s "plan cycle and
   /// budget rejection" test requires.
   public func buildPlan(
-    steps stepRequests: [(
-      capabilityID: String, arguments: [String: String],
-      requiredArgumentNames: [String], dependsOnStepIndices: [Int]
-    )]
+    steps stepRequests: [PlanStepRequest]
   ) async -> Result<Plan, PlanValidationFailure> {
     guard stepRequests.count <= maxStepsPerPlan else {
       return .failure(.planTooLarge(stepCount: stepRequests.count, maxSteps: maxStepsPerPlan))
@@ -189,7 +207,7 @@ public actor CapabilityPlanner {
     requiredArgumentNames: [String] = []
   ) async -> Result<Plan, PlanValidationFailure> {
     await buildPlan(steps: [
-      (
+      PlanStepRequest(
         capabilityID: capabilityID, arguments: arguments,
         requiredArgumentNames: requiredArgumentNames, dependsOnStepIndices: []
       )

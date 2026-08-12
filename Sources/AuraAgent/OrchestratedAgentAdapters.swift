@@ -30,27 +30,21 @@ public struct CodexOrchestratedAgent: OrchestratedAgentRunning {
   }
 
   public func run(
-    objective: String,
-    workingDirectory: String,
-    writable: Bool,
-    actor: ActorID,
-    sessionID: UUID,
-    correlationID: UUID,
-    causationID: UUID
+    _ request: OrchestratedAgentRunRequest
   ) async -> AsyncThrowingStream<OrchestrationAgentEvent, Error> {
-    let request = CodexRunRequest(
-      prompt: objective,
-      workingDirectory: workingDirectory,
-      sandbox: writable ? .workspaceWrite : .readOnly,
+    let backendRequest = CodexRunRequest(
+      prompt: request.objective,
+      workingDirectory: request.workingDirectory,
+      sandbox: request.writable ? .workspaceWrite : .readOnly,
       model: model,
       timeoutSeconds: timeoutSeconds
     )
     let inner = await adapter.run(
-      request: request, actor: actor, sessionID: sessionID, correlationID: correlationID,
-      causationID: causationID)
+      request: backendRequest, actor: request.actor, sessionID: request.sessionID,
+      correlationID: request.correlationID, causationID: request.causationID)
     return Self.remap(
       inner,
-      onCancel: { await self.adapter.cancel(correlationID: correlationID) },
+      onCancel: { await self.adapter.cancel(correlationID: request.correlationID) },
       { event in
         switch event {
         case .agentText(let role, let text, _):
@@ -127,27 +121,21 @@ public struct ClaudeOrchestratedAgent: OrchestratedAgentRunning {
   }
 
   public func run(
-    objective: String,
-    workingDirectory: String,
-    writable: Bool,
-    actor: ActorID,
-    sessionID: UUID,
-    correlationID: UUID,
-    causationID: UUID
+    _ request: OrchestratedAgentRunRequest
   ) async -> AsyncThrowingStream<OrchestrationAgentEvent, Error> {
-    let request = ClaudeRunRequest(
-      objective: objective,
-      workingDirectory: workingDirectory,
-      toolProfile: writable ? .workspaceWrite : .readOnly,
+    let backendRequest = ClaudeRunRequest(
+      objective: request.objective,
+      workingDirectory: request.workingDirectory,
+      toolProfile: request.writable ? .workspaceWrite : .readOnly,
       model: model,
       timeoutSeconds: timeoutSeconds
     )
     let inner = await adapter.run(
-      request: request, actor: actor, sessionID: sessionID, correlationID: correlationID,
-      causationID: causationID)
+      request: backendRequest, actor: request.actor, sessionID: request.sessionID,
+      correlationID: request.correlationID, causationID: request.causationID)
     return CodexOrchestratedAgent.remap(
       inner,
-      onCancel: { await self.adapter.cancel(correlationID: correlationID) },
+      onCancel: { await self.adapter.cancel(correlationID: request.correlationID) },
       { event in
         switch event {
         case .message(let role, let text, _):
@@ -188,27 +176,21 @@ public struct CopilotOrchestratedAgent: OrchestratedAgentRunning {
   }
 
   public func run(
-    objective: String,
-    workingDirectory: String,
-    writable: Bool,
-    actor: ActorID,
-    sessionID: UUID,
-    correlationID: UUID,
-    causationID: UUID
+    _ request: OrchestratedAgentRunRequest
   ) async -> AsyncThrowingStream<OrchestrationAgentEvent, Error> {
-    let request = CopilotRunRequest(
-      objective: objective,
-      workingDirectory: workingDirectory,
-      toolProfile: writable ? .workspaceWrite : .readOnly,
+    let backendRequest = CopilotRunRequest(
+      objective: request.objective,
+      workingDirectory: request.workingDirectory,
+      toolProfile: request.writable ? .workspaceWrite : .readOnly,
       model: model,
       timeoutSeconds: timeoutSeconds
     )
     let inner = await adapter.run(
-      request: request, actor: actor, sessionID: sessionID, correlationID: correlationID,
-      causationID: causationID)
+      request: backendRequest, actor: request.actor, sessionID: request.sessionID,
+      correlationID: request.correlationID, causationID: request.causationID)
     return CodexOrchestratedAgent.remap(
       inner,
-      onCancel: { await self.adapter.cancel(correlationID: correlationID) },
+      onCancel: { await self.adapter.cancel(correlationID: request.correlationID) },
       { event in
         switch event {
         case .message(let role, let content, _):

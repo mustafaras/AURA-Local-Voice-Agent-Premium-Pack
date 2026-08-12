@@ -30,16 +30,16 @@ public protocol VSCodeExtensionBridge: Sendable {
 
 /// File-based bridge that reads JSON state emitted by the companion extension.
 public actor VSCodeFileBridge: VSCodeExtensionBridge {
-  private let statePath: String?
-  private let authenticator: VSCodeBridgeAuthenticator?
-  private let requireAuthentication: Bool
-  private let expectedExtensionID: String?
-  private let maxPayloadBytes: Int
-  private let commandPath: String?
-  private let responsePath: String?
-  private let commandTimeoutSeconds: Double
-  private var activeNonce: String?
-  private var acceptedNonces: Set<String> = []
+  let statePath: String?
+  let authenticator: VSCodeBridgeAuthenticator?
+  let requireAuthentication: Bool
+  let expectedExtensionID: String?
+  let maxPayloadBytes: Int
+  let commandPath: String?
+  let responsePath: String?
+  let commandTimeoutSeconds: Double
+  var activeNonce: String?
+  var acceptedNonces: Set<String> = []
 
   public init(
     statePath: String?,
@@ -113,83 +113,6 @@ public actor VSCodeFileBridge: VSCodeExtensionBridge {
       detail: "authenticated extension snapshot is available")
   }
 
-  public func execute(_ command: VSCodeBridgeCommand) async throws(AuraError)
-    -> VSCodeBridgeCommandResult
-  {
-    guard requireAuthentication else {
-      throw AuraError.securityError("unauthenticated VS Code bridge cannot execute commands")
-    }
-    guard let authenticator else {
-      throw AuraError.securityError("VS Code bridge command authentication is not configured")
-    }
-    guard let extensionID = expectedExtensionID, !extensionID.isEmpty else {
-      throw AuraError.invalidConfiguration(
-        "VS Code bridge command execution requires an expected extension ID")
-    }
-    guard let commandPath, let responsePath else {
-      throw AuraError.invalidConfiguration("VS Code bridge command paths are not configured")
-    }
-    guard commandTimeoutSeconds > 0 else {
-      throw AuraError.invalidConfiguration("VS Code bridge command timeout must be positive")
-    }
-    try validate(command: command)
-
-    let requestNonce = UUID().uuidString
-    let envelope = try authenticator.makeCommandEnvelope(
-      command: command,
-      extensionID: extensionID,
-      nonce: requestNonce,
-      lifetimeSeconds: commandTimeoutSeconds)
-    let encoder = JSONEncoder()
-    encoder.dateEncodingStrategy = .iso8601
-    encoder.outputFormatting = [.sortedKeys]
-    let data: Data
-    do {
-      data = try encoder.encode(envelope)
-      guard data.count <= maxPayloadBytes else {
-        throw AuraError.securityError("VS Code bridge command exceeds configured limit")
-      }
-      try data.write(to: URL(fileURLWithPath: commandPath), options: .atomic)
-    } catch let error as AuraError {
-      throw error
-    } catch {
-      throw AuraError.vscodeError(
-        "could not write VS Code bridge command: " + error.localizedDescription)
-    }
-
-    let requestDate = Date()
-    let deadline = requestDate.addingTimeInterval(commandTimeoutSeconds)
-    let responseURL = URL(fileURLWithPath: responsePath)
-    let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
-    while Date() < deadline {
-      guard !Task.isCancelled else {
-        throw AuraError.vscodeError("VS Code bridge command was cancelled")
-      }
-      if FileManager.default.fileExists(atPath: responsePath),
-        let attributes = try? FileManager.default.attributesOfItem(atPath: responsePath),
-        let modificationDate = attributes[.modificationDate] as? Date,
-        modificationDate >= requestDate,
-        let responseData = try? Data(contentsOf: responseURL),
-        responseData.count <= maxPayloadBytes,
-        let response = try? decoder.decode(VSCodeBridgeResponseEnvelope.self, from: responseData)
-      {
-        try authenticator.validate(
-          response,
-          expectedExtensionID: extensionID,
-          expectedRequestNonce: requestNonce)
-        try accept(nonce: response.payload.nonce)
-        return response.payload.result
-      }
-      do {
-        try await Task.sleep(for: .milliseconds(25))
-      } catch {
-        throw AuraError.vscodeError("VS Code bridge command was cancelled")
-      }
-    }
-    throw AuraError.vscodeError("VS Code bridge command response timed out")
-  }
-
   private func snapshot(maxStalenessSeconds: Double) throws -> VSCodeBridgeSnapshot {
     guard let path = statePath else {
       throw AuraError.invalidConfiguration("extension bridge state path is nil")
@@ -222,7 +145,7 @@ public actor VSCodeFileBridge: VSCodeExtensionBridge {
     return try decoder.decode(VSCodeBridgeSnapshot.self, from: data)
   }
 
-  private func validate(command: VSCodeBridgeCommand) throws(AuraError) {
+  func validate(command: VSCodeBridgeCommand) throws(AuraError) {
     switch command.kind {
     case .runTask:
       guard let name = command.name, !name.isEmpty else {
@@ -241,7 +164,7 @@ public actor VSCodeFileBridge: VSCodeExtensionBridge {
     }
   }
 
-  private func accept(nonce: String) throws(AuraError) {
+  func accept(nonce: String) throws(AuraError) {
     if activeNonce == nonce {
       return
     }
@@ -254,6 +177,22 @@ public actor VSCodeFileBridge: VSCodeExtensionBridge {
       acceptedNonces.remove(oldest)
     }
   }
+}
+
+struct BridgeExecutionContext: Sendable {
+  let authenticator: VSCodeBridgeAuthenticator
+  let extensionID: String
+  let commandPath: String
+  let responsePath: String
+  let timeoutSeconds: Double
+}
+
+struct BridgeResponseContext: Sendable {
+  let responsePath: String
+  let extensionID: String
+  let requestNonce: String
+  let timeoutSeconds: Double
+  let authenticator: VSCodeBridgeAuthenticator
 }
 
 /// Static bridge for tests or headless fallback.

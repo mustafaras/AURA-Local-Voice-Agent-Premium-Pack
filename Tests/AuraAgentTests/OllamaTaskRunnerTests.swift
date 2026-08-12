@@ -62,8 +62,7 @@ func ollamaTaskRunnerHappyPathReasoningCompletesTaskViaEngine() async throws {
 
   let runner = OllamaTaskRunner(adapter: adapter, sessionID: UUID(), defaultCapability: .reasoning)
   let capture = OllamaTaskCapture()
-  await bus.subscribe(TaskCompletedEvent.self) {
-    (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
 
@@ -94,8 +93,7 @@ func ollamaTaskRunnerClassificationUsesLabelsFromContext() async throws {
 
   let runner = OllamaTaskRunner(adapter: adapter, sessionID: UUID())
   let capture = OllamaTaskCapture()
-  await bus.subscribe(TaskCompletedEvent.self) {
-    (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
 
@@ -126,8 +124,7 @@ func ollamaTaskRunnerClassificationWithoutLabelsFailsTask() async throws {
 
   let runner = OllamaTaskRunner(adapter: adapter, sessionID: UUID())
   let capture = OllamaTaskCapture()
-  await bus.subscribe(TaskCompletedEvent.self) {
-    (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
 
@@ -155,8 +152,7 @@ func ollamaTaskRunnerFailsTaskWhenOllamaUnavailableAndNoFallback() async throws 
 
   let runner = OllamaTaskRunner(adapter: adapter, sessionID: UUID(), defaultCapability: .reasoning)
   let capture = OllamaTaskCapture()
-  await bus.subscribe(TaskCompletedEvent.self) {
-    (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
 

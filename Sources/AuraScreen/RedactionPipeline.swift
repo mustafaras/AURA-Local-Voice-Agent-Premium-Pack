@@ -56,7 +56,7 @@ public struct RedactionPipeline: Sendable {
     for region in userDefinedRegions {
       matches.append(
         RedactionMatch(
-          category: .userDefinedRegion, boundingBoxX: region.x, boundingBoxY: region.y,
+          category: .userDefinedRegion, boundingBoxX: region.originX, boundingBoxY: region.originY,
           boundingBoxWidth: region.width, boundingBoxHeight: region.height,
           patternDescription: "user-defined region"))
     }

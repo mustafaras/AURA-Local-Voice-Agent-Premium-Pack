@@ -74,6 +74,12 @@ public struct Command: Codable, Sendable, Equatable {
 
   /// Validate the command against configuration and safety rules.
   public func validate(configuration: ShellConfiguration) throws(AuraError) {
+    try validateCommandShape()
+    try validateCommandLimits(configuration: configuration)
+    try validateCommandAllowlist(configuration: configuration)
+  }
+
+  private func validateCommandShape() throws(AuraError) {
     guard !executable.isEmpty else {
       throw AuraError.shellError("executable must not be empty")
     }
@@ -83,18 +89,25 @@ public struct Command: Codable, Sendable, Equatable {
     guard !executable.contains(";") else {
       throw AuraError.shellError("executable path may not contain shell metacharacters")
     }
+    guard !arguments.contains(where: { $0.contains(";") || $0.contains("|") || $0.contains("&&") })
+    else {
+      throw AuraError.shellError("arguments may not contain shell metacharacters")
+    }
+  }
+
+  private func validateCommandLimits(configuration: ShellConfiguration) throws(AuraError) {
     guard timeoutSeconds > 0 else {
       throw AuraError.shellError("timeoutSeconds must be positive")
     }
     guard timeoutSeconds <= configuration.defaultTimeoutSeconds * 4 else {
       throw AuraError.shellError(
-        "timeoutSeconds \(timeoutSeconds) exceeds maximum allowed \(configuration.defaultTimeoutSeconds * 4)"
+        "timeoutSeconds \(timeoutSeconds) exceeds maximum allowed "
+          + "\(configuration.defaultTimeoutSeconds * 4)"
       )
     }
-    guard !arguments.contains(where: { $0.contains(";") || $0.contains("|") || $0.contains("&&") })
-    else {
-      throw AuraError.shellError("arguments may not contain shell metacharacters")
-    }
+  }
+
+  private func validateCommandAllowlist(configuration: ShellConfiguration) throws(AuraError) {
     let disallowedEnvKeys = Set(environment.keys).subtracting(configuration.allowedEnvironmentKeys)
     guard disallowedEnvKeys.isEmpty else {
       throw AuraError.shellError(

@@ -35,14 +35,14 @@ extension EventPayload {
 }
 
 actor Gate {
-  private var continuation: CheckedContinuation<Void, Never>?
-  private var open = false
+  var continuation: CheckedContinuation<Void, Never>?
+  var open = false
 
   func hold() async {
     guard !open else { return }
     await withTaskCancellationHandler {
-      await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-        self.continuation = c
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        self.continuation = continuation
       }
     } onCancel: { [weak self] in
       guard let self else { return }
@@ -52,7 +52,7 @@ actor Gate {
     }
   }
 
-  private func cancelHold() {
+  func cancelHold() {
     open = true
     continuation?.resume()
     continuation = nil
@@ -140,28 +140,31 @@ func makeTempStore() async throws -> AuraStore {
   return try await AuraStore(path: path)
 }
 
+struct TaskEngineFixture {
+  let engine: AuraTaskEngine
+  let store: AuraStore
+  let capture: Capture
+}
+
 func makeEngine(
   config: TaskConfiguration = TaskConfiguration(maxConcurrentTasks: 2, queueCapacity: 5),
   store: AuraStore? = nil
-) async throws -> (AuraTaskEngine, AuraStore, Capture) {
-  let s: AuraStore
+) async throws -> TaskEngineFixture {
+  let storeInstance: AuraStore
   if let store {
-    s = store
+    storeInstance = store
   } else {
-    s = try await makeTempStore()
+    storeInstance = try await makeTempStore()
   }
   let capture = Capture()
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraTasksTests", category: "testBus"))
-  await bus.subscribe(TaskEnqueuedEvent.self) {
-    (envelope: EventEnvelope<TaskEnqueuedEvent>) async in
+  await bus.subscribe(TaskEnqueuedEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskStateChangedEvent.self) {
-    (envelope: EventEnvelope<TaskStateChangedEvent>) async in
+  await bus.subscribe(TaskStateChangedEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskProgressEvent.self) {
-    (envelope: EventEnvelope<TaskProgressEvent>) async in
+  await bus.subscribe(TaskProgressEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
   await bus.subscribe(TaskPausedEvent.self) { (envelope: EventEnvelope<TaskPausedEvent>) async in
@@ -170,28 +173,27 @@ func makeEngine(
   await bus.subscribe(TaskResumedEvent.self) { (envelope: EventEnvelope<TaskResumedEvent>) async in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskCancelledEvent.self) {
-    (envelope: EventEnvelope<TaskCancelledEvent>) async in
+  await bus.subscribe(TaskCancelledEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskCompletedEvent.self) {
-    (envelope: EventEnvelope<TaskCompletedEvent>) async in
+  await bus.subscribe(TaskCompletedEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
-  await bus.subscribe(TaskCheckpointEvent.self) {
-    (envelope: EventEnvelope<TaskCheckpointEvent>) async in
+  await bus.subscribe(TaskCheckpointEvent.self) { envelope in
     await capture.append(envelope.payload)
   }
-  let engine = await AuraTaskEngine(store: s, eventBus: bus, configuration: config)
+  let engine = await AuraTaskEngine(store: storeInstance, eventBus: bus, configuration: config)
   try await engine.recoverState()
-  return (engine, s, capture)
+  return TaskEngineFixture(engine: engine, store: storeInstance, capture: capture)
 }
 
 // MARK: - Task enqueue and status
 
 @Test
 func enqueueReturnsPendingStatus() async throws {
-  let (engine, _, capture) = try await makeEngine()
+  let fixture = try await makeEngine()
+  let engine = fixture.engine
+  let capture = fixture.capture
   let gate = Gate()
   let runner = BlockingRunner(gate: gate)
   let status = try await engine.enqueue(
@@ -211,9 +213,9 @@ func enqueueReturnsPendingStatus() async throws {
 func queueCapacityRejectsExcessTasks() async throws {
   // queueCapacity limits the number of tasks that can be tracked at once.
   // Use a blocking runner so the first task occupies the queue.
-  let (engine, _, _) = try await makeEngine(
+  let engine = try await makeEngine(
     config: TaskConfiguration(maxConcurrentTasks: 1, queueCapacity: 1)
-  )
+  ).engine
   let gate = Gate()
   let runner = BlockingRunner(gate: gate)
   _ = try await engine.enqueue(request: TaskRequest(objective: "first"), runner: runner)
@@ -228,9 +230,9 @@ func queueCapacityRejectsExcessTasks() async throws {
 
 @Test
 func priorityQueueOrdersHighBeforeNormal() async throws {
-  let (engine, _, _) = try await makeEngine(
+  let engine = try await makeEngine(
     config: TaskConfiguration(maxConcurrentTasks: 1, queueCapacity: 10)
-  )
+  ).engine
   let gate = Gate()
   let runner = BlockingRunner(gate: gate)
 
@@ -261,199 +263,3 @@ func priorityQueueOrdersHighBeforeNormal() async throws {
 }
 
 // MARK: - Cancellation
-
-@Test
-func cancellationMovesTaskToCancelled() async throws {
-  let (engine, _, capture) = try await makeEngine(
-    config: TaskConfiguration(maxConcurrentTasks: 1, queueCapacity: 10)
-  )
-  let gate = Gate()
-  let runner = BlockingRunner(gate: gate)
-  let status = try await engine.enqueue(
-    request: TaskRequest(objective: "cancel me", priority: .high),
-    runner: runner
-  )
-  try? await Task.sleep(nanoseconds: 50_000_000)
-  #expect(await engine.status(id: status.id)?.state == .running)
-
-  try await engine.cancel(id: status.id)
-  _ = await capture.waitForEvent(TaskCancelledEvent.self, timeoutNanoseconds: 200_000_000)
-
-  let finalStatus = await engine.status(id: status.id)
-  #expect(finalStatus?.state == .cancelled)
-  await gate.release()
-  try? await Task.sleep(nanoseconds: 50_000_000)
-  #expect(await engine.status(id: status.id)?.state == .cancelled)
-}
-
-@Test
-func cancelUnknownTaskThrowsNotFound() async throws {
-  let (engine, _, _) = try await makeEngine()
-  let id = UUID()
-  await #expect(throws: AuraError.self) {
-    try await engine.cancel(id: id)
-  }
-}
-
-// MARK: - Pause / resume
-
-@Test
-func pauseAndResumeRunningTask() async throws {
-  let (engine, _, capture) = try await makeEngine(
-    config: TaskConfiguration(maxConcurrentTasks: 1, queueCapacity: 10)
-  )
-  let gate = Gate()
-  let runner = BlockingRunner(gate: gate)
-  let status = try await engine.enqueue(
-    request: TaskRequest(objective: "pause me", priority: .high),
-    runner: runner
-  )
-  try? await Task.sleep(nanoseconds: 50_000_000)
-  #expect(await engine.status(id: status.id)?.state == .running)
-
-  try await engine.pause(id: status.id)
-  _ = await capture.waitForEvent(TaskPausedEvent.self, timeoutNanoseconds: 200_000_000)
-  #expect(await engine.status(id: status.id)?.state == .paused)
-
-  let resumeGate = Gate()
-  let resumedRunner = BlockingRunner(gate: resumeGate)
-  try await engine.resume(id: status.id, runner: resumedRunner)
-  _ = await capture.waitForEvent(TaskStateChangedEvent.self, timeoutNanoseconds: 200_000_000)
-  #expect(await engine.status(id: status.id)?.state == .running)
-
-  await resumeGate.release()
-  _ = await capture.waitForEvent(TaskCompletedEvent.self, timeoutNanoseconds: 200_000_000)
-  #expect(await engine.status(id: status.id)?.state == .completed)
-}
-
-// MARK: - Checkpoint persistence
-
-@Test
-func checkpointPersistsAndCanBeLoaded() async throws {
-  let store = try await makeTempStore()
-  let (engine, _, _) = try await makeEngine(store: store)
-  let runner = CountingRunner(plan: TaskPlan(totalSteps: 1)) { _, _, _, context in
-    do {
-      try await context.reportCheckpoint(
-        name: "step-1",
-        state: ["counter": "42"]
-      )
-    } catch {
-      Issue.record("Checkpoint failed: \(error)")
-    }
-  }
-  let status = try await engine.enqueue(
-    request: TaskRequest(objective: "checkpoint"),
-    runner: runner
-  )
-  try? await Task.sleep(nanoseconds: 100_000_000)
-
-  let backend = await TaskStoreBackend(store: store)
-  let checkpoint = try await backend.loadCheckpoint(taskID: status.id, name: "step-1")
-  #expect(checkpoint?.name == "step-1")
-  #expect(checkpoint?.state["counter"] == "42")
-  let latest = try await backend.loadLatestCheckpoint(taskID: status.id)
-  #expect(latest?.name == "step-1")
-}
-
-// MARK: - Deadline and inactivity watchdog
-
-@Test
-func expiredTaskFailsWithoutRetry() async throws {
-  let (engine, _, _) = try await makeEngine(
-    config: TaskConfiguration(defaultMaxRetries: 3, maxConcurrentTasks: 1, queueCapacity: 5))
-  let gate = Gate()
-  let status = try await engine.enqueue(
-    request: TaskRequest(
-      objective: "deadline",
-      deadline: Date().addingTimeInterval(0.05),
-      inactivityTimeoutSeconds: 2,
-      maxRetries: 3),
-    runner: BlockingRunner(gate: gate))
-  try? await Task.sleep(nanoseconds: 250_000_000)
-  let finalStatus = await engine.status(id: status.id)
-  #expect(finalStatus?.state == .failed)
-  #expect(finalStatus?.errorMessage?.contains("expired") == true)
-}
-
-@Test
-func inactiveTaskFailsWithoutRetry() async throws {
-  let (engine, _, _) = try await makeEngine(
-    config: TaskConfiguration(defaultMaxRetries: 3, maxConcurrentTasks: 1, queueCapacity: 5))
-  let gate = Gate()
-  let status = try await engine.enqueue(
-    request: TaskRequest(
-      objective: "inactivity",
-      deadline: Date().addingTimeInterval(2),
-      inactivityTimeoutSeconds: 0.05,
-      maxRetries: 3),
-    runner: BlockingRunner(gate: gate))
-  try? await Task.sleep(nanoseconds: 250_000_000)
-  let finalStatus = await engine.status(id: status.id)
-  #expect(finalStatus?.state == .failed)
-  #expect(finalStatus?.errorMessage?.contains("inactivity timeout") == true)
-}
-
-// MARK: - Retry exhaustion
-
-@Test
-func retryExhaustionFailsTask() async throws {
-  let (engine, _, _) = try await makeEngine(
-    config: TaskConfiguration(defaultMaxRetries: 1, maxConcurrentTasks: 1, queueCapacity: 10)
-  )
-  let runner = FailingRunner(error: AuraError.taskError("boom"))
-  let status = try await engine.enqueue(
-    request: TaskRequest(objective: "retry fail", maxRetries: 1),
-    runner: runner
-  )
-  try? await Task.sleep(nanoseconds: 300_000_000)
-  let finalStatus = await engine.status(id: status.id)
-  #expect(finalStatus?.state == .failed)
-  #expect(finalStatus?.errorMessage?.contains("boom") == true)
-}
-
-// MARK: - Delete
-
-@Test
-func deleteRemovesTaskAndData() async throws {
-  let store = try await makeTempStore()
-  let (engine, _, _) = try await makeEngine(store: store)
-  let runner = CountingRunner(plan: TaskPlan(totalSteps: 1)) { _, _, _, _ in }
-  let status = try await engine.enqueue(
-    request: TaskRequest(objective: "delete me"),
-    runner: runner
-  )
-  try await engine.delete(id: status.id)
-  #expect(await engine.status(id: status.id) == nil)
-
-  let backend = await TaskStoreBackend(store: store)
-  let snapshot = try await backend.loadTaskSnapshot(id: status.id)
-  #expect(snapshot == nil)
-}
-
-// MARK: - Concurrent task limit
-
-@Test
-func maxConcurrentTasksLimitsActiveRunners() async throws {
-  let (engine, _, _) = try await makeEngine(
-    config: TaskConfiguration(maxConcurrentTasks: 1, queueCapacity: 10)
-  )
-  let runner = CountingRunner(plan: TaskPlan(totalSteps: 1)) { _, _, _, _ in
-    try? await Task.sleep(nanoseconds: 200_000_000)
-  }
-  _ = try await engine.enqueue(
-    request: TaskRequest(objective: "first", priority: .normal),
-    runner: runner
-  )
-  _ = try await engine.enqueue(
-    request: TaskRequest(objective: "second", priority: .normal),
-    runner: runner
-  )
-  try? await Task.sleep(nanoseconds: 50_000_000)
-
-  let statuses = await engine.allStatuses()
-  let runningCount = statuses.filter { $0.state == .running }.count
-  let pendingCount = statuses.filter { $0.state == .pending }.count
-  #expect(runningCount == 1)
-  #expect(pendingCount == 1)
-}

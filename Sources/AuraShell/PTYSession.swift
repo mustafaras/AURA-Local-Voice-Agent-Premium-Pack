@@ -19,7 +19,7 @@ public actor PTYSession {
   public let environment: [String: String]
 
   private var process: Process?
-  private var masterFileHandle: FileHandle?
+  private var primaryFileHandle: FileHandle?
   private(set) public var state: State = .idle
   private var outputBuffer: [String] = []
 
@@ -34,7 +34,7 @@ public actor PTYSession {
     self.environment = environment
   }
 
-  /// Start the PTY session and return the master file handle.
+  /// Start the PTY session and return the primary file handle.
   public func start() async throws(AuraError) {
     guard state == .idle else {
       throw AuraError.shellError("PTY session \(sessionID) is not idle")
@@ -48,37 +48,37 @@ public actor PTYSession {
     }
     process.environment = environment.isEmpty ? ProcessInfo.processInfo.environment : environment
 
-    let (master, slave) = createPseudoTerminalPair()
-    process.standardInput = slave
-    process.standardOutput = slave
-    process.standardError = slave
-    slave.closeFile()
+    let (primary, secondary) = createPseudoTerminalPair()
+    process.standardInput = secondary
+    process.standardOutput = secondary
+    process.standardError = secondary
+    secondary.closeFile()
 
     do {
       try process.run()
     } catch {
-      master.closeFile()
+      primary.closeFile()
       throw AuraError.shellError("PTY launch failed: \(error.localizedDescription)")
     }
 
     self.process = process
-    self.masterFileHandle = master
+    self.primaryFileHandle = primary
     self.state = .running
 
     Task {
-      await drainOutput(master: master)
+      await drainOutput(primary: primary)
     }
   }
 
-  /// Write a line of input to the PTY master.
+  /// Write a line of input to the PTY primary endpoint.
   public func send(line: String) throws(AuraError) {
-    guard state == .running, let master = masterFileHandle else {
+    guard state == .running, let primary = primaryFileHandle else {
       throw AuraError.shellError("PTY session \(sessionID) is not running")
     }
     guard let data = (line + "\n").data(using: .utf8) else {
       throw AuraError.shellError("could not encode PTY input")
     }
-    master.write(data)
+    primary.write(data)
   }
 
   /// Read currently buffered output lines and clear the buffer.
@@ -91,12 +91,12 @@ public actor PTYSession {
   /// Terminate the PTY session.
   public func terminate() async {
     process?.terminate()
-    masterFileHandle?.closeFile()
+    primaryFileHandle?.closeFile()
     state = .terminated
   }
 
-  private func drainOutput(master: FileHandle) async {
-    master.readabilityHandler = { [weak self] handle in
+  private func drainOutput(primary: FileHandle) async {
+    primary.readabilityHandler = { [weak self] handle in
       let data = handle.availableData
       guard let text = String(data: data, encoding: .utf8) else { return }
       Task { [weak self] in
@@ -110,12 +110,12 @@ public actor PTYSession {
   }
 }
 
-private func createPseudoTerminalPair() -> (master: FileHandle, slave: FileHandle) {
-  var masterFD: Int32 = 0
-  var slaveFD: Int32 = 0
+private func createPseudoTerminalPair() -> (primary: FileHandle, secondary: FileHandle) {
+  var primaryFD: Int32 = 0
+  var secondaryFD: Int32 = 0
   let result = openpty(
-    &masterFD,
-    &slaveFD,
+    &primaryFD,
+    &secondaryFD,
     nil,
     nil,
     nil
@@ -124,7 +124,7 @@ private func createPseudoTerminalPair() -> (master: FileHandle, slave: FileHandl
     fatalError("openpty failed with errno \(errno)")
   }
   return (
-    FileHandle(fileDescriptor: masterFD, closeOnDealloc: true),
-    FileHandle(fileDescriptor: slaveFD, closeOnDealloc: true)
+    FileHandle(fileDescriptor: primaryFD, closeOnDealloc: true),
+    FileHandle(fileDescriptor: secondaryFD, closeOnDealloc: true)
   )
 }

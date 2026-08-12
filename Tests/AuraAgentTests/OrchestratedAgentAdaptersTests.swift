@@ -56,7 +56,7 @@ private actor FakeOrchestratedProcessExecutor: AdapterProcessExecuting {
   }
 }
 
-private func loadFixtureLines(_ name: String) throws -> [String] {
+private func orchLoadFixtureLines(_ name: String) throws -> [String] {
   let url = URL(fileURLWithPath: #filePath)
     .deletingLastPathComponent()
     .appendingPathComponent("Fixtures")
@@ -65,13 +65,13 @@ private func loadFixtureLines(_ name: String) throws -> [String] {
   return contents.split(separator: "\n").map(String.init)
 }
 
-private func makeTempStore() async throws -> AuraStore {
+private func orchMakeTempStore() async throws -> AuraStore {
   let path = NSTemporaryDirectory().appending(UUID().uuidString).appending(".db")
   return try await AuraStore(path: path)
 }
 
-private func makeAllowingPolicyEngine(eventBus: AuraEventBus) async throws -> PolicyEngine {
-  let store = try await makeTempStore()
+private func orchMakeAllowingPolicyEngine(eventBus: AuraEventBus) async throws -> PolicyEngine {
+  let store = try await orchMakeTempStore()
   return try await PolicyEngine(
     configuration: PolicyConfiguration(
       defaultConfirmationTier: .destructive,
@@ -96,18 +96,19 @@ private func drain(
 @Test
 func codexOrchestratedAgentMapsRealSuccessFixtureToTextAndCompletion() async throws {
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchCodex"))
-  let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
+  let policyEngine = try await orchMakeAllowingPolicyEngine(eventBus: bus)
   let executor = FakeOrchestratedProcessExecutor(
-    lines: try loadFixtureLines("codex_smoke_success.jsonl"))
+    lines: try orchLoadFixtureLines("codex_smoke_success.jsonl"))
   let adapter = CodexAdapter(
     configuration: CodexConfiguration(), policyEngine: policyEngine, processExecutor: executor,
     eventBus: bus)
   let orchestrated = CodexOrchestratedAgent(adapter: adapter)
 
   let stream = await orchestrated.run(
-    objective: "reply ping", workingDirectory: orchestratedAgentAllowedWorkingDirectory,
-    writable: false, actor: .agentCodex, sessionID: UUID(), correlationID: UUID(),
-    causationID: UUID())
+    OrchestratedAgentRunRequest(
+      objective: "reply ping", workingDirectory: orchestratedAgentAllowedWorkingDirectory,
+      writable: false, actor: .agentCodex, sessionID: UUID(), correlationID: UUID(),
+      causationID: UUID()))
   let events = try await drain(stream)
 
   #expect(events.contains(.text(role: "agent_message", content: "ping")))
@@ -129,7 +130,7 @@ func codexOrchestratedAgentMapsDenialToApprovalDenied() async throws {
       allowByDefaultTiers: [.observation, .reversible],
       denyByDefaultTiers: [.mutation, .destructive]
     ),
-    eventBus: bus, store: try await makeTempStore())
+    eventBus: bus, store: try await orchMakeTempStore())
   let executor = FakeOrchestratedProcessExecutor(lines: [])
   let adapter = CodexAdapter(
     configuration: CodexConfiguration(), policyEngine: policyEngine, processExecutor: executor,
@@ -138,8 +139,10 @@ func codexOrchestratedAgentMapsDenialToApprovalDenied() async throws {
 
   // writable: true -> .agentCodexRun (.destructive), denied by this policy.
   let stream = await orchestrated.run(
-    objective: "do it", workingDirectory: orchestratedAgentAllowedWorkingDirectory, writable: true,
-    actor: .agentCodex, sessionID: UUID(), correlationID: UUID(), causationID: UUID())
+    OrchestratedAgentRunRequest(
+      objective: "do it", workingDirectory: orchestratedAgentAllowedWorkingDirectory,
+      writable: true,
+      actor: .agentCodex, sessionID: UUID(), correlationID: UUID(), causationID: UUID()))
   let events = try await drain(stream)
 
   #expect(events.count == 1)
@@ -155,18 +158,19 @@ func codexOrchestratedAgentMapsDenialToApprovalDenied() async throws {
 @Test
 func claudeOrchestratedAgentMapsRealSuccessFixtureToTextAndCompletion() async throws {
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchClaude"))
-  let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
+  let policyEngine = try await orchMakeAllowingPolicyEngine(eventBus: bus)
   let executor = FakeOrchestratedProcessExecutor(
-    lines: try loadFixtureLines("claude_smoke_success.jsonl"))
+    lines: try orchLoadFixtureLines("claude_smoke_success.jsonl"))
   let adapter = ClaudeAdapter(
     configuration: ClaudeConfiguration(), policyEngine: policyEngine, processExecutor: executor,
     eventBus: bus)
   let orchestrated = ClaudeOrchestratedAgent(adapter: adapter)
 
   let stream = await orchestrated.run(
-    objective: "reply ping", workingDirectory: orchestratedAgentAllowedWorkingDirectory,
-    writable: false, actor: .agentClaude, sessionID: UUID(), correlationID: UUID(),
-    causationID: UUID())
+    OrchestratedAgentRunRequest(
+      objective: "reply ping", workingDirectory: orchestratedAgentAllowedWorkingDirectory,
+      writable: false, actor: .agentClaude, sessionID: UUID(), correlationID: UUID(),
+      causationID: UUID()))
   let events = try await drain(stream)
 
   #expect(events.contains(.text(role: "assistant", content: "ping")))
@@ -178,18 +182,19 @@ func claudeOrchestratedAgentMapsRealSuccessFixtureToTextAndCompletion() async th
 @Test
 func copilotOrchestratedAgentMapsQuotaErrorFixtureToTurnFailed() async throws {
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchCopilot"))
-  let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
+  let policyEngine = try await orchMakeAllowingPolicyEngine(eventBus: bus)
   let executor = FakeOrchestratedProcessExecutor(
-    lines: try loadFixtureLines("copilot_smoke_quota_error.jsonl"))
+    lines: try orchLoadFixtureLines("copilot_smoke_quota_error.jsonl"))
   let adapter = CopilotAdapter(
     configuration: CopilotConfiguration(), policyEngine: policyEngine, processExecutor: executor,
     eventBus: bus)
   let orchestrated = CopilotOrchestratedAgent(adapter: adapter)
 
   let stream = await orchestrated.run(
-    objective: "reply ping", workingDirectory: orchestratedAgentAllowedWorkingDirectory,
-    writable: false, actor: .agentCopilot, sessionID: UUID(), correlationID: UUID(),
-    causationID: UUID())
+    OrchestratedAgentRunRequest(
+      objective: "reply ping", workingDirectory: orchestratedAgentAllowedWorkingDirectory,
+      writable: false, actor: .agentCopilot, sessionID: UUID(), correlationID: UUID(),
+      causationID: UUID()))
   let events = try await drain(stream)
 
   #expect(events.contains { if case .turnFailed = $0 { return true } else { return false } })
@@ -204,9 +209,10 @@ func copilotOrchestratedAgentMapsConfirmedUserMessageShapeToText() async throws 
   // `CopilotEventNormalizer`), not a fabricated one.
   let bus = AuraEventBus(
     logger: AuraLogger(subsystem: "AuraAgentTests", category: "orchCopilotMessage"))
-  let policyEngine = try await makeAllowingPolicyEngine(eventBus: bus)
+  let policyEngine = try await orchMakeAllowingPolicyEngine(eventBus: bus)
   let userMessageLine =
-    #"{"type":"user.message","id":"1","parentId":null,"timestamp":"2026-01-01T00:00:00Z","data":{"content":"reply ping"}}"#
+    #"{"type":"user.message","id":"1","parentId":null,"timestamp":"2026-01-01T00:00:00Z","#
+    + #""data":{"content":"reply ping"}}"#
   let executor = FakeOrchestratedProcessExecutor(lines: [userMessageLine])
   let adapter = CopilotAdapter(
     configuration: CopilotConfiguration(), policyEngine: policyEngine, processExecutor: executor,
@@ -214,9 +220,10 @@ func copilotOrchestratedAgentMapsConfirmedUserMessageShapeToText() async throws 
   let orchestrated = CopilotOrchestratedAgent(adapter: adapter)
 
   let stream = await orchestrated.run(
-    objective: "reply ping", workingDirectory: orchestratedAgentAllowedWorkingDirectory,
-    writable: false, actor: .agentCopilot, sessionID: UUID(), correlationID: UUID(),
-    causationID: UUID())
+    OrchestratedAgentRunRequest(
+      objective: "reply ping", workingDirectory: orchestratedAgentAllowedWorkingDirectory,
+      writable: false, actor: .agentCopilot, sessionID: UUID(), correlationID: UUID(),
+      causationID: UUID()))
   let events = try await drain(stream)
 
   #expect(events.contains(.text(role: "user", content: "reply ping")))

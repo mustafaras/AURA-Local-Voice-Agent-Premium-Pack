@@ -4,12 +4,14 @@ import Foundation
 import Testing
 
 private func region(
-  _ text: String, x: Double = 0.1, y: Double = 0.1, w: Double = 0.3, h: Double = 0.05
+  _ text: String, originX: Double = 0.1, originY: Double = 0.1,
+  regionWidth: Double = 0.3, regionHeight: Double = 0.05
 )
   -> RecognizedTextRegion
 {
   RecognizedTextRegion(
-    text: text, boundingBoxX: x, boundingBoxY: y, boundingBoxWidth: w, boundingBoxHeight: h)
+    text: text, boundingBoxX: originX, boundingBoxY: originY,
+    boundingBoxWidth: regionWidth, boundingBoxHeight: regionHeight)
 }
 
 // MARK: - Built-in categories (always active, independent of configured patterns)
@@ -86,7 +88,7 @@ func doesNotRedactWhenNoConfiguredPatternMatches() {
 @Test
 func userDefinedRegionsAlwaysRedactedRegardlessOfContent() {
   let pipeline = RedactionPipeline()
-  let userRegion = UserDefinedRedactionRegion(x: 0.0, y: 0.0, width: 0.2, height: 0.2)
+  let userRegion = UserDefinedRedactionRegion(originX: 0.0, originY: 0.0, width: 0.2, height: 0.2)
   let matches = pipeline.redactions(
     recognizedText: [], isSecureFieldFocused: false, userDefinedRegions: [userRegion],
     configuredPatterns: [])
@@ -100,7 +102,7 @@ func userDefinedRegionsAlwaysRedactedRegardlessOfContent() {
 @Test
 func secureFieldFocusedMasksEntireFrameAndSuppressesOtherMatches() {
   let pipeline = RedactionPipeline()
-  let userRegion = UserDefinedRedactionRegion(x: 0.0, y: 0.0, width: 0.2, height: 0.2)
+  let userRegion = UserDefinedRedactionRegion(originX: 0.0, originY: 0.0, width: 0.2, height: 0.2)
   let matches = pipeline.redactions(
     recognizedText: [region("Card number: 4111 1111 1111 1111")], isSecureFieldFocused: true,
     userDefinedRegions: [userRegion], configuredPatterns: [])
@@ -142,11 +144,18 @@ func multipleRegionsProduceIndependentMatchesAtTheirOwnBoundingBoxes() {
   let pipeline = RedactionPipeline()
   let matches = pipeline.redactions(
     recognizedText: [
-      region("Card: 4111111111111111", x: 0.1, y: 0.1, w: 0.3, h: 0.05),
-      region("code: 991122", x: 0.1, y: 0.5, w: 0.2, h: 0.05),
-      region("just some ordinary text", x: 0.1, y: 0.8, w: 0.3, h: 0.05),
+      region(
+        "Card: 4111111111111111", originX: 0.1, originY: 0.1,
+        regionWidth: 0.3, regionHeight: 0.05),
+      region(
+        "code: 991122", originX: 0.1, originY: 0.5,
+        regionWidth: 0.2, regionHeight: 0.05),
+      region(
+        "just some ordinary text", originX: 0.1, originY: 0.8,
+        regionWidth: 0.3, regionHeight: 0.05),
     ], isSecureFieldFocused: false, userDefinedRegions: [], configuredPatterns: [])
 
   #expect(matches.count == 2)
-  #expect(Set(matches.map(\.category)) == [.financialData, .authenticationCode])
+  #expect(
+    Set(matches.map(\.category)) == Set<RedactionCategory>([.financialData, .authenticationCode]))
 }

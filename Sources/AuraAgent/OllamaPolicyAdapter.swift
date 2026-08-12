@@ -1,6 +1,20 @@
 import AuraCore
 import Foundation
 
+public struct OllamaPolicyContext: Sendable {
+  public let actor: ActorID
+  public let sessionID: UUID
+  public let correlationID: UUID
+  public let causationID: UUID
+
+  public init(actor: ActorID, sessionID: UUID, correlationID: UUID, causationID: UUID) {
+    self.actor = actor
+    self.sessionID = sessionID
+    self.correlationID = correlationID
+    self.causationID = causationID
+  }
+}
+
 /// Maps a routed Ollama model + capability to a typed policy request.
 ///
 /// Pure: it does not perform inference or network I/O. Deliberately
@@ -13,21 +27,18 @@ public enum OllamaPolicyAdapter {
   public static func request(
     model: OllamaRegisteredModel,
     capability: OllamaTaskCapability,
-    actor: ActorID,
-    sessionID: UUID,
-    correlationID: UUID,
-    causationID: UUID
+    context: OllamaPolicyContext
   ) -> PolicyEvaluationRequest {
     PolicyEvaluationRequest(
       capability: model.isLocal ? .agentOllamaLocalInference : .agentOllamaCloudInference,
-      actor: actor,
+      actor: context.actor,
       target: PolicyTarget(
         command: model.name,
         arguments: [capability.rawValue]
       ),
-      sessionID: sessionID,
-      correlationID: correlationID,
-      causationID: causationID
+      sessionID: context.sessionID,
+      correlationID: context.correlationID,
+      causationID: context.causationID
     )
   }
 }

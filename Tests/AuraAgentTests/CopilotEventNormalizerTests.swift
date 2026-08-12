@@ -45,7 +45,8 @@ func copilotNormalizerParsesModelCallStart() {
 @Test
 func copilotNormalizerParsesModelCallFailure() {
   let line =
-    #"{"type":"model.call_failure","data":{"model":"gpt-5-mini","statusCode":402,"errorMessage":"quota"}}"#
+    #"{"type":"model.call_failure","data":{"model":"gpt-5-mini","statusCode":402,"#
+    + #""errorMessage":"quota"}}"#
   let event = CopilotEventNormalizer.normalize(line: line, sequence: 5)
   #expect(
     event
@@ -56,7 +57,8 @@ func copilotNormalizerParsesModelCallFailure() {
 @Test
 func copilotNormalizerParsesSessionError() {
   let line =
-    #"{"type":"session.error","data":{"errorType":"quota","errorCode":"quota_exceeded","message":"You have exceeded your monthly quota","statusCode":402}}"#
+    #"{"type":"session.error","data":{"errorType":"quota","errorCode":"quota_exceeded","#
+    + #""message":"You have exceeded your monthly quota","statusCode":402}}"#
   let event = CopilotEventNormalizer.normalize(line: line, sequence: 6)
   #expect(
     event
@@ -75,7 +77,9 @@ func copilotNormalizerParsesAssistantIdle() {
 @Test
 func copilotNormalizerParsesSuccessfulResult() {
   let line =
-    #"{"type":"result","exitCode":0,"usage":{"premiumRequests":1,"totalApiDurationMs":500,"sessionDurationMs":1500,"codeChanges":{"linesAdded":2,"linesRemoved":1,"filesModified":["a.txt","b.txt"]}}}"#
+    #"{"type":"result","exitCode":0,"usage":{"premiumRequests":1,"totalApiDurationMs":500,"#
+    + #""sessionDurationMs":1500,"codeChanges":{"linesAdded":2,"linesRemoved":1,"#
+    + #""filesModified":["a.txt","b.txt"]}}}"#
   let event = CopilotEventNormalizer.normalize(line: line, sequence: 8)
   #expect(
     event
@@ -87,7 +91,9 @@ func copilotNormalizerParsesSuccessfulResult() {
 @Test
 func copilotNormalizerParsesFailedResult() {
   let line =
-    #"{"type":"result","exitCode":1,"usage":{"premiumRequests":0,"totalApiDurationMs":0,"sessionDurationMs":1800,"codeChanges":{"linesAdded":0,"linesRemoved":0,"filesModified":[]}}}"#
+    #"{"type":"result","exitCode":1,"usage":{"premiumRequests":0,"totalApiDurationMs":0,"#
+    + #""sessionDurationMs":1800,"codeChanges":{"linesAdded":0,"linesRemoved":0,"#
+    + #""filesModified":[]}}}"#
   let event = CopilotEventNormalizer.normalize(line: line, sequence: 9)
   #expect(event == .turnFailed(message: nil))
 }

@@ -114,7 +114,7 @@ func normalizerFallsBackToUnrecognizedForBlankLine() {
 // MARK: - Fixture-based tests against real, authorized `codex exec --json`
 // output (see Tests/AuraAgentTests/Fixtures/).
 
-private func loadFixtureLines(_ name: String) throws -> [String] {
+private func codexNormalizerLoadFixtureLines(_ name: String) throws -> [String] {
   let url = URL(fileURLWithPath: #filePath)
     .deletingLastPathComponent()
     .appendingPathComponent("Fixtures")
@@ -125,7 +125,7 @@ private func loadFixtureLines(_ name: String) throws -> [String] {
 
 @Test
 func normalizerParsesRealSuccessfulRunFixtureWithoutUnrecognizedLines() throws {
-  let lines = try loadFixtureLines("codex_smoke_success.jsonl")
+  let lines = try codexNormalizerLoadFixtureLines("codex_smoke_success.jsonl")
   #expect(lines.count == 7)
 
   let events = lines.enumerated().map { index, line in
@@ -160,7 +160,7 @@ func normalizerParsesRealSuccessfulRunFixtureWithoutUnrecognizedLines() throws {
 
 @Test
 func normalizerParsesRealQuotaErrorFixture() throws {
-  let lines = try loadFixtureLines("codex_smoke_quota_error.jsonl")
+  let lines = try codexNormalizerLoadFixtureLines("codex_smoke_quota_error.jsonl")
   let events = lines.enumerated().map { index, line in
     CodexEventNormalizer.normalize(line: line, sequence: index + 1)
   }

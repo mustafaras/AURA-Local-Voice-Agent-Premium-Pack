@@ -59,92 +59,92 @@ public enum ClaudeNormalizedEvent: Sendable, Equatable {
 /// `permissionMode`/`apiKeySource`/`modelUsage` are camelCase within the
 /// *same* payload) — this decoder maps each field explicitly rather than
 /// assuming a single global casing convention.
+private struct ClaudeTopLevel: Decodable {
+  let type: String
+}
+
+private struct ClaudeHookPayload: Decodable {
+  let hookName: String
+  let hookEvent: String
+  let outcome: String?
+  enum CodingKeys: String, CodingKey {
+    case hookName = "hook_name"
+    case hookEvent = "hook_event"
+    case outcome
+  }
+}
+
+private struct ClaudeInitPayload: Decodable {
+  let sessionID: String
+  let model: String
+  let permissionMode: String
+  let claudeCodeVersion: String
+  let apiKeySource: String
+  enum CodingKeys: String, CodingKey {
+    case sessionID = "session_id"
+    case model
+    case permissionMode
+    case claudeCodeVersion = "claude_code_version"
+    case apiKeySource
+  }
+}
+
+private struct ClaudeContentBlock: Decodable {
+  let type: String
+  let text: String?
+}
+
+private struct ClaudeMessagePayload: Decodable {
+  let role: String
+  let content: [ClaudeContentBlock]
+}
+
+private struct ClaudeMessageEnvelope: Decodable {
+  let message: ClaudeMessagePayload
+}
+
+private struct ClaudeRateLimitInfo: Decodable {
+  let status: String
+  let rateLimitType: String
+  enum CodingKeys: String, CodingKey {
+    case status
+    case rateLimitType
+  }
+}
+
+private struct ClaudeRateLimitEnvelope: Decodable {
+  let rateLimitInfo: ClaudeRateLimitInfo
+  enum CodingKeys: String, CodingKey {
+    case rateLimitInfo = "rate_limit_info"
+  }
+}
+
+private struct ClaudeResultPayload: Decodable {
+  let isError: Bool
+  let result: String?
+  let totalCostUSD: Double?
+  let numTurns: Int?
+  let durationMs: Int?
+  let stopReason: String?
+  let apiErrorStatus: Int?
+  enum CodingKeys: String, CodingKey {
+    case isError = "is_error"
+    case result
+    case totalCostUSD = "total_cost_usd"
+    case numTurns = "num_turns"
+    case durationMs = "duration_ms"
+    case stopReason = "stop_reason"
+    case apiErrorStatus = "api_error_status"
+  }
+}
+
 public enum ClaudeEventNormalizer {
-  private struct TopLevel: Decodable {
-    let type: String
-  }
-
-  private struct HookPayload: Decodable {
-    let hookName: String
-    let hookEvent: String
-    let outcome: String?
-    enum CodingKeys: String, CodingKey {
-      case hookName = "hook_name"
-      case hookEvent = "hook_event"
-      case outcome
-    }
-  }
-
-  private struct InitPayload: Decodable {
-    let sessionID: String
-    let model: String
-    let permissionMode: String
-    let claudeCodeVersion: String
-    let apiKeySource: String
-    enum CodingKeys: String, CodingKey {
-      case sessionID = "session_id"
-      case model
-      case permissionMode
-      case claudeCodeVersion = "claude_code_version"
-      case apiKeySource
-    }
-  }
-
-  private struct ContentBlock: Decodable {
-    let type: String
-    let text: String?
-  }
-
-  private struct MessagePayload: Decodable {
-    let role: String
-    let content: [ContentBlock]
-  }
-
-  private struct MessageEnvelope: Decodable {
-    let message: MessagePayload
-  }
-
-  private struct RateLimitInfo: Decodable {
-    let status: String
-    let rateLimitType: String
-    enum CodingKeys: String, CodingKey {
-      case status
-      case rateLimitType
-    }
-  }
-
-  private struct RateLimitEnvelope: Decodable {
-    let rateLimitInfo: RateLimitInfo
-    enum CodingKeys: String, CodingKey {
-      case rateLimitInfo = "rate_limit_info"
-    }
-  }
-
-  private struct ResultPayload: Decodable {
-    let isError: Bool
-    let result: String?
-    let totalCostUSD: Double?
-    let numTurns: Int?
-    let durationMs: Int?
-    let stopReason: String?
-    let apiErrorStatus: Int?
-    enum CodingKeys: String, CodingKey {
-      case isError = "is_error"
-      case result
-      case totalCostUSD = "total_cost_usd"
-      case numTurns = "num_turns"
-      case durationMs = "duration_ms"
-      case stopReason = "stop_reason"
-      case apiErrorStatus = "api_error_status"
-    }
-  }
-
   public static func normalize(line: String, sequence: Int) -> ClaudeNormalizedEvent {
     let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !trimmed.isEmpty, let data = trimmed.data(using: .utf8) else {
       return .unrecognized(rawLine: trimmed)
     }
-    guard let topLevel = try? JSONDecoder().decode(TopLevel.self, from: data) else {
+    guard let topLevel = try? JSONDecoder().decode(ClaudeTopLevel.self, from: data) else {
       return .unrecognized(rawLine: trimmed)
     }
 
@@ -155,14 +155,18 @@ public enum ClaudeEventNormalizer {
       return normalizeMessage(
         data: data, topLevelType: topLevel.type, rawLine: trimmed, sequence: sequence)
     case "rate_limit_event":
-      guard let envelope = try? JSONDecoder().decode(RateLimitEnvelope.self, from: data) else {
+      guard
+        let envelope = try? JSONDecoder().decode(
+          ClaudeRateLimitEnvelope.self, from: data
+        )
+      else {
         return .unrecognizedTopLevel(rawType: topLevel.type, sequence: sequence, rawLine: trimmed)
       }
       return .rateLimitEvent(
         status: envelope.rateLimitInfo.status, rateLimitType: envelope.rateLimitInfo.rateLimitType,
         sequence: sequence)
     case "result":
-      guard let result = try? JSONDecoder().decode(ResultPayload.self, from: data) else {
+      guard let result = try? JSONDecoder().decode(ClaudeResultPayload.self, from: data) else {
         return .unrecognizedTopLevel(rawType: topLevel.type, sequence: sequence, rawLine: trimmed)
       }
       let denialCount = extractArrayCount(from: data, key: "permission_denials")
@@ -190,7 +194,7 @@ public enum ClaudeEventNormalizer {
 
     switch subtype {
     case "hook_started", "hook_response":
-      guard let hook = try? JSONDecoder().decode(HookPayload.self, from: data) else {
+      guard let hook = try? JSONDecoder().decode(ClaudeHookPayload.self, from: data) else {
         return .unrecognizedTopLevel(
           rawType: "system.\(subtype)", sequence: sequence, rawLine: rawLine)
       }
@@ -198,7 +202,7 @@ public enum ClaudeEventNormalizer {
         hookName: hook.hookName, hookEvent: hook.hookEvent, outcome: hook.outcome,
         sequence: sequence)
     case "init":
-      guard let initPayload = try? JSONDecoder().decode(InitPayload.self, from: data) else {
+      guard let initPayload = try? JSONDecoder().decode(ClaudeInitPayload.self, from: data) else {
         return .unrecognizedTopLevel(rawType: "system.init", sequence: sequence, rawLine: rawLine)
       }
       let toolCount = extractArrayCount(from: data, key: "tools")
@@ -217,7 +221,7 @@ public enum ClaudeEventNormalizer {
   private static func normalizeMessage(
     data: Data, topLevelType: String, rawLine: String, sequence: Int
   ) -> ClaudeNormalizedEvent {
-    guard let envelope = try? JSONDecoder().decode(MessageEnvelope.self, from: data) else {
+    guard let envelope = try? JSONDecoder().decode(ClaudeMessageEnvelope.self, from: data) else {
       return .unclassifiedContent(rawContentType: nil, sequence: sequence, rawLine: rawLine)
     }
     // A message may carry multiple content blocks; only the first is

@@ -63,7 +63,8 @@ public actor AccessibilityObserver: AccessibilityObserving {
     }
 
     throw AuraError.automationError(
-      "Timeout observing element in \(bundleIdentifier) (role: \(role ?? "nil"), title: \(title ?? "nil"))"
+      "Timeout observing element in \(bundleIdentifier) "
+        + "(role: \(role ?? "nil"), title: \(title ?? "nil"))"
     )
   }
 

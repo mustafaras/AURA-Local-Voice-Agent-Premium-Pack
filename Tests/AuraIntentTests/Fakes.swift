@@ -8,7 +8,7 @@ import AuraStore
 import AuraTasks
 import Foundation
 
-// MARK: - ApplicationControlling fake (mirrors Tests/AuraAutomationTests's ApplicationControllerSpy)
+// MARK: - ApplicationControlling fake (mirrors the automation test spy)
 
 final class ApplicationControllerSpy: ApplicationControlling, @unchecked Sendable {
   nonisolated(unsafe) var activatedBundleIdentifiers: [String] = []

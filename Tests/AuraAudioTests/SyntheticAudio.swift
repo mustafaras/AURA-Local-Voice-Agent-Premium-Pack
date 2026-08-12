@@ -55,8 +55,8 @@ enum SyntheticAudio {
       if isBurst {
         let globalOffset = frameIndex * frameLength
         for sampleIndex in 0..<frameLength {
-          let t = Double(globalOffset + sampleIndex)
-          samples[sampleIndex] = Float(sin(t * angularFrequency)) * amplitude
+          let samplePosition = Double(globalOffset + sampleIndex)
+          samples[sampleIndex] = Float(sin(samplePosition * angularFrequency)) * amplitude
         }
       }
       frames.append(
@@ -93,8 +93,8 @@ enum SyntheticAudio {
       var samples = [Float](repeating: 0, count: frameLength)
       let globalOffset = frameIndex * frameLength
       for sampleIndex in 0..<frameLength {
-        let t = Double(globalOffset + sampleIndex)
-        samples[sampleIndex] = Float(sin(t * angularFrequency)) * amplitude
+        let samplePosition = Double(globalOffset + sampleIndex)
+        samples[sampleIndex] = Float(sin(samplePosition * angularFrequency)) * amplitude
       }
       frames.append(
         AudioFrame(
@@ -147,10 +147,10 @@ private struct DeterministicNoiseGenerator {
 
   mutating func nextUInt64() -> UInt64 {
     state &+= 0x9E37_79B9_7F4A_7C15
-    var z = state
-    z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
-    z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
-    return z ^ (z >> 31)
+    var mixedState = state
+    mixedState = (mixedState ^ (mixedState >> 30)) &* 0xBF58_476D_1CE4_E5B9
+    mixedState = (mixedState ^ (mixedState >> 27)) &* 0x94D0_49BB_1331_11EB
+    return mixedState ^ (mixedState >> 31)
   }
 
   mutating func nextDouble() -> Double {
@@ -163,10 +163,10 @@ private struct DeterministicNoiseGenerator {
 
   /// Box-Muller transform, returns a standard normal sample.
   mutating func nextNormal() -> Float {
-    let u1 = nextDouble()
-    let u2 = nextDouble()
-    let r = sqrt(-2.0 * log(max(u1, .leastNonzeroMagnitude)))
-    let theta = 2.0 * .pi * u2
-    return Float(r * cos(theta))
+    let firstUniform = nextDouble()
+    let secondUniform = nextDouble()
+    let radius = sqrt(-2.0 * log(max(firstUniform, .leastNonzeroMagnitude)))
+    let angle = 2.0 * .pi * secondUniform
+    return Float(radius * cos(angle))
   }
 }

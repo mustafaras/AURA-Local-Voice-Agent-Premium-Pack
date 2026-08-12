@@ -2,6 +2,19 @@ import AuraCore
 import CryptoKit
 import Foundation
 
+private struct VSCodeEnvelopeValidationInput<P: Codable> {
+  let protocolVersion: Int
+  let extensionID: String
+  let nonce: String
+  let issuedAt: Date
+  let expiresAt: Date
+  let authenticationTag: String
+  let payload: P
+  let expectedExtensionID: String?
+  let now: Date
+  let clockSkewSeconds: Double
+}
+
 /// Versioned, authenticated payload written by the companion VS Code
 /// extension. The bridge carries observations only; it never carries raw shell
 /// commands or authority to bypass AURA policy.
@@ -250,16 +263,18 @@ public struct VSCodeBridgeAuthenticator: Sendable {
     clockSkewSeconds: Double = 5
   ) throws(AuraError) {
     try validateEnvelope(
-      protocolVersion: envelope.payload.protocolVersion,
-      extensionID: envelope.payload.extensionID,
-      nonce: envelope.payload.nonce,
-      issuedAt: envelope.payload.issuedAt,
-      expiresAt: envelope.payload.expiresAt,
-      authenticationTag: envelope.authenticationTag,
-      payload: envelope.payload,
-      expectedExtensionID: expectedExtensionID,
-      now: now,
-      clockSkewSeconds: clockSkewSeconds
+      VSCodeEnvelopeValidationInput(
+        protocolVersion: envelope.payload.protocolVersion,
+        extensionID: envelope.payload.extensionID,
+        nonce: envelope.payload.nonce,
+        issuedAt: envelope.payload.issuedAt,
+        expiresAt: envelope.payload.expiresAt,
+        authenticationTag: envelope.authenticationTag,
+        payload: envelope.payload,
+        expectedExtensionID: expectedExtensionID,
+        now: now,
+        clockSkewSeconds: clockSkewSeconds
+      )
     )
   }
 
@@ -274,52 +289,45 @@ public struct VSCodeBridgeAuthenticator: Sendable {
       throw AuraError.securityError("VS Code bridge response does not match request")
     }
     try validateEnvelope(
-      protocolVersion: envelope.payload.protocolVersion,
-      extensionID: envelope.payload.extensionID,
-      nonce: envelope.payload.nonce,
-      issuedAt: envelope.payload.issuedAt,
-      expiresAt: envelope.payload.expiresAt,
-      authenticationTag: envelope.authenticationTag,
-      payload: envelope.payload,
-      expectedExtensionID: expectedExtensionID,
-      now: now,
-      clockSkewSeconds: clockSkewSeconds
+      VSCodeEnvelopeValidationInput(
+        protocolVersion: envelope.payload.protocolVersion,
+        extensionID: envelope.payload.extensionID,
+        nonce: envelope.payload.nonce,
+        issuedAt: envelope.payload.issuedAt,
+        expiresAt: envelope.payload.expiresAt,
+        authenticationTag: envelope.authenticationTag,
+        payload: envelope.payload,
+        expectedExtensionID: expectedExtensionID,
+        now: now,
+        clockSkewSeconds: clockSkewSeconds
+      )
     )
   }
 
   private func validateEnvelope<P: Codable>(
-    protocolVersion: Int,
-    extensionID: String,
-    nonce: String,
-    issuedAt: Date,
-    expiresAt: Date,
-    authenticationTag: String,
-    payload: P,
-    expectedExtensionID: String?,
-    now: Date,
-    clockSkewSeconds: Double
+    _ input: VSCodeEnvelopeValidationInput<P>
   ) throws(AuraError) {
-    guard protocolVersion == VSCodeBridgeSignedPayload.currentProtocolVersion else {
+    guard input.protocolVersion == VSCodeBridgeSignedPayload.currentProtocolVersion else {
       throw AuraError.securityError("unsupported VS Code bridge protocol version")
     }
-    if let expectedExtensionID {
-      guard extensionID == expectedExtensionID else {
+    if let expectedExtensionID = input.expectedExtensionID {
+      guard input.extensionID == expectedExtensionID else {
         throw AuraError.securityError("unexpected VS Code bridge extension identity")
       }
     }
-    guard !nonce.isEmpty else {
+    guard !input.nonce.isEmpty else {
       throw AuraError.securityError("VS Code bridge nonce is empty")
     }
-    guard expiresAt > issuedAt else {
+    guard input.expiresAt > input.issuedAt else {
       throw AuraError.securityError("VS Code bridge envelope expiry is invalid")
     }
-    guard issuedAt <= now.addingTimeInterval(clockSkewSeconds) else {
+    guard input.issuedAt <= input.now.addingTimeInterval(input.clockSkewSeconds) else {
       throw AuraError.securityError("VS Code bridge envelope is issued in the future")
     }
-    guard expiresAt > now else {
+    guard input.expiresAt > input.now else {
       throw AuraError.securityError("VS Code bridge envelope is expired")
     }
-    guard authenticationTag == (try tag(for: payload)) else {
+    guard input.authenticationTag == (try tag(for: input.payload)) else {
       throw AuraError.securityError("VS Code bridge authentication failed")
     }
   }

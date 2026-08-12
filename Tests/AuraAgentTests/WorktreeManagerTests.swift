@@ -5,16 +5,16 @@ import AuraStore
 import Foundation
 import Testing
 
-/// Real, authorized `git` invocations against scratch repositories created
-/// under `$HOME` (matching `CodexTaskRunnerTests`'s precedent of using
-/// `$HOME` rather than `$TMPDIR` to satisfy `WorktreeConfiguration`'s default
-/// `allowedWorkingDirectories` unambiguously). Every scratch repository is
-/// removed in a `defer` block.
+// Real, authorized `git` invocations against scratch repositories created
+// under `$HOME` (matching `CodexTaskRunnerTests`'s precedent of using
+// `$HOME` rather than `$TMPDIR` to satisfy `WorktreeConfiguration`'s default
+// `allowedWorkingDirectories` unambiguously). Every scratch repository is
+// removed in a `defer` block.
 
 // MARK: - Scratch git repo helpers
 
 @discardableResult
-private func runGit(_ arguments: [String], cwd: String) throws -> String {
+private func worktreeRunGit(_ arguments: [String], cwd: String) throws -> String {
   let process = Process()
   process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
   process.arguments = arguments
@@ -34,31 +34,31 @@ private func runGit(_ arguments: [String], cwd: String) throws -> String {
   return output
 }
 
-private func makeScratchGitRepo() throws -> String {
+private func makeWorktreeScratchGitRepo() throws -> String {
   let root =
     NSHomeDirectory() + "/.aura-worktree-tests/\(UUID().uuidString)"
   try FileManager.default.createDirectory(atPath: root, withIntermediateDirectories: true)
-  try runGit(["init", "-q"], cwd: root)
-  try runGit(["config", "user.email", "test@example.com"], cwd: root)
-  try runGit(["config", "user.name", "Test"], cwd: root)
+  try worktreeRunGit(["init", "-q"], cwd: root)
+  try worktreeRunGit(["config", "user.email", "test@example.com"], cwd: root)
+  try worktreeRunGit(["config", "user.name", "Test"], cwd: root)
   try "hello\n".write(toFile: root + "/file.txt", atomically: true, encoding: .utf8)
-  try runGit(["add", "file.txt"], cwd: root)
-  try runGit(["commit", "-q", "-m", "init"], cwd: root)
+  try worktreeRunGit(["add", "file.txt"], cwd: root)
+  try worktreeRunGit(["commit", "-q", "-m", "init"], cwd: root)
   return root
 }
 
-private func removeScratchRepo(_ root: String) {
+private func removeWorktreeScratchRepo(_ root: String) {
   try? FileManager.default.removeItem(atPath: root)
 }
 
 // MARK: - Policy engine helpers
 
-private func makeTempStore() async throws -> AuraStore {
+private func makeWorktreeTempStore() async throws -> AuraStore {
   let path = NSTemporaryDirectory().appending(UUID().uuidString).appending(".db")
   return try await AuraStore(path: path)
 }
 
-private func makePolicyEngine(
+private func makeWorktreePolicyEngine(
   configuration: PolicyConfiguration = PolicyConfiguration(
     defaultConfirmationTier: .destructive,
     allowByDefaultTiers: [.observation, .reversible, .mutation],
@@ -66,7 +66,7 @@ private func makePolicyEngine(
   ),
   eventBus: AuraEventBus
 ) async throws -> PolicyEngine {
-  let store = try await makeTempStore()
+  let store = try await makeWorktreeTempStore()
   return try await PolicyEngine(configuration: configuration, eventBus: eventBus, store: store)
 }
 
@@ -81,11 +81,11 @@ private func makeManager(
 
 @Test
 func worktreeManagerCreatesIsolatedWorktree() async throws {
-  let repoRoot = try makeScratchGitRepo()
-  defer { removeScratchRepo(repoRoot) }
+  let repoRoot = try makeWorktreeScratchGitRepo()
+  defer { removeWorktreeScratchRepo(repoRoot) }
 
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "worktree"))
-  let policyEngine = try await makePolicyEngine(eventBus: bus)
+  let policyEngine = try await makeWorktreePolicyEngine(eventBus: bus)
   let manager = makeManager(repoRoot: repoRoot, eventBus: bus, policyEngine: policyEngine)
   let taskID = UUID()
   let sessionID = UUID()
@@ -112,11 +112,11 @@ func worktreeManagerCreatesIsolatedWorktree() async throws {
 
 @Test
 func worktreeManagerRejectsDuplicateTaskID() async throws {
-  let repoRoot = try makeScratchGitRepo()
-  defer { removeScratchRepo(repoRoot) }
+  let repoRoot = try makeWorktreeScratchGitRepo()
+  defer { removeWorktreeScratchRepo(repoRoot) }
 
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "dup"))
-  let policyEngine = try await makePolicyEngine(eventBus: bus)
+  let policyEngine = try await makeWorktreePolicyEngine(eventBus: bus)
   let manager = makeManager(repoRoot: repoRoot, eventBus: bus, policyEngine: policyEngine)
   let taskID = UUID()
 
@@ -134,11 +134,11 @@ func worktreeManagerRejectsDuplicateTaskID() async throws {
 
 @Test
 func worktreeManagerDenyPathNeverTouchesGit() async throws {
-  let repoRoot = try makeScratchGitRepo()
-  defer { removeScratchRepo(repoRoot) }
+  let repoRoot = try makeWorktreeScratchGitRepo()
+  defer { removeWorktreeScratchRepo(repoRoot) }
 
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "deny"))
-  let policyEngine = try await makePolicyEngine(
+  let policyEngine = try await makeWorktreePolicyEngine(
     configuration: PolicyConfiguration(
       defaultConfirmationTier: .destructive,
       allowByDefaultTiers: [.observation, .reversible],
@@ -165,11 +165,11 @@ func worktreeManagerDenyPathNeverTouchesGit() async throws {
 
 @Test
 func worktreeManagerRemovesCleanWorktreeWithoutForce() async throws {
-  let repoRoot = try makeScratchGitRepo()
-  defer { removeScratchRepo(repoRoot) }
+  let repoRoot = try makeWorktreeScratchGitRepo()
+  defer { removeWorktreeScratchRepo(repoRoot) }
 
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "removeClean"))
-  let policyEngine = try await makePolicyEngine(eventBus: bus)
+  let policyEngine = try await makeWorktreePolicyEngine(eventBus: bus)
   let manager = makeManager(repoRoot: repoRoot, eventBus: bus, policyEngine: policyEngine)
   let taskID = UUID()
 
@@ -184,11 +184,11 @@ func worktreeManagerRemovesCleanWorktreeWithoutForce() async throws {
 
 @Test
 func worktreeManagerRemovalRequiresForceWhenDirty() async throws {
-  let repoRoot = try makeScratchGitRepo()
-  defer { removeScratchRepo(repoRoot) }
+  let repoRoot = try makeWorktreeScratchGitRepo()
+  defer { removeWorktreeScratchRepo(repoRoot) }
 
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "removeDirty"))
-  let policyEngine = try await makePolicyEngine(eventBus: bus)
+  let policyEngine = try await makeWorktreePolicyEngine(eventBus: bus)
   let manager = makeManager(repoRoot: repoRoot, eventBus: bus, policyEngine: policyEngine)
   let taskID = UUID()
 
@@ -209,11 +209,11 @@ func worktreeManagerRemovalRequiresForceWhenDirty() async throws {
 
 @Test
 func worktreeManagerRemoveUnknownTaskThrowsNotFound() async throws {
-  let repoRoot = try makeScratchGitRepo()
-  defer { removeScratchRepo(repoRoot) }
+  let repoRoot = try makeWorktreeScratchGitRepo()
+  defer { removeWorktreeScratchRepo(repoRoot) }
 
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "removeUnknown"))
-  let policyEngine = try await makePolicyEngine(eventBus: bus)
+  let policyEngine = try await makeWorktreePolicyEngine(eventBus: bus)
   let manager = makeManager(repoRoot: repoRoot, eventBus: bus, policyEngine: policyEngine)
 
   await #expect(throws: AuraError.self) {
@@ -225,11 +225,11 @@ func worktreeManagerRemoveUnknownTaskThrowsNotFound() async throws {
 
 @Test
 func worktreeManagerDiffReflectsWorktreeChanges() async throws {
-  let repoRoot = try makeScratchGitRepo()
-  defer { removeScratchRepo(repoRoot) }
+  let repoRoot = try makeWorktreeScratchGitRepo()
+  defer { removeWorktreeScratchRepo(repoRoot) }
 
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraAgentTests", category: "diff"))
-  let policyEngine = try await makePolicyEngine(eventBus: bus)
+  let policyEngine = try await makeWorktreePolicyEngine(eventBus: bus)
   let manager = makeManager(repoRoot: repoRoot, eventBus: bus, policyEngine: policyEngine)
   let taskID = UUID()
 

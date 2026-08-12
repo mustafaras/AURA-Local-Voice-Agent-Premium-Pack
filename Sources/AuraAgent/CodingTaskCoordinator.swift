@@ -107,8 +107,9 @@ public actor CodingTaskCoordinator {
     self.workspaceResolver = workspaceResolver
   }
 
-  public func preflight(_ request: CodingTaskRequest) async throws(AuraError) -> CodingTaskPreflight
-  {
+  public func preflight(
+    _ request: CodingTaskRequest
+  ) async throws(AuraError) -> CodingTaskPreflight {
     let objective = request.objective.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !objective.isEmpty else {
       throw .taskError("coding task objective must not be empty")

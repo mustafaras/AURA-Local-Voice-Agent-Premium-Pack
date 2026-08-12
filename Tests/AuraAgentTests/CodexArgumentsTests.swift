@@ -3,13 +3,14 @@ import AuraCore
 import Foundation
 import Testing
 
-private let allowedWorkingDirectory = ProcessInfo.processInfo.environment["HOME"] ?? "/tmp"
+private let codexArgumentsWorkingDirectory =
+  ProcessInfo.processInfo.environment["HOME"] ?? "/tmp"
 
 @Test
 func codexArgumentsAlwaysIncludeJSONAndNeverAsk() throws {
   let request = CodexRunRequest(
     prompt: "irrelevant here",
-    workingDirectory: allowedWorkingDirectory,
+    workingDirectory: codexArgumentsWorkingDirectory,
     sandbox: .readOnly
   )
   let args = try CodexArguments.make(request: request, configuration: CodexConfiguration())
@@ -23,7 +24,7 @@ func codexArgumentsAlwaysIncludeJSONAndNeverAsk() throws {
 func codexArgumentsNeverContainDangerousBypassFlag() throws {
   let request = CodexRunRequest(
     prompt: "irrelevant here",
-    workingDirectory: allowedWorkingDirectory,
+    workingDirectory: codexArgumentsWorkingDirectory,
     sandbox: .workspaceWrite
   )
   let args = try CodexArguments.make(request: request, configuration: CodexConfiguration())
@@ -35,7 +36,7 @@ func codexArgumentsNeverContainDangerousBypassFlag() throws {
 func codexArgumentsNeverContainThePrompt() throws {
   let prompt = "list files; then summarize && report | done UNIQUE_MARKER_42"
   let request = CodexRunRequest(
-    prompt: prompt, workingDirectory: allowedWorkingDirectory, sandbox: .readOnly)
+    prompt: prompt, workingDirectory: codexArgumentsWorkingDirectory, sandbox: .readOnly)
   let args = try CodexArguments.make(request: request, configuration: CodexConfiguration())
   #expect(!args.contains(prompt))
   #expect(!args.contains { $0.contains("UNIQUE_MARKER_42") })
@@ -44,9 +45,9 @@ func codexArgumentsNeverContainThePrompt() throws {
 @Test
 func codexArgumentsMapSandboxTiers() throws {
   let readOnly = CodexRunRequest(
-    prompt: "p", workingDirectory: allowedWorkingDirectory, sandbox: .readOnly)
+    prompt: "p", workingDirectory: codexArgumentsWorkingDirectory, sandbox: .readOnly)
   let writable = CodexRunRequest(
-    prompt: "p", workingDirectory: allowedWorkingDirectory, sandbox: .workspaceWrite)
+    prompt: "p", workingDirectory: codexArgumentsWorkingDirectory, sandbox: .workspaceWrite)
   let readOnlyArgs = try CodexArguments.make(
     request: readOnly, configuration: CodexConfiguration())
   let writableArgs = try CodexArguments.make(
@@ -69,7 +70,7 @@ func codexArgumentsRejectWorkingDirectoryOutsideAllowlist() {
 func codexArgumentsRejectAddDirOutsideAllowlist() {
   let request = CodexRunRequest(
     prompt: "p",
-    workingDirectory: allowedWorkingDirectory,
+    workingDirectory: codexArgumentsWorkingDirectory,
     sandbox: .workspaceWrite,
     additionalWritableDirectories: ["/etc"]
   )
@@ -80,10 +81,11 @@ func codexArgumentsRejectAddDirOutsideAllowlist() {
 
 @Test
 func codexArgumentsIncludeAllowedAddDir() throws {
-  let subdirectory = (allowedWorkingDirectory as NSString).appendingPathComponent("scratch")
+  let subdirectory =
+    (codexArgumentsWorkingDirectory as NSString).appendingPathComponent("scratch")
   let request = CodexRunRequest(
     prompt: "p",
-    workingDirectory: allowedWorkingDirectory,
+    workingDirectory: codexArgumentsWorkingDirectory,
     sandbox: .workspaceWrite,
     additionalWritableDirectories: [subdirectory]
   )
@@ -95,7 +97,7 @@ func codexArgumentsIncludeAllowedAddDir() throws {
 @Test
 func codexArgumentsIncludeModelWhenSet() throws {
   let request = CodexRunRequest(
-    prompt: "p", workingDirectory: allowedWorkingDirectory, sandbox: .readOnly, model: "o3"
+    prompt: "p", workingDirectory: codexArgumentsWorkingDirectory, sandbox: .readOnly, model: "o3"
   )
   let args = try CodexArguments.make(request: request, configuration: CodexConfiguration())
   #expect(args.contains("-m"))
@@ -109,7 +111,7 @@ func codexArgumentsOmitConfigFlagsWhenDisabled() throws {
   configuration.ignoreUserConfigByDefault = false
   configuration.skipGitRepoCheckByDefault = false
   let request = CodexRunRequest(
-    prompt: "p", workingDirectory: allowedWorkingDirectory, sandbox: .readOnly)
+    prompt: "p", workingDirectory: codexArgumentsWorkingDirectory, sandbox: .readOnly)
   let args = try CodexArguments.make(request: request, configuration: configuration)
   #expect(!args.contains("--ephemeral"))
   #expect(!args.contains("--ignore-user-config"))

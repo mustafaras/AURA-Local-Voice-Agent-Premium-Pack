@@ -89,11 +89,11 @@ func plannerAcceptsValidSingleStepAndRecomputesRiskFromRegistryNotCaller() async
 func plannerBuildsMultiStepPlanWithDependencyOrdering() async {
   let planner = CapabilityPlanner(registry: await makeRegistry())
   let result = await planner.buildPlan(steps: [
-    (
+    PlanStepRequest(
       capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
       dependsOnStepIndices: []
     ),
-    (
+    PlanStepRequest(
       capabilityID: "app.activate", arguments: ["bundleIdentifier": "com.example.app"],
       requiredArgumentNames: ["bundleIdentifier"], dependsOnStepIndices: [0]
     ),
@@ -110,15 +110,15 @@ func plannerBuildsMultiStepPlanWithDependencyOrdering() async {
 func plannerRejectsPlanExceedingMaxSteps() async {
   let planner = CapabilityPlanner(registry: await makeRegistry(), maxStepsPerPlan: 2)
   let result = await planner.buildPlan(steps: [
-    (
+    PlanStepRequest(
       capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
       dependsOnStepIndices: []
     ),
-    (
+    PlanStepRequest(
       capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
       dependsOnStepIndices: []
     ),
-    (
+    PlanStepRequest(
       capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
       dependsOnStepIndices: []
     ),
@@ -135,11 +135,11 @@ func plannerRejectsPlanExceedingMaxSteps() async {
 func plannerRejectsForwardDependencyAsCycle() async {
   let planner = CapabilityPlanner(registry: await makeRegistry())
   let result = await planner.buildPlan(steps: [
-    (
+    PlanStepRequest(
       capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
       dependsOnStepIndices: [1]
     ),
-    (
+    PlanStepRequest(
       capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
       dependsOnStepIndices: []
     ),
@@ -151,7 +151,7 @@ func plannerRejectsForwardDependencyAsCycle() async {
 func plannerRejectsSelfDependencyAsCycle() async {
   let planner = CapabilityPlanner(registry: await makeRegistry())
   let result = await planner.buildPlan(steps: [
-    (
+    PlanStepRequest(
       capabilityID: "app.discover", arguments: [:], requiredArgumentNames: [],
       dependsOnStepIndices: [0]
     )

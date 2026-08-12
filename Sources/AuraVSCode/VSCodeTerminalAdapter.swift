@@ -47,82 +47,120 @@ public actor VSCodeTerminalAdapter {
 
     let terminal = await bridge.terminalState(
       maxStalenessSeconds: configuration.bridgeMaxStalenessSeconds)
-    let verified: Bool
-    if configuration.requireTerminalVerification {
-      guard let terminal = terminal else {
-        return .failure(
-          AuraError.invalidConfiguration(
-            "VS Code terminal state unavailable; cannot verify shell/cwd"))
-      }
-      guard configuration.allowedTerminalShells.contains(terminal.shell) else {
-        return .failure(
-          AuraError.invalidConfiguration("terminal shell \(terminal.shell) is not allowed"))
-      }
-      guard
-        terminal.workingDirectory == workingDirectory
-          || workingDirectory.hasPrefix(terminal.workingDirectory)
-      else {
-        return .failure(
-          AuraError.invalidConfiguration(
-            "requested cwd \(workingDirectory) does not match terminal cwd \(terminal.workingDirectory)"
-          ))
-      }
-      guard terminal.shell == shellPath else {
-        return .failure(
-          AuraError.invalidConfiguration(
-            "requested shell \(shellPath) does not match terminal shell \(terminal.shell)"
-          ))
-      }
-      verified = true
-    } else {
-      verified = false
+    switch verifyTerminal(
+      terminal: terminal,
+      workingDirectory: workingDirectory,
+      shellPath: shellPath
+    ) {
+    case .failure(let error): return .failure(error)
+    case .success(let verified):
+      let executionID = UUID(uuidString: correlationID) ?? UUID()
+      let shellCommand = Command(
+        executable: shellPath,
+        arguments: ["-c", typedCommand.executable] + typedCommand.arguments,
+        workingDirectory: workingDirectory,
+        timeoutSeconds: typedCommand.timeoutSeconds,
+        expectedExitCodes: typedCommand.expectedExitCodes,
+        riskTier: .mutation,
+        ptyRequested: true
+      )
+
+      let result = await shell.execute(
+        command: shellCommand,
+        actor: actor,
+        sessionID: executionID,
+        correlationID: executionID,
+        causationID: executionID
+      )
+      await emitTerminalEvent(
+        TerminalEventContext(
+          terminal: terminal,
+          typedCommand: typedCommand,
+          shellPath: shellPath,
+          workingDirectory: workingDirectory,
+          verified: verified,
+          executionID: executionID,
+          actor: actor)
+      )
+      return terminalResult(result)
     }
+  }
 
-    let executionID = UUID(uuidString: correlationID) ?? UUID()
-    let shellCommand = Command(
-      executable: shellPath,
-      arguments: ["-c", typedCommand.executable] + typedCommand.arguments,
-      workingDirectory: workingDirectory,
-      timeoutSeconds: typedCommand.timeoutSeconds,
-      expectedExitCodes: typedCommand.expectedExitCodes,
-      riskTier: .mutation,
-      ptyRequested: true
-    )
+  private func verifyTerminal(
+    terminal: VSCodeTerminalState?,
+    workingDirectory: String,
+    shellPath: String
+  ) -> Result<Bool, AuraError> {
+    guard configuration.requireTerminalVerification else { return .success(false) }
+    guard let terminal else {
+      return .failure(
+        AuraError.invalidConfiguration(
+          "VS Code terminal state unavailable; cannot verify shell/cwd"))
+    }
+    guard configuration.allowedTerminalShells.contains(terminal.shell) else {
+      return .failure(
+        AuraError.invalidConfiguration("terminal shell \(terminal.shell) is not allowed"))
+    }
+    guard
+      terminal.workingDirectory == workingDirectory
+        || workingDirectory.hasPrefix(terminal.workingDirectory)
+    else {
+      return .failure(
+        AuraError.invalidConfiguration(
+          "requested cwd \(workingDirectory) does not match terminal cwd "
+            + "\(terminal.workingDirectory)"))
+    }
+    guard terminal.shell == shellPath else {
+      return .failure(
+        AuraError.invalidConfiguration(
+          "requested shell \(shellPath) does not match terminal shell "
+            + "\(terminal.shell)"))
+    }
+    return .success(true)
+  }
 
-    let result = await shell.execute(
-      command: shellCommand,
-      actor: actor,
-      sessionID: executionID,
-      correlationID: executionID,
-      causationID: executionID
-    )
-
+  private func emitTerminalEvent(
+    _ context: TerminalEventContext
+  ) async {
     let event = VSCodeTerminalCommandEvent(
-      terminalID: terminal?.terminalID,
-      shell: shellPath,
-      workingDirectory: workingDirectory,
-      commandExecutable: typedCommand.executable,
-      commandArguments: typedCommand.arguments,
-      verified: verified
+      terminalID: context.terminal?.terminalID,
+      shell: context.shellPath,
+      workingDirectory: context.workingDirectory,
+      commandExecutable: context.typedCommand.executable,
+      commandArguments: context.typedCommand.arguments,
+      verified: context.verified
     )
     await AuraEventBus.shared.emit(
       EventEnvelope(
-        correlationID: executionID,
-        causationID: executionID,
-        actor: actor,
+        correlationID: context.executionID,
+        causationID: context.executionID,
+        actor: context.actor,
         sensitivity: .internalLevel,
         payload: event
       )
     )
+  }
 
+  private func terminalResult(
+    _ result: Result<ProcessResult, AuraError>
+  ) -> Result<String, AuraError> {
     switch result {
     case .success(let processResult):
       let combined = [processResult.stdout, processResult.stderr]
         .joined(separator: "\n")
         .trimmingCharacters(in: .whitespacesAndNewlines)
       return .success(combined)
-    case .failure(let error):
-      return .failure(error)
+    case .failure(let error): return .failure(error)
     }
   }
+}
+
+private struct TerminalEventContext: Sendable {
+  let terminal: VSCodeTerminalState?
+  let typedCommand: Command
+  let shellPath: String
+  let workingDirectory: String
+  let verified: Bool
+  let executionID: UUID
+  let actor: ActorID
 }

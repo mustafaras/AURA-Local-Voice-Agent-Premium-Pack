@@ -232,16 +232,16 @@ private final class UnsafeContinuationBox: @unchecked Sendable {
 
   func yield(_ result: STTTranscriptResult) {
     lock.lock()
-    let c = continuation
+    let continuationSnapshot = continuation
     lock.unlock()
-    c?.yield(result)
+    continuationSnapshot?.yield(result)
   }
 
   func finish() {
     lock.lock()
-    let c = continuation
+    let continuationSnapshot = continuation
     continuation = nil
     lock.unlock()
-    c?.finish()
+    continuationSnapshot?.finish()
   }
 }

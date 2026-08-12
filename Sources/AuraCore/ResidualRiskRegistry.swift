@@ -85,7 +85,8 @@ public struct ResidualRiskRegistry: Sendable, Equatable {
       category: .promptInjection,
       owner: "Security + Intent",
       mitigation:
-        "PromptInjectionClassifier on every untrusted text path; ContentProvenance carriesAuthority false for non-user/system sources.",
+        "PromptInjectionClassifier on every untrusted text path; "
+        + "ContentProvenance carriesAuthority false for non-user/system sources.",
       defaultAction: .deny,
       requiresEscalation: false,
       playbookID: "ADVR-001"),
@@ -100,7 +101,8 @@ public struct ResidualRiskRegistry: Sendable, Equatable {
       category: .policyBypass,
       owner: "PolicyEngine",
       mitigation:
-        "Deny rules before grants, confirmation hash binding, mandatory-confirmation guard, no actor except user can confirm.",
+        "Deny rules before grants, confirmation hash binding, "
+        + "mandatory-confirmation guard, no actor except user can confirm.",
       defaultAction: .deny,
       requiresEscalation: true,
       playbookID: "ADVR-002"),
@@ -108,7 +110,8 @@ public struct ResidualRiskRegistry: Sendable, Equatable {
       category: .memoryPoisoning,
       owner: "Memory + Context",
       mitigation:
-        "MemoryProvenance authority tiers, contradiction detection for userPreference, ReferenceResolver evidence thresholds.",
+        "MemoryProvenance authority tiers, contradiction detection for "
+        + "userPreference, ReferenceResolver evidence thresholds.",
       defaultAction: .deny,
       requiresEscalation: false,
       playbookID: "ADVR-002"),
@@ -116,7 +119,8 @@ public struct ResidualRiskRegistry: Sendable, Equatable {
       category: .pluginSupplyChain,
       owner: "Plugins + Marketplace",
       mitigation:
-        "PluginVerifier with SHA-256 hash and Ed25519 vendor signature; manifest structural validation forbids wildcard permissions.",
+        "PluginVerifier with SHA-256 hash and Ed25519 vendor signature; "
+        + "manifest structural validation forbids wildcard permissions.",
       defaultAction: .deny,
       requiresEscalation: true,
       playbookID: "ADVR-003"),
@@ -124,7 +128,8 @@ public struct ResidualRiskRegistry: Sendable, Equatable {
       category: .configurationTampering,
       owner: "Config + Security",
       mitigation:
-        "ConfigurationEngine SecurityConstraints, project layer cannot weaken security-relevant keys, immutable privacy flags.",
+        "ConfigurationEngine SecurityConstraints, project layer cannot weaken "
+        + "security-relevant keys, immutable privacy flags.",
       defaultAction: .deny,
       requiresEscalation: true,
       playbookID: "ADVR-002"),
@@ -132,7 +137,8 @@ public struct ResidualRiskRegistry: Sendable, Equatable {
       category: .structuredOutputViolation,
       owner: "Intent + ToolRouter",
       mitigation:
-        "TypedIntent semantic category pins risk tier; ToolRouter rejects unknown kinds and missing required slots.",
+        "TypedIntent semantic category pins risk tier; ToolRouter rejects "
+        + "unknown kinds and missing required slots.",
       defaultAction: .deny,
       requiresEscalation: false,
       playbookID: "ADVR-002"),
@@ -140,7 +146,9 @@ public struct ResidualRiskRegistry: Sendable, Equatable {
       category: .liveCallerManipulation,
       owner: "Audio + Policy + Human loop",
       mitigation:
-        "Speaker verification is identity hint only; destructive actions always require confirmation; real-time escalation path to human operator with human loop approval before any privileged action.",
+        "Speaker verification is identity hint only; destructive actions always "
+        + "require confirmation; real-time escalation path to human operator "
+        + "with human loop approval before any privileged action.",
       defaultAction: .escalate,
       requiresEscalation: true,
       playbookID: "ADVR-004"),
@@ -148,7 +156,8 @@ public struct ResidualRiskRegistry: Sendable, Equatable {
       category: .unknownFailureMode,
       owner: "On-call + Security",
       mitigation:
-        "Fail closed: any unrecognized adversarial condition defaults to deny and is logged without private content.",
+        "Fail closed: any unrecognized adversarial condition defaults to deny "
+        + "and is logged without private content.",
       defaultAction: .deny,
       requiresEscalation: true,
       playbookID: "ADVR-005"),

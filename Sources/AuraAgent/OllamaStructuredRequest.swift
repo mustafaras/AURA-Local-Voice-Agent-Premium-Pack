@@ -32,7 +32,8 @@ public enum OllamaStructuredRequest {
       raw.response, typeName: "OllamaClassificationResult")
     guard labels.contains(decoded.classification) else {
       throw AuraError.ollamaError(
-        "model returned classification '\(decoded.classification)' outside the requested label set \(labels)"
+        "model returned classification '\(decoded.classification)' outside the "
+          + "requested label set \(labels)"
       )
     }
     return decoded
@@ -79,8 +80,10 @@ public enum OllamaStructuredRequest {
     }
   }
 
-  private static func decode<T: Decodable>(_ text: String, typeName: String) throws(AuraError) -> T
-  {
+  private static func decode<T: Decodable>(
+    _ text: String,
+    typeName: String
+  ) throws(AuraError) -> T {
     guard let data = text.data(using: .utf8) else {
       throw AuraError.ollamaError("\(typeName): response was not valid UTF-8")
     }

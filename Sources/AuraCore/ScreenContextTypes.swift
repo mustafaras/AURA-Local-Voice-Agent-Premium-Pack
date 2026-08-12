@@ -122,14 +122,14 @@ public struct RedactionMatch: Sendable, Equatable {
 /// A user-defined rectangular region (normalized `[0, 1]`, window-relative)
 /// that is always redacted regardless of content.
 public struct UserDefinedRedactionRegion: Codable, Sendable, Equatable {
-  public let x: Double
-  public let y: Double
+  public let originX: Double
+  public let originY: Double
   public let width: Double
   public let height: Double
 
-  public init(x: Double, y: Double, width: Double, height: Double) {
-    self.x = x
-    self.y = y
+  public init(originX: Double, originY: Double, width: Double, height: Double) {
+    self.originX = originX
+    self.originY = originY
     self.width = width
     self.height = height
   }
@@ -149,14 +149,14 @@ public struct UserDefinedRedactionRegion: Codable, Sendable, Equatable {
 /// part of this window" preserves the same exclusion guarantees as
 /// window-scoped capture.
 public struct CaptureRegion: Codable, Sendable, Equatable {
-  public let x: Double
-  public let y: Double
+  public let originX: Double
+  public let originY: Double
   public let width: Double
   public let height: Double
 
-  public init(x: Double, y: Double, width: Double, height: Double) {
-    self.x = x
-    self.y = y
+  public init(originX: Double, originY: Double, width: Double, height: Double) {
+    self.originX = originX
+    self.originY = originY
     self.width = width
     self.height = height
   }
@@ -166,8 +166,8 @@ public struct CaptureRegion: Codable, Sendable, Equatable {
   /// any capture is attempted.
   public var isValid: Bool {
     guard width > 0, height > 0 else { return false }
-    guard x >= 0, y >= 0 else { return false }
-    guard x + width <= 1, y + height <= 1 else { return false }
+    guard originX >= 0, originY >= 0 else { return false }
+    guard originX + width <= 1, originY + height <= 1 else { return false }
     return true
   }
 }

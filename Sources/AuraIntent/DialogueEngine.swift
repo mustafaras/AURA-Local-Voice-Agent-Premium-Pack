@@ -163,7 +163,8 @@ public actor DialogueEngine {
       contextItems.isEmpty
       ? "(none)"
       : contextItems.map {
-        "[source=\($0.sourceID); authority=\($0.authority); confidence=\($0.confidence)] \($0.summary)"
+        "[source=\($0.sourceID); authority=\($0.authority); "
+          + "confidence=\($0.confidence)] \($0.summary)"
       }.joined(separator: "\n")
     let prompt = """
       You are AURA's local dialogue engine. Answer the user's question directly and concisely.

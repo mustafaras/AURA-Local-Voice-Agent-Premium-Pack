@@ -120,8 +120,10 @@ public struct UIAnchor: Codable, Sendable, Equatable {
   /// axes. `true` when no coordinate was supplied at all — absence is not
   /// itself an out-of-bounds coordinate.
   public var coordinateFallbackInBounds: Bool {
-    guard let x = fallbackNormalizedX, let y = fallbackNormalizedY else { return true }
-    return (0...1).contains(x) && (0...1).contains(y)
+    guard let normalizedX = fallbackNormalizedX, let normalizedY = fallbackNormalizedY else {
+      return true
+    }
+    return (0...1).contains(normalizedX) && (0...1).contains(normalizedY)
   }
 
   /// An anchor is valid only if it supplies an accessibility hint, a
@@ -222,7 +224,7 @@ public struct ComputerUseSessionTarget: Sendable, Equatable {
 /// first-class and equally authoritative — none is a privileged or
 /// higher-latency path than another.
 public enum EmergencyStopSource: String, Codable, Sendable, Equatable, CaseIterable {
-  case ui
+  case userInterface
   case voice
   case keyboard
 }

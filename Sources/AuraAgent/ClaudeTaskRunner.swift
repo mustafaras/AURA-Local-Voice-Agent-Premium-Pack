@@ -69,13 +69,21 @@ public struct ClaudeTaskRunner: TaskRunner {
       causationID: taskID
     )
 
+    try await consume(stream: stream, taskID: taskID, plan: plan, context: context)
+  }
+
+  private func consume(
+    stream: AsyncThrowingStream<ClaudeNormalizedEvent, Error>,
+    taskID: UUID,
+    plan: TaskPlan,
+    context: TaskExecutionContext
+  ) async throws(AuraError) {
     var iterator = stream.makeAsyncIterator()
     while true {
       await context.checkCancellation()
-      if await context.isCancelled {
+      guard !(await context.isCancelled) else {
         throw AuraError.taskCancelled(taskID)
       }
-
       let next: ClaudeNormalizedEvent?
       do {
         next = try await iterator.next()
@@ -84,33 +92,36 @@ public struct ClaudeTaskRunner: TaskRunner {
       } catch {
         throw AuraError.claudeError("claude stream failed: \(error)")
       }
-      guard let event = next else { break }
+      guard let event = next else { return }
+      try await handle(event: event, plan: plan, context: context)
+    }
+  }
 
-      switch event {
-      case .approvalDecision(_, let allowed, let reason):
-        if !allowed {
-          throw AuraError.claudeError(reason ?? "claude run denied by policy")
-        }
-      case .message(let role, let text, _):
-        await context.reportProgress(
-          completedSteps: 0, totalSteps: plan.totalSteps,
-          currentStepDescription: "\(role): \(text.prefix(120))"
-        )
-      case .turnFailed(let message, _):
-        throw AuraError.claudeError(message ?? "claude turn failed")
-      case .claudeError(let message):
-        throw AuraError.claudeError(message)
-      case .budgetExceeded(let kind, let limit, let observed):
-        throw AuraError.claudeError(
-          "claude budget exceeded: \(kind) limit=\(limit) observed=\(observed)")
-      case .turnCompleted(let resultText, _, _, _, _, _):
-        await context.reportProgress(
-          completedSteps: 1, totalSteps: plan.totalSteps,
-          currentStepDescription: "Claude turn completed: \(resultText.prefix(120))"
-        )
-      default:
-        break
-      }
+  private func handle(
+    event: ClaudeNormalizedEvent,
+    plan: TaskPlan,
+    context: TaskExecutionContext
+  ) async throws(AuraError) {
+    switch event {
+    case .approvalDecision(_, let allowed, let reason) where !allowed:
+      throw AuraError.claudeError(reason ?? "claude run denied by policy")
+    case .message(let role, let text, _):
+      await context.reportProgress(
+        completedSteps: 0, totalSteps: plan.totalSteps,
+        currentStepDescription: "\(role): \(text.prefix(120))")
+    case .turnFailed(let message, _):
+      throw AuraError.claudeError(message ?? "claude turn failed")
+    case .claudeError(let message):
+      throw AuraError.claudeError(message)
+    case .budgetExceeded(let kind, let limit, let observed):
+      throw AuraError.claudeError(
+        "claude budget exceeded: \(kind) limit=\(limit) observed=\(observed)")
+    case .turnCompleted(let resultText, _, _, _, _, _):
+      await context.reportProgress(
+        completedSteps: 1, totalSteps: plan.totalSteps,
+        currentStepDescription: "Claude turn completed: \(resultText.prefix(120))")
+    default:
+      break
     }
   }
 }

@@ -20,7 +20,7 @@ final class AuraTask: @unchecked Sendable {
   private var _currentStepDescription: String
   private var _errorMessage: String?
   private var _updatedAt: Date
-  var _attempt: Int
+  var attemptValue: Int
   private var _latestCheckpointName: String?
   let lock = NSLock()
 
@@ -58,7 +58,7 @@ final class AuraTask: @unchecked Sendable {
   }
 
   var attempt: Int {
-    lock.withLock { _attempt }
+    lock.withLock { attemptValue }
   }
 
   init(
@@ -85,7 +85,7 @@ final class AuraTask: @unchecked Sendable {
     self._currentStepDescription = ""
     self._errorMessage = nil
     self._updatedAt = createdAt
-    self._attempt = 0
+    self.attemptValue = 0
   }
 
   func transition(to newState: TaskState, error: String? = nil) {
@@ -109,7 +109,7 @@ final class AuraTask: @unchecked Sendable {
 
   func incrementAttempt() {
     lock.lock()
-    _attempt += 1
+    attemptValue += 1
     _updatedAt = Date()
     lock.unlock()
   }

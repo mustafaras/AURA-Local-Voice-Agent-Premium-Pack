@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `FINAL`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Live repository:** `main` at current projection commit `991ff7b28ca49d10ad28ade8c3c4a3a20b423217`; latest full hosted-CI verification is its projection-only parent `a20617302591628c704a6cf099f4c18b0525c80b` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
+> **Live repository:** `repo-hygiene/h010-swiftlint-remediation-20260812` at current projection base `63f1e67bf1457e53d07cf282d8b4af1bcc33cba5`; the delivery branch is pending push/merge, and the latest full hosted-CI verification remains the prior projection-only parent `a20617302591628c704a6cf099f4c18b0525c80b` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
@@ -41,9 +41,7 @@ H-005 added `.swift-format` schema version 1 and explicit CI
 strict-concurrency/warnings-as-errors flags. Under explicit bounded-remediation
 authority, all 1,019 configured formatter findings across 116 files were
 resolved in reviewed batches; recursive strict formatter lint, strict build,
-and the 21-bundle/794-test wrapper pass. SwiftLint 0.65.0 is provisioned, but
-full SourceKit-backed lint is blocked by the CLT-only developer directory and
-its no-SourceKit fallback is not a pass. H-005 was delivered and is complete
+and the 21-bundle/794-test wrapper pass. SwiftLint 0.65.0 is provisioned and now loads SourceKit under the selected Xcode toolchain, but its strict policy run exits 2 with 1,330 serious findings across 628 files. H-005 was delivered and is complete
 for chain order; H-006 is complete under exact `ONAY: H-006`, with
 `EV-REPO-HYGIENE-H-006-20260810-01` recording the bounded unsafe/debug audit,
 strict build, focused tests, and cognitive gate. H-007 is complete for chain
@@ -60,8 +58,9 @@ under `EV-REPO-HYGIENE-H-009-20260810-01` and
 `EV-REPO-HYGIENE-H-010-20260810-01`; the six H-008 duplicate backups remain
 SHA-validated in the recoverable quarantine
 `/Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810`. H-010 is blocked; the
-original damaged database is preserved for rollback and full SourceKit/full-
-Xcode capability remains unresolved. Merged-main hosted CI is observed and passing
+original damaged database is preserved for rollback, while Xcode/SourceKit
+capability and wrapper discovery are now resolved. The strict full SwiftLint
+policy still exits 2 with 1,330 serious findings across 628 files. Merged-main hosted CI is observed and passing
 under `EV-REPO-HYGIENE-MAIN-CI-FINAL-20260811-01`; current formatter, lock-graph
 vulnerability/SBOM, and local validator gates pass. No H-011 exists and no
 automatic transition is permitted.
@@ -76,8 +75,9 @@ generated-environment boundary and passing runtime/audio/helper checks.
 `EV-REPO-HYGIENE-GIT-ADOPTION-20260811-01` closes current object integrity and
 reachable-history secret scanning; the damaged pre-adoption `.git` remains
 preserved for rollback. `EV-REPO-HYGIENE-HOSTED-CI-FINAL-20260811-01` closes the
-hosted-CI observation for the pushed remediation commit. Full SourceKit/full-
-Xcode remains blocked and H-010 remains blocked. No H-011 exists.
+hosted-CI observation for the pushed remediation commit. Xcode/SourceKit
+capability is resolved, but the strict full SwiftLint policy remains blocked by
+1,330 owned findings and H-010 remains blocked. No H-011 exists.
 
 The strict BOOTSTRAP preflight and R0 governance repair are complete. Canonical machine state is in
 `AURA_RUNTIME_COMPLETION/state/current-state.json`; the ordered manifest has
@@ -394,3 +394,15 @@ R12 now has a machine-readable blocked readiness contract, schema, validator,
 focused negative tests, and runbook under `EV-R12-20260809-READINESS-CONTRACT-01`.
 This remains static/contract evidence only; no beta or release-candidate gate
 has passed.
+
+## Repository-hygiene overlay — H-010 (2026-08-12)
+
+H-010 remains active/blocked after explicit bounded `Sources/Tests` SwiftLint
+remediation. Xcode 27.0 beta 5/SourceKit, strict swift-format, strict build,
+and strict full tests pass. Full SwiftLint remains `exit 2` with 528 findings
+across 112 files, and the canonical 21-bundle wrapper remains `exit 1` at
+66.10% coverage against the unchanged 70% threshold. The original six-file
+coverage scope was restored; no policy weakening or exclusion expansion was
+accepted. Evidence: `EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01`
+and `EV-REPO-HYGIENE-H-010-CLOSEOUT-20260812-01`. H-011 does not exist; stop
+at H-010 and do not claim global hygiene, product, or release completion.

@@ -47,12 +47,10 @@ func emergencyStopStaysActiveUntilExplicitReset() async {
 @Test
 func emergencyStopEmitsTriggeredAndResetEvents() async {
   let (bus, capture) = makeBus()
-  await bus.subscribe(EmergencyStopTriggeredEvent.self) {
-    (envelope: EventEnvelope<EmergencyStopTriggeredEvent>) async in
+  await bus.subscribe(EmergencyStopTriggeredEvent.self) { envelope in
     await capture.recordTriggered(envelope.payload)
   }
-  await bus.subscribe(EmergencyStopResetEvent.self) {
-    (envelope: EventEnvelope<EmergencyStopResetEvent>) async in
+  await bus.subscribe(EmergencyStopResetEvent.self) { envelope in
     await capture.recordReset(envelope.payload)
   }
   let controller = EmergencyStopController(eventBus: bus)

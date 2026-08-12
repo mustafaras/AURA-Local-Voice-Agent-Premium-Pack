@@ -60,10 +60,16 @@ final class RecordingSTTEngine: STTEngine, @unchecked Sendable {
   }
 }
 
-private func makeFixture() -> (
-  bus: AuraEventBus, audio: AuraAudio, wakeWordPipeline: WakeWordPipeline,
-  sttPipeline: STTPipeline, engine: RecordingSTTEngine, knownFrame: AudioFrame
-) {
+private struct AudioSampleFixture {
+  let bus: AuraEventBus
+  let audio: AuraAudio
+  let wakeWordPipeline: WakeWordPipeline
+  let sttPipeline: STTPipeline
+  let engine: RecordingSTTEngine
+  let knownFrame: AudioFrame
+}
+
+private func makeFixture() -> AudioSampleFixture {
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "bridge"))
   let knownFrame = AudioFrame(
     samples: [0.42, 0.24], timestamp: 1.0, sequenceIndex: 7, isDiscontinuity: false)
@@ -81,7 +87,14 @@ private func makeFixture() -> (
   let sttPipeline = STTPipeline(
     engine: engine, vocabulary: UserVocabulary(), eventBus: bus,
     logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "stt"))
-  return (bus, audio, wakeWordPipeline, sttPipeline, engine, knownFrame)
+  return AudioSampleFixture(
+    bus: bus,
+    audio: audio,
+    wakeWordPipeline: wakeWordPipeline,
+    sttPipeline: sttPipeline,
+    engine: engine,
+    knownFrame: knownFrame
+  )
 }
 
 @Test
@@ -119,7 +132,7 @@ func audioSampleBridgeForwardsRealSamplesOnSequenceIndexMatch() async throws {
   let realSampleFrames = fixture.engine.ingestedFrames().filter { !$0.samples.isEmpty }
   #expect(
     realSampleFrames.contains { $0.samples == fixture.knownFrame.samples },
-    "expected AudioSampleBridge to deliver the real, non-empty-sample frame to STTPipeline.ingestSampleFrame"
+    "expected AudioSampleBridge to deliver the real non-empty-sample frame to STTPipeline"
   )
 }
 

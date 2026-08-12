@@ -1,7 +1,7 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-10.
+Projection refreshed from live repository and command evidence on 2026-08-11.
 
 ## Canonical State Notice — 2026-08-09
 
@@ -20,6 +20,19 @@ but unobserved. This legacy projection is retained for historical compatibility;
 the machine-readable state remains authoritative.
 
 ## Latest Verification Snapshot — 2026-08-10
+
+## Repository Hygiene Refresh — 2026-08-11
+
+The canonical hygiene state remains `H-010` / `blocked` at
+`HEAD == origin/main == 63f1e67bf1457e53d07cf282d8b4af1bcc33cba5`. User-controlled
+Xcode 27.0 beta 5 provisioning succeeded; `xcodebuild`, SourceKit, strict
+formatter/build, and the default 21-bundle/794-test/70.18% wrapper gate pass.
+The wrapper now discovers the full-Xcode `MacOSX.platform` Testing runtime.
+Full SwiftLint executes with SourceKit but exits 2 with 1,330 serious findings
+across 628 files, so H-010 remains blocked on bounded source/test lint
+remediation. No H-011 exists and no product/release completion claim follows.
+Evidence: `EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01` and
+`EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01`.
 
 ### Repository hygiene program overlay
 
@@ -337,3 +350,13 @@ canonical machine state.
   bypass, memory poisoning, structured-output abuse, capability-boundary
   violation), then run the full repository coverage gate. Do not commit, push,
   merge, or release without explicit authorization.
+
+### H-010 current hygiene overlay — 2026-08-12
+
+H-010 bounded `Sources/Tests` remediation was executed under explicit user
+authority. Xcode/SourceKit, strict formatter, strict build, and full strict
+tests pass. The exact SwiftLint policy still exits 2 with 528 serious findings;
+the canonical wrapper runs all 21 bundles with zero bundle failures but exits 1
+at 66.10% coverage under the unchanged 70% threshold. H-010 remains blocked,
+the original six-file scope is preserved, and no H-011 or Git delivery action
+occurred. Evidence: `EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01`.

@@ -8,11 +8,17 @@ import Testing
 
 // MARK: - Helpers
 
+private struct PluginFixture {
+  let manifest: PluginManifest
+  let bundleData: Data
+  let privateKey: Curve25519.Signing.PrivateKey
+}
+
 private func signedManifest(
   capabilities: [Capability] = [.fileRead],
   requiredPermissions: [ResourcePattern]? = nil,
   vendorName: String = "ExampleVendor"
-) -> (manifest: PluginManifest, bundleData: Data, privateKey: Curve25519.Signing.PrivateKey) {
+) -> PluginFixture {
   let privateKey = Curve25519.Signing.PrivateKey()
   let bundleData = Data("plugin bundle payload".utf8)
   let hashHex = SHA256.hash(data: bundleData).compactMap { String(format: "%02x", $0) }.joined()
@@ -24,7 +30,12 @@ private func signedManifest(
     capabilities: capabilities, requiredPermissions: permissions,
     contentHashSHA256Hex: hashHex,
     signatureBase64: Data(repeating: 0, count: 64).base64EncodedString())
-  let signature = try! privateKey.signature(for: unsigned.signedPayload)
+  let signature: Data
+  do {
+    signature = try privateKey.signature(for: unsigned.signedPayload)
+  } catch {
+    preconditionFailure("test fixture signing failed: \(error)")
+  }
   let signed = PluginManifest(
     id: unsigned.id, version: unsigned.version, vendorName: unsigned.vendorName,
     vendorKeyID: unsigned.vendorKeyID, signingAlgorithm: unsigned.signingAlgorithm,
@@ -37,14 +48,10 @@ private func signedManifest(
     migrationNotes: unsigned.migrationNotes, auditLevel: unsigned.auditLevel,
     contentHashSHA256Hex: unsigned.contentHashSHA256Hex,
     signatureBase64: signature.base64EncodedString())
-  return (manifest: signed, bundleData: bundleData, privateKey: privateKey)
+  return PluginFixture(manifest: signed, bundleData: bundleData, privateKey: privateKey)
 }
 
-private func registry(
-  trusting fixture: (
-    manifest: PluginManifest, bundleData: Data, privateKey: Curve25519.Signing.PrivateKey
-  )
-) -> PluginTrustRegistry {
+private func registry(trusting fixture: PluginFixture) -> PluginTrustRegistry {
   PluginTrustRegistry(keysByVendor: [
     fixture.manifest.vendorName: fixture.privateKey.publicKey
   ])

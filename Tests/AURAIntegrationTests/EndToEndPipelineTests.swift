@@ -22,17 +22,161 @@ import Testing
 /// own precedent, avoiding a dependency on a real installed application).
 @Test
 func endToEndPipelineActivatesApplicationFromScriptedUtterance() async throws {
-  let bus = AuraEventBus(logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "e2e"))
+  let fixture = try await makeEndToEndFixture(utterance: "activate safari")
+  await fixture.activate()
+  #expect(await fixture.conversation.state == .listening)
+  try await fixture.driveUtterance()
 
+  // --- Assertions, in causal order ---
+
+  let classified = await fixture.classifiedEvents.value
+  #expect(classified.count == 1)
+  #expect(classified.first?.kind == IntentKind.appActivate.rawValue)
+  #expect(classified.first?.isAmbiguous == false)
+
+  #expect(fixture.spy.activatedBundleIdentifiers == ["com.apple.Safari"])
+
+  let plans = await fixture.responsePlans.value
+  #expect(plans.count == 1)
+  #expect(plans.first?.hasSpokenResponse == true)
+  let trace = await fixture.traceCorrelations.value
+  #expect(trace.count >= 5)
+  #expect(Set(trace).count == 1)
+  #expect(plans.first?.turnContext?.turnID != nil)
+
+  // MockTTSEngine drains quickly; poll briefly rather than a fixed sleep.
+  var attempts = 0
+  var finalState = await fixture.conversation.state
+  while finalState != .idle, attempts < 50 {
+    try await Task.sleep(nanoseconds: 20_000_000)
+    finalState = await fixture.conversation.state
+    attempts += 1
+  }
+  #expect(finalState == .idle)
+
+  // Release-readiness latency assertion: mock-engine wake-to-ack must remain
+  // under 500 ms (ADR-023 budget). The deterministic clock lets the test prove
+  // the instrumentation, not a real acoustic pipeline.
+  let latencies = await fixture.latencyMeasurements.value
+  let wakeToAck = latencies.first { $0.kind == .wakeToAck }
+  #expect(wakeToAck != nil)
+  #expect(wakeToAck!.latencySeconds < 0.5)
+  #expect(wakeToAck!.budgetSeconds == 0.5)
+  #expect(wakeToAck!.isMockEngine == true)
+  #expect(wakeToAck!.backendIDs?.tts?.hasPrefix("mock") == true)
+}
+
+/// Proves the ambiguity guardrail survives the full chain, not just
+/// `ToolRouter` in isolation: an utterance naming an unrecognized
+/// application must never silently resolve to a guessed bundle
+/// identifier, and `AuraAutomation` must never be called.
+@Test
+func endToEndPipelineNeverGuessesAnUnresolvedApplication() async throws {
+  let fixture = try await makeEndToEndFixture(
+    utterance: "activate some totally unknown application",
+    grantConfirmationNoneFor: [])
+  await fixture.activate()
+  try await fixture.driveUtterance()
+
+  #expect(fixture.spy.activatedBundleIdentifiers.isEmpty)
+  let plans = await fixture.responsePlans.value
+  #expect(plans.count == 1)
+  #expect(plans.first?.summary.lowercased().contains("which application") == true)
+}
+
+/// Proves the deterministic mock-engine pipeline can keep a simple command
+/// completion under the ADR-023 budget (1.5 s), using the same injected
+/// monotonic clock and mock TTS engine that the wake-to-ack test uses.
+@Test
+func endToEndPipelineCompletesSimpleCommandUnderBudget() async throws {
+  let fixture = try await makeEndToEndFixture(utterance: "activate safari")
+  await fixture.activate()
+  try await fixture.driveUtterance()
+
+  #expect(fixture.spy.activatedBundleIdentifiers == ["com.apple.Safari"])
+
+  // MockTTSEngine drains quickly; poll briefly rather than a fixed sleep.
+  var attempts = 0
+  var finalState = await fixture.conversation.state
+  while finalState != .idle, attempts < 50 {
+    try await Task.sleep(nanoseconds: 20_000_000)
+    finalState = await fixture.conversation.state
+    attempts += 1
+  }
+  #expect(finalState == .idle)
+
+  let latencies = await fixture.latencyMeasurements.value
+  let wakeToAck = latencies.first { $0.kind == .wakeToAck }
+  let simpleCompletion = latencies.first { $0.kind == .simpleCommandCompletion }
+  #expect(wakeToAck != nil)
+  #expect(wakeToAck!.latencySeconds < 0.5)
+  #expect(simpleCompletion != nil)
+  #expect(simpleCompletion!.latencySeconds < 1.5)
+  #expect(simpleCompletion!.budgetSeconds == 1.5)
+  #expect(simpleCompletion!.isMockEngine == true)
+}
+
+private struct EndToEndRuntime {
+  let bus: AuraEventBus
+  let spy: ApplicationControllerSpy
+  let toolRouter: ToolRouter
+  let intentEngine: IntentEngine
+}
+
+private struct EndToEndEventBoxes {
+  let classifiedEvents: AtomicBox<[IntentClassifiedEvent]>
+  let traceCorrelations: AtomicBox<[UUID]>
+  let responsePlans: AtomicBox<[ResponsePlanEvent]>
+  let latencyMeasurements: AtomicBox<[LatencyMeasuredEvent]>
+}
+
+private struct EndToEndFixture {
+  let bus: AuraEventBus
+  let spy: ApplicationControllerSpy
+  let clockBox: MutableClock
+  let conversation: Conversation
+  let coordinator: IntentDispatchCoordinator
+  let conversationBridge: ConversationEventBridge
+  let sttPipeline: STTPipeline
+  let classifiedEvents: AtomicBox<[IntentClassifiedEvent]>
+  let traceCorrelations: AtomicBox<[UUID]>
+  let responsePlans: AtomicBox<[ResponsePlanEvent]>
+  let latencyMeasurements: AtomicBox<[LatencyMeasuredEvent]>
+
+  func activate() async {
+    clockBox.current = 0.0
+    await bus.emit(
+      EventEnvelope(
+        correlationID: UUID(), causationID: UUID(), actor: .audio,
+        sensitivity: .internalLevel,
+        payload: WakeActivationEvent(isActive: true, privacyMode: false)))
+  }
+
+  func driveUtterance() async throws {
+    clockBox.current = 0.100
+    for index in 0..<10 {
+      let frame = AudioFrame(
+        samples: [0.0], timestamp: Double(index), sequenceIndex: UInt64(index),
+        isDiscontinuity: false)
+      await sttPipeline.ingestSampleFrame(frame)
+      if await responsePlans.value.count > 0 { break }
+      try await Task.sleep(nanoseconds: 20_000_000)
+    }
+  }
+}
+
+private func makeEndToEndRuntime(
+  grantConfirmationNoneFor: [Capability]
+) async throws -> EndToEndRuntime {
+  let bus = AuraEventBus(logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "e2e"))
   let policyEngine = try await makeTestPolicyEngine(
-    eventBus: bus, grantConfirmationNoneFor: [.appActivate])
+    eventBus: bus, grantConfirmationNoneFor: grantConfirmationNoneFor)
   let spy = ApplicationControllerSpy()
   let automation = makeAutomation(spy: spy, eventBus: bus)
   let shell = AuraShell(configuration: ShellConfiguration())
   let store = try await makeTestStore()
   let taskEngine = await AuraTaskEngine(store: store, eventBus: bus)
   let agentTaskRunner = makeAgentBackendTaskRunner(policyEngine: policyEngine, eventBus: bus)
-
   let capabilityRegistry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: capabilityRegistry)
   let toolRouter = ToolRouter(
@@ -43,25 +187,10 @@ func endToEndPipelineActivatesApplicationFromScriptedUtterance() async throws {
   let intentEngine = IntentEngine(
     classifier: RuleBasedUtteranceClassifier(), configuration: IntentEngineConfiguration(),
     eventBus: bus)
+  return EndToEndRuntime(bus: bus, spy: spy, toolRouter: toolRouter, intentEngine: intentEngine)
+}
 
-  let clockBox = MutableClock(initial: 0.0)
-  let clock: @Sendable () -> TimeInterval = { clockBox.current }
-
-  let conversation = Conversation(
-    configuration: ConversationConfiguration(), ttsConfiguration: TTSConfiguration(),
-    ttsEngine: MockTTSEngine(), eventBus: bus,
-    logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "conversation"),
-    monotonicClock: clock)
-
-  let coordinator = IntentDispatchCoordinator(
-    intentEngine: intentEngine, toolRouter: toolRouter, conversation: conversation,
-    eventBus: bus, sessionID: UUID())
-  let conversationBridge = ConversationEventBridge(conversation: conversation, eventBus: bus)
-
-  // Subscribe-before-publish, matching AuraKernel's real ordering.
-  await coordinator.start()
-  await conversationBridge.start()
-
+private func subscribeEndToEndEvents(_ bus: AuraEventBus) async -> EndToEndEventBoxes {
   let classifiedEvents = AtomicBox<[IntentClassifiedEvent]>([])
   let traceCorrelations = AtomicBox<[UUID]>([])
   await bus.subscribe(IntentClassifiedEvent.self) { envelope in
@@ -86,261 +215,45 @@ func endToEndPipelineActivatesApplicationFromScriptedUtterance() async throws {
   await bus.subscribe(LatencyMeasuredEvent.self) { envelope in
     await latencyMeasurements.withValue { $0 + [envelope.payload] }
   }
-
-  let sttEngine = DeterministicMockSTTEngine(
-    script: [
-      DeterministicMockSTTEngine.MockSegment(text: "activate safari", expectedFrameCount: 3)
-    ], partialBoundaryFrames: 1, stabilizationDelayFrames: 1)
-  let sttPipeline = STTPipeline(
-    engine: sttEngine, vocabulary: UserVocabulary(), eventBus: bus,
-    logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "stt"))
-  try await sttPipeline.start()
-
-  // Real wake activation: STTPipeline self-subscribes to this event; the
-  // bridge added by this phase (ConversationEventBridge) is what makes
-  // Conversation itself react too.
-  clockBox.current = 0.0
-  await bus.emit(
-    EventEnvelope(
-      correlationID: UUID(), causationID: UUID(), actor: .audio, sensitivity: .internalLevel,
-      payload: WakeActivationEvent(isActive: true, privacyMode: false)))
-  #expect(await conversation.state == .listening)
-
-  // Drive the scripted mock engine to a stable segment via the same
-  // `ingestSampleFrame` seam AudioSampleBridge uses in production.
-  clockBox.current = 0.100
-  for index in 0..<10 {
-    let frame = AudioFrame(
-      samples: [0.0], timestamp: Double(index), sequenceIndex: UInt64(index),
-      isDiscontinuity: false)
-    await sttPipeline.ingestSampleFrame(frame)
-    if await responsePlans.value.count > 0 { break }
-    try await Task.sleep(nanoseconds: 20_000_000)
-  }
-
-  // --- Assertions, in causal order ---
-
-  let classified = await classifiedEvents.value
-  #expect(classified.count == 1)
-  #expect(classified.first?.kind == IntentKind.appActivate.rawValue)
-  #expect(classified.first?.isAmbiguous == false)
-
-  #expect(spy.activatedBundleIdentifiers == ["com.apple.Safari"])
-
-  let plans = await responsePlans.value
-  #expect(plans.count == 1)
-  #expect(plans.first?.hasSpokenResponse == true)
-  let trace = await traceCorrelations.value
-  #expect(trace.count >= 5)
-  #expect(Set(trace).count == 1)
-  #expect(plans.first?.turnContext?.turnID != nil)
-
-  // MockTTSEngine drains quickly; poll briefly rather than a fixed sleep.
-  var attempts = 0
-  var finalState = await conversation.state
-  while finalState != .idle, attempts < 50 {
-    try await Task.sleep(nanoseconds: 20_000_000)
-    finalState = await conversation.state
-    attempts += 1
-  }
-  #expect(finalState == .idle)
-
-  // Release-readiness latency assertion: mock-engine wake-to-ack must remain
-  // under 500 ms (ADR-023 budget). The deterministic clock lets the test prove
-  // the instrumentation, not a real acoustic pipeline.
-  let latencies = await latencyMeasurements.value
-  let wakeToAck = latencies.first { $0.kind == .wakeToAck }
-  #expect(wakeToAck != nil)
-  #expect(wakeToAck!.latencySeconds < 0.5)
-  #expect(wakeToAck!.budgetSeconds == 0.5)
-  #expect(wakeToAck!.isMockEngine == true)
-  #expect(wakeToAck!.backendIDs?.tts?.hasPrefix("mock") == true)
+  return EndToEndEventBoxes(
+    classifiedEvents: classifiedEvents, traceCorrelations: traceCorrelations,
+    responsePlans: responsePlans, latencyMeasurements: latencyMeasurements)
 }
 
-/// Proves the ambiguity guardrail survives the full chain, not just
-/// `ToolRouter` in isolation: an utterance naming an unrecognized
-/// application must never silently resolve to a guessed bundle
-/// identifier, and `AuraAutomation` must never be called.
-@Test
-func endToEndPipelineNeverGuessesAnUnresolvedApplication() async throws {
-  let bus = AuraEventBus(
-    logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "e2e-ambiguous"))
-  let policyEngine = try await makeTestPolicyEngine(eventBus: bus)
-  let spy = ApplicationControllerSpy()
-  let automation = makeAutomation(spy: spy, eventBus: bus)
-  let shell = AuraShell(configuration: ShellConfiguration())
-  let store = try await makeTestStore()
-  let taskEngine = await AuraTaskEngine(store: store, eventBus: bus)
-  let agentTaskRunner = makeAgentBackendTaskRunner(policyEngine: policyEngine, eventBus: bus)
-
-  let capabilityRegistry = CapabilityRegistry()
-  await InitialCapabilitySet.registerAll(in: capabilityRegistry)
-  let toolRouter = ToolRouter(
-    policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
-    agentTaskRunner: agentTaskRunner, capabilityRegistry: capabilityRegistry,
-    confirmationPresenter: IntentAlwaysAllowConfirmationPresenter(), eventBus: bus,
-    configuration: IntentEngineConfiguration())
-  let intentEngine = IntentEngine(
-    classifier: RuleBasedUtteranceClassifier(), configuration: IntentEngineConfiguration(),
-    eventBus: bus)
+private func makeEndToEndFixture(
+  utterance: String,
+  grantConfirmationNoneFor: [Capability] = [.appActivate]
+) async throws -> EndToEndFixture {
+  let runtime = try await makeEndToEndRuntime(
+    grantConfirmationNoneFor: grantConfirmationNoneFor)
   let clockBox = MutableClock(initial: 0.0)
   let clock: @Sendable () -> TimeInterval = { clockBox.current }
-
   let conversation = Conversation(
     configuration: ConversationConfiguration(), ttsConfiguration: TTSConfiguration(),
-    ttsEngine: MockTTSEngine(), eventBus: bus,
+    ttsEngine: MockTTSEngine(), eventBus: runtime.bus,
     logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "conversation"),
     monotonicClock: clock)
   let coordinator = IntentDispatchCoordinator(
-    intentEngine: intentEngine, toolRouter: toolRouter, conversation: conversation,
-    eventBus: bus, sessionID: UUID())
-  let conversationBridge = ConversationEventBridge(conversation: conversation, eventBus: bus)
+    intentEngine: runtime.intentEngine, toolRouter: runtime.toolRouter,
+    conversation: conversation, eventBus: runtime.bus, sessionID: UUID())
+  let conversationBridge = ConversationEventBridge(
+    conversation: conversation, eventBus: runtime.bus)
   await coordinator.start()
   await conversationBridge.start()
-
-  let responsePlans = AtomicBox<[ResponsePlanEvent]>([])
-  await bus.subscribe(ResponsePlanEvent.self) { envelope in
-    await responsePlans.withValue { $0 + [envelope.payload] }
-  }
-
-  // No latency assertion is needed in the ambiguity path; it exercises the
-  // same Conversation actor with the injected monotonic clock to ensure no
-  // regression in event causality.
-  let latencyMeasurements = AtomicBox<[LatencyMeasuredEvent]>([])
-  await bus.subscribe(LatencyMeasuredEvent.self) { envelope in
-    await latencyMeasurements.withValue { $0 + [envelope.payload] }
-  }
-
+  let boxes = await subscribeEndToEndEvents(runtime.bus)
   let sttEngine = DeterministicMockSTTEngine(
-    script: [
-      DeterministicMockSTTEngine.MockSegment(
-        text: "activate some totally unknown application", expectedFrameCount: 3)
-    ], partialBoundaryFrames: 1, stabilizationDelayFrames: 1)
+    script: [DeterministicMockSTTEngine.MockSegment(text: utterance, expectedFrameCount: 3)],
+    partialBoundaryFrames: 1, stabilizationDelayFrames: 1)
   let sttPipeline = STTPipeline(
-    engine: sttEngine, vocabulary: UserVocabulary(), eventBus: bus,
+    engine: sttEngine, vocabulary: UserVocabulary(), eventBus: runtime.bus,
     logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "stt"))
   try await sttPipeline.start()
-
-  clockBox.current = 0.0
-  await bus.emit(
-    EventEnvelope(
-      correlationID: UUID(), causationID: UUID(), actor: .audio, sensitivity: .internalLevel,
-      payload: WakeActivationEvent(isActive: true, privacyMode: false)))
-
-  clockBox.current = 0.100
-  for index in 0..<10 {
-    let frame = AudioFrame(
-      samples: [0.0], timestamp: Double(index), sequenceIndex: UInt64(index),
-      isDiscontinuity: false)
-    await sttPipeline.ingestSampleFrame(frame)
-    if await responsePlans.value.count > 0 { break }
-    try await Task.sleep(nanoseconds: 20_000_000)
-  }
-
-  #expect(spy.activatedBundleIdentifiers.isEmpty)
-  let plans = await responsePlans.value
-  #expect(plans.count == 1)
-  #expect(plans.first?.summary.lowercased().contains("which application") == true)
-}
-
-/// Proves the deterministic mock-engine pipeline can keep a simple command
-/// completion under the ADR-023 budget (1.5 s), using the same injected
-/// monotonic clock and mock TTS engine that the wake-to-ack test uses.
-@Test
-func endToEndPipelineCompletesSimpleCommandUnderBudget() async throws {
-  let bus = AuraEventBus(
-    logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "e2e-simple"))
-
-  let policyEngine = try await makeTestPolicyEngine(
-    eventBus: bus, grantConfirmationNoneFor: [.appActivate])
-  let spy = ApplicationControllerSpy()
-  let automation = makeAutomation(spy: spy, eventBus: bus)
-  let shell = AuraShell(configuration: ShellConfiguration())
-  let store = try await makeTestStore()
-  let taskEngine = await AuraTaskEngine(store: store, eventBus: bus)
-  let agentTaskRunner = makeAgentBackendTaskRunner(policyEngine: policyEngine, eventBus: bus)
-
-  let capabilityRegistry = CapabilityRegistry()
-  await InitialCapabilitySet.registerAll(in: capabilityRegistry)
-  let toolRouter = ToolRouter(
-    policyEngine: policyEngine, automation: automation, shell: shell, taskEngine: taskEngine,
-    agentTaskRunner: agentTaskRunner, capabilityRegistry: capabilityRegistry,
-    confirmationPresenter: IntentAlwaysAllowConfirmationPresenter(), eventBus: bus,
-    configuration: IntentEngineConfiguration())
-  let intentEngine = IntentEngine(
-    classifier: RuleBasedUtteranceClassifier(), configuration: IntentEngineConfiguration(),
-    eventBus: bus)
-  let clockBox = MutableClock(initial: 0.0)
-  let clock: @Sendable () -> TimeInterval = { clockBox.current }
-
-  let conversation = Conversation(
-    configuration: ConversationConfiguration(), ttsConfiguration: TTSConfiguration(),
-    ttsEngine: MockTTSEngine(), eventBus: bus,
-    logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "conversation"),
-    monotonicClock: clock)
-
-  let coordinator = IntentDispatchCoordinator(
-    intentEngine: intentEngine, toolRouter: toolRouter, conversation: conversation,
-    eventBus: bus, sessionID: UUID())
-  let conversationBridge = ConversationEventBridge(conversation: conversation, eventBus: bus)
-  await coordinator.start()
-  await conversationBridge.start()
-
-  let responsePlans = AtomicBox<[ResponsePlanEvent]>([])
-  await bus.subscribe(ResponsePlanEvent.self) { envelope in
-    await responsePlans.withValue { $0 + [envelope.payload] }
-  }
-  let latencyMeasurements = AtomicBox<[LatencyMeasuredEvent]>([])
-  await bus.subscribe(LatencyMeasuredEvent.self) { envelope in
-    await latencyMeasurements.withValue { $0 + [envelope.payload] }
-  }
-
-  let sttEngine = DeterministicMockSTTEngine(
-    script: [
-      DeterministicMockSTTEngine.MockSegment(text: "activate safari", expectedFrameCount: 3)
-    ], partialBoundaryFrames: 1, stabilizationDelayFrames: 1)
-  let sttPipeline = STTPipeline(
-    engine: sttEngine, vocabulary: UserVocabulary(), eventBus: bus,
-    logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "stt"))
-  try await sttPipeline.start()
-
-  clockBox.current = 0.0
-  await bus.emit(
-    EventEnvelope(
-      correlationID: UUID(), causationID: UUID(), actor: .audio, sensitivity: .internalLevel,
-      payload: WakeActivationEvent(isActive: true, privacyMode: false)))
-
-  clockBox.current = 0.100
-  for index in 0..<10 {
-    let frame = AudioFrame(
-      samples: [0.0], timestamp: Double(index), sequenceIndex: UInt64(index),
-      isDiscontinuity: false)
-    await sttPipeline.ingestSampleFrame(frame)
-    if await responsePlans.value.count > 0 { break }
-    try await Task.sleep(nanoseconds: 20_000_000)
-  }
-
-  #expect(spy.activatedBundleIdentifiers == ["com.apple.Safari"])
-
-  // MockTTSEngine drains quickly; poll briefly rather than a fixed sleep.
-  var attempts = 0
-  var finalState = await conversation.state
-  while finalState != .idle, attempts < 50 {
-    try await Task.sleep(nanoseconds: 20_000_000)
-    finalState = await conversation.state
-    attempts += 1
-  }
-  #expect(finalState == .idle)
-
-  let latencies = await latencyMeasurements.value
-  let wakeToAck = latencies.first { $0.kind == .wakeToAck }
-  let simpleCompletion = latencies.first { $0.kind == .simpleCommandCompletion }
-  #expect(wakeToAck != nil)
-  #expect(wakeToAck!.latencySeconds < 0.5)
-  #expect(simpleCompletion != nil)
-  #expect(simpleCompletion!.latencySeconds < 1.5)
-  #expect(simpleCompletion!.budgetSeconds == 1.5)
-  #expect(simpleCompletion!.isMockEngine == true)
+  return EndToEndFixture(
+    bus: runtime.bus, spy: runtime.spy, clockBox: clockBox, conversation: conversation,
+    coordinator: coordinator, conversationBridge: conversationBridge,
+    sttPipeline: sttPipeline, classifiedEvents: boxes.classifiedEvents,
+    traceCorrelations: boxes.traceCorrelations, responsePlans: boxes.responsePlans,
+    latencyMeasurements: boxes.latencyMeasurements)
 }
 
 /// Thread-safe mutable clock source suitable for a `@Sendable` monotonic

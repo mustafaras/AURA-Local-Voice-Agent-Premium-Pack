@@ -5,9 +5,15 @@ import AuraStore
 import Foundation
 import Testing
 
+private struct R8ContextFixture {
+  let engine: ContextEngine
+  let builder: ContextBuilder
+  let memory: MemoryEngine
+}
+
 private func r8ContextStack(
   configuration: ContextConfiguration = ContextConfiguration()
-) async throws -> (ContextEngine, ContextBuilder, MemoryEngine) {
+) async throws -> R8ContextFixture {
   let path = NSTemporaryDirectory().appending(UUID().uuidString).appending(".db")
   let store = try await AuraStore(path: path)
   let bus = AuraEventBus(logger: AuraLogger(subsystem: "AuraContextTests", category: "r8"))
@@ -16,14 +22,16 @@ private func r8ContextStack(
     store: store, memory: memory, eventBus: bus, configuration: configuration)
   let builder = ContextBuilder(
     engine: engine, memory: memory, eventBus: bus, configuration: configuration)
-  return (engine, builder, memory)
+  return R8ContextFixture(engine: engine, builder: builder, memory: memory)
 }
 
 @Test
 func r8ContextSurfacesUnresolvedContradictionButUsesAuthorityWinner() async throws {
   var configuration = ContextConfiguration()
   configuration.maxPreferences = 5
-  let (engine, _, memory) = try await r8ContextStack(configuration: configuration)
+  let fixture = try await r8ContextStack(configuration: configuration)
+  let engine = fixture.engine
+  let memory = fixture.memory
   let first = MemoryRecordDraft(
     memoryClass: .userPreference, subject: "reply.language", statement: "Turkish",
     evidenceReferences: ["user-turn-1"], provenance: .userStated,
@@ -48,7 +56,9 @@ func r8ContextSurfacesUnresolvedContradictionButUsesAuthorityWinner() async thro
 func r8ContextBundleCarriesPurposeProvenanceAndBoundedBudget() async throws {
   var configuration = ContextConfiguration()
   configuration.maxTokenBudget = 240
-  let (_, builder, memory) = try await r8ContextStack(configuration: configuration)
+  let fixture = try await r8ContextStack(configuration: configuration)
+  let builder = fixture.builder
+  let memory = fixture.memory
   try await memory.append(
     MemoryRecordDraft(
       memoryClass: .projectFact, subject: "project.toolchain",
@@ -74,7 +84,7 @@ func r8ContextBundleCarriesPurposeProvenanceAndBoundedBudget() async throws {
 
 @Test
 func r8RemoteContextFailsClosedBeforeAnyTransmission() async throws {
-  let (_, builder, _) = try await r8ContextStack()
+  let builder = try await r8ContextStack().builder
   await #expect(throws: AuraError.self) {
     try await builder.build(
       DeepContextRequest(

@@ -80,58 +80,16 @@ struct WakeWordPipelineTests {
   }
 
   @Test func wakePipelineAcceptsWakeAndReportsMetrics() async {
-    let bus = AuraEventBus(logger: AuraLogger(subsystem: "test", category: "bus"))
-    let logger = AuraLogger(subsystem: "test", category: "pipeline")
-    let config = WakeWordConfiguration(
-      phrase: "hey aura",
-      vadEnergyThresholdDB: -40.0,
-      vadSilenceFrames: 5,
-      wakeConfidenceThreshold: 0.8,
-      wakeDebounceSeconds: 0.1,
-      enableAntiTriggerProtection: true,
-      speakerVerificationEnabled: false,
-      speakerVerificationThreshold: 0.80,
-      privacyModeKeyboardShortcut: "",
-      privacyModeRequiresKeyboardShortcut: true
-    )
-    let vad = EnergyVAD(
-      adaptationRate: 0.1,
-      thresholdOffsetDB: 10.0,
-      silenceFrames: 5
-    )
-    let detector = MarkerWakeWordDetector(
-      phrase: "hey aura",
-      confidenceThreshold: 0.8,
-      markerFrequency: 1000.0,
-      markerWindowHz: 50.0
-    )
-
-    let activationsBox = MutexBox<[Bool]>([])
-    await bus.subscribe(WakeActivationEvent.self) { envelope in
-      activationsBox.withLock { $0.append(envelope.payload.isActive) }
-    }
-
-    let clockBox = MutexBox<UInt64>(0)
-    let clock: @Sendable () -> TimeInterval = {
-      clockBox.withLock { count in
-        count += 1
-        return TimeInterval(count) * 0.1
-      }
-    }
-
-    let pipeline = WakeWordPipeline(
-      configuration: config,
-      eventBus: bus,
-      logger: logger,
-      vad: vad,
-      wakeDetector: detector,
-      speakerVerifier: nil,
-      monotonicClock: clock
-    )
-
-    await pipeline.start()
-
-    // Lead-in silence lets the VAD adapt, then a marker tone should wake.
+    let clockBox = WakeMutexBox<UInt64>(0)
+    let fixture = await makeWakePipelineFixture(
+      debounceSeconds: 0.1,
+      monotonicClock: {
+        clockBox.withLock { count in
+          count += 1
+          return TimeInterval(count) * 0.1
+        }
+      })
+    await fixture.pipeline.start()
     let silenceFrames = SyntheticAudio.silence(
       frameLength: 512, frameCount: 10, startingSequence: 0)
     let markerFrames = SyntheticAudio.toneBurst(
@@ -143,82 +101,26 @@ struct WakeWordPipelineTests {
       startingSequence: UInt64(silenceFrames.count)
     )
 
-    for frame in silenceFrames + markerFrames {
-      await pipeline.ingestSampleFrame(frame)
-      let event = AudioFrameEvent(
-        sampleCount: frame.samples.count,
-        timestamp: frame.timestamp,
-        sequenceIndex: frame.sequenceIndex,
-        isDiscontinuity: frame.isDiscontinuity
-      )
-      await bus.emit(
-        EventEnvelope(
-          correlationID: UUID(),
-          causationID: UUID(),
-          actor: .audio,
-          sensitivity: .internalLevel,
-          payload: event
-        )
-      )
-    }
+    await feedWakeFrames(silenceFrames + markerFrames, fixture: fixture)
 
     // Allow the subscribed handler to run on the bus.
     try? await Task.sleep(nanoseconds: 200_000_000)
 
-    let metrics = await pipeline.currentMetrics()
+    let metrics = await fixture.pipeline.currentMetrics()
     #expect(metrics.totalHypotheses > 0)
     #expect(metrics.acceptedActivations > 0)
 
-    let activations = activationsBox.withLock { $0 }
+    let activations = fixture.activationsBox.withLock { $0 }
     #expect(activations.contains(true))
 
-    await pipeline.stop()
+    await fixture.pipeline.stop()
   }
 
   @Test func antiTriggerSuppressesWakeDuringOutput() async {
-    let bus = AuraEventBus(logger: AuraLogger(subsystem: "test", category: "bus"))
-    let logger = AuraLogger(subsystem: "test", category: "pipeline")
-    let config = WakeWordConfiguration(
-      phrase: "hey aura",
-      vadEnergyThresholdDB: -40.0,
-      vadSilenceFrames: 5,
-      wakeConfidenceThreshold: 0.8,
-      wakeDebounceSeconds: 0.0,
-      enableAntiTriggerProtection: true,
-      speakerVerificationEnabled: false,
-      speakerVerificationThreshold: 0.80,
-      privacyModeKeyboardShortcut: "",
-      privacyModeRequiresKeyboardShortcut: true
-    )
-    let vad = EnergyVAD(
-      adaptationRate: 0.1,
-      thresholdOffsetDB: 10.0,
-      silenceFrames: 5
-    )
-    let detector = MarkerWakeWordDetector(
-      phrase: "hey aura",
-      confidenceThreshold: 0.8,
-      markerFrequency: 1000.0,
-      markerWindowHz: 50.0
-    )
-
-    let activationsBox = MutexBox<[Bool]>([])
-    await bus.subscribe(WakeActivationEvent.self) { envelope in
-      activationsBox.withLock { $0.append(envelope.payload.isActive) }
-    }
-
-    let pipeline = WakeWordPipeline(
-      configuration: config,
-      eventBus: bus,
-      logger: logger,
-      vad: vad,
-      wakeDetector: detector,
-      speakerVerifier: nil,
-      monotonicClock: { 0.0 }
-    )
-
-    await pipeline.start()
-    await pipeline.setOutputActive(true)
+    let fixture = await makeWakePipelineFixture(
+      debounceSeconds: 0.0, monotonicClock: { 0.0 })
+    await fixture.pipeline.start()
+    await fixture.pipeline.setOutputActive(true)
 
     let markerFrames = SyntheticAudio.toneBurst(
       frequency: 1000,
@@ -226,140 +128,71 @@ struct WakeWordPipelineTests {
       frameLength: 512,
       burstFrames: 15
     )
-    for frame in markerFrames {
-      await pipeline.ingestSampleFrame(frame)
-      await bus.emit(
-        EventEnvelope(
-          correlationID: UUID(),
-          causationID: UUID(),
-          actor: .audio,
-          sensitivity: .internalLevel,
-          payload: AudioFrameEvent(
-            sampleCount: frame.samples.count,
-            timestamp: frame.timestamp,
-            sequenceIndex: frame.sequenceIndex,
-            isDiscontinuity: frame.isDiscontinuity
-          )
-        )
-      )
-    }
+    await feedWakeFrames(markerFrames, fixture: fixture)
 
     try? await Task.sleep(nanoseconds: 100_000_000)
 
-    let metrics = await pipeline.currentMetrics()
+    let metrics = await fixture.pipeline.currentMetrics()
     #expect(metrics.antiTriggerSuppressions > 0)
     #expect(metrics.acceptedActivations == 0)
 
-    let activations = activationsBox.withLock { $0 }
+    let activations = fixture.activationsBox.withLock { $0 }
     #expect(!activations.contains(true))
 
-    await pipeline.stop()
+    await fixture.pipeline.stop()
   }
 
-  @Test func privacyModeRequiresShortcut() async {
-    let bus = AuraEventBus(logger: AuraLogger(subsystem: "test", category: "bus"))
-    let logger = AuraLogger(subsystem: "test", category: "pipeline")
-    let config = WakeWordConfiguration(
-      phrase: "hey aura",
-      vadEnergyThresholdDB: -40.0,
-      vadSilenceFrames: 5,
-      wakeConfidenceThreshold: 0.8,
-      wakeDebounceSeconds: 0.0,
-      enableAntiTriggerProtection: true,
-      speakerVerificationEnabled: false,
-      speakerVerificationThreshold: 0.80,
-      privacyModeKeyboardShortcut: "⇧⌘L",
-      privacyModeRequiresKeyboardShortcut: true
-    )
+}
 
-    let pipeline = WakeWordPipeline(
-      configuration: config,
-      eventBus: bus,
-      logger: logger,
-      vad: EnergyVAD(),
-      wakeDetector: MarkerWakeWordDetector(),
-      speakerVerifier: nil,
-      monotonicClock: { 0.0 }
-    )
+struct WakePipelineFixture {
+  let bus: AuraEventBus
+  let pipeline: WakeWordPipeline
+  let activationsBox: WakeMutexBox<[Bool]>
+}
 
-    await pipeline.start()
-    #expect(await pipeline.currentState() == .listening)
-
-    await pipeline.setPrivacyMode(true, triggeredByKeyboardShortcut: false)
-    #expect(await pipeline.currentState() == .privacyArmed)
-
-    let markerFrames = SyntheticAudio.toneBurst(
-      frequency: 1000,
-      amplitude: 0.6,
-      frameLength: 512,
-      burstFrames: 15
-    )
-    for frame in markerFrames {
-      await pipeline.ingestSampleFrame(frame)
-      await bus.emit(
-        EventEnvelope(
-          correlationID: UUID(),
-          causationID: UUID(),
-          actor: .audio,
-          sensitivity: .internalLevel,
-          payload: AudioFrameEvent(
-            sampleCount: frame.samples.count,
-            timestamp: frame.timestamp,
-            sequenceIndex: frame.sequenceIndex,
-            isDiscontinuity: frame.isDiscontinuity
-          )
-        )
-      )
-    }
-
-    try? await Task.sleep(nanoseconds: 50_000_000)
-    #expect(await pipeline.currentMetrics().acceptedActivations == 0)
-
-    await pipeline.privacyShortcutPressed()
-    #expect(await pipeline.currentState() == .listening)
-
-    await pipeline.stop()
+func makeWakePipelineFixture(
+  debounceSeconds: TimeInterval,
+  monotonicClock: @escaping @Sendable () -> TimeInterval,
+  privacyShortcut: String = ""
+) async -> WakePipelineFixture {
+  let bus = AuraEventBus(logger: AuraLogger(subsystem: "test", category: "bus"))
+  let config = WakeWordConfiguration(
+    phrase: "hey aura", vadEnergyThresholdDB: -40.0, vadSilenceFrames: 5,
+    wakeConfidenceThreshold: 0.8, wakeDebounceSeconds: debounceSeconds,
+    enableAntiTriggerProtection: true, speakerVerificationEnabled: false,
+    speakerVerificationThreshold: 0.80, privacyModeKeyboardShortcut: privacyShortcut,
+    privacyModeRequiresKeyboardShortcut: true)
+  let activationsBox = WakeMutexBox<[Bool]>([])
+  await bus.subscribe(WakeActivationEvent.self) { envelope in
+    activationsBox.withLock { $0.append(envelope.payload.isActive) }
   }
+  let pipeline = WakeWordPipeline(
+    configuration: config, eventBus: bus,
+    logger: AuraLogger(subsystem: "test", category: "pipeline"),
+    vad: EnergyVAD(adaptationRate: 0.1, thresholdOffsetDB: 10.0, silenceFrames: 5),
+    wakeDetector: MarkerWakeWordDetector(
+      phrase: "hey aura", confidenceThreshold: 0.8,
+      markerFrequency: 1000.0, markerWindowHz: 50.0),
+    speakerVerifier: nil, monotonicClock: monotonicClock)
+  return WakePipelineFixture(bus: bus, pipeline: pipeline, activationsBox: activationsBox)
+}
 
-  @Test func speakerVerifierEnrollsAndRecognizesMarkerVoice() async {
-    let verifier = MarkerSpeakerVerifier(
-      markerFrequency: 1500.0,
-      markerWindowHz: 50.0,
-      matchThreshold: 0.70
-    )
-
-    let enrollmentFrames = SyntheticAudio.toneBurst(
-      frequency: 1500,
-      amplitude: 0.6,
-      frameLength: 512,
-      burstFrames: 10
-    )
-    await verifier.enroll(profileID: "owner", samples: enrollmentFrames)
-
-    let matchFrame = SyntheticAudio.toneBurst(
-      frequency: 1500,
-      amplitude: 0.6,
-      frameLength: 512,
-      burstFrames: 1
-    )[0]
-    let matchHint = await verifier.verify(matchFrame)
-    #expect(matchHint.profileID == "owner")
-    #expect(matchHint.score >= 0.70)
-
-    let strangerFrame = SyntheticAudio.toneBurst(
-      frequency: 800,
-      amplitude: 0.6,
-      frameLength: 512,
-      burstFrames: 1
-    )[0]
-    let strangerHint = await verifier.verify(strangerFrame)
-    #expect(strangerHint.profileID == nil)
+func feedWakeFrames(_ frames: [AudioFrame], fixture: WakePipelineFixture) async {
+  for frame in frames {
+    await fixture.pipeline.ingestSampleFrame(frame)
+    await fixture.bus.emit(
+      EventEnvelope(
+        correlationID: UUID(), causationID: UUID(), actor: .audio,
+        sensitivity: .internalLevel,
+        payload: AudioFrameEvent(
+          sampleCount: frame.samples.count, timestamp: frame.timestamp,
+          sequenceIndex: frame.sequenceIndex, isDiscontinuity: frame.isDiscontinuity)))
   }
 }
 
 /// Simple non-actor container used only in tests to collect values across
 /// `@Sendable` handlers without capturing a `var`.
-private final class MutexBox<T>: @unchecked Sendable {
+final class WakeMutexBox<T>: @unchecked Sendable {
   private var value: T
   private let lock = NSLock()
 

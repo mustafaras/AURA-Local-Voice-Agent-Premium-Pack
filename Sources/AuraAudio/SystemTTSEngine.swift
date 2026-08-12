@@ -77,8 +77,7 @@ public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
     var completionState: TTSChunk = .complete
     var byteOffset: UInt64 = 0
 
-    let delegate = SystemTTSDelegate {
-      [weak box] fragment, length in
+    let delegate = SystemTTSDelegate { [weak box] fragment, length in
       byteOffset += UInt64(length)
       box?.yield(.progress(fragment: fragment, byteOffset: byteOffset))
     } didFinish: { [weak box] success, error in
@@ -195,7 +194,8 @@ public final class SystemTTSEngine: TTSEngine, @unchecked Sendable {
       return "System TTS ready with \(voices.count) voices"
     }
     return
-      "System TTS ready with \(selected.name) (\(selected.language), quality \(selected.quality.rawValue))"
+      "System TTS ready with \(selected.name) (\(selected.language), "
+      + "quality \(selected.quality.rawValue))"
   }
 
   public func stopSpeaking() async {
@@ -274,8 +274,10 @@ private final class SystemTTSDelegate: NSObject, AVSpeechSynthesizerDelegate, @u
     // No-op: delegate is set after synthesizer creation.
   }
 
-  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance)
-  {}
+  func speechSynthesizer(
+    _ synthesizer: AVSpeechSynthesizer,
+    didStart utterance: AVSpeechUtterance
+  ) {}
 
   func speechSynthesizer(
     _ synthesizer: AVSpeechSynthesizer,
@@ -287,14 +289,18 @@ private final class SystemTTSDelegate: NSObject, AVSpeechSynthesizerDelegate, @u
     onSpeakRange(fragment, characterRange.length)
   }
 
-  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance)
-  {
+  func speechSynthesizer(
+    _ synthesizer: AVSpeechSynthesizer,
+    didFinish utterance: AVSpeechUtterance
+  ) {
     onFinish(true, nil)
     self.synthesizer = nil
   }
 
-  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance)
-  {
+  func speechSynthesizer(
+    _ synthesizer: AVSpeechSynthesizer,
+    didCancel utterance: AVSpeechUtterance
+  ) {
     onCancel()
     self.synthesizer = nil
   }
@@ -326,16 +332,16 @@ private final class UnsafeContinuationBox: @unchecked Sendable {
 
   func yield(_ chunk: TTSChunk) {
     lock.lock()
-    let c = continuation
+    let continuationSnapshot = continuation
     lock.unlock()
-    c?.yield(chunk)
+    continuationSnapshot?.yield(chunk)
   }
 
   func finish() {
     lock.lock()
-    let c = continuation
+    let continuationSnapshot = continuation
     continuation = nil
     lock.unlock()
-    c?.finish()
+    continuationSnapshot?.finish()
   }
 }
