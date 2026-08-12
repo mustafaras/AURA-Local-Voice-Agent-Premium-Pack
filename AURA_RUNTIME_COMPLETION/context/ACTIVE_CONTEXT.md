@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `FINAL`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Live repository lineage:** `main` contains the archive/cleanup delivery merge `de34f1d24d5c1c452cfe87760125e441d0eb6c19` from PR #3; the exact current tip is verified live. Main CI run `31613321170` for this merge is queued and has no completed jobs. No repository-defined signed/notarized/public deployment target exists.
+> **Live repository lineage:** `main` contains archive/cleanup PR #3 and state-projection PR #4, with current tip `6390bc8c026f1b792d8e16eb96d9e631828d31c0`; the exact current tip is verified live. Main CI run `31613321170` for the archive merge is queued and has no completed jobs. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
@@ -11,7 +11,7 @@
 ## Current terminal H-010 closure
 
 Repository hygiene H-010 is `completed` at current `main` / `origin/main`
-`de34f1d24d5c1c452cfe87760125e441d0eb6c19`. The hosted workflow/source proof
+`6390bc8c026f1b792d8e16eb96d9e631828d31c0`. The hosted workflow/source proof
 was executed on `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`; descendants after
 that SHA are control-plane-only projections. SwiftLint, formatter, build, full
 tests, fsck, coverage, local validators, hosted governance/build/test, and
