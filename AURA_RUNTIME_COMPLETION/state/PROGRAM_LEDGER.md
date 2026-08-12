@@ -1258,3 +1258,10 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Preserved:** Generated `.build`/`.venv`/cache/`.DS_Store` surfaces, active second-pass/hygiene controls, schemas, ADRs, source/tests, ledgers, evidence, and risk registers.
 - **Verification:** Target emptiness and active-reference scans passed; runtime/second-pass/hygiene/supply-chain validators, JSON parsing, 38/38 script tests, shell syntax, and diff checks all passed. `SP-000` remains pending.
 - **Boundary:** No prompt transition, source change, install, permission action, Git-object action, commit, push, merge, release, or deployment occurred.
+
+### 2026-08-12T15:46:00Z — SECOND_PASS_REPO_SURFACE_CLEANUP_DELIVERED
+
+- **Scope/result:** The archive and verified-empty-directory cleanup was delivered as control-plane-only work; no product source, test, prompt, or second-pass state changed.
+- **Git evidence:** Feature commit `19046eb05b6db9a93f20575ab0dd7b60197743d5` was pushed, PR #3 merged it as `de34f1d24d5c1c452cfe87760125e441d0eb6c19`, and `HEAD == origin/main` with a clean worktree was verified.
+- **Hosted/deploy boundary:** Main CI run `31613321170` remains queued at governance job `94169857335`; no hosted result is claimed. The repository has no signed/notarized/public deploy target or deploy command.
+- **State:** `SP-000` remains `pending`; H-010 remains terminal; product, beta, signing, release, live, ADR-034/044, and FINAL gates remain separate.
