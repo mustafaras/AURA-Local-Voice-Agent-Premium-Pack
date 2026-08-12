@@ -664,3 +664,19 @@ entry must be evidence-backed and must preserve blocked/unknown states.
 ### EV-REPO-HYGIENE-H-010-CLOSEOUT-20260812-01
 
 - **Mandatory closeout:** The `15_SESSION_CLOSEOUT` procedure was applied after the H-010 bounded attempt. It records the exact branch/HEAD/remote, dirty-worktree preservation, evidence IDs, validator results, non-zero SwiftLint/coverage blockers, authority reset, and the next safe action. The closeout does not mark H-010 complete.
+
+### EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01
+
+- **Delivery evidence:** Under the user's explicit request to commit, push, and merge, feature branch `repo-hygiene/h010-swiftlint-remediation-20260812` was committed as `ab83672` (`fix(hygiene): apply bounded H-010 lint remediation`), pushed to its matching origin branch, and merged locally with `--no-ff` into `main` as `f6958c4fe21c838f4956e3cd59d96f6e42d1de4f` (`merge: H-010 bounded SwiftLint remediation`). `git push origin main` exited `0`; `HEAD == origin/main` at the merge commit.
+- **Validation/boundary:** Pre-commit passed all hooks before commit; the content evidence remains strict formatter/build/full-test pass, fsck exit 0, validators pass, while strict SwiftLint remains exit 2 with 528 findings and coverage remains exit 1 at 66.10% under the unchanged 70% threshold. Delivery does not close H-010. No H-011, release, deploy, signing, or notarization occurred.
+- **Falsification/residual:** A mismatch between local and origin merge SHA, a failed post-merge validator, or a hosted run that fails the recorded gates falsifies delivery synchronization. H-010 remains blocked; no new hosted-CI result for `f6958c4` is claimed. The next safe action is a fresh session read of the canonical state/handoff and explicit non-weakening remediation direction.
+
+### EV-REPO-HYGIENE-H-010-WORKTREE-DUPLICATE-INVENTORY-20260812-01
+
+- **Timestamp/scope:** 2026-08-12T08:29:36Z; read-only post-merge worktree ownership verification. The live branch is `main` at `f6958c4fe21c838f4956e3cd59d96f6e42d1de4f`, equal to `origin/main`; no product-source tracked diff is present.
+- **Exact symptom:** The post-merge worktree contains 219 untracked Swift paths whose basenames end in ` 2.swift`.
+- **Mechanism/root cause:** Each path has a tracked counterpart with the same basename minus ` 2`; byte comparison found every pair identical. The set is therefore an untracked Finder/copy artifact set, not an independent source change. `git ls-files --others --exclude-standard` exited 0; the pair comparison found `219 identical`, `0 different`, and `0 missing`.
+- **Ownership/disposition:** These paths are preserved and not staged, deleted, moved, or quarantined in this pass. They are classified as generated/copy artifacts pending explicit cleanup or quarantine authority; no path is silently treated as disposable. Worktree state remains `dirty_expected`.
+- **Falsification:** A future complete untracked inventory showing a non-identical pair, a missing tracked counterpart, a non-` 2.swift` untracked path, or source/test tracked diff would falsify this classification and reopen ownership review.
+- **Residual risk/owner:** Repository maintainer owns the cleanup/quarantine decision; the current residual is an untracked-artifact set and not a hygiene completion failure by itself. H-010 remains blocked independently by 528 strict SwiftLint findings and 66.10% coverage under the unchanged 70% threshold.
+- **Cognitive completion gate:** (1) Gap: 219 untracked duplicate-copy artifacts; (2) mechanism: byte-identical Finder/copy suffixes; (3) evidence: complete untracked enumeration and pairwise comparison; (4) falsifier: non-identical/missing/non-suffix paths; (5) residual: disposition authority and H-010 lint/coverage blockers; (6) no next prompt is safe because H-010 remains active/blocked and no H-011 exists.

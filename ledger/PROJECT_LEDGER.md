@@ -3806,3 +3806,17 @@ bundles but exits 1 at 66.10% against the unchanged 70% coverage threshold.
 The original coverage scope was restored and no lint/coverage policy was
 weakened. H-010 remains active/blocked; no H-011, commit, push, merge, release,
 or deploy occurred. Evidence: `EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01`.
+
+### 2026-08-12 — H-010 delivery and context synchronization
+
+The authorized H-010 remediation was committed as `ab83672`, pushed to its
+feature branch, merged no-ff into `main` as `f6958c4fe21c838f4956e3cd59d96f6e42d1de4f`,
+and pushed to `origin/main`. State and handoff now point to the merge commit.
+H-010 remains blocked by the exact SwiftLint and coverage results; no H-011 or
+new hosted-CI result is claimed. Evidence:
+`EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01`.
+
+### 2026-08-12T08:29:36Z — H-010 post-merge worktree ownership
+
+- **Read-only result:** 219 untracked Swift paths ending in ` 2.swift` were enumerated. Every path matched its tracked counterpart byte-for-byte; no different or missing pair and no non-suffix untracked path was found.
+- **Disposition/risk:** These copy artifacts remain preserved and unstaged pending explicit cleanup/quarantine authority. No product tracked diff, cleanup, move, deletion, or Git-object mutation occurred. H-010 remains blocked by its independent SwiftLint and coverage failures.

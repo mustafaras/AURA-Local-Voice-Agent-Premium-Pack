@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-12T07:33:36Z",
-  "session_id": "AURA-REPO-HYGIENE-H010-SWIFTLINT-20260812",
-  "last_verified_commit": "63f1e67bf1457e53d07cf282d8b4af1bcc33cba5",
+  "updated_at": "2026-08-12T08:29:36Z",
+  "session_id": "AURA-REPO-HYGIENE-H010-POST-MERGE-CONTEXT-20260812",
+  "last_verified_commit": "f6958c4fe21c838f4956e3cd59d96f6e42d1de4f",
   "active_prompt": {
     "id": "FINAL",
     "file": "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "state": "in_progress",
     "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The synchronized second-pass overlay is SP-000/pending. The repository-hygiene delivery branch repo-hygiene/h010-swiftlint-remediation-20260812 is pending push/merge from main projection 63f1e67bf1457e53d07cf282d8b4af1bcc33cba5; H-010 remains blocked. Its latest full hosted-CI verification is projection-only parent a20617302591628c704a6cf099f4c18b0525c80b after merge commit 68a6b6730334a5b0175ba5f4c2c271699b8ae146; the audited product/content baseline remains 47775180c224f87fa5a58703f793515ffcb2c35c under ADR-045. H-009 is complete for chain order. H-010 bounded Sources/Tests remediation passes strict formatter, build, and full tests, but strict SwiftLint remains exit 2 with 528 findings across 112 files and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. Separate HYGIENE-REMEDIATION-01 includes Git adoption/history, dependency, and hosted-CI evidence. No H-011 exists.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. The H-010 delivery branch was pushed and merged to main at f6958c4fe21c838f4956e3cd59d96f6e42d1de4f; H-010 remains blocked. Its latest full hosted-CI verification is projection-only parent a20617302591628c704a6cf099f4c18b0525c80b after merge commit 68a6b6730334a5b0175ba5f4c2c271699b8ae146; the audited product/content baseline remains 47775180c224f87fa5a58703f793515ffcb2c35c under ADR-045. H-009 is complete for chain order. H-010 bounded Sources/Tests remediation passes strict formatter, build, and full tests, but strict SwiftLint remains exit 2 with 528 findings across 112 files and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. Separate HYGIENE-REMEDIATION-01 includes Git adoption/history, dependency, and hosted-CI evidence. No H-011 exists.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -255,7 +255,7 @@
     "EV-REPO-HYGIENE-H-008-CLOSEOUT-20260810-01",
     "EV-REPO-HYGIENE-H-009-20260810-01",
     "EV-REPO-HYGIENE-H-009-CLOSEOUT-20260810-01",
-    "EV-REPO-HYGIENE-H-010-RECONCILIATION-20260810-01",
+    "EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01",
     "EV-REPO-HYGIENE-REMEDIATION-20260810-01",
     "EV-REPO-HYGIENE-REMEDIATION-VERIFY-20260811-01",
     "EV-R0-20260802-LEGACY-REDIRECT-01",
@@ -504,7 +504,7 @@
     "R11 remains in_progress: full-Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed-CI evidence are missing.",
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
-    "Repository hygiene H-010 remains blocked after bounded Sources/Tests remediation: Xcode/SourceKit, strict formatter/build/full tests, and fsck pass; full SwiftLint exits 2 with 528 serious findings across 112 files, and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. The original six-file coverage scope is preserved and the damaged pre-adoption `.git` remains preserved for rollback. No product delivery mutation or H-011 transition occurred."
+    "Repository hygiene H-010 remains blocked after bounded Sources/Tests remediation and delivery: Xcode/SourceKit, strict formatter/build/full tests, and fsck pass; full SwiftLint exits 2 with 528 serious findings across 112 files, and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. The original six-file coverage scope is preserved. Delivery branch commit ab83672 was pushed and merged to main at f6958c4; no H-011 transition occurred."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
@@ -540,7 +540,7 @@
     "RISK-REPO-HYGIENE-SWIFTLINT-FORMATTER-POLICY-CONFLICT",
     "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION"
   ],
-  "next_action": "H-010 remains active/blocked at current main projection 63f1e67bf1457e53d07cf282d8b4af1bcc33cba5. Xcode/SourceKit, strict formatter/build/full tests, and fsck pass; full SwiftLint exits 2 with 528 serious findings across 112 files and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. Source/toolchain/coverage owners need a non-weakening remediation and exact full gate rerun before H-010 can complete. No H-011 or automatic transition exists.",
+  "next_action": "H-010 remains active/blocked at main merge commit f6958c4fe21c838f4956e3cd59d96f6e42d1de4f. Strict formatter/build/full tests and fsck pass; full SwiftLint exits 2 with 528 serious findings across 112 files and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. Read-only inventory also found 219 byte-identical untracked ` 2.swift` copy artifacts; they remain preserved pending explicit cleanup/quarantine authority. Source/toolchain/coverage owners need a non-weakening remediation and exact full gate rerun before H-010 can complete. No H-011 or automatic transition exists.",
   "required_first_reads": [
     "AGENTS.md",
     "README.md",

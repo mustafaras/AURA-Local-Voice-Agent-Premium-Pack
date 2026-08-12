@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-12T07:33:36Z",
-  "session_id": "AURA-REPO-HYGIENE-H010-SWIFTLINT-20260812",
+  "updated_at": "2026-08-12T08:29:36Z",
+  "session_id": "AURA-REPO-HYGIENE-H010-POST-MERGE-CONTEXT-20260812",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
-    "active_branch": "repo-hygiene/h010-swiftlint-remediation-20260812",
-    "verified_head": "7f1c03367b9cd67dfa306eb67f4edbdc53c0cd3e",
-    "remote_head": "63f1e67bf1457e53d07cf282d8b4af1bcc33cba5",
+    "active_branch": "main",
+    "verified_head": "f6958c4fe21c838f4956e3cd59d96f6e42d1de4f",
+    "remote_head": "f6958c4fe21c838f4956e3cd59d96f6e42d1de4f",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -49,6 +49,7 @@
       ,"EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01 records the authorized lock-graph remediation: OSV and Grype are zero on the authoritative graph, runtime/helper evidence passes, and the generated .venv exclusion is policy-bound. The fsck-clean recovery candidate remains unadopted; no commit, push, merge, H-011, or automatic transition occurred."
       ,"EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01 and EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01 record successful user-controlled Xcode 27.0 beta 5 provisioning, SourceKit/strict build/formatter/default 21-bundle matrix verification, and the remaining full SwiftLint policy blocker of 1,330 serious findings across 628 files."
       ,"EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01 and EV-REPO-HYGIENE-H-010-CLOSEOUT-20260812-01 record bounded Sources/Tests remediation without policy weakening: strict formatter/build/full tests pass, SwiftLint exits 2 with 528 findings across 112 files, and the canonical wrapper exits 1 at 66.10% under the unchanged 70% coverage threshold. H-010 remains active/blocked and no H-011 exists."
+      ,"EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01 records feature commit ab83672 pushed and no-ff merge f6958c4 pushed to origin/main; canonical state/handoff now point to the merge commit and no new hosted-CI result is claimed."
     ]
   },
   "program_status": "in_progress",
@@ -519,5 +520,5 @@
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "Repository hygiene H-010 remains blocked after bounded Sources/Tests remediation: Xcode/SourceKit, strict formatter/build/full tests, and fsck pass; full SwiftLint exits 2 with 528 serious findings across 112 files, and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. The original six-file coverage scope is preserved and the damaged pre-adoption .git remains preserved for rollback. No H-011 exists."
   ],
-  "next_action": "H-010 remains active/blocked at current main projection 63f1e67bf1457e53d07cf282d8b4af1bcc33cba5. Xcode/SourceKit capability, strict formatter/build/full tests, and fsck pass; full SwiftLint exits 2 with 528 serious findings across 112 files and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. Source/toolchain/coverage owners need a non-weakening remediation and exact full gate rerun before H-010 can complete. No H-011 or automatic transition exists."
+  "next_action": "H-010 remains active/blocked at main merge commit f6958c4fe21c838f4956e3cd59d96f6e42d1de4f. Xcode/SourceKit capability, strict formatter/build/full tests, and fsck pass; full SwiftLint exits 2 with 528 serious findings across 112 files and the canonical wrapper exits 1 at 66.10% under the unchanged 70% threshold. Read-only inventory also found 219 byte-identical untracked ` 2.swift` copy artifacts; they remain preserved pending explicit cleanup/quarantine authority. Source/toolchain/coverage owners need a non-weakening remediation and exact full gate rerun before H-010 can complete. No H-011 or automatic transition exists."
 }

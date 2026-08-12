@@ -360,3 +360,15 @@ the canonical wrapper runs all 21 bundles with zero bundle failures but exits 1
 at 66.10% coverage under the unchanged 70% threshold. H-010 remains blocked,
 the original six-file scope is preserved, and no H-011 or Git delivery action
 occurred. Evidence: `EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01`.
+
+Git delivery is synchronized: feature commit `ab83672` was pushed and merged
+to `main` at `f6958c4fe21c838f4956e3cd59d96f6e42d1de4f`, which is also
+`origin/main`. H-010 remains blocked on strict SwiftLint and coverage; no
+H-011 or new hosted-CI claim exists. Evidence:
+`EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01`.
+
+Post-merge read-only ownership verification found 219 untracked ` 2.swift`
+copy artifacts, all byte-identical to tracked counterparts (`219/219`), with
+no other untracked path and no product tracked diff. They remain preserved and
+unstaged pending explicit cleanup/quarantine authority; worktree state is
+`dirty_expected`.

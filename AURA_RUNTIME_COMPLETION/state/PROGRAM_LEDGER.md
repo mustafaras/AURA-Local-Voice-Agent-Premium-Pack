@@ -1181,3 +1181,15 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Evidence/tests:** `EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01` and `EV-REPO-HYGIENE-H-010-CLOSEOUT-20260812-01`; strict formatter/build/full test, fsck, hygiene/runtime/second-pass/supply-chain validators, JSON, shell/YAML/actionlint, pre-commit, and 38/38 script tests are recorded. The exact SwiftLint closeout report is `/tmp/aura-h010-swiftlint-closeout-20260812.txt` with SHA-256 `6db929ef3d0fe7c5376734650037e24fa13f2f5dcdb72811f087711d8803156e`.
 - **Blockers/risks/authority:** Source owners own the 528 findings; toolchain/policy owners own the formatter-versus-SwiftLint reconciliation; repository maintainer/coverage owner owns the 66.10% regression without scope broadening. H-010 user authority expired at closeout; hygiene state authority is reset false. Product, hosted-CI, signing/notarization, beta, release, ADR-034, and ADR-044 gates remain independent.
 - **Exact next safe action:** Preserve H-010 as active/blocked and stop. A future continuation must resolve lint and coverage with a non-weakening decision, rerun the exact complete gate set, and obtain explicit user direction; no H-011 exists or may be created automatically.
+
+### 2026-08-12T08:10:09Z — REPO_HYGIENE_H010_DELIVERY_AND_CONTEXT_SYNC
+
+- **Git delivery:** Feature commit `ab83672` was pushed to `origin/repo-hygiene/h010-swiftlint-remediation-20260812`; no-ff merge commit `f6958c4fe21c838f4956e3cd59d96f6e42d1de4f` was pushed successfully to `origin/main`. Local branch is `main`, relation is `0/0`, and the delivery branch remains available remotely.
+- **State/context:** Repository-hygiene state and session handoff now point to `main` and `f6958c4`; H-010 remains `blocked`, authority is reset, and no H-011 exists. No new hosted-CI result for the merge commit is claimed.
+- **Verdict:** Git delivery is complete. Hygiene completion is not: strict SwiftLint and the 70% coverage gate remain non-zero. Evidence: `EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01`.
+
+### 2026-08-12T08:29:36Z — H-010 post-merge worktree ownership
+
+- **Evidence:** The complete untracked inventory contains 219 Swift paths ending in ` 2.swift`; pairwise `cmp` verification found 219 byte-identical tracked counterparts, zero different pairs, and zero missing counterparts. No other untracked path and no tracked product diff was found.
+- **Disposition:** The copy artifacts are preserved and unstaged. No cleanup, move, quarantine, deletion, or Git-object mutation occurred. The canonical worktree projection remains `dirty_expected` until separately authorized disposition.
+- **Status:** H-010 remains active/blocked because strict SwiftLint is exit 2 with 528 findings and coverage is 66.10% against the unchanged 70% threshold; no H-011 exists.

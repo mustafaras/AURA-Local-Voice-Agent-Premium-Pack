@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `FINAL`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Live repository:** `repo-hygiene/h010-swiftlint-remediation-20260812` at current projection base `63f1e67bf1457e53d07cf282d8b4af1bcc33cba5`; the delivery branch is pending push/merge, and the latest full hosted-CI verification remains the prior projection-only parent `a20617302591628c704a6cf099f4c18b0525c80b` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
+> **Live repository:** `main` at merge commit `f6958c4fe21c838f4956e3cd59d96f6e42d1de4f`; H-010 delivery branch `repo-hygiene/h010-swiftlint-remediation-20260812` was pushed and merged, while the latest full hosted-CI verification remains the prior projection-only parent `a20617302591628c704a6cf099f4c18b0525c80b` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
@@ -64,6 +64,13 @@ policy still exits 2 with 1,330 serious findings across 628 files. Merged-main h
 under `EV-REPO-HYGIENE-MAIN-CI-FINAL-20260811-01`; current formatter, lock-graph
 vulnerability/SBOM, and local validator gates pass. No H-011 exists and no
 automatic transition is permitted.
+
+Post-merge read-only ownership verification found 219 untracked Swift paths
+ending in ` 2.swift`; each is byte-identical to its tracked counterpart, with
+zero different or missing pairs and no other untracked path. They remain
+preserved and unstaged pending explicit cleanup/quarantine authority, so the
+worktree projection is correctly `dirty_expected`. This does not change the
+H-010 blocked verdict.
 
 Separate remediation authorization `ONAY: HYGIENE-REMEDIATION-01` produced
 `EV-REPO-HYGIENE-REMEDIATION-20260810-01`: the clean clone passes strict fsck,
