@@ -9,7 +9,7 @@
     "branch":"main",
     "head":"b4610f0a06d3a408f76a38c9b05175ef0de82b11",
     "remote_head":"b4610f0a06d3a408f76a38c9b05175ef0de82b11",
-    "working_tree_state":"dirty_expected"
+    "working_tree_state":"clean"
   },
   "active_prompt":"H-010",
   "active_state":"completed",
