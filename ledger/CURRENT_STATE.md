@@ -15,6 +15,12 @@ paragraphs below are historical snapshots and do not override the machine state
 or this terminal closure. Product, beta, signing, release, deployment, live,
 ADR-034/044, and FINAL gates remain separate.
 
+The terminal H-000…H-010 prompt definitions are archived under
+`AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/`; the hygiene prompt
+manifest remains their canonical locator. This is an expected control-plane
+working-tree change pending explicit delivery. No pending `SP-*` prompt,
+append-only ledger, ADR, evidence, risk, or active handoff was archived.
+
 ## Canonical State Notice — 2026-08-09
 
 The authoritative current state is

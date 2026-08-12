@@ -23,6 +23,8 @@ session.
 - The named production source and direct tests.
 - The relevant slices of `EVIDENCE_INDEX.md`, `RISK_REGISTER.md`,
   `SECOND_PASS_LEDGER.md`, `PROGRAM_LEDGER.md`, and `PROJECT_LEDGER.md`.
+- `second-pass/SECOND_PASS_REFERENCE_INDEX.md` when locating archived
+  first-pass material or an on-demand ADR/subsystem reference.
 - The previous prompt's closeout entry and evidence.
 
 ## Tier 2 — load only when blocked or required

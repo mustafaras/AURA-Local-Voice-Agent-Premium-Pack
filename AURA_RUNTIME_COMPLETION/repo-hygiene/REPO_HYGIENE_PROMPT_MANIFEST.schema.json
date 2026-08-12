@@ -9,7 +9,7 @@
     "program_id":{"const":"AURA-REPO-HYGIENE"},
     "program_document":{"const":"docs/operations/REPO_HYGIENE_PROGRAM.md"},
     "state_file":{"const":"AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json"},
-    "prompt_directory":{"const":"AURA_RUNTIME_COMPLETION/prompts/repo_hygiene"},
+    "prompt_directory":{"const":"AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12"},
     "validator":{"const":"scripts/validate_repo_hygiene_program.py"},
     "prompts":{
       "type":"array","minItems":11,"maxItems":11,"uniqueItems":true,
@@ -21,7 +21,7 @@
           "sequence":{"type":"integer","minimum":0,"maximum":10},
           "gap_id":{"type":"string","pattern":"^HYGIENE-[0-9]{2}$"},
           "title":{"type":"string","minLength":3},
-          "file":{"type":"string","pattern":"^AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-[0-9]{3}_.+\\.prompt\\.md$"},
+          "file":{"type":"string","pattern":"^AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-[0-9]{3}_.+\\.prompt\\.md$"},
           "depends_on":{"type":["string","null"],"pattern":"^H-[0-9]{3}$"},
           "next_prompt":{"type":["string","null"],"pattern":"^H-[0-9]{3}$"}
         }

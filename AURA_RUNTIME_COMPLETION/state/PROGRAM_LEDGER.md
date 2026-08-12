@@ -1235,3 +1235,26 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Correction:** Superseded current projection wording that still surfaced H-010 as blocked. Machine state, live repository pointers, read-first context, active context, human program header/verdict, current-state, handoff, evidence index, and H-010 risk rows now identify H-010 as `completed` at live `main`/`origin/main` `b4610f0a06d3a408f76a38c9b05175ef0de82b11`. Hosted evidence remains bound to workflow/source SHA `6d4d6da`; later commits are control-plane-only.
 - **Verification:** Runtime, hygiene, second-pass, supply-chain, JSON/YAML, shell, diff, 38-test, clean-worktree, and remote-equality gates pass. Historical blocked entries remain append-only and are explicitly marked/superseded rather than deleted.
 - **Final boundary:** H-010 is fully documented and terminally closed for repository hygiene. No H-011 exists. Second pass remains independently `SP-000` / `pending`; product, beta, signing, release, deployment, live, ADR-034/044, and FINAL gates remain separate.
+
+### 2026-08-12T14:46:13Z — CONTROLLED_COMPLETED_PROMPT_ARCHIVE
+
+- **Scope:** Archive only completed repository-hygiene execution prompt definitions after terminal H-010 closure; preserve all active product, FINAL, second-pass, ADR, evidence, risk, context, and append-only ledger documents.
+- **Disposition:** Moved H-000…H-010 with `git mv` to `AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/`; updated the hygiene prompt manifest and added the archive README. The manifest is the canonical locator; archived files are not part of default fresh-session context.
+- **Verification:** Hygiene, second-pass, and supply-chain validators passed; JSON state synchronization and `git diff --check` passed. The runtime state records `dirty_expected` because this is an uncommitted control-plane change. No prompt was reopened, no H-011 was created, and SP-000 remains pending.
+- **Residual/owner:** Repository maintainer owns explicit delivery of the archive change. No commit, push, merge, product, release, deployment, dependency, permission, or Git-object action occurred.
+
+### 2026-08-12T15:20:00Z — SECOND_PASS_CONTEXT_SURFACE_ARCHIVED
+
+- **Objective:** Make the remaining second-pass work the default context surface while preserving completed first-pass evidence and on-demand technical references.
+- **Authority:** Documentation/state/test only; no product source, prompt execution, install, permission, release, deploy, commit, push, or merge authority.
+- **Delivered:** Archived completed first-pass prompt definitions 00–13 and superseded first-pass master-plan/startup/context prose; added the second-pass reference index; synchronized the first-pass manifest/schema, second-pass Tier-0/Tier-1 contract, context index, open-gap links, risk projection, handoff, and archive README. ADR/subsystem `docs/` remain in place as named Tier-1 references.
+- **Verification:** Runtime, second-pass, repository-hygiene, and supply-chain validators passed; deterministic script tests passed 38/38; JSON, shell, and `git diff --check` passed.
+- **State/acceptance:** `SP-000` remains `pending`; no first-pass/product/release state was advanced and no prompt was executed. The worktree is intentionally `dirty_expected` until separately authorized delivery.
+- **Residual/next action:** Context-bloat risk is mitigated but remains under maintainer ownership because append-only ledgers and on-demand ADR/subsystem docs remain. Start only `SP-000` after explicit second-pass authorization.
+
+### 2026-08-12T15:45:00Z — SECOND_PASS_REPO_SURFACE_CLEANUP
+
+- **Scope:** Control-plane filesystem cleanup only. Removed three confirmed-empty legacy directories and recoverably archived the unreferenced runtime-state README; no active control or historical ledger was deleted.
+- **Preserved:** Generated `.build`/`.venv`/cache/`.DS_Store` surfaces, active second-pass/hygiene controls, schemas, ADRs, source/tests, ledgers, evidence, and risk registers.
+- **Verification:** Target emptiness and active-reference scans passed; runtime/second-pass/hygiene/supply-chain validators, JSON parsing, 38/38 script tests, shell syntax, and diff checks all passed. `SP-000` remains pending.
+- **Boundary:** No prompt transition, source change, install, permission action, Git-object action, commit, push, merge, release, or deployment occurred.

@@ -105,7 +105,10 @@ Remove stale details from previous sessions.
 
 Update `ACTIVE_CONTEXT.md` only if the active prompt, immediate objective, or major blockers changed.
 
-Update `KNOWN_FACTS.md` only for stable evidence-backed facts that will remain relevant across future tracks.
+Update `AURA_RUNTIME_COMPLETION/archive/first-pass-context/2026-08-12/KNOWN_FACTS.md`
+only for stable evidence-backed facts that will remain relevant across future
+tracks; second-pass operating facts belong in the active second-pass state and
+ledger projections.
 
 Do not copy ledger history into either file.
 

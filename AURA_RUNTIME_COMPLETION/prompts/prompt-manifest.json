@@ -11,7 +11,7 @@
       "order": 0,
       "id": "BOOTSTRAP",
       "name": "Session Bootstrap and Baseline Reconciliation",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/00_SESSION_BOOTSTRAP.prompt.md",
       "dependencies": [],
       "completion_gate": "Live repository state, toolchain, authority, schemas, anti-amnesia files, capability matrix, and program state are reconciled. R0 is marked ready only when no false baseline remains.",
       "state_outputs": [
@@ -30,7 +30,7 @@
       "order": 1,
       "id": "R0",
       "name": "Repository Truth and Governance Repair",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md",
       "dependencies": [
         "BOOTSTRAP"
       ],
@@ -52,7 +52,7 @@
       "order": 2,
       "id": "R1",
       "name": "Runtime Integration Spine and Trace Correctness",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/02_R1_RUNTIME_INTEGRATION_SPINE.prompt.md",
       "dependencies": [
         "R0"
       ],
@@ -74,7 +74,7 @@
       "order": 3,
       "id": "R2",
       "name": "Bilingual NLU and Dialogue",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
       "dependencies": [
         "R1"
       ],
@@ -96,7 +96,7 @@
       "order": 4,
       "id": "R3",
       "name": "Capability Registry and Typed Planner",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md",
       "dependencies": [
         "R2"
       ],
@@ -117,7 +117,7 @@
       "order": 5,
       "id": "R4",
       "name": "Computer-Use Productization",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
       "dependencies": [
         "R3"
       ],
@@ -138,7 +138,7 @@
       "order": 6,
       "id": "R5",
       "name": "Browser, Mail, Calendar, and Contacts Adapters",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
       "dependencies": [
         "R3"
       ],
@@ -159,7 +159,7 @@
       "order": 7,
       "id": "R6",
       "name": "VS Code and Coding-Agent Completion",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md",
       "dependencies": [
         "R3"
       ],
@@ -181,7 +181,7 @@
       "order": 8,
       "id": "R7",
       "name": "Wake Word, STT/TTS Routing, and Resource Governor",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/08_R7_VOICE_WAKE_STT_TTS_RESOURCE_GOVERNOR.prompt.md",
       "dependencies": [
         "R2"
       ],
@@ -203,7 +203,7 @@
       "order": 9,
       "id": "R8",
       "name": "Memory, Personalization, and Explainability",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/09_R8_MEMORY_PERSONALIZATION_EXPLAINABILITY.prompt.md",
       "dependencies": [
         "R2",
         "R3"
@@ -226,7 +226,7 @@
       "order": 10,
       "id": "R9",
       "name": "Product UI, Accessibility, and Onboarding",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/10_R9_PRODUCT_UI_AND_ACCESSIBILITY.prompt.md",
       "dependencies": [
         "R4",
         "R5",
@@ -251,7 +251,7 @@
       "order": 11,
       "id": "R10",
       "name": "Security and Privilege Separation",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md",
       "dependencies": [
         "R4",
         "R5",
@@ -276,7 +276,7 @@
       "order": 12,
       "id": "R11",
       "name": "Release Engineering and Continuous Operations",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md",
       "dependencies": [
         "R9",
         "R10"
@@ -299,7 +299,7 @@
       "order": 13,
       "id": "R12",
       "name": "Beta Validation and Release Candidate",
-      "file": "AURA_RUNTIME_COMPLETION/prompts/13_R12_BETA_VALIDATION_AND_RC.prompt.md",
+      "file": "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/13_R12_BETA_VALIDATION_AND_RC.prompt.md",
       "dependencies": [
         "R11"
       ],
