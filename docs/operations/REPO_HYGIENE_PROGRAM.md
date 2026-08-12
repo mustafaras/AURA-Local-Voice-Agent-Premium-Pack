@@ -253,6 +253,23 @@ Run all available validators, tests, scans, diff checks, inventory checks, and c
 
 **H-010 post-merge ownership inventory (2026-08-12):** A complete read-only untracked scan found 219 paths ending in ` 2.swift`; all 219 are byte-identical to their tracked counterparts, with zero different/missing pairs and no other untracked path. They remain preserved and unstaged pending explicit cleanup/quarantine authority; this does not close H-010's independent lint/coverage blockers.
 
+**H-010 final hosted-CI closure (2026-08-12):** The temporary authorized ARM64
+self-hosted runner restored execution. The workflow's safe artifact-root contract
+was corrected so both `build-release-artifact.sh` and `upload-artifact` use the
+same unique `/tmp/aura-r11-release-artifact-${{ github.run_id }}` root; the
+fail-closed path guard and development-only release boundary remain unchanged.
+Final run `31598491689` on `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8` completed
+successfully for governance and build-and-test: 38 governance tests, all 21
+Swift bundles, 70.59% coverage against the unchanged 70% threshold, valid
+development-unverified manifest, and exactly two uploaded artifact files.
+Artifact `9142197938` is unexpired for 14 days with digest
+`69b0854b5bd4bf08ef4958053f280428933b5c45803cd74ba83092dcc3b6e1ae`; hosted
+log SHA-256 is `8cab37029015b5b159a34d54dbcedd5cb4344a6fe22e55e8a95562220b9ed960`.
+The temporary runner was deregistered and the runner inventory is zero. H-010 is
+complete at the repository-hygiene boundary; H-011 does not exist and product,
+beta, signing, release, deployment, ADR-034/044, and live gates remain separate.
+Evidence: `EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01`.
+
 **Prompt:** `H-010_FINAL_REPO_HYGIENE_GATE_AND_CLOSEOUT.prompt.md`
 **Depends on:** HYGIENE-09
 **Exit:** all acceptance criteria pass or are explicitly blocked with evidence; state remains synchronized.

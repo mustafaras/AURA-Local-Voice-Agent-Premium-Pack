@@ -33,13 +33,13 @@ class RepoHygieneProgramTests(unittest.TestCase):
         self.assertEqual([item["sequence"] for item in prompts], list(range(11)))
         self.assertEqual([item["depends_on"] for item in prompts], [None] + [f"H-{i:03d}" for i in range(10)])
 
-    def test_final_gate_remains_active_and_blocked(self):
+    def test_final_gate_is_complete_without_a_next_prompt(self):
         state = json.loads(STATE.read_text(encoding="utf-8"))
-        self.assertEqual(state["program_status"], "blocked")
+        self.assertEqual(state["program_status"], "completed")
         self.assertEqual(state["active_prompt"], "H-010")
-        self.assertEqual(state["active_state"], "blocked")
-        self.assertEqual(state["completed_prompts"], ["H-000", "H-001", "H-002", "H-003", "H-004", "H-005", "H-006", "H-007", "H-008", "H-009"])
-        self.assertEqual(state["blocked_prompts"], ["H-010"])
+        self.assertEqual(state["active_state"], "completed")
+        self.assertEqual(state["completed_prompts"], [f"H-{i:03d}" for i in range(11)])
+        self.assertEqual(state["blocked_prompts"], [])
 
     def test_h009_bounded_audit_artifacts_exist(self):
         self.assertTrue(CONTEXT_SUMMARY.is_file())

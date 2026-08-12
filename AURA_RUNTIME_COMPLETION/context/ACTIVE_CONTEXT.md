@@ -438,3 +438,19 @@ The final hosted run `31593417301` for synchronized main projection
 runner. This is an external fail-closed blocker; no hosted result is inferred
 and H-010 remains blocked. Evidence:
 `EV-REPO-HYGIENE-H-010-HOSTED-BLOCKED-20260812-01`.
+
+## H-010 terminal hosted-CI closure — 2026-08-12T13:00:00Z
+
+The previous empty-runner blocker is superseded by final hosted run
+`31598491689` on `main` SHA `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`.
+Governance and build-and-test completed successfully: 38 governance tests,
+all 21 Swift bundles, 70.59% coverage against 70%, valid
+development-unverified manifest, and exactly two uploaded artifact files.
+Artifact `9142197938` is retained for 14 days with digest
+`69b0854b5bd4bf08ef4958053f280428933b5c45803cd74ba83092dcc3b6e1ae`.
+The temporary runner was deregistered and the runner inventory is zero.
+
+H-010 is complete for repository hygiene and is the manifest terminal prompt.
+No H-011 exists. Product, beta, signing, release, deployment, live-hardware,
+ADR-034/ADR-044, and FINAL acceptance remain independent and are not claimed
+complete. Evidence: `EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01`.

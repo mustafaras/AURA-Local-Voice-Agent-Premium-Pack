@@ -3820,3 +3820,9 @@ new hosted-CI result is claimed. Evidence:
 
 - **Read-only result:** 219 untracked Swift paths ending in ` 2.swift` were enumerated. Every path matched its tracked counterpart byte-for-byte; no different or missing pair and no non-suffix untracked path was found.
 - **Disposition/risk:** These copy artifacts remain preserved and unstaged pending explicit cleanup/quarantine authority. No product tracked diff, cleanup, move, deletion, or Git-object mutation occurred. H-010 remains blocked by its independent SwiftLint and coverage failures.
+
+### 2026-08-12T13:00:00Z — H-010 hosted-CI terminal closure
+
+- **Resolution:** The empty self-hosted runner inventory was resolved with a temporary verified ARM64 runner. The workflow's fail-closed artifact-root contract was aligned: build and upload now share a unique `/tmp/aura-r11-release-artifact-${{ github.run_id }}` root. No guard, coverage threshold, signing boundary, or release status was weakened.
+- **Evidence:** Run `31598491689` on `main` SHA `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8` completed successfully. Governance ran 38 tests and all governance validators passed; build-and-test verified Xcode 27/Swift 6.4, 21/21 bundles, and 70.59% coverage against 70%. The development-unverified manifest validated and exactly two files uploaded as artifact `9142197938`, retained 14 days with digest `69b0854b5bd4bf08ef4958053f280428933b5c45803cd74ba83092dcc3b6e1ae`. Hosted log SHA-256: `8cab37029015b5b159a34d54dbcedd5cb4344a6fe22e55e8a95562220b9ed960`.
+- **Residual/state:** The temporary runner was deregistered and API inventory is zero. The artifact remains development-only; product/live, beta, signing, release, deployment, ADR-034/044, and FINAL gates remain independent. H-010 is terminally complete; no H-011 exists and no automatic successor or product/release claim follows. Evidence: `EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01`.

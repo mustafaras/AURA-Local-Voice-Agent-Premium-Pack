@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-12T11:50:09Z",
-  "session_id": "AURA-REPO-HYGIENE-H010-HOSTED-BLOCKED-20260812",
-  "last_verified_commit": "d0527d923d2ed02be3daf291e8181c900508a59a",
+  "updated_at": "2026-08-12T13:00:00Z",
+  "session_id": "AURA-REPO-HYGIENE-H010-HOSTED-CLOSEOUT-20260812",
+  "last_verified_commit": "6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8",
   "active_prompt": {
     "id": "FINAL",
     "file": "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "state": "in_progress",
     "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. H-010 local lint/coverage blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: strict SwiftLint exits 0 with zero violations, the canonical wrapper exits 0 with 21/21 bundles, 795 tests, and 70.57% coverage, and the in-repository untracked count is 0. Main push is complete; exact final hosted-CI observation remains pending. No H-011 exists.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is complete at main SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8: strict SwiftLint, formatter, build, full tests, fsck, coverage, governance, hosted CI, and development-unverified artifact upload pass for their recorded boundaries. No H-011 exists and no product/release claim follows.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -41,19 +41,10 @@
     "R10 delivery was verified: feature commit 2f6d8f5b was pushed to origin/feature/r10-security-boundaries; merge e1ecf82e was pushed to origin/main. No deploy/release/signing/TCC/dependency/model action was performed. User then explicitly approved transition to R11; R11 starts with edit-only release-readiness authority.",
     "R11 artifact/manifest first slice was implemented and locally verified under EV-R11-20260809-ARTIFACT-MANIFEST-01: development_unverified reproducible ZIP, 13-file bundle inventory/SBOM, checksum-bound manifest, fail-closed release status, 4/4 focused tests, 17/17 governance tests, and release validation blocked by missing full Xcode.",
     "R11 CI artifact-evidence workflow configuration was added under edit-only authority: successful build/test jobs invoke the existing development_unverified artifact builder and retain only the ZIP/manifest for 14 days. YAML, governance, and script tests pass; the final remediation hosted run 31487128834 observed the pushed workflow and artifact upload, while R11 release gates remain open.",
-    "H-005 is complete; H-006 through H-009 are complete for chain order; H-010 is blocked after its final gate and mandatory closeout. No H-011 exists."
+    "H-005 is complete; H-006 through H-010 are complete for the repository-hygiene program's bounded chain. H-010 is terminal and has no successor. No H-011 exists."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "Sources/AuraAgent/ReviewVerdictParser.swift",
-    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-    "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-    "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "AURA_RUNTIME_COMPLETION/schemas/session-handoff.schema.json",
-    "AURA_RUNTIME_COMPLETION/schemas/toolchain-manifest.schema.json",
-    "AURA_RUNTIME_COMPLETION/schemas/beta-readiness.schema.json",
-    "AURA_RUNTIME_COMPLETION/state/toolchain-manifest.json",
     "TOOLCHAIN.md",
     "docs/decisions/ADR-045-toolchain-release-pipeline.md",
     "docs/decisions/ADR-035-turn-context-trace-correctness.md",
@@ -109,10 +100,7 @@
     "docs/decisions/ADR-038-capability-registry-and-planner.md",
     "scripts/validate_runtime_completion.py",
     "scripts/tests/test_validate_runtime_completion.py",
-    ".github/workflows/ci.yml",
     "ledger/DECISION_INDEX.md",
-    "ledger/CURRENT_STATE.md",
-    "ledger/PROJECT_LEDGER.md",
     "Package.swift",
     "Sources/AuraCore/HelperIPC.swift",
     "Sources/AuraAutomationHelper/main.swift",
@@ -199,22 +187,18 @@
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-031_RELEASE_CANDIDATE_EVIDENCE_PACKAGE_AND_ADR_047.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-032_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
-    "docs/operations/REPO_HYGIENE_PROGRAM.md",
     "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_READ_FIRST.md",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.schema.json",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.schema.json",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-000_BASELINE_FREEZE_AND_EVIDENCE_CAPTURE.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-001_GIT_OBJECT_DATABASE_RECOVERY.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-002_DIRTY_WORKTREE_AND_ARTIFACT_QUARANTINE.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-003_IGNORE_RULES_AND_GENERATED_FILE_HYGIENE.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-004_CANONICAL_TOOLCHAIN_AND_DOCUMENTATION_DRIFT.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/repo_hygiene/H-005_SWIFT_FORMAT_LINT_AND_STRICT_CONCURRENCY.prompt.md",
-    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
     "Sources/AuraAutomation/AccessibilityObserver.swift",
     "Sources/AuraComputerUse/ModalDialogDetecting.swift",
     "Sources/AuraCore/AuraLogger.swift",
@@ -243,9 +227,19 @@
     ".pre-commit-config.yaml",
     ".yamllint.yml",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/EXTERNAL_SCANNER_POLICY.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/TRUFFLEHOG_EXCLUDE_PATHS.txt"
+    "AURA_RUNTIME_COMPLETION/repo-hygiene/TRUFFLEHOG_EXCLUDE_PATHS.txt",
+    ".github/workflows/ci.yml",
+    "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json",
+    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+    "docs/operations/REPO_HYGIENE_PROGRAM.md",
+    "ledger/CURRENT_STATE.md",
+    "ledger/PROJECT_LEDGER.md"
   ],
   "evidence_ids": [
+    "EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01",
     "EV-REPO-HYGIENE-H-010-CLOSEOUT-20260811-01",
     "EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01",
     "EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01",
@@ -258,7 +252,6 @@
     "EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01",
     "EV-REPO-HYGIENE-REMEDIATION-20260810-01",
     "EV-REPO-HYGIENE-REMEDIATION-VERIFY-20260811-01",
-    "EV-R0-20260802-LEGACY-REDIRECT-01",
     "EV-R0-20260802-POST-COMMIT-VALIDATION-01",
     "EV-REPO-HYGIENE-MAIN-CI-CURRENT-20260811-01",
     "EV-REPO-HYGIENE-H-004-20260810-01",
@@ -497,6 +490,11 @@
       "name": "HYGIENE-REMEDIATION-01 backup, clean clone, scanners, source remediation, and local gates",
       "result": "blocked",
       "evidence_id": "EV-REPO-HYGIENE-REMEDIATION-20260810-01"
+    },
+    {
+      "name": "H-010 final hosted-CI governance, build, test, coverage, and artifact closure",
+      "result": "passed",
+      "evidence_id": "EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01"
     }
   ],
   "blockers": [
@@ -504,7 +502,7 @@
     "R11 remains in_progress: full-Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed-CI evidence are missing.",
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
-    "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests/fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. Main push is complete; exact final hosted-CI observation remains pending. No H-011 transition occurred."
+    "Repository hygiene H-010 is complete at main SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8: local and hosted governance/build/test/coverage/artifact gates pass for their recorded boundaries. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. The temporary hosted runner was deregistered. No H-011 exists."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
@@ -540,7 +538,7 @@
     "RISK-REPO-HYGIENE-SWIFTLINT-FORMATTER-POLICY-CONFLICT",
     "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION"
   ],
-  "next_action": "H-010 local gates pass and are delivered on main projection commit d1e77129c607a40a209b5d1c5207cc83f38a5851: strict SwiftLint 0 violations, strict formatter/build/full tests/fsck pass, and the canonical wrapper exits 0 with 21/21 bundles, 795 tests, and 70.57% coverage. The 219 byte-identical copies are preserved in recoverable external quarantine and in-repository untracked count is 0. Hosted run 31593417301 is queued with no active self-hosted runner and no completed steps; record remains fail-closed until runner availability and a completed result. Do not open H-011 or claim product/release completion.",
+  "next_action": "Repository-hygiene H-010 is complete at main SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8. Stop at the terminal H-010 boundary; no H-011 exists. Continue only independent R11/R12/FINAL work under its own explicit authority; do not infer product, beta, signing, release, or deployment completion.",
   "required_first_reads": [
     "AGENTS.md",
     "README.md",
@@ -555,5 +553,5 @@
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "docs/operations/BETA_READINESS.md"
   ],
-  "notes": "FINAL/CLOSEOUT is a blocked handoff, not a release decision. No signing, installation, release, deployment, telemetry, or beta enrollment occurred. H-010 local lint/coverage blockers are resolved under EV-REPO-HYGIENE-H-010-FINAL-20260812-01 and delivered at main projection d1e77129c607a40a209b5d1c5207cc83f38a5851. Hosted run 31593417301 remains queued because the active self-hosted runner inventory is empty; no hosted pass or fail is inferred. The 219 copy artifacts are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. Second-pass synchronization remains SP-000/pending. No H-011 exists; product, beta, second-pass, ADR-034/ADR-044, signing, release, and deployment gates remain separate."
+  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. No signing, installation, release, deployment, telemetry, or beta enrollment occurred. Repository-hygiene H-010 is complete under EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01: final hosted run 31598491689 passed, artifact 9142197938 is retained for 14 days, and the temporary runner was removed. The 219 copy artifacts are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. Second-pass synchronization remains SP-000/pending. No H-011 exists; product, beta, ADR-034/ADR-044, signing, release, and deployment gates remain separate."
 }

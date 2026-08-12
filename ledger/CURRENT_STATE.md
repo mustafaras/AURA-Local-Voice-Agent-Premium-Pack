@@ -402,3 +402,20 @@ Final hosted observation is currently fail-closed: run `31593417301` for
 `94103274792` has no completed steps, and the GitHub self-hosted runner
 inventory is empty. No hosted PASS/FAIL is inferred. Evidence:
 `EV-REPO-HYGIENE-H-010-HOSTED-BLOCKED-20260812-01`.
+
+### H-010 terminal hosted-CI closure — 2026-08-12T13:00:00Z
+
+The hosted runner availability blocker and the two discovered artifact-path
+contract defects are resolved. Final run `31598491689` on main SHA
+`6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8` passed governance and
+build-and-test, including 38 governance tests, 21/21 Swift bundles, 70.59%
+coverage against the unchanged 70% threshold, release-manifest validation, and
+two-file artifact upload. Artifact `9142197938` is unexpired for 14 days;
+hosted log SHA-256 is `8cab37029015b5b159a34d54dbcedd5cb4344a6fe22e55e8a95562220b9ed960`.
+The temporary runner was deregistered and the runner inventory is zero.
+
+H-010 is complete only for the repository-hygiene program. The manifest has no
+H-011; stop at the terminal boundary. Product, beta, signing, release,
+deployment, live-hardware, ADR-034/ADR-044, and broader FINAL gates remain
+independent and are not claimed complete. Evidence:
+`EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01`.

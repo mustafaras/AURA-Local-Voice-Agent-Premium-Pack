@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-12T11:50:09Z",
-  "session_id": "AURA-REPO-HYGIENE-H010-HOSTED-BLOCKED-20260812",
+  "updated_at": "2026-08-12T13:00:00Z",
+  "session_id": "AURA-REPO-HYGIENE-H010-HOSTED-CLOSEOUT-20260812",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "d0527d923d2ed02be3daf291e8181c900508a59a",
-    "remote_head": "d0527d923d2ed02be3daf291e8181c900508a59a",
+    "verified_head": "6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8",
+    "remote_head": "6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8",
     "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -50,7 +50,8 @@
       ,"EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01 and EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01 record successful user-controlled Xcode 27.0 beta 5 provisioning, SourceKit/strict build/formatter/default 21-bundle matrix verification, and the remaining full SwiftLint policy blocker of 1,330 serious findings across 628 files."
       ,"EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01 and EV-REPO-HYGIENE-H-010-CLOSEOUT-20260812-01 record bounded Sources/Tests remediation without policy weakening: strict formatter/build/full tests pass, SwiftLint exits 2 with 528 findings across 112 files, and the canonical wrapper exits 1 at 66.10% under the unchanged 70% coverage threshold. H-010 remains active/blocked and no H-011 exists."
       ,"EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01 records feature commit ab83672 pushed and no-ff merge f6958c4 pushed to origin/main; canonical state/handoff now point to the merge commit and no new hosted-CI result is claimed."
-      ,"EV-REPO-HYGIENE-H-010-FINAL-20260812-01 records zero strict SwiftLint violations, 21/21 bundles, 795 tests, 70.57% coverage, zero in-repository untracked paths, and the recoverable 219-file quarantine. Feature commit de320a05 was pushed and no-ff merge d0527d9 was delivered to main; final hosted-CI observation remains pending."
+      ,"EV-REPO-HYGIENE-H-010-FINAL-20260812-01 records zero strict SwiftLint violations, 21/21 bundles, 795 tests, 70.57% coverage, zero in-repository untracked paths, and the recoverable 219-file quarantine. Feature commit de320a05 was pushed and no-ff merge d0527d9 was delivered to main."
+      ,"EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01 records final run 31598491689 success on main SHA 6d4d6da: governance/build-and-test, 38 governance tests, 21/21 bundles, 70.59% coverage, manifest validation, and two-file artifact upload. The temporary runner was deregistered; no H-011 exists."
     ]
   },
   "program_status": "in_progress",
@@ -521,5 +522,5 @@
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "H-010 local gates pass and are delivered on main projection commit d1e77129c607a40a209b5d1c5207cc83f38a5851: strict SwiftLint 0 violations, strict formatter/build/full tests/fsck pass, and the canonical wrapper exits 0 with 21/21 bundles, 795 tests, and 70.57% coverage. The 219 byte-identical copies are preserved in recoverable external quarantine and in-repository untracked count is 0. Hosted run 31593417301 is queued with no active self-hosted runner and no completed steps; record remains fail-closed until runner availability and a completed result. Do not open H-011 or claim product/release completion."
+  "next_action": "Repository-hygiene H-010 is complete at main SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8. Stop at the terminal H-010 boundary; no H-011 exists. Keep R11/R12/FINAL product, beta, signing, release, deployment, live-hardware, and independent ADR gates separate and blocked where recorded."
 }

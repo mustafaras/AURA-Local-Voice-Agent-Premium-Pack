@@ -109,3 +109,17 @@ The synchronized projection was pushed as `d1e77129c607a40a209b5d1c5207cc83f38a5
 Its hosted run `31593417301` is also queued because the self-hosted runner
 inventory is empty; no hosted PASS/FAIL is claimed. Keep H-010 blocked until
 an authorized runner executes the final workflow.
+
+## H-010 terminal hosted-CI closure — 2026-08-12T13:00:00Z
+
+The queued-run/empty-runner observation is superseded by final run
+`31598491689` on SHA `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`.
+Governance and build-and-test passed with 38 governance tests, 21/21 Swift
+bundles, 70.59% coverage against the unchanged 70% threshold, valid
+development-unverified manifest, and two uploaded artifact files. Artifact
+`9142197938` is unexpired for 14 days, and the temporary runner was removed;
+the live runner inventory is zero. H-010 is complete at the repository-hygiene
+boundary, is the terminal manifest prompt, and has no H-011. Independent
+product, release, beta, signing, deployment, live, ADR, and FINAL gates remain
+open as separately owned. Evidence:
+`EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01`.

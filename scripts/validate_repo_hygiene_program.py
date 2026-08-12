@@ -156,7 +156,14 @@ def main() -> int:
         fail(errors, "state completed_prompts must be an ordered prefix")
     if not isinstance(blocked, list) or any(item not in expected_ids for item in blocked):
         fail(errors, "state blocked_prompts contains an unknown prompt")
-    if completed and active != expected_ids[len(completed)]:
+    if completed == expected_ids:
+        if active != "H-010":
+            fail(errors, "completed final state must retain active_prompt H-010")
+        if state.get("active_state") != "completed":
+            fail(errors, "completed final state must set active_state=completed")
+        if state.get("program_status") != "completed":
+            fail(errors, "completed final state must set program_status=completed")
+    elif completed and active != expected_ids[len(completed)]:
         fail(errors, "state active_prompt must be the first incomplete prompt")
     if not completed and active != "H-000":
         fail(errors, "initial state must activate H-000")
