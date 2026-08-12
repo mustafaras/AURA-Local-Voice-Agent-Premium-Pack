@@ -1201,3 +1201,9 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Ownership evidence:** The prior 219 byte-identical ` 2.swift` copy artifacts were moved without deletion to recoverable external quarantine `/Users/m_ras/Desktop/AURA-H010-QUARANTINE-20260812`; quarantine count is 219, aggregate SHA-256 is `b3953f95116093835b721868c72b24972ba31d315895c2cd99d0f365045afe44`, and current in-repository untracked count is 0.
 - **Delivery state:** Commit `de320a05` was pushed to `origin/repo-hygiene/h010-final-20260812`. H-010 remains active/blocked pending no-ff merge/main push and hosted-CI observation for the final delivered commit; after that evidence, state projections may be advanced. Product/release/live/ADR-034/ADR-044 gates remain independent.
 - **Evidence:** `EV-REPO-HYGIENE-H-010-FINAL-20260812-01`; focused ledger report hashes are the authoritative command evidence.
+
+### 2026-08-12T11:41:26Z — REPO_HYGIENE_H010_MAIN_SYNC
+
+- **Delivery:** Feature commits `de320a05` and `8e12424` were merged no-ff into `main` as `d0527d923d2ed02be3daf291e8181c900508a59a`; `git push origin main` exited `0` and local `HEAD == origin/main`.
+- **Projection:** Machine state, current-state, capability/toolchain manifests, handoff, docs, and ledgers now identify the synchronized main SHA. Local lint/formatter/build/full-test/fsck/coverage and zero-untracked evidence remain unchanged and green.
+- **Hosted boundary:** Run `31592649228` for the merge SHA was queued with governance job `94100880532` and no completed steps. It is not a pass; a completed hosted result for the synchronized main projection is required before H-010 can be completed.

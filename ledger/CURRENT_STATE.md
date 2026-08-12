@@ -390,3 +390,9 @@ in-repository untracked count is zero. Feature push is complete. H-010 remains
 blocked only until the no-ff merge/main push and exact final hosted-CI result
 are observed and projected; no H-011 or product/release completion claim
 follows. Evidence: `EV-REPO-HYGIENE-H-010-FINAL-20260812-01`.
+
+The feature was then merged no-ff and pushed to `main` at
+`d0527d923d2ed02be3daf291e8181c900508a59a`; `HEAD == origin/main`. The
+post-merge state projection is synchronized to this SHA. Hosted run
+`31592649228` for the merge SHA remained queued and is not a pass; the final
+synchronized-main hosted result remains required.

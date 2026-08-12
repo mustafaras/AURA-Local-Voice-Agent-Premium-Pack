@@ -425,3 +425,9 @@ in-repository untracked paths. The 219 byte-identical copy artifacts are
 preserved in recoverable external quarantine. Feature push is complete; no-ff
 merge/main push and exact final hosted-CI observation remain pending. Evidence:
 `EV-REPO-HYGIENE-H-010-FINAL-20260812-01`. No H-011 exists.
+
+The feature was merged no-ff and pushed to `main` at
+`d0527d923d2ed02be3daf291e8181c900508a59a`; `HEAD == origin/main`, and the
+state projections now point to that SHA. Hosted run `31592649228` was queued
+for the merge SHA without completed steps; it is not a pass. The final
+synchronized-main hosted result remains required.

@@ -99,3 +99,8 @@ byte-identical copy artifacts are preserved in recoverable external quarantine
 no-ff merge/main push and exact final hosted-CI observation remain pending.
 Read `REPO_HYGIENE_STATE.json` and the latest focused-ledger entry before
 declaring H-010 complete. No H-011 exists.
+
+The feature was merged no-ff and pushed to `main` at
+`d0527d923d2ed02be3daf291e8181c900508a59a`; the state projections now point
+to this synchronized main SHA. Hosted run `31592649228` remained queued with
+no completed steps, so the final hosted result is still open.
