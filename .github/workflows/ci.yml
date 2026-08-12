@@ -70,8 +70,11 @@ jobs:
 
       - name: Build development-unverified release evidence
         env:
-          BUILD_ROOT: ${{ runner.temp }}/aura-r11-release-artifact
-          OUTPUT_DIR: ${{ runner.temp }}/aura-r11-release-artifact/output
+          # build-release-artifact.sh intentionally accepts only an isolated
+          # temporary root; runner.temp is nested under the runner checkout
+          # and is rejected by its fail-closed path guard.
+          BUILD_ROOT: /tmp/aura-r11-release-artifact-${{ github.run_id }}
+          OUTPUT_DIR: /tmp/aura-r11-release-artifact-${{ github.run_id }}/output
         run: ./scripts/build-release-artifact.sh
 
       - name: Retain development-unverified artifact and manifest
