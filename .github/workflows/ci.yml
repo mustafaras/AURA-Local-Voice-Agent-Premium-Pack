@@ -84,5 +84,5 @@ jobs:
           if-no-files-found: error
           retention-days: 14
           path: |
-            ${{ runner.temp }}/aura-r11-release-artifact/output/AURA-development-unverified.zip
-            ${{ runner.temp }}/aura-r11-release-artifact/output/AURA-development-unverified.manifest.json
+            /tmp/aura-r11-release-artifact-${{ github.run_id }}/output/AURA-development-unverified.zip
+            /tmp/aura-r11-release-artifact-${{ github.run_id }}/output/AURA-development-unverified.manifest.json
