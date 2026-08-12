@@ -3851,3 +3851,11 @@ new hosted-CI result is claimed. Evidence:
 - **Scope:** Removed only three verified-empty legacy directories and moved the unreferenced `AURA_RUNTIME_COMPLETION/state/README.md` to the recoverable dated archive. No historical ledger was rewritten and no active second-pass or product file was deleted.
 - **Preserved boundary:** Build/cache/user metadata surfaces remain untouched; canonical schemas, ADRs, source/tests, ledgers, evidence/risk registers, hygiene controls, and all `SP-*` prompts remain available.
 - **Verification/next action:** Full governance/second-pass/supply-chain validation, 38/38 script tests, JSON, shell, diff, empty-directory, and active-reference checks passed. Keep `SP-000/pending`; no automatic prompt transition or Git delivery follows.
+
+### 2026-08-12T15:46:00Z — SECOND_PASS_REPO_SURFACE_CLEANUP_DELIVERY
+
+- **Scope/result:** The control-plane archive and verified-empty-directory cleanup was delivered without changing product source, tests, second-pass state, or prompt order.
+- **Git evidence:** Feature commit `19046eb05b6db9a93f20575ab0dd7b60197743d5` was pushed to `origin/chore/second-pass-repo-surface-cleanup-20260812`; PR #3 was merged at `de34f1d24d5c1c452cfe87760125e441d0eb6c19`; local `main` and `origin/main` are equal and the worktree is clean.
+- **Verification:** Runtime, second-pass, hygiene, supply-chain validators, 38/38 deterministic tests, shell syntax, staged diff checks, and scope review passed before delivery.
+- **Hosted/deploy boundary:** Main CI run `31613321170` is queued at governance job `94169857335`; no hosted PASS/FAIL is claimed. `.github/workflows/ci.yml` contains governance/build-and-test and development-unverified artifact upload only; no signed/notarized/public deployment target or deploy command exists. No deployment was executed or claimed.
+- **State:** `SP-000` remains `pending`; H-010 remains terminal; product, beta, signing, release, live, ADR-034/044, and FINAL gates remain separate.

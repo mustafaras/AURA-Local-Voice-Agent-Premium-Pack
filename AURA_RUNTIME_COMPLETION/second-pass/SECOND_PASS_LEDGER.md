@@ -80,3 +80,10 @@ Corrections are appended, never rewritten.
 - **Residual risks:** Generated ignored caches and `.DS_Store` files remain intentionally outside this cleanup boundary; context-bloat and second-pass synchronization risks remain mitigated, not closed.
 - **Acceptance verdict:** Structural cleanup complete for the proven safe targets; `SP-000` remains `pending` and no gap was closed.
 - **Next prompt/action:** On explicit authorization, read the second-pass Tier-0 contract and execute only `SP-000`.
+
+### 2026-08-12T15:46:00Z — SECOND_PASS_REPO_SURFACE_CLEANUP_DELIVERED — SP-000 pending
+
+- **Prompt ID:** Control-plane delivery; no `SP-*` prompt was executed.
+- **Delivery evidence:** Feature commit `19046eb05b6db9a93f20575ab0dd7b60197743d5` was pushed to origin and merged by PR #3 as `de34f1d24d5c1c452cfe87760125e441d0eb6c19`; local `main` equals `origin/main` and the worktree is clean.
+- **Hosted boundary:** Main CI run `31613321170` is queued with governance job `94169857335`; no completed hosted result is claimed. The workflow has no deploy job and the repository defines no signed/notarized/public deployment target.
+- **Acceptance:** Archive/cleanup scope is delivered; `SP-000` remains `pending`, no prompt was completed, and no product/release/deployment gate was changed.

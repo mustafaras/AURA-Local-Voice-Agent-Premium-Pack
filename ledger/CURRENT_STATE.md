@@ -3,10 +3,10 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-08-12.
 
-## Authoritative current status — 2026-08-12T14:19:57Z
+## Authoritative current status — 2026-08-12T15:46:00Z
 
 Repository hygiene H-010 is terminally complete. The current live repository is
-`main` / `HEAD == origin/main == b4610f0a06d3a408f76a38c9b05175ef0de82b11`.
+`main` / `HEAD == origin/main == de34f1d24d5c1c452cfe87760125e441d0eb6c19`.
 The hosted workflow/source evidence was executed on
 `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`; descendants after that SHA are
 control-plane-only projection commits. H-010 state is `completed`, all H-000
@@ -17,8 +17,9 @@ ADR-034/044, and FINAL gates remain separate.
 
 The terminal H-000…H-010 prompt definitions are archived under
 `AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/`; the hygiene prompt
-manifest remains their canonical locator. This is an expected control-plane
-working-tree change pending explicit delivery. No pending `SP-*` prompt,
+manifest remains their canonical locator. The archive/cleanup delivery is
+merged by PR #3 and the worktree is clean. Main CI run `31613321170` is queued;
+no repository-defined signed/notarized/public deployment target exists. No pending `SP-*` prompt,
 append-only ledger, ADR, evidence, risk, or active handoff was archived.
 
 ## Canonical State Notice — 2026-08-09

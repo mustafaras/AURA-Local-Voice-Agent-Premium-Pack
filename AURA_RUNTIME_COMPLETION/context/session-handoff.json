@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-12T14:46:13Z",
-  "session_id": "AURA-REPO-DOCUMENT-ARCHIVE-20260812",
-  "last_verified_commit": "b4610f0a06d3a408f76a38c9b05175ef0de82b11",
+  "updated_at": "2026-08-12T15:46:00Z",
+  "session_id": "AURA-REPO-DELIVERY-20260812",
+  "last_verified_commit": "de34f1d24d5c1c452cfe87760125e441d0eb6c19",
   "active_prompt": {
     "id": "FINAL",
     "file": "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "state": "in_progress",
     "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is terminally complete at current main projection b4610f0a06d3a408f76a38c9b05175ef0de82b11; hosted governance/build/test evidence was executed on workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8 and later descendants contain control-plane-only projections. Strict SwiftLint, formatter, build, full tests, fsck, coverage, governance, hosted CI, and development-unverified artifact upload pass for their recorded boundaries. The terminal H-000..H-010 prompt definitions are archived and remain locatable through the hygiene manifest; the current worktree therefore has expected control-plane dirt pending delivery. No H-011 exists and no product/release claim follows.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is terminally complete; the archive/cleanup delivery is merged at main projection de34f1d24d5c1c452cfe87760125e441d0eb6c19 and the worktree is clean. Hosted governance/build/test run 31613321170 for that merge is queued, not a pass. Strict SwiftLint, formatter, build, full tests, fsck, coverage, governance, hosted CI, and development-unverified artifact upload pass only for their recorded boundaries. The terminal H-000..H-010 prompt definitions remain locatable through the hygiene manifest; no H-011 exists and no product/release/deployment claim follows.",
   "completed": [
     "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
     "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
@@ -565,5 +565,5 @@
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "docs/operations/BETA_READINESS.md"
   ],
-  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00-13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. ADR/subsystem docs remain on-demand Tier-1 references. SP-000 remains pending; no prompt transition, product, beta, signing, release, deployment, commit, push, or merge action occurred. The current archive edits are expected control-plane dirt pending explicit delivery."
+  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00-13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. ADR/subsystem docs remain on-demand Tier-1 references. SP-000 remains pending; no prompt transition or product/release/deployment claim follows. Archive/cleanup delivery is complete through PR #3 merge de34f1d; main CI run 31613321170 remains queued because no self-hosted runner is available."
 }
