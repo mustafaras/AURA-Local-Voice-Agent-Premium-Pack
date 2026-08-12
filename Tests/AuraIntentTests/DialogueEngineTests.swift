@@ -81,13 +81,12 @@ func dialogueEngineUsesLocalReasoningBackendAndKeepsProvenance() async {
     actor: .user,
     authority: .userUtterance,
     sensitivity: .sensitive)
+  let contextItem = DialogueContextItem(
+    sourceID: "utterance", summary: "current question", confidence: 1, authority: "userStated")
   let response = await engine.respond(
     to: dialogueIntent(),
     context: context,
-    contextItems: [
-      DialogueContextItem(
-        sourceID: "utterance", summary: "current question", confidence: 1, authority: "userStated")
-    ])
+    contextItems: [contextItem])
 
   #expect(response.text == "Rayleigh scattering explains it.")
   #expect(response.modelID == "local:latest")

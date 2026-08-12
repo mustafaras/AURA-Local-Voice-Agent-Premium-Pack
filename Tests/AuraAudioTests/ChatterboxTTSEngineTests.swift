@@ -225,9 +225,7 @@ private actor FakeChatterboxHelper: ChatterboxHelperExecuting {
     ChatterboxHelperReady(device: "cpu-test", referenceConfigured: true)
   }
 
-  func synthesize(_ request: ChatterboxSynthesisRequest) async throws
-    -> ChatterboxSynthesisResult
-  {
+  func synthesize(_ request: ChatterboxSynthesisRequest) async throws -> ChatterboxSynthesisResult {
     requests += 1
     let url = resultURL ?? outputDirectory.appendingPathComponent("\(request.id).wav")
     try Data(repeating: 0, count: 64).write(to: url)
@@ -254,9 +252,7 @@ private actor HangingChatterboxHelper: ChatterboxHelperExecuting {
     ChatterboxHelperReady(device: "cpu-test", referenceConfigured: true)
   }
 
-  func synthesize(_ request: ChatterboxSynthesisRequest) async throws
-    -> ChatterboxSynthesisResult
-  {
+  func synthesize(_ request: ChatterboxSynthesisRequest) async throws -> ChatterboxSynthesisResult {
     try await Task.sleep(for: .seconds(10))
     throw AuraError.ttsAdapterFailed("unexpected test helper completion")
   }

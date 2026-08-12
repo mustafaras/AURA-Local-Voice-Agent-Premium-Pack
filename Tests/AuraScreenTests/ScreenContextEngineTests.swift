@@ -168,12 +168,10 @@ func captureSucceedsAndRedactsRecognizedFinancialData() async throws {
   var configuration = ScreenContextConfiguration()
   configuration.enabled = true
   let windows = [makeWindow(id: 1, title: "My Bank Statement", bundleID: "com.example.normal")]
-  let recognizer = ScriptedTextRecognizer(
-    regionsToReturn: [
-      RecognizedTextRegion(
-        text: "Account balance card 4111 1111 1111 1111", boundingBoxX: 0.1, boundingBoxY: 0.1,
-        boundingBoxWidth: 0.4, boundingBoxHeight: 0.05)
-    ])
+  let region = RecognizedTextRegion(
+    text: "Account balance card 4111 1111 1111 1111", boundingBoxX: 0.1, boundingBoxY: 0.1,
+    boundingBoxWidth: 0.4, boundingBoxHeight: 0.05)
+  let recognizer = ScriptedTextRecognizer(regionsToReturn: [region])
   let (engine, _) = try await makeEngine(
     windows: windows, configuration: configuration, textRecognizer: recognizer)
 

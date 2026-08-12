@@ -96,10 +96,10 @@ public actor ScreenContextEngine {
     await emit(
       ScreenCaptureRequestedEvent(windowID: windowID), actor: actor, correlationID: correlationID)
 
-    switch try await preflight(
+    let preflightResult = try await preflight(
       windowID: windowID, region: region, actor: actor,
       sessionID: sessionID, correlationID: correlationID)
-    {
+    switch preflightResult {
     case .blocked(let reason):
       return await block(reason, windowID: windowID, actor: actor, correlationID: correlationID)
     case .ready(let descriptor):

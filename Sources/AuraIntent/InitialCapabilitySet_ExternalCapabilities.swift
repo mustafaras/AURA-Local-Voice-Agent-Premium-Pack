@@ -2,6 +2,9 @@ import AuraCore
 import Foundation
 
 extension InitialCapabilitySet {
+  private static let userSuppliedURLDomain =
+    "any (user-supplied URL; browser-mediated, not a direct AURA network request)"
+
   static func vscodeObservationManifest(
     id: String,
     title: String,
@@ -163,10 +166,7 @@ extension InitialCapabilitySet {
     owningAdapter: "not yet implemented",
     requiredCapability: .urlOpen,
     sideEffects: ["launches the default web browser"],
-    requiredNetworkDomains: [
-      "any (user-supplied URL; browser-mediated, not a direct AURA "
-        + "network request)"
-    ],
+    requiredNetworkDomains: [userSuppliedURLDomain],
     isIdempotent: true,
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 10, supportsCancellation: false, isRetryable: true),

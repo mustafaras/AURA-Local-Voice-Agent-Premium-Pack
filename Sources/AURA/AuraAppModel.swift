@@ -75,7 +75,7 @@ final class AuraAppModel: ObservableObject {
   var eventBus: AuraEventBus?
   var bootTask: Task<Void, Never>?
 
-  init() {
+  init(startRuntime: Bool = true) {
     if let rawLanguage = UserDefaults.standard.string(forKey: "aura.ui.language"),
       let savedLanguage = AuraUILanguage(rawValue: rawLanguage)
     {
@@ -87,13 +87,15 @@ final class AuraAppModel: ObservableObject {
       productUIState.selectedTab = savedState.selectedTab
       productUIState.onboarding = savedState.onboarding
     }
-    bootTask = Task { [weak self] in
-      guard let self else { return }
-      self.emergencyShortcutMonitor.start { [weak self] in
-        self?.triggerEmergencyStop()
+    if startRuntime {
+      bootTask = Task { [weak self] in
+        guard let self else { return }
+        self.emergencyShortcutMonitor.start { [weak self] in
+          self?.triggerEmergencyStop()
+        }
+        await self.configureConfirmationPresenter()
+        await self.bootstrap()
       }
-      await self.configureConfirmationPresenter()
-      await self.bootstrap()
     }
   }
 

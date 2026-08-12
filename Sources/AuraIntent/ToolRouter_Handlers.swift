@@ -55,10 +55,11 @@ extension ToolRouter {
       return .failed(reason: "missing \(IntentSlotName.bundleIdentifier) slot")
     }
 
-    switch await resolvePolicy(
+    let policyResult = await resolvePolicy(
       intent, capability: contract.requiredCapability, target: PolicyTarget(appID: bundleID),
       executionContext: executionContext
-    ) {
+    )
+    switch policyResult {
     case .blocked(let outcome): return outcome
     case .allowed: break
     }
@@ -99,10 +100,10 @@ extension ToolRouter {
     correlationID: UUID,
     causationID: UUID
   ) async -> IntentExecutionOutcome {
-    switch await prepareShellExecution(
+    let preparation = await prepareShellExecution(
       intent, actor: actor, sessionID: sessionID,
       correlationID: correlationID, causationID: causationID)
-    {
+    switch preparation {
     case .outcome(let outcome):
       return outcome
     case .ready(let command, let executionContext):
@@ -138,9 +139,9 @@ extension ToolRouter {
     let target = PolicyTarget(
       command: command.executable, arguments: command.arguments,
       environmentKeys: Array(command.environment.keys))
-    switch await resolvePolicy(
+    let policyResult = await resolvePolicy(
       effectiveIntent, capability: capability, target: target, executionContext: executionContext)
-    {
+    switch policyResult {
     case .blocked(let outcome): return .outcome(outcome)
     case .allowed: return .ready(command, executionContext)
     }

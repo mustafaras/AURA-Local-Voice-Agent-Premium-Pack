@@ -13,3 +13,19 @@ excluded:
 line_length:
   warning: 100
   error: 100
+
+# Align SwiftLint with the repository formatter's mandatory multiline
+# collection trailing-comma policy; this keeps both strict gates equivalent.
+trailing_comma:
+  severity: warning
+  mandatory_comma: true
+
+# Swift-format intentionally places braces on a following line when a
+# declaration/condition is multiline. Keep the opening-brace rule strict for
+# single-line forms while making this bounded formatter-compatible scope
+# explicit rather than suppressing individual findings in source.
+opening_brace:
+  severity: warning
+  ignore_multiline_type_headers: true
+  ignore_multiline_statement_conditions: true
+  ignore_multiline_function_signatures: true

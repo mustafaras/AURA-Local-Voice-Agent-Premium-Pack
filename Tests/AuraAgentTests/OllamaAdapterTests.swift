@@ -385,8 +385,6 @@ func ollamaAdapterReasonReturnsFreeFormText() async throws {
   #expect(result.degraded == false)
 }
 
-// MARK: - Health check event
-
 @Test
 func ollamaAdapterHealthCheckReturnsTrueOnSuccess() async throws {
   let bus = AuraEventBus(

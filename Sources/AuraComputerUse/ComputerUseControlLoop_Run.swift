@@ -248,14 +248,24 @@ extension ComputerUseControlLoop {
     correlationID: UUID,
     lastActionAt: Date?
   ) async -> ComputerUseStepDecision {
-    switch await preflight(
+    let preflightResult = await preflight(
       step: step, context: context, correlationID: correlationID, lastActionAt: lastActionAt)
-    {
+    switch preflightResult {
     case .proceed: break
     case .skip: return .skip
     case .stop: return .stop
     case .terminal(let outcome): return .terminal(outcome)
     }
+    return await evaluateStep(
+      step: step, observation: observation, context: context, correlationID: correlationID)
+  }
+
+  private func evaluateStep(
+    step: ComputerUseActionStep,
+    observation: ScreenObservation,
+    context: ComputerUseRunContext,
+    correlationID: UUID
+  ) async -> ComputerUseStepDecision {
     let capability = Capability.forComputerUse(intent: step.semanticIntent)
     let policyRequest = PolicyEvaluationRequest(
       capability: capability,
@@ -269,34 +279,34 @@ extension ComputerUseControlLoop {
     case .deny:
       await emitStepBlocked(
         StepBlockInput(
-          runID: context.runID, iteration: contextIteration(context),
+          runID: context.runID, iteration: context.iteration,
           step: step, reason: .policyDenied),
         correlationID: correlationID, actor: context.actor)
       return .stop
     case .confirm(let challenge, _):
       await emitStepBlocked(
         StepBlockInput(
-          runID: context.runID, iteration: contextIteration(context),
+          runID: context.runID, iteration: context.iteration,
           step: step, reason: .mandatoryConfirmationRequired),
         correlationID: correlationID, actor: context.actor)
       return .terminal(
         .confirmationRequired(
-          challenge: challenge, iterations: contextIteration(context)))
+          challenge: challenge, iterations: context.iteration))
     case .allow:
       if step.semanticIntent.requiresMandatoryConfirmation {
         await emit(
           ComputerUseConfirmationBlockedEvent(
-            runID: context.runID, iteration: contextIteration(context),
+            runID: context.runID, iteration: context.iteration,
             stepID: step.id, semanticIntent: step.semanticIntent),
           correlationID: correlationID, actor: context.actor)
         await emitStepBlocked(
           StepBlockInput(
-            runID: context.runID, iteration: contextIteration(context),
+            runID: context.runID, iteration: context.iteration,
             step: step, reason: .mandatoryConfirmationRequired),
           correlationID: correlationID, actor: context.actor)
         return .terminal(
           .mandatoryConfirmationBlocked(
-            intent: step.semanticIntent, iterations: contextIteration(context)))
+            intent: step.semanticIntent, iterations: context.iteration))
       }
       return await performAction(
         step: step, observation: observation, context: context, correlationID: correlationID)
@@ -309,7 +319,7 @@ extension ComputerUseControlLoop {
     correlationID: UUID,
     lastActionAt: Date?
   ) async -> ComputerUseStepPreflight {
-    let iteration = contextIteration(context)
+    let iteration = context.iteration
     if Task.isCancelled {
       return .terminal(
         .failed(
@@ -371,15 +381,11 @@ extension ComputerUseControlLoop {
     } catch {
       await emitStepBlocked(
         StepBlockInput(
-          runID: context.runID, iteration: contextIteration(context),
+          runID: context.runID, iteration: context.iteration,
           step: step, reason: .executionFailed),
         correlationID: correlationID, actor: context.actor)
       return .stop
     }
-  }
-
-  private func contextIteration(_ context: ComputerUseRunContext) -> Int {
-    context.iteration
   }
 
   private func terminal(
