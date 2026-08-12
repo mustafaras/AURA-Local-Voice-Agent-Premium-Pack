@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `FINAL`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Live repository:** `main` at merge commit `f6958c4fe21c838f4956e3cd59d96f6e42d1de4f`; H-010 delivery branch `repo-hygiene/h010-swiftlint-remediation-20260812` was pushed and merged, while the latest full hosted-CI verification remains the prior projection-only parent `a20617302591628c704a6cf099f4c18b0525c80b` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
+> **Live repository lineage:** `main` contains H-010 delivery merge `f6958c4fe21c838f4956e3cd59d96f6e42d1de4f` followed by projection-only context commit `34c82fe`; verify the exact current tip with live Git. The latest full hosted-CI verification remains the prior projection-only parent `a20617302591628c704a6cf099f4c18b0525c80b` (merge base `68a6b6730334a5b0175ba5f4c2c271699b8ae146`); PR #2 is merged
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
