@@ -94,3 +94,7 @@ Status values: `Open`, `Mitigating`, `Blocked`, `Accepted`, `Closed`. Probabilit
 ### 2026-08-13T15:41:52Z — SP-000 synchronization-risk update
 
 `RISK-SECOND-PASS-SYNC-DRIFT` remains **Mitigating**, not closed. SP-000 found active projection hashes at `822f339`, `b4610f`, and `6390bc8` while live `main` was `05af25d`; it reconciled the active pointers and changed the second-pass validator so handoff/context expectations derive from the active state rather than a historical `SP-000/pending` literal. The residual risk is that future prompt edits or external delivery can create new drift; every prompt must re-run the Tier-0 checks, append evidence, and pass the validator before transition. Evidence: `EV-SP-000-20260813-BASELINE-01`.
+
+### 2026-08-14T06:55:43Z — SP-000 delivery reconciliation
+
+`RISK-SECOND-PASS-SYNC-DRIFT` remains **Mitigating**, not closed. The authorized SP-000 delivery exposed one post-merge stale-pointer condition: non-projection changes had landed while canonical verified SHA fields still referenced the parent. The condition was corrected by updating active pointer/documentation projections to the verified delivery baseline; later descendants are projection-only. Future deliveries must rerun the runtime validator after merge and before reporting completion. Evidence: `EV-SP-000-20260814-DELIVERY-01`.

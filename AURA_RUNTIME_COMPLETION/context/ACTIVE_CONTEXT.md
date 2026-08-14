@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `FINAL`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Live repository lineage:** `main` contains the delivered control-plane projections, with current tip `05af25de7d0e21a5fff114a7fb2cba083009a923`; the exact current tip is verified live. Main CI run `31613321170` remains a historical queued observation and is not used as a pass for this control-plane session. No repository-defined signed/notarized/public deployment target exists.
+> **Live repository lineage:** `main` contains the delivered control-plane projections, with verified non-projection baseline `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`; later descendants are control-plane-only projections. Main CI run `31613321170` remains a historical queued observation and is not used as a pass for this control-plane session. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
@@ -11,7 +11,7 @@
 ## Current terminal H-010 closure
 
 Repository hygiene H-010 is `completed` at current `main` / `origin/main`
-`05af25de7d0e21a5fff114a7fb2cba083009a923`. The hosted workflow/source proof
+`d82fde6be6e95bc8d3ccb64341bd2538baf12a92`. The hosted workflow/source proof
 was executed on `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`; descendants after
 that SHA are control-plane-only projections. SwiftLint, formatter, build, full
 tests, fsck, coverage, local validators, hosted governance/build/test, and

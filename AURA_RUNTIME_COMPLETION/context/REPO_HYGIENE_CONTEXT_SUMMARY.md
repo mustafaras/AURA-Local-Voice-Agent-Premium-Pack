@@ -1,19 +1,19 @@
 # H-009 Bounded Context Summary and Source Map
 
 **Status:** Authored derived pointer; H-010 terminal closure synchronized; not a source of truth
-**Snapshot:** 2026-08-12T14:19:57Z
+**Snapshot:** 2026-08-14T06:55:43Z
 **Program:** `AURA-REPO-HYGIENE`
-**Live repository:** `main`, `HEAD == origin/main == 05af25de7d0e21a5fff114a7fb2cba083009a923`, relation `0/0`, SP-000 control-plane worktree dirty as expected
+**Live repository:** `main`, verified non-projection baseline `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`, later descendants projection-only, relation `0/0`, clean worktree after delivery
 
 This document is a bounded successor summary for a fresh session. It reduces
 context loading without rewriting any append-only ledger. Every current claim
 below points to the authoritative file that owns it. If this summary conflicts
 with an authority, the authority wins and this pointer is stale.
 
-## Current authoritative H-010 closure — 2026-08-12T14:19:57Z
+## Current authoritative H-010 closure — 2026-08-14T06:55:43Z
 
 H-010 is terminally `completed` in `REPO_HYGIENE_STATE.json`. The current live
-projection is `05af25de7d0e21a5fff114a7fb2cba083009a923`; hosted workflow/source
+verified control-plane baseline is `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`; later descendants are projection-only; hosted workflow/source
 evidence is bound to `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`, with later
 descendants containing control-plane-only changes. All H-000…H-010 prompts are
 complete, no H-011 exists, and older blocked paragraphs in this derived summary

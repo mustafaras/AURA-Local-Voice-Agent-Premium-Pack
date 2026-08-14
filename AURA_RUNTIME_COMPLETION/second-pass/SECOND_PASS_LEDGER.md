@@ -101,3 +101,12 @@ Corrections are appended, never rewritten.
 - **Evidence:** `python3 scripts/validate_repo_hygiene_program.py`, `python3 scripts/validate_second_pass_program.py`, `python3 scripts/validate_repo_hygiene_supply_chain.py`, and `python3 scripts/validate_runtime_completion.py --ci` passed after reconciliation; focused second-pass tests and the full deterministic script suite passed; JSON, shell, diff, and scope checks passed. No product test or live hardware evidence was required or claimed for this control-plane prompt.
 - **Acceptance verdict:** SP-000 completed for baseline/synchronization scope. `SP-001` is the only pending eligible prompt. No product gap was closed and no first-pass FINAL/R2–R12/release state was marked complete.
 - **Next prompt/action:** Read the Tier-0 contract and execute only `SP-001`; stop at its own gate and do not batch or auto-advance.
+
+### 2026-08-14T06:55:43Z — SP-000_CONTROL_PLANE_DELIVERY — delivered
+
+- **Scope:** Delivery of the already completed SP-000 control-plane baseline; no new prompt transition and no product behavior change.
+- **Git evidence:** Commit `d82fde6be6e95bc8d3ccb64341bd2538baf12a92` was committed on `chore/sp-000-baseline-synchronization-20260814`, pushed to origin, fast-forward merged into `main`, and pushed to `origin/main`.
+- **Post-merge correction:** The first post-merge validation correctly exposed stale canonical SHA pointers. They were reconciled to the verified non-projection delivery commit; later pointer/documentation descendants are projection-only. The worktree is clean.
+- **Verification:** Runtime, second-pass, repository-hygiene, and supply-chain validators, 38 deterministic tests, Python compilation, shell syntax, and `git diff --check` pass on the delivered state.
+- **Evidence:** `EV-SP-000-20260814-DELIVERY-01` — delivery/state-synchronization class; no hosted CI, product, live hardware, beta, signing, release, or deployment claim.
+- **Acceptance/next action:** SP-000 remains complete; H-010 remains terminal; `SP-001` is the only pending eligible prompt and must be executed alone after its Tier-0/Tier-1 read order.

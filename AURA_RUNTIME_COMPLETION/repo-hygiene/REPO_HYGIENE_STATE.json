@@ -3,13 +3,13 @@
   "schema_version":"1.0.0",
   "program_id":"AURA-REPO-HYGIENE",
   "program_status":"completed",
-  "updated_at":"2026-08-13T15:41:52Z",
+  "updated_at":"2026-08-14T06:55:43Z",
   "session_id":"AURA-SP-000-BASELINE-20260813",
   "repository":{
     "branch":"main",
-    "head":"05af25de7d0e21a5fff114a7fb2cba083009a923",
-    "remote_head":"05af25de7d0e21a5fff114a7fb2cba083009a923",
-    "working_tree_state":"dirty_expected"
+    "head":"d82fde6be6e95bc8d3ccb64341bd2538baf12a92",
+    "remote_head":"d82fde6be6e95bc8d3ccb64341bd2538baf12a92",
+    "working_tree_state":"clean"
   },
   "active_prompt":"H-010",
   "active_state":"completed",
@@ -35,5 +35,5 @@
     "ledger":"AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md",
     "validator":"scripts/validate_repo_hygiene_program.py"
   },
-  "next_action":"H-010 is terminally complete on current main projection 05af25de7d0e21a5fff114a7fb2cba083009a923. Hosted proof remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; subsequent descendants are control-plane-only projections. Local and hosted hygiene gates remain valid for their recorded boundaries. The terminal H-000..H-010 prompt definitions are locatable through the manifest; no H-011 exists. SP-000 is now complete in the separate second-pass program; SP-001 is pending. No product, beta, signing, release, or deployment completion is implied."
+  "next_action":"H-010 is terminally complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. Hosted proof remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; subsequent descendants are control-plane-only projections. Local and hosted hygiene gates remain valid for their recorded boundaries. The terminal H-000..H-010 prompt definitions are locatable through the manifest; no H-011 exists. SP-000 is complete in the separate second-pass program; SP-001 is pending. No product, beta, signing, release, or deployment completion is implied."
 }

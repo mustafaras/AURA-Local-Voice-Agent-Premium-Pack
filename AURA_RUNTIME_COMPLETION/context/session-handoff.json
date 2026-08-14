@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-13T17:39:20Z",
+  "updated_at": "2026-08-14T06:55:43Z",
   "session_id": "AURA-SP-000-BASELINE-20260813",
-  "last_verified_commit": "05af25de7d0e21a5fff114a7fb2cba083009a923",
+  "last_verified_commit": "d82fde6be6e95bc8d3ccb64341bd2538baf12a92",
   "active_prompt": {
     "id": "SP-001",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
     "state": "pending",
     "step": "SP-000 baseline and synchronization lock completed; SP-001 is the only eligible next prompt."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is terminally complete at live main 05af25de7d0e21a5fff114a7fb2cba083009a923; the terminal H-000..H-010 prompt definitions remain locatable through the hygiene manifest and no H-011 exists. SP-000 baseline and synchronization lock is complete; SP-001 is pending. No product/release/deployment claim follows.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is terminally complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92; later descendants are control-plane-only projections, the terminal H-000..H-010 prompt definitions remain locatable through the hygiene manifest, and no H-011 exists. SP-000 baseline and synchronization lock is complete; SP-001 is pending. No product/release/deployment claim follows.",
   "completed": [
     "Created schema-backed program state, capability matrix, prompt manifest, context index, session handoff, and evidence-record contracts.",
     "Created separate append-only program ledger, decision register, risk register, and evidence index.",
@@ -39,7 +39,7 @@
     "R11 artifact/manifest first slice was implemented and locally verified under EV-R11-20260809-ARTIFACT-MANIFEST-01: development_unverified reproducible ZIP, 13-file bundle inventory/SBOM, checksum-bound manifest, fail-closed release status, 4/4 focused tests, 17/17 governance tests, and release validation blocked by missing full Xcode.",
     "R11 CI artifact-evidence workflow configuration was added under edit-only authority: successful build/test jobs invoke the existing development_unverified artifact builder and retain only the ZIP/manifest for 14 days. YAML, governance, and script tests pass; the final remediation hosted run 31487128834 observed the pushed workflow and artifact upload, while R11 release gates remain open.",
     "H-005 is complete; H-006 through H-010 are complete for the repository-hygiene program's bounded chain. H-010 is terminal and has no successor. No H-011 exists.",
-    "SP-000 baseline and synchronization lock completed at live main 05af25de7d0e21a5fff114a7fb2cba083009a923. The control-plane pointer drift was reconciled, active-state-aware validator coverage was added, and SP-001 is pending. No product source or consequential external action occurred."
+    "SP-000 baseline and synchronization lock completed at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. The control-plane pointer drift was reconciled, active-state-aware validator coverage was added, and SP-001 is pending. No product source or consequential product/release action occurred."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
@@ -554,7 +554,7 @@
     "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION"
     ,"RISK-SECOND-PASS-SYNC-DRIFT"
   ],
-  "next_action": "Read the second-pass Tier-0 contract and execute only SP-001. SP-000 baseline and synchronization lock is complete at live main 05af25de7d0e21a5fff114a7fb2cba083009a923; do not batch or auto-advance. H-010 remains terminal with no H-011, and product, beta, signing, release, and deployment claims remain separate.",
+  "next_action": "Read the second-pass Tier-0 contract and execute only SP-001. SP-000 baseline and synchronization lock is complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92; later descendants are projection-only. Do not batch or auto-advance. H-010 remains terminal with no H-011, and product, beta, signing, release, and deployment claims remain separate.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",

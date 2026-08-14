@@ -2,7 +2,7 @@
 
 **Status:** H-010 terminally completed at the repository-hygiene boundary; preserve evidence and do not invent H-011
 **Owner:** Repository maintainer
-**Live repository:** `main` / `HEAD == origin/main == 05af25de7d0e21a5fff114a7fb2cba083009a923`; hosted workflow/source evidence is bound to `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`, later descendants are control-plane-only
+**Live repository:** `main` / verified non-projection baseline `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`; later descendants are control-plane-only; hosted workflow/source evidence is bound to `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`
 **Verified content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` (projection-only descendants under ADR-045)
 **Scope:** Source, tests, build artifacts, Git object database, tooling, CI, secrets, dependencies, documentation, ledgers, and agent context
 
@@ -15,7 +15,7 @@ formatter, strict build, full test matrix, fsck, coverage, governance
 validators, hosted governance/build-and-test, and development-unverified
 artifact upload passed for the recorded boundaries. Hosted run `31598491689`
 passed on workflow/source SHA `6d4d6da`; current `main` is
-`05af25de7d0e21a5fff114a7fb2cba083009a923` after control-plane-only projection
+`d82fde6be6e95bc8d3ccb64341bd2538baf12a92` after the non-projection SP-000 delivery and before later projection-only updates
 commits. All H-000…H-010 prompts are complete, H-010 is the manifest terminal
 item, and H-011 does not exist. Product, beta, signing, release, deployment,
 live, ADR-034/044, and broader FINAL gates remain separate.

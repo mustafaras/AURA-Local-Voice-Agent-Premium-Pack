@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-13T15:41:52Z",
+  "updated_at": "2026-08-14T06:55:43Z",
   "session_id": "AURA-SP-000-BASELINE-20260813",
   "active_prompt": "SP-001",
   "active_state": "pending",
@@ -13,7 +13,8 @@
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-01",
     "EV-OPEN-GAPS-20260809-FULL-AUDIT-01",
-    "EV-SP-000-20260813-BASELINE-01"
+    "EV-SP-000-20260813-BASELINE-01",
+    "EV-SP-000-20260814-DELIVERY-01"
   ],
   "authority": {
     "edit": true,
@@ -40,5 +41,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-000 completed at live main 05af25de7d0e21a5fff114a7fb2cba083009a923. SP-001 is pending; execute only SP-001 after its Tier-0/Tier-1 read order, and do not batch or auto-advance."
+  "next_action": "SP-000 completed at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92; later descendants are projection-only. SP-001 is pending; execute only SP-001 after its Tier-0/Tier-1 read order, and do not batch or auto-advance."
 }

@@ -1279,3 +1279,13 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Cognitive gate:** Symptom, mechanism, resolution, evidence class, falsifier, residual risk, and next-prompt safety are recorded in the focused second-pass ledger. Product/live/security/release/beta gates remain open and outside SP-000.
 - **Verdict/transition:** `SP-000` is `completed`; `SP-001` is `pending` and is the only eligible next prompt. No product source, live acceptance, first-pass completion, release, or deployment state changed.
 - **Next safe action:** Read the second-pass Tier-0 contract and execute only `SP-001`; stop at its gate and do not batch or auto-advance.
+
+### 2026-08-14T06:55:43Z — SP-000_CONTROL_PLANE_DELIVERY — completed delivery
+
+- **Actor/session:** Codex; user explicitly authorized commit, push, and merge after SP-000 verification.
+- **Scope:** Deliver the completed SP-000 baseline/synchronization control-plane changes only; no product source, prompt transition, or release/deployment action.
+- **Git evidence:** `d82fde6be6e95bc8d3ccb64341bd2538baf12a92` was pushed from `chore/sp-000-baseline-synchronization-20260814`, fast-forward merged into `main`, and pushed to `origin/main`.
+- **Failure caught and corrected:** Post-merge runtime validation found that canonical pointers still referenced `05af25de`; pointer/documentation projections were then reconciled to the verified non-projection delivery baseline. Subsequent descendants are projection-only and the worktree is clean.
+- **Verification:** Runtime, second-pass, hygiene, supply-chain, 38-test, Python compile, shell syntax, and diff gates pass after delivery correction.
+- **Evidence:** `EV-SP-000-20260814-DELIVERY-01`; product/live/security/release/beta gates remain independent and open.
+- **Next action:** Execute only `SP-001` after its required read order; do not batch or auto-advance.

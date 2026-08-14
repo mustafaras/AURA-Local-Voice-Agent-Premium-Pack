@@ -3871,3 +3871,13 @@ new hosted-CI result is claimed. Evidence:
 - **Verification:** `EV-SP-000-20260813-BASELINE-01`; repository-hygiene, second-pass, supply-chain, and runtime validators passed; focused and full deterministic script tests, JSON, shell, diff, and scope checks passed.
 - **Acceptance/limitations:** SP-000 is complete only for baseline/synchronization. No product or live gate was closed. Historical append-only records remain unchanged; the worktree is now dirty as expected from uncommitted control-plane edits.
 - **Next safe action:** Execute only `SP-001` after its Tier-0/Tier-1 read order; do not batch or auto-advance.
+
+### 2026-08-14T06:55:43Z — SP-000_CONTROL_PLANE_DELIVERY — completed delivery
+
+- **Actor:** Codex; user explicitly authorized commit, push, and merge after SP-000 verification.
+- **Scope:** Deliver the completed SP-000 baseline/synchronization control-plane changes; no product source or behavior change.
+- **Git evidence:** Commit `d82fde6be6e95bc8d3ccb64341bd2538baf12a92` was pushed from `chore/sp-000-baseline-synchronization-20260814`, fast-forward merged into `main`, and pushed to `origin/main`.
+- **Post-merge finding:** Runtime validation correctly failed because canonical pointers still referenced the pre-delivery `05af25de` baseline. The active pointer and documentation projections were reconciled to the verified non-projection delivery commit; later descendants are projection-only and the worktree is clean.
+- **Verification:** Runtime, second-pass, repository-hygiene, supply-chain validators; 38 deterministic tests; Python compilation; shell syntax; and `git diff --check` pass after correction.
+- **Evidence/boundary:** `EV-SP-000-20260814-DELIVERY-01`. SP-000 is complete only for synchronization/control-plane scope; SP-001 remains pending, and product/live/security/beta/signing/release/deployment gates remain separate.
+- **Next safe action:** Execute only `SP-001` after its required read order; do not batch or auto-advance.
