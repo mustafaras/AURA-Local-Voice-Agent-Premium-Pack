@@ -3,7 +3,7 @@
 **Status:** Authored derived pointer; H-010 terminal closure synchronized; not a source of truth
 **Snapshot:** 2026-08-12T14:19:57Z
 **Program:** `AURA-REPO-HYGIENE`
-**Live repository:** `main`, `HEAD == origin/main == b4610f0a06d3a408f76a38c9b05175ef0de82b11`, relation `0/0`, clean worktree, 77,422 ignored paths
+**Live repository:** `main`, `HEAD == origin/main == 05af25de7d0e21a5fff114a7fb2cba083009a923`, relation `0/0`, SP-000 control-plane worktree dirty as expected
 
 This document is a bounded successor summary for a fresh session. It reduces
 context loading without rewriting any append-only ledger. Every current claim
@@ -13,7 +13,7 @@ with an authority, the authority wins and this pointer is stale.
 ## Current authoritative H-010 closure — 2026-08-12T14:19:57Z
 
 H-010 is terminally `completed` in `REPO_HYGIENE_STATE.json`. The current live
-projection is `b4610f0a06d3a408f76a38c9b05175ef0de82b11`; hosted workflow/source
+projection is `05af25de7d0e21a5fff114a7fb2cba083009a923`; hosted workflow/source
 evidence is bound to `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`, with later
 descendants containing control-plane-only changes. All H-000…H-010 prompts are
 complete, no H-011 exists, and older blocked paragraphs in this derived summary
@@ -34,7 +34,8 @@ are historical evidence only.
 | Next-session handoff and bounded file/evidence arrays | `AURA_RUNTIME_COMPLETION/context/session-handoff.json` | Use as the concise handoff after Tier-0 reads |
 | Architecture and security boundaries | `docs/architecture/02_ARCHITECTURE.md`, relevant ADRs, and `H-009_ARCHITECTURE_AUDIT.md` | Treat ADR status and evidence limits as binding |
 
-The live hygiene repository head is `b4610f0…`. The runtime verified content
+The previously recorded hygiene projection head `b4610f0…` is superseded by
+the live `05af25d…` control-plane projection. The runtime verified content
 baseline is `47775180c224f87fa5a58703f793515ffcb2c35c` because the descendants
 after that merge are projection-only commits. This is the ADR-045 distinction
 between the live repository tip and the last audited product/content baseline;

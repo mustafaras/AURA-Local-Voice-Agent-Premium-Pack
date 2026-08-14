@@ -2,16 +2,18 @@
   "$schema": "./SECOND_PASS_STATE.schema.json",
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
-  "program_status": "planned",
-  "updated_at": "2026-08-09T12:59:35Z",
-  "active_prompt": "SP-000",
+  "program_status": "in_progress",
+  "updated_at": "2026-08-13T15:41:52Z",
+  "session_id": "AURA-SP-000-BASELINE-20260813",
+  "active_prompt": "SP-001",
   "active_state": "pending",
-  "completed_prompts": [],
+  "completed_prompts": ["SP-000"],
   "blocked_prompts": [],
   "last_evidence_ids": [
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-01",
-    "EV-OPEN-GAPS-20260809-FULL-AUDIT-01"
+    "EV-OPEN-GAPS-20260809-FULL-AUDIT-01",
+    "EV-SP-000-20260813-BASELINE-01"
   ],
   "authority": {
     "edit": true,
@@ -38,5 +40,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-000 remains pending; start it only with explicit user approval for second-pass execution, then require its cognitive gate and validator before SP-001."
+  "next_action": "SP-000 completed at live main 05af25de7d0e21a5fff114a7fb2cba083009a923. SP-001 is pending; execute only SP-001 after its Tier-0/Tier-1 read order, and do not batch or auto-advance."
 }

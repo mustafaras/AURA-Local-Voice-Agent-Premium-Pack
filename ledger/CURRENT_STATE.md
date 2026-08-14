@@ -1,12 +1,12 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-12.
+Projection refreshed from live repository and command evidence on 2026-08-13.
 
-## Authoritative current status — 2026-08-12T15:46:00Z
+## Authoritative current status — 2026-08-13T15:41:52Z
 
 Repository hygiene H-010 is terminally complete. The current live repository is
-`main` / `HEAD == origin/main == 6390bc8c026f1b792d8e16eb96d9e631828d31c0`.
+`main` / `HEAD == origin/main == 05af25de7d0e21a5fff114a7fb2cba083009a923`.
 The hosted workflow/source evidence was executed on
 `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`; descendants after that SHA are
 control-plane-only projection commits. H-010 state is `completed`, all H-000
@@ -18,9 +18,8 @@ ADR-034/044, and FINAL gates remain separate.
 The terminal H-000…H-010 prompt definitions are archived under
 `AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/`; the hygiene prompt
 manifest remains their canonical locator. The archive/cleanup delivery is
-merged by PR #3; state projection delivery is merged by PR #4 and the worktree is clean. Main CI run `31613321170` is queued;
-no repository-defined signed/notarized/public deployment target exists. No pending `SP-*` prompt,
-append-only ledger, ADR, evidence, risk, or active handoff was archived.
+merged by PR #3; state projection delivery is merged by PR #4 and the current SP-000 control-plane worktree is dirty as expected. Main CI run `31613321170` is a historical queued observation;
+no repository-defined signed/notarized/public deployment target exists. The second-pass baseline lock `SP-000` is complete and `SP-001` is pending; no product, beta, signing, release, or deployment completion is implied.
 
 ## Canonical State Notice — 2026-08-09
 

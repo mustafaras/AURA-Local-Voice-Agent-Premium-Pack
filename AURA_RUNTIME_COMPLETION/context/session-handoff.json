@@ -1,20 +1,17 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-12T15:46:00Z",
-  "session_id": "AURA-REPO-DELIVERY-20260812",
-  "last_verified_commit": "822f339e2b353e1dc6ac126eb6aa7f592bfa0e91",
+  "updated_at": "2026-08-13T17:39:20Z",
+  "session_id": "AURA-SP-000-BASELINE-20260813",
+  "last_verified_commit": "05af25de7d0e21a5fff114a7fb2cba083009a923",
   "active_prompt": {
-    "id": "FINAL",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
-    "state": "in_progress",
-    "step": "FINAL/CLOSEOUT edit-only audit recorded: preserve blocked R11/R12 gates, return ownership to those tracks, and do not claim release-candidate verification."
+    "id": "SP-001",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
+    "state": "pending",
+    "step": "SP-000 baseline and synchronization lock completed; SP-001 is the only eligible next prompt."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is terminally complete; the archive/cleanup delivery is merged at main projection de34f1d24d5c1c452cfe87760125e441d0eb6c19 and the worktree is clean. Hosted governance/build/test run 31613321170 for that merge is queued, not a pass. Strict SwiftLint, formatter, build, full tests, fsck, coverage, governance, hosted CI, and development-unverified artifact upload pass only for their recorded boundaries. The terminal H-000..H-010 prompt definitions remain locatable through the hygiene manifest; no H-011 exists and no product/release/deployment claim follows.",
+  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is terminally complete at live main 05af25de7d0e21a5fff114a7fb2cba083009a923; the terminal H-000..H-010 prompt definitions remain locatable through the hygiene manifest and no H-011 exists. SP-000 baseline and synchronization lock is complete; SP-001 is pending. No product/release/deployment claim follows.",
   "completed": [
-    "Converted the fully operational assistant master plan into 16 executable English implementation prompts.",
-    "Defined strict dependency order, completion gates, tests, evidence, state transitions, and session-closeout duties for every prompt.",
-    "Created a token-aware anti-amnesia system with a five-file minimum startup set plus the active prompt.",
     "Created schema-backed program state, capability matrix, prompt manifest, context index, session handoff, and evidence-record contracts.",
     "Created separate append-only program ledger, decision register, risk register, and evidence index.",
     "Seeded an audited capability matrix that distinguishes implementation, runtime registration, user reachability, and evidence level.",
@@ -41,7 +38,8 @@
     "R10 delivery was verified: feature commit 2f6d8f5b was pushed to origin/feature/r10-security-boundaries; merge e1ecf82e was pushed to origin/main. No deploy/release/signing/TCC/dependency/model action was performed. User then explicitly approved transition to R11; R11 starts with edit-only release-readiness authority.",
     "R11 artifact/manifest first slice was implemented and locally verified under EV-R11-20260809-ARTIFACT-MANIFEST-01: development_unverified reproducible ZIP, 13-file bundle inventory/SBOM, checksum-bound manifest, fail-closed release status, 4/4 focused tests, 17/17 governance tests, and release validation blocked by missing full Xcode.",
     "R11 CI artifact-evidence workflow configuration was added under edit-only authority: successful build/test jobs invoke the existing development_unverified artifact builder and retain only the ZIP/manifest for 14 days. YAML, governance, and script tests pass; the final remediation hosted run 31487128834 observed the pushed workflow and artifact upload, while R11 release gates remain open.",
-    "H-005 is complete; H-006 through H-010 are complete for the repository-hygiene program's bounded chain. H-010 is terminal and has no successor. No H-011 exists."
+    "H-005 is complete; H-006 through H-010 are complete for the repository-hygiene program's bounded chain. H-010 is terminal and has no successor. No H-011 exists.",
+    "SP-000 baseline and synchronization lock completed at live main 05af25de7d0e21a5fff114a7fb2cba083009a923. The control-plane pointer drift was reconciled, active-state-aware validator coverage was added, and SP-001 is pending. No product source or consequential external action occurred."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
@@ -133,6 +131,7 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
+    "AURA_RUNTIME_COMPLETION/schemas/session-handoff.schema.json",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-000_BASELINE_AND_SYNCHRONIZATION_LOCK.prompt.md",
     "Sources/AuraVSCode/VSCodeAdapter.swift",
     "Sources/AuraVSCode/VSCodeExtensionBridge.swift",
@@ -235,9 +234,8 @@
     "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-    "AURA_RUNTIME_COMPLETION/archive/README.md",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/",
-    "AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/",
+    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+    "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/archive/first-pass-context/2026-08-12/",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_REFERENCE_INDEX.md",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json",
@@ -246,6 +244,7 @@
     "ledger/PROJECT_LEDGER.md"
   ],
   "evidence_ids": [
+    "EV-SP-000-20260813-BASELINE-01",
     "EV-REPO-HYGIENE-H-010-PROJECTION-RECONCILIATION-20260812-01",
     "EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01",
     "EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01",
@@ -294,8 +293,7 @@
     "EV-R12-20260809-READINESS-CONTRACT-01",
     "EV-FINAL-20260809-CLOSEOUT-BLOCKED-01",
     "EV-OPEN-GAPS-20260809-FULL-AUDIT-01",
-    "EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01",
-    "EV-REPO-HYGIENE-H-010-CLOSEOUT-20260812-01"
+    "EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01"
   ],
   "tests": [
     {
@@ -507,6 +505,11 @@
       "name": "H-010 terminal projection reconciliation and no-drift validation",
       "result": "passed",
       "evidence_id": "EV-REPO-HYGIENE-H-010-PROJECTION-RECONCILIATION-20260812-01"
+    },
+    {
+      "name": "SP-000 baseline, synchronization lock, and active-state-aware validator",
+      "result": "passed",
+      "evidence_id": "EV-SP-000-20260813-BASELINE-01"
     }
   ],
   "blockers": [
@@ -514,7 +517,7 @@
     "R11 remains in_progress: full-Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed-CI evidence are missing.",
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
-    "Repository hygiene H-010 is terminally complete at current main projection b4610f0a06d3a408f76a38c9b05175ef0de82b11. Hosted governance/build/test evidence applies to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; later descendants are control-plane-only projections. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. The temporary hosted runner was deregistered. No H-011 exists."
+    "Repository hygiene H-010 is terminally complete at current main projection 05af25de7d0e21a5fff114a7fb2cba083009a923. Hosted governance/build/test evidence remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; later descendants are control-plane-only projections. The 219 byte-identical copies are preserved in recoverable external quarantine and no H-011 exists."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
@@ -549,21 +552,21 @@
     "RISK-REPO-HYGIENE-ARCHITECTURE-BOUNDARY-DRIFT",
     "RISK-REPO-HYGIENE-SWIFTLINT-FORMATTER-POLICY-CONFLICT",
     "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION"
+    ,"RISK-SECOND-PASS-SYNC-DRIFT"
   ],
-  "next_action": "Keep the synchronized second-pass overlay at SP-000/pending. On explicit second-pass authorization, read the Tier-0 contract and only the named Tier-1 references, then execute SP-000; do not batch prompts or auto-advance. H-010 remains terminal with no H-011, and product, beta, signing, release, and deployment claims remain separate.",
+  "next_action": "Read the second-pass Tier-0 contract and execute only SP-001. SP-000 baseline and synchronization lock is complete at live main 05af25de7d0e21a5fff114a7fb2cba083009a923; do not batch or auto-advance. H-010 remains terminal with no H-011, and product, beta, signing, release, and deployment claims remain separate.",
   "required_first_reads": [
     "AGENTS.md",
-    "README.md",
-    "ledger/CURRENT_STATE.md",
-    "ledger/PROJECT_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
-    "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "AURA_RUNTIME_COMPLETION/prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
+    "AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
-    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-    "docs/operations/BETA_READINESS.md"
+    "AURA_RUNTIME_COMPLETION/state/current-state.json",
+    "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md"
   ],
-  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00-13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. ADR/subsystem docs remain on-demand Tier-1 references. SP-000 remains pending; no prompt transition or product/release/deployment claim follows. Archive/cleanup delivery is complete through PR #3 merge de34f1d; main CI run 31613321170 remains queued because no self-hosted runner is available."
+  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00–13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. SP-000 completed only the baseline/synchronization lock; SP-001 is pending. No product/release/deployment claim follows."
 }

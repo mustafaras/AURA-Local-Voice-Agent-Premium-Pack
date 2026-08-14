@@ -3859,3 +3859,15 @@ new hosted-CI result is claimed. Evidence:
 - **Verification:** Runtime, second-pass, hygiene, supply-chain validators, 38/38 deterministic tests, shell syntax, staged diff checks, and scope review passed before delivery.
 - **Hosted/deploy boundary:** Main CI run `31613321170` is queued at governance job `94169857335`; no hosted PASS/FAIL is claimed. `.github/workflows/ci.yml` contains governance/build-and-test and development-unverified artifact upload only; no signed/notarized/public deployment target or deploy command exists. No deployment was executed or claimed.
 - **State:** `SP-000` remains `pending`; H-010 remains terminal; product, beta, signing, release, live, ADR-034/044, and FINAL gates remain separate.
+
+### 2026-08-13T15:41:52Z — SP-000_BASELINE_AND_SYNCHRONIZATION_LOCK — completed
+
+- **Actor:** Codex; session `AURA-SP-000-BASELINE-20260813`.
+- **Objective:** Establish and verify the second-pass baseline and synchronize the active control plane before product/live gap work.
+- **Starting evidence:** `main`, `HEAD == origin/main == 05af25de7d0e21a5fff114a7fb2cba083009a923`, clean worktree before SP-000, Xcode 27.0 beta 5, Swift 6.4 arm64, Python 3.14.6.
+- **Authority/boundary:** Control-plane edits only. No product source, app launch, TCC/permission, provider/account, dependency/model, telemetry/beta, signing, release, deployment, commit, push, or merge action.
+- **Observed issue:** Active projections disagreed with live Git (`822f339`, `b4610f`, `6390bc8` versus `05af25d`), and the second-pass validator hard-coded the initial `SP-000/pending` overlay.
+- **Resolution:** Revalidated the 34-prompt linear manifest, `OPEN-00`–`OPEN-15`, state/handoff/context/toolchain, and Git relation; reconciled active pointers and made validator checks derive from the active second-pass state; marked `SP-000` complete and `SP-001` pending.
+- **Verification:** `EV-SP-000-20260813-BASELINE-01`; repository-hygiene, second-pass, supply-chain, and runtime validators passed; focused and full deterministic script tests, JSON, shell, diff, and scope checks passed.
+- **Acceptance/limitations:** SP-000 is complete only for baseline/synchronization. No product or live gate was closed. Historical append-only records remain unchanged; the worktree is now dirty as expected from uncommitted control-plane edits.
+- **Next safe action:** Execute only `SP-001` after its Tier-0/Tier-1 read order; do not batch or auto-advance.

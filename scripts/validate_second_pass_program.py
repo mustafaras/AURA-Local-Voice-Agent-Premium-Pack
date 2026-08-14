@@ -213,6 +213,7 @@ def validate(root: Path) -> list[str]:
     state_path = root / "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json"
     manifest = _load_json(manifest_path, errors)
     state = _load_json(state_path, errors)
+    active = state.get("active_prompt") if isinstance(state, dict) else None
     if not isinstance(manifest, dict):
         return errors
     prompts = _validate_manifest(root, manifest, errors)
@@ -246,15 +247,31 @@ def validate(root: Path) -> list[str]:
 
     handoff = root / "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
     if handoff.is_file():
+        handoff_data = _load_json(handoff, errors)
+        handoff_prompt = handoff_data.get("active_prompt", {}) if isinstance(handoff_data, dict) else {}
+        if not isinstance(handoff_prompt, dict):
+            errors.append("session-handoff.json active_prompt must be an object")
+        else:
+            if handoff_prompt.get("id") != active:
+                errors.append(
+                    f"session-handoff.json active_prompt must match second-pass active_prompt {active!r}"
+                )
+            if handoff_prompt.get("state") != state.get("active_state"):
+                errors.append(
+                    "session-handoff.json active_prompt state must match second-pass active_state"
+                )
         handoff_text = handoff.read_text(encoding="utf-8")
-        if "SP-000/pending" not in handoff_text or "SECOND_PASS_LEDGER.md" not in handoff_text:
-            errors.append("session-handoff.json must record the synchronized SP-000/pending overlay")
+        if "SECOND_PASS_LEDGER.md" not in handoff_text:
+            errors.append("session-handoff.json must reference SECOND_PASS_LEDGER.md")
 
     active_context = root / "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md"
     if active_context.is_file():
         active_text = active_context.read_text(encoding="utf-8")
-        if "Second-pass synchronized overlay" not in active_text or "SP-000` / `pending" not in active_text:
-            errors.append("ACTIVE_CONTEXT.md must record the synchronized SP-000/pending overlay")
+        expected_overlay = f"{active}` / `{state.get('active_state')}"
+        if "Second-pass synchronized overlay" not in active_text or expected_overlay not in active_text:
+            errors.append(
+                f"ACTIVE_CONTEXT.md must record the synchronized {active}/{state.get('active_state')} overlay"
+            )
 
     ledger = root / "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md"
     if ledger.is_file():

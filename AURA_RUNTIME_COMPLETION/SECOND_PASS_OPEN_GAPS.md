@@ -158,6 +158,13 @@ Status: no unresolved bootstrap implementation gap. On every resumed session:
 The existing BOOTSTRAP evidence proves the historical baseline only; it does
 not make later live gates pass.
 
+SP-000 closeout: the resumed baseline was revalidated at live
+`main`/`origin/main` `05af25de7d0e21a5fff114a7fb2cba083009a923`; the active
+second-pass state, handoff, context, manifest, gap register, and validator
+now agree on `SP-001` / `pending`. This closes the baseline-lock objective
+only; it does not close product or live acceptance gates. Evidence:
+`EV-SP-000-20260813-BASELINE-01`.
+
 ## OPEN-01 — R0 governance residual boundary
 
 Status: R0 governance gate passed for its bounded scope. Preserve these
@@ -168,6 +175,13 @@ R0 failures:
 2. Keep the CommandLineTools/full-Xcode limitation explicit until R11 proves
    the release toolchain.
 3. Re-run the fail-closed validator after every state or capability change.
+
+SP-000 closeout: the runtime-completion, hygiene, supply-chain, and
+second-pass validators passed after the pointer reconciliation; the
+second-pass validator now derives its handoff/context expectation from the
+active state instead of hard-coding `SP-000/pending`. The forwarded R11 and
+release-toolchain limitations remain unchanged. Evidence:
+`EV-SP-000-20260813-BASELINE-01`.
 
 ## OPEN-02 — R1 live trace residuals
 

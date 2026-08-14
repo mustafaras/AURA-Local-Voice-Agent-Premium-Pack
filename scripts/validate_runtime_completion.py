@@ -281,7 +281,13 @@ def validate_prompt_contract(
     validate_manifest_prompt_files(repo_root, manifest)
     active_state = state["active_prompt"]
     active_handoff = handoff["active_prompt"]
-    if active_state["id"] != active_handoff["id"] or active_state["file"] != active_handoff["file"]:
+    if active_handoff["id"].startswith("SP-"):
+        overlay_path = repo_root / active_handoff["file"]
+        if not overlay_path.is_file():
+            raise ValidationFailure(
+                f"second-pass handoff prompt file is missing: {active_handoff['file']}"
+            )
+    elif active_state["id"] != active_handoff["id"] or active_state["file"] != active_handoff["file"]:
         raise ValidationFailure("active prompt differs between current-state and handoff")
     entries = manifest["prompts"]
     by_id = {entry["id"]: entry for entry in entries}

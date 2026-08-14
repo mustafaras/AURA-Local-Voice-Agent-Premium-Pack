@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `FINAL`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Live repository lineage:** `main` contains archive/cleanup PR #3 and state-projection PR #4, with current tip `6390bc8c026f1b792d8e16eb96d9e631828d31c0`; the exact current tip is verified live. Main CI run `31613321170` for the archive merge is queued and has no completed jobs. No repository-defined signed/notarized/public deployment target exists.
+> **Live repository lineage:** `main` contains the delivered control-plane projections, with current tip `05af25de7d0e21a5fff114a7fb2cba083009a923`; the exact current tip is verified live. Main CI run `31613321170` remains a historical queued observation and is not used as a pass for this control-plane session. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
@@ -11,7 +11,7 @@
 ## Current terminal H-010 closure
 
 Repository hygiene H-010 is `completed` at current `main` / `origin/main`
-`6390bc8c026f1b792d8e16eb96d9e631828d31c0`. The hosted workflow/source proof
+`05af25de7d0e21a5fff114a7fb2cba083009a923`. The hosted workflow/source proof
 was executed on `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`; descendants after
 that SHA are control-plane-only projections. SwiftLint, formatter, build, full
 tests, fsck, coverage, local validators, hosted governance/build/test, and
@@ -118,11 +118,22 @@ for a blocked acceptance and closeout audit by user-directed transition request.
 
 The separate second-pass chain is defined by
 `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json` and is currently
-`SP-000` / `pending`. Its manifest, gap register, Tier-0/Tier-1 context order,
-focused append-only ledger, prompt contract, and validator must agree before
-any second-pass prompt can run. This overlay does not overwrite the first-pass
+`SP-001` / `pending`; `SP-000` completed the baseline and synchronization lock.
+Its manifest, gap register, Tier-0/Tier-1 context order, focused append-only
+ledger, prompt contract, and validator remain synchronized before any further
+second-pass prompt can run. This overlay does not overwrite the first-pass
 canonical state above: first-pass `FINAL` remains blocked, while second-pass
-`SP-000` is the only prompt eligible for an explicitly authorized start.
+`SP-001` is the only prompt eligible for an explicitly authorized start.
+
+## SP-000 baseline and synchronization lock — 2026-08-13
+
+The live branch, remote, worktree, state projections, manifest, gap register,
+toolchain, and control-file references were revalidated at
+`05af25de7d0e21a5fff114a7fb2cba083009a923`. The second-pass validator was
+corrected to validate the active prompt dynamically rather than hard-coding
+`SP-000/pending`. SP-000 is complete; no product source, app, permission,
+provider, beta, release, commit, push, merge, or deployment action occurred.
+Evidence: `EV-SP-000-20260813-BASELINE-01`.
 
 ## R2 closeout status (2026-08-07)
 

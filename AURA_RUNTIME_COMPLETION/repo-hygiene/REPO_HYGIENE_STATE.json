@@ -3,12 +3,12 @@
   "schema_version":"1.0.0",
   "program_id":"AURA-REPO-HYGIENE",
   "program_status":"completed",
-  "updated_at":"2026-08-12T14:46:13Z",
-  "session_id":"AURA-REPO-DOCUMENT-ARCHIVE-20260812",
+  "updated_at":"2026-08-13T15:41:52Z",
+  "session_id":"AURA-SP-000-BASELINE-20260813",
   "repository":{
     "branch":"main",
-    "head":"b4610f0a06d3a408f76a38c9b05175ef0de82b11",
-    "remote_head":"b4610f0a06d3a408f76a38c9b05175ef0de82b11",
+    "head":"05af25de7d0e21a5fff114a7fb2cba083009a923",
+    "remote_head":"05af25de7d0e21a5fff114a7fb2cba083009a923",
     "working_tree_state":"dirty_expected"
   },
   "active_prompt":"H-010",
@@ -35,5 +35,5 @@
     "ledger":"AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md",
     "validator":"scripts/validate_repo_hygiene_program.py"
   },
-  "next_action":"H-010 is terminally complete on current main projection b4610f0a06d3a408f76a38c9b05175ef0de82b11. The hosted governance/build/test evidence was executed on workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; subsequent descendants are control-plane-only projections. Local strict SwiftLint, formatter, build, full tests, fsck, coverage, and all governance validators pass; hosted run 31598491689 passed governance/build-and-test, 21/21 bundles, 70.59% coverage, development-unverified artifact validation, and two-file artifact upload. The terminal H-000..H-010 prompt definitions are now in the controlled archive and are locatable only through the manifest. This archive change is expected control-plane dirt pending explicit delivery. Stop at the end of the manifest: no H-011 exists and no product, beta, signing, release, or deployment completion is implied."
+  "next_action":"H-010 is terminally complete on current main projection 05af25de7d0e21a5fff114a7fb2cba083009a923. Hosted proof remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; subsequent descendants are control-plane-only projections. Local and hosted hygiene gates remain valid for their recorded boundaries. The terminal H-000..H-010 prompt definitions are locatable through the manifest; no H-011 exists. SP-000 is now complete in the separate second-pass program; SP-001 is pending. No product, beta, signing, release, or deployment completion is implied."
 }

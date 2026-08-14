@@ -1265,3 +1265,17 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Git evidence:** Feature commit `19046eb05b6db9a93f20575ab0dd7b60197743d5` was pushed, PR #3 merged it as `de34f1d24d5c1c452cfe87760125e441d0eb6c19`, and `HEAD == origin/main` with a clean worktree was verified.
 - **Hosted/deploy boundary:** Main CI run `31613321170` remains queued at governance job `94169857335`; no hosted result is claimed. The repository has no signed/notarized/public deploy target or deploy command.
 - **State:** `SP-000` remains `pending`; H-010 remains terminal; product, beta, signing, release, live, ADR-034/044, and FINAL gates remain separate.
+
+### 2026-08-13T15:41:52Z — SP-000_BASELINE_AND_SYNCHRONIZATION_LOCK — completed
+
+- **Actor/session:** Codex; `AURA-SP-000-BASELINE-20260813`.
+- **Prompt / objective:** `SP-000`, gaps `OPEN-00` and `OPEN-01`; establish a truthful second-pass baseline and synchronization lock without product behavior changes.
+- **Verified start:** `main`, `HEAD == origin/main == 05af25de7d0e21a5fff114a7fb2cba083009a923`, clean worktree, Xcode 27.0 beta 5, Swift 6.4 arm64, Python 3.14.6.
+- **Authority:** User authorized SP-000 execution only. Control-plane edits were allowed; product source, app launch, permission/TCC, provider/account, dependency/model, telemetry/beta, signing, release, deployment, commit, push, and merge actions were not authorized.
+- **Assumptions/risks:** Historical append-only evidence may retain old hashes; active projections must use live Git and current state. Projection drift and a validator hard-coded to the initial `SP-000/pending` overlay were the risks under test.
+- **Acceptance criteria:** Branch/remote/worktree, state, handoff, manifest, gap coverage, toolchain, and authority verified; active projections synchronized; only `SP-000` completed; `SP-001` pending; validator and required checks pass; no product gate claimed.
+- **Exact work:** Reconciled current-state, session handoff, active context, capability matrix, hygiene state, current-state projections, and human hygiene header to live `05af25d`. Updated `validate_second_pass_program.py` and its deterministic test to validate the active state dynamically. Updated the open-gap records and appended evidence/risk/ledger closeout records.
+- **Evidence:** `EV-SP-000-20260813-BASELINE-01`. Final `validate_repo_hygiene_program.py`, `validate_second_pass_program.py`, `validate_repo_hygiene_supply_chain.py`, `validate_runtime_completion.py --ci`, focused/full script tests, JSON, shell, diff, and scope checks passed.
+- **Cognitive gate:** Symptom, mechanism, resolution, evidence class, falsifier, residual risk, and next-prompt safety are recorded in the focused second-pass ledger. Product/live/security/release/beta gates remain open and outside SP-000.
+- **Verdict/transition:** `SP-000` is `completed`; `SP-001` is `pending` and is the only eligible next prompt. No product source, live acceptance, first-pass completion, release, or deployment state changed.
+- **Next safe action:** Read the second-pass Tier-0 contract and execute only `SP-001`; stop at its gate and do not batch or auto-advance.
