@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-15T09:32:18Z",
-  "session_id": "AURA-SP-001-DISMISSAL-FIX-20260815",
-  "last_verified_commit": "76ce21ab423bd3c828e3386fb7174bf11ec56862",
+  "updated_at": "2026-08-15T09:43:51Z",
+  "session_id": "AURA-SP-001-DISMISSAL-DELIVERY-20260815",
+  "last_verified_commit": "fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2",
   "active_prompt": {
     "id": "SP-001",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
     "state": "blocked",
-    "step": "SP-001 post-fix dismissal wiring and live evidence completed; build/integration pass, requested → dismissed → blocked is proven, and remaining post-fix negative/verification cases remain open."
+    "step": "SP-001 bounded source/evidence checkpoint delivered at fd72707; requested → dismissed → blocked is proven, and remaining post-fix negative/verification cases remain open."
   },
-  "summary": "R0 and R1 are complete for their bounded development/integration scope. SP-001 remains blocked after the post-fix dismissal wiring and live rerun: redacted trace UI/store persistence, date allow/deny, confirmation expiry, one reversible Calculator mutation, dismissal, distinct verification, no-process verification, current build, and all local validators are proven. The remaining post-fix changed-plan, replay, cancellation, concurrent-turn, and required verification evidence is still open. No TCC, dependency, provider, signing, release, deploy, commit, push, or merge action occurred in the live/source attempt. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked. No product/release/deployment claim follows.",
+  "summary": "R0 and R1 are complete for their bounded development/integration scope. SP-001 remains blocked after the post-fix dismissal wiring and bounded checkpoint delivery at fd72707: redacted trace UI/store persistence, date allow/deny, confirmation expiry, one reversible Calculator mutation, dismissal, distinct verification, no-process verification, current build, and all local validators are proven. The remaining post-fix changed-plan, replay, cancellation, concurrent-turn, and required verification evidence is still open. Commit 144b0fa was pushed and no-ff merged to main as fd72707; no TCC, dependency, provider, signing, release, deploy, or SP-002 transition occurred. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked. No product/release/deployment claim follows.",
   "completed": [
     "Created schema-backed program state, capability matrix, prompt manifest, context index, session handoff, and evidence-record contracts.",
     "Created separate append-only program ledger, decision register, risk register, and evidence index.",
@@ -41,6 +41,7 @@
     "H-005 is complete; H-006 through H-010 are complete for the repository-hygiene program's bounded chain. H-010 is terminal and has no successor. No H-011 exists.",
     "SP-000 baseline and synchronization lock completed at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. The control-plane pointer drift was reconciled, active-state-aware validator coverage was added, and SP-001 is pending. No product source or consequential product/release action occurred.",
     "SP-001 OPEN-02 source-side mitigation added redacted SQLite persistence, confirmation outcomes, opaque UI trace prefixes, and lifecycle/store/UI tests. Build, six focused suites, governance validators, and 38 deterministic tests passed under EV-SP-001-20260814-TRACE-FIX-04; live rerun and closeout are under EV-SP-001-20260814-LIVE-TRACE-FIX-05 and EV-SP-001-20260814-CLOSEOUT-06. SP-001 remains blocked; authority is edit-only."
+    ,"SP-001 bounded checkpoint delivery was committed as 144b0fa, pushed to its feature branch, no-ff merged into main as fd72707, and pushed to origin/main under EV-SP-001-20260815-DELIVERY-08. SP-001 remains blocked; authority resets to edit-only after pointer reconciliation."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
@@ -175,7 +176,7 @@
     "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_READ_FIRST.md",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.schema.json",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-DELIVERY-08.md",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.schema.json",
     "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-000_BASELINE_FREEZE_AND_EVIDENCE_CAPTURE.prompt.md",
     "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-001_GIT_OBJECT_DATABASE_RECOVERY.prompt.md",
@@ -279,7 +280,7 @@
     "EV-R2-20260803-FINAL-REGRESSION-01",
     "EV-R2-20260803-PUBLICATION-01",
     "EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01",
-    "EV-R2-20260803-APP-LAUNCH-LIVE-01",
+    "EV-SP-001-20260815-DELIVERY-08",
     "EV-R2-20260803-TEXTDEMO-LIVE-01",
     "EV-R2-20260803-TEXTDEMO-LIVE-02",
     "EV-R2-20260803-PROMPT-LEAKAGE-FIX-01",
@@ -554,7 +555,7 @@
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
     "Repository hygiene H-010 is terminally complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. Hosted governance/build/test evidence remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; later descendants are control-plane-only projections. The 219 byte-identical copies are preserved in recoverable external quarantine and no H-011 exists.",
-    "SP-001 remains blocked after the post-fix dismissal wiring: redacted persistence/UI, date allow/deny, expiry, one Calculator mutation, dismissal, and verification are proven, but post-fix changed-plan, replay, cancellation, concurrent-turn, and required verification cases are not independently captured. Authority is edit-only after the current delivery checkpoint; obtain the remaining evidence and do not start SP-002."
+    "SP-001 remains blocked after the post-fix dismissal wiring and checkpoint delivery: redacted persistence/UI, date allow/deny, expiry, one Calculator mutation, dismissal, and verification are proven, but post-fix changed-plan, replay, cancellation, concurrent-turn, and required verification cases are not independently captured. Authority is edit-only after delivery; obtain the remaining evidence and do not start SP-002."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
@@ -593,7 +594,7 @@
     ,"RISK-SECOND-PASS-SYNC-DRIFT",
     "RISK-SP-001-LIVE-TRACE-AUTHORITY"
   ],
-  "next_action": "Preserve SP-001 as blocked after EV-SP-001-20260815-LIVE-DISMISSAL-07, deliver this bounded checkpoint only under explicit delivery authority, then obtain/capture the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only after delivery.",
+  "next_action": "Preserve SP-001 as blocked after EV-SP-001-20260815-DELIVERY-08, complete the post-merge pointer reconciliation, then obtain/capture the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only after delivery.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",

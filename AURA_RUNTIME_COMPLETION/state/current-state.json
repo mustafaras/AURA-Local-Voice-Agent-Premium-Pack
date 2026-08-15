@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-15T09:32:18Z",
-  "session_id": "AURA-SP-001-DISMISSAL-FIX-20260815",
+  "updated_at": "2026-08-15T09:43:51Z",
+  "session_id": "AURA-SP-001-DISMISSAL-DELIVERY-20260815",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "d82fde6be6e95bc8d3ccb64341bd2538baf12a92",
-    "remote_head": "d82fde6be6e95bc8d3ccb64341bd2538baf12a92",
+    "verified_head": "fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2",
+    "remote_head": "fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
@@ -65,6 +65,7 @@
       ,"SP-001 post-fix bounded live rerun at 2026-08-14T12:10:25Z is recorded under EV-SP-001-20260814-LIVE-TRACE-FIX-05: date allow/deny, Calculator confirmation expiry, one allowed Calculator close, distinct execution/verification, redacted UI prefixes, durable redacted rows, and no-running-process verification passed. The narrower authority did not cover post-fix changed-plan/replay/dismissal/cancellation/concurrent-turn cases; SP-001 remains blocked and SP-002 remains unopened."
       ,"SP-001 mandatory 15_SESSION_CLOSEOUT at 2026-08-14T12:16:54Z is recorded under EV-SP-001-20260814-CLOSEOUT-06: current AURA build, JSON, second-pass/runtime/hygiene/supply-chain validators, 38 deterministic tests, compileall, shell syntax, and diff checks passed. Authority reset to edit-only; SP-001 remains blocked and SP-002 remains unopened."
       ,"SP-001 post-fix dismissal wiring and live evidence at 2026-08-15T09:32:18Z is recorded under EV-SP-001-20260815-LIVE-DISMISSAL-07: the red WindowGroup close path now persists requested → dismissed → policy blocked with no /bin/date execution; build and AURAIntegrationTests 23/23 passed. SP-001 remains blocked for the remaining post-fix matrix; SP-002 remains unopened."
+      ,"SP-001 bounded checkpoint delivery at 2026-08-15T09:40:18Z is recorded under EV-SP-001-20260815-DELIVERY-08: feature commit 144b0fa was pushed, no-ff merged into main as fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2, and origin/main was updated. SP-001 remains blocked; authority resets to edit-only after pointer reconciliation."
     ]
   },
   "program_status": "in_progress",
@@ -535,5 +536,5 @@
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "Keep H-010 terminal. SP-001 remains blocked after the post-fix dismissal fix; capture the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. SP-000 baseline/synchronization remains complete at verified control-plane baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92; product, beta, signing, release, deployment, and live gates remain separate and open."
+  "next_action": "Keep H-010 terminal. SP-001 remains blocked after the post-fix dismissal fix and checkpoint delivery; capture the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. The audited SP-001 source/evidence baseline is fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2; product, beta, signing, release, deployment, and live gates remain separate and open."
 }

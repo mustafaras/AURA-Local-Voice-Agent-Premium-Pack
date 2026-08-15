@@ -1,9 +1,9 @@
 # H-009 Bounded Context Summary and Source Map
 
 **Status:** Authored derived pointer; H-010 terminal closure synchronized; not a source of truth
-**Snapshot:** 2026-08-14T06:55:43Z
+**Snapshot:** 2026-08-15T09:43:51Z
 **Program:** `AURA-REPO-HYGIENE`
-**Live repository:** `main`, verified non-projection baseline `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`, later descendants projection-only, relation `0/0`, clean worktree after delivery
+**Live repository:** `main`, current SP-001 bounded checkpoint `fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2`; H-010 terminal baseline `d82fde6be6e95bc8d3ccb64341bd2538baf12a92` remains historical, pointer reconciliation is in progress
 
 This document is a bounded successor summary for a fresh session. It reduces
 context loading without rewriting any append-only ledger. Every current claim
@@ -13,7 +13,7 @@ with an authority, the authority wins and this pointer is stale.
 ## Current authoritative H-010 closure — 2026-08-14T06:55:43Z
 
 H-010 is terminally `completed` in `REPO_HYGIENE_STATE.json`. The current live
-verified control-plane baseline is `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`; later descendants are projection-only; hosted workflow/source
+verified H-010 terminal baseline is `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`; the later SP-001 bounded checkpoint at `fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2` contains authorized source/evidence changes and is outside H-010's terminal scope; hosted workflow/source
 evidence is bound to `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`, with later
 descendants containing control-plane-only changes. All H-000…H-010 prompts are
 complete, no H-011 exists, and older blocked paragraphs in this derived summary
@@ -29,7 +29,7 @@ are historical evidence only.
 | Hygiene evidence history | `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md` | Read the latest matching evidence entries; history is append-only |
 | Evidence ID existence and cross-program projection | `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md` | Verify every evidence ID before claiming a gate |
 | Risk status, owner, and residual disposition | `AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md` | Read matching `RISK-REPO-HYGIENE-*` rows |
-| Runtime/product verified content baseline | `AURA_RUNTIME_COMPLETION/state/current-state.json` | `repository.verified_head` remains the audited content baseline under ADR-045 |
+| Runtime/product verified content baseline | `AURA_RUNTIME_COMPLETION/state/current-state.json` | `repository.verified_head` is the audited SP-001 checkpoint under ADR-045; H-010's historical terminal baseline remains in its own state |
 | Capability binding | `AURA_RUNTIME_COMPLETION/state/capability-matrix.json` | Must match the verified content baseline unless product code is re-audited |
 | Next-session handoff and bounded file/evidence arrays | `AURA_RUNTIME_COMPLETION/context/session-handoff.json` | Use as the concise handoff after Tier-0 reads |
 | Architecture and security boundaries | `docs/architecture/02_ARCHITECTURE.md`, relevant ADRs, and `H-009_ARCHITECTURE_AUDIT.md` | Treat ADR status and evidence limits as binding |
