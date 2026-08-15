@@ -2,7 +2,7 @@
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
   "updated_at": "2026-08-15T10:55:08Z",
-  "repository_commit": "813a504ede1ac1566773eda04e80d7f6160e1179",
+  "repository_commit": "9d312da368e06364968067f47b290df6a57a30ff",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -14,10 +14,18 @@
       "verification_state": "system_tested",
       "risk_tier": "observation",
       "owning_track": "R9",
-      "production_files": ["Sources/AURA/AURA.swift", "Sources/AURA/AuraMenuView.swift", "Sources/AURA/AuraAppModel.swift"],
-      "test_files": ["Tests/AURAIntegrationTests"],
+      "production_files": [
+        "Sources/AURA/AURA.swift",
+        "Sources/AURA/AuraMenuView.swift",
+        "Sources/AURA/AuraAppModel.swift"
+      ],
+      "test_files": [
+        "Tests/AURAIntegrationTests"
+      ],
       "dependencies": [],
-      "open_gaps": ["No complete conversation window, text fallback, capability center, task center, model center, or memory center."],
+      "open_gaps": [
+        "No complete conversation window, text fallback, capability center, task center, model center, or memory center."
+      ],
       "evidence_ids": [],
       "notes": "Operational shell, not yet a complete assistant UX."
     },
@@ -31,11 +39,26 @@
       "verification_state": "system_tested",
       "risk_tier": "observation",
       "owning_track": "R7",
-      "production_files": ["Sources/AURA/AuraAppModel.swift", "Sources/AURA/AuraKernel.swift", "Sources/AuraAudio", "Sources/AuraCore/VoiceResourceGovernor.swift"],
-      "test_files": ["Tests/AURAIntegrationTests", "Tests/AuraAudioTests"],
-      "dependencies": ["voice.stt_native", "voice.tts_system"],
-      "open_gaps": ["Live long-duration soak, external microphone/device-switch matrix, barge-in/echo recovery, and transcript UI."],
-      "evidence_ids": ["EV-R7-20260808-VOICE-LOCAL-SAFETY-01"],
+      "production_files": [
+        "Sources/AURA/AuraAppModel.swift",
+        "Sources/AURA/AuraKernel.swift",
+        "Sources/AuraAudio",
+        "Sources/AuraCore/VoiceResourceGovernor.swift"
+      ],
+      "test_files": [
+        "Tests/AURAIntegrationTests",
+        "Tests/AuraAudioTests"
+      ],
+      "dependencies": [
+        "voice.stt_native",
+        "voice.tts_system"
+      ],
+      "open_gaps": [
+        "Live long-duration soak, external microphone/device-switch matrix, barge-in/echo recovery, and transcript UI."
+      ],
+      "evidence_ids": [
+        "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
+      ],
       "notes": "Primary supported production activation path; wake-word enablement is explicitly excluded until qualified."
     },
     {
@@ -48,11 +71,23 @@
       "verification_state": "unit_only",
       "risk_tier": "observation",
       "owning_track": "R7",
-      "production_files": ["Sources/AuraAudio/WakeWordDetector.swift", "Sources/AuraAudio/WakeWordPipeline.swift"],
-      "test_files": ["Tests/AuraAudioTests"],
-      "dependencies": ["voice.audio_capture", "voice.vad"],
-      "open_gaps": ["No evaluated production acoustic model, Turkish support, license/hash, FAR/FRR, noise/distance, self-trigger, or soak evidence."],
-      "evidence_ids": ["EV-R7-20260808-VOICE-LOCAL-SAFETY-01"],
+      "production_files": [
+        "Sources/AuraAudio/WakeWordDetector.swift",
+        "Sources/AuraAudio/WakeWordPipeline.swift"
+      ],
+      "test_files": [
+        "Tests/AuraAudioTests"
+      ],
+      "dependencies": [
+        "voice.audio_capture",
+        "voice.vad"
+      ],
+      "open_gaps": [
+        "No evaluated production acoustic model, Turkish support, license/hash, FAR/FRR, noise/distance, self-trigger, or soak evidence."
+      ],
+      "evidence_ids": [
+        "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
+      ],
       "notes": "DisabledWakeWordDetector is the truthful production path; MarkerWakeWordDetector is test-only."
     },
     {
@@ -65,10 +100,17 @@
       "verification_state": "system_tested",
       "risk_tier": "observation",
       "owning_track": "R7",
-      "production_files": ["Sources/AuraAudio"],
-      "test_files": ["Tests/AuraAudioTests", "Tests/AURAIntegrationTests"],
+      "production_files": [
+        "Sources/AuraAudio"
+      ],
+      "test_files": [
+        "Tests/AuraAudioTests",
+        "Tests/AURAIntegrationTests"
+      ],
       "dependencies": [],
-      "open_gaps": ["Release-hardware soak and sleep/wake/device-change recovery evidence."],
+      "open_gaps": [
+        "Release-hardware soak and sleep/wake/device-change recovery evidence."
+      ],
       "evidence_ids": [],
       "notes": "Ambient retention must remain disabled by default."
     },
@@ -82,10 +124,19 @@
       "verification_state": "integration_simulated",
       "risk_tier": "observation",
       "owning_track": "R7",
-      "production_files": ["Sources/AuraAudio"],
-      "test_files": ["Tests/AuraAudioTests", "Tests/AURAIntegrationTests"],
-      "dependencies": ["voice.audio_capture"],
-      "open_gaps": ["Adaptive calibration and real acoustic environment evaluation."],
+      "production_files": [
+        "Sources/AuraAudio"
+      ],
+      "test_files": [
+        "Tests/AuraAudioTests",
+        "Tests/AURAIntegrationTests"
+      ],
+      "dependencies": [
+        "voice.audio_capture"
+      ],
+      "open_gaps": [
+        "Adaptive calibration and real acoustic environment evaluation."
+      ],
       "evidence_ids": [],
       "notes": "Energy-based implementation."
     },
@@ -99,10 +150,21 @@
       "verification_state": "system_tested",
       "risk_tier": "observation",
       "owning_track": "R7",
-      "production_files": ["Sources/AuraSTT/SystemSTTEngine.swift", "Sources/AuraSTT/STTRouter.swift", "Sources/AuraSTT/STTPipeline.swift"],
-      "test_files": ["Tests/AuraSTTTests", "Tests/AURAIntegrationTests"],
-      "dependencies": ["voice.audio_capture"],
-      "open_gaps": ["Live Turkish/English/mixed WER/entity evaluation, qualified local Whisper/equivalent fallback, microphone/TCC evidence, and live device recovery."],
+      "production_files": [
+        "Sources/AuraSTT/SystemSTTEngine.swift",
+        "Sources/AuraSTT/STTRouter.swift",
+        "Sources/AuraSTT/STTPipeline.swift"
+      ],
+      "test_files": [
+        "Tests/AuraSTTTests",
+        "Tests/AURAIntegrationTests"
+      ],
+      "dependencies": [
+        "voice.audio_capture"
+      ],
+      "open_gaps": [
+        "Live Turkish/English/mixed WER/entity evaluation, qualified local Whisper/equivalent fallback, microphone/TCC evidence, and live device recovery."
+      ],
       "evidence_ids": [],
       "notes": "Ordered local locale fallback with capability checks; requires on-device recognition and does not silently rewrite a transcript on quality grounds."
     },
@@ -116,10 +178,16 @@
       "verification_state": "system_tested",
       "risk_tier": "observation",
       "owning_track": "R7",
-      "production_files": ["Sources/AuraAudio/SystemTTSEngine.swift"],
-      "test_files": ["Tests/AuraAudioTests"],
+      "production_files": [
+        "Sources/AuraAudio/SystemTTSEngine.swift"
+      ],
+      "test_files": [
+        "Tests/AuraAudioTests"
+      ],
       "dependencies": [],
-      "open_gaps": ["Release-hardware latency and human quality evidence."],
+      "open_gaps": [
+        "Release-hardware latency and human quality evidence."
+      ],
       "evidence_ids": [],
       "notes": "Yelda is the safe local fallback."
     },
@@ -133,11 +201,24 @@
       "verification_state": "live_verified",
       "risk_tier": "observation",
       "owning_track": "R7",
-      "production_files": ["Sources/AuraAudio/ChatterboxTTSEngine.swift", "Runtime/chatterbox/chatterbox_helper.py"],
-      "test_files": ["Tests/AuraAudioTests", "Runtime/chatterbox/tests"],
-      "dependencies": ["voice.tts_system"],
-      "open_gaps": ["MPS remains unqualified, CPU first-audio/latency and human quality evidence are open, and consented reference/hash/license/cache/soak gates remain."],
-      "evidence_ids": ["EV-R7-20260730-CHATTERBOX-CPU-01", "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"],
+      "production_files": [
+        "Sources/AuraAudio/ChatterboxTTSEngine.swift",
+        "Runtime/chatterbox/chatterbox_helper.py"
+      ],
+      "test_files": [
+        "Tests/AuraAudioTests",
+        "Runtime/chatterbox/tests"
+      ],
+      "dependencies": [
+        "voice.tts_system"
+      ],
+      "open_gaps": [
+        "MPS remains unqualified, CPU first-audio/latency and human quality evidence are open, and consented reference/hash/license/cache/soak gates remain."
+      ],
+      "evidence_ids": [
+        "EV-R7-20260730-CHATTERBOX-CPU-01",
+        "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
+      ],
       "notes": "CPU is the safe default; helper timeout, resource admission, cleanup, and Yelda fallback must fail closed to system TTS when neural gates are unmet."
     },
     {
@@ -150,10 +231,21 @@
       "verification_state": "integration_simulated",
       "risk_tier": "observation",
       "owning_track": "R2",
-      "production_files": ["Sources/AuraAgent/Conversation.swift", "Sources/AuraIntent/ToolRouter.swift"],
-      "test_files": ["Tests/AuraAgentTests", "Tests/AuraIntentTests"],
-      "dependencies": ["intent.classification", "model.ollama"],
-      "open_gaps": ["Open conversation returns a fixed acknowledgement; no model-backed dialogue or multi-turn slot state."],
+      "production_files": [
+        "Sources/AuraAgent/Conversation.swift",
+        "Sources/AuraIntent/ToolRouter.swift"
+      ],
+      "test_files": [
+        "Tests/AuraAgentTests",
+        "Tests/AuraIntentTests"
+      ],
+      "dependencies": [
+        "intent.classification",
+        "model.ollama"
+      ],
+      "open_gaps": [
+        "Open conversation returns a fixed acknowledgement; no model-backed dialogue or multi-turn slot state."
+      ],
       "evidence_ids": [],
       "notes": "Conversation state machine exists; reasoning path does not."
     },
@@ -167,10 +259,17 @@
       "verification_state": "integration_simulated",
       "risk_tier": "observation",
       "owning_track": "R2",
-      "production_files": ["Sources/AuraIntent/IntentEngine.swift", "Sources/AuraIntent/TypedIntent.swift"],
-      "test_files": ["Tests/AuraIntentTests"],
+      "production_files": [
+        "Sources/AuraIntent/IntentEngine.swift",
+        "Sources/AuraIntent/TypedIntent.swift"
+      ],
+      "test_files": [
+        "Tests/AuraIntentTests"
+      ],
       "dependencies": [],
-      "open_gaps": ["English-only closed grammar, tiny application/executable dictionaries, no bilingual model-assisted schema."],
+      "open_gaps": [
+        "English-only closed grammar, tiny application/executable dictionaries, no bilingual model-assisted schema."
+      ],
       "evidence_ids": [],
       "notes": "Safe but too narrow for the intended product."
     },
@@ -184,10 +283,18 @@
       "verification_state": "integration_simulated",
       "risk_tier": "observation",
       "owning_track": "R2",
-      "production_files": ["Sources/AuraAgent/OllamaAdapter.swift", "Sources/AuraAgent/OllamaModelRegistry.swift"],
-      "test_files": ["Tests/AuraAgentTests/OllamaAdapterTests.swift", "Tests/AuraAgentTests/OllamaTaskRunnerTests.swift"],
+      "production_files": [
+        "Sources/AuraAgent/OllamaAdapter.swift",
+        "Sources/AuraAgent/OllamaModelRegistry.swift"
+      ],
+      "test_files": [
+        "Tests/AuraAgentTests/OllamaAdapterTests.swift",
+        "Tests/AuraAgentTests/OllamaTaskRunnerTests.swift"
+      ],
       "dependencies": [],
-      "open_gaps": ["Not connected to production dialogue, NLU, or computer-use planning; network enforcement and live model evidence required."],
+      "open_gaps": [
+        "Not connected to production dialogue, NLU, or computer-use planning; network enforcement and live model evidence required."
+      ],
       "evidence_ids": [],
       "notes": "Strong adapter foundation."
     },
@@ -201,10 +308,21 @@
       "verification_state": "system_tested",
       "risk_tier": "mutation",
       "owning_track": "R3",
-      "production_files": ["Sources/AuraAutomation", "Sources/AuraIntent/IntentEngine.swift", "Sources/AuraIntent/ToolRouter.swift"],
-      "test_files": ["Tests/AuraAutomationTests", "Tests/AuraIntentTests"],
-      "dependencies": ["intent.classification"],
-      "open_gaps": ["Hardcoded app-name map, limited Turkish aliases, incomplete hide/discovery/open URL/file capabilities."],
+      "production_files": [
+        "Sources/AuraAutomation",
+        "Sources/AuraIntent/IntentEngine.swift",
+        "Sources/AuraIntent/ToolRouter.swift"
+      ],
+      "test_files": [
+        "Tests/AuraAutomationTests",
+        "Tests/AuraIntentTests"
+      ],
+      "dependencies": [
+        "intent.classification"
+      ],
+      "open_gaps": [
+        "Hardcoded app-name map, limited Turkish aliases, incomplete hide/discovery/open URL/file capabilities."
+      ],
       "evidence_ids": [],
       "notes": "One of the few end-to-end reachable tool paths."
     },
@@ -218,10 +336,20 @@
       "verification_state": "system_tested",
       "risk_tier": "mutation",
       "owning_track": "R3",
-      "production_files": ["Sources/AuraShell", "Sources/AuraIntent/ToolRouter.swift"],
-      "test_files": ["Tests/AuraShellTests", "Tests/AuraIntentTests"],
-      "dependencies": ["intent.classification"],
-      "open_gaps": ["Very narrow voice grammar, confirmation semantics, contextual working directory, and helper separation."],
+      "production_files": [
+        "Sources/AuraShell",
+        "Sources/AuraIntent/ToolRouter.swift"
+      ],
+      "test_files": [
+        "Tests/AuraShellTests",
+        "Tests/AuraIntentTests"
+      ],
+      "dependencies": [
+        "intent.classification"
+      ],
+      "open_gaps": [
+        "Very narrow voice grammar, confirmation semantics, contextual working directory, and helper separation."
+      ],
       "evidence_ids": [],
       "notes": "Destructive patterns are conservatively escalated."
     },
@@ -235,10 +363,16 @@
       "verification_state": "integration_simulated",
       "risk_tier": "observation",
       "owning_track": "R4",
-      "production_files": ["Sources/AuraScreen/ScreenContextEngine.swift"],
-      "test_files": ["Tests/AuraScreenTests"],
+      "production_files": [
+        "Sources/AuraScreen/ScreenContextEngine.swift"
+      ],
+      "test_files": [
+        "Tests/AuraScreenTests"
+      ],
       "dependencies": [],
-      "open_gaps": ["No user-facing observation route, no active capability registration, and live redaction/permission matrix incomplete."],
+      "open_gaps": [
+        "No user-facing observation route, no active capability registration, and live redaction/permission matrix incomplete."
+      ],
       "evidence_ids": [],
       "notes": "Strong orchestration and zero-retention defaults."
     },
@@ -252,10 +386,19 @@
       "verification_state": "integration_simulated",
       "risk_tier": "destructive",
       "owning_track": "R4",
-      "production_files": ["Sources/AuraComputerUse/ComputerUseControlLoop.swift", "Sources/AuraComputerUse/UIActionExecuting.swift"],
-      "test_files": ["Tests/AuraComputerUseTests"],
-      "dependencies": ["screen.approved_capture"],
-      "open_gaps": ["No production planner, voice/UI route, persisted confirmation resume, beta app allowlist, or live end-to-end evidence."],
+      "production_files": [
+        "Sources/AuraComputerUse/ComputerUseControlLoop.swift",
+        "Sources/AuraComputerUse/UIActionExecuting.swift"
+      ],
+      "test_files": [
+        "Tests/AuraComputerUseTests"
+      ],
+      "dependencies": [
+        "screen.approved_capture"
+      ],
+      "open_gaps": [
+        "No production planner, voice/UI route, persisted confirmation resume, beta app allowlist, or live end-to-end evidence."
+      ],
       "evidence_ids": [],
       "notes": "Executor has real Accessibility/CGEvent code but product path is disconnected."
     },
@@ -269,11 +412,23 @@
       "verification_state": "integration_simulated",
       "risk_tier": "mutation",
       "owning_track": "R5",
-      "production_files": ["Sources/AuraProductivity/ProductivityAdapters.swift", "Sources/AuraProductivity/ProductivitySecurity.swift"],
-      "test_files": ["Tests/AuraProductivityTests/AuraProductivityTests.swift"],
-      "dependencies": ["security.network_enforcement", "intent.capability_registry"],
-      "open_gaps": ["Safari Web Extension target/native-messaging packaging, composition-root and NLU/UI reachability, mutation capabilities, and live approved-profile acceptance remain open."],
-      "evidence_ids": ["EV-R5-20260808-READ-FIRST-ADAPTERS-01"],
+      "production_files": [
+        "Sources/AuraProductivity/ProductivityAdapters.swift",
+        "Sources/AuraProductivity/ProductivitySecurity.swift"
+      ],
+      "test_files": [
+        "Tests/AuraProductivityTests/AuraProductivityTests.swift"
+      ],
+      "dependencies": [
+        "security.network_enforcement",
+        "intent.capability_registry"
+      ],
+      "open_gaps": [
+        "Safari Web Extension target/native-messaging packaging, composition-root and NLU/UI reachability, mutation capabilities, and live approved-profile acceptance remain open."
+      ],
+      "evidence_ids": [
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+      ],
       "notes": "Read-only browser.read is typed and disabled truthfully until the structured bridge is packaged and wired. Computer use remains a fallback, not the primary integration."
     },
     {
@@ -286,11 +441,23 @@
       "verification_state": "integration_simulated",
       "risk_tier": "destructive",
       "owning_track": "R5",
-      "production_files": ["Sources/AuraProductivity/ProductivityTypes.swift", "Sources/AuraProductivity/ProductivityAdapters.swift"],
-      "test_files": ["Tests/AuraProductivityTests/AuraProductivityTests.swift"],
-      "dependencies": ["security.oauth_keychain", "intent.capability_registry"],
-      "open_gaps": ["No live Gmail transport/account consent, composition-root reachability, draft review, immutable send confirmation, post-action verification, or live injection acceptance."],
-      "evidence_ids": ["EV-R5-20260808-READ-FIRST-ADAPTERS-01"],
+      "production_files": [
+        "Sources/AuraProductivity/ProductivityTypes.swift",
+        "Sources/AuraProductivity/ProductivityAdapters.swift"
+      ],
+      "test_files": [
+        "Tests/AuraProductivityTests/AuraProductivityTests.swift"
+      ],
+      "dependencies": [
+        "security.oauth_keychain",
+        "intent.capability_registry"
+      ],
+      "open_gaps": [
+        "No live Gmail transport/account consent, composition-root reachability, draft review, immutable send confirmation, post-action verification, or live injection acceptance."
+      ],
+      "evidence_ids": [
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+      ],
       "notes": "Gmail read-only scope, Keychain reference, account ambiguity, provenance, and revoke behavior are contract-tested; compose/send remain unimplemented and disabled."
     },
     {
@@ -303,11 +470,22 @@
       "verification_state": "integration_simulated",
       "risk_tier": "mutation",
       "owning_track": "R5",
-      "production_files": ["Sources/AuraProductivity/NativeProductivityAdapters.swift", "Sources/AuraProductivity/ProductivitySecurity.swift"],
-      "test_files": ["Tests/AuraProductivityTests/AuraProductivityTests.swift"],
-      "dependencies": ["intent.capability_registry"],
-      "open_gaps": ["EventKit authorization/composition-root reachability, draft/write/delete flows, attendee confirmation, provider verification, and live acceptance remain open."],
-      "evidence_ids": ["EV-R5-20260808-READ-FIRST-ADAPTERS-01"],
+      "production_files": [
+        "Sources/AuraProductivity/NativeProductivityAdapters.swift",
+        "Sources/AuraProductivity/ProductivitySecurity.swift"
+      ],
+      "test_files": [
+        "Tests/AuraProductivityTests/AuraProductivityTests.swift"
+      ],
+      "dependencies": [
+        "intent.capability_registry"
+      ],
+      "open_gaps": [
+        "EventKit authorization/composition-root reachability, draft/write/delete flows, attendee confirmation, provider verification, and live acceptance remain open."
+      ],
+      "evidence_ids": [
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+      ],
       "notes": "EventKit read adapter, explicit permission boundary, provenance mapping, and conflict logic are implemented; read agenda remains disabled until wiring and user authorization."
     },
     {
@@ -320,11 +498,23 @@
       "verification_state": "integration_simulated",
       "risk_tier": "observation",
       "owning_track": "R5",
-      "production_files": ["Sources/AuraProductivity/NativeProductivityAdapters.swift", "Sources/AuraProductivity/ProductivitySecurity.swift"],
-      "test_files": ["Tests/AuraProductivityTests/AuraProductivityTests.swift"],
-      "dependencies": ["calendar.events", "mail.read_draft_send"],
-      "open_gaps": ["Contacts authorization/composition-root and NLU/UI reachability, provider attendee integration, and live limited/full-access acceptance remain open."],
-      "evidence_ids": ["EV-R5-20260808-READ-FIRST-ADAPTERS-01"],
+      "production_files": [
+        "Sources/AuraProductivity/NativeProductivityAdapters.swift",
+        "Sources/AuraProductivity/ProductivitySecurity.swift"
+      ],
+      "test_files": [
+        "Tests/AuraProductivityTests/AuraProductivityTests.swift"
+      ],
+      "dependencies": [
+        "calendar.events",
+        "mail.read_draft_send"
+      ],
+      "open_gaps": [
+        "Contacts authorization/composition-root and NLU/UI reachability, provider attendee integration, and live limited/full-access acceptance remain open."
+      ],
+      "evidence_ids": [
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+      ],
       "notes": "Bounded CNContactFetchRequest candidate lookup and tie clarification are implemented; the full address book is never exposed to models."
     },
     {
@@ -337,11 +527,28 @@
       "verification_state": "integration_simulated",
       "risk_tier": "mutation",
       "owning_track": "R6",
-      "production_files": ["Sources/AuraVSCode/VSCodeAdapter.swift", "Sources/AuraVSCode/VSCodeExtensionBridge.swift", "Sources/AuraVSCode/VSCodeBridgeSecurity.swift", "Sources/AuraVSCode/VSCodeBridgeCommands.swift", "Sources/AuraVSCode/VSCodeWorkspaceResolver.swift", "Sources/AuraAgent/CodingTaskCoordinator.swift"],
-      "test_files": ["Tests/AuraVSCodeTests/AuraVSCodeTests.swift"],
-      "dependencies": ["shell.typed_execution", "intent.capability_registry"],
-      "open_gaps": ["Policy enforcement, typed bounded bridge routes, workspace precedence/ambiguity handling, and coordinator wiring are covered by local integration-simulated evidence; live extension packaging/shared-secret provisioning, complete route acceptance, backend auth/model readiness, durable reviewable writes, voice/UI reachability, restart/resume, and live acceptance remain open."],
-      "evidence_ids": ["EV-R6-20260808-POLICY-BRIDGE-01", "EV-R6-20260808-TYPED-ROUTES-02"],
+      "production_files": [
+        "Sources/AuraVSCode/VSCodeAdapter.swift",
+        "Sources/AuraVSCode/VSCodeExtensionBridge.swift",
+        "Sources/AuraVSCode/VSCodeBridgeSecurity.swift",
+        "Sources/AuraVSCode/VSCodeBridgeCommands.swift",
+        "Sources/AuraVSCode/VSCodeWorkspaceResolver.swift",
+        "Sources/AuraAgent/CodingTaskCoordinator.swift"
+      ],
+      "test_files": [
+        "Tests/AuraVSCodeTests/AuraVSCodeTests.swift"
+      ],
+      "dependencies": [
+        "shell.typed_execution",
+        "intent.capability_registry"
+      ],
+      "open_gaps": [
+        "Policy enforcement, typed bounded bridge routes, workspace precedence/ambiguity handling, and coordinator wiring are covered by local integration-simulated evidence; live extension packaging/shared-secret provisioning, complete route acceptance, backend auth/model readiness, durable reviewable writes, voice/UI reachability, restart/resume, and live acceptance remain open."
+      ],
+      "evidence_ids": [
+        "EV-R6-20260808-POLICY-BRIDGE-01",
+        "EV-R6-20260808-TYPED-ROUTES-02"
+      ],
       "notes": "Must not close dirty editors without bound confirmation; the production file bridge remains unavailable unless authenticated configuration is supplied."
     },
     {
@@ -354,11 +561,26 @@
       "verification_state": "integration_simulated",
       "risk_tier": "destructive",
       "owning_track": "R6",
-      "production_files": ["Sources/AuraAgent/CodexAdapter.swift", "Sources/AuraAgent/AgentBackendHealth.swift", "Sources/AuraAgent/CodingTaskCoordinator.swift", "Sources/AuraTasks"],
-      "test_files": ["Tests/AuraAgentTests", "Tests/AuraTasksTests"],
-      "dependencies": ["task.durable", "shell.typed_execution"],
-      "open_gaps": ["Live auth/model readiness, user-facing progress/review, diff/test/evidence verification, restart/resume, and helper separation."],
-      "evidence_ids": ["EV-R6-20260808-TYPED-ROUTES-02"],
+      "production_files": [
+        "Sources/AuraAgent/CodexAdapter.swift",
+        "Sources/AuraAgent/AgentBackendHealth.swift",
+        "Sources/AuraAgent/CodingTaskCoordinator.swift",
+        "Sources/AuraTasks"
+      ],
+      "test_files": [
+        "Tests/AuraAgentTests",
+        "Tests/AuraTasksTests"
+      ],
+      "dependencies": [
+        "task.durable",
+        "shell.typed_execution"
+      ],
+      "open_gaps": [
+        "Live auth/model readiness, user-facing progress/review, diff/test/evidence verification, restart/resume, and helper separation."
+      ],
+      "evidence_ids": [
+        "EV-R6-20260808-TYPED-ROUTES-02"
+      ],
       "notes": "Read-only version/help health evidence is bounded and keeps auth/model readiness degraded; write-capable routing fails closed until readiness and workspace/worktree gates pass."
     },
     {
@@ -371,11 +593,24 @@
       "verification_state": "integration_simulated",
       "risk_tier": "destructive",
       "owning_track": "R6",
-      "production_files": ["Sources/AuraAgent/AgentBackendHealth.swift", "Sources/AuraAgent/CodingTaskCoordinator.swift", "Sources/AuraAgent"],
-      "test_files": ["Tests/AuraAgentTests"],
-      "dependencies": ["task.durable", "shell.typed_execution"],
-      "open_gaps": ["Live auth/model readiness, workspace/extension route, UI progress, restart/resume, and end-to-end verification."],
-      "evidence_ids": ["EV-R6-20260808-TYPED-ROUTES-02"],
+      "production_files": [
+        "Sources/AuraAgent/AgentBackendHealth.swift",
+        "Sources/AuraAgent/CodingTaskCoordinator.swift",
+        "Sources/AuraAgent"
+      ],
+      "test_files": [
+        "Tests/AuraAgentTests"
+      ],
+      "dependencies": [
+        "task.durable",
+        "shell.typed_execution"
+      ],
+      "open_gaps": [
+        "Live auth/model readiness, workspace/extension route, UI progress, restart/resume, and end-to-end verification."
+      ],
+      "evidence_ids": [
+        "EV-R6-20260808-TYPED-ROUTES-02"
+      ],
       "notes": "Do not assume current CLI flags without official verification."
     },
     {
@@ -388,11 +623,24 @@
       "verification_state": "integration_simulated",
       "risk_tier": "destructive",
       "owning_track": "R6",
-      "production_files": ["Sources/AuraAgent/AgentBackendHealth.swift", "Sources/AuraAgent/CodingTaskCoordinator.swift", "Sources/AuraAgent"],
-      "test_files": ["Tests/AuraAgentTests"],
-      "dependencies": ["task.durable", "shell.typed_execution"],
-      "open_gaps": ["Live supported interface, auth, local/cloud consent, workspace resolution, UI progress, restart/resume, and verification."],
-      "evidence_ids": ["EV-R6-20260808-TYPED-ROUTES-02"],
+      "production_files": [
+        "Sources/AuraAgent/AgentBackendHealth.swift",
+        "Sources/AuraAgent/CodingTaskCoordinator.swift",
+        "Sources/AuraAgent"
+      ],
+      "test_files": [
+        "Tests/AuraAgentTests"
+      ],
+      "dependencies": [
+        "task.durable",
+        "shell.typed_execution"
+      ],
+      "open_gaps": [
+        "Live supported interface, auth, local/cloud consent, workspace resolution, UI progress, restart/resume, and verification."
+      ],
+      "evidence_ids": [
+        "EV-R6-20260808-TYPED-ROUTES-02"
+      ],
       "notes": "Cloud execution boundaries must be explicit."
     },
     {
@@ -405,11 +653,21 @@
       "verification_state": "integration_simulated",
       "risk_tier": "mutation",
       "owning_track": "R6",
-      "production_files": ["Sources/AuraTasks/AuraTaskEngine.swift", "Sources/AuraTasks/TaskStoreBackend.swift", "Sources/AuraTasks"],
-      "test_files": ["Tests/AuraTasksTests"],
+      "production_files": [
+        "Sources/AuraTasks/AuraTaskEngine.swift",
+        "Sources/AuraTasks/TaskStoreBackend.swift",
+        "Sources/AuraTasks"
+      ],
+      "test_files": [
+        "Tests/AuraTasksTests"
+      ],
       "dependencies": [],
-      "open_gaps": ["Full Task Center, live agent progress, user resume/retry, crash/restart system evidence, and test-runner runtime repair."],
-      "evidence_ids": ["EV-R6-20260808-TYPED-ROUTES-02"],
+      "open_gaps": [
+        "Full Task Center, live agent progress, user resume/retry, crash/restart system evidence, and test-runner runtime repair."
+      ],
+      "evidence_ids": [
+        "EV-R6-20260808-TYPED-ROUTES-02"
+      ],
       "notes": "Core durable task engine now enforces deadline/inactivity bounds and binds latest checkpoint recovery; runtime acceptance remains open."
     },
     {
@@ -422,11 +680,24 @@
       "verification_state": "integration_simulated",
       "risk_tier": "mutation",
       "owning_track": "R8",
-      "production_files": ["Sources/AuraMemory", "Sources/AuraContext"],
-      "test_files": ["Tests/AuraMemoryTests", "Tests/AuraContextTests"],
-      "dependencies": ["dialogue.conversation"],
-      "open_gaps": ["Production reference-candidate population is incomplete; no launched-app user inspection/correction/export/deletion UI, user-present cross-session demonstration, or remote transport evidence."],
-      "evidence_ids": ["EV-R8-20260808-MEMORY-POLICY-01", "EV-R8-20260808-CONTEXT-PRODUCT-02"],
+      "production_files": [
+        "Sources/AuraMemory",
+        "Sources/AuraContext"
+      ],
+      "test_files": [
+        "Tests/AuraMemoryTests",
+        "Tests/AuraContextTests"
+      ],
+      "dependencies": [
+        "dialogue.conversation"
+      ],
+      "open_gaps": [
+        "Production reference-candidate population is incomplete; no launched-app user inspection/correction/export/deletion UI, user-present cross-session demonstration, or remote transport evidence."
+      ],
+      "evidence_ids": [
+        "EV-R8-20260808-MEMORY-POLICY-01",
+        "EV-R8-20260808-CONTEXT-PRODUCT-02"
+      ],
       "notes": "Bounded local memory/context policy and explainability metadata are implemented and integration-tested; product activation and live acceptance remain open."
     },
     {
@@ -450,9 +721,16 @@
         "Tests/AuraIntentTests/CapabilityRegistryTests.swift",
         "Tests/AuraIntentTests/CapabilityPlannerTests.swift"
       ],
-      "dependencies": ["intent.classification", "dialogue.conversation"],
-      "open_gaps": ["4 of 14 registered capabilities (filesystem.open_file/open_folder/reveal, url.open) have a reviewed manifest but no adapter yet. 4 more (app.discover, app.hide, task.status, task.cancel) are reachable only via direct AuraKernel calls, not the bilingual NLU classifier or any UI control. The planner (multi-step/delegated/refusal PlanResult cases) is implemented and unit-tested but not yet wired into DialogueEngine/ToolRouter for automatic natural-language plan decomposition. The R3 prompt's required 7-scenario live completion demonstration has not been performed."],
-      "evidence_ids": ["EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01"],
+      "dependencies": [
+        "intent.classification",
+        "dialogue.conversation"
+      ],
+      "open_gaps": [
+        "4 of 14 registered capabilities (filesystem.open_file/open_folder/reveal, url.open) have a reviewed manifest but no adapter yet. 4 more (app.discover, app.hide, task.status, task.cancel) are reachable only via direct AuraKernel calls, not the bilingual NLU classifier or any UI control. The planner (multi-step/delegated/refusal PlanResult cases) is implemented and unit-tested but not yet wired into DialogueEngine/ToolRouter for automatic natural-language plan decomposition. The R3 prompt's required 7-scenario live completion demonstration has not been performed."
+      ],
+      "evidence_ids": [
+        "EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01"
+      ],
       "notes": "ToolRegistry/ToolContract (the prior closed five-intent switch) deleted; CapabilityRegistry is now the sole production source for the 5 pre-existing capabilities plus 5 more, with zero regression to existing behavior. See ADR-038."
     },
     {
@@ -465,11 +743,23 @@
       "verification_state": "system_tested",
       "risk_tier": "restricted",
       "owning_track": "R1",
-      "production_files": ["Sources/AuraPolicy", "Sources/AURA/UIConfirmationPresenter.swift"],
-      "test_files": ["Tests/AuraPolicyTests", "Tests/AuraIntentTests", "Tests/AuraAdversarialTests"],
+      "production_files": [
+        "Sources/AuraPolicy",
+        "Sources/AURA/UIConfirmationPresenter.swift"
+      ],
+      "test_files": [
+        "Tests/AuraPolicyTests",
+        "Tests/AuraIntentTests",
+        "Tests/AuraAdversarialTests"
+      ],
       "dependencies": [],
-      "open_gaps": ["Consistent enforcement across VS Code/computer-use/new adapters and program-wide R2-R12 acceptance remain open."],
-      "evidence_ids": ["EV-SP-001-20260815-CANCELLATION-12", "EV-SP-001-20260815-CLOSEOUT-13"],
+      "open_gaps": [
+        "Consistent enforcement across VS Code/computer-use/new adapters and program-wide R2-R12 acceptance remain open."
+      ],
+      "evidence_ids": [
+        "EV-SP-001-20260815-CANCELLATION-12",
+        "EV-SP-001-20260815-CLOSEOUT-13"
+      ],
       "notes": "SP-001 / OPEN-02 directly proves the redacted confirmation lifecycle, cancellation, truthful execution/verification, and restart no-replay for the bounded AURA path; this does not close other adapter or first-pass gates."
     },
     {
@@ -482,11 +772,19 @@
       "verification_state": "integration_simulated",
       "risk_tier": "restricted",
       "owning_track": "R10",
-      "production_files": ["Sources/AuraSecurity/NetworkAllowlist.swift"],
-      "test_files": ["Tests/AuraSecurityTests"],
+      "production_files": [
+        "Sources/AuraSecurity/NetworkAllowlist.swift"
+      ],
+      "test_files": [
+        "Tests/AuraSecurityTests"
+      ],
       "dependencies": [],
-      "open_gaps": ["Endpoint and redirect checks cover the Ollama loopback client, but a mandatory factory/boundary for every URLSession, provider, redirect, DNS, and subprocess network path is not proven."],
-      "evidence_ids": ["EV-R10-20260809-BOUNDARY-SLICE-01"],
+      "open_gaps": [
+        "Endpoint and redirect checks cover the Ollama loopback client, but a mandatory factory/boundary for every URLSession, provider, redirect, DNS, and subprocess network path is not proven."
+      ],
+      "evidence_ids": [
+        "EV-R10-20260809-BOUNDARY-SLICE-01"
+      ],
       "notes": "Policy object and one client boundary exist; complete enforcement does not."
     },
     {
@@ -499,11 +797,21 @@
       "verification_state": "integration_simulated",
       "risk_tier": "restricted",
       "owning_track": "R10",
-      "production_files": ["Sources/AuraProductivity/ProductivityTypes.swift"],
-      "test_files": ["Tests/AuraProductivityTests"],
-      "dependencies": ["security.network_enforcement"],
-      "open_gaps": ["PKCE/state/redirect/scope and Keychain expiry/revoke contracts are tested, but provider token exchange/callback wiring, account isolation, live revocation, and leakage prevention across all support paths remain open."],
-      "evidence_ids": ["EV-R10-20260809-BOUNDARY-SLICE-01"],
+      "production_files": [
+        "Sources/AuraProductivity/ProductivityTypes.swift"
+      ],
+      "test_files": [
+        "Tests/AuraProductivityTests"
+      ],
+      "dependencies": [
+        "security.network_enforcement"
+      ],
+      "open_gaps": [
+        "PKCE/state/redirect/scope and Keychain expiry/revoke contracts are tested, but provider token exchange/callback wiring, account isolation, live revocation, and leakage prevention across all support paths remain open."
+      ],
+      "evidence_ids": [
+        "EV-R10-20260809-BOUNDARY-SLICE-01"
+      ],
       "notes": "Secrets must be referenced, never copied into events or prompts; the active transport is not wired."
     },
     {
@@ -516,11 +824,23 @@
       "verification_state": "integration_simulated",
       "risk_tier": "restricted",
       "owning_track": "R10",
-      "production_files": ["Sources/AuraPlugins", "Resources/AuraPluginHost.entitlements"],
-      "test_files": ["Tests/AuraPluginsTests", "Tests/AuraSecurityTests"],
-      "dependencies": ["security.policy"],
-      "open_gaps": ["Typed helper envelopes and capability allowlists are tested, but the pipe is not authenticated XPC, helper executors are echo-only, and the main app retains Accessibility, generated input, shell, CLI, and network powers."],
-      "evidence_ids": ["EV-R10-20260809-BOUNDARY-SLICE-01"],
+      "production_files": [
+        "Sources/AuraPlugins",
+        "Resources/AuraPluginHost.entitlements"
+      ],
+      "test_files": [
+        "Tests/AuraPluginsTests",
+        "Tests/AuraSecurityTests"
+      ],
+      "dependencies": [
+        "security.policy"
+      ],
+      "open_gaps": [
+        "Typed helper envelopes and capability allowlists are tested, but the pipe is not authenticated XPC, helper executors are echo-only, and the main app retains Accessibility, generated input, shell, CLI, and network powers."
+      ],
+      "evidence_ids": [
+        "EV-R10-20260809-BOUNDARY-SLICE-01"
+      ],
       "notes": "Required before strong OS-enforced confinement claims; plugin trust/update evidence remains open."
     },
     {
@@ -533,11 +853,26 @@
       "verification_state": "integration_simulated",
       "risk_tier": "restricted",
       "owning_track": "R11",
-      "production_files": ["scripts/build-app-bundle.sh", "scripts/build-release-artifact.sh", "scripts/generate_release_manifest.py", "scripts/validate_release_manifest.py", ".github/workflows/ci.yml", "Resources/AURA-Info.plist"],
-      "test_files": ["scripts/tests/test_release_manifest.py"],
-      "dependencies": ["security.privilege_separation"],
-      "open_gaps": ["The deterministic artifact/manifest slice is local and development_unverified only; CI retention is configured but no post-change run was observed; no Developer ID, secure timestamp, notarization, staple, DMG/PKG, or clean external-machine evidence exists."],
-      "evidence_ids": ["EV-R11-20260809-ARTIFACT-MANIFEST-01"],
+      "production_files": [
+        "scripts/build-app-bundle.sh",
+        "scripts/build-release-artifact.sh",
+        "scripts/generate_release_manifest.py",
+        "scripts/validate_release_manifest.py",
+        ".github/workflows/ci.yml",
+        "Resources/AURA-Info.plist"
+      ],
+      "test_files": [
+        "scripts/tests/test_release_manifest.py"
+      ],
+      "dependencies": [
+        "security.privilege_separation"
+      ],
+      "open_gaps": [
+        "The deterministic artifact/manifest slice is local and development_unverified only; CI retention is configured but no post-change run was observed; no Developer ID, secure timestamp, notarization, staple, DMG/PKG, or clean external-machine evidence exists."
+      ],
+      "evidence_ids": [
+        "EV-R11-20260809-ARTIFACT-MANIFEST-01"
+      ],
       "notes": "Local package verification is not public distribution readiness."
     },
     {
@@ -550,11 +885,24 @@
       "verification_state": "integration_simulated",
       "risk_tier": "restricted",
       "owning_track": "R11",
-      "production_files": ["scripts/validate_release_manifest.py", "docs/operations/UPDATE_MECHANISM.md", "docs/operations/RELEASE_ARTIFACTS.md", "docs/decisions/ADR-046-signed-update-recovery.md"],
-      "test_files": ["scripts/tests/test_release_manifest.py"],
-      "dependencies": ["release.distribution"],
-      "open_gaps": ["Manifest validation is not an updater. No signed package transport, Sparkle/approved updater integration, rollback/downgrade protection, launch-at-login implementation, safe mode, support bundle, migration, uninstall, or factory reset evidence."],
-      "evidence_ids": ["EV-R11-20260809-ARTIFACT-MANIFEST-01"],
+      "production_files": [
+        "scripts/validate_release_manifest.py",
+        "docs/operations/UPDATE_MECHANISM.md",
+        "docs/operations/RELEASE_ARTIFACTS.md",
+        "docs/decisions/ADR-046-signed-update-recovery.md"
+      ],
+      "test_files": [
+        "scripts/tests/test_release_manifest.py"
+      ],
+      "dependencies": [
+        "release.distribution"
+      ],
+      "open_gaps": [
+        "Manifest validation is not an updater. No signed package transport, Sparkle/approved updater integration, rollback/downgrade protection, launch-at-login implementation, safe mode, support bundle, migration, uninstall, or factory reset evidence."
+      ],
+      "evidence_ids": [
+        "EV-R11-20260809-ARTIFACT-MANIFEST-01"
+      ],
       "notes": "Design prose and local manifest contracts are not an operational updater. ADR-046 remains Proposed."
     }
   ]
