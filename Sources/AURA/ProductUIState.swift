@@ -20,10 +20,11 @@ struct AuraConversationMessage: Identifiable, Equatable, Sendable {
   let timestamp: Date
   let isDegraded: Bool
   let sourceSummary: String?
+  let traceSummary: String?
 
   init(
     id: UUID = UUID(), role: Role, text: String, timestamp: Date = Date(),
-    isDegraded: Bool = false, sourceSummary: String? = nil
+    isDegraded: Bool = false, sourceSummary: String? = nil, traceSummary: String? = nil
   ) {
     self.id = id
     self.role = role
@@ -31,6 +32,7 @@ struct AuraConversationMessage: Identifiable, Equatable, Sendable {
     self.timestamp = timestamp
     self.isDegraded = isDegraded
     self.sourceSummary = sourceSummary
+    self.traceSummary = traceSummary
   }
 }
 

@@ -7,6 +7,15 @@ import AuraMemory
 import AuraStore
 import Foundation
 
+enum ConfirmationResolution: String, Sendable {
+  case requested
+  case accepted
+  case denied
+  case expired
+  case dismissed
+  case superseded
+}
+
 extension AuraAppModel {
   func bootstrap() async {
     do {
@@ -18,7 +27,7 @@ extension AuraAppModel {
         minimumLevel: .info)
       let storeURL = try ApplicationSupportBootstrap.databaseURL()
       let store = try await AuraStore(path: storeURL.path)
-      let eventBus = AuraEventBus(logger: logger)
+      let eventBus = AuraEventBus(logger: logger, tracePersistence: store)
       self.eventBus = eventBus
       await subscribeToStatus(on: eventBus)
       let kernel = AuraKernel(
@@ -102,13 +111,18 @@ extension AuraAppModel {
       await self?.applyCompletedTurn(envelope.payload)
     }
     await eventBus.subscribe(ResponsePlanEvent.self) { [weak self] envelope in
-      await self?.applyResponsePlan(envelope.payload)
+      await self?.applyResponsePlan(
+        envelope.payload, correlationID: envelope.correlationID, causationID: envelope.causationID)
     }
     await eventBus.subscribe(ToolResultEvent.self) { [weak self] envelope in
-      await self?.applyToolResult(envelope.payload)
+      await self?.applyToolResult(
+        envelope.payload, eventID: envelope.id, correlationID: envelope.correlationID,
+        causationID: envelope.causationID)
     }
     await eventBus.subscribe(IntentBlockedEvent.self) { [weak self] envelope in
-      await self?.applyIntentBlocked(envelope.payload)
+      await self?.applyIntentBlocked(
+        envelope.payload, eventID: envelope.id, correlationID: envelope.correlationID,
+        causationID: envelope.causationID)
     }
     await eventBus.subscribe(EmergencyStopTriggeredEvent.self) { [weak self] _ in
       await self?.setEmergencyStopActive()
@@ -149,9 +163,10 @@ extension AuraAppModel {
 
   func awaitConfirmation(_ challenge: PolicyConfirmationChallenge) async -> Bool {
     if confirmationContinuation != nil {
-      resolveConfirmation(accepted: false)
+      resolveConfirmation(accepted: false, outcome: .superseded)
     }
     pendingConfirmation = challenge
+    recordConfirmationTrace(challenge, outcome: .requested)
     statusDetail =
       "Confirmation required: \(challenge.requestedAction.domain)."
       + "\(challenge.requestedAction.action)"
@@ -162,7 +177,7 @@ extension AuraAppModel {
       Task { [weak self] in
         try? await Task.sleep(for: .seconds(timeout))
         guard let self, self.pendingConfirmation?.requestID == requestID else { return }
-        self.resolveConfirmation(accepted: false)
+        self.resolveConfirmation(accepted: false, outcome: .expired)
       }
     }
   }
@@ -204,25 +219,81 @@ extension AuraAppModel {
     appendConversation(.init(role: .user, text: event.text))
   }
 
-  func applyResponsePlan(_ event: ResponsePlanEvent) {
+  func applyResponsePlan(
+    _ event: ResponsePlanEvent, correlationID: UUID? = nil, causationID: UUID? = nil
+  ) {
     lastPlanSummary = event.summary
     guard !event.summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-    appendConversation(.init(role: .assistant, text: event.summary))
+    appendConversation(
+      .init(
+        role: .assistant,
+        text: event.summary,
+        traceSummary: traceSummary(correlationID: correlationID, causationID: causationID)))
   }
 
-  func applyToolResult(_ event: ToolResultEvent) {
+  func applyToolResult(
+    _ event: ToolResultEvent, eventID: UUID? = nil, correlationID: UUID? = nil,
+    causationID: UUID? = nil
+  ) {
     lastOperationMessage = event.summary
     appendConversation(
       .init(
         role: .system, text: event.summary, isDegraded: !event.succeeded,
-        sourceSummary: event.toolID))
+        sourceSummary: event.toolID,
+        traceSummary: traceSummary(correlationID: correlationID, causationID: causationID)))
+    if let eventID, let correlationID, let causationID {
+      recordTrace(
+        RedactedTraceRecord(
+          id: eventID, correlationID: correlationID, causationID: causationID,
+          phase: "tool", eventType: ToolResultEvent.eventType, requestID: event.intentID,
+          actionIdentifier: event.toolID, outcome: event.succeeded ? "verified" : "failed"))
+    }
   }
 
-  func applyIntentBlocked(_ event: IntentBlockedEvent) {
+  func applyIntentBlocked(
+    _ event: IntentBlockedEvent, eventID: UUID? = nil, correlationID: UUID? = nil,
+    causationID: UUID? = nil
+  ) {
     lastOperationMessage = event.reason
     appendConversation(
       .init(
-        role: .system, text: "Blocked: \(event.reason)", isDegraded: true, sourceSummary: "Policy"))
+        role: .system, text: "Blocked: \(event.reason)", isDegraded: true,
+        sourceSummary: "Policy",
+        traceSummary: traceSummary(correlationID: correlationID, causationID: causationID)))
+    if let eventID, let correlationID, let causationID {
+      recordTrace(
+        RedactedTraceRecord(
+          id: eventID, correlationID: correlationID, causationID: causationID,
+          phase: "policy", eventType: IntentBlockedEvent.eventType, requestID: event.intentID,
+          outcome: event.reason))
+    }
+  }
+
+  func traceSummary(correlationID: UUID?, causationID: UUID?) -> String? {
+    guard let correlationID, let causationID else { return nil }
+    return AuraTraceDisplay.summary(correlationID: correlationID, causationID: causationID)
+  }
+
+  func recordConfirmationTrace(
+    _ challenge: PolicyConfirmationChallenge, outcome: ConfirmationResolution
+  ) {
+    let correlationID = challenge.turnContext?.correlationID ?? challenge.requestID
+    let causationID = challenge.turnContext?.causationID ?? challenge.requestID
+    recordTrace(
+      RedactedTraceRecord(
+        correlationID: correlationID,
+        causationID: causationID,
+        phase: "confirmation",
+        eventType: "confirmation.\(outcome.rawValue)",
+        requestID: challenge.requestID,
+        actionIdentifier: challenge.requestedAction.identifier,
+        outcome: outcome.rawValue))
+  }
+
+  func recordTrace(_ record: RedactedTraceRecord) {
+    Task { [weak self] in
+      await self?.eventBus?.recordTrace(record)
+    }
   }
 
   func appendConversation(_ message: AuraConversationMessage) {

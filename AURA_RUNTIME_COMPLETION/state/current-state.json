@@ -2,15 +2,15 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-14T06:55:43Z",
-  "session_id": "AURA-SP-000-BASELINE-20260813",
+  "updated_at": "2026-08-15T09:32:18Z",
+  "session_id": "AURA-SP-001-DISMISSAL-FIX-20260815",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
     "verified_head": "d82fde6be6e95bc8d3ccb64341bd2538baf12a92",
     "remote_head": "d82fde6be6e95bc8d3ccb64341bd2538baf12a92",
-    "working_tree_state": "clean",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
@@ -57,6 +57,14 @@
       ,"Post-delivery state, handoff, and ledger projections were delivered in projection commit 822f339e2b353e1dc6ac126eb6aa7f592bfa0e91 and merged to main; no product source, prompt transition, or release/deployment claim is implied."
       ,"SP-000 baseline and synchronization lock completed at live main 05af25de7d0e21a5fff114a7fb2cba083009a923. Control-plane pointers were reconciled, the validator was made active-state aware, and SP-001 is pending. No product source, app, permission, provider, beta, release, commit, push, merge, or deployment action occurred. Evidence: EV-SP-000-20260813-BASELINE-01."
       ,"SP-000 control-plane delivery commit d82fde6be6e95bc8d3ccb64341bd2538baf12a92 was pushed to its feature branch, fast-forward merged into main, and pushed to origin/main. Canonical pointers now use that verified non-projection baseline; later delivery descendants are projection-only. Evidence: EV-SP-000-20260814-DELIVERY-01."
+      ,"SP-001 attempt at main HEAD 76ce21ab423bd3c828e3386fb7174bf11ec56862 ran the prompt-relevant AuraCore/AuraPolicy/AURAIntegration/AuraAgent/AuraAudio suites successfully, but the required user-present live trace and reversible mutation were not run because this prompt does not authorize app launch/install. SP-001 remains blocked. Evidence: EV-SP-001-20260814-ATTEMPT-01."
+      ,"SP-001 mandatory closeout at 2026-08-14T07:30:27Z passed the second-pass, runtime, hygiene, supply-chain, JSON, handoff-coverage, 38-test, Python compile, shell syntax, and diff checks. The worktree remains expected local control-plane dirt; no live evidence or SP-002 transition follows. Evidence: EV-SP-001-20260814-CLOSEOUT-02."
+      ,"SP-001 authorized user-present live attempt is recorded under EV-SP-001-20260814-LIVE-TRACE-03: speech observation, displayed confirmation, one reversible Calculator termination with NOT_RUNNING verification, deny, changed-plan, emergency-stop/re-arm, and restart no-replay behavior were observed. Correlation/causation IDs were not exposed or durably persisted; explicit timeout/dismissal/failed-verification/concurrent-turn traces remain unproven. SP-001 remains blocked and SP-002 remains unopened."
+      ,"SP-001 mandatory 15_SESSION_CLOSEOUT at 2026-08-14T09:10:21Z is recorded under EV-SP-001-20260814-CLOSEOUT-03: JSON, second-pass, runtime, hygiene, supply-chain, 38-test, compile, shell, and diff checks passed. Authority reset to edit-only; SP-001 remains blocked and SP-002 remains unopened."
+      ,"SP-001 source-side OPEN-02 mitigation at 2026-08-14T11:11:19Z is recorded under EV-SP-001-20260814-TRACE-FIX-04: redacted trace persistence, confirmation outcomes, UI trace prefixes, and lifecycle/store/UI tests were added; swift build, six focused suites, governance validators, and 38 deterministic tests passed. No launch/TCC/install/commit/push/merge/deploy occurred. SP-001 remains blocked pending separately authorized target-Mac live proof; SP-002 remains unopened."
+      ,"SP-001 post-fix bounded live rerun at 2026-08-14T12:10:25Z is recorded under EV-SP-001-20260814-LIVE-TRACE-FIX-05: date allow/deny, Calculator confirmation expiry, one allowed Calculator close, distinct execution/verification, redacted UI prefixes, durable redacted rows, and no-running-process verification passed. The narrower authority did not cover post-fix changed-plan/replay/dismissal/cancellation/concurrent-turn cases; SP-001 remains blocked and SP-002 remains unopened."
+      ,"SP-001 mandatory 15_SESSION_CLOSEOUT at 2026-08-14T12:16:54Z is recorded under EV-SP-001-20260814-CLOSEOUT-06: current AURA build, JSON, second-pass/runtime/hygiene/supply-chain validators, 38 deterministic tests, compileall, shell syntax, and diff checks passed. Authority reset to edit-only; SP-001 remains blocked and SP-002 remains unopened."
+      ,"SP-001 post-fix dismissal wiring and live evidence at 2026-08-15T09:32:18Z is recorded under EV-SP-001-20260815-LIVE-DISMISSAL-07: the red WindowGroup close path now persists requested → dismissed → policy blocked with no /bin/date execution; build and AURAIntegrationTests 23/23 passed. SP-001 remains blocked for the remaining post-fix matrix; SP-002 remains unopened."
     ]
   },
   "program_status": "in_progress",
@@ -527,5 +535,5 @@
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "Keep H-010 terminal and execute only SP-001 next. SP-000 baseline/synchronization is complete at verified control-plane baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92; later descendants are projection-only. Product, beta, signing, release, deployment, and live gates remain separate and open. Do not batch or auto-advance prompts."
+  "next_action": "Keep H-010 terminal. SP-001 remains blocked after the post-fix dismissal fix; capture the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. SP-000 baseline/synchronization remains complete at verified control-plane baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92; product, beta, signing, release, deployment, and live gates remain separate and open."
 }

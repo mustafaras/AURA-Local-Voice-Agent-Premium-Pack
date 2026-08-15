@@ -118,12 +118,17 @@ for a blocked acceptance and closeout audit by user-directed transition request.
 
 The separate second-pass chain is defined by
 `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json` and is currently
-`SP-001` / `pending`; `SP-000` completed the baseline and synchronization lock.
+`SP-001` / `blocked`; `SP-000` completed the baseline and synchronization lock.
 Its manifest, gap register, Tier-0/Tier-1 context order, focused append-only
 ledger, prompt contract, and validator remain synchronized before any further
 second-pass prompt can run. This overlay does not overwrite the first-pass
 canonical state above: first-pass `FINAL` remains blocked, while second-pass
-`SP-001` is the only prompt eligible for an explicitly authorized start.
+`SP-001` remains the only active prompt. The user-authorized live attempt
+captured direct safe observation, displayed confirmation, one reversible
+mutation, local verification, deny, changed-plan, emergency-stop, and restart
+no-replay behavior. Correlation/causation persistence and distinct
+timeout/dismissal/verification traces remain unproven; authority is reset to
+edit-only and SP-002 must not begin.
 
 ## SP-000 baseline and synchronization lock — 2026-08-13
 
@@ -134,6 +139,46 @@ corrected to validate the active prompt dynamically rather than hard-coding
 `SP-000/pending`. SP-000 is complete; no product source, app, permission,
 provider, beta, release, commit, push, merge, or deployment action occurred.
 Evidence: `EV-SP-000-20260813-BASELINE-01`.
+
+## SP-001 live trace attempt — 2026-08-14
+
+The prompt-relevant AuraCore, AuraPolicy, AURAIntegration, AuraAgent, and
+AuraAudio suites passed at `main` `76ce21ab423bd3c828e3386fb7174bf11ec56862`
+(316 tests total across the five bundles). The authorized live attempt then
+captured direct speech observation, displayed confirmation, one reversible
+Calculator termination with `NOT_RUNNING` verification, deny, changed-plan,
+emergency-stop/re-arm, and restart no-replay behavior. It remains blocked
+because the UI/runtime exposed no redacted correlation/causation IDs or durable
+event chain; explicit confirmation-timeout, distinct dismissal,
+failed-verification, and concurrent-turn traces remain unproven. Evidence:
+`EV-SP-001-20260814-ATTEMPT-01` and
+`EV-SP-001-20260814-LIVE-TRACE-03`. Retry only SP-001 when that missing direct
+evidence is available; do not start SP-002.
+
+## SP-001 redacted trace source mitigation — 2026-08-14T11:11:19Z
+
+Under explicit edit-only authority, the OPEN-02 source/test residual was
+mitigated with `RedactedTraceRecord`/`AuraTracePersistence`, a dedicated
+`redacted_trace_records` store table, EventBus wiring, confirmation terminal
+outcome records, and opaque trace prefixes in confirmation/conversation UI.
+Generic raw event payload persistence remains excluded. `swift build --product
+AURA`, the six focused suites, all local governance validators, and 38
+deterministic script tests pass under `EV-SP-001-20260814-TRACE-FIX-04`.
+This does not replace live evidence: target-Mac store/UI capture and distinct
+timeout, dismissal, failed-verification, and concurrent-turn traces remain
+open. SP-001 stays blocked; authority remains edit-only; SP-002 must not begin.
+
+## SP-001 post-fix bounded live rerun — 2026-08-14T12:10:25Z
+
+With explicit user-present authority limited to `/bin/date` and one Calculator
+close, the current unsigned build displayed redacted trace prefixes and
+persisted the matching local sequences. Date allow/deny, Calculator expiry,
+one successful reversible close, distinct tool verification, and read-only
+no-process verification passed under
+`EV-SP-001-20260814-LIVE-TRACE-FIX-05`. The authority did not cover post-fix
+changed-plan, replay, dismissal, cancellation, or concurrent-turn cases; the
+active second-pass state therefore remains `SP-001 / blocked` and `SP-002` must
+not begin.
 
 ## R2 closeout status (2026-08-07)
 
@@ -477,3 +522,12 @@ H-010 is complete for repository hygiene and is the manifest terminal prompt.
 No H-011 exists. Product, beta, signing, release, deployment, live-hardware,
 ADR-034/ADR-044, and FINAL acceptance remain independent and are not claimed
 complete. Evidence: `EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01`.
+
+## SP-001 post-fix dismissal update — 2026-08-15T09:32:18Z
+
+The red AURA WindowGroup close path now records a pending confirmation as
+`dismissed`; the focused integration test passed and the user-present rerun
+recorded requested → dismissed → policy blocked with no `/bin/date` execution.
+Evidence: `EV-SP-001-20260815-LIVE-DISMISSAL-07`. SP-001 remains blocked for
+the remaining post-fix live matrix; authority remains bounded to the explicitly
+authorized work and no SP-002 transition follows.

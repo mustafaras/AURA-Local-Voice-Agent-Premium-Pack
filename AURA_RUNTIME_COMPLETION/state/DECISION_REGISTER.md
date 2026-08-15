@@ -34,7 +34,61 @@ Use this file as a compact index. Full rationale belongs in ADR files. Status va
 | DEC-REPO-HYGIENE-H-010-HOSTED-20260812 | Close the terminal H-010 repository-hygiene gate after exact hosted verification | H-010 | Accepted | H-010 completion | `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md`; `.github/workflows/ci.yml` | Final run `31598491689` on `6d4d6da` passed governance/build/test/coverage and development-unverified artifact upload. The runner was temporary and removed. This decision supersedes the earlier H-010 hosted-blocker disposition for the recorded workflow; it does not close product, beta, release, signing, deployment, ADR-034/044, or FINAL gates. Evidence: `EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01`. |
 | DEC-REPO-HYGIENE-H-010-PROJECTION-20260812 | Reconcile current H-010 status projections after terminal hosted closure | H-010 | Accepted | No current projection may present H-010 as blocked; historical evidence remains append-only | `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json`; `ledger/CURRENT_STATE.md`; `AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md` | Mark H-010 terminally completed at live projection `b4610f0`; bind hosted proof to workflow/source SHA `6d4d6da`; identify later descendants as control-plane-only; retain prior blocked/pending records as superseded historical evidence. No product source, second-pass state, H-011, release, or deployment claim follows. Evidence: `EV-REPO-HYGIENE-H-010-PROJECTION-RECONCILIATION-20260812-01`. |
 
+| DEC-SP-001-LIVE-TRACE-20260814 | Direct user-present trace, confirmation, reversible mutation, and universal postcondition evidence | R1 / SP-001 | Deferred | Explicit target-Mac/app-launch authority and complete live evidence bundle | `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md`; `docs/decisions/ADR-035-turn-context-trace-correctness.md`; `docs/decisions/ADR-037-runtime-health-and-confirmation-transactions.md` | Deterministic suites pass 316 tests, but live UI/runtime evidence is not proven. Keep SP-001 blocked; do not substitute fakes or historical assertions. Evidence: `EV-SP-001-20260814-ATTEMPT-01`. |
+
+### 2026-08-14T08:44:20Z — DEC-SP-001-LIVE-TRACE update
+
+The explicit live-launch authority was exercised and direct user-present
+evidence now proves bounded safe observation, displayed confirmation, one
+allowed reversible mutation with local process verification, deny,
+changed-plan blocking, emergency-stop interlock, and restart no-replay
+behavior. The decision remains **Deferred** because the live UI and runtime
+do not expose a redacted correlation/causation ID chain or a durable event
+ledger, and distinct dismissal, explicit confirmation-timeout,
+failed-verification, and concurrent-turn-isolation traces remain unproven.
+Evidence: `EV-SP-001-20260814-LIVE-TRACE-03`. SP-001 remains blocked; no
+SP-002 transition follows.
+
+### 2026-08-14T11:11:19Z — DEC-SP-001-TRACE-PROJECTION-20260814
+
+The OPEN-02 source-side residual is resolved with a narrow privacy-safe
+projection: persist only redacted correlation/causation/request/action/outcome
+fields in a dedicated local table, keep generic event payload persistence
+unwired, and display only opaque ID prefixes in the UI. Confirmation terminal
+outcomes are recorded for audit visibility but never authorize replay. The
+decision is **Deferred** for prompt completion because target-Mac live evidence
+must still prove the UI/store chain and the remaining negative/verification
+matrix. Evidence: `EV-SP-001-20260814-TRACE-FIX-04`.
+
+### 2026-08-14T12:10:25Z — DEC-SP-001-TRACE-PROJECTION live update
+
+The post-fix user-present run confirms the chosen redacted projection in the
+real UI and local store: date allow/deny, Calculator expiry, one allowed
+reversible close, distinct verification, and no-process verification are
+truthfully represented. The decision remains **Deferred** because the narrow
+authority did not cover post-fix changed-plan, replay, dismissal, cancellation,
+or concurrent-turn cases. Evidence:
+`EV-SP-001-20260814-LIVE-TRACE-FIX-05`. SP-001 remains blocked; no SP-002
+transition follows.
+
+### 2026-08-14T12:16:54Z — DEC-SP-001-TRACE-PROJECTION closeout reconciliation
+
+The mandatory closeout confirms the post-fix bounded live evidence and all
+local validators/build checks, but does not change the decision from **Deferred**:
+the remaining post-fix negative/verification matrix was outside the explicit
+authority. Authority is reset to edit-only; SP-001 remains blocked and SP-002
+is not opened. Evidence: `EV-SP-001-20260814-CLOSEOUT-06`.
+
 ## Decision rules
+
+### 2026-08-15T09:32:18Z — DEC-SP-001-TRACE-PROJECTION dismissal update
+
+The red close path was found not to call the existing application-menu quit
+method. A narrow WindowGroup lifecycle hook now resolves a pending
+confirmation as `dismissed`, with a focused redacted-persistence test and a
+direct live requested → dismissed → blocked observation. The decision remains
+**Deferred** pending the remaining post-fix live matrix. Evidence:
+`EV-SP-001-20260815-LIVE-DISMISSAL-07`.
 
 - Add a row before implementing a material decision.
 - Do not mark `Accepted` until the ADR contains context, decision, alternatives, consequences, migration, security/privacy analysis, and verification plan.

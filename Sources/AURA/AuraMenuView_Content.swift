@@ -190,6 +190,12 @@ extension AuraMenuView {
         if let source = message.sourceSummary {
           Text(source).font(.caption2).foregroundStyle(.secondary)
         }
+        if let trace = message.traceSummary {
+          Text(trace)
+            .font(.caption2.monospaced())
+            .foregroundStyle(.secondary)
+            .accessibilityLabel("Trace: \(trace)")
+        }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
     }

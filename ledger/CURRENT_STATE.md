@@ -20,9 +20,16 @@ ADR-034/044, and FINAL gates remain separate.
 The terminal H-000…H-010 prompt definitions are archived under
 `AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/`; the hygiene prompt
 manifest remains their canonical locator. The archive/cleanup delivery is
-merged by PR #3; SP-000 state/validator delivery is merged to `main` and the
-current worktree is clean. Main CI run `31613321170` is a historical queued observation;
-no repository-defined signed/notarized/public deployment target exists. The second-pass baseline lock `SP-000` is complete and `SP-001` is pending; no product, beta, signing, release, or deployment completion is implied.
+merged by PR #3; SP-000 state/validator delivery is merged to `main`. Main CI
+run `31613321170` is a historical queued observation; no repository-defined
+signed/notarized/public deployment target exists. The second-pass baseline lock
+`SP-000` is complete. The bounded `SP-001` / OPEN-02 attempt is currently
+blocked: deterministic prompt-relevant suites passed, but direct user-present
+live trace, displayed confirmation, reversible mutation, and
+execution/verification evidence were not captured because app launch/install is
+not authorized by the prompt. The worktree contains expected local
+control-plane closeout edits; no product, beta, signing, release, or deployment
+completion is implied. Evidence: `EV-SP-001-20260814-ATTEMPT-01`.
 
 ## Canonical State Notice — 2026-08-09
 
@@ -442,3 +449,62 @@ H-011; stop at the terminal boundary. Product, beta, signing, release,
 deployment, live-hardware, ADR-034/ADR-044, and broader FINAL gates remain
 independent and are not claimed complete. Evidence:
 `EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01`.
+
+### SP-001 live attempt — 2026-08-14T08:44:20Z
+
+The active second-pass overlay is `SP-001 / blocked` after the authorized
+user-present local AURA run. Direct evidence `EV-SP-001-20260814-LIVE-TRACE-03`
+proves speech observation, displayed confirmation, one safe/reversible
+Calculator termination with `NOT_RUNNING` verification, deny, changed-plan,
+emergency-stop/re-arm, and restart no-replay behavior. The live UI did not
+expose redacted correlation/causation IDs, and no durable event-chain artifact
+was available; explicit confirmation-timeout, distinct dismissal,
+failed-verification, and concurrent-turn traces remain unproven. Authority is
+reset to edit-only. `SP-002` is not safe to start.
+
+### SP-001 OPEN-02 source-side mitigation — 2026-08-14T11:11:19Z
+
+The narrowly authorized source/test fix is recorded under
+`EV-SP-001-20260814-TRACE-FIX-04`. A dedicated redacted trace projection now
+persists only correlation/causation/request/action/outcome fields, confirmation
+terminal outcomes are recorded fail-closed, and opaque trace prefixes are
+visible in confirmation/conversation UI. `swift build --product AURA`, the six
+focused suites (28/28, 10/10, 22/22, 19/19, 214/214, 35/35), all local
+governance validators, 38 deterministic Python tests, compileall, shell syntax,
+and diff checks pass. No app launch, TCC, install, commit, push, merge, release,
+or deploy occurred. This mitigates the source-side residual only; target-Mac
+live trace/store capture and distinct failed-verification, concurrent-turn,
+timeout, and dismissal evidence remain open. `SP-001` is still blocked and
+`SP-002` is not safe to start.
+
+### SP-001 post-fix bounded live rerun — 2026-08-14T12:10:25Z
+
+The current local build was tested under explicit user-present authority limited
+to `/bin/date` and one Calculator close. The confirmation/result UI displayed
+opaque trace prefixes. Date allow/deny, Calculator confirmation expiry, one
+successful reversible Calculator close, distinct execution/verification, and
+read-only no-process verification passed. The local redacted trace table held
+12 matching outcome rows. Evidence:
+`EV-SP-001-20260814-LIVE-TRACE-FIX-05`.
+
+Post-fix changed-plan, replay, dismissal, cancellation, and concurrent-turn
+cases were not authorized in this bounded run. `SP-001` remains blocked and
+`SP-002` is not safe to start; no delivery action follows.
+
+### SP-001 mandatory session closeout — 2026-08-14T12:16:54Z
+
+Closeout evidence `EV-SP-001-20260814-CLOSEOUT-06` records the verified
+repository state, current build, JSON, second-pass/runtime/hygiene/supply-chain
+validators, 38/38 deterministic Python tests, compileall, shell syntax, and
+diff checks. Authority is reset to edit-only. SP-001 remains blocked because
+the post-fix changed-plan, replay, dismissal, cancellation, and concurrent-turn
+matrix was outside the explicit live authority; SP-002 remains unopened.
+
+### SP-001 post-fix dismissal wiring — 2026-08-15T09:32:18Z
+
+The red AURA WindowGroup close path now resolves a pending confirmation as
+`dismissed`; the focused integration test and current build passed. The
+user-present rerun on `/tmp/aura-sp001-live-fix-02.app` produced redacted
+requested → dismissed → policy-blocked rows for `/bin/date` with no execution.
+Evidence: `EV-SP-001-20260815-LIVE-DISMISSAL-07`. SP-001 remains blocked for
+the remaining post-fix live matrix; SP-002 remains unopened.

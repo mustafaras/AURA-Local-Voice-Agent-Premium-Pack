@@ -98,3 +98,33 @@ Status values: `Open`, `Mitigating`, `Blocked`, `Accepted`, `Closed`. Probabilit
 ### 2026-08-14T06:55:43Z — SP-000 delivery reconciliation
 
 `RISK-SECOND-PASS-SYNC-DRIFT` remains **Mitigating**, not closed. The authorized SP-000 delivery exposed one post-merge stale-pointer condition: non-projection changes had landed while canonical verified SHA fields still referenced the parent. The condition was corrected by updating active pointer/documentation projections to the verified delivery baseline; later descendants are projection-only. Future deliveries must rerun the runtime validator after merge and before reporting completion. Evidence: `EV-SP-000-20260814-DELIVERY-01`.
+
+### 2026-08-14T07:06:42Z — SP-001 live-evidence blocker
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Open**: the required user-present live observation, displayed confirmation, reversible mutation, and direct execution/verification trace cannot be captured under the current prompt because app launch/install is not authorized. The five prompt-relevant deterministic/integration suites passed 316 tests, but that is supporting contract evidence only and cannot prove the target-Mac live postconditions. Obtain explicit target-Mac/app-launch authority and rerun only `SP-001`; do not start `SP-002`. Evidence: `EV-SP-001-20260814-ATTEMPT-01`.
+
+### 2026-08-14T08:44:20Z — SP-001 live evidence residual update
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Open**, with the authority portion now satisfied for this bounded attempt but the universal live postcondition still unproven. Direct user-present evidence demonstrates a safe observation, displayed confirmation, one allowed reversible Calculator termination, local process verification, denial, changed-plan blocking, emergency-stop interlock, and restart no-replay behavior under `EV-SP-001-20260814-LIVE-TRACE-03`. The residual is that no redacted correlation/causation IDs were exposed or durably persisted; the confirmation-timeout terminal label was not explicit, and distinct dismissal, failed-verification, and concurrent-turn-isolation evidence are absent. Do not close this risk from screenshots, types, fakes, or model assertions; keep SP-001 blocked and do not start SP-002.
+
+### 2026-08-14T11:11:19Z — SP-001 redacted trace implementation mitigation
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Open**, but the source-level persistence/UI residual is mitigated under `EV-SP-001-20260814-TRACE-FIX-04`. The implementation now persists only a bounded redacted projection with correlation/causation/request/action/outcome fields, records confirmation requested and terminal outcomes including expiration/dismissal/supersession, and exposes short opaque trace prefixes in the confirmation/conversation UI. Core, store, integration, policy, agent, and audio suites plus all local governance validators passed. The remaining risk is independently captureable target-Mac live proof of the full universal postcondition, especially failed-verification, concurrent-turn isolation, and distinct live timeout/dismissal behavior; keep SP-001 blocked and do not start SP-002 until a separately authorized live rerun proves those cases.
+
+### 2026-08-14T12:10:25Z — SP-001 post-fix bounded live evidence
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Open but materially reduced** under `EV-SP-001-20260814-LIVE-TRACE-FIX-05`. The user-present rerun proves redacted trace prefixes in the confirmation/result UI, durable local redacted rows, date allow/deny, a Calculator confirmation expiry, one allowed Calculator close, distinct execution/verification, and `pgrep` no-process verification. The current authority intentionally excluded changed-plan, replay, dismissal, cancellation, and concurrent-turn actions; prior pre-fix evidence covers only some of those cases. Keep SP-001 blocked until the complete post-fix negative/verification matrix is separately authorized and captured; do not start SP-002.
+
+### 2026-08-14T12:16:54Z — SP-001 mandatory closeout
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Open but materially reduced**. The mandatory closeout validators and current source build passed, while the post-fix live residual remains bounded to the cases excluded by the user's authority: changed-plan, replay, dismissal, cancellation, and concurrent-turn isolation. Authority is reset to edit-only; no further live action is implied. Evidence: `EV-SP-001-20260814-CLOSEOUT-06` and `EV-SP-001-20260814-LIVE-TRACE-FIX-05`.
+
+### 2026-08-15T09:32:18Z — SP-001 post-fix dismissal wiring and live evidence
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Open but further reduced**. The
+WindowGroup close path now records a redacted `confirmation.dismissed` outcome,
+the focused integration test passed, and the user-present rerun confirmed
+requested → dismissed → blocked with no execution. Remaining live residuals
+are changed-plan, replay, cancellation, concurrent-turn isolation, and any
+required failed-verification evidence. Evidence:
+`EV-SP-001-20260815-LIVE-DISMISSAL-07`.

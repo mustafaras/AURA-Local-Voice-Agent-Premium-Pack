@@ -1289,3 +1289,68 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Verification:** Runtime, second-pass, hygiene, supply-chain, 38-test, Python compile, shell syntax, and diff gates pass after delivery correction.
 - **Evidence:** `EV-SP-000-20260814-DELIVERY-01`; product/live/security/release/beta gates remain independent and open.
 - **Next action:** Execute only `SP-001` after its required read order; do not batch or auto-advance.
+
+### 2026-08-14T07:06:42Z — SP-001_OPEN-02 — blocked attempt
+
+- **Session/actor:** `AURA-SP-001-LIVE-TRACE-20260814`; Codex.
+- **Scope:** Only `SP-001` / `OPEN-02` was attempted. No SP-002 work was started.
+- **Objective:** Capture direct user-present evidence for one safe observation and one reversible mutation with truthful trace, displayed confirmation, execution, verification, and fail-closed negative/restart cases.
+- **State and authority:** `main`, `HEAD == origin/main == 76ce21ab423bd3c828e3386fb7174bf11ec56862`; verified baseline `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`; macOS 27 / arm64 / Swift 6.4. The prompt hard boundary did not authorize app launch/install, TCC/provider/account actions, signing, release, deploy, commit, push, or merge.
+- **Result:** The prompt-relevant AuraCore, AuraPolicy, AURAIntegration, AuraAgent, and AuraAudio suites passed 27 + 19 + 21 + 214 + 35 = **316 tests**. This is deterministic contract/integration evidence only. No live displayed confirmation, real reversible mutation, correlated target-Mac execution/verification trace, or live deny/timeout/dismissal/replay/changed-plan/cancellation/restart bundle was captured; no denied action was executed.
+- **Root cause / layer:** OPEN-02 remains a user-present live runtime/UI evidence residual. Simulated/local test paths cannot establish the target-Mac universal postcondition without authorized app execution.
+- **Evidence:** `EV-SP-001-20260814-ATTEMPT-01`; five test logs and SHA-256 hashes are indexed in `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`. `RISK-SP-001-LIVE-TRACE-AUTHORITY` remains Open.
+- **Falsifier:** A redacted, user-present, authorized target-Mac bundle showing correlation, runtime health, displayed confirmation, plan binding, real reversible mutation, execution/verification, truthful response, and all required negative/restart cases would falsify the live-evidence blocker.
+- **Residual / next action:** Keep SP-001 `blocked`; obtain explicit target-Mac/app-launch authority, retry only SP-001, run the mandated closeout/validators, and do not start SP-002. This record does not claim product/live/release completion.
+
+### 2026-08-14T08:44:20Z — SP-001_OPEN-02 — authorized live attempt and blocked closeout
+
+- **Actor/session:** Codex; `AURA-SP-001-LIVE-TRACE-20260814`. The user explicitly authorized local AURA launch and only a safe/reversible mutation. Authority was reset to edit-only after the attempt.
+- **Scope/objective:** Only `SP-001` / `OPEN-02`; prove a user-present observation, displayed confirmation, one reversible mutation, truthful result/verification, and the required fail-closed cases. `SP-002` was not opened.
+- **Procedure/result:** The local unsigned bundle was built and launched with `/usr/bin/open`. Speech `merhaba` produced a visible transcript/response. A read-only date request was allowed once; a repeated request was denied. The user manually opened Calculator, approved `app.terminate`, and the UI reported `Quit com.apple.calculator.`; `pgrep` verification returned `NOT_RUNNING`. An untouched confirmation disappeared without execution and ended in UI `thinking timeout`. A pending date plan was changed to `pwd`, which blocked the prior flow without a `pwd` success. Emergency-stop/re-arm and quit/reopen were observed; restart opened an empty conversation with no carried confirmation.
+- **Evidence/result class:** `EV-SP-001-20260814-LIVE-TRACE-03`, direct user-present live UI plus local process evidence. Redacted artifact and hashes are indexed in `EVIDENCE_INDEX.md`; screenshots were not copied into the repository. This proves bounded live safety behavior but not the universal postcondition.
+- **Cognitive completion gate:** (1) Symptom: the live screen lacked redacted correlation/causation IDs and explicit timeout/dismissal/verification trace labels; (2) mechanism: UI state is exposed through `AuraAppModel`, while `AuraEventBus` is in-memory and no durable correlation ledger is emitted; (3) direct procedure: the user-present run above; (4) evidence: `EV-SP-001-20260814-LIVE-TRACE-03`, direct-live class; (5) falsifier: an independently captureable redacted ID chain plus the missing explicit negative/verification traces; (6) residual: correlation persistence, distinct dismissal/confirmation-timeout labeling, failed verification, and concurrent-turn isolation remain open within OPEN-02; (7) SP-002 is unsafe because SP-001 completion gate is still open.
+- **Verdict:** `SP-001` remains **blocked**. The direct live bundle materially reduces the residual but does not satisfy the universal correlated postcondition. No product source, permission, dependency, provider, signing, release, deploy, commit, push, merge, or later prompt transition occurred.
+- **Next action:** Run the mandatory closeout and all validators; preserve the blocked state and retry only SP-001 after the runtime can expose an independently captureable correlation/causation chain. Do not start SP-002.
+
+### 2026-08-14T09:10:21Z — SP-001 mandatory 15_SESSION_CLOSEOUT — blocked
+
+- **Session/actor:** `AURA-SP-001-LIVE-TRACE-20260814`; Codex. Active prompt `SP-001`, state `blocked`; authority reset to edit-only.
+- **Verified end:** `main`, `HEAD == origin/main == 76ce21ab423bd3c828e3386fb7174bf11ec56862`; expected dirty control-plane state; no product-path diff.
+- **Commands/results:** JSON parsing for state/handoff/current-state passed; second-pass validator passed; runtime-completion `--ci` passed; repository-hygiene and supply-chain validators passed; 38/38 deterministic script tests passed; Python compile, shell syntax, and `git diff --check` passed.
+- **Evidence:** `EV-SP-001-20260814-CLOSEOUT-03` and `EV-SP-001-20260814-LIVE-TRACE-03`.
+- **Acceptance/risks:** The live safety behavior is materially evidenced, but the universal correlated postcondition is not. Correlation/causation persistence, explicit timeout/dismissal, failed-verification, and concurrent-turn traces remain open under `RISK-SP-001-LIVE-TRACE-AUTHORITY`. `SP-001` remains blocked and `SP-002` remains unopened.
+- **Exact next action:** Retry only SP-001 after the runtime exposes independently captureable redacted correlation/causation and missing negative/verification evidence; no release/deployment/delivery action follows.
+
+### 2026-08-14T11:11:19Z — SP-001 OPEN-02 source-side mitigation
+
+- **Authority/scope:** The user authorized only redacted trace persistence/UI/test source changes for `SP-001` / `OPEN-02`; no app launch, TCC, install, commit, push, merge, release, or deploy action occurred.
+- **Implementation:** Added the bounded `RedactedTraceRecord`/`AuraTracePersistence` boundary, dedicated SQLite migration/table, EventBus sink, confirmation terminal-outcome records, policy/tool projections, and opaque UI trace summaries. Generic event payload persistence remains unwired to prevent raw sensitive data entering the audit table.
+- **Verification:** `swift build --product AURA`; AuraCore 28/28, AuraStore 10/10, AURAIntegration 22/22, AuraPolicy 19/19, AuraAgent 214/214, AuraAudio 35/35; second-pass/runtime/hygiene/supply-chain validators; 38 Python tests; compileall, shell syntax, and diff checks all passed. Evidence: `EV-SP-001-20260814-TRACE-FIX-04`.
+- **Cognitive gate:** Symptom, root cause, source resolution, evidence class, falsifier, residual risk, and next-prompt safety are recorded in the focused second-pass ledger. The source-side residual is mitigated; target-Mac live UI/store capture, failed-verification, concurrent-turn, explicit timeout, and dismissal evidence remain unproven.
+- **Verdict/next action:** `SP-001` remains **blocked**, `OPEN-02` remains open, and `SP-002` is not safe to start. Obtain separate user-present live-launch authority before rerunning only SP-001; no delivery action follows.
+
+### 2026-08-14T12:10:25Z — SP-001 post-fix bounded live evidence
+
+- **Authority/scope:** User-present authority covered opening the current local build, `/bin/date` observation, and one Calculator close reversible mutation only. No TCC, install, dependency/model/provider, commit, push, merge, release, or deploy action occurred.
+- **Direct result:** The post-fix UI displayed opaque trace prefixes. Date allow produced a verified tool result; repeat date deny produced a policy block; a Calculator confirmation expired without execution; a fresh confirmation was allowed and Calculator closed. Read-only process verification found no Calculator process.
+- **Durable result:** The local `redacted_trace_records` table contained 12 rows with matching requested/accepted/denied/expired/verified sequences. No raw event payload was persisted.
+- **Evidence:** `EV-SP-001-20260814-LIVE-TRACE-FIX-05`; artifact SHA-256 `ae52adba8cb9efa743b309f8c385671ee8ac3ce20b7cbf2f0197c2f699fa945b`.
+- **Residual/next action:** Current narrow authority did not cover post-fix changed-plan, replay, dismissal, cancellation, or concurrent-turn actions; prior evidence covers only some pre-fix cases. `SP-001` remains blocked and `SP-002` remains unopened. Obtain separate authority for the remaining post-fix matrix; no delivery action follows.
+
+### 2026-08-14T12:16:54Z — SP-001 mandatory 15_SESSION_CLOSEOUT — blocked
+
+- **Session/actor:** `AURA-SP-001-LIVE-TRACE-FIX-20260814`; Codex. Active second-pass prompt `SP-001`, state `blocked`; authority reset to edit-only.
+- **Verified repository:** `main`, `HEAD == origin/main == 76ce21ab423bd3c828e3386fb7174bf11ec56862`; intentionally dirty worktree containing the authorized source, tests, ledgers, state projections, and redacted evidence. No unrelated path was identified.
+- **Objective/result:** Close the session after the bounded post-fix live rerun without converting partial live coverage into SP-001 completion. The source-side trace projection and bounded live bundle remain evidenced; `SP-002` was not opened.
+- **Verification:** `swift build --product AURA`; JSON parsing; second-pass, runtime-completion `--ci`, repository-hygiene, and supply-chain validators; deterministic Python tests 38/38; Python compileall; shell syntax; and `git diff --check` all passed.
+- **Evidence:** `EV-SP-001-20260814-CLOSEOUT-06`, artifact SHA-256 `7cbf6f802b0b6c5cf59ec4ba210a1ecf5d8ad0e99928b9fb11b4ea676e06d811`; direct bounded live evidence remains `EV-SP-001-20260814-LIVE-TRACE-FIX-05`.
+- **Acceptance/blocker:** SP-001 remains **blocked** because post-fix changed-plan, replay, dismissal, cancellation, and concurrent-turn cases were not authorized or independently captured. No source/test/validator result substitutes for those live cases.
+- **Exact next safe action:** Obtain separate explicit authority for the remaining post-fix SP-001 matrix, retry only SP-001, and do not start SP-002. No TCC, install, commit, push, merge, release, or deploy action follows.
+
+### 2026-08-15T09:32:18Z — SP-001 post-fix dismissal wiring and live evidence
+
+- **Scope/authority:** Only `SP-001` / `OPEN-02`; the user authorized the remaining live matrix and current local build. No TCC, install, dependency/model/provider, release, deploy, or unrelated product action occurred.
+- **Resolution:** The red WindowGroup close path bypassed the existing application-menu dismissal handler. Added a guarded lifecycle hook and focused integration coverage; current build passed and `AURAIntegrationTests` passed 23/23.
+- **Direct live result:** Updated bundle `/tmp/aura-sp001-live-fix-02.app`, executable SHA-256 `c54b7388b9838f6f15c671aef9ad72bc95b86efa69f70137bea484650e914aca`; user left `/bin/date` confirmation untouched and closed the red window control. Store query showed requested → dismissed → policy blocked for matching redacted IDs and no execution.
+- **Evidence:** `EV-SP-001-20260815-LIVE-DISMISSAL-07`, artifact SHA-256 `8398d2e9d12e522f439ae33793307fc60391656db36ec2fac71979785d1fafbc`.
+- **Verdict/next action:** Dismissal is now proven; `SP-001` remains blocked for changed-plan, replay, cancellation, concurrent-turn, and required failed-verification cases. Do not start `SP-002` until the remaining live gate is met.

@@ -114,7 +114,13 @@ extension AuraAppModel {
     }
   }
 
-  func resolveConfirmation(accepted: Bool) {
+  func resolveConfirmation(
+    accepted: Bool, outcome: ConfirmationResolution? = nil
+  ) {
+    if let challenge = pendingConfirmation {
+      recordConfirmationTrace(
+        challenge, outcome: outcome ?? (accepted ? .accepted : .denied))
+    }
     confirmationContinuation?.resume(returning: accepted)
     confirmationContinuation = nil
     pendingConfirmation = nil

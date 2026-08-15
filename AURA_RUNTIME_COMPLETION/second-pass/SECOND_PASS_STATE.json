@@ -2,19 +2,27 @@
   "$schema": "./SECOND_PASS_STATE.schema.json",
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
-  "program_status": "in_progress",
-  "updated_at": "2026-08-14T06:55:43Z",
-  "session_id": "AURA-SP-000-BASELINE-20260813",
+  "program_status": "blocked",
+  "updated_at": "2026-08-15T09:32:18Z",
+  "session_id": "AURA-SP-001-DISMISSAL-FIX-20260815",
   "active_prompt": "SP-001",
-  "active_state": "pending",
+  "active_state": "blocked",
   "completed_prompts": ["SP-000"],
-  "blocked_prompts": [],
+  "blocked_prompts": ["SP-001"],
   "last_evidence_ids": [
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-01",
     "EV-OPEN-GAPS-20260809-FULL-AUDIT-01",
     "EV-SP-000-20260813-BASELINE-01",
-    "EV-SP-000-20260814-DELIVERY-01"
+    "EV-SP-000-20260814-DELIVERY-01",
+    "EV-SP-001-20260814-ATTEMPT-01",
+    "EV-SP-001-20260814-CLOSEOUT-02",
+    "EV-SP-001-20260814-LIVE-TRACE-03",
+    "EV-SP-001-20260814-CLOSEOUT-03",
+    "EV-SP-001-20260814-TRACE-FIX-04",
+    "EV-SP-001-20260814-LIVE-TRACE-FIX-05",
+    "EV-SP-001-20260814-CLOSEOUT-06",
+    "EV-SP-001-20260815-LIVE-DISMISSAL-07"
   ],
   "authority": {
     "edit": true,
@@ -41,5 +49,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-000 completed at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92; later descendants are projection-only. SP-001 is pending; execute only SP-001 after its Tier-0/Tier-1 read order, and do not batch or auto-advance."
+  "next_action": "SP-001 remains blocked after the post-fix dismissal fix and EV-SP-001-20260815-LIVE-DISMISSAL-07: preserve the source/live evidence, capture the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only after delivery."
 }

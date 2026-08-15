@@ -53,6 +53,31 @@ struct AuraStoreTests {
     #expect(count == 1)
   }
 
+  @Test func storePersistsOnlyRedactedTraceColumns() async throws {
+    let path = temporaryDatabasePath()
+    defer { cleanup(path: path) }
+
+    let store = try await AuraStore(path: path)
+    let requestID = UUID()
+    let record = RedactedTraceRecord(
+      correlationID: UUID(),
+      causationID: UUID(),
+      phase: "tool",
+      eventType: "tool.result",
+      requestID: requestID,
+      actionIdentifier: "app.terminate",
+      outcome: "verified")
+    try await store.appendTrace(record)
+
+    let rows = try await store.database.query(
+      sql: "SELECT * FROM redacted_trace_records;", arguments: [])
+    #expect(rows.count == 1)
+    #expect(rows.first?["request_id"]?.textValue == requestID.uuidString)
+    #expect(rows.first?["action_identifier"]?.textValue == "app.terminate")
+    #expect(rows.first?["outcome"]?.textValue == "verified")
+    #expect(rows.first?["payload_json"] == nil)
+  }
+
   @Test func entriesRespectsSinceAndLimit() async throws {
     let path = temporaryDatabasePath()
     defer { cleanup(path: path) }
