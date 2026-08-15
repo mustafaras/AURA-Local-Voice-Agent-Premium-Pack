@@ -98,6 +98,7 @@ extension AuraAppModel {
   func triggerEmergencyStop() {
     Task {
       await kernel?.triggerEmergencyStop()
+      resolveConfirmation(accepted: false, outcome: .cancelled)
       emergencyStopActive = true
       status = .stopped
       statusDetail = "Generated input is disabled until explicitly re-armed"

@@ -92,8 +92,25 @@ public actor AuraLogger {
       osLog.critical("\(fullMessage, privacy: .private)")
     }
 
-    // In bootstrap we simply emit to os.Logger; future phases may add file/ledger routing.
-    _ = entry
+    // Optional file sink for controlled evidence capture (e.g. SP-003 live runs).
+    // Enabled only when AURA_LOG_RESPONSE_TEXT=1; path defaults to a temp file.
+    if ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_TEXT"] == "1" {
+      let defaultPath = "/tmp/aura-sp003-live/aura-sp003-entries.log"
+      let path = ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_PATH"] ?? defaultPath
+      let line = "\(entry.timestamp.ISO8601Format()) [\(level.rawValue)] [\(subsystem):\(category)] \(fullMessage)\n"
+      if let data = line.data(using: .utf8) {
+        if FileManager.default.fileExists(atPath: path) {
+          if let handle = FileHandle(forWritingAtPath: path) {
+            _ = try? handle.seekToEnd()
+            try? handle.write(contentsOf: data)
+            try? handle.close()
+          }
+        } else {
+          let url = URL(fileURLWithPath: path)
+          try? data.write(to: url, options: .atomic)
+        }
+      }
+    }
   }
 
   public func trace(_ message: String, correlationID: UUID? = nil, actor: ActorID? = nil) async {

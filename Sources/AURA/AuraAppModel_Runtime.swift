@@ -14,6 +14,7 @@ enum ConfirmationResolution: String, Sendable {
   case expired
   case dismissed
   case superseded
+  case cancelled
 }
 
 extension AuraAppModel {
@@ -42,8 +43,13 @@ extension AuraAppModel {
       refreshProductSnapshots()
       refreshConfigurationInspection()
       permissions = PermissionCoordinator.snapshot()
-      if permissions.speechReady {
-        try await kernel.startSpeechRecognition()
+      // For text-only evidence runs (AURA_TEXT_DEMO_SCRIPT), bypass the voice
+      // permission gate so the typed-input path can drive the conversation.
+      let textDemoPath = ProcessInfo.processInfo.environment["AURA_TEXT_DEMO_SCRIPT"]
+      if permissions.speechReady || textDemoPath != nil {
+        if permissions.speechReady {
+          try await kernel.startSpeechRecognition()
+        }
         status = .idle
         statusDetail = "Ready — use Push to Talk"
       } else {

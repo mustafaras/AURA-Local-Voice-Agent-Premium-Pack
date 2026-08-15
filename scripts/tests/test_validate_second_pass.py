@@ -37,13 +37,17 @@ class SecondPassProgramTests(unittest.TestCase):
             self.assertEqual(previous["next_prompt"], current["id"])
 
     def test_state_and_handoff_are_locked_to_first_uncompleted_prompt(self):
-        self.assertEqual(self.state["active_prompt"], "SP-001")
-        self.assertEqual(self.state["active_state"], "blocked")
-        self.assertEqual(self.state["completed_prompts"], ["SP-000"])
-        self.assertEqual(self.state["blocked_prompts"], ["SP-001"])
-        handoff = (ROOT / "AURA_RUNTIME_COMPLETION/context/session-handoff.json").read_text()
-        self.assertIn('"id": "SP-001"', handoff)
-        self.assertIn("SECOND_PASS_LEDGER.md", handoff)
+        completed = self.state["completed_prompts"]
+        expected_active = self.manifest["prompts"][len(completed)]["id"]
+        self.assertEqual(self.state["active_prompt"], expected_active)
+        self.assertNotIn(expected_active, completed)
+        self.assertEqual(self.state["blocked_prompts"], [])
+        handoff = json.loads(
+            (ROOT / "AURA_RUNTIME_COMPLETION/context/session-handoff.json").read_text()
+        )
+        self.assertEqual(handoff["active_prompt"]["id"], expected_active)
+        self.assertEqual(handoff["active_prompt"]["state"], self.state["active_state"])
+        self.assertIn("SECOND_PASS_LEDGER.md", json.dumps(handoff))
 
 
 if __name__ == "__main__":

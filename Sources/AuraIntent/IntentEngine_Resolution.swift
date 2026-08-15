@@ -74,17 +74,43 @@ extension IntentEngine {
 
   func structuredProposal(from result: StructuredNLUResponse) -> StructuredNLUProposal? {
     guard let dialogueAct = DialogueAct(rawValue: result.dialogueAct),
-      let language = DialogueLanguage(rawValue: result.language),
-      let confidence = Double(result.confidence),
-      confidence >= 0,
-      confidence <= 1
+      let language = DialogueLanguage(rawValue: result.language)
     else { return nil }
+    guard let confidence = normalizedConfidence(from: result.confidence),
+      confidence >= 0, confidence <= 1 else { return nil }
     return StructuredNLUProposal(
       dialogueAct: dialogueAct,
       language: language,
       capabilityID: result.capabilityID.isEmpty ? nil : result.capabilityID,
       confidence: confidence,
       ambiguityReason: result.ambiguityReason.isEmpty ? nil : result.ambiguityReason)
+  }
+
+  /// Tolerate malformed model confidence outputs (empty, brackets, punctuation,
+  /// prose, or words such as high/medium/low) while keeping the value inside
+  /// [0, 1]. Returns nil only when no recoverable numeric token is present.
+  private func normalizedConfidence(from raw: String) -> Double? {
+    let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return nil }
+    // Map word confidences that may leak through even after upstream normalization.
+    switch trimmed.lowercased() {
+    case "high": return 0.85
+    case "medium": return 0.6
+    case "low": return 0.35
+    default: break
+    }
+    if let value = Double(trimmed), value >= 0, value <= 1 {
+      return value
+    }
+    // Extract the first numeric token (.9, 0.9, 1.0, etc.) from noisy prose.
+    guard let regex = try? NSRegularExpression(
+      pattern: #"[0-9]*\.?[0-9]+"#, options: []) else { return nil }
+    let range = NSRange(trimmed.startIndex..., in: trimmed)
+    guard let match = regex.firstMatch(in: trimmed, options: [], range: range),
+      let swiftRange = Range(match.range, in: trimmed),
+      let value = Double(String(trimmed[swiftRange]))
+    else { return nil }
+    return min(max(value, 0), 1)
   }
 
   func reconstructContext(

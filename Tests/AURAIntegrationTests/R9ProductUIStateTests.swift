@@ -206,6 +206,47 @@ struct R9ProductUIStateTests {
     #expect(rows.allSatisfy { $0["payload_json"] == nil })
   }
 
+  @Test("emergency stop cancels a pending confirmation and persists redacted trace")
+  @MainActor
+  func emergencyStopCancellationPersistsRedactedTrace() async throws {
+    let path = FileManager.default.temporaryDirectory
+      .appendingPathComponent("aura-emergency-cancel-(UUID().uuidString).sqlite").path
+    defer { try? FileManager.default.removeItem(atPath: path) }
+
+    let store = try await AuraStore(path: path)
+    let model = AuraAppModel(startRuntime: false)
+    model.eventBus = AuraEventBus(
+      logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "trace"),
+      tracePersistence: store)
+    let context = TurnContext(
+      sessionID: UUID(), correlationID: UUID(), causationID: UUID(),
+      activationSource: .text, actor: .user, authority: .userUtterance,
+      sensitivity: .internalLevel)
+    let challenge = PolicyConfirmationChallenge(
+      requestID: UUID(), sessionID: context.sessionID, nonce: "cancel-nonce",
+      issuedAt: Date(), requestedAction: .shellExec, targetSummary: "test",
+      riskTier: .reversible, expiresAt: Date().addingTimeInterval(60),
+      expectedHash: "cancel-hash", turnContext: context)
+
+    let pendingTask = Task { @MainActor in await model.awaitConfirmation(challenge) }
+    while model.pendingConfirmation == nil { await Task.yield() }
+    model.triggerEmergencyStop()
+    while model.pendingConfirmation != nil { await Task.yield() }
+    #expect(await pendingTask.value == false)
+    #expect(model.emergencyStopActive)
+
+    var rows = try await store.database.query(
+      sql: "SELECT * FROM redacted_trace_records ORDER BY rowid;", arguments: [])
+    for _ in 0..<50 where rows.count < 2 {
+      try await Task.sleep(for: .milliseconds(10))
+      rows = try await store.database.query(
+        sql: "SELECT * FROM redacted_trace_records ORDER BY rowid;", arguments: [])
+    }
+    #expect(rows.count == 2)
+    #expect(rows.map { $0["outcome"]?.textValue } == ["requested", "cancelled"])
+    #expect(rows.allSatisfy { $0["payload_json"] == nil })
+  }
+
   @MainActor
   private func makeMemoryRow(from record: MemoryRecord) -> AuraMemoryRow {
     AuraMemoryRow(

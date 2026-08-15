@@ -97,6 +97,25 @@ the decision from **Deferred**. The remaining live matrix is not satisfied,
 so `SP-001` stays blocked and `SP-002` stays unopened. Authority resets to
 edit-only. Evidence: `EV-SP-001-20260815-CLOSEOUT-09`.
 
+### 2026-08-15T11:17:34Z — DEC-SP-001-TRACE-PROJECTION completion update
+
+The bounded `SP-001` / `OPEN-02` decision is now **Accepted for prompt
+completion**. The current unsigned build directly persisted a matching
+`confirmation.cancelled` terminal outcome after emergency stop without
+execution, and the same live run proved truthful reversible execution and
+independent verification. This does not accept the broader R1/FINAL program
+gates or any release/security/provider/beta boundary. Evidence:
+`EV-SP-001-20260815-CANCELLATION-12`; authority resets to edit-only and
+`SP-002` remains pending/unopened.
+
+### 2026-08-15T11:29:26Z — DEC-SP-001-TRACE-PROJECTION mandatory closeout
+
+The accepted bounded `SP-001` / `OPEN-02` completion decision is confirmed by
+`EV-SP-001-20260815-CLOSEOUT-13` after the required validators and full local
+regression passed. This closeout does not accept first-pass R2–R12/FINAL or any
+release/security/provider/beta boundary. `SP-002` remains pending and unopened;
+authority is edit-only.
+
 - Add a row before implementing a material decision.
 - Do not mark `Accepted` until the ADR contains context, decision, alternatives, consequences, migration, security/privacy analysis, and verification plan.
 - Record supersession rather than rewriting history.

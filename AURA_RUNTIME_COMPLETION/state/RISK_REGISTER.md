@@ -137,3 +137,91 @@ the remaining risk is the unproven post-fix changed-plan, replay, cancellation,
 concurrent-turn isolation, and required failed-verification matrix. Authority
 resets to edit-only and no SP-002 transition is allowed. Evidence:
 `EV-SP-001-20260815-CLOSEOUT-09`.
+
+### 2026-08-15T10:44:08Z — SP-001 post-fix residual live matrix
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Open but narrowly bounded**. The
+direct current-build bundle proves post-fix changed-plan supersession, replay
+deny/no-replay, concurrent-turn correlation isolation, truthful failed-result
+handling, a reversible Calculator mutation with no-process verification, and
+the existing expiry/dismissal/allow paths. Emergency-stop was exercised while
+a safe confirmation was pending; it prevented execution, but the runtime
+emitted no distinct `confirmation.cancelled` terminal record and the request
+eventually expired. The missing cancellation postcondition remains inside
+`OPEN-02`; authority resets to edit-only and `SP-002` remains unopened.
+Evidence: `EV-SP-001-20260815-LIVE-RESIDUAL-10`.
+
+### 2026-08-15T10:55:08Z — SP-001 mandatory session closeout
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Open but narrowly bounded to
+cancellation**. The direct live residual and the mandatory closeout checks are
+recorded under `EV-SP-001-20260815-LIVE-RESIDUAL-10` and
+`EV-SP-001-20260815-CLOSEOUT-11`; the latter confirms 21/21 bundles,
+794/794 tests, all governance validators, 38/38 deterministic tests, syntax,
+compile, and diff checks. Authority is reset to edit-only. `SP-001` remains
+active/blocked and `SP-002` remains unopened because the emergency-stop path
+still lacks a distinct terminal `confirmation.cancelled` trace.
+### 2026-08-15T11:17:34Z — SP-001 OPEN-02 cancellation closure
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` is **Closed for the bounded SP-001 / OPEN-02 prompt scope** under `EV-SP-001-20260815-CANCELLATION-12`. The current unsigned build directly produced the redacted `confirmation.requested` → `confirmation.cancelled` → `policy intent.blocked` chain for a pending safe `/bin/sleep 20` request with no execution. The same run directly verified the accepted reversible Calculator mutation, `app.quit verified`, no Calculator process, normal quit/reopen no-replay, and final process cleanup. First-pass R2–R12, FINAL, TCC, provider, beta, signing, release, deployment, and telemetry risks remain open and are outside this prompt. `SP-002` is next pending, not opened.
+
+### 2026-08-15T11:29:26Z — SP-001 mandatory closeout
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Closed for bounded `SP-001` / `OPEN-02`**.
+The mandatory closeout record `EV-SP-001-20260815-CLOSEOUT-13` confirms the direct
+cancellation evidence, reversible mutation/no-process verification, restart no-replay,
+full local regression, and all required validators. First-pass R2–R12, FINAL, TCC,
+provider, beta, signing, release, deployment, and telemetry risks remain open outside
+this prompt. `SP-002` remains pending and unopened; authority is edit-only.
+
+### 2026-08-15T16:45:00Z — SP-002 OPEN-03 PTT/TCC closure with mock-STT accommodation
+
+`RISK-STT-MIC-NOT-CAPTURING` remains **Open** for the live on-device `SFSpeechRecognizer`/microphone path. SP-002 / OPEN-03 was closed for its bounded prompt gate under `EV-SP-002-20260815-PTT-MOCK-14` by using the deterministic mock-STT engine as a documented accessibility accommodation: the user is speech-disabled and cannot produce live voice input. The PTT/TCC/STT pipeline was proven end-to-end with the mock engine: AURA was built, launched, TCC Microphone and Speech Recognition prompts were allowed, and the UI Push-to-Talk button produced the transcript `hello` displayed as `You: hello`. The temporary `Configuration_STTConfiguration.defaultEngineID` change was reverted, the app was closed, and all governance validators passed. This closes the simulated-boundary PTT/TCC/STT composition gate for OPEN-03 only; it does not close the first-pass R2 / SP-003 / R7 live Turkish/English/mixed Speech.framework voice-input quality gates. Those remain open and must not be backfilled from mock-STT evidence. `RISK-ENGLISH-ONLY-INTENT` and `RISK-STRUCTURED-NLU-MODEL-QUALITY` remain mitigating for first-pass R2 seven-scenario live evidence. No first-pass product/release/beta/signing/deploy/telemetry/provider/TCC gate is closed by this accommodation. Evidence: `EV-SP-002-20260815-PTT-MOCK-14`.
+
+### 2026-08-15T14:44:48Z — SP-003 residual risks recorded
+
+- **Risk ID:** `RISK-SP-003-LIVE-VOICE-RESIDUAL`
+- **State:** Open / forwarded
+- **Owner:** SP-003 / R2 / R7
+- **Description:** User-present live microphone/TCC Turkish/English/mixed seven-scenario evidence is not feasible because the user is speech-disabled. The deterministic test evidence under `EV-SP-003-20260815-R2-DIALOGUE-TESTS-15` closes the source-side R2 dialogue/NLU contract only.
+- **Mitigation:** Documented as a residual live gate. Future work must either (a) obtain a speech-capable authorized operator for the hardware demonstration, or (b) accept a durable accessibility accommodation and update the product specification accordingly.
+- **Evidence:** `EV-SP-003-20260815-R2-DIALOGUE-TESTS-15`, `EV-SP-002-20260815-PTT-MOCK-14`
+
+- **Risk ID:** `RISK-SP-003-LIVE-MODEL-RESIDUAL`
+- **State:** Open / mitigating
+- **Owner:** R2 / R7
+- **Description:** No live Ollama daemon inference was run for SP-003; model variance, first-token latency, and structured-output validity under real load remain unproven.
+- **Mitigation:** Keep Ollama/model boundaries controlled by default; run a bounded live inference sweep only under explicit authority and memory profiling.
+- **Evidence:** `EV-SP-003-20260815-R2-DIALOGUE-TESTS-15`
+
+### 2026-08-15T18:23:13Z — SP-003 risks after live seven-scenario run and injection fix
+
+`RISK-SP-003-LIVE-VOICE-RESIDUAL` and `RISK-SP-003-LIVE-MODEL-RESIDUAL` (recorded 2026-08-15T14:44:48Z) were both raised against the retracted `EV-SP-003-20260815-R2-DIALOGUE-TESTS-15`. `RISK-SP-003-LIVE-MODEL-RESIDUAL` is now **closed**: live local inference was performed against `gemma4:latest` under `EV-SP-003-20260815-LIVE-7SCENARIO-16` and `EV-SP-003-20260815-INJECTION-FIX-17`, with 6 inferences per run, all reporting `isLocalModel == true` and a cloud inference count of 0. `RISK-SP-003-LIVE-VOICE-RESIDUAL` remains **open** and is owned by SP-002 / R7 live voice gates, not by SP-003.
+
+- **Risk ID:** `RISK-DIALOGUE-CONTEXT-INJECTION`
+- **Status:** Closed for the dialogue context path
+- **Owner:** SP-003 / R2 / R10
+- **Description:** Prompt-injection content carried inside an approved `DialogueContextItem` displaced the user's request; the live local model replied exactly `PWNED`. `PromptInjectionClassifier` detected the payload but was never invoked on the dialogue path, which defended only with a natural-language instruction.
+- **Mitigation:** `DialogueEngine` now screens every context summary through the classifier before prompt assembly, withholding blocked content while preserving provenance, and screens as non-authoritative regardless of the item's self-declared `authority`. Three deterministic regression tests assert against the captured prompt; the live seven-scenario run passes 25/25.
+- **Evidence:** `EV-SP-003-20260815-LIVE-7SCENARIO-16` (defect), `EV-SP-003-20260815-INJECTION-FIX-17` (fix)
+
+- **Risk ID:** `RISK-INJECTION-COVERAGE-NON-DIALOGUE`
+- **Status:** Open
+- **Owner:** R10 / security audit
+- **Description:** `PromptInjectionClassifier` is now enforced on the dialogue context path, but is not systematically applied to every other untrusted surface that can reach a model (agent tool output, screen OCR, repository files, mail/web content and similar). Coverage beyond the dialogue path is unproven.
+- **Mitigation:** Deliberately out of scope for OPEN-03's bounded objective; requires a dedicated cross-surface audit. Rule-based screening is also auditable rather than exhaustive — novel phrasings or obfuscation may evade the fixed rule set.
+- **Evidence:** `EV-SP-003-20260815-INJECTION-FIX-17`
+
+- **Risk ID:** `RISK-SP-003-NLU-DOWNGRADE-VARIANCE`
+- **Status:** Open (accepted, bounded)
+- **Owner:** SP-003 / R2 / R7
+- **Description:** `ClassificationResult.applying(_:)` fails a conversational turn closed to `.unknown`/`.clarify` whenever the structured-NLU model proposes a capability ID or a non-`answer` dialogue act. Observed intermittently with `gemma4:latest`: 2 of 4 model-backed turns in the pre-fix run, 0 of 4 in the post-fix run, with no code path linking the fix to the difference — run-to-run model nondeterminism. Safe in both directions, but it can intermittently cost the user a clarification round-trip on an ordinary question, weakening R2's "general questions return substantive model-backed answers" requirement.
+- **Mitigation:** The typed guard is the intended fail-closed behaviour and is not being relaxed; no raw model result reaches execution in either outcome. Accepted as bounded model variance for beta. Cross-model and repeat-run characterization is not done.
+- **Evidence:** `EV-SP-003-20260815-LIVE-7SCENARIO-16`, `EV-SP-003-20260815-INJECTION-FIX-17`
+
+- **Risk ID:** `RISK-SP-003-MODEL-LATENCY`
+- **Status:** Open (observation)
+- **Owner:** R7
+- **Description:** Model-backed dialogue turns measured 19.8–36.1 s wall-clock on this hardware against 0.08–16.0 ms for deterministic fast-path turns — four to five orders of magnitude apart. Relevant to any R7 latency budget and to first-token responsiveness targets.
+- **Mitigation:** Recorded as an observation only; no budget is set by SP-003.
+- **Evidence:** `EV-SP-003-20260815-LIVE-7SCENARIO-16`, `EV-SP-003-20260815-INJECTION-FIX-17`

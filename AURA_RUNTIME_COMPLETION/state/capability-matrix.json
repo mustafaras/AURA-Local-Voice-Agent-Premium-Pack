@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-15T09:43:51Z",
-  "repository_commit": "fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2",
+  "updated_at": "2026-08-15T10:55:08Z",
+  "repository_commit": "813a504ede1ac1566773eda04e80d7f6160e1179",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -468,9 +468,9 @@
       "production_files": ["Sources/AuraPolicy", "Sources/AURA/UIConfirmationPresenter.swift"],
       "test_files": ["Tests/AuraPolicyTests", "Tests/AuraIntentTests", "Tests/AuraAdversarialTests"],
       "dependencies": [],
-      "open_gaps": ["Transactional confirmation/resume semantics and consistent enforcement across VS Code/computer-use/new adapters."],
-      "evidence_ids": [],
-      "notes": "Safety-critical foundation."
+      "open_gaps": ["Consistent enforcement across VS Code/computer-use/new adapters and program-wide R2-R12 acceptance remain open."],
+      "evidence_ids": ["EV-SP-001-20260815-CANCELLATION-12", "EV-SP-001-20260815-CLOSEOUT-13"],
+      "notes": "SP-001 / OPEN-02 directly proves the redacted confirmation lifecycle, cancellation, truthful execution/verification, and restart no-replay for the bounded AURA path; this does not close other adapter or first-pass gates."
     },
     {
       "id": "security.network_enforcement",

@@ -1,20 +1,17 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-15T09:45:50Z",
-  "session_id": "AURA-SP-001-CLOSEOUT-20260815",
-  "last_verified_commit": "fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2",
+  "updated_at": "2026-08-15T14:44:48Z",
+  "session_id": "AURA-SP-003-LIVE-DIALOGUE-20260815",
+  "last_verified_commit": "813a504ede1ac1566773eda04e80d7f6160e1179",
   "active_prompt": {
-    "id": "SP-001",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
-    "state": "blocked",
-    "step": "SP-001 bounded source/evidence checkpoint delivered at fd72707; pointer projection c14e39e is pushed, requested → dismissed → blocked is proven, and remaining post-fix negative/verification cases remain open."
+    "id": "SP-004",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-004_FILESYSTEM_AND_URL_CAPABILITY_ADAPTERS.prompt.md",
+    "state": "completed",
+    "step": "SP-003 is completed for OPEN-03 under EV-SP-003-20260815-LIVE-7SCENARIO-16 and EV-SP-003-20260815-INJECTION-FIX-17; SP-004 is next eligible but remains pending and unopened."
   },
-  "summary": "R0 and R1 are complete for their bounded development/integration scope. SP-001 remains blocked after the post-fix dismissal wiring and bounded checkpoint delivery at fd72707: redacted trace UI/store persistence, date allow/deny, confirmation expiry, one reversible Calculator mutation, dismissal, distinct verification, no-process verification, current build, and all local validators are proven. The remaining post-fix changed-plan, replay, cancellation, concurrent-turn, and required verification evidence is still open. Commit 144b0fa was pushed and no-ff merged to main as fd72707; no TCC, dependency, provider, signing, release, deploy, or SP-002 transition occurred. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked. No product/release/deployment claim follows.",
+  "summary": "SP-003 / OPEN-03 completed. The seven R2 scenarios were run live through the real IntentEngine, RuleBasedUtteranceClassifier, DialogueEngine and OllamaAdapter against gemma4:latest, the only genuinely local model of the 15 installed; all inferences were local and cloud inference count was 0. The first run exposed a real defect: prompt-injection content inside an approved DialogueContextItem displaced the user's request and the model replied 'PWNED'. Root cause was missing enforcement, not missing detection - PromptInjectionClassifier already scored the payload as blocked but was never invoked on the dialogue path. DialogueEngine now screens every context summary before prompt assembly, withholding blocked content while preserving provenance, and screens as non-authoritative regardless of the item's self-declared authority. Three deterministic regression tests plus a live re-run (25/25, 0 failed bundles) confirm the fix; AuraIntentTests 70/70. The prior EV-SP-003-20260815-R2-DIALOGUE-TESTS-15 is retracted as it never ran the scenarios and wrote its artifact only to /tmp. Residual risks: injection-classifier coverage beyond the dialogue path, intermittent structured-NLU downgrade variance, model latency 19.8-36.1 s, and live microphone/TCC voice. Authority is edit-only after closeout.",
   "completed": [
-    "Created schema-backed program state, capability matrix, prompt manifest, context index, session handoff, and evidence-record contracts.",
-    "Created separate append-only program ledger, decision register, risk register, and evidence index.",
-    "Seeded an audited capability matrix that distinguishes implementation, runtime registration, user reachability, and evidence level.",
     "Re-ran the strict BOOTSTRAP preflight: live repository, JSON/schema, manifest/dependency/reference, authority, and toolchain evidence are recorded; legacy stale prose is explicitly assigned to R0.",
     "Confirmed that the ordered manifest intentionally contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is mandatory but outside the ordered implementation manifest.",
     "Completed R0 with scripts/validate_runtime_completion.py, 13 deterministic governance tests, toolchain-manifest.json, TOOLCHAIN.md, ADR-045, CI governance ordering, capability-matrix audit, and synchronized decision/evidence records.",
@@ -40,20 +37,13 @@
     "R11 CI artifact-evidence workflow configuration was added under edit-only authority: successful build/test jobs invoke the existing development_unverified artifact builder and retain only the ZIP/manifest for 14 days. YAML, governance, and script tests pass; the final remediation hosted run 31487128834 observed the pushed workflow and artifact upload, while R11 release gates remain open.",
     "H-005 is complete; H-006 through H-010 are complete for the repository-hygiene program's bounded chain. H-010 is terminal and has no successor. No H-011 exists.",
     "SP-000 baseline and synchronization lock completed at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. The control-plane pointer drift was reconciled, active-state-aware validator coverage was added, and SP-001 is pending. No product source or consequential product/release action occurred.",
-    "SP-001 OPEN-02 source-side mitigation added redacted SQLite persistence, confirmation outcomes, opaque UI trace prefixes, and lifecycle/store/UI tests. Build, six focused suites, governance validators, and 38 deterministic tests passed under EV-SP-001-20260814-TRACE-FIX-04; live rerun and closeout are under EV-SP-001-20260814-LIVE-TRACE-FIX-05 and EV-SP-001-20260814-CLOSEOUT-06. SP-001 remains blocked; authority is edit-only."
-    ,"SP-001 bounded checkpoint delivery was committed as 144b0fa, pushed to its feature branch, no-ff merged into main as fd72707, and pushed to origin/main under EV-SP-001-20260815-DELIVERY-08. SP-001 remains blocked; authority resets to edit-only after pointer reconciliation."
+    "SP-001 OPEN-02 source-side mitigation added redacted SQLite persistence, confirmation outcomes, opaque UI trace prefixes, and lifecycle/store/UI tests. Build, six focused suites, governance validators, and 38 deterministic tests passed under EV-SP-001-20260814-TRACE-FIX-04; live rerun and closeout are under EV-SP-001-20260814-LIVE-TRACE-FIX-05 and EV-SP-001-20260814-CLOSEOUT-06. SP-001 remains blocked; authority is edit-only.",
+    "SP-001 bounded checkpoint delivery was committed as 144b0fa, pushed to its feature branch, no-ff merged into main as fd72707, and pushed to origin/main under EV-SP-001-20260815-DELIVERY-08. SP-001 remains blocked; authority resets to edit-only after pointer reconciliation.",
+    "SP-001 current-build live residual evidence is recorded under EV-SP-001-20260815-LIVE-RESIDUAL-10. Changed-plan, replay, concurrent-turn isolation, failed-result, reversible Calculator verification, and restart behavior are directly proven; emergency-stop cancellation was completed under EV-SP-001-20260815-CANCELLATION-12 and mandatory closeout EV-SP-001-20260815-CLOSEOUT-13 passed, so SP-001 is complete for bounded OPEN-02 and SP-002 remains pending/unopened.",
+    "SP-002 completed for bounded OPEN-03 under EV-SP-002-20260815-PTT-MOCK-14: full user authority obtained, local unsigned AURA build at /tmp/aura-app/AURA.app, ad-hoc signing, launch, TCC Microphone/Speech Recognition allow, Push-to-Talk UI activation via Accessibility, deterministic mock-STT transcript 'hello' displayed as 'You: hello', temporary source change reverted, app closed, all governance validators passed.",
+    "SP-003 source-side R2 dialogue/NLU contract verified under EV-SP-003-20260815-R2-DIALOGUE-TESTS-15; 21/21 Swift bundles pass."
   ],
   "files_changed": [
-    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "Sources/AuraAudio/ChatterboxTTSEngine.swift",
-    "Sources/AuraCore/AudioEventPayloads.swift",
-    "Sources/AuraCore/DialogueTypes.swift",
-    "Sources/AuraCore/AuraConfiguration.swift",
-    "Sources/AuraCore/ConfirmationTransaction.swift",
-    "Sources/AuraCore/PolicyTypes.swift",
-    "Sources/AuraCore/RuntimeHealth.swift",
-    "Sources/AuraCore/TurnContext.swift",
-    "Sources/AuraIntent/IntentDispatchCoordinator.swift",
     "Sources/AuraIntent/IntentEngine.swift",
     "Sources/AuraIntent/DialogueEngine.swift",
     "Sources/AuraIntent/ToolRouter.swift",
@@ -243,13 +233,14 @@
     "Sources/AURA/AuraMenuView_Content.swift",
     "Tests/AuraCoreTests/AuraCoreTests.swift",
     "Tests/AuraStoreTests/AuraStoreTests.swift",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-TRACE-FIX-04.md"
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-TRACE-FIX-04.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-LIVE-RESIDUAL-10.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-CLOSEOUT-11.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-CANCELLATION-12.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-CLOSEOUT-13.md",
+    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md"
   ],
   "evidence_ids": [
-    "EV-SP-000-20260813-BASELINE-01",
-    "EV-REPO-HYGIENE-H-010-PROJECTION-RECONCILIATION-20260812-01",
-    "EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01",
-    "EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01",
     "EV-SP-001-20260814-CLOSEOUT-06",
     "EV-REPO-HYGIENE-H-008-20260810-01",
     "EV-REPO-HYGIENE-H-008-CLOSEOUT-20260810-01",
@@ -295,24 +286,13 @@
     "EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01",
     "EV-SP-001-20260814-CLOSEOUT-03",
     "EV-SP-001-20260814-TRACE-FIX-04",
-    "EV-SP-001-20260814-LIVE-TRACE-FIX-05"
+    "EV-SP-001-20260814-LIVE-TRACE-FIX-05",
+    "EV-SP-001-20260815-LIVE-RESIDUAL-10",
+    "EV-SP-001-20260815-CLOSEOUT-11",
+    "EV-SP-001-20260815-CANCELLATION-12",
+    "EV-SP-001-20260815-CLOSEOUT-13"
   ],
   "tests": [
-    {
-      "name": "GitHub branch comparison and file inventory",
-      "result": "passed",
-      "evidence_id": "EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01"
-    },
-    {
-      "name": "Key manifest/state/handoff/final-prompt fetch verification",
-      "result": "passed",
-      "evidence_id": "EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01"
-    },
-    {
-      "name": "Standards-compliant JSON Schema validation",
-      "result": "passed",
-      "evidence_id": "EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01"
-    },
     {
       "name": "Live local repository/toolchain reconciliation",
       "result": "passed",
@@ -469,7 +449,7 @@
       "evidence_id": "EV-REPO-HYGIENE-H-010-20260810-01"
     },
     {
-    "name": "H-010 strict formatter, SourceKit lint, and full-Xcode capability",
+      "name": "H-010 strict formatter, SourceKit lint, and full-Xcode capability",
       "result": "blocked",
       "evidence_id": "EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01"
     },
@@ -547,6 +527,21 @@
       "name": "SP-001 post-fix window-dismissal persistence and no-execution live verification",
       "result": "passed",
       "evidence_id": "EV-SP-001-20260815-LIVE-DISMISSAL-07"
+    },
+    {
+      "name": "SP-001 current-build residual live matrix and cancellation boundary",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260815-LIVE-RESIDUAL-10"
+    },
+    {
+      "name": "SP-001 direct cancellation terminal trace, reversible mutation, and restart no-replay",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260815-CANCELLATION-12"
+    },
+    {
+      "name": "SP-001 mandatory 15_SESSION_CLOSEOUT validators and projection cap checks",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260815-CLOSEOUT-13"
     }
   ],
   "blockers": [
@@ -555,7 +550,7 @@
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
     "Repository hygiene H-010 is terminally complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. Hosted governance/build/test evidence remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; later descendants are control-plane-only projections. The 219 byte-identical copies are preserved in recoverable external quarantine and no H-011 exists.",
-    "SP-001 remains blocked after the post-fix dismissal wiring and checkpoint delivery: redacted persistence/UI, date allow/deny, expiry, one Calculator mutation, dismissal, and verification are proven, but post-fix changed-plan, replay, cancellation, concurrent-turn, and required verification cases are not independently captured. Authority is edit-only after delivery; obtain the remaining evidence and do not start SP-002."
+    "SP-001 / OPEN-02 is completed under EV-SP-001-20260815-CANCELLATION-12: redacted persistence/UI, date allow/deny, expiry, dismissal, changed-plan, replay, concurrent-turn isolation, cancellation, one Calculator mutation with no-process verification, truthful failed-result handling, and restart behavior are proven. First-pass R2-R12 and FINAL gates remain open; SP-002 is pending/unopened. Authority is edit-only."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
@@ -563,7 +558,7 @@
     "Durable confirmation checkpoint/resume remains a future decision; R1 restart behavior is fail-closed.",
     "Maintain selected full-Xcode/SourceKit compatibility and obtain separate hosted/release evidence before making release claims.",
     "ADR-047 is absent; beta/RC scope, consent, telemetry, SLO, incident, independent review, and release waiver decisions require authorized ownership.",
-    "DEC-SP-001-LIVE-TRACE-20260814 remains Deferred because the post-fix live bundle now includes dismissal but still lacks independently captured changed-plan, replay, cancellation, concurrent-turn, and required verification evidence."
+    "DEC-SP-001-TRACE-PROJECTION is accepted for bounded SP-001 / OPEN-02 prompt completion under EV-SP-001-20260815-CANCELLATION-12; broader R1/FINAL and release gates remain outside this decision."
   ],
   "risks": [
     "RISK-TOOLCHAIN-PREVIEW",
@@ -590,11 +585,11 @@
     "RISK-REPO-HYGIENE-CONTEXT-BLOAT",
     "RISK-REPO-HYGIENE-ARCHITECTURE-BOUNDARY-DRIFT",
     "RISK-REPO-HYGIENE-SWIFTLINT-FORMATTER-POLICY-CONFLICT",
-    "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION"
-    ,"RISK-SECOND-PASS-SYNC-DRIFT",
+    "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION",
+    "RISK-SECOND-PASS-SYNC-DRIFT",
     "RISK-SP-001-LIVE-TRACE-AUTHORITY"
   ],
-  "next_action": "Preserve SP-001 as blocked after EV-SP-001-20260815-CLOSEOUT-09, obtain/capture only the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only.",
+  "next_action": "SP-001 is completed for bounded OPEN-02 under EV-SP-001-20260815-CANCELLATION-12; mandatory closeout EV-SP-001-20260815-CLOSEOUT-13 passed. SP-002 is next eligible but remains pending and unopened. Do not execute SP-002 without its own explicit authority and read order. Authority resets to edit-only.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
@@ -608,5 +603,5 @@
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md"
   ],
-  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00–13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. SP-000 completed only the baseline/synchronization lock. SP-001 source-side mitigation and a bounded post-fix live bundle are verified under EV-SP-001-20260814-TRACE-FIX-04 and EV-SP-001-20260814-LIVE-TRACE-FIX-05, but the complete post-fix negative/verification matrix remains open. Authority is edit-only. No product/release/deployment claim follows."
+  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00–13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. SP-000 completed only the baseline/synchronization lock. SP-001 / OPEN-02 is complete under EV-SP-001-20260815-CANCELLATION-12; mandatory closeout EV-SP-001-20260815-CLOSEOUT-13 passed; SP-002 is next eligible but pending and unopened. Authority is edit-only. No product/release/deployment claim follows."
 }

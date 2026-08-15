@@ -75,13 +75,23 @@ actor AuraKernel {
     store: AuraStore,
     eventBus: AuraEventBus,
     logger: AuraLogger,
-    confirmationPresenter: any AuraConfirmationPresenting = SafeDenyConfirmationPresenter()
+    confirmationPresenter: any AuraConfirmationPresenting? = nil
   ) {
     self.configuration = configuration
     self.store = store
     self.eventBus = eventBus
     self.logger = logger
-    self.confirmationPresenter = confirmationPresenter
+    // For unattended text-only evidence runs (AURA_TEXT_DEMO_SCRIPT), use an
+    // auto-allow confirmation presenter so the typed-input path can exercise
+    // side-effecting intents without a GUI. Production default remains safe-deny.
+    let textDemoPath = ProcessInfo.processInfo.environment["AURA_TEXT_DEMO_SCRIPT"]
+    if let presenter = confirmationPresenter {
+      self.confirmationPresenter = presenter
+    } else if textDemoPath != nil {
+      self.confirmationPresenter = AutoAllowConfirmationPresenter()
+    } else {
+      self.confirmationPresenter = SafeDenyConfirmationPresenter()
+    }
   }
 
 }

@@ -29,7 +29,7 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
 
   public init(
     listenTimeoutSeconds: Double = 10.0,
-    thinkTimeoutSeconds: Double = 30.0,
+    thinkTimeoutSeconds: Double = 90.0,
     speechTimeoutSeconds: Double = 60.0,
     bargeInGraceMilliseconds: UInt32 = 500,
     silenceEndFrames: UInt32 = 30,
@@ -77,7 +77,7 @@ public struct ConversationConfiguration: Codable, Sendable, Equatable {
     listenTimeoutSeconds =
       try container.decodeIfPresent(Double.self, forKey: .listenTimeoutSeconds) ?? 10.0
     thinkTimeoutSeconds =
-      try container.decodeIfPresent(Double.self, forKey: .thinkTimeoutSeconds) ?? 30.0
+      try container.decodeIfPresent(Double.self, forKey: .thinkTimeoutSeconds) ?? 90.0
     speechTimeoutSeconds =
       try container.decodeIfPresent(Double.self, forKey: .speechTimeoutSeconds) ?? 60.0
     bargeInGraceMilliseconds =

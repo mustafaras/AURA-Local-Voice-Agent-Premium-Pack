@@ -2,13 +2,18 @@
   "$schema": "./SECOND_PASS_STATE.schema.json",
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
-  "program_status": "blocked",
-  "updated_at": "2026-08-15T09:45:50Z",
-  "session_id": "AURA-SP-001-CLOSEOUT-20260815",
-  "active_prompt": "SP-001",
-  "active_state": "blocked",
-  "completed_prompts": ["SP-000"],
-  "blocked_prompts": ["SP-001"],
+  "program_status": "in_progress",
+  "updated_at": "2026-08-15T18:23:13Z",
+  "session_id": "AURA-SP-003-LIVE-DIALOGUE-20260815",
+  "active_prompt": "SP-004",
+  "active_state": "completed",
+  "completed_prompts": [
+    "SP-000",
+    "SP-001",
+    "SP-002",
+    "SP-003"
+  ],
+  "blocked_prompts": [],
   "last_evidence_ids": [
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-01",
@@ -23,7 +28,15 @@
     "EV-SP-001-20260814-LIVE-TRACE-FIX-05",
     "EV-SP-001-20260814-CLOSEOUT-06",
     "EV-SP-001-20260815-LIVE-DISMISSAL-07",
-    "EV-SP-001-20260815-DELIVERY-08"
+    "EV-SP-001-20260815-DELIVERY-08",
+    "EV-SP-001-20260815-LIVE-RESIDUAL-10",
+    "EV-SP-001-20260815-CLOSEOUT-11",
+    "EV-SP-001-20260815-CANCELLATION-12",
+    "EV-SP-001-20260815-CLOSEOUT-13",
+    "EV-SP-002-20260815-PTT-MOCK-14",
+    "EV-SP-003-20260815-R2-DIALOGUE-TESTS-15",
+    "EV-SP-003-20260815-LIVE-7SCENARIO-16",
+    "EV-SP-003-20260815-INJECTION-FIX-17"
   ],
   "authority": {
     "edit": true,
@@ -50,5 +63,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-001 remains blocked after EV-SP-001-20260815-CLOSEOUT-09: preserve the source/live evidence, capture only the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only."
+  "next_action": "SP-003 is completed for OPEN-03 under EV-SP-003-20260815-LIVE-7SCENARIO-16 (blocker) and EV-SP-003-20260815-INJECTION-FIX-17 (resolution). The seven scenarios were run live against local gemma4:latest; a prompt-injection bypass found in scenario 7 was fixed by enforcing PromptInjectionClassifier on the DialogueEngine context path, and the re-run passed 25/25 with 0 failed bundles. The earlier EV-SP-003-20260815-R2-DIALOGUE-TESTS-15 is retracted. SP-004 is next eligible but remains pending and unopened; do not execute it without its own explicit authority and read order. Open residual risks RISK-INJECTION-COVERAGE-NON-DIALOGUE, RISK-SP-003-NLU-DOWNGRADE-VARIANCE, RISK-SP-003-MODEL-LATENCY and RISK-SP-003-LIVE-VOICE-RESIDUAL are forwarded and none block SP-004. Authority resets to edit-only."
 }

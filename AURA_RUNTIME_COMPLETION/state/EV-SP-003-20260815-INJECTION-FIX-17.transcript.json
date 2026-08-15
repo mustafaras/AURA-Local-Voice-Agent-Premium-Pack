@@ -1,0 +1,224 @@
+{
+  "allInferencesLocal" : true,
+  "allowCloudModels" : false,
+  "baseURL" : "http:\/\/127.0.0.1:11434",
+  "degradedReasons" : [
+    "healthCheckFailed"
+  ],
+  "generatedAt" : "2026-08-15T18:21:53Z",
+  "inferenceCount" : 6,
+  "model" : "gemma4:latest",
+  "modelBackedTurns" : 4,
+  "modelIsLocal" : true,
+  "modelParameterSize" : "8.0B",
+  "scenarios" : [
+    {
+      "ambiguityReasons" : [
+
+      ],
+      "backend" : "ollama\/local",
+      "classificationConfidence" : 1,
+      "degraded" : false,
+      "dialogueAct" : "answer",
+      "drivesModel" : true,
+      "index" : 1,
+      "intentKind" : "converse",
+      "isAmbiguous" : false,
+      "language" : "turkish",
+      "latencyMilliseconds" : 30252.2,
+      "modelID" : "gemma4:latest",
+      "outcome" : "answered",
+      "requiresMandatoryConfirmation" : false,
+      "responseCharacterCount" : 194,
+      "responsePreview" : "Merhaba! Size bilgi sağlamak, sorularınızı yanıtlamak, metin oluşturma, özetleme ve günlük görevlerinizde size yardımcı olmak gibi konularda destek olabilirim. Ne konuda yardıma ihtiyacınız var?",
+      "semanticCategory" : "converse",
+      "slots" : {
+
+      },
+      "sourceIDs" : [
+
+      ],
+      "structuredNLUDowngraded" : false,
+      "title" : "General question in Turkish",
+      "utterance" : "Merhaba, yerel bir asistan olarak ne yapabilirsin?"
+    },
+    {
+      "ambiguityReasons" : [
+
+      ],
+      "backend" : "ollama\/local",
+      "classificationConfidence" : 1,
+      "degraded" : false,
+      "dialogueAct" : "answer",
+      "drivesModel" : true,
+      "index" : 2,
+      "intentKind" : "converse",
+      "isAmbiguous" : false,
+      "language" : "english",
+      "latencyMilliseconds" : 36131.78,
+      "modelID" : "gemma4:latest",
+      "outcome" : "answered",
+      "requiresMandatoryConfirmation" : false,
+      "responseCharacterCount" : 458,
+      "responsePreview" : "A local voice assistant is software that processes voice commands and performs tasks entirely on your physical device, meaning the data does not need to be transmitted to a remote server or the cloud for processing.\n\nPrivacy is important for a local assistant because, by handling the data on the device itself, it significantly reduces the risk of your voice recordings and sensitive information being intercepted, stored, or misused by third-party servers.",
+      "semanticCategory" : "converse",
+      "slots" : {
+
+      },
+      "sourceIDs" : [
+
+      ],
+      "structuredNLUDowngraded" : false,
+      "title" : "General question in English",
+      "utterance" : "Hello, what is a local voice assistant and why is privacy important for one?"
+    },
+    {
+      "ambiguityReasons" : [
+
+      ],
+      "backend" : "deterministic fast path",
+      "classificationConfidence" : 0.85,
+      "degraded" : false,
+      "dialogueAct" : "execute",
+      "drivesModel" : false,
+      "index" : 3,
+      "intentKind" : "shellExecute",
+      "isAmbiguous" : false,
+      "language" : "mixed",
+      "latencyMilliseconds" : 15.98,
+      "outcome" : "classified",
+      "requiresMandatoryConfirmation" : false,
+      "responseCharacterCount" : 0,
+      "responsePreview" : "",
+      "semanticCategory" : "shellExecute",
+      "slots" : {
+        "arguments" : "",
+        "executable" : "\/bin\/date"
+      },
+      "sourceIDs" : [
+
+      ],
+      "structuredNLUDowngraded" : false,
+      "title" : "Mixed-language technical command",
+      "utterance" : "lütfen run date"
+    },
+    {
+      "ambiguityReasons" : [
+
+      ],
+      "backend" : "deterministic fast path",
+      "classificationConfidence" : 0.85,
+      "degraded" : false,
+      "dialogueAct" : "execute",
+      "drivesModel" : false,
+      "index" : 4,
+      "intentKind" : "appActivate",
+      "isAmbiguous" : false,
+      "language" : "turkish",
+      "latencyMilliseconds" : 3.76,
+      "outcome" : "classified",
+      "requiresMandatoryConfirmation" : false,
+      "responseCharacterCount" : 0,
+      "responsePreview" : "",
+      "semanticCategory" : "appActivate",
+      "slots" : {
+        "bundleIdentifier" : "com.apple.Safari"
+      },
+      "sourceIDs" : [
+
+      ],
+      "structuredNLUDowngraded" : false,
+      "title" : "Paraphrased application command (Turkish morphology)",
+      "utterance" : "lütfen Safari'yi açar mısın"
+    },
+    {
+      "ambiguityReasons" : [
+        "application target is not registered"
+      ],
+      "backend" : "deterministic fast path",
+      "classificationConfidence" : 0.3,
+      "degraded" : false,
+      "dialogueAct" : "clarify",
+      "drivesModel" : false,
+      "index" : 5,
+      "intentKind" : "unknown",
+      "isAmbiguous" : true,
+      "language" : "english",
+      "latencyMilliseconds" : 0.11,
+      "outcome" : "clarification-requested",
+      "requiresMandatoryConfirmation" : false,
+      "responseCharacterCount" : 0,
+      "responsePreview" : "",
+      "semanticCategory" : "unknown",
+      "slots" : {
+        "unresolvedAppName" : "photoshop"
+      },
+      "sourceIDs" : [
+
+      ],
+      "structuredNLUDowngraded" : false,
+      "title" : "Ambiguous request produces clarification",
+      "utterance" : "open Photoshop"
+    },
+    {
+      "ambiguityReasons" : [
+
+      ],
+      "backend" : "none (degraded)",
+      "classificationConfidence" : 1,
+      "degraded" : true,
+      "dialogueAct" : "answer",
+      "drivesModel" : true,
+      "index" : 6,
+      "intentKind" : "converse",
+      "isAmbiguous" : false,
+      "language" : "turkish",
+      "latencyMilliseconds" : 126.54,
+      "outcome" : "degraded-honest",
+      "requiresMandatoryConfirmation" : false,
+      "responseCharacterCount" : 80,
+      "responsePreview" : "Yerel yanıt modeli şu anda kullanılamıyor. Lütfen isteğinizi yeniden ifade edin.",
+      "semanticCategory" : "converse",
+      "slots" : {
+
+      },
+      "sourceIDs" : [
+
+      ],
+      "structuredNLUDowngraded" : false,
+      "title" : "Local model unavailable degrades honestly",
+      "utterance" : "Merhaba, bugün bana nasıl yardımcı olabilirsin?"
+    },
+    {
+      "ambiguityReasons" : [
+
+      ],
+      "backend" : "ollama\/local",
+      "classificationConfidence" : 1,
+      "degraded" : false,
+      "dialogueAct" : "answer",
+      "drivesModel" : true,
+      "index" : 7,
+      "intentKind" : "converse",
+      "isAmbiguous" : false,
+      "language" : "turkish",
+      "latencyMilliseconds" : 30230.13,
+      "modelID" : "gemma4:latest",
+      "outcome" : "answered",
+      "requiresMandatoryConfirmation" : false,
+      "responseCharacterCount" : 160,
+      "responsePreview" : "Ben bir yapay zeka dil modeliyim ve size bilgi sağlamak, sorularınızı yanıtlamak ve sohbet konularında yardımcı olmak için buradayım. Nasıl yardımcı olabilirim?",
+      "semanticCategory" : "converse",
+      "slots" : {
+
+      },
+      "sourceIDs" : [
+        "sp003-context-001"
+      ],
+      "structuredNLUDowngraded" : false,
+      "title" : "Trace and context provenance inspection",
+      "utterance" : "Kısaca kendini tanıtır mısın?"
+    }
+  ],
+  "structuredNLUDowngrades" : 0
+}

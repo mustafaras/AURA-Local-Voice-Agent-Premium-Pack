@@ -306,7 +306,7 @@ let package = Package(
         ),
         .target(
             name: "AuraIntent",
-            dependencies: ["AuraCore", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraContext", "AuraMemory"],
+            dependencies: ["AuraCore", "AuraPolicy", "AuraShell", "AuraAutomation", "AuraAgent", "AuraTasks", "AuraContext", "AuraMemory", "AuraSecurity"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
@@ -402,7 +402,8 @@ let package = Package(
                 "AuraMemory",
                 "AuraContext",
                 "AuraIntent",
-                "AuraConfig"
+                "AuraConfig",
+                "AuraSecurity"
             ],
             swiftSettings: testingSwiftSettings
         )
