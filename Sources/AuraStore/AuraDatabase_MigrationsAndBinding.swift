@@ -83,6 +83,16 @@ extension AuraDatabase {
     """,
     "CREATE INDEX IF NOT EXISTS idx_plugin_audit_plugin_timestamp "
       + "ON plugin_audit_records(plugin_id, timestamp);",
+    """
+    CREATE TABLE IF NOT EXISTS redacted_trace_records (
+      id TEXT PRIMARY KEY, timestamp DATETIME NOT NULL,
+      correlation_id TEXT NOT NULL, causation_id TEXT NOT NULL,
+      phase TEXT NOT NULL, event_type TEXT NOT NULL,
+      request_id TEXT, action_identifier TEXT, outcome TEXT NOT NULL
+    );
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_redacted_trace_correlation "
+      + "ON redacted_trace_records(correlation_id, timestamp);",
   ]
 
   public func migrate() throws(AuraError) {
@@ -100,6 +110,7 @@ extension AuraDatabase {
         sql: "ALTER TABLE memory_records ADD COLUMN purpose TEXT NOT NULL DEFAULT 'unspecified';")
     }
     try recordMigration(version: "v1_5_0_memory_purpose")
+    try recordMigration(version: "v1_6_0_redacted_trace_records")
     try enableForeignKeys()
   }
 

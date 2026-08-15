@@ -38,8 +38,9 @@ class SecondPassProgramTests(unittest.TestCase):
 
     def test_state_and_handoff_are_locked_to_first_uncompleted_prompt(self):
         self.assertEqual(self.state["active_prompt"], "SP-001")
-        self.assertEqual(self.state["active_state"], "pending")
+        self.assertEqual(self.state["active_state"], "blocked")
         self.assertEqual(self.state["completed_prompts"], ["SP-000"])
+        self.assertEqual(self.state["blocked_prompts"], ["SP-001"])
         handoff = (ROOT / "AURA_RUNTIME_COMPLETION/context/session-handoff.json").read_text()
         self.assertIn('"id": "SP-001"', handoff)
         self.assertIn("SECOND_PASS_LEDGER.md", handoff)

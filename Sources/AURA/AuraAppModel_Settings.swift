@@ -50,12 +50,20 @@ extension AuraAppModel {
   }
 
   func quit() {
-    resolveConfirmation(accepted: false)
+    resolveConfirmation(accepted: false, outcome: .dismissed)
     emergencyShortcutMonitor.stop()
     Task {
       await kernel?.stop()
       NSApplication.shared.terminate(nil)
     }
+  }
+
+  /// WindowGroup close is a SwiftUI scene-lifecycle event and does not call
+  /// the application menu's explicit quit action. Preserve the same
+  /// fail-closed, redacted dismissal outcome on that user-visible path.
+  func dismissPendingConfirmationForWindowClose() {
+    guard pendingConfirmation != nil else { return }
+    resolveConfirmation(accepted: false, outcome: .dismissed)
   }
 
   func configureConfirmationPresenter() async {

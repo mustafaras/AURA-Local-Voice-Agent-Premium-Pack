@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-14T06:55:43Z",
-  "session_id": "AURA-SP-000-BASELINE-20260813",
-  "last_verified_commit": "d82fde6be6e95bc8d3ccb64341bd2538baf12a92",
+  "updated_at": "2026-08-15T09:32:18Z",
+  "session_id": "AURA-SP-001-DISMISSAL-FIX-20260815",
+  "last_verified_commit": "76ce21ab423bd3c828e3386fb7174bf11ec56862",
   "active_prompt": {
     "id": "SP-001",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
-    "state": "pending",
-    "step": "SP-000 baseline and synchronization lock completed; SP-001 is the only eligible next prompt."
+    "state": "blocked",
+    "step": "SP-001 post-fix dismissal wiring and live evidence completed; build/integration pass, requested → dismissed → blocked is proven, and remaining post-fix negative/verification cases remain open."
   },
-  "summary": "R0 and R1 are complete for their bounded scope. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked with no beta enrollment, telemetry activation, signing, notarization, installation, publication, or deployment authority. Repository-hygiene H-010 is terminally complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92; later descendants are control-plane-only projections, the terminal H-000..H-010 prompt definitions remain locatable through the hygiene manifest, and no H-011 exists. SP-000 baseline and synchronization lock is complete; SP-001 is pending. No product/release/deployment claim follows.",
+  "summary": "R0 and R1 are complete for their bounded development/integration scope. SP-001 remains blocked after the post-fix dismissal wiring and live rerun: redacted trace UI/store persistence, date allow/deny, confirmation expiry, one reversible Calculator mutation, dismissal, distinct verification, no-process verification, current build, and all local validators are proven. The remaining post-fix changed-plan, replay, cancellation, concurrent-turn, and required verification evidence is still open. No TCC, dependency, provider, signing, release, deploy, commit, push, or merge action occurred in the live/source attempt. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked. No product/release/deployment claim follows.",
   "completed": [
     "Created schema-backed program state, capability matrix, prompt manifest, context index, session handoff, and evidence-record contracts.",
     "Created separate append-only program ledger, decision register, risk register, and evidence index.",
@@ -39,24 +39,11 @@
     "R11 artifact/manifest first slice was implemented and locally verified under EV-R11-20260809-ARTIFACT-MANIFEST-01: development_unverified reproducible ZIP, 13-file bundle inventory/SBOM, checksum-bound manifest, fail-closed release status, 4/4 focused tests, 17/17 governance tests, and release validation blocked by missing full Xcode.",
     "R11 CI artifact-evidence workflow configuration was added under edit-only authority: successful build/test jobs invoke the existing development_unverified artifact builder and retain only the ZIP/manifest for 14 days. YAML, governance, and script tests pass; the final remediation hosted run 31487128834 observed the pushed workflow and artifact upload, while R11 release gates remain open.",
     "H-005 is complete; H-006 through H-010 are complete for the repository-hygiene program's bounded chain. H-010 is terminal and has no successor. No H-011 exists.",
-    "SP-000 baseline and synchronization lock completed at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. The control-plane pointer drift was reconciled, active-state-aware validator coverage was added, and SP-001 is pending. No product source or consequential product/release action occurred."
+    "SP-000 baseline and synchronization lock completed at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. The control-plane pointer drift was reconciled, active-state-aware validator coverage was added, and SP-001 is pending. No product source or consequential product/release action occurred.",
+    "SP-001 OPEN-02 source-side mitigation added redacted SQLite persistence, confirmation outcomes, opaque UI trace prefixes, and lifecycle/store/UI tests. Build, six focused suites, governance validators, and 38 deterministic tests passed under EV-SP-001-20260814-TRACE-FIX-04; live rerun and closeout are under EV-SP-001-20260814-LIVE-TRACE-FIX-05 and EV-SP-001-20260814-CLOSEOUT-06. SP-001 remains blocked; authority is edit-only."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "TOOLCHAIN.md",
-    "docs/decisions/ADR-045-toolchain-release-pipeline.md",
-    "docs/decisions/ADR-035-turn-context-trace-correctness.md",
-    "docs/decisions/ADR-037-runtime-health-and-confirmation-transactions.md",
-    "docs/decisions/ADR-036-bilingual-nlu-dialogue-routing.md",
-    "Sources/AURA/AuraAppModel.swift",
-    "Sources/AURA/AuraKernel.swift",
-    "Sources/AURA/AuraMenuView.swift",
-    "Sources/AURA/ProductUIState.swift",
-    "Tests/AURAIntegrationTests/R9ProductUIStateTests.swift",
-    "Sources/AURA/ConversationEventBridge.swift",
-    "Sources/AURA/PushToTalkSessionFinalizer.swift",
-    "Sources/AuraAgent/Conversation.swift",
-    "Sources/AuraAudio/WakeWordPipeline.swift",
     "Sources/AuraAudio/ChatterboxTTSEngine.swift",
     "Sources/AuraCore/AudioEventPayloads.swift",
     "Sources/AuraCore/DialogueTypes.swift",
@@ -154,7 +141,6 @@
     "scripts/validate_second_pass_program.py",
     "scripts/tests/test_validate_second_pass.py",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-002_MICROPHONE_AND_TCC_PUSH_TO_TALK.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-003_SEVEN_LIVE_BILINGUAL_DIALOGUE_SCENARIOS.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-004_FILESYSTEM_AND_URL_CAPABILITY_ADAPTERS.prompt.md",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-005_CAPABILITY_REACHABILITY_AND_PLANNER_WIRING.prompt.md",
@@ -203,7 +189,7 @@
     "Sources/AuraScreen/AccessibilitySecureFieldDetector.swift",
     "Sources/AuraScreen/RedactionPipeline.swift",
     "docs/decisions/ADR-048-unsafe-constructs-and-diagnostics.md",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-006_UNSAFE_CONSTRUCTS_AND_DEBUG_OUTPUT.prompt.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-CLOSEOUT-06.md",
     "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-007_TEST_MATRIX_CI_AND_COVERAGE_HYGIENE.prompt.md",
     "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-008_SECRET_DEPENDENCY_AND_SUPPLY_CHAIN_HYGIENE.prompt.md",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json",
@@ -236,21 +222,34 @@
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/archive/first-pass-context/2026-08-12/",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_REFERENCE_INDEX.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-LIVE-TRACE-03.md",
+    "Sources/AURA/AURA.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-LIVE-TRACE-FIX-05.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-LIVE-DISMISSAL-07.md",
     "docs/operations/REPO_HYGIENE_PROGRAM.md",
     "ledger/CURRENT_STATE.md",
-    "ledger/PROJECT_LEDGER.md"
+    "ledger/PROJECT_LEDGER.md",
+    "Sources/AURA/AuraMenuView.swift",
+    "Sources/AURA/ProductUIState.swift",
+    "Tests/AURAIntegrationTests/R9ProductUIStateTests.swift",
+    "Sources/AuraCore/TraceTypes.swift",
+    "Sources/AuraCore/AuraEventBus.swift",
+    "Sources/AuraStore/AuraDatabase_MigrationsAndBinding.swift",
+    "Sources/AuraStore/AuraStore_Core.swift",
+    "Sources/AURA/AuraAppModel_Runtime.swift",
+    "Sources/AURA/AuraAppModel_Interaction.swift",
+    "Sources/AURA/AuraAppModel_Settings.swift",
+    "Sources/AURA/AuraMenuView_Content.swift",
+    "Tests/AuraCoreTests/AuraCoreTests.swift",
+    "Tests/AuraStoreTests/AuraStoreTests.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-TRACE-FIX-04.md"
   ],
   "evidence_ids": [
     "EV-SP-000-20260813-BASELINE-01",
     "EV-REPO-HYGIENE-H-010-PROJECTION-RECONCILIATION-20260812-01",
     "EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01",
-    "EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01",
     "EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01",
-    "EV-REPO-HYGIENE-H-006-20260810-01",
-    "EV-REPO-HYGIENE-H-006-CLOSEOUT-20260810-01",
+    "EV-SP-001-20260814-CLOSEOUT-06",
     "EV-REPO-HYGIENE-H-008-20260810-01",
     "EV-REPO-HYGIENE-H-008-CLOSEOUT-20260810-01",
     "EV-REPO-HYGIENE-H-009-20260810-01",
@@ -273,7 +272,6 @@
     "EV-R2-20260802-INTEGRATION-DIALOGUE-01",
     "EV-R2-20260802-FULL-SUITE-SLICE-01",
     "EV-R2-20260802-FULL-SUITE-FINAL-01",
-    "EV-R2-20260802-LOCAL-MODEL-INVENTORY-01",
     "EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01",
     "EV-R2-20260802-DIALOGUE-HEALTH-01",
     "EV-R2-20260802-AGENT-RISK-01",
@@ -285,7 +283,7 @@
     "EV-R2-20260803-TEXTDEMO-LIVE-01",
     "EV-R2-20260803-TEXTDEMO-LIVE-02",
     "EV-R2-20260803-PROMPT-LEAKAGE-FIX-01",
-    "EV-R2-20260803-REAL-DESKTOP-SESSION-01",
+    "EV-SP-001-20260815-LIVE-DISMISSAL-07",
     "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
     "EV-R7-20260808-LOCAL-APP-DEPLOY-01",
     "EV-R11-20260809-ARTIFACT-MANIFEST-01",
@@ -293,7 +291,10 @@
     "EV-R12-20260809-READINESS-CONTRACT-01",
     "EV-FINAL-20260809-CLOSEOUT-BLOCKED-01",
     "EV-OPEN-GAPS-20260809-FULL-AUDIT-01",
-    "EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01"
+    "EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01",
+    "EV-SP-001-20260814-CLOSEOUT-03",
+    "EV-SP-001-20260814-TRACE-FIX-04",
+    "EV-SP-001-20260814-LIVE-TRACE-FIX-05"
   ],
   "tests": [
     {
@@ -510,6 +511,41 @@
       "name": "SP-000 baseline, synchronization lock, and active-state-aware validator",
       "result": "passed",
       "evidence_id": "EV-SP-000-20260813-BASELINE-01"
+    },
+    {
+      "name": "SP-001 prompt-relevant trace/confirmation regression suites",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260814-ATTEMPT-01"
+    },
+    {
+      "name": "SP-001 mandatory 15_SESSION_CLOSEOUT validators and scope review",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260814-CLOSEOUT-06"
+    },
+    {
+      "name": "SP-001 authorized live UI/process evidence bundle",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260814-LIVE-TRACE-03"
+    },
+    {
+      "name": "SP-001 mandatory 15_SESSION_CLOSEOUT after authorized live attempt",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260814-CLOSEOUT-03"
+    },
+    {
+      "name": "SP-001 redacted trace persistence, confirmation lifecycle, UI projection, and prompt-relevant regression suites",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260814-TRACE-FIX-04"
+    },
+    {
+      "name": "SP-001 post-fix bounded live redacted trace, allow/deny/expiry/mutation, and local verification bundle",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260814-LIVE-TRACE-FIX-05"
+    },
+    {
+      "name": "SP-001 post-fix window-dismissal persistence and no-execution live verification",
+      "result": "passed",
+      "evidence_id": "EV-SP-001-20260815-LIVE-DISMISSAL-07"
     }
   ],
   "blockers": [
@@ -517,14 +553,16 @@
     "R11 remains in_progress: full-Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed-CI evidence are missing.",
     "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
     "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
-    "Repository hygiene H-010 is terminally complete at current main projection 05af25de7d0e21a5fff114a7fb2cba083009a923. Hosted governance/build/test evidence remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; later descendants are control-plane-only projections. The 219 byte-identical copies are preserved in recoverable external quarantine and no H-011 exists."
+    "Repository hygiene H-010 is terminally complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. Hosted governance/build/test evidence remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; later descendants are control-plane-only projections. The 219 byte-identical copies are preserved in recoverable external quarantine and no H-011 exists.",
+    "SP-001 remains blocked after the post-fix dismissal wiring: redacted persistence/UI, date allow/deny, expiry, one Calculator mutation, dismissal, and verification are proven, but post-fix changed-plan, replay, cancellation, concurrent-turn, and required verification cases are not independently captured. Authority is edit-only after the current delivery checkpoint; obtain the remaining evidence and do not start SP-002."
   ],
   "open_decisions": [
     "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
     "Preserve TurnContext, runtime health, confirmation transactions, and truthful verification semantics while adding model-backed dialogue.",
     "Durable confirmation checkpoint/resume remains a future decision; R1 restart behavior is fail-closed.",
     "Maintain selected full-Xcode/SourceKit compatibility and obtain separate hosted/release evidence before making release claims.",
-    "ADR-047 is absent; beta/RC scope, consent, telemetry, SLO, incident, independent review, and release waiver decisions require authorized ownership."
+    "ADR-047 is absent; beta/RC scope, consent, telemetry, SLO, incident, independent review, and release waiver decisions require authorized ownership.",
+    "DEC-SP-001-LIVE-TRACE-20260814 remains Deferred because the post-fix live bundle now includes dismissal but still lacks independently captured changed-plan, replay, cancellation, concurrent-turn, and required verification evidence."
   ],
   "risks": [
     "RISK-TOOLCHAIN-PREVIEW",
@@ -552,9 +590,10 @@
     "RISK-REPO-HYGIENE-ARCHITECTURE-BOUNDARY-DRIFT",
     "RISK-REPO-HYGIENE-SWIFTLINT-FORMATTER-POLICY-CONFLICT",
     "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION"
-    ,"RISK-SECOND-PASS-SYNC-DRIFT"
+    ,"RISK-SECOND-PASS-SYNC-DRIFT",
+    "RISK-SP-001-LIVE-TRACE-AUTHORITY"
   ],
-  "next_action": "Read the second-pass Tier-0 contract and execute only SP-001. SP-000 baseline and synchronization lock is complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92; later descendants are projection-only. Do not batch or auto-advance. H-010 remains terminal with no H-011, and product, beta, signing, release, and deployment claims remain separate.",
+  "next_action": "Preserve SP-001 as blocked after EV-SP-001-20260815-LIVE-DISMISSAL-07, deliver this bounded checkpoint only under explicit delivery authority, then obtain/capture the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only after delivery.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
@@ -568,5 +607,5 @@
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md"
   ],
-  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00–13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. SP-000 completed only the baseline/synchronization lock; SP-001 is pending. No product/release/deployment claim follows."
+  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00–13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. SP-000 completed only the baseline/synchronization lock. SP-001 source-side mitigation and a bounded post-fix live bundle are verified under EV-SP-001-20260814-TRACE-FIX-04 and EV-SP-001-20260814-LIVE-TRACE-FIX-05, but the complete post-fix negative/verification matrix remains open. Authority is edit-only. No product/release/deployment claim follows."
 }

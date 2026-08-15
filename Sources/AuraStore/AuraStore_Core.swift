@@ -3,6 +3,37 @@ import Foundation
 import SQLite3
 
 extension AuraStore {
+  /// Persist only the bounded trace projection. Raw event payloads never
+  /// enter this table.
+  public func appendTrace(_ record: RedactedTraceRecord) async throws(AuraError) {
+    try await database.run(
+      sql: """
+        INSERT INTO redacted_trace_records (
+            id, timestamp, correlation_id, causation_id, phase, event_type,
+            request_id, action_identifier, outcome
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        """,
+      arguments: [
+        .text(record.id.uuidString),
+        .text(formatDate(record.timestamp)),
+        .text(record.correlationID.uuidString),
+        .text(record.causationID.uuidString),
+        .text(record.phase),
+        .text(record.eventType),
+        record.requestID.map { .text($0.uuidString) } ?? .null,
+        record.actionIdentifier.map(SQLiteValue.text) ?? .null,
+        .text(record.outcome),
+      ]
+    )
+  }
+
+  /// AuraStore is the production implementation of the narrow core boundary.
+  /// The conformance is kept here so AuraCore remains independent of SQLite.
+}
+
+extension AuraStore: AuraTracePersistence {}
+
+extension AuraStore {
   /// Persist a type-erased event envelope.
   public func persistEvent<P: EventPayload>(
     _ envelope: EventEnvelope<P>

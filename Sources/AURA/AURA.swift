@@ -7,6 +7,9 @@ struct AURAApp: App {
   var body: some Scene {
     WindowGroup("AURA") {
       AuraMenuView(model: model)
+        .onDisappear {
+          model.dismissPendingConfirmationForWindowClose()
+        }
     }
     .defaultSize(width: 430, height: 720)
 

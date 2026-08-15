@@ -22,14 +22,22 @@ struct AuraConfirmationCard: View {
           .fixedSize(horizontal: false, vertical: true)
         Text("Risk: \(challenge.riskTier.rawValue) · Expires \(challenge.expiresAt.formatted())")
           .font(.caption).foregroundStyle(.secondary)
+        if let turnContext = challenge.turnContext {
+          let traceText = AuraTraceDisplay.summary(
+            correlationID: turnContext.correlationID, causationID: turnContext.causationID)
+          Text(traceText)
+          .font(.caption2.monospaced())
+          .foregroundStyle(.secondary)
+          .accessibilityLabel("Trace: \(traceText)")
+        }
         HStack {
           Button("Deny", role: .cancel) {
-            model.resolveConfirmation(accepted: false)
+            model.resolveConfirmation(accepted: false, outcome: .denied)
           }
           .keyboardShortcut(.cancelAction)
           Spacer()
           Button("Allow Once") {
-            model.resolveConfirmation(accepted: true)
+            model.resolveConfirmation(accepted: true, outcome: .accepted)
           }
           .buttonStyle(.borderedProminent)
           .keyboardShortcut(.defaultAction)

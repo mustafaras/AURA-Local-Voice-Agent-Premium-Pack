@@ -1,5 +1,6 @@
 import AuraAgent
 import AuraCore
+import AuraStore
 import Foundation
 import SwiftUI
 import Testing
@@ -107,6 +108,102 @@ struct R9ProductUIStateTests {
     #expect(model.status == .idle)
     #expect(model.lastOperationMessage == "diagnostic")
     #expect(model.conversationMessages.count >= 3)
+
+    let traceCorrelationID = UUID()
+    let traceCausationID = UUID()
+    model.applyToolResult(
+      ToolResultEvent(intentID: UUID(), toolID: "app.terminate", succeeded: true,
+                      summary: "verified"),
+      eventID: UUID(), correlationID: traceCorrelationID, causationID: traceCausationID)
+    #expect(model.conversationMessages.contains {
+      $0.traceSummary == AuraTraceDisplay.summary(
+        correlationID: traceCorrelationID, causationID: traceCausationID)
+    })
+  }
+
+  @Test("confirmation lifecycle persists redacted terminal outcomes")
+  @MainActor
+  func confirmationLifecyclePersistsRedactedTrace() async throws {
+    let path = FileManager.default.temporaryDirectory
+      .appendingPathComponent("aura-trace-(UUID().uuidString).sqlite").path
+    defer { try? FileManager.default.removeItem(atPath: path) }
+
+    let store = try await AuraStore(path: path)
+    let model = AuraAppModel(startRuntime: false)
+    model.eventBus = AuraEventBus(
+      logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "trace"),
+      tracePersistence: store)
+    let context = TurnContext(
+      sessionID: UUID(), correlationID: UUID(), causationID: UUID(),
+      activationSource: .text, actor: .user, authority: .userUtterance,
+      sensitivity: .internalLevel)
+    let challenge = PolicyConfirmationChallenge(
+      requestID: UUID(), sessionID: context.sessionID, nonce: "test-nonce",
+      issuedAt: Date(), requestedAction: .shellExec, targetSummary: "test",
+      riskTier: .reversible, expiresAt: Date().addingTimeInterval(60),
+      expectedHash: "test-hash", turnContext: context)
+
+    let deniedTask = Task { @MainActor in await model.awaitConfirmation(challenge) }
+    while model.pendingConfirmation == nil { await Task.yield() }
+    model.resolveConfirmation(accepted: false, outcome: .denied)
+    #expect(await deniedTask.value == false)
+
+    let expiringChallenge = PolicyConfirmationChallenge(
+      requestID: UUID(), sessionID: context.sessionID, nonce: "expiry-nonce",
+      issuedAt: Date(), requestedAction: .shellExec, targetSummary: "test",
+      riskTier: .reversible, expiresAt: Date().addingTimeInterval(0.02),
+      expectedHash: "expiry-hash", turnContext: context)
+    #expect(await model.awaitConfirmation(expiringChallenge) == false)
+
+    var rows = try await store.database.query(
+      sql: "SELECT * FROM redacted_trace_records ORDER BY rowid;", arguments: [])
+    for _ in 0..<50 where rows.count < 4 {
+      try await Task.sleep(for: .milliseconds(10))
+      rows = try await store.database.query(
+        sql: "SELECT * FROM redacted_trace_records ORDER BY rowid;", arguments: [])
+    }
+    #expect(rows.count == 4)
+    #expect(rows.map { $0["outcome"]?.textValue } == ["requested", "denied", "requested", "expired"])
+    #expect(rows.allSatisfy { $0["payload_json"] == nil })
+  }
+
+  @Test("window close dismisses a pending confirmation and persists only redacted trace")
+  @MainActor
+  func windowCloseDismissalPersistsRedactedTrace() async throws {
+    let path = FileManager.default.temporaryDirectory
+      .appendingPathComponent("aura-window-dismiss-(UUID().uuidString).sqlite").path
+    defer { try? FileManager.default.removeItem(atPath: path) }
+
+    let store = try await AuraStore(path: path)
+    let model = AuraAppModel(startRuntime: false)
+    model.eventBus = AuraEventBus(
+      logger: AuraLogger(subsystem: "AURAIntegrationTests", category: "trace"),
+      tracePersistence: store)
+    let context = TurnContext(
+      sessionID: UUID(), correlationID: UUID(), causationID: UUID(),
+      activationSource: .text, actor: .user, authority: .userUtterance,
+      sensitivity: .internalLevel)
+    let challenge = PolicyConfirmationChallenge(
+      requestID: UUID(), sessionID: context.sessionID, nonce: "dismiss-nonce",
+      issuedAt: Date(), requestedAction: .shellExec, targetSummary: "test",
+      riskTier: .reversible, expiresAt: Date().addingTimeInterval(60),
+      expectedHash: "dismiss-hash", turnContext: context)
+
+    let pendingTask = Task { @MainActor in await model.awaitConfirmation(challenge) }
+    while model.pendingConfirmation == nil { await Task.yield() }
+    model.dismissPendingConfirmationForWindowClose()
+    #expect(await pendingTask.value == false)
+
+    var rows = try await store.database.query(
+      sql: "SELECT * FROM redacted_trace_records ORDER BY rowid;", arguments: [])
+    for _ in 0..<50 where rows.count < 2 {
+      try await Task.sleep(for: .milliseconds(10))
+      rows = try await store.database.query(
+        sql: "SELECT * FROM redacted_trace_records ORDER BY rowid;", arguments: [])
+    }
+    #expect(rows.count == 2)
+    #expect(rows.map { $0["outcome"]?.textValue } == ["requested", "dismissed"])
+    #expect(rows.allSatisfy { $0["payload_json"] == nil })
   }
 
   @MainActor

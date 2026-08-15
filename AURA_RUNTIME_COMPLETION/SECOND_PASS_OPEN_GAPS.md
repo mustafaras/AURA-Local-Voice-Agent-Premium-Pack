@@ -196,6 +196,106 @@ release-toolchain limitations remain unchanged. Evidence:
 R1 remains marked completed only for the recorded development/integration
 scope; these items are prerequisites for the program-wide final gate.
 
+### SP-001 attempt — 2026-08-14T07:06:42Z
+
+`SP-001` remains **blocked**, not completed. The prompt-relevant AuraCore,
+AuraPolicy, AURAIntegration, AuraAgent, and AuraAudio suites passed (316 tests
+total), but those deterministic/integration results are not the required live
+target-Mac evidence. The prompt's hard boundary does not authorize app
+launch/install, so no user-present displayed confirmation, reversible mutation,
+correlated live execution/verification trace, or live deny/timeout/dismissal/
+restart bundle was captured. No denied action was executed and no product file
+was changed. Evidence: `EV-SP-001-20260814-ATTEMPT-01`. Obtain explicit
+target-Mac/app-launch authority and retry only `SP-001`; do not advance to
+`SP-002`.
+
+### SP-001 authorized live attempt — 2026-08-14T08:44:20Z
+
+The user then explicitly authorized local AURA launch and one safe/reversible
+mutation. The direct live bundle is recorded as
+`EV-SP-001-20260814-LIVE-TRACE-03` with redacted artifact
+`AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-LIVE-TRACE-03.md` (SHA-256
+`74ce3d9b5073a6fa4fef5aa011f5ad2917fe12e302e7908cb93faa066a066855`). A local
+unsigned bundle was launched with `/usr/bin/open`; no installation, TCC
+mutation, dependency/model/provider, signing, release, deploy, commit, push,
+or merge action occurred.
+
+The user-present speech observation was visible and truthful. A read-only
+`/bin/date` request was allowed once. A repeated request was denied and showed
+`Blocked: confirmationDenied`. A manually opened Calculator was terminated
+through a displayed `app.terminate` confirmation; the UI reported
+`Quit com.apple.calculator.` and a read-only process check returned
+`NOT_RUNNING`. An untouched confirmation disappeared without an execution
+result; the UI ended at `thinking timeout`, so no side effect was observed but
+the label is not an explicit confirmation-timeout result. Submitting a new
+`pwd` plan while the prior date flow was active blocked the prior flow and no
+`pwd` success appeared. Emergency-stop/re-arm and app quit/reopen were
+observed; after restart the conversation was empty and no old confirmation was
+present.
+
+This reduces the live safety residual, but does not close it. The live UI did
+not expose a redacted correlation/causation ID, the in-memory event bus did not
+provide a durable event-chain artifact, and a distinct UI dismissal,
+failed-verification, and concurrent-turn-isolation trace was not captured.
+Therefore `SP-001` remains **blocked**, `OPEN-02` remains open, and `SP-002`
+must not start. Preserve the prior attempt wording above as historical
+record; this entry is its authorized live successor, not a deletion or rewrite.
+
+### SP-001 source-side mitigation — 2026-08-14T11:11:19Z
+
+The narrowly authorized source/test correction is recorded as
+`EV-SP-001-20260814-TRACE-FIX-04`. A dedicated redacted trace projection now
+persists correlation/causation/request/action/outcome fields in
+`redacted_trace_records`; raw prompt, transcript, command-argument, output,
+screenshot, audio, nonce, and plan-hash data are excluded. Confirmation
+requested/accepted/denied/expired/dismissed/superseded outcomes and tool/policy
+outcomes are projected into the local store, and short opaque trace prefixes
+are displayed in confirmation and conversation UI. Core/store/integration and
+the prompt-relevant Policy/Agent/Audio suites pass, as do the local governance
+validators.
+
+This mitigates the source-side residual but does not close `OPEN-02`: no live
+target-Mac rerun was authorized in this source-only attempt. The direct live
+bundle still requires independently captureable UI/store trace evidence plus
+distinct failed-verification, concurrent-turn-isolation, timeout, and
+dismissal cases. `SP-001` remains **blocked** and `SP-002` must not start.
+The original live-attempt wording above remains historical and is not deleted
+or rewritten.
+
+### SP-001 post-fix bounded live rerun — 2026-08-14T12:10:25Z
+
+The user-present rerun is recorded as
+`EV-SP-001-20260814-LIVE-TRACE-FIX-05`. The current local build displayed
+opaque trace prefixes in confirmation and result rows. The live evidence and a
+read-only local store query prove `/bin/date` allow, repeated-date deny,
+Calculator confirmation expiry, one fresh allowed Calculator close, distinct
+execution/verification, and no running Calculator process. The redacted store
+contains the matching requested/accepted/denied/expired/verified sequences and
+does not receive raw event payloads.
+
+This bounded rerun reduces the residual substantially but does not close
+`OPEN-02`: the user’s authority covered only date and one Calculator mutation,
+so post-fix changed-plan, replay, dismissal, cancellation, and concurrent-turn
+cases were not rerun. Prior live evidence covers some pre-fix cases, but it is
+not promoted to post-fix proof. `SP-001` remains **blocked** and `SP-002` must
+not start until the complete post-fix matrix is separately authorized and
+captured.
+
+### SP-001 post-fix dismissal wiring — 2026-08-15T09:32:18Z
+
+The red close path initially closed the WindowGroup without reaching the
+application-menu `quit()` method, so no `confirmation.dismissed` row was
+persisted. A narrow WindowGroup `onDisappear` hook now resolves only an
+existing pending confirmation as `dismissed`; the focused integration test
+passed. The user-present rerun on the updated local build produced matching
+redacted `confirmation.requested` → `confirmation.dismissed` → `policy
+intent.blocked` rows and no `/bin/date` execution. Evidence:
+`EV-SP-001-20260815-LIVE-DISMISSAL-07`.
+
+This closes the post-fix dismissal sub-residual only. Changed-plan, replay,
+cancellation, concurrent-turn isolation, and required failed-verification
+evidence remain open; `SP-001` remains blocked and `SP-002` must not start.
+
 ## OPEN-03 — R2: Bilingual NLU and Dialogue
 
 Prompt: [`03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md`](archive/first-pass-prompts/2026-08-12/03_R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md)

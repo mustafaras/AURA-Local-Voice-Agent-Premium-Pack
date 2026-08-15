@@ -4,6 +4,29 @@ import Testing
 
 struct AuraCoreTests {
 
+  @Test func eventBusRecordsOnlyRedactedTraceProjection() async throws {
+    let sink = TestTraceSink()
+    let bus = AuraEventBus(
+      logger: AuraLogger(subsystem: "AuraCoreTests", category: "trace"),
+      tracePersistence: sink)
+    let correlationID = UUID()
+    let causationID = UUID()
+    let record = RedactedTraceRecord(
+      correlationID: correlationID,
+      causationID: causationID,
+      phase: "confirmation",
+      eventType: "confirmation.accepted",
+      requestID: UUID(),
+      actionIdentifier: "shell.exec",
+      outcome: "accepted")
+
+    await bus.recordTrace(record)
+
+    #expect(await sink.records() == [record])
+    #expect(AuraTraceDisplay.summary(correlationID: correlationID, causationID: causationID)
+      .contains("Trace c="))
+  }
+
   @Test func eventEnvelopeRoundTrip() async throws {
     let payload = LifecycleEvent(state: "started", reason: "bootstrap")
     let envelope = EventEnvelope(
@@ -89,5 +112,17 @@ struct AuraCoreTests {
     // Logging is side-effect-only through os.Logger; we verify the actor is reachable.
     await logger.info("should be suppressed")
     await logger.warning("should be emitted")
+  }
+}
+
+private actor TestTraceSink: AuraTracePersistence {
+  private var stored: [RedactedTraceRecord] = []
+
+  func appendTrace(_ record: RedactedTraceRecord) async throws(AuraError) {
+    stored.append(record)
+  }
+
+  func records() -> [RedactedTraceRecord] {
+    stored
   }
 }
