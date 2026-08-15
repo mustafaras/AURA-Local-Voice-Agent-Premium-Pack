@@ -225,3 +225,75 @@ this prompt. `SP-002` remains pending and unopened; authority is edit-only.
 - **Description:** Model-backed dialogue turns measured 19.8–36.1 s wall-clock on this hardware against 0.08–16.0 ms for deterministic fast-path turns — four to five orders of magnitude apart. Relevant to any R7 latency budget and to first-token responsiveness targets.
 - **Mitigation:** Recorded as an observation only; no budget is set by SP-003.
 - **Evidence:** `EV-SP-003-20260815-LIVE-7SCENARIO-16`, `EV-SP-003-20260815-INJECTION-FIX-17`
+
+### 2026-08-15T18:55:00Z — SP-003 residual risk disposition after follow-up work
+
+The four risks forwarded at SP-003 closure were re-examined on explicit user instruction to
+resolve them. Their honest dispositions differ, and are recorded separately rather than reported
+as a uniform "closed".
+
+- **Risk ID:** `RISK-INJECTION-COVERAGE-NON-DIALOGUE`
+- **Status:** **Closed** for all model-prompt construction sites presently in the codebase
+- **Owner:** R10 / security
+- **What was done:** A full audit of every site that interpolates text into a model prompt.
+  Findings: (1) `MultiAgentOrchestrator_Prompts` interpolated four non-authoritative surfaces
+  with no screening at all — the repository `diff` and validation command `outputTail` into the
+  reviewer prompt, the planner model's `plan` into the implementer prompt, and the reviewer
+  model's `feedback` into the corrector prompt. A poisoned diff or crafted test output could
+  therefore instruct the reviewer model directly, including into a forged `VERDICT: APPROVE`.
+  All four are now screened. (2) `OllamaTaskRunner` passes `request.objective`, which
+  `RuleBasedUtteranceClassifier` extracts from the user's own utterance — authoritative by
+  provenance, correctly not screened. (3) `IntentEngine`'s structured-NLU prompt carries the raw
+  user utterance — likewise authoritative. (4) `ProductivitySecurity` already screened.
+  Enforcement was additionally consolidated into a single `PromptInjectionScreen` type in
+  `AuraSecurity` so the dialogue path and the orchestrator share one policy rather than
+  re-deriving it — the original defect was a detector that existed but was never called, and
+  duplicated policy is how that recurs.
+- **Evidence:** `EV-SP-003-20260815-INJECTION-COVERAGE-18`
+- **Residual:** Rule-based screening remains auditable rather than exhaustive; novel phrasings or
+  obfuscation may evade the fixed rule set. Any *future* prompt-construction site must route
+  untrusted segments through `PromptInjectionScreen`; nothing mechanically forces this yet, which
+  is the remaining exposure and is a lint/review concern rather than a live defect.
+
+- **Risk ID:** `RISK-SP-003-NLU-DOWNGRADE-VARIANCE`
+- **Status:** **Open — accepted, not fixed**
+- **Owner:** R2 / R7
+- **Why it is not fixed:** Closing it would require weakening a tested safety property, and that
+  trade is not worth making silently. The downgrade is produced by
+  `ClassificationResult.applying(_:)`, which fails a turn closed to `.unknown`/`.clarify`
+  whenever the structured-NLU model proposes a capability or a non-`answer` act. That exact
+  behaviour is asserted by `structuredModelActionProposalCannotBecomeExecutableIntent`, where a
+  vague utterance plus a model-proposed `shell.execute` must become a clarification. The
+  deterministic classifier assigns `.converse` to *both* a clear question and a vague
+  command-like phrase, so `applying(_:)` cannot distinguish the case where the downgrade is
+  desirable from the case where it merely costs a round-trip. Options considered and rejected:
+  preferring the deterministic `.converse` whenever a proposal is rejected (breaks the safety
+  test above); a bounded retry, which R2 §C would permit, but which doubles a 20–36 s turn and
+  worsens `RISK-SP-003-MODEL-LATENCY`. A real fix is an NLU-stage redesign, outside OPEN-03's
+  bounded objective.
+- **Impact if unaddressed:** Safe in both directions — no raw model result reaches execution —
+  but an ordinary question can intermittently cost the user one clarification round-trip.
+- **Evidence:** `EV-SP-003-20260815-LIVE-7SCENARIO-16` (2 of 4 turns),
+  `EV-SP-003-20260815-INJECTION-FIX-17` (0 of 4 turns, same build)
+
+- **Risk ID:** `RISK-SP-003-MODEL-LATENCY`
+- **Status:** **Open — observation, bound verified**
+- **Owner:** R7
+- **Why it is not "fixed":** 19.8–36.1 s is the measured cost of an 8B Q4_K_M model on this
+  hardware. No code change makes a local model faster; the honest options are a smaller model
+  (requires a download, which is outside the granted authority) or accepting the cost. What was
+  verified instead is that the latency is *bounded and degrades honestly* rather than hanging:
+  `ConversationConfiguration.thinkTimeoutSeconds` defaults to 90 s and is genuinely enforced via
+  `scheduleTimeout(for: .thinking,…)` in `Conversation_State`/`Conversation_Commands`, and
+  `OllamaConfiguration.requestTimeoutSeconds` defaults to 120 s. Every measured turn sat well
+  inside the think budget.
+- **Evidence:** `EV-SP-003-20260815-INJECTION-COVERAGE-18`
+
+- **Risk ID:** `RISK-SP-003-LIVE-VOICE-RESIDUAL`
+- **Status:** **Open — cannot be closed in this environment**
+- **Owner:** SP-002 / R7
+- **Why it is not fixed:** The user is speech-disabled and cannot produce live voice input. Live
+  microphone/TCC Turkish–English capture cannot be demonstrated without a speech-capable
+  operator. No code change resolves this; claiming closure from mock-STT or text-path evidence
+  would be exactly the kind of substitution the second-pass contract forbids.
+- **Evidence:** `EV-SP-002-20260815-PTT-MOCK-14`

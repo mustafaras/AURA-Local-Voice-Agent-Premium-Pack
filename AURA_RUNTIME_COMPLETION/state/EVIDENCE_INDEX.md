@@ -275,3 +275,25 @@ Never use a lower evidence class to claim a higher operational state in `capabil
   `4814d13ae9b9aa4cb0c00e4e29f5f9b9b243759c30771e804aabed14a0d320bd`. Limitations: hardens the
   dialogue context path only — cross-surface classifier coverage is unproven and tracked as
   `RISK-INJECTION-COVERAGE-NON-DIALOGUE`; rule-based screening is auditable, not exhaustive.
+
+- **EV-SP-003-20260815-INJECTION-COVERAGE-18** — SP-003 follow-up at `2026-08-15T18:55:00Z` on
+  `main` atop `6a710b1`, resolving forwarded residual risks on explicit user instruction. Source
+  audit of every model-prompt construction site found four previously-unscreened untrusted
+  surfaces in `MultiAgentOrchestrator_Prompts`: the repository `diff` and validation command
+  `outputTail` in the reviewer prompt, the planner model's `plan` in the implementer prompt, and
+  the reviewer model's `feedback` in the corrector prompt. A poisoned diff or crafted test-output
+  tail could instruct the reviewer model directly, including into a forged `VERDICT: APPROVE` —
+  the very token the orchestrator parses to accept a change. All four are now screened.
+  `OllamaTaskRunner.request.objective` and `IntentEngine`'s structured-NLU prompt were confirmed
+  to carry `.userUtterance` authority and are correctly left unscreened. Enforcement was
+  consolidated into a new `PromptInjectionScreen` type in `AuraSecurity`, now shared by the
+  dialogue path and the orchestrator, since the original defect was a detector that existed but
+  was never called. Verified by 6 new regression tests in
+  `Tests/AuraAgentTests/MultiAgentOrchestratorPromptInjectionTests.swift`, `AuraAgentTests`
+  220/220, and a full sweep of 21/21 bundles with 0 failed. Also verified that model latency is
+  bounded and degrades honestly (`thinkTimeoutSeconds` 90 s enforced via `scheduleTimeout`,
+  `requestTimeoutSeconds` 120 s; all measured turns 19.8–36.1 s). Verdict: passed.
+  `RISK-INJECTION-COVERAGE-NON-DIALOGUE` closed; `RISK-SP-003-MODEL-LATENCY` bound verified;
+  `RISK-SP-003-NLU-DOWNGRADE-VARIANCE` and `RISK-SP-003-LIVE-VOICE-RESIDUAL` remain open with
+  recorded reasons. Limitations: rule-based screening is auditable but not exhaustive, and no
+  mechanism yet forces future prompt sites to use the shared screen.

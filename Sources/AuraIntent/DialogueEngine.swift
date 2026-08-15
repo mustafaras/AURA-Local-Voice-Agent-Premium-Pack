@@ -91,23 +91,23 @@ public actor DialogueEngine {
   /// The item's provenance is still rendered, so the model — and any later
   /// trace inspection — can see that a source was consulted and withheld,
   /// rather than the item silently vanishing.
-  static let withheldContextSummary = "[withheld: content failed injection screening]"
+  static let withheldContextSummary = PromptInjectionScreen.withheldMarker
 
   private let reasoningBackend: (any DialogueReasoningBackend)?
   private let configuration: DialogueEngineConfiguration
   private let runtimeHealthRegistry: RuntimeHealthRegistry?
-  private let injectionClassifier: PromptInjectionClassifier
+  private let injectionScreen: PromptInjectionScreen
 
   public init(
     reasoningBackend: (any DialogueReasoningBackend)? = nil,
     configuration: DialogueEngineConfiguration = DialogueEngineConfiguration(),
     runtimeHealthRegistry: RuntimeHealthRegistry? = nil,
-    injectionClassifier: PromptInjectionClassifier = PromptInjectionClassifier()
+    injectionScreen: PromptInjectionScreen = PromptInjectionScreen()
   ) {
     self.reasoningBackend = reasoningBackend
     self.configuration = configuration
     self.runtimeHealthRegistry = runtimeHealthRegistry
-    self.injectionClassifier = injectionClassifier
+    self.injectionScreen = injectionScreen
   }
 
   public func respond(
@@ -210,9 +210,7 @@ public actor DialogueEngine {
   /// screening — otherwise injected text could simply claim authority and skip
   /// the check.
   private func screened(_ summary: String) -> String {
-    injectionClassifier.classify(summary, provenance: .memoryRetrieval).isBlocked
-      ? Self.withheldContextSummary
-      : summary
+    injectionScreen.screen(summary, provenance: .memoryRetrieval)
   }
 
   private func fallback(language: DialogueLanguage, sourceIDs: [String]) -> DialogueResponse {

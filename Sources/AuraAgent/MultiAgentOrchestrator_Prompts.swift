@@ -1,10 +1,20 @@
 import AuraCore
 import AuraPolicy
+import AuraSecurity
 import AuraShell
 import Foundation
 
 extension MultiAgentOrchestrator {
   // MARK: - Prompts
+
+  /// `objective` and `acceptanceCriteria` originate from the live user and
+  /// carry authority, so they are not screened — a user cannot inject into
+  /// their own request. Everything else interpolated below does *not*: a diff
+  /// is repository content, validation output is terminal output, and reviewer
+  /// feedback and the plan are another model's output. Each of those is a
+  /// documented injection surface, so each is screened before it can reach a
+  /// model as text (`RISK-INJECTION-COVERAGE-NON-DIALOGUE`).
+  static let injectionScreen = PromptInjectionScreen()
 
   static func plannerPrompt(objective: String, acceptanceCriteria: [String]) -> String {
     """
@@ -32,7 +42,7 @@ extension MultiAgentOrchestrator {
     Objective: \(objective)
 
     Plan:
-    \(plan)
+    \(injectionScreen.screen(plan, provenance: .agentToolOutput))
 
     Acceptance criteria:
     \(bulletList(acceptanceCriteria))
@@ -47,7 +57,7 @@ extension MultiAgentOrchestrator {
       validationSection = """
         Validation command result: \(validation.passed ? "PASSED" : "FAILED") "
           + "(exit code \(validation.exitCode))"
-        \(validation.outputTail)
+        \(injectionScreen.screen(validation.outputTail, provenance: .terminalOutput))
         """
     } else {
       validationSection = "No validation command was run."
@@ -66,7 +76,7 @@ extension MultiAgentOrchestrator {
       \(bulletList(acceptanceCriteria))
 
       Diff:
-      \(diff)
+      \(injectionScreen.screen(diff, provenance: .repositoryFile))
 
       \(validationSection)
 
@@ -80,7 +90,13 @@ extension MultiAgentOrchestrator {
     objective: String, feedback: String?, validation: ValidationOutcome?
   ) -> String {
     let validationSection =
-      validation.map { "Validation command output:\n\($0.outputTail)" } ?? ""
+      validation.map {
+        "Validation command output:\n"
+          + injectionScreen.screen($0.outputTail, provenance: .terminalOutput)
+      } ?? ""
+    let screenedFeedback = feedback.map {
+      injectionScreen.screen($0, provenance: .agentToolOutput)
+    }
     return """
       You are the IMPLEMENTER addressing reviewer feedback in a bounded \
       multi-agent workflow. Make the necessary changes directly in the \
@@ -88,7 +104,7 @@ extension MultiAgentOrchestrator {
 
       Objective: \(objective)
 
-      Reviewer feedback: \(feedback ?? "no reason given")
+      Reviewer feedback: \(screenedFeedback ?? "no reason given")
 
       \(validationSection)
       """
