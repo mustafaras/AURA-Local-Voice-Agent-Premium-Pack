@@ -3,8 +3,8 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "blocked",
-  "updated_at": "2026-08-15T09:43:51Z",
-  "session_id": "AURA-SP-001-DISMISSAL-DELIVERY-20260815",
+  "updated_at": "2026-08-15T09:45:50Z",
+  "session_id": "AURA-SP-001-CLOSEOUT-20260815",
   "active_prompt": "SP-001",
   "active_state": "blocked",
   "completed_prompts": ["SP-000"],
@@ -50,5 +50,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-001 remains blocked after the post-fix dismissal fix and checkpoint delivery EV-SP-001-20260815-DELIVERY-08: preserve the source/live evidence, capture the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only after delivery."
+  "next_action": "SP-001 remains blocked after EV-SP-001-20260815-CLOSEOUT-09: preserve the source/live evidence, capture only the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only."
 }

@@ -1,14 +1,14 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-15T09:43:51Z",
-  "session_id": "AURA-SP-001-DISMISSAL-DELIVERY-20260815",
+  "updated_at": "2026-08-15T09:45:50Z",
+  "session_id": "AURA-SP-001-CLOSEOUT-20260815",
   "last_verified_commit": "fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2",
   "active_prompt": {
     "id": "SP-001",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
     "state": "blocked",
-    "step": "SP-001 bounded source/evidence checkpoint delivered at fd72707; requested → dismissed → blocked is proven, and remaining post-fix negative/verification cases remain open."
+    "step": "SP-001 bounded source/evidence checkpoint delivered at fd72707; pointer projection c14e39e is pushed, requested → dismissed → blocked is proven, and remaining post-fix negative/verification cases remain open."
   },
   "summary": "R0 and R1 are complete for their bounded development/integration scope. SP-001 remains blocked after the post-fix dismissal wiring and bounded checkpoint delivery at fd72707: redacted trace UI/store persistence, date allow/deny, confirmation expiry, one reversible Calculator mutation, dismissal, distinct verification, no-process verification, current build, and all local validators are proven. The remaining post-fix changed-plan, replay, cancellation, concurrent-turn, and required verification evidence is still open. Commit 144b0fa was pushed and no-ff merged to main as fd72707; no TCC, dependency, provider, signing, release, deploy, or SP-002 transition occurred. R2-R12 remain in_progress with deferred/live/manual/security/release/beta gates recorded in SECOND_PASS_OPEN_GAPS.md. FINAL/CLOSEOUT remains blocked. No product/release/deployment claim follows.",
   "completed": [
@@ -190,7 +190,7 @@
     "Sources/AuraScreen/AccessibilitySecureFieldDetector.swift",
     "Sources/AuraScreen/RedactionPipeline.swift",
     "docs/decisions/ADR-048-unsafe-constructs-and-diagnostics.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-CLOSEOUT-06.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-CLOSEOUT-09.md",
     "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-007_TEST_MATRIX_CI_AND_COVERAGE_HYGIENE.prompt.md",
     "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-008_SECRET_DEPENDENCY_AND_SUPPLY_CHAIN_HYGIENE.prompt.md",
     "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json",
@@ -282,7 +282,7 @@
     "EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01",
     "EV-SP-001-20260815-DELIVERY-08",
     "EV-R2-20260803-TEXTDEMO-LIVE-01",
-    "EV-R2-20260803-TEXTDEMO-LIVE-02",
+    "EV-SP-001-20260815-CLOSEOUT-09",
     "EV-R2-20260803-PROMPT-LEAKAGE-FIX-01",
     "EV-SP-001-20260815-LIVE-DISMISSAL-07",
     "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
@@ -594,7 +594,7 @@
     ,"RISK-SECOND-PASS-SYNC-DRIFT",
     "RISK-SP-001-LIVE-TRACE-AUTHORITY"
   ],
-  "next_action": "Preserve SP-001 as blocked after EV-SP-001-20260815-DELIVERY-08, complete the post-merge pointer reconciliation, then obtain/capture the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only after delivery.",
+  "next_action": "Preserve SP-001 as blocked after EV-SP-001-20260815-CLOSEOUT-09, obtain/capture only the remaining post-fix changed-plan/replay/cancellation/concurrent-turn and required verification cases, retry only SP-001, and do not start SP-002. Authority resets to edit-only.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",

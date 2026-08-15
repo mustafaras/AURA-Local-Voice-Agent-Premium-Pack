@@ -508,3 +508,12 @@ user-present rerun on `/tmp/aura-sp001-live-fix-02.app` produced redacted
 requested → dismissed → policy-blocked rows for `/bin/date` with no execution.
 Evidence: `EV-SP-001-20260815-LIVE-DISMISSAL-07`. SP-001 remains blocked for
 the remaining post-fix live matrix; SP-002 remains unopened.
+
+### SP-001 mandatory session closeout — 2026-08-15T09:45:50Z
+
+The delivery merge `fd72707…` and pushed pointer projection `c14e39e` are
+recorded. Local runtime, second-pass, hygiene, supply-chain, 38/38 Python,
+compile, shell, and diff checks passed. SP-001 remains blocked for changed
+plan, replay, cancellation, concurrent-turn, and required failed-verification
+evidence; SP-002 remains unopened. Evidence:
+`EV-SP-001-20260815-CLOSEOUT-09`.

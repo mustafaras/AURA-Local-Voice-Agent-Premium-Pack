@@ -531,3 +531,11 @@ recorded requested → dismissed → policy blocked with no `/bin/date` executio
 Evidence: `EV-SP-001-20260815-LIVE-DISMISSAL-07`. SP-001 remains blocked for
 the remaining post-fix live matrix; authority remains bounded to the explicitly
 authorized work and no SP-002 transition follows.
+
+## SP-001 delivery closeout — 2026-08-15T09:45:50Z
+
+The bounded source/evidence checkpoint was pushed and merged at `fd72707…`;
+state pointers were reconciled in pushed projection commit `c14e39e`. Closeout
+validators passed. SP-001 remains blocked for the remaining post-fix live
+matrix, authority is reset to edit-only, and SP-002 remains unopened. Evidence:
+`EV-SP-001-20260815-CLOSEOUT-09`.

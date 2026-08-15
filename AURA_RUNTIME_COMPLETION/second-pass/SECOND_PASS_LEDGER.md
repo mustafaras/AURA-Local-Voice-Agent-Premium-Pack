@@ -185,3 +185,10 @@ Corrections are appended, never rewritten.
 - **Verification:** `swift build --product AURA` passed; `AURAIntegrationTests` passed 23/23, including the new window-close dismissal test. The updated local build was launched at `/tmp/aura-sp001-live-fix-02.app` with executable SHA-256 `c54b7388b9838f6f15c671aef9ad72bc95b86efa69f70137bea484650e914aca`.
 - **Live result/evidence:** The user submitted `/bin/date`, left confirmation untouched, and closed the red AURA window control. A read-only database query found matching redacted `confirmation.requested` → `confirmation.dismissed` → `policy intent.blocked` rows for `B33DD17E…` / `85D1B0CA…`; no date execution occurred. Evidence `EV-SP-001-20260815-LIVE-DISMISSAL-07`, artifact SHA-256 `8398d2e9d12e522f439ae33793307fc60391656db36ec2fac71979785d1fafbc`.
 - **Acceptance verdict:** Post-fix dismissal is now proven, but `SP-001` remains **blocked** pending changed-plan, replay, cancellation, concurrent-turn isolation, and required failed-verification evidence. `SP-002` remains unopened.
+
+### 2026-08-15T09:45:50Z — SP-001 mandatory 15_SESSION_CLOSEOUT — blocked
+
+- **Verified delivery:** source/evidence merge `fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2`; pushed control-plane pointer reconciliation `c14e39e`.
+- **Checks:** Runtime, second-pass, repository-hygiene, supply-chain, 38/38 Python tests, compileall, shell syntax, and `git diff --check` passed; source build and AURAIntegration 23/23 were already passed for the delivered checkpoint.
+- **Verdict:** `SP-001` remains blocked. Redacted persistence/UI, date allow/deny, expiry, reversible mutation, verification, no-process verification, and dismissal are proven; changed-plan, replay, cancellation, concurrent-turn, and required failed-verification evidence remain open. `SP-002` remains unopened.
+- **Evidence/next action:** `EV-SP-001-20260815-CLOSEOUT-09`; authority resets to edit-only; capture only the remaining SP-001 matrix before considering SP-002.

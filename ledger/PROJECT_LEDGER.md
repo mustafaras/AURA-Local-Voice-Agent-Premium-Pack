@@ -3933,3 +3933,12 @@ new hosted-CI result is claimed. Evidence:
 - **Resolution:** The red WindowGroup close path bypassed the existing application-menu dismissal handler. Added a guarded lifecycle hook and focused integration coverage; the current build passed and `AURAIntegrationTests` passed 23/23.
 - **Live evidence:** The user left `/bin/date` confirmation untouched and closed the AURA window. The redacted store recorded requested → dismissed → policy blocked for matching IDs, with no execution. Evidence `EV-SP-001-20260815-LIVE-DISMISSAL-07`, artifact SHA-256 `8398d2e9d12e522f439ae33793307fc60391656db36ec2fac71979785d1fafbc`.
 - **Boundary/next action:** Dismissal is closed as a post-fix sub-residual. SP-001 remains blocked for changed-plan, replay, cancellation, concurrent-turn, and required failed-verification cases; no SP-002 or delivery completion claim follows until those cases are proven.
+
+### 2026-08-15T09:45:50Z — SP-001 mandatory session closeout
+
+The bounded source/evidence checkpoint was delivered at merge `fd72707…` and
+the canonical control-plane pointers were reconciled in pushed projection
+commit `c14e39e`. Runtime, second-pass, hygiene, supply-chain, 38/38 Python,
+compile, shell, and diff checks passed. `SP-001` remains blocked for the
+remaining post-fix live matrix; `SP-002` remains unopened. Evidence:
+`EV-SP-001-20260815-CLOSEOUT-09`.

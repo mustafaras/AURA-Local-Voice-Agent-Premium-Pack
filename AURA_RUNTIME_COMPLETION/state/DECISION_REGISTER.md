@@ -90,6 +90,13 @@ direct live requested → dismissed → blocked observation. The decision remain
 **Deferred** pending the remaining post-fix live matrix. Evidence:
 `EV-SP-001-20260815-LIVE-DISMISSAL-07`.
 
+### 2026-08-15T09:45:50Z — DEC-SP-001-TRACE-PROJECTION mandatory closeout
+
+The bounded source/evidence delivery and pointer reconciliation do not change
+the decision from **Deferred**. The remaining live matrix is not satisfied,
+so `SP-001` stays blocked and `SP-002` stays unopened. Authority resets to
+edit-only. Evidence: `EV-SP-001-20260815-CLOSEOUT-09`.
+
 - Add a row before implementing a material decision.
 - Do not mark `Accepted` until the ADR contains context, decision, alternatives, consequences, migration, security/privacy analysis, and verification plan.
 - Record supersession rather than rewriting history.

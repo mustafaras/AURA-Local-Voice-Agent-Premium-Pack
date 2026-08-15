@@ -128,3 +128,12 @@ requested → dismissed → blocked with no execution. Remaining live residuals
 are changed-plan, replay, cancellation, concurrent-turn isolation, and any
 required failed-verification evidence. Evidence:
 `EV-SP-001-20260815-LIVE-DISMISSAL-07`.
+
+### 2026-08-15T09:45:50Z — SP-001 mandatory closeout after bounded delivery
+
+`RISK-SP-001-LIVE-TRACE-AUTHORITY` remains **Open but materially reduced**.
+The source checkpoint was delivered and all local closeout validators passed;
+the remaining risk is the unproven post-fix changed-plan, replay, cancellation,
+concurrent-turn isolation, and required failed-verification matrix. Authority
+resets to edit-only and no SP-002 transition is allowed. Evidence:
+`EV-SP-001-20260815-CLOSEOUT-09`.

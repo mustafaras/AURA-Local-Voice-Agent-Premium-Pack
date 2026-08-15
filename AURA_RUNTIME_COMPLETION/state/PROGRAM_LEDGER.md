@@ -1354,3 +1354,13 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Direct live result:** Updated bundle `/tmp/aura-sp001-live-fix-02.app`, executable SHA-256 `c54b7388b9838f6f15c671aef9ad72bc95b86efa69f70137bea484650e914aca`; user left `/bin/date` confirmation untouched and closed the red window control. Store query showed requested → dismissed → policy blocked for matching redacted IDs and no execution.
 - **Evidence:** `EV-SP-001-20260815-LIVE-DISMISSAL-07`, artifact SHA-256 `8398d2e9d12e522f439ae33793307fc60391656db36ec2fac71979785d1fafbc`.
 - **Verdict/next action:** Dismissal is now proven; `SP-001` remains blocked for changed-plan, replay, cancellation, concurrent-turn, and required failed-verification cases. Do not start `SP-002` until the remaining live gate is met.
+
+### 2026-08-15T09:45:50Z — SP-001 mandatory 15_SESSION_CLOSEOUT — blocked
+
+- **Session/actor:** `AURA-SP-001-CLOSEOUT-20260815`; Codex. Active prompt `SP-001`, state `blocked`; authority resets to edit-only.
+- **Verified delivery boundary:** source/evidence delivery commit `fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2` was merged and pushed; control-plane pointer reconciliation commit `c14e39e` was pushed to `origin/main`. No unrelated path was identified.
+- **Objective/result:** Close the bounded delivery checkpoint without promoting partial live coverage to SP-001 completion. The redacted trace source/UI/test changes and direct dismissal evidence remain preserved; SP-002 was not opened.
+- **Verification:** Runtime, second-pass, repository-hygiene, supply-chain, 38/38 deterministic script tests, Python compileall, shell syntax, and `git diff --check` all passed. The delivered source checkpoint had already passed `swift build --product AURA` and `AURAIntegrationTests` 23/23.
+- **Evidence:** `EV-SP-001-20260815-CLOSEOUT-09`, `EV-SP-001-20260815-DELIVERY-08`, and `EV-SP-001-20260815-LIVE-DISMISSAL-07`.
+- **Acceptance/blocker:** Redacted persistence/UI, date allow/deny, expiry, one reversible Calculator mutation, distinct verification, no-process verification, and dismissal are evidenced. Changed-plan, replay, cancellation, concurrent-turn isolation, and required failed-verification evidence remain open; `SP-001` stays **blocked**.
+- **Exact next safe action:** Obtain/capture only the remaining post-fix SP-001 matrix, rerun the validators, and do not start SP-002. No TCC, install, release, deploy, or further delivery action is implied.
