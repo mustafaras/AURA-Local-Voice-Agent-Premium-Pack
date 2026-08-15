@@ -10,7 +10,7 @@
     "active_branch": "main",
     "verified_head": "9d312da368e06364968067f47b290df6a57a30ff",
     "remote_head": "9d312da368e06364968067f47b290df6a57a30ff",
-    "working_tree_state": "dirty_expected",
+    "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
