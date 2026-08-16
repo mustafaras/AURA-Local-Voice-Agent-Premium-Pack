@@ -1466,3 +1466,20 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Acceptance verdict:** SP-003 bounded objective met: PASS. `SP-004` is next eligible but remains `pending` and unopened. Authority resets to edit-only.
 - **Residual risks:** `RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-003-NLU-DOWNGRADE-VARIANCE`, `RISK-SP-003-MODEL-LATENCY`, `RISK-SP-003-LIVE-VOICE-RESIDUAL` — all forwarded, none owned by SP-003, none blocking SP-004.
 - **Next safe action:** Run `15_SESSION_CLOSEOUT.prompt.md`, then await explicit authority before opening `SP-004`.
+
+## 2026-08-16T10:08:19Z — Control-plane handoff-accuracy audit and reconciliation
+
+- **Session / authority:** `AURA-SECOND-PASS-HANDOFF-AUDIT-20260816`. Edit-only at open; the user then explicitly authorized state reconciliation, opening `SP-004`, and commit/push to `main` in a single turn. No launch, install, TCC, model download, provider contact, signing, or deployment.
+- **Prompt / gap:** none opened, none closed. `SP-004` remained `pending` and unopened.
+- **Work performed:**
+  - Verified every checkable claim in `NEXT_SESSION_STARTER.md` against live state at `e8f5f43`.
+  - Corrected a stale header pointer (`d55aebb`, the document's own parent commit, while live `HEAD` was `e8f5f43`).
+  - Corrected the claim that `SP-004` closes `OPEN-04`: `SP-005` carries the same `gap_ids: OPEN-04`, and `SP-004`'s completion gate disclaims UI/NLU reachability. Added an explicit instruction not to close `OPEN-04` at the end of `SP-004`.
+  - Reconciled `SECOND_PASS_STATE.json` (`updated_at`, `last_evidence_ids` extended to `-21`, `next_action` risk set corrected) and `session-handoff.json` (`updated_at`, `last_verified_commit` to `e8f5f434c8741d8a13231698030dcf7768140746`, `summary`, and appended `completed[]` corrections including an explicit retraction marker for `EV-SP-003-20260815-R2-DIALOGUE-TESTS-15`). Prior wording preserved throughout.
+  - Appended a new synchronized overlay to `ACTIVE_CONTEXT.md`, demoting the 18:23:13Z overlay to superseded and keeping the validator-enforced `SP-004` / `completed` pair intact.
+  - Set `repository.working_tree_state` to `dirty_expected` in `state/current-state.json` with a describing entry, since the stored `clean` claim had become false and `validate_runtime_completion.py` fails closed on that mismatch.
+- **Verification:** 21/21 bundles, 816 tests, 0 failed bundles; 21 declared `.testTarget` entries all executed; four governance validators exit 0; 38/38 governance tests.
+- **Evidence IDs:** `EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21`.
+- **Acceptance verdict:** control plane accurate as of `e8f5f43`: PASS. No gap closed; `OPEN-04` remains open through `SP-005`.
+- **Residual risks:** `RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-003-MODEL-LATENCY`, `RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING` forwarded; `RISK-SP-003-NLU-DOWNGRADE-VARIANCE` closed and no longer forwarded.
+- **Next safe action:** commit and push, realign repository pointers in a follow-up `chore(state):` commit, then open `SP-004` under its own read order.

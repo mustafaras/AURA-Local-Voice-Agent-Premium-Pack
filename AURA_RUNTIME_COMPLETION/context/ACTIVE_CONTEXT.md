@@ -8,7 +8,40 @@
 
 ## Canonical status
 
-## Current second-pass overlay — 2026-08-15T18:23:13Z
+## Current second-pass overlay — 2026-08-16T10:08:19Z
+
+`SP-004` / `completed` — control-plane reconciliation after a handoff-accuracy
+audit, recorded under `EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21`. **No prompt was
+opened and no gap was closed.** Read the overlay pair as the program convention
+defines it: `active_prompt` is the *next eligible* prompt and `active_state` is
+the state of the prompt just **closed** (`SP-003`). `SP-004` is **`pending` and
+unopened** — the authoritative non-completion guard is `completed_prompts`,
+which contains only `SP-000`…`SP-003`. Prompt frontmatter `state:` reads
+`pending` for *every* SP prompt including finished ones, so frontmatter alone
+never proves a prompt is unopened.
+
+Re-verified at `e8f5f434c8741d8a13231698030dcf7768140746`: worktree clean,
+**21/21 bundles, 816 tests, 0 failures** (`Package.swift` declares exactly 21
+test targets, so no bundle was skipped), all four governance validators at exit
+0, and **38/38** deterministic governance tests. The audit corrected two false
+claims in `NEXT_SESSION_STARTER.md` — a stale `HEAD` pointer naming `d55aebb`,
+which was that document's own parent commit, and the claim that `SP-004` closes
+`OPEN-04` when `SP-005` carries the identical `gap_ids: OPEN-04` and `SP-004`'s
+completion gate disclaims UI/NLU reachability. It then brought this control
+plane forward: `SECOND_PASS_STATE.json` and `session-handoff.json` had never
+been updated past 2026-08-15 despite the 2026-08-16 work under
+`EV-SP-003-*-18`, `-19` and `-20`, and `session-handoff.json` still credited the
+**retracted** `EV-SP-003-20260815-R2-DIALOGUE-TESTS-15` in its `completed[]`
+array. Every validator passed throughout, because none of those fields are
+validator-enforced.
+
+Forwarded residual risks: `RISK-INJECTION-COVERAGE-NON-DIALOGUE`,
+`RISK-SP-003-MODEL-LATENCY`, `RISK-SP-003-LIVE-VOICE-RESIDUAL`, and
+`RISK-STT-MIC-NOT-CAPTURING`. `RISK-SP-003-NLU-DOWNGRADE-VARIANCE` is **closed**
+under `EV-SP-003-20260816-RISKS-AND-UI-19` and is no longer forwarded. Authority
+is edit-only. `OPEN-04` must not be marked closed at the end of `SP-004`.
+
+### Superseded overlay — 2026-08-15T18:23:13Z (SP-003 closure; state reconciled 2026-08-16)
 
 `SP-004` / `completed` — `SP-003` / `OPEN-03` is **completed**, superseding the
 18:03:11Z blocked overlay below. The seven R2 scenarios were run live against

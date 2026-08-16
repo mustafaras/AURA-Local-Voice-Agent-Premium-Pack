@@ -334,3 +334,31 @@ Never use a lower evidence class to claim a higher operational state in `capabil
   screenshotting the running app and corrected. Verified: 21/21 bundles 0 failed; clean AURA build
   with zero warnings. Limitations: visual confirmation covers the Conversation tab in dark
   appearance at one size only; no VoiceOver re-audit; no live-model or live-voice run claimed.
+
+- **EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21** — control-plane handoff-accuracy audit and
+  reconciliation at `2026-08-16T10:08:19Z` on `main` @ `e8f5f43`, worktree clean at start.
+  Verified every checkable claim in `NEXT_SESSION_STARTER.md` against live state and found two
+  false ones. First, the header pinned `HEAD == origin/main == d55aebb` while live `HEAD` was
+  `e8f5f43`; `d55aebb` was the document's own parent, so it shipped stale. Second, it claimed
+  `SP-004` closes `OPEN-04`, but `SP-005` carries the identical `gap_ids: OPEN-04`, `OPEN-04`
+  has a second NLU/UI-reachability bullet, and `SP-004`'s completion gate ends "no UI/NLU
+  reachability is claimed yet" — left uncorrected it would authorize closing `OPEN-04` a prompt
+  early, the same failure mode that produced the retracted `…-R2-DIALOGUE-TESTS-15`. Both
+  corrected. Also found the second-pass control plane had never been brought forward past
+  2026-08-15: `SECOND_PASS_STATE.json.last_evidence_ids` ended at `-17` though `-18`, `-19` and
+  `-20` exist and are registered here; its `next_action` still forwarded
+  `RISK-SP-003-NLU-DOWNGRADE-VARIANCE`, closed at `2026-08-16T08:20:49Z` under
+  `EV-SP-003-20260816-RISKS-AND-UI-19`; `session-handoff.json.last_verified_commit` read
+  `813a504`; and that file's `completed[]` still credited the retracted
+  `EV-SP-003-20260815-R2-DIALOGUE-TESTS-15`. All reconciled with original wording preserved and
+  corrections appended. Every validator passed before and after, because none of those fields are
+  validator-enforced. Verified: full sweep **21/21 bundles, 816 tests, 0 failures**; `Package.swift`
+  declares exactly 21 test targets so no bundle was skipped; `validate_runtime_completion --ci`,
+  `validate_second_pass_program`, `validate_repo_hygiene_program --ci` and
+  `validate_repo_hygiene_supply_chain --ci` all exit 0; **38/38** governance tests. Recorded as
+  reading traps rather than changed: the `active_prompt: SP-004` + `active_state: completed` pair
+  is a validator-enforced convention meaning "SP-004 is next", and
+  `validate_second_pass_program.py` rejects the `--ci` flag the other three require. Limitations:
+  no live-model, live-voice, microphone, TCC or running-application behaviour was exercised or
+  claimed; both live suites stayed disabled; the underlying SP-003 work was not re-executed. No
+  gap closed, no prompt opened, no product source changed.

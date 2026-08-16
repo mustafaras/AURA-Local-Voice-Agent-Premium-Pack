@@ -3,8 +3,8 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-15T18:23:13Z",
-  "session_id": "AURA-SP-003-LIVE-DIALOGUE-20260815",
+  "updated_at": "2026-08-16T10:08:19Z",
+  "session_id": "AURA-SECOND-PASS-HANDOFF-AUDIT-20260816",
   "active_prompt": "SP-004",
   "active_state": "completed",
   "completed_prompts": [
@@ -36,7 +36,11 @@
     "EV-SP-002-20260815-PTT-MOCK-14",
     "EV-SP-003-20260815-R2-DIALOGUE-TESTS-15",
     "EV-SP-003-20260815-LIVE-7SCENARIO-16",
-    "EV-SP-003-20260815-INJECTION-FIX-17"
+    "EV-SP-003-20260815-INJECTION-FIX-17",
+    "EV-SP-003-20260815-INJECTION-COVERAGE-18",
+    "EV-SP-003-20260816-RISKS-AND-UI-19",
+    "EV-SP-003-20260816-UI-SCENE-AND-GLASS-20",
+    "EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21"
   ],
   "authority": {
     "edit": true,
@@ -63,5 +67,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-003 is completed for OPEN-03 under EV-SP-003-20260815-LIVE-7SCENARIO-16 (blocker) and EV-SP-003-20260815-INJECTION-FIX-17 (resolution). The seven scenarios were run live against local gemma4:latest; a prompt-injection bypass found in scenario 7 was fixed by enforcing PromptInjectionClassifier on the DialogueEngine context path, and the re-run passed 25/25 with 0 failed bundles. The earlier EV-SP-003-20260815-R2-DIALOGUE-TESTS-15 is retracted. SP-004 is next eligible but remains pending and unopened; do not execute it without its own explicit authority and read order. Open residual risks RISK-INJECTION-COVERAGE-NON-DIALOGUE, RISK-SP-003-NLU-DOWNGRADE-VARIANCE, RISK-SP-003-MODEL-LATENCY and RISK-SP-003-LIVE-VOICE-RESIDUAL are forwarded and none block SP-004. Authority resets to edit-only."
+  "next_action": "SP-003 is completed for OPEN-03 under EV-SP-003-20260815-LIVE-7SCENARIO-16 (blocker) and EV-SP-003-20260815-INJECTION-FIX-17 (resolution). The seven scenarios were run live against local gemma4:latest; a prompt-injection bypass found in scenario 7 was fixed by enforcing PromptInjectionClassifier on the DialogueEngine context path, and the re-run passed 25/25 with 0 failed bundles. The earlier EV-SP-003-20260815-R2-DIALOGUE-TESTS-15 is retracted. Follow-up work is recorded under EV-SP-003-20260815-INJECTION-COVERAGE-18 (injection screening extended to four unscreened MultiAgentOrchestrator_Prompts surfaces), EV-SP-003-20260816-RISKS-AND-UI-19 (NLU-downgrade risk closed by verifying model-proposed capability IDs against CapabilityRegistry; bilingual STT harness) and EV-SP-003-20260816-UI-SCENE-AND-GLASS-20 (duplicate UI scene collapsed, Liquid Glass adopted). EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21 reconciled this control plane after a handoff-accuracy audit at e8f5f43 that re-verified 21/21 bundles, 816 tests, 0 failures, four validators at exit 0 and 38/38 governance tests; it corrected two false claims in NEXT_SESSION_STARTER.md and closed no gap. SP-004 is next eligible but remains pending and unopened; do not execute it without its own explicit authority and read order. Note that SP-004 closes only the adapter half of OPEN-04 — SP-005 carries the same gap_ids: OPEN-04 for NLU/UI reachability — so OPEN-04 must not be marked closed at the end of SP-004. Open residual risks RISK-INJECTION-COVERAGE-NON-DIALOGUE, RISK-SP-003-MODEL-LATENCY, RISK-SP-003-LIVE-VOICE-RESIDUAL and RISK-STT-MIC-NOT-CAPTURING are forwarded and none block SP-004. RISK-SP-003-NLU-DOWNGRADE-VARIANCE was closed at 2026-08-16T08:20:49Z under EV-SP-003-20260816-RISKS-AND-UI-19 and is no longer forwarded. Authority resets to edit-only."
 }
