@@ -2,15 +2,15 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-16T14:45:00Z",
-  "session_id": "AURA-SP-004-ADAPTERS-20260816",
+  "updated_at": "2026-08-16T16:05:00Z",
+  "session_id": "AURA-SP-006-LIVE-CAPABILITY-20260816",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "75b42aee6c4b62a3b88d5ab167d53d77473293b9",
-    "remote_head": "75b42aee6c4b62a3b88d5ab167d53d77473293b9",
-    "working_tree_state": "clean",
+    "verified_head": "94e9e36a149bfd1913d67ebf76e7e29ec9e9e8a5",
+    "remote_head": "94e9e36a149bfd1913d67ebf76e7e29ec9e9e8a5",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
@@ -79,7 +79,7 @@
     "id": "R2",
     "file": "AURA_RUNTIME_COMPLETION/prompts/R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
     "state": "pending",
-    "step": "SP-003 source-side R2 dialogue/NLU contract completed under EV-SP-003-20260815-R2-DIALOGUE-TESTS-15; first-pass R2 live microphone/TCC and R3-R12 remain open pending explicit authority."
+    "step": "First-pass R2 live microphone/TCC and R3-R12 remain open pending explicit authority. CORRECTION: this field previously cited EV-SP-003-20260815-R2-DIALOGUE-TESTS-15, which is RETRACTED - it recorded a pass of the pre-existing regression suite and mapped test names onto scenarios rather than running them. SP-003 was actually completed under EV-SP-003-20260815-LIVE-7SCENARIO-16 and EV-SP-003-20260815-INJECTION-FIX-17. Second-pass truth lives in SECOND_PASS_STATE.json (completed SP-000..SP-006)."
   },
   "tracks": [
     {
@@ -535,5 +535,5 @@
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "SP-002 is complete for bounded OPEN-03 under EV-SP-002-20260815-PTT-MOCK-14 with documented mock-STT accessibility accommodation. SP-003 is next eligible but pending and unopened. R2 first-pass live microphone/TCC Turkish/English/mixed 7-scenario gates, and R11/R12/FINAL release/beta/signing/deployment gates remain open. Authority is edit-only. Current repository HEAD and origin/main are 813a504ede1ac1566773eda04e80d7f6160e1179."
+  "next_action": "Second-pass SP-006 is complete for OPEN-04's forwarded seven-scenario live gate under EV-SP-006-20260816-7SCENARIO-02, with its mandatory closeout under EV-SP-006-20260816-CLOSEOUT-03; SP-007 is next eligible but pending and unopened. The SP-006 working tree is dirty_expected and uncommitted - commit/push/merge only under an explicit in-turn delivery go-ahead. First-pass R2 live microphone/TCC bilingual gates and R11/R12/FINAL release/beta/signing/deployment gates remain open. Authority is edit-only. Current repository HEAD and origin/main are 94e9e36a149bfd1913d67ebf76e7e29ec9e9e8a5."
 }

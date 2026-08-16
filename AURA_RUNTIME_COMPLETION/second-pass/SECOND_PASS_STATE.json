@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-16T15:30:00Z",
-  "session_id": "AURA-SP-005-REACHABILITY-20260816",
-  "active_prompt": "SP-006",
+  "updated_at": "2026-08-16T16:05:00Z",
+  "session_id": "AURA-SP-006-LIVE-CAPABILITY-20260816",
+  "active_prompt": "SP-007",
   "active_state": "completed",
   "completed_prompts": [
     "SP-000",
@@ -13,7 +13,8 @@
     "SP-002",
     "SP-003",
     "SP-004",
-    "SP-005"
+    "SP-005",
+    "SP-006"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
@@ -46,7 +47,9 @@
     "EV-SP-004-20260816-ADAPTERS-01",
     "EV-SP-004-20260816-CLOSEOUT-02",
     "EV-SP-004-20260816-CASE-CLOSURE-03",
-    "EV-SP-005-20260816-REACHABILITY-01"
+    "EV-SP-005-20260816-REACHABILITY-01",
+    "EV-SP-006-20260816-7SCENARIO-02",
+    "EV-SP-006-20260816-CLOSEOUT-03"
   ],
   "authority": {
     "edit": true,
@@ -73,5 +76,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-005 is completed for OPEN-04's NLU/UI reachability half under EV-SP-005-20260816-REACHABILITY-01: the four filesystem/URL capabilities are now reachable through NLU classification (RuleBasedUtteranceClassifier), production routing (ToolRouter → CapabilityRegistry → PolicyEngine → FileSystemURLOpener), and CapabilityPlanner validation. OPEN-04 is closed. Full sweep 21/21 bundles, 870/870 tests, 0 failed. All changes are local and uncommitted. SP-006 is next eligible but remains pending and unopened; do not execute without its own explicit authority. Forwarded residuals: RISK-SP-004-TOCTOU-RACE, RISK-SP-004-HANDLER-COMPROMISE (R10 scope); seven-scenario live demonstration (live-gate track). Authority resets to edit-only."
+  "next_action": "SP-006 is completed for OPEN-04's seven-scenario live demonstration under EV-SP-006-20260816-7SCENARIO-02, and its mandatory 15_SESSION_CLOSEOUT is recorded under EV-SP-006-20260816-CLOSEOUT-03. The closeout re-verified the sweep independently (21/21 bundles, 880/880 tests, 0 failed) and fixed five record defects the interrupted session left: a failing validate_second_pass_program.py (missing ACTIVE_CONTEXT.md SP-007/completed overlay), a never-updated RISK_REGISTER.md (model-latency bound widened to 28.5-49.0 s; new bounded RISK-SP-006-DEFAULT-GRANT-BREADTH), a stale capability-matrix intent.capability_registry row (now ui_reachable/live_verified with truthful open gaps), an undisclosed limitation (CapabilityPlanner is constructed only in tests, so scenario 4 was harness-driven over the real registry/policy/adapter path), and the missing closeout artifacts. All four governance validators now exit 0. The SP-006 working tree is still local and uncommitted: commit/push/merge only under an explicit in-turn delivery go-ahead. SP-007 is next eligible but remains pending and unopened; do not execute without its own explicit authority. Authority resets to edit-only."
 }

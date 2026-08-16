@@ -8,7 +8,35 @@
 
 ## Canonical status
 
-## Current second-pass overlay — 2026-08-16 (SP-005 closure; OPEN-04 closed)
+## Current second-pass overlay — 2026-08-16 (SP-006 closure; OPEN-04 live gate satisfied)
+
+`SP-007` / `completed` — `SP-006` / `OPEN-04` (the forwarded seven-scenario
+live-gate bullet) is **completed** under `EV-SP-006-20260816-7SCENARIO-02`,
+superseding the SP-005 closure overlay below. All seven R3 scenarios —
+observation, reversible file/URL action, confirmed mutation, two-step safe
+plan, unavailable capability, malformed model-plan rejection, and
+capability-health inspection — pass on the live production path (built,
+ad-hoc-signed, launched `AURA.app` driving text → `Conversation` →
+`IntentEngine` → `ToolRouter` → `PolicyEngine` → adapter with live local
+`gemma4:latest`; cloud inference count 0) with typed evidence and **no registry
+bypass**. Cancellation, partial-failure, rollback-declaration, and
+no-unauthorized-delivery controls pass. Two real defects were found and fixed
+through the live runs: the `.reversible` filesystem/URL capabilities had **no**
+seeded policy grant and would have been denied live (fixed by
+`Sources/AuraPolicy/DefaultPolicyGrants.swift` + kernel re-seeding + 8 tests),
+and `ToolRouter.handleFileOpen` misrouted a `folderPath` slot to the file
+validator (fixed to dispatch on the slot). Verified: **21/21 bundles,
+880/880 tests, 0 failed**, all four governance validators exit 0. `SP-007` is
+**pending and unopened**; authority resets to edit-only after delivery.
+
+Forwarded residual risks: `RISK-SP-004-TOCTOU-RACE`,
+`RISK-SP-004-HANDLER-COMPROMISE` (R10 scope);
+`RISK-INJECTION-COVERAGE-NON-DIALOGUE`; `RISK-SP-003-MODEL-LATENCY` (SP-006
+observed 28.5–49.0 s, above the 19.8–36.1 s previously recorded);
+`RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING` (voice track,
+cannot close in this environment). None owned by SP-006; none blocking SP-007.
+
+### Superseded overlay — 2026-08-16 (SP-005 closure; OPEN-04 closed)
 
 `SP-006` / `completed` — `SP-005` / `OPEN-04` (NLU/UI reachability half) is
 **completed** under `EV-SP-005-20260816-REACHABILITY-01`, superseding the

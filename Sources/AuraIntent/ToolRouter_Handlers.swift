@@ -127,7 +127,14 @@ extension ToolRouter {
       correlationID: executionContext.correlationID,
       causationID: executionContext.causationID)
     do {
-      let outcome = try await automation.openFile(path: path)
+      // Route on the slot, not just the path: a folder must go through
+      // `openFolder` (which validates a directory) rather than `openFile`
+      // (which refuses non-regular files). SP-006's two-step scenario caught
+      // this misroute — a folder target was handed to the file validator.
+      let isFolder = intent.slotValue(IntentSlotName.folderPath) != nil
+      let outcome = isFolder
+        ? try await automation.openFolder(path: path)
+        : try await automation.openFile(path: path)
       let summary = "Opened \(outcome.target)."
       await emit(
         ToolResultEvent(

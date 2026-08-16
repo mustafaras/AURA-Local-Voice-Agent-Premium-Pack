@@ -21,26 +21,13 @@ import Foundation
 
 extension AuraKernel {
   func seedDefaultGrants(_ policyEngine: PolicyEngine) async throws(AuraError) {
-    for grant in Self.defaultGrants {
+    // The list lives in `DefaultPolicyGrants` (AuraPolicy) so the production
+    // default posture is unit-testable; this executable target cannot be
+    // imported by test bundles. SP-006 added the filesystem/URL grants.
+    for grant in DefaultPolicyGrants.all {
       try await policyEngine.issueGrant(grant)
     }
   }
-
-  private static let defaultGrants: [Grant] = [
-    Grant(capability: .appActivate, patterns: [.any], confirmationRequirement: .none),
-    Grant(
-      capability: .appTerminate, patterns: [.any],
-      confirmationRequirement: .forRiskTier(.mutation)),
-    Grant(capability: .shellExec, patterns: [.any], confirmationRequirement: .always),
-    Grant(capability: .agentCodexRun, patterns: [.any], confirmationRequirement: .always),
-    Grant(capability: .agentClaudeRun, patterns: [.any], confirmationRequirement: .always),
-    Grant(capability: .agentCopilotRun, patterns: [.any], confirmationRequirement: .always),
-    // Local Ollama is reversible and has no side effects. The policy adapter
-    // only maps a model to this grant when its /api/tags entry is local.
-    Grant(
-      capability: .agentOllamaLocalInference, patterns: [.any],
-      confirmationRequirement: .none),
-  ]
 
   /// Build the configured TTS engine chain. Chatterbox V3 runs in a separate,
   /// local helper and owns a female system fallback, so warm-up or runtime

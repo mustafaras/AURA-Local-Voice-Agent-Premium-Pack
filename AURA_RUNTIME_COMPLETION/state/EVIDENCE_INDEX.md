@@ -448,3 +448,61 @@ Never use a lower evidence class to claim a higher operational state in `capabil
   ../state/EV-SP-005-20260816-REACHABILITY-01.md). Limitations: local and uncommitted; no live
   model, hardware, TCC, app launch, provider, signing, or deployment; the seven-scenario live
   demonstration is a forwarded live-gate residual; no UI buttons for these capabilities yet.
+
+- **EV-SP-006-20260816-7SCENARIO-02** — SP-006 / OPEN-04 (forwarded live gate) completion at
+  2026-08-16T14:24:00Z on `main` at `94e9e36a149bfd1913d67ebf76e7e29ec9e9e8a5` + local SP-006
+  changes. Ran the R3 seven-scenario demonstration end to end on the live path (built, ad-hoc
+  signed, LaunchServices-launched `AURA.app` driving the production text → `Conversation` →
+  `IntentEngine` → `ToolRouter` → `PolicyEngine` → adapter path) plus a real-process Swift
+  Testing harness over the same registry/planner/policy/adapter objects. Fixed two pre-live
+  blocking defects first: (1) the `.reversible` fs/URL capabilities had no seeded grant and
+  would have been policy-denied live — resolved by `Sources/AuraPolicy/DefaultPolicyGrants.swift`
+  + kernel re-seeding + 8 policy tests; (2) `ToolRouter.handleFileOpen` misrouted `folderPath`
+  slots to the file validator — fixed to dispatch on the slot. Results: scenario 1 observation
+  (live `gemma4:latest`, local, cloud 0); scenario 2 reversible file+URL opens (TextEdit launched
+  with `note.txt`, Chrome launched at the URL turn); scenario 3 confirmed mutation (Calculator
+  quit after the confirmation path; a prior deny run left it running); scenario 4 two-step plan
+  via `CapabilityPlanner` (fingerprinted, both steps executed); scenario 5 unavailable capability
+  (`mail.read` stays `.disabled`, never invoked); scenario 6 malformed model plan rejected
+  (`time_machine.travel` → registry rejection, non-executable); scenario 7 capability-health
+  inspection (28 manifests, 14 ready / 14 disabled, truthful). Cancellation, partial failure,
+  rollback-declaration, and no-unauthorized-delivery controls pass. Full sweep **21/21 bundles,
+  880/880 tests, 0 failed**; all four governance validators exit 0. Class: direct live system +
+  live-model + real-process harness evidence. Artifacts:
+  [`AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-7SCENARIO-02.md`](
+  ../state/EV-SP-006-20260816-7SCENARIO-02.md) plus the `.harness.json`, `.live-model.json`,
+  `.entries.log`, and two UI PNG siblings. Limitations: the confirmation click was satisfied by
+  the demo-run `AutoAllowConfirmationPresenter` (the deny leg was separately proven live); the
+  Capabilities tab is present but minimally AX-exposed in this build; text-input path only (user
+  is speech-disabled); single machine/model/run; scenario 4's `CapabilityPlanner` is
+  harness-constructed — no production site builds a plan (limitation added under
+  `EV-SP-006-20260816-CLOSEOUT-03`).
+
+- **EV-SP-006-20260816-CLOSEOUT-03** — SP-006 mandatory `15_SESSION_CLOSEOUT` at
+  2026-08-16T16:05:00Z on `main` at `94e9e36a149bfd1913d67ebf76e7e29ec9e9e8a5`, working tree
+  `dirty_expected`. The SP-006 session ended before its closeout ran; this record is that
+  closeout, executed against the surviving working tree and verified by re-running the gates
+  rather than by trusting the prior summary. **Found and corrected five record defects:**
+  (1) `validate_second_pass_program.py` was failing exit 1 — `SECOND_PASS_STATE.json` had been
+  advanced to `SP-007`/`completed` without the matching `ACTIVE_CONTEXT.md` overlay, while both
+  ledgers already claimed all four validators exit 0; (2) `RISK_REGISTER.md` was never updated
+  despite being a named required record — `RISK-SP-003-MODEL-LATENCY` bound widened to
+  28.5–49.0 s and new bounded `RISK-SP-006-DEFAULT-GRANT-BREADTH` registered (the three new
+  grants use `patterns: [.any]`, so target narrowing rests entirely on `OpenTargetValidator`);
+  (3) `capability-matrix.json`'s `intent.capability_registry` row still described the pre-SP-004
+  world (`unit_only`/`developer_only`, "no adapter yet", "live demonstration has not been
+  performed") — raised to `live_verified`/`ui_reachable` with four truthful `open_gaps`;
+  (4) the SP-006 evidence file did not disclose that `CapabilityPlanner` is constructed only in
+  tests (`grep -rn "CapabilityPlanner(" Sources/` → no match), so scenario 4's plan was
+  harness-driven over real registry/policy/adapter objects — limitation now stated;
+  (5) no closeout evidence, ledger entries, or updated `NEXT_SESSION_STARTER.md` existed, and an
+  empty untracked `nohup.out` was left behind (removed). **Independent re-verification:**
+  `./scripts/aura-test.sh /tmp/aura-sp006-verify-20260816` → **21/21 bundles, 880/880 tests, 0
+  failed**, exit 0, totals recomputed from the log (SHA-256
+  `1eb02473728b19c9130d97f4fdba6eb595c82bcda13ffc111971654eeb130c8c`), reproducing the prior
+  880/880 claim; all four governance validators now exit 0. Class: process/closeout. Artifact:
+  [`AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-CLOSEOUT-03.md`](
+  ../state/EV-SP-006-20260816-CLOSEOUT-03.md). Limitations: no live procedure was run in this
+  closeout (no app launch, TCC, model inference, or filesystem/URL effect) — the live evidence
+  remains the SP-006 run's and is not re-claimed; delivery authority was not exercised, so the
+  working tree remains local and uncommitted; `SP-006`'s completion verdict is unchanged.

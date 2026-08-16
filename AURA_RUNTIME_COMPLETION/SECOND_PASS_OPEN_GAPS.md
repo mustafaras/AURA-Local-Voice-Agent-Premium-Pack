@@ -505,6 +505,15 @@ Prompt: [`04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`](archive/first-pass-p
   `OPEN-04` is **closed** by `EV-SP-004-20260816-ADAPTERS-01` (adapter half) and
   `EV-SP-005-20260816-REACHABILITY-01` (NLU/UI reachability half). The
   seven-scenario live demonstration remains a forwarded live-gate residual.
+- **Forwarded live gate satisfied by SP-006** under `EV-SP-006-20260816-7SCENARIO-02`:
+  all seven R3 scenarios (observation, reversible file/URL action, confirmed
+  mutation, two-step safe plan, unavailable capability, malformed model-plan
+  rejection, capability-health inspection) pass on the live production path with
+  typed evidence and no registry bypass; cancellation, partial-failure,
+  rollback-declaration, and no-unauthorized-delivery controls pass. Two real
+  defects were found and fixed through the live runs (a missing seeded policy
+  grant for the `.reversible` fs/URL capabilities, and a folder-slot misroute in
+  `ToolRouter.handleFileOpen`). `R3`'s live demonstration bullet is complete.
 
 ## OPEN-05 — R4: Computer-Use Productization
 

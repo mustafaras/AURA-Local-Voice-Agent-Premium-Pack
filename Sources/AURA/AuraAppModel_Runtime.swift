@@ -85,7 +85,13 @@ extension AuraAppModel {
         leftIdleWaited += 0.1
       }
       var waited = 0.0
-      while status != .idle, waited < 45 {
+      // SP-006: mutation-tier intents (quit, shell) route through the
+      // structured-NLU model first (19.8–36.1 s/turn) before the policy
+      // challenge surfaces, so the per-turn budget must exceed the worst
+      // observed model latency plus the confirmation window. 45 s was too
+      // short — a `quit Calculator` turn was still `thinking` (confirmation
+      // pending) when the driver gave up at exactly 45.0 s.
+      while status != .idle, waited < 120 {
         try? await Task.sleep(nanoseconds: 500_000_000)
         waited += 0.5
       }

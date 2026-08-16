@@ -1,0 +1,198 @@
+{
+  "generatedAt" : "2026-08-16T13:12:42Z",
+  "healthRows" : [
+    {
+      "availability" : "ready",
+      "confirmationRule" : "destructive tier default; backend adapter also evaluates its own policy",
+      "id" : "agent.coding_run",
+      "qualifiedID" : "agent.coding_run@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "reversible tier default (no mandatory confirmation)",
+      "id" : "app.activate",
+      "qualifiedID" : "app.activate@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "never required (observation tier)",
+      "id" : "app.discover",
+      "qualifiedID" : "app.discover@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "reversible tier default (no mandatory confirmation)",
+      "id" : "app.hide",
+      "qualifiedID" : "app.hide@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "mutation tier default (confirmation required unless granted)",
+      "id" : "app.quit",
+      "qualifiedID" : "app.quit@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "never required (observation tier)",
+      "id" : "aura.converse",
+      "qualifiedID" : "aura.converse@1.0.0"
+    },
+    {
+      "availability" : "disabled: Structured Safari Web Extension read bridge exists as a typed adapter but is not packaged or wired into the composition root yet.",
+      "confirmationRule" : "never required for read-only observation; profile\/domain scope still applies",
+      "id" : "browser.read",
+      "qualifiedID" : "browser.read@1.0.0"
+    },
+    {
+      "availability" : "disabled: EventKit read adapter exists, but calendar authorization and composition-root wiring are user-controlled and not configured in this pass.",
+      "confirmationRule" : "never required for read-only observation; authorization remains user-controlled",
+      "id" : "calendar.read",
+      "qualifiedID" : "calendar.read@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "never required (observation tier)",
+      "id" : "capability.health",
+      "qualifiedID" : "capability.health@1.0.0"
+    },
+    {
+      "availability" : "disabled: Computer-use run is implemented (DeterministicComputerUsePlanner) but not yet wired into the composition root; it requires an approved, live-validated beta app.",
+      "confirmationRule" : "mutation tier default (confirmation required unless granted); mandatory-confirmation intents always require confirmation",
+      "id" : "computerUse.run",
+      "qualifiedID" : "computerUse.run@1.0.0"
+    },
+    {
+      "availability" : "disabled: Contacts candidate lookup adapter exists, but Contacts authorization and composition-root wiring are user-controlled and not configured in this pass.",
+      "confirmationRule" : "never required for candidate lookup; full address book is never exposed",
+      "id" : "contacts.lookup",
+      "qualifiedID" : "contacts.lookup@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "reversible tier default (no mandatory confirmation)",
+      "id" : "filesystem.open_file",
+      "qualifiedID" : "filesystem.open_file@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "reversible tier default (no mandatory confirmation)",
+      "id" : "filesystem.open_folder",
+      "qualifiedID" : "filesystem.open_folder@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "reversible tier default (no mandatory confirmation)",
+      "id" : "filesystem.reveal",
+      "qualifiedID" : "filesystem.reveal@1.0.0"
+    },
+    {
+      "availability" : "disabled: Gmail read adapter contracts and least-privilege scope checks exist, but no user account\/token is configured and the provider transport is not wired yet.",
+      "confirmationRule" : "never required for read-only observation; account scope and privacy policy apply",
+      "id" : "mail.read",
+      "qualifiedID" : "mail.read@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "mutation tier default; escalates to destructive\/mandatory confirmation on a destructive-pattern match",
+      "id" : "shell.execute_typed",
+      "qualifiedID" : "shell.execute_typed@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "reversible tier default (no mandatory confirmation)",
+      "id" : "task.cancel",
+      "qualifiedID" : "task.cancel@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "never required (observation tier)",
+      "id" : "task.status",
+      "qualifiedID" : "task.status@1.0.0"
+    },
+    {
+      "availability" : "ready",
+      "confirmationRule" : "reversible tier default (no mandatory confirmation)",
+      "id" : "url.open",
+      "qualifiedID" : "url.open@1.0.0"
+    },
+    {
+      "availability" : "disabled: Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, and live composition route are not provisioned in this pass.",
+      "confirmationRule" : "observation route; workspace and dirty-state checks still apply",
+      "id" : "vscode.bridge_health",
+      "qualifiedID" : "vscode.bridge_health@1.0.0"
+    },
+    {
+      "availability" : "disabled: Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, and live composition route are not provisioned in this pass.",
+      "confirmationRule" : "reversible tier policy decision required",
+      "id" : "vscode.cancel_task",
+      "qualifiedID" : "vscode.cancel_task@1.0.0"
+    },
+    {
+      "availability" : "disabled: Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, and live composition route are not provisioned in this pass.",
+      "confirmationRule" : "reversible tier policy decision required",
+      "id" : "vscode.cancel_tests",
+      "qualifiedID" : "vscode.cancel_tests@1.0.0"
+    },
+    {
+      "availability" : "disabled: Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, and live composition route are not provisioned in this pass.",
+      "confirmationRule" : "observation route; workspace and dirty-state checks still apply",
+      "id" : "vscode.diagnostics",
+      "qualifiedID" : "vscode.diagnostics@1.0.0"
+    },
+    {
+      "availability" : "disabled: Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, and live composition route are not provisioned in this pass.",
+      "confirmationRule" : "observation route; workspace and dirty-state checks still apply",
+      "id" : "vscode.editor_state",
+      "qualifiedID" : "vscode.editor_state@1.0.0"
+    },
+    {
+      "availability" : "disabled: Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, and live composition route are not provisioned in this pass.",
+      "confirmationRule" : "reversible tier policy decision required",
+      "id" : "vscode.run_task",
+      "qualifiedID" : "vscode.run_task@1.0.0"
+    },
+    {
+      "availability" : "disabled: Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, and live composition route are not provisioned in this pass.",
+      "confirmationRule" : "reversible tier policy decision required",
+      "id" : "vscode.run_tests",
+      "qualifiedID" : "vscode.run_tests@1.0.0"
+    },
+    {
+      "availability" : "disabled: Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, and live composition route are not provisioned in this pass.",
+      "confirmationRule" : "observation route; workspace and dirty-state checks still apply",
+      "id" : "vscode.terminal_sessions",
+      "qualifiedID" : "vscode.terminal_sessions@1.0.0"
+    },
+    {
+      "availability" : "disabled: Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, and live composition route are not provisioned in this pass.",
+      "confirmationRule" : "observation route; workspace and dirty-state checks still apply",
+      "id" : "vscode.workspace_status",
+      "qualifiedID" : "vscode.workspace_status@1.0.0"
+    }
+  ],
+  "kind" : "harness",
+  "notes" : [
+    "twoStepPlanFingerprint=17099672b861f5a30a0b093061945eec06a6ea068e4fdbe4ecc1ab54feb204fd",
+    "partialPlanFingerprint=17693ba846601625e3be49fd5bb3f64e93544613b21872bb9168df43d5b56e67",
+    "cancellation=typed CancellationError before LaunchServices handoff",
+    "shellDenial=blockedPendingConfirmationDenied; no tool.invoked for shell.execute_typed"
+  ],
+  "steps" : [
+    {
+      "index" : 0,
+      "outcome" : "executed: Opened \/tmp\/aura-sp006-sandbox.",
+      "qualifiedCapabilityID" : "filesystem.open_folder@1.0.0",
+      "riskTier" : "reversible",
+      "rollbackStrategy" : "none required — a refused target is never opened, so nothing needs undoing; an opened Finder window is not closed automatically",
+      "verificationMethod" : "pre-flight OpenTargetValidator refusal (canonicalized path must exist and be a directory that is not an application bundle) plus the Boolean result of NSWorkspace.open(_:); a false return is reported as a failure and never as success."
+    },
+    {
+      "index" : 1,
+      "outcome" : "executed: Revealed \/tmp\/aura-sp006-sandbox\/note.txt in Finder.",
+      "qualifiedCapabilityID" : "filesystem.reveal@1.0.0",
+      "riskTier" : "reversible",
+      "rollbackStrategy" : "none required — revealing selects an item and never runs it; a refused target is never revealed",
+      "verificationMethod" : "pre-flight OpenTargetValidator refusal (canonicalized path must exist and clear the sensitive-location rule) plus the Boolean result of NSWorkspace.selectFile(_:inFileViewerRootedAtPath:), which reports whether Finder accepted the selection; a false return is reported as a failure and never as success."
+    }
+  ]
+}

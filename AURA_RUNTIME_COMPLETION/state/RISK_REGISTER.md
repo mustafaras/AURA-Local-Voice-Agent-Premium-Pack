@@ -398,3 +398,50 @@ as a uniform "closed".
   `rejectsCaseVariantSensitiveLocation` creates `.SSH/id_rsa` and asserts it is refused for both
   `validateFile` and `validateRevealTarget`. Full sweep 21/21 bundles, 851/851 tests, 0 failed.
 - **Evidence:** `EV-SP-004-20260816-CASE-CLOSURE-03`
+
+### 2026-08-16T14:30:00Z — SP-006 / OPEN-04 live-gate risk disposition
+
+The seven-scenario live run neither opened nor closed a risk on its own account. It did
+re-measure one forwarded risk beyond its recorded bound, and it created one new bounded
+residual through the fix it had to make. Both are recorded here rather than folded silently
+into the SP-006 evidence file.
+
+- **Risk ID:** `RISK-SP-003-MODEL-LATENCY`
+- **Status:** **Open — observation, bound widened**
+- **Owner:** R7
+- **Update:** SP-006's live turns measured **28.5–49.0 s** per model-backed turn, above the
+  19.8–36.1 s recorded at SP-003. The 49.0 s turn still sat inside
+  `ConversationConfiguration.thinkTimeoutSeconds` (90 s) and
+  `OllamaConfiguration.requestTimeoutSeconds` (120 s), so the honest-degradation property
+  verified at SP-003 still holds — but the margin is thinner than the earlier figure implied,
+  and the mutation-tier path pays this cost *before* the confirmation card appears. The SP-006
+  demo driver's per-turn budget had to be raised 45 s → 120 s for exactly this reason: a 45 s
+  budget produced a `confirmationDenied` because the driver gave up while the turn was still
+  `thinking`.
+- **Why it is not fixed:** unchanged from SP-003 — no code change makes an 8B Q4_K_M model
+  faster on this hardware, and a smaller model needs a download that is outside granted
+  authority.
+- **Impact if unaddressed:** any future timeout, watchdog, or UI-affordance budget derived from
+  the 19.8–36.1 s figure will be set too tight. Use 28.5–49.0 s as the current observed range.
+- **Evidence:** `EV-SP-006-20260816-7SCENARIO-02`
+
+- **Risk ID:** `RISK-SP-006-DEFAULT-GRANT-BREADTH`
+- **Status:** **Open — new, bounded**
+- **Owner:** R3 / R10 (policy posture)
+- **Risk:** SP-006 had to seed `.none`-confirmation grants for `.fileOpen`, `.fileReveal`, and
+  `.urlOpen` with `patterns: [.any]`, because the production `PolicyConfiguration` denies the
+  `.reversible` tier by default and the capabilities were otherwise unreachable live. `[.any]`
+  means the *policy* layer no longer narrows these three capabilities at all: every refusal now
+  depends on the adapter's `OpenTargetValidator` (path confinement, sensitive-location refusal,
+  scheme allowlist, refuse-before-effect) and on the registry's availability state. A validator
+  regression would therefore be a policy-visible hole rather than a defence-in-depth miss.
+- **Mitigation so far:** the grants match each manifest's declared `confirmationRule` verbatim
+  and mirror the pre-existing `.appActivate` precedent rather than inventing a looser posture;
+  `DefaultPolicyGrantsTests` (8 tests) pin the production default posture against an unmodified
+  `PolicyConfiguration()`, so a future broadening is a test failure rather than silent drift;
+  the adapter's refusal rules are separately covered, including the case-variant
+  sensitive-location test closed under `RISK-SP-004-CASE-SENSITIVITY`.
+- **Closure criterion:** either a pattern-scoped grant (confining these three capabilities to
+  declared user directories at the policy layer rather than only the adapter layer), or an
+  explicit accepted-risk decision recorded with the R10 privilege-separation work.
+- **Evidence:** `EV-SP-006-20260816-7SCENARIO-02`

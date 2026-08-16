@@ -1,0 +1,17 @@
+{
+  "generatedAt" : "2026-08-16T13:12:51Z",
+  "healthRows" : [
+
+  ],
+  "kind" : "live-model",
+  "notes" : [
+    "routedModel=gemma4:latest local=true",
+    "scenario5 intentKind=converse outcome=executed: The local answer model is unavailable right now. Please rephrase your request.",
+    "scenario6 proposedCapabilityID=time_machine.travel",
+    "scenario6 finalKind=converse",
+    "inferenceCount=3 allLocal=true"
+  ],
+  "steps" : [
+
+  ]
+}
