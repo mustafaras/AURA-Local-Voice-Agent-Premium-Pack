@@ -362,3 +362,71 @@ Never use a lower evidence class to claim a higher operational state in `capabil
   no live-model, live-voice, microphone, TCC or running-application behaviour was exercised or
   claimed; both live suites stayed disabled; the underlying SP-003 work was not re-executed. No
   gap closed, no prompt opened, no product source changed.
+- **EV-SP-004-20260816-ADAPTERS-01** — SP-004 / adapter half of OPEN-04 completion at
+  2026-08-16 (closeout date) on branch `main` atop `078a19c`, macOS 27 / Apple Silicon arm64 /
+  Swift 6.4 / CommandLineTools, Python 3.14.6. All work local and uncommitted at closeout; no
+  commit/push/merge authority was held or exercised. Implemented the four missing R3 capability
+  adapters: `filesystem.open_file`, `filesystem.open_folder`, `filesystem.reveal`, `url.open`, as
+  three new `AuraAutomation` sources (`OpenTargetRejection`, `OpenTargetValidator`,
+  `FileSystemURLOpener`) plus kernel construction/runtime wiring through the existing
+  non-NLU direct-call pattern (`app.discover`-style: `PolicyEngine` evaluated via real
+  `PolicyTarget` fields before every adapter call). Validator: refuse-before-effect,
+  canonicalization via `PathConfinement` *before* containment comparison, scheme allowlist
+  (http/https/mailto), refusal of executables/bundles/location-forwarding types/sensitive
+  locations/embedded credentials/control characters/null bytes; adapter: refuse →
+  `AuraError.securityError` (nothing reaches LaunchServices, nothing to roll back), cancel
+  immediately before the effect, verify via the real `Bool` return from `NSWorkspace.open`/
+  `selectFile` — a false is `AuraError.automationError`, never silent success. Four manifests in
+  `InitialCapabilitySet_ExternalCapabilities` rewritten from stubs to accurate
+  `verificationMethod`/`owningAdapter` entries truthfully disclaiming frontmost/finished-loading/
+  browser-rendered claims; the four availabilities flipped from `.disabled` to `.ready` in
+  `InitialCapabilitySet_CapabilityDefinitions` with an explicit comment that this claims
+  direct-call adapter reachability only — NLU/UI reachability is SP-005's objective and OPEN-04
+  stays open. Three pre-existing tests asserting the old disabled state were repointed truthfully
+  (a new ready-vs-honest test asserts the flip; a planner-rejects-disabled test repointed at the
+  still-disabled `browser.read`; two hardcoded ready-manifest counts incremented). Verified:
+  `swift build` green; `swift build -Xswiftc -strict-concurrency=complete -Xswiftc
+  -warnings-as-errors` green with zero warnings; full sweep **21/21 bundles, 850 tests, 0
+  failed bundles** via `./scripts/aura-test.sh /tmp/aurabuild-sp004v3` (`Package.swift` declares
+  exactly 21 test targets, none skipped); `validate_second_pass_program.py` exit 0;
+  `validate_repo_hygiene_supply_chain.py --ci` exit 0; after the state/handoff/projection
+  updates in the same session, `validate_runtime_completion.py --ci` and the 38 deterministic
+  governance tests restored to green. Two independent review agents ran post-green:
+  `swift-reviewer` found no CRITICAL and one HIGH (untyped catch — fixed in-session);
+  `security-reviewer` found one CRITICAL (TOCTOU race), three HIGH, and one MEDIUM — all
+  dispositioned with reasoning in the evidence record; bounded residual risks registered as
+  `RISK-SP-004-TOCTOU-RACE`, `RISK-SP-004-HANDLER-COMPROMISE`,
+  `RISK-SP-004-CASE-SENSITIVITY`. Class: contract/system — deterministic unit/contract/
+  adversarial/cancellation/failure-verification tests plus governance. Artifact: full-test log
+  `/private/tmp/claude-501/-Users-m-ras-Desktop-AURA-Local-Voice-Agent-Premium-Pack/
+  d82316c4-69e0-400f-a35b-74bf5684d594/scratchpad/sp004-full4.log` SHA-256
+  `138d9321c6b742bc65a3e06ff27c5be24b7644db155bcdf133ef8783cb5672d3`; record
+  [`AURA_RUNTIME_COMPLETION/state/EV-SP-004-20260816-ADAPTERS-01.md`](
+  ../state/EV-SP-004-20260816-ADAPTERS-01.md). Limitations: local and uncommitted; no live
+  model, live hardware, TCC, app launch, provider contact, signing, or deployment; adversarial
+  cases tested through a sandboxed temporary directory / scripted spy, never by actually
+  executing a `.command` against the user system; no UI/NLU reachability is claimed and
+  OPEN-04 remains open for SP-005.
+- **EV-SP-004-20260816-CLOSEOUT-02** — SP-004 mandatory `15_SESSION_CLOSEOUT` at
+  2026-08-16T11:09:23Z on `main` at `078a19c` (`HEAD == origin/main`, worktree `dirty_expected`
+  with only this session's SP-004 paths). Verified: second-pass/runtime/hygiene/supply-chain
+  validators exit 0; 38/38 deterministic governance tests; compileall, shell syntax, and
+  `git diff --check` pass; full sweep already green on the final tree (21/21 bundles, 850/850
+  tests). Class: process/closeout. Artifact:
+  [`AURA_RUNTIME_COMPLETION/state/EV-SP-004-20260816-CLOSEOUT-02.md`](
+  ../state/EV-SP-004-20260816-CLOSEOUT-02.md). Limitations: the SP-004 working tree is
+  deliberately uncommitted; no live-model, hardware, TCC, app-launch, provider, signing, or
+  deployment claim; authority reset to edit-only.
+- **EV-SP-004-20260816-CASE-CLOSURE-03** — `RISK-SP-004-CASE-SENSITIVITY` closure at
+  2026-08-16T14:25:00Z on `main` atop `078a19c` (local/uncommitted). The sensitive-location
+  fragment check in `OpenTargetValidator.rejectSensitiveLocation` now compares against a
+  `lowercased()` probe, handling the case-insensitive APFS default: `/Users/alice/.SSH/id_rsa`
+  is now refused identically to `/.ssh/id_rsa`. New test
+  `rejectsCaseVariantSensitiveLocation` proves both `validateFile` and `validateRevealTarget`
+  refuse the uppercase variant. Verified: `swift build` green; focused `AuraAutomationTests`
+  39/39 (+1); full sweep **21/21 bundles, 851/851 tests, 0 failed bundles** (log SHA-256
+  `95e23e5ac51510e7cd42d7c81e6f7d87027a94756be86c382a0c5b36a7eaf879`); second-pass/runtime/
+  hygiene/supply-chain validators exit 0; 38/38 governance tests. Class: contract/system.
+  Artifact: [`AURA_RUNTIME_COMPLETION/state/EV-SP-004-20260816-CASE-CLOSURE-03.md`](
+  ../state/EV-SP-004-20260816-CASE-CLOSURE-03.md). Limitations: `RISK-SP-004-TOCTOU-RACE` and
+  `RISK-SP-004-HANDLER-COMPROMISE` remain open (R10 scope); local and uncommitted.

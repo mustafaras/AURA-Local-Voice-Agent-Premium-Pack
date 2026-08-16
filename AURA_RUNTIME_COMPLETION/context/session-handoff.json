@@ -1,18 +1,17 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-16T10:08:19Z",
-  "session_id": "AURA-SECOND-PASS-HANDOFF-AUDIT-20260816",
-  "last_verified_commit": "e8f5f434c8741d8a13231698030dcf7768140746",
+  "updated_at": "2026-08-16T15:30:00Z",
+  "session_id": "AURA-SP-004-ADAPTERS-20260816",
+  "last_verified_commit": "078a19c3ff34e9cd0a2c0fb1eb35be7e8c02ef01",
   "active_prompt": {
-    "id": "SP-004",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-004_FILESYSTEM_AND_URL_CAPABILITY_ADAPTERS.prompt.md",
+    "id": "SP-005",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-005_CAPABILITY_REACHABILITY_AND_PLANNER_WIRING.prompt.md",
     "state": "completed",
-    "step": "SP-003 is completed for OPEN-03 under EV-SP-003-20260815-LIVE-7SCENARIO-16 and EV-SP-003-20260815-INJECTION-FIX-17, with follow-up work under -18, -19 and -20; the control plane was reconciled under EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21. SP-004 is next eligible but remains pending and unopened. SP-004 closes only the adapter half of OPEN-04; SP-005 carries the same gap_ids: OPEN-04 for NLU/UI reachability, so OPEN-04 must not be marked closed at the end of SP-004."
+    "step": "SP-004 is completed for the adapter half of OPEN-04 under EV-SP-004-20260816-ADAPTERS-01. SP-005 is next eligible but remains pending and unopened; it owns the rest of OPEN-04 (NLU/UI reachability for the four new adapters, DialogueEngine/ToolRouter planner wiring, seven-scenario live demonstration). OPEN-04 must not be marked closed before SP-005."
   },
-  "summary": "SP-003 / OPEN-03 completed. The seven R2 scenarios were run live through the real IntentEngine, RuleBasedUtteranceClassifier, DialogueEngine and OllamaAdapter against gemma4:latest, the only genuinely local model of the 15 installed; all inferences were local and cloud inference count was 0. The first run exposed a real defect: prompt-injection content inside an approved DialogueContextItem displaced the user's request and the model replied 'PWNED'. Root cause was missing enforcement, not missing detection - PromptInjectionClassifier already scored the payload as blocked but was never invoked on the dialogue path. DialogueEngine now screens every context summary before prompt assembly, withholding blocked content while preserving provenance, and screens as non-authoritative regardless of the item's self-declared authority. Three deterministic regression tests plus a live re-run (25/25, 0 failed bundles) confirm the fix; AuraIntentTests 70/70. The prior EV-SP-003-20260815-R2-DIALOGUE-TESTS-15 is retracted as it never ran the scenarios and wrote its artifact only to /tmp. Follow-up work extended injection screening to four unscreened MultiAgentOrchestrator_Prompts surfaces (-18), closed the structured-NLU downgrade risk by verifying model-proposed capability IDs against CapabilityRegistry and added a bilingual STT harness (-19), and collapsed a duplicate UI scene while adopting Liquid Glass (-20). EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21 then reconciled this control plane, which had never been brought forward past 2026-08-15: it re-verified 21/21 bundles, 816 tests, 0 failures, four validators at exit 0 and 38/38 governance tests at e8f5f43, and corrected two false claims in NEXT_SESSION_STARTER.md (a stale HEAD pointer, and a claim that SP-004 closes OPEN-04 when SP-005 carries the same gap). Residual risks: injection-classifier coverage beyond the dialogue path, model latency 19.8-36.1 s, live microphone/TCC voice, and live STT capture. The structured-NLU downgrade variance is closed and no longer forwarded. Authority is edit-only after closeout.",
+  "summary": "SP-004 completed the adapter half of OPEN-04. filesystem.open_file, filesystem.open_folder, filesystem.reveal and url.open are now real, typed, policy-controlled, verified adapters (AuraAutomation.FileSystemURLOpener backed by OpenTargetValidator: PathConfinement canonicalization before containment, refuse-before-effect, executable/bundle/sensitive-location/location-forwarding refusal, http/https/mailto scheme allowlist, embedded-credential and control-character rejection, late cancellation check, real NSWorkspace Boolean postcondition with false surfaced as automationError). They are registered .ready with truthful manifests and are reachable only via direct policy-gated AuraKernel calls — the app.discover/app.hide/task.status/task.cancel pattern; no NLU/UI reachability is claimed and OPEN-04 stays open for SP-005. Verified: swift build green; strict-concurrency warnings-as-errors build green; full sweep 21/21 bundles, 850/850 tests, 0 failed; validate_second_pass_program exit 0; supply-chain validator exit 0; runtime validator and 38/38 governance tests green after the state updates in this session. Two independent review agents ran post-green; one typed-catch issue fixed in-session; remaining findings dispositioned; RISK-SP-004-TOCTOU-RACE, RISK-SP-004-HANDLER-COMPROMISE and RISK-SP-004-CASE-SENSITIVITY registered as bounded residuals. All changes are local and uncommitted; no commit/push/merge/launch/TCC/model/provider/sign/release/deploy action occurred.",
   "completed": [
-    "Added RuntimeHealthRegistry live change events, explicit degraded/loading/unsupported construction states, and UI health refresh through AuraAppModel.",
     "Accepted ADR-035 and ADR-037; confirmation replay, plan-change, expiry, context-mismatch, verification, and restart fail-closed behavior are covered by tests.",
     "Bound confirmation execution to exact structured plan fingerprints and added a changed-argument regression test.",
     "Moved successful Chatterbox private-audio cleanup before stream completion and verified the full audio bundle remains deterministic.",
@@ -41,567 +40,98 @@
     "CORRECTION: EV-SP-003-20260815-R2-DIALOGUE-TESTS-15 is RETRACTED. It recorded a pass of the pre-existing regression suite and mapped test names onto the seven scenarios rather than running them, writing its artifact only to /tmp. The entry above it is retained verbatim but is NOT authoritative. SP-003 was completed under EV-SP-003-20260815-LIVE-7SCENARIO-16 (live run; found a prompt-injection blocker in scenario 7) and EV-SP-003-20260815-INJECTION-FIX-17 (fix, 25/25, 0 failed bundles).",
     "SP-003 follow-up: -18 extended PromptInjectionScreen to four unscreened MultiAgentOrchestrator_Prompts surfaces (repository diff, validation output, planner plan, reviewer feedback); -19 closed RISK-SP-003-NLU-DOWNGRADE-VARIANCE by verifying model-proposed capability IDs against CapabilityRegistry and added a bilingual STT harness; -20 collapsed a duplicate UI scene into one Window(id:) and adopted Liquid Glass.",
     "EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21 reconciled this control plane at e8f5f434c8741d8a13231698030dcf7768140746; it had never been brought forward past 2026-08-15 because the drifted fields are not validator-enforced. Corrected a stale HEAD pointer and the claim that SP-004 closes OPEN-04 (SP-005 carries the same gap). Re-verified 21/21 bundles, 816 tests, 0 failures, 4 validators exit 0, 38/38 governance tests. No gap closed, no prompt opened.",
-    "NOTE: this array is a bounded 30-item rolling window (schema maxItems 30, maxLength 500 per item), not an append-only ledger. Four BOOTSTRAP/R0-era entries rolled off during the 2026-08-16 reconciliation; full history is preserved in PROGRAM_LEDGER.md and SECOND_PASS_LEDGER.md."
+    "NOTE: this array is a bounded 30-item rolling window (schema maxItems 30, maxLength 500 per item), not an append-only ledger. Four BOOTSTRAP/R0-era entries rolled off during the 2026-08-16 reconciliation; full history is preserved in PROGRAM_LEDGER.md and SECOND_PASS_LEDGER.md.",
+    "SP-004 completed for the adapter half of OPEN-04 under EV-SP-004-20260816-ADAPTERS-01: four typed filesystem/URL open adapters implemented, policy-gated through direct AuraKernel calls, verified by adversarial/contract/cancellation/failure tests, truthfully registered .ready; 21/21 bundles, 850/850 tests, 0 failed; local and uncommitted; OPEN-04 remains open for SP-005."
   ],
   "files_changed": [
-    "Sources/AuraIntent/IntentEngine.swift",
-    "Sources/AuraIntent/DialogueEngine.swift",
-    "Sources/AuraIntent/ToolRouter.swift",
-    "Sources/AuraAgent/OllamaAdapter.swift",
-    "Sources/AuraAgent/OllamaAPIClient.swift",
-    "Sources/AuraAgent/OllamaStructuredRequest.swift",
-    "Tests/AuraIntentTests/DialogueEngineTests.swift",
-    "Tests/AuraIntentTests/BilingualGoldenCorpusTests.swift",
-    "Tests/AuraIntentTests/RuleBasedUtteranceClassifierTests.swift",
-    "Tests/AuraIntentTests/ToolRouterTests.swift",
-    "Tests/AuraAgentTests/OllamaStructuredRequestTests.swift",
-    "Sources/AuraIntent/TypedIntent.swift",
-    "Sources/AuraPolicy/PolicyEngine.swift",
-    "Sources/AuraSTT/STTPipeline.swift",
-    "Tests/AURAIntegrationTests/EndToEndPipelineTests.swift",
-    "Tests/AURAIntegrationTests/PushToTalkFinalizationTests.swift",
-    "Tests/AuraAgentTests/ConversationTests.swift",
-    "Tests/AuraAgentTests/MultiAgentOrchestratorTests.swift",
-    "Tests/AuraAgentTests/TextTurnTests.swift",
-    "Tests/AuraCoreTests/ConfirmationTransactionTests.swift",
-    "Tests/AuraCoreTests/RuntimeHealthTests.swift",
-    "Tests/AuraCoreTests/TurnContextTests.swift",
-    "Tests/AuraPolicyTests/PolicyEngineTests.swift",
-    "Tests/AuraAgentTests/OllamaAdapterTests.swift",
-    "Sources/AuraIntent/CapabilityRegistry.swift",
-    "Sources/AuraIntent/CapabilityPlanner.swift",
-    "Sources/AuraIntent/InitialCapabilitySet.swift",
+    "Sources/AuraAutomation/OpenTargetRejection.swift",
+    "Sources/AuraAutomation/OpenTargetValidator.swift",
+    "Sources/AuraAutomation/FileSystemURLOpener.swift",
+    "Sources/AURA/AuraKernel.swift",
+    "Sources/AURA/AuraKernel_Construction.swift",
+    "Sources/AURA/AuraKernel_RuntimeAPI.swift",
+    "Sources/AuraIntent/InitialCapabilitySet_ExternalCapabilities.swift",
+    "Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift",
+    "Tests/AuraAutomationTests/FileSystemURLOpenerTests.swift",
     "Tests/AuraIntentTests/CapabilityRegistryTests.swift",
     "Tests/AuraIntentTests/CapabilityPlannerTests.swift",
-    "docs/decisions/ADR-038-capability-registry-and-planner.md",
-    "scripts/validate_runtime_completion.py",
-    "scripts/tests/test_validate_runtime_completion.py",
-    "ledger/DECISION_INDEX.md",
-    "Package.swift",
-    "Sources/AuraCore/HelperIPC.swift",
-    "Sources/AuraAutomationHelper/main.swift",
-    "Sources/AuraShellHelper/main.swift",
-    "Sources/AuraSecurity/NetworkAllowlist.swift",
-    "Sources/AuraProductivity/ProductivityTypes.swift",
-    "Sources/AuraProductivity/ProductivitySecurity.swift",
-    "Sources/AuraProductivity/ProductivityAdapters.swift",
-    "Sources/AuraProductivity/NativeProductivityAdapters.swift",
     "Tests/AuraProductivityTests/AuraProductivityTests.swift",
-    "Tests/AuraCoreTests/HelperIPCTests.swift",
-    "Tests/AuraSecurityTests/NetworkAllowlistTests.swift",
-    "docs/decisions/ADR-044-security-privilege-separation.md",
-    "docs/decisions/ADR-046-signed-update-recovery.md",
-    "docs/security/31_R10_PRIVILEGE_TOPOLOGY.md",
-    "docs/subsystems/PRODUCTIVITY_READ_FIRST.md",
-    "scripts/aura-test.sh",
-    "scripts/aura-coverage-scope.regex",
-    "scripts/build-release-artifact.sh",
-    "scripts/generate_release_manifest.py",
-    "scripts/validate_release_manifest.py",
-    "scripts/tests/test_release_manifest.py",
-    "scripts/validate_beta_readiness.py",
-    "scripts/tests/test_beta_readiness.py",
-    "docs/operations/RELEASE_ARTIFACTS.md",
-    "docs/operations/BETA_READINESS.md",
-    "docs/operations/FINAL_OPERATIONAL_HANDOFF.md",
-    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
-    "AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
-    "AURA_RUNTIME_COMPLETION/schemas/session-handoff.schema.json",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-000_BASELINE_AND_SYNCHRONIZATION_LOCK.prompt.md",
-    "Sources/AuraVSCode/VSCodeAdapter.swift",
-    "Sources/AuraVSCode/VSCodeExtensionBridge.swift",
-    "Sources/AuraVSCode/VSCodeBridgeSecurity.swift",
-    "Tests/AuraVSCodeTests/AuraVSCodeTests.swift",
-    "docs/subsystems/13_VSCODE_CONTROL.md",
-    "Sources/AuraCore/TurnCompletionHeuristics.swift",
-    "Sources/AuraCore/VoiceResourceGovernor.swift",
-    "Sources/AuraSTT/STTRouter.swift",
-    "Sources/AuraAudio/WakeWordDetector.swift",
-    "Sources/AuraAudio/SystemTTSEngine.swift",
-    "Tests/AuraCoreTests/TurnCompletionHeuristicsTests.swift",
-    "Tests/AuraCoreTests/VoiceResourceGovernorTests.swift",
-    "Tests/AuraSTTTests/STTRouterTests.swift",
-    "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.schema.json",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.schema.json",
-    "scripts/validate_second_pass_program.py",
-    "scripts/tests/test_validate_second_pass.py",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-003_SEVEN_LIVE_BILINGUAL_DIALOGUE_SCENARIOS.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-004_FILESYSTEM_AND_URL_CAPABILITY_ADAPTERS.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-005_CAPABILITY_REACHABILITY_AND_PLANNER_WIRING.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-006_R3_LIVE_CAPABILITY_SCENARIOS.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-007_LIVE_COMPUTER_USE_PLANNER_IN_APPROVED_APPS.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-008_COMPUTER_USE_ADVERSARIAL_SAFETY.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-009_SAFARI_EXTENSION_PACKAGING_AND_AUTHENTICATION.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-010_PROVIDER_ACCOUNT_AND_UI_COMPOSITION.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-013_CODING_BACKEND_AND_DURABLE_TASK_LIFECYCLE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-014_CODING_ASSISTANT_LIVE_ACCEPTANCE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-015_WAKE_WORD_DECISION_AND_EVALUATION.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-016_BILINGUAL_STT_QUALITY_AND_VOICE_RECOVERY.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-018_PRODUCTION_MEMORY_REFERENCE_WIRING.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-020_REMOTE_CONTEXT_BOUNDARY_AND_ADR_043.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-021_ACCESSIBILITY_AND_LOCALIZATION_ACCEPTANCE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-022_UI_CONTROLS_ONBOARDING_AND_RECOVERY.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-023_AUTHENTICATED_IPC_AND_PRIVILEGE_SEPARATION.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-024_NETWORK_OAUTH_AND_INJECTION_ENFORCEMENT.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-025_PLUGIN_TRUST_INCIDENT_RESPONSE_AND_ADR_044.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-026_RELEASE_TOOLCHAIN_REPRODUCIBILITY_AND_CI.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-027_SIGNING_NOTARIZATION_AND_CLEAN_MACHINE_GATEKEEPER.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-028_UPDATER_LIFECYCLE_RECOVERY_AND_MIGRATION.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-029_BETA_SCOPE_CONSENT_AND_TELEMETRY.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-031_RELEASE_CANDIDATE_EVIDENCE_PACKAGE_AND_ADR_047.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-032_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
-    "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_READ_FIRST.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-DELIVERY-08.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.schema.json",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-000_BASELINE_FREEZE_AND_EVIDENCE_CAPTURE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-001_GIT_OBJECT_DATABASE_RECOVERY.prompt.md",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-002_DIRTY_WORKTREE_AND_ARTIFACT_QUARANTINE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-003_IGNORE_RULES_AND_GENERATED_FILE_HYGIENE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-004_CANONICAL_TOOLCHAIN_AND_DOCUMENTATION_DRIFT.prompt.md",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-005_SWIFT_FORMAT_LINT_AND_STRICT_CONCURRENCY.prompt.md",
-    "Sources/AuraAutomation/AccessibilityObserver.swift",
-    "Sources/AuraComputerUse/ModalDialogDetecting.swift",
-    "Sources/AuraCore/AuraLogger.swift",
-    "Sources/AuraScreen/AccessibilitySecureFieldDetector.swift",
-    "Sources/AuraScreen/RedactionPipeline.swift",
-    "docs/decisions/ADR-048-unsafe-constructs-and-diagnostics.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-CLOSEOUT-09.md",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-007_TEST_MATRIX_CI_AND_COVERAGE_HYGIENE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/H-008_SECRET_DEPENDENCY_AND_SUPPLY_CHAIN_HYGIENE.prompt.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.schema.json",
-    "scripts/validate_repo_hygiene_supply_chain.py",
-    "scripts/tests/test_validate_repo_hygiene_supply_chain.py",
-    "Tests/AuraAgentTests/RepositoryInstructionsScannerTests.swift",
-    "Tests/AuraSecurityTests/SecretScannerTests.swift",
-    ".swift-format and .swiftlint.yml",
-    ".gitignore",
-    "Runtime/chatterbox/.gitignore",
-    "scripts/tests/test_repo_hygiene_ignore_rules.py",
-    "scripts/validate_repo_hygiene_program.py",
-    "scripts/tests/test_validate_repo_hygiene_program.py",
-    "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_CONTEXT_SUMMARY.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/H-009_ARCHITECTURE_AUDIT.md",
-    ".github/actionlint.yaml",
-    ".gitleaks.toml",
-    ".pre-commit-config.yaml",
-    ".yamllint.yml",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/EXTERNAL_SCANNER_POLICY.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/TRUFFLEHOG_EXCLUDE_PATHS.txt",
-    ".github/workflows/ci.yml",
-    "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json",
-    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
-    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
-    "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-004-20260816-ADAPTERS-01.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-LIVE-TRACE-03.md",
-    "Sources/AURA/AURA.swift",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-LIVE-TRACE-FIX-05.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-LIVE-DISMISSAL-07.md",
-    "docs/operations/REPO_HYGIENE_PROGRAM.md",
-    "ledger/CURRENT_STATE.md",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+    "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
     "ledger/PROJECT_LEDGER.md",
-    "Sources/AURA/AuraMenuView.swift",
-    "Sources/AURA/ProductUIState.swift",
-    "Tests/AURAIntegrationTests/R9ProductUIStateTests.swift",
-    "Sources/AuraCore/TraceTypes.swift",
-    "Sources/AuraCore/AuraEventBus.swift",
-    "Sources/AuraStore/AuraDatabase_MigrationsAndBinding.swift",
-    "Sources/AuraStore/AuraStore_Core.swift",
-    "Sources/AURA/AuraAppModel_Runtime.swift",
-    "Sources/AURA/AuraAppModel_Interaction.swift",
-    "Sources/AURA/AuraAppModel_Settings.swift",
-    "Sources/AURA/AuraMenuView_Content.swift",
-    "Tests/AuraCoreTests/AuraCoreTests.swift",
-    "Tests/AuraStoreTests/AuraStoreTests.swift",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-TRACE-FIX-04.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-LIVE-RESIDUAL-10.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-CLOSEOUT-11.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-CANCELLATION-12.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260815-CLOSEOUT-13.md",
-    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md"
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-004-20260816-CASE-CLOSURE-03.md"
   ],
   "evidence_ids": [
-    "EV-SP-001-20260814-CLOSEOUT-06",
-    "EV-REPO-HYGIENE-H-008-20260810-01",
-    "EV-REPO-HYGIENE-H-008-CLOSEOUT-20260810-01",
-    "EV-REPO-HYGIENE-H-009-20260810-01",
-    "EV-REPO-HYGIENE-H-009-CLOSEOUT-20260810-01",
-    "EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01",
-    "EV-REPO-HYGIENE-REMEDIATION-20260810-01",
-    "EV-REPO-HYGIENE-REMEDIATION-VERIFY-20260811-01",
-    "EV-R0-20260802-POST-COMMIT-VALIDATION-01",
-    "EV-REPO-HYGIENE-MAIN-CI-CURRENT-20260811-01",
-    "EV-REPO-HYGIENE-H-004-20260810-01",
-    "EV-R1-20260802-FULL-SUITE-01",
-    "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01",
-    "EV-REPO-HYGIENE-TOOLCHAIN-20260811-01",
-    "EV-R1-20260802-PLAN-BINDING-01",
-    "EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01",
-    "EV-REPO-HYGIENE-GIT-ADOPTION-20260811-01",
-    "EV-REPO-HYGIENE-HOSTED-CI-FINAL-20260811-01",
-    "EV-R2-20260802-FOCUSED-INTENT-DIALOGUE-01",
-    "EV-R2-20260802-OLLAMA-STRUCTURED-01",
-    "EV-R2-20260802-INTEGRATION-DIALOGUE-01",
-    "EV-R2-20260802-FULL-SUITE-SLICE-01",
-    "EV-R2-20260802-FULL-SUITE-FINAL-01",
-    "EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01",
-    "EV-R2-20260802-DIALOGUE-HEALTH-01",
-    "EV-R2-20260802-AGENT-RISK-01",
-    "EV-R2-20260802-FULL-SUITE-FINAL-03",
-    "EV-R2-20260803-FINAL-REGRESSION-01",
-    "EV-R2-20260803-PUBLICATION-01",
-    "EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01",
-    "EV-SP-001-20260815-DELIVERY-08",
-    "EV-R2-20260803-TEXTDEMO-LIVE-01",
-    "EV-SP-001-20260815-CLOSEOUT-09",
-    "EV-R2-20260803-PROMPT-LEAKAGE-FIX-01",
-    "EV-SP-001-20260815-LIVE-DISMISSAL-07",
-    "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
-    "EV-R7-20260808-LOCAL-APP-DEPLOY-01",
-    "EV-R11-20260809-ARTIFACT-MANIFEST-01",
-    "EV-R12-20260809-BETA-BOUNDARY-START-01",
-    "EV-R12-20260809-READINESS-CONTRACT-01",
-    "EV-FINAL-20260809-CLOSEOUT-BLOCKED-01",
-    "EV-OPEN-GAPS-20260809-FULL-AUDIT-01",
-    "EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01",
-    "EV-SP-001-20260814-CLOSEOUT-03",
-    "EV-SP-001-20260814-TRACE-FIX-04",
-    "EV-SP-001-20260814-LIVE-TRACE-FIX-05",
-    "EV-SP-001-20260815-LIVE-RESIDUAL-10",
-    "EV-SP-001-20260815-CLOSEOUT-11",
-    "EV-SP-001-20260815-CANCELLATION-12",
-    "EV-SP-001-20260815-CLOSEOUT-13"
+    "EV-SP-003-20260815-LIVE-7SCENARIO-16",
+    "EV-SP-003-20260815-INJECTION-FIX-17",
+    "EV-SP-003-20260815-INJECTION-COVERAGE-18",
+    "EV-SP-003-20260816-RISKS-AND-UI-19",
+    "EV-SP-003-20260816-UI-SCENE-AND-GLASS-20",
+    "EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21",
+    "EV-SP-004-20260816-ADAPTERS-01",
+    "EV-SP-004-20260816-CASE-CLOSURE-03"
   ],
   "tests": [
     {
-      "name": "Live local repository/toolchain reconciliation",
+      "name": "swift build (production targets)",
       "result": "passed",
-      "evidence_id": "EV-BOOTSTRAP-20260802-TOOLCHAIN-INVENTORY-01"
+      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
     },
     {
-      "name": "AURA production build and test suite",
+      "name": "swift build -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors (zero warnings)",
       "result": "passed",
-      "evidence_id": "EV-R0-20260802-FULL-SUITE-RERUN-01"
+      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
     },
     {
-      "name": "R0 governance validator and deterministic negative tests",
+      "name": "./scripts/aura-test.sh /tmp/aurabuild-sp004v4 — 21/21 bundles, 850/850 tests, 0 failed bundles",
       "result": "passed",
-      "evidence_id": "EV-R0-20260802-STATE-VALIDATOR-01"
+      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
     },
     {
-      "name": "CI YAML, shell syntax, and Python syntax validation",
+      "name": "python3 scripts/validate_second_pass_program.py",
       "result": "passed",
-      "evidence_id": "EV-R0-20260802-CI-CONFIG-01"
+      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
     },
     {
-      "name": "R1 focused trace, runtime-health, policy, STT, audio, integration, and Agent tests",
+      "name": "python3 scripts/validate_repo_hygiene_supply_chain.py --ci",
       "result": "passed",
-      "evidence_id": "EV-R1-20260802-TRACE-HEALTH-01"
+      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
     },
     {
-      "name": "R1 authoritative final Swift Testing regression: 20 bundles and 678 tests",
+      "name": "Full sweep after CASE-SENSITIVITY closure — 21/21 bundles, 851/851 tests",
       "result": "passed",
-      "evidence_id": "EV-R1-20260802-FULL-SUITE-01"
-    },
-    {
-      "name": "R2 focused bilingual intent/dialogue tests: 44 tests",
-      "result": "passed",
-      "evidence_id": "EV-R2-20260802-AGENT-RISK-01"
-    },
-    {
-      "name": "R2 focused Ollama/Agent structured-NLU tests: 208 tests",
-      "result": "passed",
-      "evidence_id": "EV-R2-20260802-OLLAMA-STRUCTURED-01"
-    },
-    {
-      "name": "R2 full repository slice regression: 20 bundles and 691 tests",
-      "result": "passed",
-      "evidence_id": "EV-R2-20260802-FULL-SUITE-SLICE-01"
-    },
-    {
-      "name": "R2 authoritative full repository regression: 20 bundles and 695 tests",
-      "result": "passed",
-      "evidence_id": "EV-R2-20260803-FINAL-REGRESSION-01"
-    },
-    {
-      "name": "R1 governance closeout validation and deterministic validator tests",
-      "result": "passed",
-      "evidence_id": "EV-R1-20260802-GOVERNANCE-CLOSEOUT-01"
-    },
-    {
-      "name": "R7 authoritative local production build and full Swift Testing regression: 21 bundles and 774 tests",
-      "result": "passed",
-      "evidence_id": "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
-    },
-    {
-      "name": "R7 governance validator, deterministic tests, shell syntax, diff, and JSON checks",
-      "result": "passed",
-      "evidence_id": "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
-    },
-    {
-      "name": "R7 local signed app deployment and 8-second launch smoke (local development; release-limited)",
-      "result": "passed",
-      "evidence_id": "EV-R7-20260808-LOCAL-APP-DEPLOY-01"
-    },
-    {
-      "name": "Runtime-completion CI governance validation",
-      "result": "passed",
-      "evidence_id": "EV-FINAL-20260809-CLOSEOUT-BLOCKED-01"
-    },
-    {
-      "name": "Deterministic script test suite: 23 tests",
-      "result": "passed",
-      "evidence_id": "EV-FINAL-20260809-CLOSEOUT-BLOCKED-01"
-    },
-    {
-      "name": "Blocked beta-readiness contract validation",
-      "result": "passed",
-      "evidence_id": "EV-R12-20260809-READINESS-CONTRACT-01"
-    },
-    {
-      "name": "FINAL acceptance criteria and release gates",
-      "result": "blocked",
-      "evidence_id": "EV-FINAL-20260809-CLOSEOUT-BLOCKED-01"
-    },
-    {
-      "name": "Full ordered prompt 0–15 gap audit and closure-plan reconciliation",
-      "result": "passed",
-      "evidence_id": "EV-OPEN-GAPS-20260809-FULL-AUDIT-01"
-    },
-    {
-      "name": "Second-pass control-plane validator, 34-prompt chain, and synchronization projections",
-      "result": "passed",
-      "evidence_id": "EV-SECOND-PASS-20260809-CONTROL-PLANE-02"
-    },
-    {
-      "name": "Deterministic script test suite after second-pass control-plane addition: 26 tests",
-      "result": "passed",
-      "evidence_id": "EV-SECOND-PASS-20260809-CONTROL-PLANE-02"
-    },
-    {
-      "name": "Repository-hygiene linear manifest/state/prompt validator",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-20260809-PROGRAM-01"
-    },
-    {
-      "name": "Repository-hygiene focused validator tests: 3 tests",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-20260809-PROGRAM-01"
-    },
-    {
-      "name": "H-000 baseline, hygiene validator, runtime governance, and closeout checks",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-H-000-20260809-01"
-    },
-    {
-      "name": "H-000 Git integrity and ownership classification gate",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-H-000-20260809-02"
-    },
-    {
-      "name": "H-003 ignore-rule and clean-fixture regression test: 2 tests",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-H-003-20260809-01"
-    },
-    {
-      "name": "H-003 tracked-generated audit, positive/negative check-ignore matrix, and diff check",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-H-003-20260809-01"
-    },
-    {
-      "name": "H-005 strict-concurrency, formatter remediation, and regression suite",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-H-005-20260810-02"
-    },
-    {
-      "name": "H-005 full SourceKit-backed SwiftLint capability",
-      "result": "blocked",
-      "evidence_id": "EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01"
-    },
-    {
-      "name": "H-009 bounded context/source map and architecture-boundary audit",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-H-009-20260810-01"
-    },
-    {
-      "name": "H-010 final hygiene validators, inventory, graph, and test matrix",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-H-010-20260810-01"
-    },
-    {
-      "name": "H-010 strict formatter, SourceKit lint, and full-Xcode capability",
-      "result": "blocked",
-      "evidence_id": "EV-REPO-HYGIENE-H-010-REVALIDATION-20260811-01"
-    },
-    {
-      "name": "H-010 bounded Sources/Tests SwiftLint remediation and repeated final gates",
-      "result": "blocked",
-      "evidence_id": "EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01"
-    },
-    {
-      "name": "H-010 mandatory 15_SESSION_CLOSEOUT after bounded remediation",
-      "result": "blocked",
-      "evidence_id": "EV-REPO-HYGIENE-H-010-CLOSEOUT-20260812-01"
-    },
-    {
-      "name": "H-010 exact SwiftLint policy command",
-      "result": "blocked",
-      "evidence_id": "EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01"
-    },
-    {
-      "name": "H-010 canonical 21-bundle coverage wrapper",
-      "result": "blocked",
-      "evidence_id": "EV-REPO-HYGIENE-H-010-SWIFTLINT-REMEDIATION-20260812-01"
-    },
-    {
-      "name": "HYGIENE-REMEDIATION-01 backup, clean clone, scanners, source remediation, and local gates",
-      "result": "blocked",
-      "evidence_id": "EV-REPO-HYGIENE-REMEDIATION-20260810-01"
-    },
-    {
-      "name": "H-010 final hosted-CI governance, build, test, coverage, and artifact closure",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01"
-    },
-    {
-      "name": "H-010 terminal projection reconciliation and no-drift validation",
-      "result": "passed",
-      "evidence_id": "EV-REPO-HYGIENE-H-010-PROJECTION-RECONCILIATION-20260812-01"
-    },
-    {
-      "name": "SP-000 baseline, synchronization lock, and active-state-aware validator",
-      "result": "passed",
-      "evidence_id": "EV-SP-000-20260813-BASELINE-01"
-    },
-    {
-      "name": "SP-001 prompt-relevant trace/confirmation regression suites",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260814-ATTEMPT-01"
-    },
-    {
-      "name": "SP-001 mandatory 15_SESSION_CLOSEOUT validators and scope review",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260814-CLOSEOUT-06"
-    },
-    {
-      "name": "SP-001 authorized live UI/process evidence bundle",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260814-LIVE-TRACE-03"
-    },
-    {
-      "name": "SP-001 mandatory 15_SESSION_CLOSEOUT after authorized live attempt",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260814-CLOSEOUT-03"
-    },
-    {
-      "name": "SP-001 redacted trace persistence, confirmation lifecycle, UI projection, and prompt-relevant regression suites",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260814-TRACE-FIX-04"
-    },
-    {
-      "name": "SP-001 post-fix bounded live redacted trace, allow/deny/expiry/mutation, and local verification bundle",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260814-LIVE-TRACE-FIX-05"
-    },
-    {
-      "name": "SP-001 post-fix window-dismissal persistence and no-execution live verification",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260815-LIVE-DISMISSAL-07"
-    },
-    {
-      "name": "SP-001 current-build residual live matrix and cancellation boundary",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260815-LIVE-RESIDUAL-10"
-    },
-    {
-      "name": "SP-001 direct cancellation terminal trace, reversible mutation, and restart no-replay",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260815-CANCELLATION-12"
-    },
-    {
-      "name": "SP-001 mandatory 15_SESSION_CLOSEOUT validators and projection cap checks",
-      "result": "passed",
-      "evidence_id": "EV-SP-001-20260815-CLOSEOUT-13"
+      "evidence_id": "EV-SP-004-20260816-CASE-CLOSURE-03"
     }
   ],
-  "blockers": [
-    "R2-R10 live, manual, security, accessibility, integration, and privilege gates remain open.",
-    "R11 remains in_progress: full-Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed-CI evidence are missing.",
-    "R12 remains blocked: no authorized beta cohort, telemetry/SLO/scenario/incident evidence, independent sign-offs, or approved RC package exists.",
-    "FINAL remains in_progress/blocked and must not claim release-candidate verification or release.",
-    "Repository hygiene H-010 is terminally complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. Hosted governance/build/test evidence remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; later descendants are control-plane-only projections. The 219 byte-identical copies are preserved in recoverable external quarantine and no H-011 exists.",
-    "SP-001 / OPEN-02 is completed under EV-SP-001-20260815-CANCELLATION-12: redacted persistence/UI, date allow/deny, expiry, dismissal, changed-plan, replay, concurrent-turn isolation, cancellation, one Calculator mutation with no-process verification, truthful failed-result handling, and restart behavior are proven. First-pass R2-R12 and FINAL gates remain open; SP-002 is pending/unopened. Authority is edit-only."
-  ],
-  "open_decisions": [
-    "Continue R2 bilingual NLU and dialogue from the accepted R1 contracts; local regression is green, while live model and hardware evidence remain open.",
-    "Preserve TurnContext, runtime health, confirmation transactions, and truthful verification semantics while adding model-backed dialogue.",
-    "Durable confirmation checkpoint/resume remains a future decision; R1 restart behavior is fail-closed.",
-    "Maintain selected full-Xcode/SourceKit compatibility and obtain separate hosted/release evidence before making release claims.",
-    "ADR-047 is absent; beta/RC scope, consent, telemetry, SLO, incident, independent review, and release waiver decisions require authorized ownership.",
-    "DEC-SP-001-TRACE-PROJECTION is accepted for bounded SP-001 / OPEN-02 prompt completion under EV-SP-001-20260815-CANCELLATION-12; broader R1/FINAL and release gates remain outside this decision."
-  ],
+  "blockers": [],
+  "open_decisions": [],
   "risks": [
-    "RISK-TOOLCHAIN-PREVIEW",
-    "RISK-FALSE-SUCCESS",
-    "RISK-CONFIRMATION-RESUME",
-    "RISK-ENGLISH-ONLY-INTENT",
-    "RISK-MODEL-MEMORY-PRESSURE",
-    "RISK-STRUCTURED-NLU-MODEL-QUALITY",
-    "RISK-STT-MIC-NOT-CAPTURING",
-    "RISK-CLOSED-TOOL-ROUTER",
-    "RISK-NO-BETA-CONSENT-BOUNDARY",
-    "RISK-NO-RC-EVIDENCE-PACKAGE",
-    "RISK-FINAL-ACCEPTANCE-BLOCKED",
-    "RISK-REPO-HYGIENE-GIT-OBJECT-DATABASE",
-    "RISK-REPO-HYGIENE-TOOLING-UNAVAILABLE",
-    "RISK-REPO-HYGIENE-SWIFTLINT-SOURCEKIT-BLOCKED",
-    "RISK-REPO-HYGIENE-FORMAT-FINDINGS",
-    "RISK-REPO-HYGIENE-GENERATED-ARTIFACTS-IN-PLACE",
-    "RISK-REPO-HYGIENE-CI-CHECKOUT-DEFAULTS",
-    "RISK-REPO-HYGIENE-UNSAFE-CONSTRUCTS",
-    "RISK-REPO-HYGIENE-DIAGNOSTIC-PAYLOAD-EXPOSURE",
-    "RISK-REPO-HYGIENE-SECRET-SCAN-CURRENT-TREE",
-    "RISK-REPO-HYGIENE-DEPENDENCY-SUPPLY-CHAIN",
-    "RISK-REPO-HYGIENE-CONTEXT-BLOAT",
-    "RISK-REPO-HYGIENE-ARCHITECTURE-BOUNDARY-DRIFT",
-    "RISK-REPO-HYGIENE-SWIFTLINT-FORMATTER-POLICY-CONFLICT",
-    "RISK-REPO-HYGIENE-COVERAGE-SPLIT-REGRESSION",
-    "RISK-SECOND-PASS-SYNC-DRIFT",
-    "RISK-SP-001-LIVE-TRACE-AUTHORITY"
+    "RISK-SP-004-TOCTOU-RACE",
+    "RISK-SP-004-HANDLER-COMPROMISE",
+    "RISK-SP-004-CASE-SENSITIVITY",
+    "RISK-INJECTION-COVERAGE-NON-DIALOGUE",
+    "RISK-SP-003-MODEL-LATENCY",
+    "RISK-SP-003-LIVE-VOICE-RESIDUAL",
+    "RISK-STT-MIC-NOT-CAPTURING"
   ],
-  "next_action": "SP-001 is completed for bounded OPEN-02 under EV-SP-001-20260815-CANCELLATION-12; mandatory closeout EV-SP-001-20260815-CLOSEOUT-13 passed. SP-002 is next eligible but remains pending and unopened. Do not execute SP-002 without its own explicit authority and read order. Authority resets to edit-only.",
+  "next_action": "Open SP-005 only under its own explicit authority and read order: read Tier-0 files plus the SP-005 prompt, then begin with its first procedure step. Do not commit or push the SP-004 working tree without explicit delivery authority.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
-    "AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md"
+    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md"
   ],
   "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00–13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. SP-000 completed only the baseline/synchronization lock. SP-001 / OPEN-02 is complete under EV-SP-001-20260815-CANCELLATION-12; mandatory closeout EV-SP-001-20260815-CLOSEOUT-13 passed; SP-002 is next eligible but pending and unopened. Authority is edit-only. No product/release/deployment claim follows."
 }

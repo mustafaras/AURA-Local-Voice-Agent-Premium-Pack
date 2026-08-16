@@ -487,13 +487,22 @@ and must not be backfilled from simulated boundaries.
 
 Prompt: [`04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`](archive/first-pass-prompts/2026-08-12/04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md)
 
-- Build the remaining filesystem and URL adapters.
-- Add NLU/UI reachability for the four capabilities that currently have only
-  direct-call reachability.
-- Wire the typed planner into `DialogueEngine`/`ToolRouter` for real
-  multi-step natural-language plans.
-- Run and record the required seven-scenario live completion demonstration.
-- Preserve truthful registry state; unavailable capabilities remain disabled.
+- Build the remaining filesystem and URL adapters. **Part of this bullet is
+  satisfied by `EV-SP-004-20260816-ADAPTERS-01`:**
+  `filesystem.open_file`, `filesystem.open_folder`, `filesystem.reveal`,
+  and `url.open` now have real, typed, policy-controlled, verified adapters
+  (`AuraAutomation.FileSystemURLOpener`) and are registered `.ready` in the
+  initial capability set. The registration truthfully claims adapter reachability
+  only through direct `AuraKernel` calls — the same non-NLU path
+  `app.discover`/`app.hide`/`task.status`/`task.cancel` already use.
+- **Still open for SP-005** (which carries the identical `gap_ids: OPEN-04`):
+  - Add NLU/UI reachability for the four capabilities that currently have only
+    direct-call reachability.
+  - Wire the typed planner into `DialogueEngine`/`ToolRouter` for real
+    multi-step natural-language plans.
+  - Run and record the required seven-scenario live completion demonstration.
+  - Preserve truthful registry state; unavailable capabilities remain disabled.
+  `OPEN-04` **must not be marked closed** until SP-005 lands.
 
 ## OPEN-05 — R4: Computer-Use Productization
 
