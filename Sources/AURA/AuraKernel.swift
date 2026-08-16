@@ -36,6 +36,12 @@ actor AuraKernel {
   var taskEngine: AuraTaskEngine?
   var memoryEngine: MemoryEngine?
   var automation: AuraAutomation?
+  /// SP-004's typed adapter behind `filesystem.open_file`,
+  /// `filesystem.open_folder`, `filesystem.reveal`, and `url.open`. Reachable
+  /// through the direct-call methods in `AuraKernel_RuntimeAPI`, which apply
+  /// the same `PolicyEngine` gate every routed capability uses. No NLU or UI
+  /// reachability is claimed for these four — that is SP-005's objective.
+  var fileSystemURLOpener: FileSystemURLOpener?
   var capabilityRegistry: CapabilityRegistry?
   var agentTaskRunner: AgentBackendTaskRunner?
   var agentBackendHealthRegistry: AgentBackendHealthRegistry?

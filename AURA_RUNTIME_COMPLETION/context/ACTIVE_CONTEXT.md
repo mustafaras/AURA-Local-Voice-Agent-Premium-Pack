@@ -8,7 +8,34 @@
 
 ## Canonical status
 
-## Current second-pass overlay — 2026-08-16T10:08:19Z
+## Current second-pass overlay — 2026-08-16 (SP-004 closure)
+
+`SP-005` / `completed` — `SP-004` / `OPEN-04` (adapter half) is **completed**
+under `EV-SP-004-20260816-ADAPTERS-01`, superseding the 10:08:19Z overlay below.
+The four capabilities `filesystem.open_file`, `filesystem.open_folder`,
+`filesystem.reveal`, and `url.open` are now real, typed, policy-controlled,
+verified adapters (`AuraAutomation.FileSystemURLOpener` +
+`OpenTargetValidator`: refuse-before-effect, `PathConfinement` canonicalization
+before containment, http/https/mailto scheme allowlist, real `NSWorkspace`
+Boolean postcondition) and are truthfully registered `.ready` — reachable only
+through direct policy-gated `AuraKernel` calls, the same non-NLU path
+`app.discover`/`app.hide`/`task.status`/`task.cancel` use. Verified: strict
+build green, **21/21 bundles, 850/850 tests, 0 failed**, governance validators
+green. All changes are local and uncommitted; authority is edit-only.
+Read the overlay pair as the program convention defines it: `active_prompt` is
+the *next eligible* prompt (`SP-005`, **pending and unopened**) and
+`active_state` is the state of the prompt just closed (`SP-004`). The
+authoritative guard is `completed_prompts` = `SP-000`…`SP-004`. **`OPEN-04`
+remains open** — `SP-005` owns NLU/UI reachability, planner wiring, and the
+seven-scenario live demonstration.
+
+New bounded residual risks: `RISK-SP-004-TOCTOU-RACE`,
+`RISK-SP-004-HANDLER-COMPROMISE`, `RISK-SP-004-CASE-SENSITIVITY` (registered
+with owners and closure criteria). Forwarded unchanged:
+`RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-003-MODEL-LATENCY`,
+`RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING`.
+
+### Superseded overlay — 2026-08-16T10:08:19Z (handoff audit; SP-004 then pending)
 
 `SP-004` / `completed` — control-plane reconciliation after a handoff-accuracy
 audit, recorded under `EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21`. **No prompt was

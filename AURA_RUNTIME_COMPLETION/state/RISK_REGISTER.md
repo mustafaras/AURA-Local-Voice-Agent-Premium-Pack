@@ -335,3 +335,66 @@ as a uniform "closed".
   eventually measures is optimistic and is not a real-user WER figure; microphone hardware capture
   is still covered only by SP-002's separate accommodation.
 - **Evidence:** `EV-SP-003-20260816-RISKS-AND-UI-19`
+
+### 2026-08-16 — SP-004 / OPEN-04 adapter residuals (new registrations from the security review)
+
+- **Risk ID:** `RISK-SP-004-TOCTOU-RACE`
+- **Status:** Open
+- **Owner:** R10 (security boundaries) / SP-005's consumer
+- **Risk:** `OpenTargetValidator` checks the target's attributes (existence, is-application,
+  executable extension, POSIX executable bit, sensitive location, containment) in one call, then
+  `FileSystemURLOpener` invokes `NSWorkspace.open` in a later call against the same canonical
+  path. Between these, an attacker with concurrent filesystem write access could replace the
+  validated file with a symlink to an executable, add the executable bit, or substitute an
+  application bundle.
+- **Mitigation so far:** the validator resolves symlinks to their canonical path before
+  comparison (so a pre-existing symlink trap is refused), and the cancellation check sits
+  immediately before the side effect. The validator's actual refuse-before-effect contract — a
+  rejected target is never handed to LaunchServices — is intact.
+- **Why it is not fixed:** the honest closure is descriptor-based re-validation (`open(2)` with
+  `O_NOFOLLOW` against an fd opened at validation time), which is real implementation work and
+  belongs to R10's privilege-topology scope. Exploitation here also requires an attacker who
+  already has concurrent write access to the target's directory — an actor at that capability
+  level does not need to race AURA to execute code, so the incremental exposure from this gap
+  is bounded. SP-004's completion gate names the validator contract "reject unknown or unsafe
+  targets," which the implementation satisfies.
+- **Closure criterion:** adapter uses descriptor-based re-validation, or an R10-scoped risk
+  decision explicitly accepts the residual, with evidence.
+- **Evidence:** `EV-SP-004-20260816-ADAPTERS-01`
+
+- **Risk ID:** `RISK-SP-004-HANDLER-COMPROMISE`
+- **Status:** Open
+- **Owner:** R10 (security boundaries)
+- **Risk:** the validator validates *what* is opened, not *which application* handles it once
+  opened. If the user's default handler for a legitimate file type (e.g. `.pdf`) has been
+  replaced by a malicious application, the validator accepts the file and the system runs the
+  attacker's handler. Refusing executable extensions, the POSIX executable bit, and
+  location-forwarding types raises the floor for direct code execution, but a compromised
+  handler registry is outside what any adapter-level target validation can detect.
+- **Mitigation so far:** the limitation is disclaimed in `FileSystemURLOpener`'s header comment,
+  and every refusal reason stays generic rather than embedding raw paths.
+- **Why it is not fixed:** detecting it would require snapshotting the LaunchServices handler
+  database per file type at policy level — a genuinely different subsystem from target
+  validation, and outside SP-004's typed-adapters-with-validation objective.
+- **Closure criterion:** an R10-scoped policy/audit layer that verifies handlers, or an explicit
+  accepted-risk decision with evidence.
+- **Evidence:** `EV-SP-004-20260816-ADAPTERS-01`
+
+- **Risk ID:** `RISK-SP-004-CASE-SENSITIVITY`
+- **Status:** **Closed** (was Open; closed 2026-08-16 under `EV-SP-004-20260816-CASE-CLOSURE-03`)
+- **Owner:** SP-005's consumer / future validator hardening
+- **Risk:** the sensitive-location fragments (`/.ssh/`, `/Library/Keychains/`, `/private/var/db/TCC/`, etc.)
+  are matched case-sensitively against the canonical path. On a case-insensitive APFS volume (the
+  macOS default), a path like `/Users/alice/.SSH/id_rsa` would be canonicalized to
+  `/Users/alice/.SSH/id_rsa` and would fail the string-fragment check — a private key could be
+  opened via the case mismatch.
+- **Mitigation so far:** `PathConfinement.canonicalize` resolves `..` and symlinks before all
+  other rules run, and the sensitive-location check runs on that canonical path rather than on
+  the caller's raw input; a symlink like `approved/.ssh -> /Users/alice/.ssh/` is caught because
+  canonicalization exposes the real path. The residual is purely the literal-case scenario for a
+  user who created the directory spelled `.SSH` directly.
+- **Closure:** `rejectSensitiveLocation` now compares against a `lowercased()` probe, so the
+  case-insensitive APFS default is handled. A new test
+  `rejectsCaseVariantSensitiveLocation` creates `.SSH/id_rsa` and asserts it is refused for both
+  `validateFile` and `validateRevealTarget`. Full sweep 21/21 bundles, 851/851 tests, 0 failed.
+- **Evidence:** `EV-SP-004-20260816-CASE-CLOSURE-03`

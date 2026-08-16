@@ -79,7 +79,8 @@ func initialCapabilitySetRegistersEveryTargetManifest() async {
   let registry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: registry)
   #expect(await registry.allManifests().count == InitialCapabilitySet.manifests().count)
-  #expect(await registry.reachableManifests().count == 10)
+  // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters.
+  #expect(await registry.reachableManifests().count == 14)
 }
 
 @Test
@@ -106,15 +107,47 @@ func initialCapabilitySetRegistersR6VSCodeRoutesDisabledUntilLiveBridge() async 
 func initialCapabilitySetDisabledEntriesCarryTruthfulReasons() async {
   let registry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: registry)
+  // Previously sampled `filesystem.open_file`, which SP-004 made `.ready`.
+  // `browser.read` still has no packaged extension, so it is the current
+  // example of a registered-but-unwired capability.
   guard
     case .disabled(let reason)? = await registry.availability(
-      id: "filesystem.open_file", version: "1.0.0")
+      id: "browser.read", version: "1.0.0")
   else {
-    Issue.record("expected filesystem.open_file to be registered disabled")
+    Issue.record("expected browser.read to be registered disabled")
     return
   }
   #expect(!reason.isEmpty)
   #expect(!reason.lowercased().contains("todo"))
+}
+
+/// SP-004's completion gate: the four filesystem/URL capabilities are backed
+/// by a real adapter and truthfully registered. Reachability here means the
+/// direct `AuraKernel` call path, not NLU or UI — that remains SP-005's work,
+/// so `OPEN-04` is not closed by this test passing.
+@Test
+func sp004FilesystemAndURLCapabilitiesAreReadyWithRealAdapters() async {
+  let registry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: registry)
+  for id in [
+    "filesystem.open_file", "filesystem.open_folder", "filesystem.reveal", "url.open",
+  ] {
+    guard case .ready? = await registry.availability(id: id, version: "1.0.0") else {
+      Issue.record("expected \(id) to be registered ready")
+      continue
+    }
+    guard let manifest = await registry.resolveLatest(id: id) else {
+      Issue.record("expected \(id) to resolve")
+      continue
+    }
+    // A `.ready` capability must not still advertise a placeholder adapter or
+    // verification method — that combination is exactly the false-readiness
+    // this program forbids.
+    #expect(manifest.owningAdapter.contains("FileSystemURLOpener"))
+    #expect(!manifest.owningAdapter.lowercased().contains("not yet implemented"))
+    #expect(!manifest.verificationMethod.lowercased().contains("not yet implemented"))
+    #expect(manifest.verificationMethod.count > 40)
+  }
 }
 
 @Test
@@ -140,5 +173,6 @@ func computerUseRunRegisteredDisabledUntilApproved() async {
   #expect(!reason.isEmpty)
   #expect(!reason.lowercased().contains("todo"))
   // Adding a disabled manifest must not change the reachable count.
-  #expect(await registry.reachableManifests().count == 10)
+  // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters.
+  #expect(await registry.reachableManifests().count == 14)
 }

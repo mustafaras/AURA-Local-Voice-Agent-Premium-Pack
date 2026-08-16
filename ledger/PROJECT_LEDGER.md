@@ -4025,3 +4025,26 @@ remaining post-fix live matrix; `SP-002` remains unopened. Evidence:
 - **Acceptance verdict:** SP-003 bounded objective met: PASS. `SP-004` is next eligible but remains `pending` and unopened. Authority resets to edit-only.
 - **Residual risks:** `RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-003-NLU-DOWNGRADE-VARIANCE`, `RISK-SP-003-MODEL-LATENCY`, `RISK-SP-003-LIVE-VOICE-RESIDUAL` — all forwarded, none owned by SP-003, none blocking SP-004.
 - **Next safe action:** Run `15_SESSION_CLOSEOUT.prompt.md`, then await explicit authority before opening `SP-004`.
+
+### 2026-08-16 — SP-004_OPEN-04 (adapter half) — completed; OPEN-04 remains open for SP-005
+
+- **Session ID:** `AURA-SP-004-ADAPTERS-20260816`.
+- **Objective:** Implement only the missing typed `filesystem.open_file`, `filesystem.open_folder`, `filesystem.reveal`, and `url.open` adapters (SP-004; adapter half of OPEN-04).
+- **Work performed:** Implemented `OpenTargetRejection` / `OpenTargetValidator` / `FileSystemURLOpener` in `Sources/AuraAutomation/` (refuse-before-effect validation, `PathConfinement` canonicalization, scheme allowlist, executable/bundle/sensitive-location refusal, real `NSWorkspace` Boolean postcondition, late cancellation check); wired the adapter into the kernel's construction and runtime API through the existing policy-gated direct-call pattern; rewrote the four capability manifests from stubs to accurate entries and flipped their availability to `.ready` with an explicit no-NLU/UI-reachability comment; added a full adversarial/contract/cancellation/failure test suite; truthfully repointed three pre-existing tests whose disabled-state assumptions changed. Post-green reviews by `swift-reviewer` and `security-reviewer` ran; one typed-catch issue fixed in-session, remaining findings dispositioned, three bounded residual risks registered.
+- **Evidence:** `EV-SP-004-20260816-ADAPTERS-01` (contract/system). Full sweep 21/21 bundles, 850/850 tests, 0 failed bundles; log SHA-256 `138d9321c6b742bc65a3e06ff27c5be24b7644db155bcdf133ef8783cb5672d3`.
+- **Summary:** SP-004's completion gate is met: four real, typed, policy-controlled, verified, truthfully registered adapters; no UI/NLU reachability claimed. `OPEN-04` remains open and is owned by `SP-005` (NLU/UI reachability and planner wiring). All changes are local and uncommitted; authority was edit/test/ledger only.
+- **Next action:** `15_SESSION_CLOSEOUT` for this session; await explicit authority before opening `SP-005`.
+
+### 2026-08-16T11:09:23Z — SP-004 mandatory 15_SESSION_CLOSEOUT
+
+- **Session ID:** `AURA-SP-004-ADAPTERS-20260816`; authority edit-only at closeout.
+- **Summary:** Mandatory closeout after SP-004 completion. All four governance validators, 38/38 deterministic governance tests, compileall, shell syntax, and diff checks pass; final full sweep green (21/21 bundles, 850/850 tests). Repository is resumable from files alone; the SP-004 working tree is deliberately uncommitted. `SP-005` remains pending/unopened; `OPEN-04` remains open; authority reset to edit-only.
+- **Evidence:** `EV-SP-004-20260816-CLOSEOUT-02`.
+- **Next action:** open `SP-005` only under explicit authority and its read order.
+
+### 2026-08-16T14:25:00Z — RISK-SP-004-CASE-SENSITIVITY closure
+
+- **Session ID:** `AURA-SP-004-ADAPTERS-20260816` (continuation).
+- **Summary:** Closed `RISK-SP-004-CASE-SENSITIVITY`: `OpenTargetValidator` sensitive-location check now case-normalized; new test proves `.SSH/` (uppercase) is refused. 21/21 bundles, 851/851 tests, 0 failed. `RISK-SP-004-TOCTOU-RACE` and `RISK-SP-004-HANDLER-COMPROMISE` remain open (R10 scope).
+- **Evidence:** `EV-SP-004-20260816-CASE-CLOSURE-03`.
+- **Next action:** commit/push SP-004 working tree under explicit delivery authority, then open SP-005.

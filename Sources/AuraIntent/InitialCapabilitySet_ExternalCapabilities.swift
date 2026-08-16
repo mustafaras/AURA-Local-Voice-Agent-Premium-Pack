@@ -102,17 +102,24 @@ extension InitialCapabilitySet {
         .english: "Open a file with its default application.",
         .turkish: "Bir dosyayı varsayılan uygulamasıyla açar.",
       ]),
-    inputSchemaDescription: "path: String",
-    outputSchemaDescription: "opened path",
-    owningAdapter: "not yet implemented",
+    inputSchemaDescription: "path: String (absolute or ~-relative)",
+    outputSchemaDescription: "OpenOutcome { capabilityID, target: canonical path }",
+    owningAdapter: "AuraAutomation.FileSystemURLOpener.openFile(path:)",
     requiredCapability: .fileOpen,
     sideEffects: ["launches the file's default application"],
     isIdempotent: true,
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 10, supportsCancellation: false, isRetryable: true),
     confirmationRule: "reversible tier default (no mandatory confirmation)",
-    verificationMethod: "not yet implemented",
-    rollbackStrategy: "not applicable")
+    verificationMethod:
+      "pre-flight OpenTargetValidator refusal (canonicalized path must exist, be a regular "
+      + "non-executable file, and clear the executable/bundle/location-forwarding and "
+      + "sensitive-location rules) plus the Boolean result of NSWorkspace.open(_:); a false "
+      + "return is reported as a failure and never as success. Does not claim the handler "
+      + "application became frontmost or finished loading the file.",
+    rollbackStrategy:
+      "none required — a refused target is never opened, so nothing needs undoing; an opened "
+      + "document is not closed automatically")
 
   public static let filesystemOpenFolder = CapabilityManifest(
     id: "filesystem.open_folder", version: "1.0.0",
@@ -121,17 +128,22 @@ extension InitialCapabilitySet {
       descriptionByLocale: [
         .english: "Open a folder in Finder.", .turkish: "Bir klasörü Finder'da açar.",
       ]),
-    inputSchemaDescription: "path: String",
-    outputSchemaDescription: "opened path",
-    owningAdapter: "not yet implemented",
+    inputSchemaDescription: "path: String (absolute or ~-relative)",
+    outputSchemaDescription: "OpenOutcome { capabilityID, target: canonical path }",
+    owningAdapter: "AuraAutomation.FileSystemURLOpener.openFolder(path:)",
     requiredCapability: .fileOpen,
     sideEffects: ["opens a Finder window"],
     isIdempotent: true,
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 10, supportsCancellation: false, isRetryable: true),
     confirmationRule: "reversible tier default (no mandatory confirmation)",
-    verificationMethod: "not yet implemented",
-    rollbackStrategy: "not applicable")
+    verificationMethod:
+      "pre-flight OpenTargetValidator refusal (canonicalized path must exist and be a directory "
+      + "that is not an application bundle) plus the Boolean result of NSWorkspace.open(_:); a "
+      + "false return is reported as a failure and never as success.",
+    rollbackStrategy:
+      "none required — a refused target is never opened, so nothing needs undoing; an opened "
+      + "Finder window is not closed automatically")
 
   public static let filesystemReveal = CapabilityManifest(
     id: "filesystem.reveal", version: "1.0.0",
@@ -141,17 +153,23 @@ extension InitialCapabilitySet {
         .english: "Reveal a file or folder in Finder, selected.",
         .turkish: "Bir dosyayı veya klasörü Finder'da seçili olarak gösterir.",
       ]),
-    inputSchemaDescription: "path: String",
-    outputSchemaDescription: "revealed path",
-    owningAdapter: "not yet implemented",
+    inputSchemaDescription: "path: String (absolute or ~-relative)",
+    outputSchemaDescription: "OpenOutcome { capabilityID, target: canonical path }",
+    owningAdapter: "AuraAutomation.FileSystemURLOpener.reveal(path:)",
     requiredCapability: .fileReveal,
     sideEffects: ["opens a Finder window with the item selected"],
     isIdempotent: true,
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 10, supportsCancellation: false, isRetryable: true),
     confirmationRule: "reversible tier default (no mandatory confirmation)",
-    verificationMethod: "not yet implemented",
-    rollbackStrategy: "not applicable")
+    verificationMethod:
+      "pre-flight OpenTargetValidator refusal (canonicalized path must exist and clear the "
+      + "sensitive-location rule) plus the Boolean result of "
+      + "NSWorkspace.selectFile(_:inFileViewerRootedAtPath:), which reports whether Finder "
+      + "accepted the selection; a false return is reported as a failure and never as success.",
+    rollbackStrategy:
+      "none required — revealing selects an item and never runs it; a refused target is never "
+      + "revealed")
 
   public static let urlOpen = CapabilityManifest(
     id: "url.open", version: "1.0.0",
@@ -161,9 +179,9 @@ extension InitialCapabilitySet {
         .english: "Open a URL in the default browser.",
         .turkish: "Bir bağlantıyı varsayılan tarayıcıda açar.",
       ]),
-    inputSchemaDescription: "url: String",
-    outputSchemaDescription: "opened URL",
-    owningAdapter: "not yet implemented",
+    inputSchemaDescription: "url: String (http, https or mailto only)",
+    outputSchemaDescription: "OpenOutcome { capabilityID, target: normalized URL }",
+    owningAdapter: "AuraAutomation.FileSystemURLOpener.openURL(_:)",
     requiredCapability: .urlOpen,
     sideEffects: ["launches the default web browser"],
     requiredNetworkDomains: [userSuppliedURLDomain],
@@ -171,8 +189,14 @@ extension InitialCapabilitySet {
     executionBudget: CapabilityExecutionBudget(
       timeoutSeconds: 10, supportsCancellation: false, isRetryable: true),
     confirmationRule: "reversible tier default (no mandatory confirmation)",
-    verificationMethod: "not yet implemented",
-    rollbackStrategy: "not applicable")
+    verificationMethod:
+      "pre-flight OpenTargetValidator refusal (scheme must be http, https or mailto; no embedded "
+      + "credentials; http/https must carry a host; mailto must carry a control-character-free "
+      + "recipient) plus the Boolean result of NSWorkspace.open(_:); a false return is reported "
+      + "as a failure and never as success. Does not claim the browser rendered the page.",
+    rollbackStrategy:
+      "none required — a refused link is never opened; an opened browser tab is not closed "
+      + "automatically")
 
   public static let browserRead = CapabilityManifest(
     id: "browser.read", version: "1.0.0",

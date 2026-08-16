@@ -87,8 +87,16 @@ extension AuraKernel {
       config: configuration.automation, eventBus: eventBus,
       logger: AuraLogger(subsystem: bundleID, category: "automation"))
     self.automation = automation
+    // SP-004. Constructed with the default validator, which applies every
+    // path/URL rule but imposes no approved-root restriction — the roots are a
+    // caller-supplied narrowing, and no configuration surface defines them
+    // yet. Policy remains the gate: each direct-call method evaluates
+    // `.fileOpen`/`.fileReveal`/`.urlOpen` through the same `PolicyEngine`.
+    self.fileSystemURLOpener = FileSystemURLOpener()
     await runtime.recordReady("shell", detail: "typed shell constructed")
     await runtime.recordReady("automation", detail: "structured automation constructed")
+    await runtime.recordReady(
+      "filesystem-url-open", detail: "typed filesystem/URL open adapter constructed")
 
     let memory = MemoryEngine(store: store, eventBus: eventBus)
     self.memoryEngine = memory

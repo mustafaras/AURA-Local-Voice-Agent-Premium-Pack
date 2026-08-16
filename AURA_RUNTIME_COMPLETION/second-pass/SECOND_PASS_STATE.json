@@ -3,15 +3,16 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-16T10:08:19Z",
-  "session_id": "AURA-SECOND-PASS-HANDOFF-AUDIT-20260816",
-  "active_prompt": "SP-004",
+  "updated_at": "2026-08-16T15:30:00Z",
+  "session_id": "AURA-SP-004-ADAPTERS-20260816",
+  "active_prompt": "SP-005",
   "active_state": "completed",
   "completed_prompts": [
     "SP-000",
     "SP-001",
     "SP-002",
-    "SP-003"
+    "SP-003",
+    "SP-004"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
@@ -40,7 +41,10 @@
     "EV-SP-003-20260815-INJECTION-COVERAGE-18",
     "EV-SP-003-20260816-RISKS-AND-UI-19",
     "EV-SP-003-20260816-UI-SCENE-AND-GLASS-20",
-    "EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21"
+    "EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21",
+    "EV-SP-004-20260816-ADAPTERS-01",
+    "EV-SP-004-20260816-CLOSEOUT-02",
+    "EV-SP-004-20260816-CASE-CLOSURE-03"
   ],
   "authority": {
     "edit": true,
@@ -67,5 +71,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-003 is completed for OPEN-03 under EV-SP-003-20260815-LIVE-7SCENARIO-16 (blocker) and EV-SP-003-20260815-INJECTION-FIX-17 (resolution). The seven scenarios were run live against local gemma4:latest; a prompt-injection bypass found in scenario 7 was fixed by enforcing PromptInjectionClassifier on the DialogueEngine context path, and the re-run passed 25/25 with 0 failed bundles. The earlier EV-SP-003-20260815-R2-DIALOGUE-TESTS-15 is retracted. Follow-up work is recorded under EV-SP-003-20260815-INJECTION-COVERAGE-18 (injection screening extended to four unscreened MultiAgentOrchestrator_Prompts surfaces), EV-SP-003-20260816-RISKS-AND-UI-19 (NLU-downgrade risk closed by verifying model-proposed capability IDs against CapabilityRegistry; bilingual STT harness) and EV-SP-003-20260816-UI-SCENE-AND-GLASS-20 (duplicate UI scene collapsed, Liquid Glass adopted). EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21 reconciled this control plane after a handoff-accuracy audit at e8f5f43 that re-verified 21/21 bundles, 816 tests, 0 failures, four validators at exit 0 and 38/38 governance tests; it corrected two false claims in NEXT_SESSION_STARTER.md and closed no gap. SP-004 is next eligible but remains pending and unopened; do not execute it without its own explicit authority and read order. Note that SP-004 closes only the adapter half of OPEN-04 — SP-005 carries the same gap_ids: OPEN-04 for NLU/UI reachability — so OPEN-04 must not be marked closed at the end of SP-004. Open residual risks RISK-INJECTION-COVERAGE-NON-DIALOGUE, RISK-SP-003-MODEL-LATENCY, RISK-SP-003-LIVE-VOICE-RESIDUAL and RISK-STT-MIC-NOT-CAPTURING are forwarded and none block SP-004. RISK-SP-003-NLU-DOWNGRADE-VARIANCE was closed at 2026-08-16T08:20:49Z under EV-SP-003-20260816-RISKS-AND-UI-19 and is no longer forwarded. Authority resets to edit-only."
+  "next_action": "SP-004 is completed for the adapter half of OPEN-04 under EV-SP-004-20260816-ADAPTERS-01: filesystem.open_file, filesystem.open_folder, filesystem.reveal and url.open are real, typed, policy-controlled (PolicyEngine on every direct kernel call), verified (refuse-before-effect, real NSWorkspace Boolean postcondition, adversarial/cancellation/failure tests), and truthfully registered .ready with accurate manifests. Full sweep 21/21 bundles, 850/850 tests, 0 failed; log SHA-256 138d9321c6b742bc65a3e06ff27c5be24b7644db155bcdf133ef8783cb5672d3. All changes are local and uncommitted at closeout; no commit/push authority was held. OPEN-04 remains open: SP-005 (pending, unopened) owns NLU/UI reachability, DialogueEngine/ToolRouter planner wiring, and the seven-scenario live demonstration. Do not execute SP-005 without its own explicit authority and read order. New bounded residual risks RISK-SP-004-TOCTOU-RACE, RISK-SP-004-HANDLER-COMPROMISE and RISK-SP-004-CASE-SENSITIVITY are registered with owners and closure criteria and do not block SP-005. Forwarded unchanged: RISK-INJECTION-COVERAGE-NON-DIALOGUE, RISK-SP-003-MODEL-LATENCY, RISK-SP-003-LIVE-VOICE-RESIDUAL, RISK-STT-MIC-NOT-CAPTURING. Authority resets to edit-only."
 }

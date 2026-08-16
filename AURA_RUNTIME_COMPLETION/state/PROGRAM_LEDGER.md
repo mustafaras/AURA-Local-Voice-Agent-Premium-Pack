@@ -1483,3 +1483,40 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Acceptance verdict:** control plane accurate as of `e8f5f43`: PASS. No gap closed; `OPEN-04` remains open through `SP-005`.
 - **Residual risks:** `RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-003-MODEL-LATENCY`, `RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING` forwarded; `RISK-SP-003-NLU-DOWNGRADE-VARIANCE` closed and no longer forwarded.
 - **Next safe action:** commit and push, realign repository pointers in a follow-up `chore(state):` commit, then open `SP-004` under its own read order.
+
+## 2026-08-16 — SP-004_OPEN-04 (adapter half) — completed; OPEN-04 remains open for SP-005
+
+- **Session / authority:** `AURA-SP-004-ADAPTERS-20260816`. Edit/test/ledger authority only. No app launch, install, TCC mutation, live model inference, provider contact, commit, push, merge, signing, release, or deploy action occurred.
+- **Prompt / gap:** `SP-004`, `OPEN-04` (adapter half only). `SP-005` carries the identical `gap_ids: OPEN-04`; `OPEN-04` is **not closed** by this entry.
+- **Verified start:** `main`, `HEAD == origin/main == 078a19c3ff34e9cd0a2c0fb1eb35be7e8c02ef01`, macOS 27 / arm64 / Swift 6.4 / CommandLineTools.
+- **Objective:** Implement only the missing typed `filesystem.open_file`, `filesystem.open_folder`, `filesystem.reveal`, and `url.open` adapters.
+- **Delivered changes:**
+  - New `Sources/AuraAutomation/OpenTargetRejection.swift` (17-case typed refusal enum; reasons never embed the raw path/URL), `Sources/AuraAutomation/OpenTargetValidator.swift` (pure validation: `PathConfinement` canonicalization before containment, existence, bundle/executable-extension/executable-bit refusal, sensitive-location refusal, http/https/mailto scheme allowlist, embedded-credential refusal, null-byte/control-character rejection, length cap), `Sources/AuraAutomation/FileSystemURLOpener.swift` (actor adapter: validate → refuse before any side effect; late cancellation check; verify the real `Bool` from `NSWorkspace.open`/`selectFile`, false → `AuraError.automationError`; `LaunchServicesOpening` protocol isolates AppKit for deterministic tests).
+  - Kernel wiring: stored property (`AuraKernel.swift`), construction + `filesystem-url-open` health component (`AuraKernel_Construction.swift`), four policy-gated direct-call methods (`AuraKernel_RuntimeAPI.swift`) evaluating `.fileOpen`/`.fileReveal`/`.urlOpen` through the production `PolicyEngine` with real `PolicyTarget` fields — the same non-NLU direct-call path `app.discover`/`app.hide`/`task.status`/`task.cancel` use.
+  - Four manifests in `InitialCapabilitySet_ExternalCapabilities.swift` rewritten from stubs to accurate `verificationMethod`/`owningAdapter` entries that truthfully disclaim frontmost/finished-loading/browser-rendered claims; the four availabilities flipped `.disabled` → `.ready` in `InitialCapabilitySet_CapabilityDefinitions.swift` with an explicit no-NLU/UI-reachability comment.
+  - New `Tests/AuraAutomationTests/FileSystemURLOpenerTests.swift`: acceptance, malformed, adversarial (executable extensions, executable bit, `.app`, symlink-to-executable, traversal, symlink escape, sibling-prefix root, disallowed schemes, embedded credentials, mailto header injection, sensitive locations), contract (refused target never reaches the spy), failure-verification, cancellation.
+  - Three pre-existing tests repointed truthfully where SP-004 changed their assumptions (`CapabilityRegistryTests`, `AuraProductivityTests` reachable counts; `CapabilityPlannerTests` disabled-example moved to still-disabled `browser.read`, plus a new pin that `url.open` is now planner-accepted).
+  - Review pass post-green: `swift-reviewer` (no CRITICAL; one HIGH fixed in-session — explicit typed `catch` with fail-closed fallback) and `security-reviewer` (one CRITICAL TOCTOU, three HIGH, one MEDIUM — dispositioned in the evidence record; three bounded residual risks registered).
+- **Evidence IDs:** `EV-SP-004-20260816-ADAPTERS-01` (contract/system). Full sweep **21/21 bundles, 850 tests, 0 failed bundles**; log SHA-256 `138d9321c6b742bc65a3e06ff27c5be24b7644db155bcdf133ef8783cb5672d3`.
+- **Acceptance verdict by criterion:** adapters real and typed: PASS; policy-controlled: PASS (every kernel entry point evaluates `PolicyEngine` first); verified: PASS (unit/contract/adversarial/cancellation/failure-verification + real OS Boolean signal); truthfully registered: PASS (`.ready` with accurate manifests, no placeholder adapter or verification text); no UI/NLU reachability claimed: PASS (direct-call only; OPEN-04 stays open). SP-004 completion gate: **PASS**.
+- **Blockers and residual risks:** none blocking. New bounded residuals: `RISK-SP-004-TOCTOU-RACE`, `RISK-SP-004-HANDLER-COMPROMISE`, `RISK-SP-004-CASE-SENSITIVITY` (all registered with owners and closure criteria). Forwarded, unchanged: `RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-003-MODEL-LATENCY`, `RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING`.
+- **Decisions:** no new ADR required — SP-004 implements the already-accepted ADR-038 capability contract; the register is unchanged.
+- **Authority boundary:** edit/test/ledger only; changes are local and uncommitted at closeout.
+- **Exact next safe action:** complete `15_SESSION_CLOSEOUT` for this session, then await explicit authority before opening `SP-005`.
+
+## 2026-08-16T11:09:23Z — SP-004 mandatory 15_SESSION_CLOSEOUT
+
+- **Session / authority:** `AURA-SP-004-ADAPTERS-20260816`; edit-only at closeout.
+- **Verified:** `main` at `078a19c` == `origin/main`; worktree `dirty_expected` (only this session's SP-004 paths); control projections synchronized at `SP-005` / `completed` (just-closed `SP-004`); `completed_prompts` = `SP-000`…`SP-004`.
+- **Checks:** all four governance validators exit 0; 38/38 governance tests; compileall/shell/diff checks pass; full sweep green on the final tree (21/21 bundles, 850/850 tests, 0 failed bundles).
+- **Evidence IDs:** `EV-SP-004-20260816-CLOSEOUT-02`.
+- **Acceptance verdict:** closeout complete: PASS. `SP-005` remains `pending` and unopened; `OPEN-04` remains open. Authority reset to edit-only.
+- **Exact next safe action:** open `SP-005` only under explicit authority and its read order; no commit/push without explicit delivery authority.
+
+## 2026-08-16T14:25:00Z — RISK-SP-004-CASE-SENSITIVITY closure
+
+- **Session / authority:** `AURA-SP-004-ADAPTERS-20260816` (continuation); edit/test/ledger only.
+- **Work:** `OpenTargetValidator.rejectSensitiveLocation` lowercased-probe fix + `rejectsCaseVariantSensitiveLocation` test.
+- **Evidence IDs:** `EV-SP-004-20260816-CASE-CLOSURE-03`.
+- **Acceptance verdict:** risk closed: PASS. 21/21 bundles, 851/851 tests, 0 failed; validators green.
+- **Next safe action:** commit/push SP-004 working tree under explicit delivery authority, then open SP-005.
