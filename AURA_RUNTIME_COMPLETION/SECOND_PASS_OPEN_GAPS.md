@@ -502,7 +502,9 @@ Prompt: [`04_R3_CAPABILITY_REGISTRY_AND_PLANNER.prompt.md`](archive/first-pass-p
     multi-step natural-language plans.
   - Run and record the required seven-scenario live completion demonstration.
   - Preserve truthful registry state; unavailable capabilities remain disabled.
-  `OPEN-04` **must not be marked closed** until SP-005 lands.
+  `OPEN-04` is **closed** by `EV-SP-004-20260816-ADAPTERS-01` (adapter half) and
+  `EV-SP-005-20260816-REACHABILITY-01` (NLU/UI reachability half). The
+  seven-scenario live demonstration remains a forwarded live-gate residual.
 
 ## OPEN-05 — R4: Computer-Use Productization
 

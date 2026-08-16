@@ -1,18 +1,17 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-16T14:45:00Z",
-  "session_id": "AURA-SP-004-ADAPTERS-20260816",
-  "last_verified_commit": "2c5cb90cc62203002b40c8246bffbbb846d39326",
+  "updated_at": "2026-08-16T15:30:00Z",
+  "session_id": "AURA-SP-005-REACHABILITY-20260816",
+  "last_verified_commit": "0cddf4a6559389f1ee272e3c36bb46ff3c71e1cd",
   "active_prompt": {
-    "id": "SP-005",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-005_CAPABILITY_REACHABILITY_AND_PLANNER_WIRING.prompt.md",
+    "id": "SP-006",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-006_R3_LIVE_CAPABILITY_SCENARIOS.prompt.md",
     "state": "completed",
-    "step": "SP-004 is completed for the adapter half of OPEN-04 under EV-SP-004-20260816-ADAPTERS-01. SP-005 is next eligible but remains pending and unopened; it owns the rest of OPEN-04 (NLU/UI reachability for the four new adapters, DialogueEngine/ToolRouter planner wiring, seven-scenario live demonstration). OPEN-04 must not be marked closed before SP-005."
+    "step": "SP-005 completed for OPEN-04 NLU/UI reachability; SP-006 pending/unopened."
   },
-  "summary": "SP-004 completed the adapter half of OPEN-04. filesystem.open_file, filesystem.open_folder, filesystem.reveal and url.open are now real, typed, policy-controlled, verified adapters (AuraAutomation.FileSystemURLOpener backed by OpenTargetValidator: PathConfinement canonicalization before containment, refuse-before-effect, executable/bundle/sensitive-location/location-forwarding refusal, http/https/mailto scheme allowlist, embedded-credential and control-character rejection, late cancellation check, real NSWorkspace Boolean postcondition with false surfaced as automationError). They are registered .ready with truthful manifests and are reachable only via direct policy-gated AuraKernel calls — the app.discover/app.hide/task.status/task.cancel pattern; no NLU/UI reachability is claimed and OPEN-04 stays open for SP-005. Verified: swift build green; strict-concurrency warnings-as-errors build green; full sweep 21/21 bundles, 850/850 tests, 0 failed; validate_second_pass_program exit 0; supply-chain validator exit 0; runtime validator and 38/38 governance tests green after the state updates in this session. Two independent review agents ran post-green; one typed-catch issue fixed in-session; remaining findings dispositioned; RISK-SP-004-TOCTOU-RACE, RISK-SP-004-HANDLER-COMPROMISE and RISK-SP-004-CASE-SENSITIVITY registered as bounded residuals. All changes are local and uncommitted; no commit/push/merge/launch/TCC/model/provider/sign/release/deploy action occurred.",
+  "summary": "SP-005 completed OPEN-04's NLU/UI reachability half. The four filesystem/URL capabilities are now reachable through NLU classification, production routing, and planner validation. 19 new tests; 21/21 bundles, 870/870 tests, 0 failed. OPEN-04 is closed. All changes local and uncommitted.",
   "completed": [
-    "Accepted ADR-035 and ADR-037; confirmation replay, plan-change, expiry, context-mismatch, verification, and restart fail-closed behavior are covered by tests.",
     "Bound confirmation execution to exact structured plan fingerprints and added a changed-argument regression test.",
     "Moved successful Chatterbox private-audio cleanup before stream completion and verified the full audio bundle remains deterministic.",
     "Stabilized timing-sensitive Agent tests by serializing the Multi-Agent Orchestrator suite and removing an unnecessary deterministic-stop sleep without weakening assertions.",
@@ -41,73 +40,45 @@
     "SP-003 follow-up: -18 extended PromptInjectionScreen to four unscreened MultiAgentOrchestrator_Prompts surfaces (repository diff, validation output, planner plan, reviewer feedback); -19 closed RISK-SP-003-NLU-DOWNGRADE-VARIANCE by verifying model-proposed capability IDs against CapabilityRegistry and added a bilingual STT harness; -20 collapsed a duplicate UI scene into one Window(id:) and adopted Liquid Glass.",
     "EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21 reconciled this control plane at e8f5f434c8741d8a13231698030dcf7768140746; it had never been brought forward past 2026-08-15 because the drifted fields are not validator-enforced. Corrected a stale HEAD pointer and the claim that SP-004 closes OPEN-04 (SP-005 carries the same gap). Re-verified 21/21 bundles, 816 tests, 0 failures, 4 validators exit 0, 38/38 governance tests. No gap closed, no prompt opened.",
     "NOTE: this array is a bounded 30-item rolling window (schema maxItems 30, maxLength 500 per item), not an append-only ledger. Four BOOTSTRAP/R0-era entries rolled off during the 2026-08-16 reconciliation; full history is preserved in PROGRAM_LEDGER.md and SECOND_PASS_LEDGER.md.",
-    "SP-004 completed for the adapter half of OPEN-04 under EV-SP-004-20260816-ADAPTERS-01: four typed filesystem/URL open adapters implemented, policy-gated through direct AuraKernel calls, verified by adversarial/contract/cancellation/failure tests, truthfully registered .ready; 21/21 bundles, 850/850 tests, 0 failed; local and uncommitted; OPEN-04 remains open for SP-005."
+    "SP-004 completed for the adapter half of OPEN-04 under EV-SP-004-20260816-ADAPTERS-01: four typed filesystem/URL open adapters implemented, policy-gated through direct AuraKernel calls, verified by adversarial/contract/cancellation/failure tests, truthfully registered .ready; 21/21 bundles, 850/850 tests, 0 failed; local and uncommitted; OPEN-04 remains open for SP-005.",
+    "SP-005 completed for OPEN-04 NLU/UI reachability under EV-SP-005-20260816-REACHABILITY-01: IntentKind + IntentSemanticCategory + classifier + ToolRouter routing + handlers + AuraAutomation pass-throughs + 19 tests; OPEN-04 closed; 21/21 bundles, 870/870 tests."
   ],
   "files_changed": [
-    "Sources/AuraAutomation/OpenTargetRejection.swift",
-    "Sources/AuraAutomation/OpenTargetValidator.swift",
+    "Sources/AuraIntent/TypedIntent.swift",
+    "Sources/AuraCore/IntentPolicyTypes.swift",
+    "Sources/AuraCore/PolicyTypes_Capability.swift",
+    "Sources/AuraIntent/IntentEngine_RuleBasedUtteranceClassifier.swift",
+    "Sources/AuraIntent/ToolRouter_Routing.swift",
+    "Sources/AuraIntent/ToolRouter_Handlers.swift",
+    "Sources/AuraIntent/IntentDispatchCoordinator.swift",
+    "Sources/AuraAutomation/AuraAutomation.swift",
     "Sources/AuraAutomation/FileSystemURLOpener.swift",
-    "Sources/AURA/AuraKernel.swift",
-    "Sources/AURA/AuraKernel_Construction.swift",
-    "Sources/AURA/AuraKernel_RuntimeAPI.swift",
-    "Sources/AuraIntent/InitialCapabilitySet_ExternalCapabilities.swift",
-    "Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift",
-    "Tests/AuraAutomationTests/FileSystemURLOpenerTests.swift",
-    "Tests/AuraIntentTests/CapabilityRegistryTests.swift",
-    "Tests/AuraIntentTests/CapabilityPlannerTests.swift",
-    "Tests/AuraProductivityTests/AuraProductivityTests.swift",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-004-20260816-ADAPTERS-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-    "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
-    "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "ledger/PROJECT_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-004-20260816-CASE-CLOSURE-03.md"
+    "Tests/AuraIntentTests/SP005CapabilityReachabilityTests.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-005-20260816-REACHABILITY-01.md"
   ],
   "evidence_ids": [
-    "EV-SP-003-20260815-LIVE-7SCENARIO-16",
-    "EV-SP-003-20260815-INJECTION-FIX-17",
-    "EV-SP-003-20260815-INJECTION-COVERAGE-18",
-    "EV-SP-003-20260816-RISKS-AND-UI-19",
-    "EV-SP-003-20260816-UI-SCENE-AND-GLASS-20",
-    "EV-SECOND-PASS-20260816-HANDOFF-AUDIT-21",
-    "EV-SP-004-20260816-ADAPTERS-01",
-    "EV-SP-004-20260816-CASE-CLOSURE-03"
+    "EV-SP-005-20260816-REACHABILITY-01"
   ],
   "tests": [
     {
       "name": "swift build (production targets)",
       "result": "passed",
-      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
+      "evidence_id": "EV-SP-005-20260816-REACHABILITY-01"
     },
     {
-      "name": "swift build -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors (zero warnings)",
+      "name": "strict-concurrency warnings-as-errors build (zero warnings)",
       "result": "passed",
-      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
+      "evidence_id": "EV-SP-005-20260816-REACHABILITY-01"
     },
     {
-      "name": "./scripts/aura-test.sh /tmp/aurabuild-sp004v4 — 21/21 bundles, 850/850 tests, 0 failed bundles",
+      "name": "Full sweep 21/21 bundles, 870/870 tests, 0 failed",
       "result": "passed",
-      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
+      "evidence_id": "EV-SP-005-20260816-REACHABILITY-01"
     },
     {
-      "name": "python3 scripts/validate_second_pass_program.py",
+      "name": "validate_second_pass_program.py exit 0",
       "result": "passed",
-      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
-    },
-    {
-      "name": "python3 scripts/validate_repo_hygiene_supply_chain.py --ci",
-      "result": "passed",
-      "evidence_id": "EV-SP-004-20260816-ADAPTERS-01"
-    },
-    {
-      "name": "Full sweep after CASE-SENSITIVITY closure — 21/21 bundles, 851/851 tests",
-      "result": "passed",
-      "evidence_id": "EV-SP-004-20260816-CASE-CLOSURE-03"
+      "evidence_id": "EV-SP-005-20260816-REACHABILITY-01"
     }
   ],
   "blockers": [],
@@ -115,13 +86,12 @@
   "risks": [
     "RISK-SP-004-TOCTOU-RACE",
     "RISK-SP-004-HANDLER-COMPROMISE",
-    "RISK-SP-004-CASE-SENSITIVITY",
     "RISK-INJECTION-COVERAGE-NON-DIALOGUE",
     "RISK-SP-003-MODEL-LATENCY",
     "RISK-SP-003-LIVE-VOICE-RESIDUAL",
     "RISK-STT-MIC-NOT-CAPTURING"
   ],
-  "next_action": "Open SP-005 only under its own explicit authority and read order: read Tier-0 files plus the SP-005 prompt, then begin with its first procedure step. Do not commit or push the SP-004 working tree without explicit delivery authority.",
+  "next_action": "Open SP-006 only under explicit authority; commit/push SP-005 under delivery authority.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",

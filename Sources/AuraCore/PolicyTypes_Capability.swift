@@ -246,6 +246,9 @@ extension Capability {
     case .shellExecute: return .shellExec
     case .shellDestructive: return .shellExecDestructive
     case .codingAgentRun: return .agentRun
+    case .fileOpen: return .fileOpen
+    case .fileReveal: return .fileReveal
+    case .urlOpen: return .urlOpen
     case .unknown: return .intentConverse
     }
   }

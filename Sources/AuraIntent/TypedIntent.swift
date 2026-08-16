@@ -12,6 +12,9 @@ public enum IntentKind: String, Codable, Sendable, Equatable, CaseIterable {
   case appTerminate
   case shellExecute
   case codingAgentRun
+  case fileOpen
+  case fileReveal
+  case urlOpen
   case unknown
 }
 
@@ -40,6 +43,9 @@ public enum IntentSlotName {
   public static let backend = "backend"
   public static let objective = "objective"
   public static let unresolvedAppName = "unresolvedAppName"
+  public static let filePath = "filePath"
+  public static let folderPath = "folderPath"
+  public static let url = "url"
 }
 
 /// The typed, closed-schema result of classifying one `TurnCompletedEvent`.

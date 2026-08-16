@@ -93,6 +93,146 @@ extension ToolRouter {
     }
   }
 
+  // MARK: - SP-005: Filesystem and URL handlers
+
+  /// Handle `filesystem.open_file` and `filesystem.open_folder` through the
+  /// registry-validated, policy-gated path. The slot name distinguishes
+  /// file from folder; the adapter's own validator re-checks the target's
+  /// type after canonicalization, so a misclassified slot can never cause
+  /// the wrong LaunchServices call to succeed silently.
+  func handleFileOpen(
+    _ intent: TypedIntent,
+    contract: CapabilityManifest,
+    executionContext: ToolExecutionContext
+  ) async -> IntentExecutionOutcome {
+    let path = intent.slotValue(IntentSlotName.filePath)
+      ?? intent.slotValue(IntentSlotName.folderPath)
+    guard let path else {
+      return .failed(reason: "missing filePath or folderPath slot")
+    }
+
+    let target = PolicyTarget(
+      filePath: intent.slotValue(IntentSlotName.filePath),
+      directoryPath: intent.slotValue(IntentSlotName.folderPath))
+    let policyResult = await resolvePolicy(
+      intent, capability: contract.requiredCapability, target: target,
+      executionContext: executionContext)
+    switch policyResult {
+    case .blocked(let outcome): return outcome
+    case .allowed: break
+    }
+
+    await emit(
+      ToolInvokedEvent(intentID: intent.id, toolID: contract.id),
+      correlationID: executionContext.correlationID,
+      causationID: executionContext.causationID)
+    do {
+      let outcome = try await automation.openFile(path: path)
+      let summary = "Opened \(outcome.target)."
+      await emit(
+        ToolResultEvent(
+          intentID: intent.id, toolID: contract.id, succeeded: true, summary: summary),
+        correlationID: executionContext.correlationID,
+        causationID: executionContext.causationID)
+      return .executed(summary: summary, hasSpokenResponse: true)
+    } catch {
+      let summary = "Failed to open \(path): \(error.localizedDescription)"
+      await emit(
+        ToolResultEvent(
+          intentID: intent.id, toolID: contract.id, succeeded: false, summary: summary),
+        correlationID: executionContext.correlationID,
+        causationID: executionContext.causationID)
+      return .failed(reason: summary)
+    }
+  }
+
+  /// Handle `filesystem.reveal` — reveal a file or folder in Finder.
+  func handleFileReveal(
+    _ intent: TypedIntent,
+    contract: CapabilityManifest,
+    executionContext: ToolExecutionContext
+  ) async -> IntentExecutionOutcome {
+    guard let path = intent.slotValue(IntentSlotName.filePath)
+      ?? intent.slotValue(IntentSlotName.folderPath)
+    else {
+      return .failed(reason: "missing filePath slot for reveal")
+    }
+
+    let policyResult = await resolvePolicy(
+      intent, capability: contract.requiredCapability, target: PolicyTarget(filePath: path),
+      executionContext: executionContext)
+    switch policyResult {
+    case .blocked(let outcome): return outcome
+    case .allowed: break
+    }
+
+    await emit(
+      ToolInvokedEvent(intentID: intent.id, toolID: contract.id),
+      correlationID: executionContext.correlationID,
+      causationID: executionContext.causationID)
+    do {
+      let outcome = try await automation.revealInFinder(path: path)
+      let summary = "Revealed \(outcome.target) in Finder."
+      await emit(
+        ToolResultEvent(
+          intentID: intent.id, toolID: contract.id, succeeded: true, summary: summary),
+        correlationID: executionContext.correlationID,
+        causationID: executionContext.causationID)
+      return .executed(summary: summary, hasSpokenResponse: true)
+    } catch {
+      let summary = "Failed to reveal \(path): \(error.localizedDescription)"
+      await emit(
+        ToolResultEvent(
+          intentID: intent.id, toolID: contract.id, succeeded: false, summary: summary),
+        correlationID: executionContext.correlationID,
+        causationID: executionContext.causationID)
+      return .failed(reason: summary)
+    }
+  }
+
+  /// Handle `url.open` — open a URL in the default browser.
+  func handleURLOpen(
+    _ intent: TypedIntent,
+    contract: CapabilityManifest,
+    executionContext: ToolExecutionContext
+  ) async -> IntentExecutionOutcome {
+    guard let url = intent.slotValue(IntentSlotName.url) else {
+      return .failed(reason: "missing url slot")
+    }
+
+    let host = URLComponents(string: url)?.host
+    let policyResult = await resolvePolicy(
+      intent, capability: contract.requiredCapability, target: PolicyTarget(networkHost: host),
+      executionContext: executionContext)
+    switch policyResult {
+    case .blocked(let outcome): return outcome
+    case .allowed: break
+    }
+
+    await emit(
+      ToolInvokedEvent(intentID: intent.id, toolID: contract.id),
+      correlationID: executionContext.correlationID,
+      causationID: executionContext.causationID)
+    do {
+      let outcome = try await automation.openURL(url)
+      let summary = "Opened \(outcome.target)."
+      await emit(
+        ToolResultEvent(
+          intentID: intent.id, toolID: contract.id, succeeded: true, summary: summary),
+        correlationID: executionContext.correlationID,
+        causationID: executionContext.causationID)
+      return .executed(summary: summary, hasSpokenResponse: true)
+    } catch {
+      let summary = "Failed to open URL \(url): \(error.localizedDescription)"
+      await emit(
+        ToolResultEvent(
+          intentID: intent.id, toolID: contract.id, succeeded: false, summary: summary),
+        correlationID: executionContext.correlationID,
+        causationID: executionContext.causationID)
+      return .failed(reason: summary)
+    }
+  }
+
   func handleShellExecute(
     _ intent: TypedIntent,
     actor: ActorID,

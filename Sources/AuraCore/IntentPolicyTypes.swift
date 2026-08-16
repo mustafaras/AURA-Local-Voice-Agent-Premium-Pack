@@ -22,6 +22,12 @@ public enum IntentSemanticCategory: String, Codable, Sendable, Equatable, CaseIt
   /// internally; the generic `.agentRun` capability preserves the destructive
   /// risk in context and planning metadata.
   case codingAgentRun
+  /// Open a file or folder through the filesystem adapter (reversible tier).
+  case fileOpen
+  /// Reveal a file or folder in Finder (reversible tier).
+  case fileReveal
+  /// Open a URL in the default browser (reversible tier).
+  case urlOpen
   /// Classification confidence too low, or more than one candidate scored
   /// comparably — never dispatched, always surfaced as ambiguous.
   case unknown
@@ -32,7 +38,7 @@ public enum IntentSemanticCategory: String, Codable, Sendable, Equatable, CaseIt
     switch self {
     case .converse, .unknown:
       return .observation
-    case .appActivate:
+    case .appActivate, .fileOpen, .fileReveal, .urlOpen:
       return .reversible
     case .appTerminate, .shellExecute:
       return .mutation

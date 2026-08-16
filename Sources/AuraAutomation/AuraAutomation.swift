@@ -13,6 +13,7 @@ public actor AuraAutomation {
   private let accessibilityObserver: AccessibilityObserving
   private let bus: AuraEventBus?
   private let logger: AuraLogger
+  private let fileSystemURLOpener: FileSystemURLOpener
 
   /// Production initializer using real AppKit and ApplicationServices integrations.
   public init(
@@ -30,6 +31,7 @@ public actor AuraAutomation {
     self.accessibilityHealth =
       AccessibilityHealth(logger: logger) as any AccessibilityHealthChecking
     self.accessibilityObserver = AccessibilityObserver(logger: logger)
+    self.fileSystemURLOpener = FileSystemURLOpener(logger: logger)
   }
 
   /// Testable initializer that accepts injected controllers and observers.
@@ -50,6 +52,7 @@ public actor AuraAutomation {
     self.accessibilityObserver = accessibilityObserver
     self.bus = eventBus
     self.logger = logger
+    self.fileSystemURLOpener = FileSystemURLOpener(logger: logger)
   }
 
   /// Discover running applications and emit an event for each.
@@ -101,6 +104,30 @@ public actor AuraAutomation {
       timeout: config.actionTimeoutSeconds
     )
     await emitAction(.quit, descriptor: descriptor)
+  }
+
+  // MARK: - SP-005: Filesystem and URL open pass-throughs
+
+  /// Open a file with its default application via `FileSystemURLOpener`.
+  /// Policy is evaluated by the caller (`ToolRouter`); the adapter's own
+  /// validator provides defense-in-depth.
+  public func openFile(path: String) async throws(AuraError) -> OpenOutcome {
+    try await fileSystemURLOpener.openFile(path: path)
+  }
+
+  /// Open a folder in Finder via `FileSystemURLOpener`.
+  public func openFolder(path: String) async throws(AuraError) -> OpenOutcome {
+    try await fileSystemURLOpener.openFolder(path: path)
+  }
+
+  /// Reveal a file or folder in Finder via `FileSystemURLOpener`.
+  public func revealInFinder(path: String) async throws(AuraError) -> OpenOutcome {
+    try await fileSystemURLOpener.reveal(path: path)
+  }
+
+  /// Open a URL in the default browser via `FileSystemURLOpener`.
+  public func openURL(_ raw: String) async throws(AuraError) -> OpenOutcome {
+    try await fileSystemURLOpener.openURL(raw)
   }
 
   /// Check Accessibility trust and emit a permission event.
