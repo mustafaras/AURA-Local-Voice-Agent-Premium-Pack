@@ -223,6 +223,56 @@ extension AuraKernel {
     try await taskEngine.cancel(id: id)
   }
 
+  /// SP-004's `filesystem.open_file`, `filesystem.open_folder`,
+  /// `filesystem.reveal`, and `url.open`. Each evaluates policy through the
+  /// same `PolicyEngine` as every routed capability, then delegates to
+  /// `FileSystemURLOpener`, which refuses unsafe targets *before* any side
+  /// effect and verifies the OS's real success signal afterwards.
+  ///
+  /// Deliberately reachable only by direct call. No bilingual NLU classifier
+  /// or UI surface routes to these yet — that is SP-005's objective, and
+  /// `OPEN-04` stays open until it lands.
+  ///
+  /// `PolicyTarget` carries the caller's raw path/host so a policy rule can
+  /// scope on it. The adapter independently canonicalizes and re-validates,
+  /// so a policy decision made on the raw string is never the only thing
+  /// between an attacker-supplied target and LaunchServices.
+  func openFile(path: String) async throws(AuraError) -> OpenOutcome {
+    guard started, let fileSystemURLOpener else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.fileOpen, target: PolicyTarget(filePath: path))
+    return try await fileSystemURLOpener.openFile(path: path)
+  }
+
+  func openFolder(path: String) async throws(AuraError) -> OpenOutcome {
+    guard started, let fileSystemURLOpener else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.fileOpen, target: PolicyTarget(directoryPath: path))
+    return try await fileSystemURLOpener.openFolder(path: path)
+  }
+
+  func revealInFinder(path: String) async throws(AuraError) -> OpenOutcome {
+    guard started, let fileSystemURLOpener else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.fileReveal, target: PolicyTarget(filePath: path))
+    return try await fileSystemURLOpener.reveal(path: path)
+  }
+
+  func openURL(_ raw: String) async throws(AuraError) -> OpenOutcome {
+    guard started, let fileSystemURLOpener else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    // Host is extracted only so a policy rule can scope on it. A malformed or
+    // scheme-less string yields `nil` here and is refused by the adapter's
+    // own validation a moment later; parsing here never grants anything.
+    let host = URLComponents(string: raw.trimmingCharacters(in: .whitespacesAndNewlines))?.host
+    try await evaluateDirectCapability(.urlOpen, target: PolicyTarget(networkHost: host))
+    return try await fileSystemURLOpener.openURL(raw)
+  }
+
   func capabilityHealthSnapshot() async throws(AuraError) -> [(
     CapabilityManifest, CapabilityAvailability?
   )] {

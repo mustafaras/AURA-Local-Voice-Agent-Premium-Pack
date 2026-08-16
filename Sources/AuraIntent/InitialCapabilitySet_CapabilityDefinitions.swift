@@ -40,19 +40,17 @@ extension InitialCapabilitySet {
           + "into the composition root; it requires an approved, live-validated beta app."
       )
     ),
-    (
-      filesystemOpenFile,
-      .disabled(reason: "Filesystem open adapter is not implemented in this release yet.")
-    ),
-    (
-      filesystemOpenFolder,
-      .disabled(reason: "Filesystem open adapter is not implemented in this release yet.")
-    ),
-    (
-      filesystemReveal,
-      .disabled(reason: "Filesystem reveal adapter is not implemented in this release yet.")
-    ),
-    (urlOpen, .disabled(reason: "URL-open adapter is not implemented in this release yet.")),
+    // SP-004. Backed by `AuraAutomation.FileSystemURLOpener` and reachable
+    // through direct `AuraKernel` methods that apply the same `PolicyEngine`
+    // gate as every routed capability — the identical non-NLU reachability
+    // path `app.discover`/`app.hide`/`task.status`/`task.cancel` already use.
+    // `.ready` therefore describes real, tested, reachable adapters. It does
+    // *not* claim bilingual NLU or UI reachability, which is SP-005's
+    // objective; `OPEN-04` stays open until that lands.
+    (filesystemOpenFile, .ready),
+    (filesystemOpenFolder, .ready),
+    (filesystemReveal, .ready),
+    (urlOpen, .ready),
     (
       browserRead,
       .disabled(

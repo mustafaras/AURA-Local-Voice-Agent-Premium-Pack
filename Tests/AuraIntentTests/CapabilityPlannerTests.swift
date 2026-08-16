@@ -34,15 +34,30 @@ func plannerRejectsModelProposedOutOfSchemaCapability() async {
 
 @Test
 func plannerRejectsDisabledCapability() async {
+  // Previously sampled `url.open`, which SP-004 backed with a real adapter and
+  // made `.ready`. `browser.read` is still registered-but-unwired, so it is
+  // the current example. The behaviour under test is unchanged: a plan step
+  // naming a disabled capability must fail closed, never execute.
   let planner = CapabilityPlanner(registry: await makeRegistry())
   let result = await planner.validateStep(
-    capabilityID: "url.open", arguments: ["url": "https://example.com"])
+    capabilityID: "browser.read", arguments: [:])
   guard case .failure(.capabilityUnavailable(let id, let reason)) = result else {
     Issue.record("expected capabilityUnavailable failure, got \(result)")
     return
   }
-  #expect(id == "url.open")
+  #expect(id == "browser.read")
   #expect(!reason.isEmpty)
+}
+
+/// SP-004 moved `url.open` from disabled to ready, so the planner must now
+/// accept it. Pinned explicitly: if a later change silently re-disables it,
+/// this fails rather than the capability quietly disappearing from plans.
+@Test
+func plannerAcceptsSP004URLOpenNowThatItHasARealAdapter() async {
+  let planner = CapabilityPlanner(registry: await makeRegistry())
+  let result = await planner.validateStep(
+    capabilityID: "url.open", arguments: ["url": "https://example.com"])
+  #expect(!result.isFailure)
 }
 
 @Test
