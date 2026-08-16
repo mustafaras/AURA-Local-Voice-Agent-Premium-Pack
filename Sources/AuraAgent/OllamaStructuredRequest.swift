@@ -194,7 +194,7 @@ public enum OllamaStructuredRequest {
 
   private static func normalizeEnum(_ raw: String?, default defaultValue: String) -> String {
     guard let raw = raw else { return defaultValue }
-    var trimmed = raw.lowercased()
+    let trimmed = raw.lowercased()
       .trimmingCharacters(in: .whitespacesAndNewlines)
       .trimmingCharacters(in: .punctuationCharacters)
       .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -213,7 +213,7 @@ public enum OllamaStructuredRequest {
 
   private static func normalizeLanguage(_ raw: String?, default defaultValue: String) -> String {
     guard let raw = raw else { return defaultValue }
-    var trimmed = raw.lowercased()
+    let trimmed = raw.lowercased()
       .trimmingCharacters(in: .whitespacesAndNewlines)
       .trimmingCharacters(in: .punctuationCharacters)
       .trimmingCharacters(in: .whitespacesAndNewlines)

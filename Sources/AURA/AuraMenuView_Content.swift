@@ -8,10 +8,20 @@ extension AuraMenuView {
     VStack(alignment: .leading, spacing: AuraDesign.Spacing.m) {
       header
       tabPicker
-      ScrollView {
+      // Conversation owns the window: its transcript grows and the composer
+      // stays anchored at the bottom, the way an assistant should read. The
+      // other tabs are lists of arbitrary length, so those still scroll as a
+      // whole. Wrapping conversation in the outer ScrollView too was what left
+      // a band of dead space under the composer.
+      if model.productUIState.selectedTab == .conversation {
         tabContent
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .padding(.bottom, AuraDesign.Spacing.s)
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+      } else {
+        ScrollView {
+          tabContent
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, AuraDesign.Spacing.s)
+        }
       }
     }
     .padding(AuraDesign.Spacing.l)
@@ -95,14 +105,16 @@ extension AuraMenuView {
   /// Discrete pills give every section its icon plus its full name, and make
   /// the selected one unambiguous.
   var tabPicker: some View {
-    HStack(spacing: AuraDesign.Spacing.xs) {
-      ForEach(AuraProductTab.allCases) { tab in
-        tabButton(tab)
+    GlassEffectContainer(spacing: AuraDesign.Spacing.xs) {
+      HStack(spacing: AuraDesign.Spacing.xs) {
+        ForEach(AuraProductTab.allCases) { tab in
+          tabButton(tab)
+        }
+        Spacer(minLength: 0)
       }
-      Spacer(minLength: 0)
+      .padding(AuraDesign.Spacing.xs)
+      .glassEffect(.regular, in: .rect(cornerRadius: AuraDesign.Radius.medium))
     }
-    .padding(AuraDesign.Spacing.xs)
-    .background(AuraDesign.panelBackground(cornerRadius: AuraDesign.Radius.medium))
     .accessibilityElement(children: .contain)
     .accessibilityLabel(language == .turkish ? "AURA bölümleri" : "AURA sections")
   }
@@ -173,46 +185,53 @@ extension AuraMenuView {
           }
         }
       }
-      .frame(minHeight: 180, maxHeight: 300)
+      .frame(minHeight: 180, maxHeight: .infinity)
       .accessibilityElement(children: .contain)
 
       // Composer: text and voice are the same action to the user, so they sit
       // on one row rather than stacking a full-width bar under the field.
-      HStack(spacing: AuraDesign.Spacing.s) {
+      // The whole row is one `GlassEffectContainer`. That is not decoration:
+      // the container is what lets sibling glass shapes merge and morph, and
+      // it is the documented way to avoid paying for several independent
+      // glass passes sitting side by side.
+      GlassEffectContainer(spacing: AuraDesign.Spacing.s) {
         HStack(spacing: AuraDesign.Spacing.s) {
-          TextField(copy("conversation.input"), text: $model.textInput)
-            .textFieldStyle(.plain)
-            .font(AuraDesign.Typography.body)
-            .onSubmit { model.submitText() }
-            .accessibilityLabel(copy("conversation.input"))
-          Button {
-            model.submitText()
-          } label: {
-            Image(systemName: "arrow.up.circle.fill")
-              .font(.system(size: 18))
-              .foregroundStyle(
-                model.textInput.isEmpty ? AnyShapeStyle(.tertiary) : AnyShapeStyle(.tint))
+          HStack(spacing: AuraDesign.Spacing.s) {
+            TextField(copy("conversation.input"), text: $model.textInput)
+              .textFieldStyle(.plain)
+              .font(AuraDesign.Typography.body)
+              .onSubmit { model.submitText() }
+              .accessibilityLabel(copy("conversation.input"))
+            Button {
+              model.submitText()
+            } label: {
+              Image(systemName: "arrow.up.circle.fill")
+                .font(.system(size: 18))
+                .foregroundStyle(
+                  model.textInput.isEmpty ? AnyShapeStyle(.tertiary) : AnyShapeStyle(.tint))
+            }
+            .buttonStyle(.plain)
+            .disabled(model.textInput.isEmpty)
+            .accessibilityLabel(copy("conversation.submit"))
           }
-          .buttonStyle(.plain)
-          .disabled(model.textInput.isEmpty)
-          .accessibilityLabel(copy("conversation.submit"))
-        }
-        .padding(.horizontal, AuraDesign.Spacing.m)
-        .padding(.vertical, AuraDesign.Spacing.s)
-        .background(AuraDesign.panelBackground(cornerRadius: AuraDesign.Radius.bubble))
+          .padding(.horizontal, AuraDesign.Spacing.m)
+          .padding(.vertical, AuraDesign.Spacing.s)
+          .glassEffect(
+            .regular.interactive(), in: .rect(cornerRadius: AuraDesign.Radius.bubble))
 
-        Button {
-          model.pushToTalk()
-        } label: {
-          Label(copy("conversation.pushToTalk"), systemImage: "mic.fill")
-            .font(AuraDesign.Typography.meta.weight(.semibold))
-            .padding(.horizontal, AuraDesign.Spacing.s)
+          Button {
+            model.pushToTalk()
+          } label: {
+            Label(copy("conversation.pushToTalk"), systemImage: "mic.fill")
+              .font(AuraDesign.Typography.meta.weight(.semibold))
+              .padding(.horizontal, AuraDesign.Spacing.s)
+          }
+          .buttonStyle(.glassProminent)
+          .controlSize(.large)
+          .disabled(model.emergencyStopActive)
+          .keyboardShortcut(.space, modifiers: [.command, .shift])
+          .accessibilityHint(copy("conversation.pushHint"))
         }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
-        .disabled(model.emergencyStopActive)
-        .keyboardShortcut(.space, modifiers: [.command, .shift])
-        .accessibilityHint(copy("conversation.pushHint"))
       }
 
       if let challenge = model.pendingConfirmation {

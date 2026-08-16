@@ -48,6 +48,12 @@ enum AuraDesign {
   // MARK: - Surfaces
 
   /// A raised panel: content sitting above the window background.
+  ///
+  /// Deliberately a plain material rather than glass. Liquid Glass belongs on
+  /// interactive controls and floating chrome; behind dense, long-lived body
+  /// text it costs legibility and buys nothing — which is what Apple's own
+  /// guidance warns against ("apply glass to every view" is a listed
+  /// anti-pattern). Glass is used below for the status pill and the composer.
   @ViewBuilder
   static func panelBackground(cornerRadius: CGFloat) -> some View {
     let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -100,7 +106,13 @@ struct AuraStatusPill: View {
     }
     .padding(.horizontal, AuraDesign.Spacing.m)
     .padding(.vertical, AuraDesign.Spacing.s)
-    .background(AuraDesign.panelBackground(cornerRadius: AuraDesign.Radius.medium))
+    // Glass here is earned: the pill is chrome that floats over changing
+    // content and is tinted by live runtime state, which is exactly the
+    // material's purpose. It is not interactive, so `.interactive()` is
+    // deliberately omitted.
+    .glassEffect(
+      .regular.tint(AuraDesign.statusColor(status).opacity(0.18)),
+      in: .rect(cornerRadius: AuraDesign.Radius.medium))
     .accessibilityElement(children: .combine)
     .accessibilityLabel("\(title). \(detail)")
   }

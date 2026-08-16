@@ -315,3 +315,22 @@ Never use a lower evidence class to claim a higher operational state in `capabil
   never letting colour carry meaning alone. Verified: full sweep 21/21 bundles 0 failed;
   `AuraAgentTests` 220/220; second-pass, repo-hygiene and supply-chain validators pass. Limitations:
   no live-model or live-voice run is claimed, and the UI was not confirmed against a running window.
+
+- **EV-SP-003-20260816-UI-SCENE-AND-GLASS-20** — UI scene-duplication fix and Liquid Glass
+  adoption at `2026-08-16T09:05:00Z` on `main` atop `a83ae85`. Reported symptom was two AURA
+  interfaces plus an apparent second app resembling `AuraPluginHost`. The plugin host was cleared
+  by inspection — pure CLI, no AppKit/SwiftUI, `LSBackgroundOnly = true`, correctly nested at
+  `Contents/Helpers/`. The real cause was `AURA.swift`: the main scene was a `WindowGroup`
+  (permitting unlimited duplicate windows) *and* the `MenuBarExtra` rendered the identical full
+  `AuraMenuView`, so the whole interface existed twice with independent scroll state. Replaced by a
+  single `Window(id:)` plus a new compact `AuraMenuBarPanel`. Verified live: bundle built, ad-hoc
+  signed (after `xattr -cr` outside the iCloud-synced tree), launched — one AURA process, one
+  visible application, `AuraPluginHost` absent, and exactly **1** window per Accessibility.
+  Liquid Glass APIs (`GlassEffectContainer`, `.glassEffect(...)`, `.glassEffectID`,
+  `.buttonStyle(.glass/.glassProminent)`) were probe-compiled against the real macOS 27 SDK before
+  use per AGENTS.md, and applied only to the status pill, composer, Push-to-Talk and tab pills —
+  panels behind body text stay plain material, since glass behind dense text costs legibility. A
+  layout defect (dead space under the composer, transcript pinned to 300 pt) was found by
+  screenshotting the running app and corrected. Verified: 21/21 bundles 0 failed; clean AURA build
+  with zero warnings. Limitations: visual confirmation covers the Conversation tab in dark
+  appearance at one size only; no VoiceOver re-audit; no live-model or live-voice run claimed.
