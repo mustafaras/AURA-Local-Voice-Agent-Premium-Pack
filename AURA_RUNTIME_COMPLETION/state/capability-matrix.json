@@ -730,7 +730,7 @@
         "dialogue.conversation"
       ],
       "open_gaps": [
-        "CapabilityPlanner is implemented and was exercised against the real registry/policy/adapter objects, but it is constructed only in tests — no production site builds a plan, so automatic natural-language multi-step decomposition through DialogueEngine/ToolRouter remains unwired. SP-006's two-step scenario was driven by a harness-constructed planner over the real ToolRouter/policy/adapter path.",
+        "Natural-language multi-step decomposition is still unwired: the structured-NLU layer proposes at most one capability per turn, so no user sentence produces a multi-step plan. ToolRouter.routePlan and AuraKernel.executePlan exist and are reachable, but a caller must supply the steps. Closing this needs a new model prompt/schema plus per-step hallucination guards and live verification.",
         "app.discover, app.hide, task.status, and task.cancel remain reachable only via direct AuraKernel calls, not the bilingual NLU classifier or any UI control.",
         "Capability-health rows exist in the SwiftUI Capabilities tab but are not reachable through the Accessibility tree in this build; health truth was proven via the registry snapshot and the policy-gated capabilityHealthSnapshot path instead (R9 scope).",
         "Voice-driven reachability is unproven: all live evidence is text-input only because the operator is speech-disabled."
@@ -739,9 +739,10 @@
         "EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01",
         "EV-SP-004-20260816-ADAPTERS-01",
         "EV-SP-005-20260816-REACHABILITY-01",
-        "EV-SP-006-20260816-7SCENARIO-02"
+        "EV-SP-006-20260816-7SCENARIO-02",
+        "EV-SP-006-20260816-GAPCLOSE-04"
       ],
-      "notes": "ToolRegistry/ToolContract (the prior closed five-intent switch) deleted; CapabilityRegistry is the sole production source for user-reachable tools. See ADR-038. SP-004 added the four filesystem/URL adapters, SP-005 made them NLU-reachable, and SP-006 proved the registry -> policy -> adapter spine live on the running app (real OS effects, live local model, no registry bypass), which is what raises this row to live_verified/ui_reachable. SP-006 also found and fixed two live defects: the .reversible filesystem/URL capabilities had no seeded policy grant, and handleFileOpen misrouted folder slots to the file validator."
+      "notes": "ToolRegistry/ToolContract (the prior closed five-intent switch) deleted; CapabilityRegistry is the sole production source for user-reachable tools. See ADR-038. SP-004 added the four filesystem/URL adapters, SP-005 made them NLU-reachable, and SP-006 proved the registry -> policy -> adapter spine live on the running app (real OS effects, live local model, no registry bypass), which is what raises this row to live_verified/ui_reachable. SP-006 also found and fixed two live defects: the .reversible filesystem/URL capabilities had no seeded policy grant, and handleFileOpen misrouted folder slots to the file validator. The SP-006 follow-up (EV-SP-006-20260816-GAPCLOSE-04) put CapabilityPlanner on the production path: ToolRouter builds and fingerprints a validated plan for every routed intent, and routePlan/executePlan execute multi-step plans in dependency order with typed skip/partial-failure outcomes and per-step declared rollback strategies. implementation_state stays partial only because natural-language multi-step decomposition is still unwired."
     },
     {
       "id": "security.policy",

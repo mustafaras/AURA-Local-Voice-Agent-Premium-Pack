@@ -27,6 +27,16 @@ public actor ToolRouter {
   /// capability ID, so adding a capability never requires widening this
   /// router's own dispatch switch.
   let capabilityRegistry: CapabilityRegistry
+  /// The typed planner, on the production path.
+  ///
+  /// SP-006 proved the seven live scenarios, but its closeout recorded that
+  /// `CapabilityPlanner` was constructed only in tests — no production site
+  /// built a plan, so "only a manifest-validated step ever becomes a
+  /// `PlanStep`" was a test-only property. It is now the seam every routed
+  /// intent passes through (`route`) and the executor behind `routePlan`, so
+  /// a plan is built, validated, and fingerprinted in production rather than
+  /// only under test.
+  let capabilityPlanner: CapabilityPlanner
   let confirmationPresenter: any IntentConfirmationPresenting
   let eventBus: AuraEventBus
   let configuration: IntentEngineConfiguration
@@ -53,6 +63,7 @@ public actor ToolRouter {
     self.agentTaskRunner = agentTaskRunner
     self.codingTaskCoordinator = codingTaskCoordinator
     self.capabilityRegistry = capabilityRegistry
+    self.capabilityPlanner = CapabilityPlanner(registry: capabilityRegistry)
     self.confirmationPresenter = confirmationPresenter
     self.eventBus = eventBus
     self.configuration = configuration

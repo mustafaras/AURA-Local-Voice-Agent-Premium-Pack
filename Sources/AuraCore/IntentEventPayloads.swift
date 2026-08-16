@@ -52,11 +52,21 @@ public struct IntentPlanGeneratedEvent: EventPayload {
   public let intentID: UUID
   public let toolID: String
   public let capabilityIdentifier: String
+  /// Fingerprint of the `CapabilityPlanner` plan this dispatch was built
+  /// from. Empty only for callers that predate planner wiring; the production
+  /// router always supplies it, which is what makes "a validated plan existed
+  /// before anything executed" observable in the trace rather than merely
+  /// asserted in a test.
+  public let planFingerprint: String
 
-  public init(intentID: UUID, toolID: String, capabilityIdentifier: String) {
+  public init(
+    intentID: UUID, toolID: String, capabilityIdentifier: String,
+    planFingerprint: String = ""
+  ) {
     self.intentID = intentID
     self.toolID = toolID
     self.capabilityIdentifier = capabilityIdentifier
+    self.planFingerprint = planFingerprint
   }
 }
 

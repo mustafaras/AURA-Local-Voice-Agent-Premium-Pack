@@ -1,0 +1,91 @@
+{
+  "evidence_id": "EV-SP-006-20260816-LIVERERUN-05",
+  "trace_rows_since_rerun_start": [
+    {
+      "timestamp": "2026-08-16T16:38:00.533Z",
+      "phase": "tool",
+      "event_type": "tool.result",
+      "action_identifier": "url.open",
+      "outcome": "failed"
+    },
+    {
+      "timestamp": "2026-08-16T16:38:38.401Z",
+      "phase": "tool",
+      "event_type": "tool.result",
+      "action_identifier": "filesystem.open_file",
+      "outcome": "verified"
+    },
+    {
+      "timestamp": "2026-08-16T16:39:11.463Z",
+      "phase": "tool",
+      "event_type": "tool.result",
+      "action_identifier": "filesystem.open_file",
+      "outcome": "failed"
+    },
+    {
+      "timestamp": "2026-08-16T16:39:46.107Z",
+      "phase": "confirmation",
+      "event_type": "confirmation.requested",
+      "action_identifier": "app.terminate",
+      "outcome": "requested"
+    },
+    {
+      "timestamp": "2026-08-16T16:40:46.176Z",
+      "phase": "confirmation",
+      "event_type": "confirmation.expired",
+      "action_identifier": "app.terminate",
+      "outcome": "expired"
+    },
+    {
+      "timestamp": "2026-08-16T16:40:46.237Z",
+      "phase": "policy",
+      "event_type": "intent.blocked",
+      "action_identifier": null,
+      "outcome": "confirmationDenied"
+    },
+    {
+      "timestamp": "2026-08-16T16:49:32.831Z",
+      "phase": "tool",
+      "event_type": "tool.result",
+      "action_identifier": "filesystem.open_file",
+      "outcome": "verified"
+    },
+    {
+      "timestamp": "2026-08-16T16:50:06.779Z",
+      "phase": "policy",
+      "event_type": "intent.blocked",
+      "action_identifier": null,
+      "outcome": "policyDenied: No matching grant and tier reversible is denied by default"
+    },
+    {
+      "timestamp": "2026-08-16T16:53:23.117Z",
+      "phase": "tool",
+      "event_type": "tool.result",
+      "action_identifier": "filesystem.open_file",
+      "outcome": "verified"
+    },
+    {
+      "timestamp": "2026-08-16T16:53:57.994Z",
+      "phase": "policy",
+      "event_type": "intent.blocked",
+      "action_identifier": null,
+      "outcome": "policyDenied: No matching grant and tier reversible is denied by default"
+    }
+  ],
+  "grant_store_after_migration": {
+    "total": 16,
+    "unmarked_leftovers": 0,
+    "by_capability_and_pattern": {
+      "app.activate|any": 1,
+      "app.terminate|any": 1,
+      "shell.exec|any": 1,
+      "agent.codexRun|any": 1,
+      "agent.claudeRun|any": 1,
+      "agent.copilotRun|any": 1,
+      "agent.ollamaLocalInference|any": 1,
+      "file.open|directory": 4,
+      "file.reveal|directory": 4,
+      "url.open|urlScheme": 1
+    }
+  }
+}

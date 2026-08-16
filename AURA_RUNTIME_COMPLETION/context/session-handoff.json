@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-16T16:05:00Z",
+  "updated_at": "2026-08-16T16:54:00Z",
   "session_id": "AURA-SP-006-LIVE-CAPABILITY-20260816",
   "last_verified_commit": "fe9e5dbf3370b3e6681b5ac78740047c4d5726ee",
   "active_prompt": {
@@ -10,10 +10,8 @@
     "state": "completed",
     "step": "SP-006 completed for OPEN-04's seven-scenario live demonstration and its mandatory 15_SESSION_CLOSEOUT is recorded; SP-007 pending/unopened."
   },
-  "summary": "SP-006 completed OPEN-04's forwarded live gate: all seven R3 scenarios pass live with typed evidence and no registry bypass. Fixed a pre-live blocking defect (fs/URL capabilities had no seeded grant and would have been policy-denied) via DefaultPolicyGrants, and a folder-misrouting defect in handleFileOpen. The session ended before its mandatory closeout, which was then run separately under EV-SP-006-20260816-CLOSEOUT-03: it independently re-verified 21/21 bundles / 880/880 tests / 0 failed and completed five records the interrupted session had left — the missing ACTIVE_CONTEXT.md overlay that was failing validate_second_pass_program.py, the never-updated RISK_REGISTER.md, the stale capability-matrix registry row, an undisclosed planner limitation, and the closeout artifacts themselves. All four validators now exit 0. All changes local and uncommitted.",
+  "summary": "SP-006 completed, delivered, and followed up twice. GAPCLOSE-04 put CapabilityPlanner on the production path and scoped the grants; LIVERERUN-05 proved that scoping was inert on an existing installation and fixed it with a marked, reconciling seed migration - verified live across three app launches. 21/21 bundles, 899/899 tests, 0 failed. Two pre-existing defects were surfaced and left open: url.open fails live (contradicting SP-006 scenario 2's Chrome claim) and a confirmation expiry is unexplained.",
   "completed": [
-    "Moved successful Chatterbox private-audio cleanup before stream completion and verified the full audio bundle remains deterministic.",
-    "Stabilized timing-sensitive Agent tests by serializing the Multi-Agent Orchestrator suite and removing an unnecessary deterministic-stop sleep without weakening assertions.",
     "Fresh final R1 regression passed 20/20 bundles and 678/678 tests; R2 is now in progress.",
     "Started R2 after reading the normative prompt and accepted R1 contracts; the first focused R2 gates are green.",
     "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
@@ -41,25 +39,39 @@
     "NOTE: this array is a bounded 30-item rolling window (schema maxItems 30, maxLength 500 per item), not an append-only ledger. Four BOOTSTRAP/R0-era entries rolled off during the 2026-08-16 reconciliation; full history is preserved in PROGRAM_LEDGER.md and SECOND_PASS_LEDGER.md.",
     "SP-004 completed for the adapter half of OPEN-04 under EV-SP-004-20260816-ADAPTERS-01: four typed filesystem/URL open adapters implemented, policy-gated through direct AuraKernel calls, verified by adversarial/contract/cancellation/failure tests, truthfully registered .ready; 21/21 bundles, 850/850 tests, 0 failed; local and uncommitted; OPEN-04 remains open for SP-005.",
     "SP-005 completed for OPEN-04 NLU/UI reachability under EV-SP-005-20260816-REACHABILITY-01: IntentKind + IntentSemanticCategory + classifier + ToolRouter routing + handlers + AuraAutomation pass-throughs + 19 tests; OPEN-04 closed; 21/21 bundles, 870/870 tests.",
-    "SP-006 completed OPEN-04's forwarded seven-scenario live gate under EV-SP-006-20260816-7SCENARIO-02, then its mandatory closeout ran separately under EV-SP-006-20260816-CLOSEOUT-03, which corrected a failing second-pass validator (missing ACTIVE_CONTEXT.md overlay), the never-updated RISK_REGISTER.md, a stale capability-matrix registry row, and an undisclosed planner limitation."
+    "SP-006 completed OPEN-04's forwarded seven-scenario live gate under EV-SP-006-20260816-7SCENARIO-02, then its mandatory closeout ran separately under EV-SP-006-20260816-CLOSEOUT-03, which corrected a failing second-pass validator (missing ACTIVE_CONTEXT.md overlay), the never-updated RISK_REGISTER.md, a stale capability-matrix registry row, and an undisclosed planner limitation.",
+    "SP-006 follow-up (EV-SP-006-20260816-GAPCLOSE-04): CapabilityPlanner wired onto the production path with a multi-step routePlan/executePlan API, and RISK-SP-006-DEFAULT-GRANT-BREADTH closed by confining both policy grants and the adapter to AuraCore.DeclaredFileRoots. 895/895 tests. No live re-run; NL multi-step still unwired.",
+    "Live re-run EV-SP-006-20260816-LIVERERUN-05 found the GAPCLOSE-04 grant scoping was inert on an existing store (895 accumulated grants, 30 legacy .any). Fixed via seed marker + PolicyEngine.reconcileSeededGrants; live migration pruned 886 then 25, /etc/hosts now policy-denied. Two new open risks recorded: url.open fails live, confirmation expiry unexplained."
   ],
   "files_changed": [
-    "Sources/AuraPolicy/DefaultPolicyGrants.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-GAPCLOSE-04.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-LIVERERUN-05.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-LIVERERUN-05.trace.json",
+    "Sources/AURA/AuraKernel_Construction.swift",
     "Sources/AURA/AuraKernel_Grants.swift",
-    "Sources/AURA/AuraAppModel_Runtime.swift",
-    "Sources/AuraIntent/ToolRouter_Handlers.swift",
-    "Tests/AuraPolicyTests/DefaultPolicyGrantsTests.swift",
-    "Tests/AURAIntegrationTests/SP006LiveCapabilityScenarios.swift",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-7SCENARIO-02.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-CLOSEOUT-03.md",
-    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json"
+    "Sources/AURA/AuraKernel_RuntimeAPI.swift",
+    "Sources/AuraAutomation/AuraAutomation.swift",
+    "Sources/AuraAutomation/OpenTargetValidator.swift",
+    "Sources/AuraCore/DeclaredFileRoots.swift",
+    "Sources/AuraCore/IntentEventPayloads.swift",
+    "Sources/AuraCore/PolicyTypes_PolicyTarget.swift",
+    "Sources/AuraCore/PolicyTypes_ResourcePattern.swift",
+    "Sources/AuraIntent/IntentDispatchCoordinator.swift",
+    "Sources/AuraIntent/ToolRouter_PlanExecution.swift",
+    "Sources/AuraIntent/ToolRouter_Routing.swift",
+    "Sources/AuraIntent/ToolRouter_ToolRouter.swift",
+    "Sources/AuraPlugins/PluginManifest.swift",
+    "Sources/AuraPlugins/PluginRuntime.swift",
+    "Sources/AuraPolicy/DefaultPolicyGrants.swift",
+    "Sources/AuraPolicy/PolicyEngine_Evaluation.swift",
+    "Tests/AuraIntentTests/PlannerWiringTests.swift",
+    "Tests/AuraPolicyTests/DefaultPolicyGrantsTests.swift"
   ],
   "evidence_ids": [
     "EV-SP-006-20260816-7SCENARIO-02",
-    "EV-SP-006-20260816-CLOSEOUT-03"
+    "EV-SP-006-20260816-CLOSEOUT-03",
+    "EV-SP-006-20260816-GAPCLOSE-04",
+    "EV-SP-006-20260816-LIVERERUN-05"
   ],
   "tests": [
     {
@@ -91,6 +103,16 @@
       "name": "Closeout re-verification sweep 21/21 bundles, 880/880 tests, 0 failed (totals recomputed from the log, SHA-256 1eb02473728b19c9130d97f4fdba6eb595c82bcda13ffc111971654eeb130c8c)",
       "result": "passed",
       "evidence_id": "EV-SP-006-20260816-CLOSEOUT-03"
+    },
+    {
+      "name": "Follow-up sweep 21/21 bundles, 895/895 tests, 0 failed (totals recomputed from the log, SHA-256 7ba3a200601c313373286b394480272fef66ce20b90b8ed3874c580268301ea1)",
+      "result": "passed",
+      "evidence_id": "EV-SP-006-20260816-GAPCLOSE-04"
+    },
+    {
+      "name": "Post-live-fix sweep 21/21 bundles, 899/899 tests, 0 failed (log SHA-256 63e9d8f0012e03082965d9f37f9d553bee25ad0868658bca6f5ccdb1e1f96d19)",
+      "result": "passed",
+      "evidence_id": "EV-SP-006-20260816-LIVERERUN-05"
     }
   ],
   "blockers": [],
@@ -102,9 +124,10 @@
     "RISK-SP-003-MODEL-LATENCY",
     "RISK-SP-003-LIVE-VOICE-RESIDUAL",
     "RISK-STT-MIC-NOT-CAPTURING",
-    "RISK-SP-006-DEFAULT-GRANT-BREADTH"
+    "RISK-SP-006-URL-OPEN-FAILS-LIVE",
+    "RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED"
   ],
-  "next_action": "Commit/push/merge the SP-006 working tree only under an explicit in-turn delivery go-ahead, then open SP-007 only under its own explicit authority and read order.",
+  "next_action": "Open SP-007 only under its own explicit authority, and read RISK-SP-006-URL-OPEN-FAILS-LIVE first - it casts doubt on a recorded SP-006 scenario leg.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",

@@ -506,3 +506,63 @@ Never use a lower evidence class to claim a higher operational state in `capabil
   closeout (no app launch, TCC, model inference, or filesystem/URL effect) — the live evidence
   remains the SP-006 run's and is not re-claimed; delivery authority was not exercised, so the
   working tree remains local and uncommitted; `SP-006`'s completion verdict is unchanged.
+
+- **EV-SP-006-20260816-GAPCLOSE-04** — SP-006 follow-up at 2026-08-16T17:20:00Z, parent
+  `ee053f5b524f5f987619cd45ce42dbb71fc13803`. Closes the two items the previous closeout
+  *documented rather than fixed*, at user direction and to a user-chosen scope. **(1) The planner
+  is now on the production path.** `CapabilityPlanner` had been constructed only in tests
+  (`grep -rn "CapabilityPlanner(" Sources/` → no match), so its "only a manifest-validated step
+  ever becomes a `PlanStep`" guarantee was test-only. `ToolRouter` now owns a planner built from
+  its own registry, every routed intent passes `planSingleCall` before dispatch (a missing
+  required slot is refused by the planner, not a handler), `IntentPlanGeneratedEvent` carries the
+  `planFingerprint`, and new `ToolRouter.routePlan` /
+  `IntentDispatchCoordinator.executePlan` / `AuraKernel.executePlan` execute validated multi-step
+  plans in dependency order with typed `.skipped` semantics for unmet dependencies and per-step
+  declared `rollbackStrategy` — explicitly non-transactional. **(2)
+  `RISK-SP-006-DEFAULT-GRANT-BREADTH` closed**, and closing it showed the risk had *understated*
+  the exposure: production built `OpenTargetValidator()` with the default `approvedRoots: []`
+  ("no root restriction"), so neither policy nor adapter bounded where a target could live. Both
+  layers now read `AuraCore.DeclaredFileRoots`: `.fileOpen`/`.fileReveal` are granted per root as
+  `.directory(root, recursive: true)` (one grant per root — a grant matches only when *all* its
+  patterns match), a new `ResourcePattern.urlScheme(allowed:)` scopes `url.open` to the adapter's
+  allowlist (`.network(host:port:)` cannot, because `mailto:` has no host), and all three
+  production opener sites pass `OpenTargetValidator.production`. Verified: `swift build` clean;
+  full sweep **21/21 bundles, 895/895 tests, 0 failed** (totals recomputed from the log, SHA-256
+  `7ba3a200601c313373286b394480272fef66ce20b90b8ed3874c580268301ea1`; up from 880 with the 15 new
+  tests). Class: source + deterministic test evidence. Artifact:
+  [`AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-GAPCLOSE-04.md`](
+  ../state/EV-SP-006-20260816-GAPCLOSE-04.md). Limitations: **no live run** — the seven scenarios
+  were not re-executed under the new confinement, though `/tmp/aura-sp006-*` was re-checked as
+  still inside the declared roots; natural-language multi-step decomposition remains unwired
+  (explicitly out of the chosen scope), so a caller must supply plan steps; the declared roots are
+  a fixed built-in list rather than a user-managed setting.
+
+- **EV-SP-006-20260816-LIVERERUN-05** — SP-006 follow-up **live** re-run, 2026-08-16T16:36–16:54Z,
+  parent `ee053f5b524f5f987619cd45ce42dbb71fc13803`. Three real launches of a built, signed
+  `AURA.app` driving the production text path against the real persisted policy store. **Found
+  that the GAPCLOSE-04 grant scoping was inert in the field.** The first run refused `/etc/hosts`
+  with a `tool.result … failed` row and *no* `policy` row — proving policy had *allowed* it and
+  only the adapter stopped it, contradicting the passing unit test. Cause, read from
+  `aura.policy.grants`: **895 persisted grants**, because `issueGrant` de-duplicates by `id` while
+  `Grant` mints a fresh `UUID`, so every launch since 2026-07-27 appended a whole new copy of the
+  seed set — **30 of them pre-scoping `.any` grants** for the filesystem/URL capabilities, and
+  `matchingGrant` returns the *first* match. Fixed by marking every seeded grant
+  (`DefaultPolicyGrants.seedPurpose`) and adding `PolicyEngine.reconcileSeededGrants(_:marker:)`,
+  which replaces the seeded set and prunes marked grants, legacy `.any` seed-shaped grants, and
+  shape-redundant duplicates; `AuraKernel.seedDefaultGrants` now reconciles once and logs the
+  migration. Live proof: launch 2 logged `pruned 886 superseded seeded grant(s)` and `/etc/hosts`
+  moved to **`policy` / `intent.blocked` → `policyDenied: No matching grant and tier reversible is
+  denied by default`**, with the in-root open still `verified`; launch 3 logged `pruned 25` and the
+  store settled at **16 grants, 0 unmarked leftovers** — exactly `DefaultPolicyGrants.all` —
+  reproducing both outcomes. Regression **21/21 bundles, 899/899 tests, 0 failed** (log SHA-256
+  `63e9d8f0012e03082965d9f37f9d553bee25ad0868658bca6f5ccdb1e1f96d19`). Class: direct live system
+  evidence. Artifacts:
+  [`AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-LIVERERUN-05.md`](
+  ../state/EV-SP-006-20260816-LIVERERUN-05.md) plus `.trace.json`, and the untracked
+  `.entries.log` (SHA-256 `4f3cfe1d4408bda29b8c634b413e9f8f393a8428fd6d0a6a5c4b63bfbede22a3`).
+  Limitations: text-input only; scenarios 4–7 not re-run live; the migration deletes persisted
+  grants (tested first, three prune signatures stated); **two unexplained pre-existing
+  observations recorded, not fixed** — `url.open` failed in this and in all three SP-006-era runs,
+  which contradicts `EV-SP-006-20260816-7SCENARIO-02`'s "Chrome launched" claim for scenario 2, and
+  a `quit Calculator` confirmation expired instead of executing without a determined cause.
+

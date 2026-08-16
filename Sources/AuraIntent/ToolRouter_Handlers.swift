@@ -207,9 +207,13 @@ extension ToolRouter {
       return .failed(reason: "missing url slot")
     }
 
-    let host = URLComponents(string: url)?.host
+    // Carry the scheme as well as the host: the seeded `url.open` grant is
+    // scoped by `.urlScheme(allowed:)`, and a `mailto:` URL has no host, so
+    // the host alone cannot express what the policy layer may authorize.
+    let components = URLComponents(string: url)
     let policyResult = await resolvePolicy(
-      intent, capability: contract.requiredCapability, target: PolicyTarget(networkHost: host),
+      intent, capability: contract.requiredCapability,
+      target: PolicyTarget(networkHost: components?.host, urlScheme: components?.scheme),
       executionContext: executionContext)
     switch policyResult {
     case .blocked(let outcome): return outcome

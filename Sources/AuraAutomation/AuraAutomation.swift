@@ -31,7 +31,7 @@ public actor AuraAutomation {
     self.accessibilityHealth =
       AccessibilityHealth(logger: logger) as any AccessibilityHealthChecking
     self.accessibilityObserver = AccessibilityObserver(logger: logger)
-    self.fileSystemURLOpener = FileSystemURLOpener(logger: logger)
+    self.fileSystemURLOpener = FileSystemURLOpener(validator: .production, logger: logger)
   }
 
   /// Testable initializer that accepts injected controllers and observers.
@@ -52,7 +52,7 @@ public actor AuraAutomation {
     self.accessibilityObserver = accessibilityObserver
     self.bus = eventBus
     self.logger = logger
-    self.fileSystemURLOpener = FileSystemURLOpener(logger: logger)
+    self.fileSystemURLOpener = FileSystemURLOpener(validator: .production, logger: logger)
   }
 
   /// Discover running applications and emit an event for each.

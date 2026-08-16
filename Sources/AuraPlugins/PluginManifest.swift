@@ -244,6 +244,8 @@ public struct PluginManifest: Codable, Sendable, Equatable, Identifiable {
     case .environment(let values): return "environment:\(values.sorted().joined(separator: ","))"
     case .network(let host, let ports):
       return "network:\(host):\(ports.lowerBound)-\(ports.upperBound)"
+    case .urlScheme(let values):
+      return "urlScheme:\(values.sorted().joined(separator: ","))"
     }
   }
 }

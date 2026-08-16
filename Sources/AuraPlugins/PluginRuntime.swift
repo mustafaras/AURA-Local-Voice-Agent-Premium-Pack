@@ -296,6 +296,12 @@ public enum PluginRuntimeAllowlist {
       return commandPermissionAllowed(regex, target: target)
     case .argument(let allowed):
       return Set(target.arguments).isSubset(of: allowed)
+    case .urlScheme(let allowed):
+      // Same fail-closed posture as `.any` above: a target carrying no scheme
+      // is not a URL open, so a scheme-scoped plugin permission must not
+      // authorize it.
+      guard let scheme = target.urlScheme?.lowercased(), !scheme.isEmpty else { return false }
+      return allowed.contains { $0.lowercased() == scheme }
     case .environment(let keys):
       return Set(target.environmentKeys).isSubset(of: keys)
     case .network(let host, let ports):

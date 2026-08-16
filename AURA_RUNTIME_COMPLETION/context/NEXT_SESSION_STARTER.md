@@ -1,29 +1,34 @@
 # AURA Next Session Starter — SP-007 is next, pending and unopened
 
-> Written: 2026-08-16 at the SP-006 closeout.
-> `HEAD == origin/main == 94e9e36a149bfd1913d67ebf76e7e29ec9e9e8a5`, but the
-> **worktree is dirty on purpose**: the whole SP-006 change set is still local
-> and uncommitted. Never copy a commit out of this header; run
-> `git rev-parse HEAD` and `git status --short` at session start.
+> Written: 2026-08-16, after the SP-006 delivery and its follow-up.
+> SP-006 was delivered to `origin/main` as `fe9e5db` (work + closeout),
+> `ea695d2` (projection alignment), and `ee053f5` (untracked-artifact record).
+> Never copy a commit out of this header; run `git rev-parse HEAD` and
+> `git status --short` at session start.
+>
+> **`git status` will always show three untracked files** —
+> `EV-SP-006-20260816-7SCENARIO-02.entries.log` and two `EV-SP-006-*.png`. That
+> is the steady state, not unfinished work: `REPO_HYGIENE_SUPPLY_CHAIN_POLICY
+> .json` forbids `.log`/`.png` as *tracked* paths, and H-003's principle forbids
+> *ignoring* evidence paths, so they live on disk bound to the evidence record
+> by SHA-256.
 >
 > Authoritative state is
 > `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json` and
 > `AURA_RUNTIME_COMPLETION/context/session-handoff.json`.
 
-## Read this first: SP-006 is delivered as *work*, not as *commits*
+## Read this first
 
-`SP-006` is **completed** — the seven-scenario live gate passed under
-`EV-SP-006-20260816-7SCENARIO-02` and the mandatory closeout is recorded under
-`EV-SP-006-20260816-CLOSEOUT-03`. What has **not** happened is delivery. The
-SP-006 source changes, tests, evidence artifacts, and control-plane projections
-are all sitting in the working tree.
+`SP-006` is **completed and delivered** — the seven-scenario live gate passed
+under `EV-SP-006-20260816-7SCENARIO-02`, the mandatory closeout is recorded
+under `EV-SP-006-20260816-CLOSEOUT-03`, and a follow-up under
+`EV-SP-006-20260816-GAPCLOSE-04` closed the two gaps that closeout had
+documented rather than fixed (see below).
 
-The user granted commit/push/merge authority for SP-006 in the previous
-starter, and that grant is recorded — but the standing project rule is that a
-go-ahead covers only the work completed when it was given, and must be given
-**in the turn** the delivery happens. So: **ask, then deliver.** The intended
-shape is the SP-004/SP-005 pattern — feature branch, then no-ff merge to `main`
-(`09df409`, `75b42ae`).
+Delivery went straight to `main` at the user's explicit direction rather than
+the SP-004/SP-005 feature-branch + no-ff shape. Whichever shape a future session
+uses, the standing rule holds: a go-ahead covers only the work completed when it
+was given, and must be given **in the turn** the delivery happens.
 
 Not in scope without a fresh explicit grant: dependency installs, model
 downloads, provider accounts, telemetry, beta enrollment, Developer-ID
@@ -38,7 +43,7 @@ signing/notarization, release, deployment.
 | Blocked | none |
 | `OPEN-04` | **closed**, and its forwarded live-gate bullet is now satisfied by SP-006. |
 
-Re-verified at the SP-006 closeout: **21/21 bundles / 880 tests / 0 failed**
+Re-verified after the live re-run: **21/21 bundles / 899 tests / 0 failed**
 (totals recomputed from the log, not read off a summary line), all four
 governance validators exit 0. Recheck these rather than trusting the numbers.
 
@@ -63,20 +68,54 @@ Two real defects were found and fixed *because* the run was live:
 2. `ToolRouter.handleFileOpen` routed a `folderPath` slot to `openFile`, which
    refuses non-regular files. Fixed to dispatch on the slot.
 
-**Not proved, and worth knowing before SP-007:** `CapabilityPlanner` is
-constructed only in tests — `grep -rn "CapabilityPlanner(" Sources/` returns
-nothing. Scenario 4's two-step plan was built by the harness and executed step
-by step through the *real* registry/policy/adapter objects, which satisfies the
-completion gate, but no production path decomposes a sentence into a plan. That
-wiring is a pre-existing R3 residual recorded in `capability-matrix.json` under
-`intent.capability_registry.open_gaps`.
+## Follow-up since delivery (`EV-SP-006-20260816-GAPCLOSE-04`)
+
+Two things the closeout had *documented rather than fixed* were then closed at
+the user's direction:
+
+1. **`CapabilityPlanner` is now on the production path.** It used to be
+   constructed only in tests. `ToolRouter` now owns one and validates every
+   routed intent through it (a missing required slot is refused by the planner,
+   not by a handler), `IntentPlanGeneratedEvent` carries a `planFingerprint`,
+   and `ToolRouter.routePlan` / `IntentDispatchCoordinator.executePlan` /
+   `AuraKernel.executePlan` execute validated multi-step plans in dependency
+   order — `.skipped` when a dependency did not execute, per-step declared
+   `rollbackStrategy`, explicitly **not** transactional.
+2. **Target confinement now exists at both layers.** Closing
+   `RISK-SP-006-DEFAULT-GRANT-BREADTH` revealed production had been building
+   `OpenTargetValidator()` with the default `approvedRoots: []` — *no root
+   restriction* — while the grants used `patterns: [.any]`. Neither layer
+   bounded where a file target could live. Both now read
+   `AuraCore.DeclaredFileRoots`.
+
+**Still not proved:** natural-language multi-step decomposition. The
+structured-NLU layer proposes at most one capability per turn, so no user
+sentence produces a multi-step plan — a caller must supply the steps. Recorded
+in `capability-matrix.json` under `intent.capability_registry.open_gaps`.
+
+3. **The live re-run (`EV-SP-006-20260816-LIVERERUN-05`) then caught that the
+   scoping was inert.** `aura.policy.grants` had accumulated **895 grants** —
+   seeding appended a fresh copy every launch — including **30 legacy `.any`
+   grants** that `matchingGrant` reached first, so `/etc/hosts` was stopped only
+   by the adapter. Fixed with a seed marker plus
+   `PolicyEngine.reconcileSeededGrants`; the live migration pruned 886 then 25,
+   settled at 16 grants, and `/etc/hosts` moved to a **policy** denial. Verified
+   21/21 bundles, **899/899 tests**, 0 failed.
+
+**Two pre-existing defects are open and unfixed — read these first:**
+
+- `RISK-SP-006-URL-OPEN-FAILS-LIVE` — `url.open` has failed in *every* recorded
+  run on this machine (13:18, 13:58, 14:12, 16:38). This **contradicts**
+  `EV-SP-006-20260816-7SCENARIO-02`'s scenario-2 claim that Chrome launched, so
+  treat that leg as **unproven** until re-demonstrated.
+- `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED` — a `quit Calculator`
+  confirmation expired where SP-006 recorded an acceptance; cause undetermined.
+
+Scenarios 4–7 were not re-run live in the follow-up; they rest on
+`EV-SP-006-20260816-7SCENARIO-02` and the deterministic suite.
 
 ## Open residual risks to keep in view (none block SP-007)
 
-- `RISK-SP-006-DEFAULT-GRANT-BREADTH` — **new.** The three grants above use
-  `patterns: [.any]`, so policy-layer target narrowing for filesystem/URL is
-  absent and every refusal now rests on `OpenTargetValidator`. Closure needs
-  pattern-scoped grants or an explicit accepted-risk decision under R10.
 - `RISK-SP-003-MODEL-LATENCY` — **bound widened to 28.5–49.0 s** (was
   19.8–36.1 s). Still inside the 90 s think budget and 120 s request timeout.
   Plan live runs around it; SP-006 had to raise its demo per-turn budget from
@@ -88,12 +127,11 @@ wiring is a pre-existing R3 residual recorded in `capability-matrix.json` under
 
 ## First actions in the next session
 
-1. `git rev-parse HEAD` and `git status --short`. Confirm the SP-006 tree is
-   still present and uncommitted.
+1. `git rev-parse HEAD` and `git status --short`. Expect a clean tree apart from
+   the three declared-untracked evidence artifacts named in the header.
 2. Read Tier 0 per `AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md`.
-3. Ask the user whether to deliver SP-006 now (feature branch + no-ff merge)
-   before anything else — an uncommitted tree of this size is the main risk
-   carried into this session.
+3. Read the two open `RISK-SP-006-*` risks above before anything else — one of
+   them questions a recorded SP-006 scenario leg.
 4. Only then, and only under its own explicit authority, open SP-007
    (`SP-007_LIVE_COMPUTER_USE_PLANNER_IN_APPROVED_APPS.prompt.md`) and read its
    Tier 1 set.
@@ -127,7 +165,7 @@ wiring is a pre-existing R3 residual recorded in `capability-matrix.json` under
   row, not just the header.
 - **`RISK_REGISTER.md` is a named required record in the SP prompts** and is
   easy to skip because nothing enforces it.
-- Test counts: 21 bundles / 880 tests with the SP-006 tree applied. A different
+- Test counts: 21 bundles / 899 tests as of the SP-006 live re-run. A different
   total means a bundle was skipped or a test silently dropped — investigate.
 - **Never use plain `swift test`.** Use
   `./scripts/aura-test.sh /tmp/<unique-path> [bundle-filter]` and capture full

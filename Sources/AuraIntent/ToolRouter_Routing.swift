@@ -91,10 +91,32 @@ extension ToolRouter {
       return .failed(reason: "no tool registered for \(intent.kind.rawValue)")
     }
 
+    // Build the step through the planner before dispatching. `resolveContract`
+    // has already proved the capability exists and is `.ready`; the planner
+    // adds the manifest's argument contract, so an intent missing a slot its
+    // capability requires is refused here instead of inside a handler — and
+    // the resulting `Plan` carries the fingerprint the trace records.
+    let plan: Plan
+    switch await capabilityPlanner.planSingleCall(
+      capabilityID: contract.id,
+      arguments: Self.planArguments(for: intent),
+      requiredArgumentNames: Self.requiredArgumentNames(for: intent.kind))
+    {
+    case .success(let built):
+      plan = built
+    case .failure(let failure):
+      await emit(
+        IntentBlockedEvent(intentID: intent.id, reason: failure.blockedReason),
+        correlationID: executionContext.correlationID,
+        causationID: executionContext.causationID)
+      return failure.executionOutcome
+    }
+
     await emit(
       IntentPlanGeneratedEvent(
         intentID: intent.id, toolID: contract.id,
-        capabilityIdentifier: contract.requiredCapability.identifier),
+        capabilityIdentifier: contract.requiredCapability.identifier,
+        planFingerprint: plan.fingerprint),
       correlationID: executionContext.correlationID,
       causationID: executionContext.causationID)
 

@@ -36,6 +36,38 @@ observed 28.5–49.0 s, above the 19.8–36.1 s previously recorded);
 `RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING` (voice track,
 cannot close in this environment). None owned by SP-006; none blocking SP-007.
 
+**Follow-up under `EV-SP-006-20260816-GAPCLOSE-04`** closed the two items the
+closeout had documented rather than fixed. `CapabilityPlanner` is now on the
+production path: `ToolRouter` validates every routed intent through it,
+`IntentPlanGeneratedEvent` carries the plan fingerprint, and
+`ToolRouter.routePlan` / `IntentDispatchCoordinator.executePlan` /
+`AuraKernel.executePlan` execute validated multi-step plans in dependency order
+with typed `.skipped` semantics and per-step declared rollback strategies —
+explicitly non-transactional. `RISK-SP-006-DEFAULT-GRANT-BREADTH` is **closed**,
+and closing it showed the risk had understated the exposure: production built
+`OpenTargetValidator()` with the default `approvedRoots: []` (*no root
+restriction*), so neither policy nor adapter bounded where a file target could
+live. Both layers now read `AuraCore.DeclaredFileRoots` — per-root
+`.directory` grants, a new `ResourcePattern.urlScheme(allowed:)` for
+`url.open`, and `OpenTargetValidator.production` at every production site.
+Verified **21/21 bundles, 899/899 tests, 0 failed**, four validators green.
+
+**The live re-run then corrected that follow-up** under
+`EV-SP-006-20260816-LIVERERUN-05`: the grant scoping was **inert on this
+installation**. `aura.policy.grants` had accumulated **895 grants** because
+seeding appended a fresh copy per launch, and **30 legacy `.any` grants** for
+the filesystem/URL capabilities were reached first by `matchingGrant`, so
+`/etc/hosts` was stopped only by the adapter. Fixed by marking seeded grants and
+replacing them through `PolicyEngine.reconcileSeededGrants`; the live migration
+pruned 886 then 25, settling at exactly 16 grants, and `/etc/hosts` moved to a
+**policy** denial. `RISK-SP-006-DEFAULT-GRANT-BREADTH` is closed on live
+evidence (its earlier test-only closure was premature). **Two pre-existing
+defects are now open and unfixed:** `RISK-SP-006-URL-OPEN-FAILS-LIVE` — the
+`url.open` adapter leg has failed in every recorded run, which contradicts
+`EV-SP-006-20260816-7SCENARIO-02`'s scenario-2 "Chrome launched" claim, so that
+leg is **unproven** — and `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED`.
+Natural-language multi-step decomposition remains unwired by scope choice.
+
 ### Superseded overlay — 2026-08-16 (SP-005 closure; OPEN-04 closed)
 
 `SP-006` / `completed` — `SP-005` / `OPEN-04` (NLU/UI reachability half) is

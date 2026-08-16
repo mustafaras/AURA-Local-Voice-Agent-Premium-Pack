@@ -198,6 +198,68 @@ extension PolicyEngine {
       "issueGrant", ruleID: grant.id, capability: grant.capability, actor: grant.issuer)
   }
 
+  /// Replace the seeded default grant set, instead of appending to it.
+  ///
+  /// `issueGrant` de-duplicates by `id` and `Grant` mints a fresh `UUID` per
+  /// construction, so seeding in a loop added a complete new copy of the
+  /// default set on every launch. A live SP-006 follow-up run found **895**
+  /// persisted grants on a developer machine, 30 of them pre-scoping `.any`
+  /// grants for the filesystem/URL capabilities. Since `matchingGrant` returns
+  /// the *first* grant that matches, those legacy grants kept authorizing the
+  /// very paths the newly scoped grants were written to refuse — target
+  /// scoping was therefore effective only on a store that had never run the
+  /// older build, which is the worst kind of security fix: correct in tests,
+  /// inert in the field.
+  ///
+  /// This removes, in order: every grant already carrying `marker`, and every
+  /// *legacy* grant that matches the pre-marker seed signature — no purpose,
+  /// `patterns == [.any]`, and a capability the incoming set governs. It then
+  /// installs `desired` and persists once. Grants outside that signature are
+  /// left untouched, so a narrower or purposeful grant issued by any other
+  /// path survives.
+  ///
+  /// Returns the number of grants pruned, so a caller can log a migration that
+  /// actually removed standing authority rather than assume it did nothing.
+  @discardableResult
+  public func reconcileSeededGrants(
+    _ desired: [Grant],
+    marker: String
+  ) async throws(AuraError) -> Int {
+    let governed = Set(desired.map(\.capability))
+    // Shape of a desired grant: capability + patterns + confirmation. An
+    // existing grant with an identical shape is redundant with the one about
+    // to be installed — it cannot authorize anything the new one does not — so
+    // it is pruned regardless of purpose. Without this, a grant written by an
+    // intermediate build (already scoped, not yet marked) would survive as a
+    // permanent duplicate that nothing ever cleans up.
+    func isRedundantWithDesired(_ existing: Grant) -> Bool {
+      desired.contains {
+        $0.capability == existing.capability
+          && $0.patterns == existing.patterns
+          && $0.confirmationRequirement == existing.confirmationRequirement
+      }
+    }
+    let before = grants.count
+    grants.removeAll { existing in
+      if existing.purpose == marker { return true }
+      let isLegacySeedShape =
+        existing.purpose.isEmpty
+        && existing.patterns == [.any]
+        && governed.contains(existing.capability)
+      if isLegacySeedShape { return true }
+      return isRedundantWithDesired(existing)
+    }
+    let pruned = before - grants.count
+    grants.append(contentsOf: desired)
+    try await persistGrants()
+    for grant in desired {
+      await emitRuleMutation(
+        "reconcileSeededGrant", ruleID: grant.id, capability: grant.capability,
+        actor: grant.issuer)
+    }
+    return pruned
+  }
+
   /// Revoke a grant by ID.
   public func revokeGrant(id: UUID) async throws(AuraError) {
     guard let index = grants.firstIndex(where: { $0.id == id }) else {
@@ -287,7 +349,21 @@ extension PolicyEngine {
     case .environment(let keys): return Set(request.environment.keys).isSubset(of: keys)
     case .network(let host, port: let portRange):
       return networkSatisfied(request: request, host: host, portRange: portRange)
+    case .urlScheme(let allowed):
+      return urlSchemeSatisfied(request: request, allowed: allowed)
     }
+  }
+
+  /// Fails closed on a missing scheme: a target that carries no URL scheme is
+  /// not a URL open, so a scheme-scoped grant must not authorize it.
+  private func urlSchemeSatisfied(
+    request: PolicyEvaluationRequest,
+    allowed: [String]
+  ) -> Bool {
+    guard let scheme = request.target.urlScheme?.lowercased(), !scheme.isEmpty else {
+      return false
+    }
+    return allowed.contains { $0.lowercased() == scheme }
   }
 
   private func filePathSatisfied(request: PolicyEvaluationRequest, glob: String) -> Bool {

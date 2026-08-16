@@ -237,6 +237,30 @@ extension AuraKernel {
   /// scope on it. The adapter independently canonicalizes and re-validates,
   /// so a policy decision made on the raw string is never the only thing
   /// between an attacker-supplied target and LaunchServices.
+  /// Build a bounded multi-step plan through `CapabilityPlanner` and execute
+  /// it via `ToolRouter.routePlan` — the same policy → confirmation → adapter
+  /// path every routed intent takes.
+  ///
+  /// The planner is the gate, not this method: an unknown capability, an
+  /// unavailable one, a missing required argument, an over-budget plan, or a
+  /// forward/self dependency is rejected before any step runs, and nothing
+  /// here can widen that. Execution is *not* transactional — steps that
+  /// already ran keep their effects, and the returned report carries each
+  /// step's declared `rollbackStrategy` verbatim instead of pretending an undo
+  /// happened.
+  func executePlan(
+    steps: [PlanStepRequest]
+  ) async throws(AuraError) -> PlanExecutionReport {
+    guard started, let intentDispatchCoordinator else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    let context = TurnContext(
+      sessionID: sessionID, correlationID: UUID(), causationID: UUID(),
+      activationSource: .text, actor: .user, authority: .userUtterance,
+      sensitivity: .sensitive)
+    return try await intentDispatchCoordinator.executePlan(steps: steps, context: context)
+  }
+
   func openFile(path: String) async throws(AuraError) -> OpenOutcome {
     guard started, let fileSystemURLOpener else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")

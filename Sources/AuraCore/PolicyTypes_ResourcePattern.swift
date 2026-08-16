@@ -31,4 +31,13 @@ public enum ResourcePattern: Codable, Sendable, Equatable, Hashable {
 
   /// Matches a network host and optional port range.
   case network(host: String, port: ClosedRange<Int>)
+
+  /// Requires the target's URL scheme to be one of `allowed`, compared
+  /// case-insensitively. Added by SP-006's closeout so `url.open` can be
+  /// narrowed at the policy layer instead of relying solely on the adapter's
+  /// scheme allowlist: a URL with no scheme, or with a scheme outside the
+  /// list, no longer matches the grant at all. `.network(host:port:)` cannot
+  /// express this — a `mailto:` URL has no host, so host-scoping would refuse
+  /// legitimate mail links while still permitting, say, `file:` or `ftp:`.
+  case urlScheme(allowed: [String])
 }

@@ -33,6 +33,26 @@ public actor IntentDispatchCoordinator {
     self.sessionID = sessionID
   }
 
+  /// Build a bounded plan through `CapabilityPlanner` and execute it through
+  /// the same `ToolRouter` this coordinator dispatches single intents to.
+  ///
+  /// The coordinator owns the router privately, so this is the seam through
+  /// which the kernel reaches multi-step execution — rather than widening the
+  /// router's ownership, which would let a caller reach `routePlan` with a
+  /// plan the planner never validated.
+  public func executePlan(
+    steps: [PlanStepRequest],
+    context: TurnContext
+  ) async throws(AuraError) -> PlanExecutionReport {
+    let planner = CapabilityPlanner(registry: await toolRouter.capabilityRegistry)
+    switch await planner.buildPlan(steps: steps) {
+    case .failure(let failure):
+      throw AuraError.invalidConfiguration("plan rejected: \(failure.blockedReason)")
+    case .success(let plan):
+      return await toolRouter.routePlan(plan, context: context)
+    }
+  }
+
   /// Subscribe to `TurnCompletedEvent`. Must be called before `AuraAudio
   /// .start()` in `AuraKernel`'s construction sequence — `AuraEventBus`
   /// does not replay history to a late subscriber.

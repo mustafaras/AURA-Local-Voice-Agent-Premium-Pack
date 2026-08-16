@@ -24,8 +24,17 @@ extension AuraKernel {
     // The list lives in `DefaultPolicyGrants` (AuraPolicy) so the production
     // default posture is unit-testable; this executable target cannot be
     // imported by test bundles. SP-006 added the filesystem/URL grants.
-    for grant in DefaultPolicyGrants.all {
-      try await policyEngine.issueGrant(grant)
+    //
+    // Reconcile, never append. Issuing in a loop re-added the whole set on
+    // every launch (a live run found 895 persisted grants) and, worse, left
+    // pre-scoping `.any` grants in place where `matchingGrant` reaches them
+    // first — so the SP-006 follow-up's target scoping was inert on any store
+    // that had already run an older build.
+    let pruned = try await policyEngine.reconcileSeededGrants(
+      DefaultPolicyGrants.all, marker: DefaultPolicyGrants.seedPurpose)
+    if pruned > 0 {
+      await logger.info(
+        "Policy grant migration pruned \(pruned) superseded seeded grant(s)", actor: .system)
     }
   }
 

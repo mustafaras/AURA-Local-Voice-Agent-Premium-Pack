@@ -92,7 +92,7 @@ extension AuraKernel {
     // caller-supplied narrowing, and no configuration surface defines them
     // yet. Policy remains the gate: each direct-call method evaluates
     // `.fileOpen`/`.fileReveal`/`.urlOpen` through the same `PolicyEngine`.
-    self.fileSystemURLOpener = FileSystemURLOpener()
+    self.fileSystemURLOpener = FileSystemURLOpener(validator: .production)
     await runtime.recordReady("shell", detail: "typed shell constructed")
     await runtime.recordReady("automation", detail: "structured automation constructed")
     await runtime.recordReady(

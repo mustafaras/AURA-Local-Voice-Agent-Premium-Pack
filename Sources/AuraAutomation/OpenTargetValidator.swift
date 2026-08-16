@@ -53,6 +53,14 @@ public struct OpenTargetValidator: Sendable {
     ("/Library/Application Support/com.apple.TCC/", "privacy database"),
   ]
 
+  /// The posture every production construction site uses: a target must
+  /// resolve inside `DeclaredFileRoots.all`. The bare `init()` default leaves
+  /// `approvedRoots` empty ("no root restriction") for focused tests that
+  /// supply their own sandbox, so production confinement has to be stated
+  /// explicitly rather than inherited by accident — SP-006's closeout found
+  /// production silently running with the empty default.
+  public static let production = OpenTargetValidator(approvedRoots: DeclaredFileRoots.all)
+
   public init(
     approvedRoots: [String] = [],
     maximumTargetLength: Int = 4096,

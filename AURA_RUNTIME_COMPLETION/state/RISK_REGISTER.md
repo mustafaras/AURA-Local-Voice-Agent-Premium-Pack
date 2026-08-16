@@ -426,7 +426,7 @@ into the SP-006 evidence file.
 - **Evidence:** `EV-SP-006-20260816-7SCENARIO-02`
 
 - **Risk ID:** `RISK-SP-006-DEFAULT-GRANT-BREADTH`
-- **Status:** **Open — new, bounded**
+- **Status:** **Closed** (was Open; closure first claimed 2026-08-16 under `EV-SP-006-20260816-GAPCLOSE-04` on test evidence — that claim was **premature**; genuinely closed the same day on live evidence under `EV-SP-006-20260816-LIVERERUN-05`)
 - **Owner:** R3 / R10 (policy posture)
 - **Risk:** SP-006 had to seed `.none`-confirmation grants for `.fileOpen`, `.fileReveal`, and
   `.urlOpen` with `patterns: [.any]`, because the production `PolicyConfiguration` denies the
@@ -444,4 +444,59 @@ into the SP-006 evidence file.
 - **Closure criterion:** either a pattern-scoped grant (confining these three capabilities to
   declared user directories at the policy layer rather than only the adapter layer), or an
   explicit accepted-risk decision recorded with the R10 privilege-separation work.
-- **Evidence:** `EV-SP-006-20260816-7SCENARIO-02`
+- **Closure (2026-08-16, `EV-SP-006-20260816-GAPCLOSE-04`):** the pattern-scoped option was
+  taken, and closing it exposed that the risk as originally written *understated* the exposure.
+  The original text said refusal "rests entirely on `OpenTargetValidator`" — but production built
+  that validator through `OpenTargetValidator()`'s default `approvedRoots: []`, which the type
+  documents as **no root restriction**. So neither layer confined a path: the validator was
+  enforcing its executable-extension, sensitive-fragment, and scheme rules, but nothing bounded
+  *where* a target could live. Both layers are now bound to one shared declaration,
+  `AuraCore.DeclaredFileRoots`:
+  - **Policy:** `.fileOpen`/`.fileReveal` are granted per declared root as
+    `.directory(root, recursive: true)` — one grant per root, because `patternsSatisfied`
+    requires *every* pattern in a grant to match while `matchingGrant` accepts the first grant
+    that does, so alternatives cannot share a grant. `url.open` uses a new
+    `ResourcePattern.urlScheme(allowed:)` matching the adapter's allowlist;
+    `.network(host:port:)` could not express this because a `mailto:` URL has no host.
+  - **Adapter:** every production construction site (`AuraAutomation` ×2,
+    `AuraKernel_Construction`) now passes `OpenTargetValidator.production`, which carries the
+    same roots. The bare `init()` keeps the permissive default so focused tests supply their own
+    sandbox and production confinement must be stated rather than inherited.
+  A target outside the roots is now refused twice for independent reasons — by a raw-prefix
+  policy check before the adapter is reached, and by `PathConfinement`'s canonicalized,
+  component-wise check inside it, which still catches a `..`/symlink escape that the string
+  comparison would miss. Proven by `DefaultPolicyGrantsTests` (14 tests, including `/etc/hosts`
+  denied for both file capabilities, empty-target denial, `file:`/`ftp:`/`javascript:`/no-scheme
+  URL denial, and a `mailto` regression guard). SP-006's live sandbox `/tmp/aura-sp006-*` remains
+  inside the declared roots, so the recorded live scenarios stay reproducible.
+- **Residual:** the roots are a fixed built-in list, not a user-managed setting; a user who keeps
+  files outside home and the temp directories will be refused until R9/R10 adds a real
+  grant-management surface. This is a deliberate fail-closed default, not an oversight.
+- **Evidence:** `EV-SP-006-20260816-7SCENARIO-02` (registration),
+  `EV-SP-006-20260816-GAPCLOSE-04` (closure)
+
+### 2026-08-16T16:54:00Z — SP-006 live re-run risk disposition
+
+- **Risk ID:** `RISK-SP-006-DEFAULT-GRANT-BREADTH`
+- **Status:** **Closed on live evidence** (correcting a premature test-only closure)
+- **What the live run changed:** the scoped grants were **inert on this installation**. `aura.policy.grants` held **895 persisted grants** — `issueGrant` de-duplicates by `id` while `Grant` mints a fresh `UUID`, so every launch since 2026-07-27 appended a complete new copy of the seed set — including **30 pre-scoping `.any` grants** for `file.open`/`file.reveal`/`url.open`. `matchingGrant` returns the first match, so those legacy grants authorized exactly the paths the scoping was meant to refuse. `/etc/hosts` was stopped only by the adapter.
+- **Closure:** `DefaultPolicyGrants.seedPurpose` marks every seeded grant; `PolicyEngine.reconcileSeededGrants(_:marker:)` replaces the seeded set and prunes marked, legacy-`.any`, and shape-redundant grants; `AuraKernel.seedDefaultGrants` reconciles once and logs the migration. Live: `pruned 886` then `pruned 25`, store settling at 16 grants with 0 unmarked leftovers, and `/etc/hosts` moving to `policy` / `intent.blocked` while in-root opens stay `verified`.
+- **Residual:** declared roots remain a fixed built-in list rather than a user-managed setting.
+- **Evidence:** `EV-SP-006-20260816-LIVERERUN-05`
+
+- **Risk ID:** `RISK-SP-006-URL-OPEN-FAILS-LIVE`
+- **Status:** **Open — new, pre-existing defect surfaced by the live re-run**
+- **Owner:** R3 / SP-007 first read
+- **Risk:** the `url.open` capability's adapter leg fails on this machine. The trace store records `url.open → tool.result failed` at 13:18:12Z, 13:58:58Z, 14:12:35Z **and** 16:38:00Z — i.e. in every recorded run, including all three SP-006-era runs, before any change made in this session. So a registered `.ready` capability that policy authorizes does not actually work end to end.
+- **Why it matters beyond the defect:** it **contradicts `EV-SP-006-20260816-7SCENARIO-02`**, whose scenario 2 states "Chrome launched at the URL turn (17:14:39)". The trace store does not corroborate a successful `url.open` at any time. The SP-006 verdict is not being reversed here — the other scenario legs stand on their own evidence — but scenario 2's URL half should be treated as **unproven** until re-demonstrated with a corroborating trace.
+- **Not yet diagnosed:** the failure reason is not in the trace row, and the generic event payload table is intentionally empty (SP-001 excluded raw payload persistence), so the adapter's refusal/failure string was not recoverable after the fact.
+- **Closure criterion:** a live `url.open` producing `tool.result … verified` with the browser actually launching, or a root-caused fix plus regression test if the adapter is refusing legitimately.
+- **Evidence:** `EV-SP-006-20260816-LIVERERUN-05`
+
+- **Risk ID:** `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED`
+- **Status:** **Open — new, observation, cause undetermined**
+- **Owner:** R1 / R9 (confirmation UX)
+- **Risk:** in the live re-run, `quit Calculator` produced `confirmation.requested` at 16:39:46Z and `confirmation.expired` at 16:40:46Z → `intent.blocked / confirmationDenied`, and Calculator survived. The SP-006 run recorded `confirmation.accepted` for the same utterance under the same `AURA_TEXT_DEMO_SCRIPT` auto-allow presenter.
+- **Assessment:** expiry-without-execution is a *safe* outcome and the deterministic confirmation suite passes, so no code defect is asserted. But the difference between two runs of the same path is unexplained, and an unexplained difference in a confirmation path is worth holding open rather than dismissing.
+- **Closure criterion:** a determined cause — presenter selection, timing, or model classification variance — with a test or a documented environmental explanation.
+- **Evidence:** `EV-SP-006-20260816-LIVERERUN-05`
