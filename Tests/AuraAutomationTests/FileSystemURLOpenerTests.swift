@@ -309,6 +309,7 @@ struct OpenTargetValidatorTests {
 
   @Test("refuses a URL embedding a username or password")
   func rejectsEmbeddedCredentials() {
+    // REPO_HYGIENE_SECRET_FIXTURE: basic_auth_url — intentional test fixture, not a real credential
     #expect(
       rejection { try validator.validateURL("https://user:secret@example.com") }
         == .embeddedCredentials)
