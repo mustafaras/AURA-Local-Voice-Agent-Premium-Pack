@@ -268,19 +268,26 @@ func dialogueEngineBoundsResponseAndPromptData() async {
   #expect(response.text.count <= 256)
 }
 
+/// A model-proposed *registered* capability is a real signal that the user may
+/// have wanted an action, so it must clarify rather than execute. Uses
+/// `shell.execute_typed`, which `InitialCapabilitySet` actually registers —
+/// this previously named `shell.execute`, which no registry entry defines.
 @Test
 func structuredModelActionProposalCannotBecomeExecutableIntent() async {
   let bus = AuraEventBus(
     logger: AuraLogger(subsystem: "AuraIntentTests", category: "structured-nlu"))
+  let registry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: registry)
   let engine = IntentEngine(
     classifier: RuleBasedUtteranceClassifier(),
     structuredNLUBackend: StructuredNLUBackendStub(
       response: StructuredNLUResponse(
         dialogueAct: "execute",
         language: "english",
-        capabilityID: "shell.execute",
+        capabilityID: "shell.execute_typed",
         confidence: "0.99",
         ambiguityReason: "")),
+    capabilityRegistry: registry,
     eventBus: bus,
     sessionID: UUID())
   let context = TurnContext(
@@ -302,6 +309,92 @@ func structuredModelActionProposalCannotBecomeExecutableIntent() async {
   #expect(intent.isAmbiguous)
   #expect(intent.dialogueAct == .clarify)
   #expect(intent.slots.isEmpty)
+}
+
+/// Closes `RISK-SP-003-NLU-DOWNGRADE-VARIANCE`.
+///
+/// A live local model intermittently answered a plain question with a proposed
+/// action naming a capability that does not exist. R2 requires unknown
+/// capability IDs to be *rejected*; rejecting one means falling back to the
+/// deterministic classification, not inventing ambiguity from it. The turn must
+/// therefore stay conversational — still not executable, so nothing is
+/// loosened — instead of costing the user a clarification round-trip.
+@Test
+func hallucinatedCapabilityProposalIsRejectedAndKeepsConversation() async {
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AuraIntentTests", category: "structured-nlu-hallucination"))
+  let registry = CapabilityRegistry()
+  await InitialCapabilitySet.registerAll(in: registry)
+  let engine = IntentEngine(
+    classifier: RuleBasedUtteranceClassifier(),
+    structuredNLUBackend: StructuredNLUBackendStub(
+      response: StructuredNLUResponse(
+        dialogueAct: "execute",
+        language: "english",
+        capabilityID: "totally.invented_capability",
+        confidence: "0.99",
+        ambiguityReason: "")),
+    capabilityRegistry: registry,
+    eventBus: bus,
+    sessionID: UUID())
+  let context = TurnContext(
+    sessionID: UUID(),
+    activationSource: .text,
+    actor: .user,
+    authority: .userUtterance,
+    sensitivity: .sensitive)
+
+  let intent = await engine.classify(
+    TurnCompletedEvent(
+      text: "what can you do as a local assistant?",
+      confidence: 1,
+      isFinal: true,
+      requiresPolicyReview: true,
+      turnContext: context),
+    context: context)
+
+  #expect(intent.kind == .converse)
+  #expect(intent.isAmbiguous == false)
+  #expect(intent.dialogueAct == .answer)
+  // The invented capability never survives into the typed intent.
+  #expect(intent.slots.contains { $0.value.contains("invented") } == false)
+}
+
+/// Without a registry nothing can be verified, so the conservative downgrade
+/// must still apply — the fix may never make an unverifiable case *less* safe.
+@Test
+func withoutARegistryAProposedCapabilityStillDowngrades() async {
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AuraIntentTests", category: "structured-nlu-noregistry"))
+  let engine = IntentEngine(
+    classifier: RuleBasedUtteranceClassifier(),
+    structuredNLUBackend: StructuredNLUBackendStub(
+      response: StructuredNLUResponse(
+        dialogueAct: "execute",
+        language: "english",
+        capabilityID: "totally.invented_capability",
+        confidence: "0.99",
+        ambiguityReason: "")),
+    eventBus: bus,
+    sessionID: UUID())
+  let context = TurnContext(
+    sessionID: UUID(),
+    activationSource: .text,
+    actor: .user,
+    authority: .userUtterance,
+    sensitivity: .sensitive)
+
+  let intent = await engine.classify(
+    TurnCompletedEvent(
+      text: "what can you do as a local assistant?",
+      confidence: 1,
+      isFinal: true,
+      requiresPolicyReview: true,
+      turnContext: context),
+    context: context)
+
+  #expect(intent.kind == .unknown)
+  #expect(intent.dialogueAct == .clarify)
 }
 
 @Test

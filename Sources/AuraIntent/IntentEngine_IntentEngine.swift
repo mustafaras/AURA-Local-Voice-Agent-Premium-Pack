@@ -13,6 +13,11 @@ public actor IntentEngine {
   let contextBuilder: ContextBuilder?
   let memoryEngine: MemoryEngine?
   let structuredNLUBackend: (any StructuredNLUBackend)?
+  /// Used only to tell a *hallucinated* capability ID from a real one when the
+  /// structured-NLU model proposes an action. When absent, every proposed ID is
+  /// treated as unverifiable and the conservative downgrade applies, so
+  /// omitting the registry can never make behaviour less safe.
+  let capabilityRegistry: CapabilityRegistry?
   let configuration: IntentEngineConfiguration
   let eventBus: AuraEventBus
   let logger: AuraLogger
@@ -33,6 +38,7 @@ public actor IntentEngine {
     contextBuilder: ContextBuilder? = nil,
     memoryEngine: MemoryEngine? = nil,
     structuredNLUBackend: (any StructuredNLUBackend)? = nil,
+    capabilityRegistry: CapabilityRegistry? = nil,
     configuration: IntentEngineConfiguration = IntentEngineConfiguration(),
     eventBus: AuraEventBus,
     logger: AuraLogger = AuraLogger(subsystem: "AuraIntent", category: "intent-engine"),
@@ -42,6 +48,7 @@ public actor IntentEngine {
     self.classifier = classifier
     self.memoryEngine = memoryEngine
     self.structuredNLUBackend = structuredNLUBackend
+    self.capabilityRegistry = capabilityRegistry
     self.configuration = configuration
     self.eventBus = eventBus
     self.logger = logger

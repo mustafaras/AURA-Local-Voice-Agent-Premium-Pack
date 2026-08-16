@@ -72,6 +72,19 @@ extension IntentEngine {
     }
   }
 
+  /// True when the model named a capability that does not exist in the
+  /// registry — an invented name, not a real action the user might have meant.
+  ///
+  /// Fails safe in both unknowable directions: with no proposed ID there is
+  /// nothing to hallucinate, and with no registry wired in nothing can be
+  /// verified, so neither case is treated as a hallucination and the existing
+  /// conservative downgrade still applies.
+  func isHallucinatedCapability(_ capabilityID: String?) async -> Bool {
+    guard let capabilityID, !capabilityID.isEmpty else { return false }
+    guard let capabilityRegistry else { return false }
+    return await capabilityRegistry.resolveLatest(id: capabilityID) == nil
+  }
+
   func structuredProposal(from result: StructuredNLUResponse) -> StructuredNLUProposal? {
     guard let dialogueAct = DialogueAct(rawValue: result.dialogueAct),
       let language = DialogueLanguage(rawValue: result.language)

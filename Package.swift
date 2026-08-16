@@ -176,7 +176,7 @@ let package = Package(
         ),
         .testTarget(
             name: "AuraSTTTests",
-            dependencies: ["AuraSTT"],
+            dependencies: ["AuraSTT", "AuraAudio"],
             swiftSettings: testingSwiftSettings
         ),
         .testTarget(

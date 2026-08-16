@@ -261,8 +261,7 @@ extension AuraMenuView {
   }
 
   func sectionTitle(_ key: String, symbol: String) -> some View {
-    Label(copy(key), systemImage: symbol)
-      .font(.title3.bold())
+    AuraSectionHeader(title: copy(key), symbol: symbol)
       .accessibilityAddTraits(.isHeader)
   }
 

@@ -14,14 +14,23 @@ struct AuraConfirmationCard: View {
   let challenge: PolicyConfirmationChallenge
 
   var body: some View {
-    GroupBox("Confirmation Required") {
-      VStack(alignment: .leading, spacing: 8) {
+    // The highest-stakes surface in the product: the user is authorizing a real
+    // action. It is deliberately the most prominent panel — tinted heading,
+    // risk stated in words, and the safe choice (Deny) reachable first in both
+    // reading and tab order.
+    AuraPanel(title: "Confirmation Required", tint: .orange) {
+      VStack(alignment: .leading, spacing: AuraDesign.Spacing.s) {
         Text("\(challenge.requestedAction.domain).\(challenge.requestedAction.action)")
-          .font(.headline)
+          .font(AuraDesign.Typography.sectionTitle)
         Text(challenge.targetSummary)
+          .font(AuraDesign.Typography.body)
           .fixedSize(horizontal: false, vertical: true)
-        Text("Risk: \(challenge.riskTier.rawValue) · Expires \(challenge.expiresAt.formatted())")
-          .font(.caption).foregroundStyle(.secondary)
+        Label(
+          "Risk: \(challenge.riskTier.rawValue) · Expires \(challenge.expiresAt.formatted())",
+          systemImage: "exclamationmark.shield"
+        )
+        .font(AuraDesign.Typography.meta)
+        .foregroundStyle(.secondary)
         if let turnContext = challenge.turnContext {
           let traceText = AuraTraceDisplay.summary(
             correlationID: turnContext.correlationID, causationID: turnContext.causationID)

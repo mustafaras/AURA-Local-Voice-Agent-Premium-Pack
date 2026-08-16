@@ -5,17 +5,17 @@ import SwiftUI
 extension AuraMenuView {
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: AuraDesign.Spacing.m) {
       header
       tabPicker
-      Divider()
       ScrollView {
         tabContent
           .frame(maxWidth: .infinity, alignment: .leading)
-          .padding(.bottom, 8)
+          .padding(.bottom, AuraDesign.Spacing.s)
       }
     }
-    .padding(16)
+    .padding(AuraDesign.Spacing.l)
+    .background(Color(nsColor: .windowBackgroundColor))
     .frame(minWidth: 680, minHeight: 720)
     .onAppear { model.refreshProductSnapshots() }
     .sheet(
@@ -33,20 +33,35 @@ extension AuraMenuView {
   }
 
   var header: some View {
-    HStack(alignment: .top, spacing: 12) {
-      Image(systemName: model.status.symbolName)
-        .font(.title2)
-        .frame(width: 32, height: 32)
-        .accessibilityHidden(true)
-      VStack(alignment: .leading, spacing: 3) {
-        Text("AURA")
-          .font(.headline)
-        Text("\(model.status.title) — \(model.statusDetail)")
-          .font(.subheadline)
-          .foregroundStyle(.secondary)
-          .fixedSize(horizontal: false, vertical: true)
+    HStack(alignment: .center, spacing: AuraDesign.Spacing.m) {
+      // Identity mark. The status colour is carried by the pill beside it, not
+      // by the icon, so the app's identity stays visually stable while state
+      // changes around it.
+      ZStack {
+        RoundedRectangle(cornerRadius: AuraDesign.Radius.medium, style: .continuous)
+          .fill(Color.accentColor.opacity(0.14))
+        Image(systemName: model.status.symbolName)
+          .font(.system(size: 15, weight: .semibold))
+          .foregroundStyle(.tint)
       }
-      Spacer(minLength: 8)
+      .frame(width: 34, height: 34)
+      .accessibilityHidden(true)
+
+      VStack(alignment: .leading, spacing: AuraDesign.Spacing.xxs) {
+        Text("AURA")
+          .font(AuraDesign.Typography.wordmark)
+        Text(language == .turkish ? "Yerel sesli asistan" : "Local voice assistant")
+          .font(AuraDesign.Typography.meta)
+          .foregroundStyle(.secondary)
+      }
+
+      Spacer(minLength: AuraDesign.Spacing.s)
+
+      AuraStatusPill(
+        status: model.status,
+        title: model.status.title,
+        detail: model.statusDetail)
+
       Picker(
         "Language",
         selection: Binding(
@@ -57,32 +72,66 @@ extension AuraMenuView {
         Text("TR").tag(AuraUILanguage.turkish)
       }
       .pickerStyle(.segmented)
-      .frame(width: 92)
+      .labelsHidden()
+      .frame(width: 84)
       .accessibilityLabel(language == .turkish ? "Arayüz dili" : "Interface language")
+
       Button {
         model.beginOnboarding()
       } label: {
-        Label(copy("onboarding.title"), systemImage: "wand.and.stars")
+        Image(systemName: "wand.and.stars")
+          .font(.system(size: 13, weight: .medium))
       }
       .buttonStyle(.bordered)
+      .help(copy("onboarding.title"))
+      .accessibilityLabel(copy("onboarding.title"))
       .accessibilityHint(language == .turkish ? "Kurulum adımlarını açar" : "Opens guided setup")
     }
     .accessibilityElement(children: .contain)
   }
 
+  /// Six destinations in a segmented control leave each label a few
+  /// characters wide and unreadable in Turkish, where the words are longer.
+  /// Discrete pills give every section its icon plus its full name, and make
+  /// the selected one unambiguous.
   var tabPicker: some View {
-    Picker(
-      "Sections",
-      selection: Binding(
-        get: { model.productUIState.selectedTab },
-        set: { model.selectTab($0) })
-    ) {
+    HStack(spacing: AuraDesign.Spacing.xs) {
       ForEach(AuraProductTab.allCases) { tab in
-        Label(copy(tab.copyKey), systemImage: tab.symbolName).tag(tab)
+        tabButton(tab)
       }
+      Spacer(minLength: 0)
     }
-    .pickerStyle(.segmented)
+    .padding(AuraDesign.Spacing.xs)
+    .background(AuraDesign.panelBackground(cornerRadius: AuraDesign.Radius.medium))
+    .accessibilityElement(children: .contain)
     .accessibilityLabel(language == .turkish ? "AURA bölümleri" : "AURA sections")
+  }
+
+  private func tabButton(_ tab: AuraProductTab) -> some View {
+    let isSelected = model.productUIState.selectedTab == tab
+    return Button {
+      model.selectTab(tab)
+    } label: {
+      HStack(spacing: AuraDesign.Spacing.xs) {
+        Image(systemName: tab.symbolName)
+          .font(.system(size: 11, weight: .medium))
+        Text(copy(tab.copyKey))
+          .font(AuraDesign.Typography.meta.weight(isSelected ? .semibold : .regular))
+          .lineLimit(1)
+      }
+      .padding(.horizontal, AuraDesign.Spacing.s)
+      .padding(.vertical, AuraDesign.Spacing.xs + 1)
+      .background(
+        RoundedRectangle(cornerRadius: AuraDesign.Radius.small, style: .continuous)
+          .fill(isSelected ? Color.accentColor.opacity(0.18) : Color.clear)
+      )
+      .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
+    // Selection is announced through the trait rather than only by tint, so it
+    // is conveyed without relying on colour.
+    .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
   }
 
   @ViewBuilder
@@ -127,30 +176,44 @@ extension AuraMenuView {
       .frame(minHeight: 180, maxHeight: 300)
       .accessibilityElement(children: .contain)
 
-      HStack(alignment: .bottom, spacing: 8) {
-        TextField(copy("conversation.input"), text: $model.textInput)
-          .textFieldStyle(.roundedBorder)
-          .onSubmit { model.submitText() }
-          .accessibilityLabel(copy("conversation.input"))
+      // Composer: text and voice are the same action to the user, so they sit
+      // on one row rather than stacking a full-width bar under the field.
+      HStack(spacing: AuraDesign.Spacing.s) {
+        HStack(spacing: AuraDesign.Spacing.s) {
+          TextField(copy("conversation.input"), text: $model.textInput)
+            .textFieldStyle(.plain)
+            .font(AuraDesign.Typography.body)
+            .onSubmit { model.submitText() }
+            .accessibilityLabel(copy("conversation.input"))
+          Button {
+            model.submitText()
+          } label: {
+            Image(systemName: "arrow.up.circle.fill")
+              .font(.system(size: 18))
+              .foregroundStyle(
+                model.textInput.isEmpty ? AnyShapeStyle(.tertiary) : AnyShapeStyle(.tint))
+          }
+          .buttonStyle(.plain)
+          .disabled(model.textInput.isEmpty)
+          .accessibilityLabel(copy("conversation.submit"))
+        }
+        .padding(.horizontal, AuraDesign.Spacing.m)
+        .padding(.vertical, AuraDesign.Spacing.s)
+        .background(AuraDesign.panelBackground(cornerRadius: AuraDesign.Radius.bubble))
+
         Button {
-          model.submitText()
+          model.pushToTalk()
         } label: {
-          Image(systemName: "arrow.up.circle.fill")
+          Label(copy("conversation.pushToTalk"), systemImage: "mic.fill")
+            .font(AuraDesign.Typography.meta.weight(.semibold))
+            .padding(.horizontal, AuraDesign.Spacing.s)
         }
         .buttonStyle(.borderedProminent)
-        .accessibilityLabel(copy("conversation.submit"))
+        .controlSize(.large)
+        .disabled(model.emergencyStopActive)
+        .keyboardShortcut(.space, modifiers: [.command, .shift])
+        .accessibilityHint(copy("conversation.pushHint"))
       }
-      Button {
-        model.pushToTalk()
-      } label: {
-        Label(copy("conversation.pushToTalk"), systemImage: "mic.fill")
-          .frame(maxWidth: .infinity)
-      }
-      .buttonStyle(.borderedProminent)
-      .controlSize(.large)
-      .disabled(model.emergencyStopActive)
-      .keyboardShortcut(.space, modifiers: [.command, .shift])
-      .accessibilityHint(copy("conversation.pushHint"))
 
       if let challenge = model.pendingConfirmation {
         AuraConfirmationCard(model: model, challenge: challenge)
@@ -182,26 +245,13 @@ extension AuraMenuView {
     case .assistant: role = "AURA"
     case .system: role = language == .turkish ? "Sistem" : "System"
     }
-    return GroupBox {
-      VStack(alignment: .leading, spacing: 4) {
-        Text(role).font(.caption).bold()
-        Text(message.text)
-          .fixedSize(horizontal: false, vertical: true)
-        if let source = message.sourceSummary {
-          Text(source).font(.caption2).foregroundStyle(.secondary)
-        }
-        if let trace = message.traceSummary {
-          Text(trace)
-            .font(.caption2.monospaced())
-            .foregroundStyle(.secondary)
-            .accessibilityLabel("Trace: \(trace)")
-        }
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    .tint(message.isDegraded ? .orange : .accentColor)
-    .accessibilityElement(children: .combine)
-    .accessibilityLabel("\(role): \(message.text)")
+    return AuraMessageBubble(
+      roleLabel: role,
+      text: message.text,
+      isUser: message.role == .user,
+      isDegraded: message.isDegraded,
+      sourceSummary: message.sourceSummary,
+      traceSummary: message.traceSummary)
   }
 
 }

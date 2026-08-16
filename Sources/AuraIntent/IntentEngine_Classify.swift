@@ -100,6 +100,23 @@ extension IntentEngine {
             + "confidence=\(proposal.confidence) language=\(proposal.language)",
           correlationID: context.correlationID, actor: .intent)
       }
+      if let typed = structuredProposal(from: proposal),
+        await isHallucinatedCapability(typed.capabilityID)
+      {
+        // R2: "Unknown capability IDs … must be rejected." Rejecting a
+        // hallucination means discarding the proposal and keeping the
+        // deterministic classification — not manufacturing ambiguity from it.
+        // Downgrading here instead would turn a plain question into a
+        // clarification round-trip purely because the model invented a name
+        // (`RISK-SP-003-NLU-DOWNGRADE-VARIANCE`). The turn stays `.converse`,
+        // which is not executable, so the safety invariant is untouched.
+        if ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_TEXT"] == "1" {
+          await logger.warning(
+            "TEXT_DEMO structuredNLU proposed an unregistered capability; proposal rejected",
+            correlationID: context.correlationID, actor: .intent)
+        }
+        return result
+      }
       guard let structuredProposal = structuredProposal(from: proposal) else {
         if ProcessInfo.processInfo.environment["AURA_LOG_RESPONSE_TEXT"] == "1" {
           await logger.warning(

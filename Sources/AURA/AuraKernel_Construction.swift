@@ -248,7 +248,8 @@ extension AuraKernel {
     let intentEngine = IntentEngine(
       classifier: RuleBasedUtteranceClassifier(), contextEngine: foundation.context,
       contextBuilder: foundation.contextBuilder, memoryEngine: foundation.memory,
-      structuredNLUBackend: extensions.ollamaAdapter, configuration: configuration.intent,
+      structuredNLUBackend: extensions.ollamaAdapter, capabilityRegistry: capabilityRegistry,
+      configuration: configuration.intent,
       eventBus: eventBus, sessionID: sessionID)
     return AuraKernelIntent(intentEngine: intentEngine, toolRouter: router)
   }

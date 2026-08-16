@@ -297,3 +297,21 @@ Never use a lower evidence class to claim a higher operational state in `capabil
   `RISK-SP-003-NLU-DOWNGRADE-VARIANCE` and `RISK-SP-003-LIVE-VOICE-RESIDUAL` remain open with
   recorded reasons. Limitations: rule-based screening is auditable but not exhaustive, and no
   mechanism yet forces future prompt sites to use the shared screen.
+
+- **EV-SP-003-20260816-RISKS-AND-UI-19** — SP-003 follow-up at `2026-08-16T08:20:49Z` on `main`
+  atop `86bd957`. Closes `RISK-SP-003-NLU-DOWNGRADE-VARIANCE`: the prior "not fixable" conclusion
+  was wrong because the guarding test proposed `shell.execute`, which is unregistered
+  (`InitialCapabilitySet` registers `shell.execute_typed`), conflating a hallucinated ID with real
+  user ambiguity. `IntentEngine` now verifies proposed capability IDs against `CapabilityRegistry`
+  and rejects unregistered ones per R2 §C, keeping the deterministic `.converse` classification;
+  registered IDs still clarify; no registry still downgrades. `AuraIntentTests` 72/72 (+2).
+  Narrows but does not close `RISK-SP-003-LIVE-VOICE-RESIDUAL`: a new gated harness synthesizes
+  Turkish/English speech with `say` and drives a real `SFSpeechRecognizer` via `AudioFrame`
+  ingestion, proving the recognition path needs no human speaker — but TCC is granted per
+  executable and the SwiftPM test helper has no `Info.plist`, so requesting authorization aborts
+  the process (SIGABRT, exit 134); the verification must run inside a bundled host. Also reworks
+  the product UI onto a new `AuraDesign` token system (status pill, tab pills, asymmetric message
+  bubbles, unified composer, tinted confirmation panel), preserving every accessibility label and
+  never letting colour carry meaning alone. Verified: full sweep 21/21 bundles 0 failed;
+  `AuraAgentTests` 220/220; second-pass, repo-hygiene and supply-chain validators pass. Limitations:
+  no live-model or live-voice run is claimed, and the UI was not confirmed against a running window.

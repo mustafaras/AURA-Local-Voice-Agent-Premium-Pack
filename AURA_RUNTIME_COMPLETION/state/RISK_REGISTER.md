@@ -297,3 +297,41 @@ as a uniform "closed".
   operator. No code change resolves this; claiming closure from mock-STT or text-path evidence
   would be exactly the kind of substitution the second-pass contract forbids.
 - **Evidence:** `EV-SP-002-20260815-PTT-MOCK-14`
+
+### 2026-08-16T08:20:49Z — SP-003 risk dispositions revised after follow-up work
+
+- **Risk ID:** `RISK-SP-003-NLU-DOWNGRADE-VARIANCE`
+- **Status:** **Closed** (revises the 2026-08-15T18:55:00Z entry, which recorded it as
+  accepted-not-fixed)
+- **Owner:** R2
+- **Correction:** the earlier entry concluded a fix would break
+  `structuredModelActionProposalCannotBecomeExecutableIntent`. That was wrong. The test proposed
+  `shell.execute`, which is **not registered** — `InitialCapabilitySet` registers
+  `shell.execute_typed` — so it was asserting behaviour for a hallucinated ID, conflating "the
+  model invented a name" with "the user was ambiguous".
+- **Mitigation:** `IntentEngine` now verifies a model-proposed capability ID against
+  `CapabilityRegistry`. An unregistered ID is rejected per R2 §C and the turn keeps its
+  deterministic `.converse` classification; a registered ID still downgrades to
+  `.unknown`/`.clarify`; with no registry the conservative downgrade still applies. The invariant
+  that a model proposal never becomes executable holds in every branch.
+- **Evidence:** `EV-SP-003-20260816-RISKS-AND-UI-19`
+
+- **Risk ID:** `RISK-SP-003-LIVE-VOICE-RESIDUAL`
+- **Status:** **Open — narrowed** (revises the 2026-08-16 framing "cannot be closed in this
+  environment")
+- **Owner:** SP-002 / R7 / release packaging
+- **Correction:** treating the whole risk as unclosable was too broad. It covers Turkish/English
+  recognition *quality*, and `SystemSTTEngine` ingests `AudioFrame`s through
+  `SFSpeechAudioBufferRecognitionRequest`, so real audio from any source drives the real
+  recognizer — the operator's speech disability does not block that half.
+- **Mitigation so far:** `Tests/AuraSTTTests/BilingualSpeechRecognitionQualityTests.swift`
+  synthesizes Turkish and English speech with `say`, decodes it, and feeds 16 kHz frames to a real
+  `SFSpeechRecognizer`, asserting recognition and locale selection.
+- **Remaining blocker:** TCC authorization is per executable. The SwiftPM test helper is a bare
+  binary with no `Info.plist`, so it holds no Speech grant, and requesting one aborts the process
+  (SIGABRT, helper exit 134). Closing this requires running the harness inside a bundled host
+  carrying `NSSpeechRecognitionUsageDescription`.
+- **Unchanged limitation:** synthesized speech is cleaner than human speech, so any accuracy it
+  eventually measures is optimistic and is not a real-user WER figure; microphone hardware capture
+  is still covered only by SP-002's separate accommodation.
+- **Evidence:** `EV-SP-003-20260816-RISKS-AND-UI-19`
