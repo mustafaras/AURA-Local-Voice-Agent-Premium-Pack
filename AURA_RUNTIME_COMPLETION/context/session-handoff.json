@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "updated_at": "2026-08-16T16:54:00Z",
   "session_id": "AURA-SP-006-LIVE-CAPABILITY-20260816",
-  "last_verified_commit": "fe9e5dbf3370b3e6681b5ac78740047c4d5726ee",
+  "last_verified_commit": "9774287a6fb8512a85f22cda5d0f019a8bc6ea48",
   "active_prompt": {
     "id": "SP-007",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-007_LIVE_COMPUTER_USE_PLANNER_IN_APPROVED_APPS.prompt.md",
