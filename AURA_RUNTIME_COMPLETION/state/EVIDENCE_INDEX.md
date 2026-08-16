@@ -430,3 +430,21 @@ Never use a lower evidence class to claim a higher operational state in `capabil
   Artifact: [`AURA_RUNTIME_COMPLETION/state/EV-SP-004-20260816-CASE-CLOSURE-03.md`](
   ../state/EV-SP-004-20260816-CASE-CLOSURE-03.md). Limitations: `RISK-SP-004-TOCTOU-RACE` and
   `RISK-SP-004-HANDLER-COMPROMISE` remain open (R10 scope); local and uncommitted.
+
+- **EV-SP-005-20260816-REACHABILITY-01** — SP-005 / OPEN-04 (NLU/UI reachability half) completion
+  at 2026-08-16T15:30:00Z on `main` atop `0cddf4a` (local/uncommitted). Connected the four
+  filesystem/URL capabilities to NLU and production routing: `IntentKind` +
+  `IntentSemanticCategory` + `Capability.forIntent` + `RuleBasedUtteranceClassifier
+  .classifyFileOrURLCommand` (shape-based path/URL detection before app-activate, EN/TR) +
+  `ToolRouter.capabilityID`/dispatch/handlers + `IntentDispatchCoordinator.toolID`/
+  `isSimpleLocalCommand` + `AuraAutomation` pass-through methods + 19 new tests. Also fixed
+  the strict-concurrency typed-catch warning in `FileSystemURLOpener`. Verified: `swift build`
+  green; strict-concurrency warnings-as-errors build green (zero warnings); focused
+  `AuraIntentTests` 93/93 (+19); focused `AuraAutomationTests` 39/39; full clean sweep
+  **21/21 bundles, 870/870 tests, 0 failed bundles**; `validate_second_pass_program.py` exit 0.
+  `OPEN-04` is **closed** (both SP-004 adapter half and SP-005 reachability half completed).
+  Class: contract/system. Artifact:
+  [`AURA_RUNTIME_COMPLETION/state/EV-SP-005-20260816-REACHABILITY-01.md`](
+  ../state/EV-SP-005-20260816-REACHABILITY-01.md). Limitations: local and uncommitted; no live
+  model, hardware, TCC, app launch, provider, signing, or deployment; the seven-scenario live
+  demonstration is a forwarded live-gate residual; no UI buttons for these capabilities yet.

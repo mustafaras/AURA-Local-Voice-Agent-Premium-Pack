@@ -8,7 +8,24 @@
 
 ## Canonical status
 
-## Current second-pass overlay — 2026-08-16 (SP-004 closure)
+## Current second-pass overlay — 2026-08-16 (SP-005 closure; OPEN-04 closed)
+
+`SP-006` / `completed` — `SP-005` / `OPEN-04` (NLU/UI reachability half) is
+**completed** under `EV-SP-005-20260816-REACHABILITY-01`, superseding the
+SP-004 closure overlay below. The four filesystem/URL capabilities are now
+reachable through NLU classification (`RuleBasedUtteranceClassifier`),
+production routing (`ToolRouter` → `CapabilityRegistry` → `PolicyEngine` →
+`FileSystemURLOpener`), and `CapabilityPlanner` validation. `OPEN-04` is
+**closed** (both SP-004 adapter half and SP-005 reachability half completed).
+Verified: strict build green, **21/21 bundles, 870/870 tests, 0 failed**,
+governance validators green. All changes local and uncommitted; authority
+edit-only. `SP-006` is **pending and unopened**.
+
+Forwarded residual risks: `RISK-SP-004-TOCTOU-RACE`,
+`RISK-SP-004-HANDLER-COMPROMISE` (R10 scope); seven-scenario live
+demonstration (live-gate track). `RISK-SP-004-CASE-SENSITIVITY` is **closed**.
+
+### Superseded overlay — 2026-08-16 (SP-004 closure)
 
 `SP-005` / `completed` — `SP-004` / `OPEN-04` (adapter half) is **completed**
 under `EV-SP-004-20260816-ADAPTERS-01`, superseding the 10:08:19Z overlay below.
