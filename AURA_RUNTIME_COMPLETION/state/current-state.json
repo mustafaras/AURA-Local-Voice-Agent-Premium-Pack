@@ -8,9 +8,9 @@
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "a83ae85d82ef5f8d41a6df5207e6967ba59c939d",
-    "remote_head": "a83ae85d82ef5f8d41a6df5207e6967ba59c939d",
-    "working_tree_state": "dirty_expected",
+    "verified_head": "d55aebbef7b288aa05dd0c238ee36c791ff8afa6",
+    "remote_head": "d55aebbef7b288aa05dd0c238ee36c791ff8afa6",
+    "working_tree_state": "clean",
     "user_owned_changes": [
       "No unrelated user-owned changes were present at bootstrap start.",
       "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
