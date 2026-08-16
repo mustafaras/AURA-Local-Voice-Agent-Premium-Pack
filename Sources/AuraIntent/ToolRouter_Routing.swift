@@ -15,6 +15,9 @@ extension ToolRouter {
     case .appTerminate: return InitialCapabilitySet.appTerminate.id
     case .shellExecute: return InitialCapabilitySet.shellExecuteTyped.id
     case .codingAgentRun: return InitialCapabilitySet.codingAgentRun.id
+    case .fileOpen: return InitialCapabilitySet.filesystemOpenFile.id
+    case .fileReveal: return InitialCapabilitySet.filesystemReveal.id
+    case .urlOpen: return InitialCapabilitySet.urlOpen.id
     case .unknown: return nil
     }
   }
@@ -119,6 +122,15 @@ extension ToolRouter {
         intent,
         correlationID: executionContext.correlationID,
         causationID: executionContext.causationID)
+    case .fileOpen:
+      return await handleFileOpen(
+        intent, contract: contract, executionContext: executionContext)
+    case .fileReveal:
+      return await handleFileReveal(
+        intent, contract: contract, executionContext: executionContext)
+    case .urlOpen:
+      return await handleURLOpen(
+        intent, contract: contract, executionContext: executionContext)
     case .unknown:
       return .ambiguous(clarifyingQuestion: clarifyingQuestion(for: intent))
     }

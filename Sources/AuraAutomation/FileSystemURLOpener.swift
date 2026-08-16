@@ -98,13 +98,8 @@ public actor FileSystemURLOpener {
     let url: URL
     do {
       url = try validator.validateFile(path: path)
-    } catch let rejection as OpenTargetRejection {
+    } catch let rejection {
       throw AuraError.securityError(rejection.reason)
-    } catch {
-      // Defensive: the validator's typed `throws(OpenTargetRejection)` makes
-      // this unreachable today, but if someone widens it, fail closed rather
-      // than silently swallowing an unknown refusal reason.
-      throw AuraError.securityError("validation failed for an unknown reason")
     }
     return try perform(capabilityID: "filesystem.open_file", target: url.path) {
       launchServices.open(url)
@@ -115,10 +110,8 @@ public actor FileSystemURLOpener {
     let url: URL
     do {
       url = try validator.validateFolder(path: path)
-    } catch let rejection as OpenTargetRejection {
+    } catch let rejection {
       throw AuraError.securityError(rejection.reason)
-    } catch {
-      throw AuraError.securityError("validation failed for an unknown reason")
     }
     return try perform(capabilityID: "filesystem.open_folder", target: url.path) {
       launchServices.open(url)
@@ -129,10 +122,8 @@ public actor FileSystemURLOpener {
     let url: URL
     do {
       url = try validator.validateRevealTarget(path: path)
-    } catch let rejection as OpenTargetRejection {
+    } catch let rejection {
       throw AuraError.securityError(rejection.reason)
-    } catch {
-      throw AuraError.securityError("validation failed for an unknown reason")
     }
     return try perform(capabilityID: "filesystem.reveal", target: url.path) {
       // An empty root string means "no particular Finder root", which is the
@@ -145,10 +136,8 @@ public actor FileSystemURLOpener {
     let url: URL
     do {
       url = try validator.validateURL(raw)
-    } catch let rejection as OpenTargetRejection {
+    } catch let rejection {
       throw AuraError.securityError(rejection.reason)
-    } catch {
-      throw AuraError.securityError("validation failed for an unknown reason")
     }
     return try perform(capabilityID: "url.open", target: url.absoluteString) {
       launchServices.open(url)

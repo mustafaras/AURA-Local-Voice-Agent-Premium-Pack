@@ -84,18 +84,26 @@ public actor IntentDispatchCoordinator {
     case .appTerminate: return "automation.appTerminate"
     case .shellExecute: return "shell.execute"
     case .codingAgentRun: return "agent.codingAgentRun"
+    case .fileOpen: return "filesystem.open_file"
+    case .fileReveal: return "filesystem.reveal"
+    case .urlOpen: return "url.open"
     case .unknown: return nil
     }
   }
 
   /// A "simple command" is a local intent that resolves to a single tool
   /// outcome without calling a remote model. In the v1 vocabulary this is
-  /// `.appActivate`, `.appTerminate`, `.shellExecute`, and `.converse` (the
-  /// templated reply is deterministic). `.codingAgentRun` and blocked paths
-  /// are excluded because they may involve long-running CLI agents or policy
-  /// review that should not be held against the simple-command budget.
+  /// `.appActivate`, `.appTerminate`, `.shellExecute`, `.converse` (the
+  /// templated reply is deterministic), and the SP-005 filesystem/URL
+  /// capabilities (local, reversible, deterministic). `.codingAgentRun` and
+  /// blocked paths are excluded because they may involve long-running CLI
+  /// agents or policy review that should not be held against the
+  /// simple-command budget.
   private func isSimpleLocalCommand(intent: TypedIntent, outcome: IntentExecutionOutcome) -> Bool {
-    let localKinds: [IntentKind] = [.converse, .appActivate, .appTerminate, .shellExecute]
+    let localKinds: [IntentKind] = [
+      .converse, .appActivate, .appTerminate, .shellExecute,
+      .fileOpen, .fileReveal, .urlOpen,
+    ]
     guard localKinds.contains(intent.kind) else { return false }
     switch outcome {
     case .executed, .acknowledgedAsync:

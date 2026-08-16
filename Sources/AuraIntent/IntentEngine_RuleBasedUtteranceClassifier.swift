@@ -61,6 +61,20 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
     "please ", "lütfen ", "could you ", "can you ", "would you ",
   ]
 
+  // SP-005: patterns for filesystem/URL capabilities. These run BEFORE
+  // `classifyAppCommand` because `"open "` is in `activatePrefixes` and
+  // would otherwise swallow `"open /path/to/file.txt"` as an app-activate
+  // attempt. The guard is shape-based: a target containing `/`, `~`, `://`,
+  // or a file extension with a dot is a path/URL, not an app name.
+  private static let fileOpenPrefixes = ["open file ", "open folder ", "open "]
+  private static let fileOpenPrefixesTR = ["dosya aç ", "klasör aç ", "aç "]
+  private static let revealPrefixes = [
+    "reveal ", "show in finder ", "show ",
+  ]
+  private static let revealPrefixesTR = ["göster ", "finder'da göster "]
+  private static let urlOpenPrefixes = ["open url ", "open link ", "open site ", "go to "]
+  private static let urlOpenPrefixesTR = ["bağlantı aç ", "site aç ", "adrese git "]
+
   public init() {}
 
   public func classify(normalized: String, raw: String) -> ClassificationResult {
@@ -71,6 +85,13 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
       break
     }
     if let result = classifyCodingAgent(commandText) { return result.withLanguage(language) }
+    // SP-005: file/URL classification runs before app-activate because
+    // "open " is shared. A path-shaped target (contains /, ~, ://, or a
+    // dotted extension) is routed to the filesystem/URL adapter, not the
+    // app activator.
+    if let result = classifyFileOrURLCommand(commandText) {
+      return result.withLanguage(language)
+    }
     if let result = classifyAppCommand(
       commandText, prefixes: Self.activatePrefixes, kind: .appActivate,
       category: .appActivate)
@@ -118,6 +139,94 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
         confidence: 0.85)
     }
     return nil
+  }
+
+  // MARK: - SP-005: Filesystem and URL classification
+
+  /// Classify "open <path>", "reveal <path>", and "open <url>" utterances
+  /// before the app-activate classifier can swallow them. The guard is
+  /// shape-based: only targets that look like paths (contain `/`, `~`) or
+  /// URLs (contain `://` or start with `http`/`https`/`mailto`) are routed
+  /// here; bare names like "safari" fall through to `classifyAppCommand`.
+  private func classifyFileOrURLCommand(_ normalized: String) -> ClassificationResult? {
+    // URL detection: "open url ", "open link ", "go to ", TR variants, or
+    // the target itself starts with http/https/mailto.
+    for prefix in Self.urlOpenPrefixes + Self.urlOpenPrefixesTR
+      where normalized.lowercased().hasPrefix(prefix)
+    {
+      let target = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
+      guard !target.isEmpty, looksLikeURL(target) else { return nil }
+      return ClassificationResult(
+        kind: .urlOpen,
+        semanticCategory: .urlOpen,
+        slots: [IntentSlot(name: IntentSlotName.url, value: target)],
+        confidence: 0.85,
+        contextRequirements: ["url"])
+    }
+    // Bare URL without prefix: "https://example.com"
+    if looksLikeURL(normalized) && normalized.contains("://") {
+      return ClassificationResult(
+        kind: .urlOpen,
+        semanticCategory: .urlOpen,
+        slots: [IntentSlot(name: IntentSlotName.url, value: normalized)],
+        confidence: 0.85,
+        contextRequirements: ["url"])
+    }
+
+    // Reveal detection: "reveal <path>", "show <path>", TR "göster <path>"
+    for prefix in Self.revealPrefixes + Self.revealPrefixesTR
+      where normalized.lowercased().hasPrefix(prefix)
+    {
+      let target = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
+      guard !target.isEmpty, looksLikePath(target) else { return nil }
+      return ClassificationResult(
+        kind: .fileReveal,
+        semanticCategory: .fileReveal,
+        slots: [IntentSlot(name: IntentSlotName.filePath, value: target)],
+        confidence: 0.85,
+        contextRequirements: ["filePath"])
+    }
+
+    // File/folder open: "open <path>", TR "dosya aç <path>", etc.
+    // Must run after URL and reveal checks, and must guard on path-shape
+    // so "open safari" still routes to app-activate.
+    for prefix in Self.fileOpenPrefixes + Self.fileOpenPrefixesTR
+      where normalized.lowercased().hasPrefix(prefix)
+    {
+      let target = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
+      guard !target.isEmpty, looksLikePath(target) else { return nil }
+      // Distinguish folder from file by trailing slash or "folder" prefix
+      let isFolder = target.hasSuffix("/") || normalized.lowercased().hasPrefix("open folder ")
+        || normalized.lowercased().hasPrefix("klasör aç ")
+      return ClassificationResult(
+        kind: .fileOpen,
+        semanticCategory: .fileOpen,
+        slots: [
+          IntentSlot(
+            name: isFolder ? IntentSlotName.folderPath : IntentSlotName.filePath,
+            value: target)
+        ],
+        confidence: 0.85,
+        contextRequirements: [isFolder ? "folderPath" : "filePath"])
+    }
+
+    return nil
+  }
+
+  /// A target looks like a filesystem path if it contains `/` or starts
+  /// with `~`. This is deliberately conservative: a bare word like
+  /// "safari" or "calculator" does not match and falls through to
+  /// `classifyAppCommand`.
+  private func looksLikePath(_ target: String) -> Bool {
+    target.contains("/") || target.hasPrefix("~")
+  }
+
+  /// A target looks like a URL if it contains `://` or starts with
+  /// `http:`/`https:`/`mailto:` (case-insensitive).
+  private func looksLikeURL(_ target: String) -> Bool {
+    let lower = target.lowercased()
+    return lower.contains("://") || lower.hasPrefix("http:")
+      || lower.hasPrefix("https:") || lower.hasPrefix("mailto:")
   }
 
   private func classifyAppCommand(
