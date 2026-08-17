@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "updated_at": "2026-08-17T06:57:03Z",
   "session_id": "AURA-SP-008-ADVERSARIAL-20260817",
-  "last_verified_commit": "0000b4afae1dc1bc748f7cf1f4ae22a00916e592",
+  "last_verified_commit": "49f42e5eb9f66530cbcb654926e45121d026b00f",
   "active_prompt": {
     "id": "SP-009",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-009_SAFARI_EXTENSION_PACKAGING_AND_AUTHENTICATION.prompt.md",
