@@ -714,8 +714,25 @@ Prompt: [`06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md`](archive/first-pass-pr
 The deterministic first slice is recorded by
 `EV-R5-20260808-READ-FIRST-ADAPTERS-01`, but R5 remains `in_progress`.
 
+**SP-009 (2026-08-17) — Safari bridge packaged and authenticated at the
+deterministic boundary** under `EV-SP-009-20260817-PACKAGING-AUTH-01`. The
+Safari read bridge is now a packaged, authenticated, bounded, revocable, and
+visibly-degraded-when-unavailable read path: `SafariWebExtensionTabResponse` is
+`Codable`; new `SafariBridgeAuthenticator` (HMAC-SHA256 envelope: version,
+extension ID, profile ID, nonce, freshness, tag), `SafariBridgeSecretStore`
+(Keychain-backed provision/revoke), `AuthenticatedSafariWebExtensionTransport`
+(fails closed on unavailable/stale/profileMismatch/notProvisioned/
+authenticationFailed), `ProductivityConfiguration`, `SafariBridgeRuntime` +
+`SafariBridgeAvailability` in the composition root, and a minimal read-only Web
+Extension package under `Resources/SafariExtension/`. 7 new tests; regression
+21/21 bundles, 949/949 tests, 0 failed. The `browser.read` capability **stays
+disabled** until the live package and trust path are verified. The remaining
+OPEN-06 items below are preserved and not closed by SP-009.
+
 - Package and authenticate the Safari Web Extension/native messaging bridge;
   the current Swift bridge is a structured contract, not a live extension.
+  **SP-009 packaged and authenticated the bridge at the deterministic boundary;
+  the live package/trust path remains unverified (SP-010/SP-011).**
 - Add real provider transports and explicitly authorized account/profile
   onboarding.
 - Wire browser/mail/calendar/contacts through `AuraKernel`, Dialogue, and UI
@@ -1068,3 +1085,20 @@ When a second-pass item is completed, append evidence to the relevant ledger,
 update the machine state and risk register, and retain the original open-gap
 wording as historical context. Do not delete or rewrite this list to make a
 gate appear complete.
+
+**SP-009 CORRECTION (2026-08-17)** under `EV-SP-009-20260817-CORRECTION-02` and
+`EV-SP-009-20260817-CLOSEOUT-03`. A post-delivery audit found the SP-009 record
+above overstated its result in two ways, both now fixed rather than reworded:
+`validate_runtime_completion.py` was exiting `1` (three schema/pointer breaks
+introduced by SP-009's own state edits), and the packaged extension had **no
+producing half** — it never sent a native message, never signed, and never
+wrote the shared container, so nothing could produce an envelope the transport
+accepts. The bridge now has a complete, tested deterministic path: user-gated
+toolbar click -> `aura.activeTabObservation` native message ->
+`SafariBridgeNativeMessageHandler` -> `SafariBridgeEnvelopeWriter` (HMAC sign,
+atomic write) -> `AuthenticatedSafariWebExtensionTransport` ->
+`SafariBrowserReadAdapter`. Tag verification is constant-time, `.malformedMessage`
+is a distinct fail-closed state, and the manifest dropped its `<all_urls>`
+content script. 12 SP-009 tests; 21/21 bundles, 954/954 tests, 0 failed; all
+four validators exit 0. The live package/trust path is still unverified and the
+remaining OPEN-06 items above are still not closed.

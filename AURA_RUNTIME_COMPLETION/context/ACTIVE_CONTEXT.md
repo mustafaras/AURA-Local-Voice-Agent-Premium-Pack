@@ -916,3 +916,103 @@ found no Calculator process, and showed no replay after normal quit/reopen.
 Evidence: `EV-SP-001-20260815-CANCELLATION-12`. `SP-001` is complete for
 bounded `OPEN-02`; `SP-002` is next pending and unopened. First-pass R2–R12 and
 FINAL remain independent open gates.
+
+## SP-009 Safari bridge packaging/authentication — 2026-08-17
+
+`SP-010` / `completed` — `SP-009` / `OPEN-06` (R5 Safari bridge slice) is
+**completed for the deterministic boundary its authority covers** under
+`EV-SP-009-20260817-PACKAGING-AUTH-01`. Read the overlay pair as the program
+convention defines it: `active_prompt` is the *next eligible* prompt (`SP-010`,
+**pending and unopened**) and `active_state` is the state of the prompt just
+closed (`SP-009`). The authoritative guard is `completed_prompts` =
+`SP-000`…`SP-009`.
+
+The Safari read bridge was a typed contract with no production transport, no
+authentication, no versioning/nonce/freshness, no profile scope, no secret
+provisioning, and no composition-root wiring. SP-009 turned it into a packaged,
+authenticated, bounded, revocable, and visibly-degraded-when-unavailable read
+path:
+
+- `SafariWebExtensionTabResponse` is now `Codable` so native-messaging JSON
+  decodes into it.
+- `SafariBridgeAuthenticator` signs/validates an HMAC-SHA256 envelope binding
+  version, extension ID, profile ID, nonce, issued/expires, and the tab
+  observation; it fails closed on any mismatch.
+- `SafariBridgeSecretStore` provisions/retrieves/revokes the shared secret
+  through the Keychain-backed `SecretStoring` seam; the secret never appears in
+  keys, logs, or ledgers.
+- `AuthenticatedSafariWebExtensionTransport` reads the signed envelope from the
+  shared container and fails closed on `.unavailable`/`.stale`/
+  `.profileMismatch`/`.notProvisioned`/`.authenticationFailed`.
+- `ProductivityConfiguration` (profile ID, extension ID, shared container path,
+  secret service name, allowed hosts) is wired into `AuraConfiguration`.
+- `SafariBridgeRuntime` + `SafariBridgeAvailability` in the composition root
+  expose truthful `CapabilityAvailability`; `AuraKernel` constructs the bridge
+  and records truthful health.
+- A minimal read-only Web Extension package lives under `Resources/SafariExtension/`
+  (`manifest.json` with `nativeMessaging` + `activeTab` only, `background.js`
+  reading bounded visible text, no-op `content.js`, `README.md`).
+
+`Tests/AuraProductivityTests/AuraProductivityTests.swift` gained 7 tests covering
+the authenticator round trip and tampering/identity/profile/expiry/future
+rejection, empty-secret/nonce rejection, secret provision/retrieve/revoke, the
+transport reading a valid signed observation, fail-closed unavailable/stale/
+mismatch/revocation, identity-mismatch/tampered-envelope rejection, and
+injection-content/domain-scope rejection. Verified: **21/21 bundles, 949/949
+tests, 0 failed** (`AuraProductivityTests` 19/19, up from 12), all four
+governance validators exit 0.
+
+**Not closed, and stated rather than implied:**
+`RISK-SAFARI-BRIDGE-NOT-LIVE` — the extension is packaged as source only, not
+installed, signed, or live-verified; the real native-messaging round trip and
+the real app-group shared container are not exercised. The `browser.read`
+capability **stays disabled** until the live package and trust path are verified
+(SP-010/SP-011). `RISK-MISSING-PRODUCTIVITY-ADAPTERS` remains Mitigating
+(composition/NLU/UI reachability, live provider/browser configuration,
+mutation/send, and live acceptance remain open).
+
+Forwarded unchanged: `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`,
+`RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST`,
+`RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE`, `RISK-SP-006-URL-OPEN-FAILS-LIVE`,
+`RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED`,
+`RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-004-TOCTOU-RACE`,
+`RISK-SP-004-HANDLER-COMPROMISE`, `RISK-SP-003-MODEL-LATENCY`,
+`RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING`.
+
+## SP-009 correction and mandatory closeout — 2026-08-17
+
+`SP-010` / `completed` — the overlay is unchanged; SP-009 stays closed. What
+changed is that SP-009's closure is now **true as recorded**. A user-requested
+audit found the original record asserted "four governance validators exit 0"
+while `validate_runtime_completion.py` was exiting `1`, found that the mandatory
+`15_SESSION_CLOSEOUT.prompt.md` had never been run, and found the packaged
+Safari extension could not feed the bridge it was packaged for.
+
+Three details worth carrying forward:
+
+1. **The validator breaks were self-inflicted and layered.** All three came from
+   SP-009's own record edits and passed at clean `HEAD`: `session-handoff`
+   `active_prompt.step` at 709 characters against a 500 limit; `completed` at 32
+   entries against a limit of 30, two of them over length; and
+   `capability-matrix.repository_commit` left at `e4af29ba` while
+   `current-state.repository.verified_head` advanced to `92c45f60`. The first
+   failure masked the other two, so each fix surfaced a new one. When a record
+   edit is the last thing a session does, the validators must be re-run *after*
+   it, not before.
+
+2. **A contract with only one half implemented still type-checks.** The Swift
+   side validated an HMAC-signed envelope that nothing in the repository could
+   produce: the extension never sent a native message, never signed, never wrote
+   the container, and its `content.js` was a no-op. Seven tests covered the
+   consuming half and none crossed the seam. The correction added
+   `SafariBridgeEnvelopeWriter` and `SafariBridgeNativeMessageHandler`, and the
+   new end-to-end test drives the literal JSON `background.js` emits through
+   handler → writer → transport → adapter.
+
+3. **The capability is still disabled.** `browser.read` stays off and
+   `RISK-SAFARI-BRIDGE-NOT-LIVE` still owns install/convert/sign and the real
+   native-messaging round trip. Nothing here was live-verified.
+
+Evidence: `EV-SP-009-20260817-CORRECTION-02`, `EV-SP-009-20260817-CLOSEOUT-03`.
+Regression 21/21 bundles, **954/954 tests**, 0 failed; four validators exit 0.
+SP-010 remains **pending and unopened**.

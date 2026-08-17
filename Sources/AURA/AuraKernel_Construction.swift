@@ -9,6 +9,7 @@ import AuraIntent
 import AuraMemory
 import AuraPlugins
 import AuraPolicy
+import AuraProductivity
 import AuraSTT
 import AuraScreen
 import AuraSecurity
@@ -232,6 +233,49 @@ extension AuraKernel {
       "network", detail: "network allowlist constructed")
     await foundation.runtimeHealthRegistry.recordReady(
       "vscode", detail: "VS Code adapter constructed")
+
+    // SP-009: construct the Safari read bridge. The capability stays disabled
+    // until the live package and trust path are verified; availability is
+    // reported truthfully through `safariBridgeRuntime?.availability()`.
+    do {
+      let profile = try BrowserProfileScope(profileID: configuration.productivity.safariProfileID)
+      let sharedContainer = URL(
+        fileURLWithPath: configuration.productivity.safariSharedContainerPath)
+      let secretStore = SafariBridgeSecretStore(
+        secretStore: KeychainSecretStore(
+          serviceName: configuration.productivity.safariSecretServiceName),
+        serviceName: configuration.productivity.safariSecretServiceName)
+      let bridge = SafariBridgeRuntime(
+        profile: profile,
+        extensionID: configuration.productivity.safariExtensionID,
+        sharedContainerURL: sharedContainer,
+        secretStore: secretStore,
+        networkPolicy: ProductivityNetworkPolicy(
+          allowlist: NetworkAllowlist(
+            allowedHosts: Set(configuration.productivity.safariAllowedHosts))))
+      self.safariBridgeRuntime = bridge
+      let availability = await bridge.availability()
+      let status: RuntimeHealthStatus
+      let detail: String
+      switch availability {
+      case .ready:
+        status = .ready
+        detail = "Safari read bridge authenticated and ready"
+      case .degraded(let reason):
+        status = .degraded
+        detail = "Safari read bridge degraded: \(reason)"
+      case .disabled(let reason):
+        status = .disabledByConfiguration
+        detail = "Safari read bridge disabled: \(reason)"
+      }
+      await foundation.runtimeHealthRegistry.record(
+        componentID: "safari-bridge", status: status, detail: detail)
+    } catch {
+      self.safariBridgeRuntime = nil
+      await foundation.runtimeHealthRegistry.record(
+        componentID: "safari-bridge", status: .configurationInvalid,
+        detail: "Safari read bridge could not be constructed: \(error.localizedDescription)")
+    }
   }
 
   private func constructIntentSubsystems(

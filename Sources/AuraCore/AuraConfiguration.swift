@@ -29,11 +29,12 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
   public var security: SecurityConfiguration
   public var plugins: PluginConfiguration
   public var intent: IntentEngineConfiguration
+  public var productivity: ProductivityConfiguration
 
   enum CodingKeys: String, CodingKey {
     case app, audio, wake, stt, tts, conversation, policy, automation, shell, vscode, task
     case codex, claude, copilot, ollama, worktree, context, screen, computerUse, privacy, log
-    case security, plugins, intent
+    case security, plugins, intent, productivity
   }
 
   public init(
@@ -60,7 +61,8 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     log: LoggingConfiguration = LoggingConfiguration(),
     security: SecurityConfiguration = SecurityConfiguration(),
     plugins: PluginConfiguration = PluginConfiguration(),
-    intent: IntentEngineConfiguration = IntentEngineConfiguration()
+    intent: IntentEngineConfiguration = IntentEngineConfiguration(),
+    productivity: ProductivityConfiguration = ProductivityConfiguration()
   ) {
     self.app = app
     self.audio = audio
@@ -86,6 +88,7 @@ public struct AuraConfiguration: Codable, Sendable, Equatable {
     self.security = security
     self.plugins = plugins
     self.intent = intent
+    self.productivity = productivity
   }
 
 }

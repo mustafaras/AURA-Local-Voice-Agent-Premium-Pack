@@ -9,6 +9,7 @@ import AuraIntent
 import AuraMemory
 import AuraPlugins
 import AuraPolicy
+import AuraProductivity
 import AuraSTT
 import AuraScreen
 import AuraSecurity
@@ -67,6 +68,11 @@ actor AuraKernel {
   var secretScanner: SecretScanner?
   var injectionClassifier: PromptInjectionClassifier?
   var networkAllowlist: NetworkAllowlist?
+  /// SP-009's Safari read bridge. Constructed in the composition root but the
+  /// `browser.read` capability stays disabled until the live package and trust
+  /// path are verified; `safariBridgeRuntime?.availability()` reports the
+  /// truthful state.
+  var safariBridgeRuntime: SafariBridgeRuntime?
   var started = false
   var sttStarted = false
   var audioStarted = false

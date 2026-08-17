@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-17T09:20:00Z",
-  "session_id": "AURA-SP-008-DETECTOR-20260817",
-  "active_prompt": "SP-009",
+  "updated_at": "2026-08-17T16:30:00Z",
+  "session_id": "AURA-SP-009-PACKAGING-AUTH-20260817",
+  "active_prompt": "SP-010",
   "active_state": "completed",
   "completed_prompts": [
     "SP-000",
@@ -16,10 +16,14 @@
     "SP-005",
     "SP-006",
     "SP-007",
-    "SP-008"
+    "SP-008",
+    "SP-009"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-009-20260817-CORRECTION-02",
+    "EV-SP-009-20260817-CLOSEOUT-03",
+    "EV-SP-009-20260817-PACKAGING-AUTH-01",
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-01",
     "EV-OPEN-GAPS-20260809-FULL-AUDIT-01",
@@ -86,5 +90,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-008 detector-layer residual reduction COMPLETED under EV-SP-008-20260817-DETECTOR-04. The two production detectors (AccessibilitySecureFieldDetector, AccessibilityModalDialogDetector) no longer collapse every Accessibility failure into nothing found - a failed read returns SecureFieldProbe.indeterminate / ModalProbe.indeterminate, and every caller (control loop and executor) refuses on it under its own terminal reason. AccessibilityProbeClassification.isDeterminedAbsence admits only .noValue/.attributeUnsupported/.invalidUIElement as definitive empty answers; .wait stays exempt at the executor; determined negatives still proceed. New R4DetectorFailClosedTests.swift, 11 tests. Regression 21/21 bundles, 942/942 tests, 0 failed (AuraComputerUseTests 104/104, up from 93); all four validators exit 0; 38/38 governance unit tests. RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL REDUCED: silent-failure mechanism closed by construction and regression; live-positive legs (real password field, real SecurityAgent dialog, observed CGEvent cessation) remain, owned by R4/R9. RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST unchanged deliberately. RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE unchanged. SP-009 is next eligible, pending and unopened. All DETECTOR-04 changes are local and uncommitted - delivery needs an explicit in-turn go-ahead."
+  "next_action": "SP-009 Safari bridge packaging/authentication is COMPLETE and CORRECTED. EV-SP-009-20260817-CORRECTION-02 fixed two false claims in the original record: validate_runtime_completion.py was exiting 1 on three breaks introduced by SP-009's own state edits (session-handoff.step 709>500, completed 32>30 items with two over length, capability-matrix.repository_commit behind an advanced verified_head), and the packaged extension had no producing half - it never sent a native message, never signed, never wrote the shared container. Added SafariBridgeEnvelopeWriter and SafariBridgeNativeMessageHandler, constant-time HMAC verification, a .malformedMessage fail-closed state, and a user-gated MV3 extension (no content script, no <all_urls>). The deterministic path is now proven end-to-end from the real wire format: toolbar click -> aura.activeTabObservation -> handler -> writer -> transport -> adapter. 12 SP-009 tests; 21/21 bundles, 954/954 tests, 0 failed; all four validators exit 0, re-run after the final record edit. EV-SP-009-20260817-CLOSEOUT-03 records the mandatory closeout the first attempt skipped. browser.read stays disabled; RISK-SAFARI-BRIDGE-NOT-LIVE owns the live leg. SP-010 is next eligible, pending and unopened. Delivery was authorized by an explicit in-turn user go-ahead for commit, push, and merge."
 }
