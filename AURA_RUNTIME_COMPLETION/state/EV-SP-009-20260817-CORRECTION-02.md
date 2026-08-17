@@ -110,6 +110,11 @@ condition exists to catch.
 | `validate_repo_hygiene_supply_chain.py` | exit 0 |
 
 - **Artifact:** `AURA_RUNTIME_COMPLETION/state/EV-SP-009-20260817-CORRECTION-02.regression.log`
+  — retained **locally and untracked**, identified by hash. It was briefly
+  committed in `065de4a` and then untracked, because
+  `validate_repo_hygiene_supply_chain.py` refuses tracked artifact-like paths
+  (`.log`) without explicit review. This matches how the SP-006 `.entries.log`
+  artifacts are handled.
 - **SHA-256:** `b21b55e557c7bc3dd7202ef81f401fbeffa00a97e7d9328cee894c344703ac09`
 - **Environment:** macOS Darwin 27.0.0, repository runner building into `/tmp/aurabuild`
   (a raw `swift test` fails codesign in the iCloud-synced working directory —
@@ -134,7 +139,7 @@ New tests, by what they falsify:
 The Safari bridge slice now has a **complete, tested, deterministic path** from
 the extension's user gesture to the policy-checked adapter snapshot:
 
-```
+```text
 toolbar click → background.js → aura.activeTabObservation (native message)
   → SafariBridgeNativeMessageHandler (identity/version/profile/size)
   → SafariBridgeEnvelopeWriter (HMAC sign, atomic write)
