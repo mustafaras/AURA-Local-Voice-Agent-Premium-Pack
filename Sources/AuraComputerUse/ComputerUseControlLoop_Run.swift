@@ -192,15 +192,24 @@ extension ComputerUseControlLoop {
         runID: context.runID, iteration: context.iteration,
         observationID: observation.id, contentHash: observation.contentHash),
       correlationID: correlationID, actor: context.actor)
-    if let modalBundleID = await modalDetector.detectUnexpectedModal(
+    switch await modalDetector.probeModal(
       expectedBundleIdentifier: context.target.appBundleIdentifier)
     {
+    case .unexpected(let modalBundleID):
       await emit(
         ComputerUseModalDialogDetectedEvent(
           runID: context.runID, iteration: context.iteration,
           dialogBundleIdentifier: modalBundleID),
         correlationID: correlationID, actor: context.actor)
       return .terminal(.unexpectedModalDialog(iterations: context.iteration))
+    case .indeterminate(let reason):
+      // "Could not look" is not "all clear". The security dialog this check
+      // exists to catch is the surface most likely to make the read fail, so
+      // an unreadable modal state halts the session under its own name.
+      return .terminal(
+        .failed(reason: "modal check unavailable: \(reason)", iterations: context.iteration))
+    case .none:
+      break
     }
     return .captured(observation)
   }
@@ -342,9 +351,10 @@ extension ComputerUseControlLoop {
         .invalidPlan(
           reason: "step \(step.id) has an invalid anchor", iterations: iteration))
     }
-    if await secureFieldDetector.isSecureFieldFocused(
+    switch await secureFieldDetector.probeSecureField(
       applicationBundleIdentifier: context.target.appBundleIdentifier)
     {
+    case .focused:
       await emitStepBlocked(
         StepBlockInput(
           runID: context.runID, iteration: iteration, step: step, reason: .secureFieldFocused),
@@ -356,6 +366,19 @@ extension ComputerUseControlLoop {
       // which a secure field could lose focus mid-session and let an already
       // planned step proceed against a credential surface.
       return .terminal(.secureFieldBlocked(iterations: iteration))
+    case .indeterminate(let reason):
+      // The detector could not read the focused element, so nothing is known
+      // about the credential state. Refuse — but report the check that failed
+      // rather than `.secureFieldBlocked`, which would claim an observation
+      // that was never made.
+      await emitStepBlocked(
+        StepBlockInput(
+          runID: context.runID, iteration: iteration, step: step, reason: .secureFieldFocused),
+        correlationID: correlationID, actor: context.actor)
+      return .terminal(
+        .failed(reason: "secure-field check unavailable: \(reason)", iterations: iteration))
+    case .notFocused:
+      break
     }
     if let lastActionAt,
       Date().timeIntervalSince(lastActionAt) < configuration.minActionIntervalSeconds

@@ -4120,3 +4120,53 @@ computer use is R4 productization work with its own authority requirements, so i
 is registered as `RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE` (Open) instead of
 being absorbed here. Evidence: `EV-SP-008-20260817-CORRECTION-03`. SP-008's work
 and these corrections are delivered under an explicit in-turn go-ahead.
+
+## 2026-08-17 — SP-008 detector-layer residual reduction: the silent-failure mechanism closed
+
+The user asked to close whatever could be closed in SP-008's two open risks
+before SP-009 is opened. Reading the two production detectors beneath SP-008's
+guards showed that `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`'s stated mechanism —
+"a detector that silently returns `false` makes every guard above it inert while
+all tests still pass" — was not a hypothetical property of live hardware; it was
+the code. `AccessibilitySecureFieldDetector.isSecureFieldFocused` returned
+`false` on **every** failure path (Accessibility not trusted, focused-element
+read failed, value not an `AXUIElement`, subrole read failed, subrole not a
+string), and `AccessibilityModalDialogDetector.detectUnexpectedModal` returned
+`nil` on the same class of failures. `false`/`nil` means "all clear", which is a
+licence to type — and the credential sheet or `SecurityAgent` dialog most likely
+to make an Accessibility read fail is the surface this check exists to guard.
+
+The fix introduces a third state both a boolean and `String?` cannot express:
+`SecureFieldProbe` (`.focused` / `.notFocused` / `.indeterminate(String)`) and
+`ModalProbe` (`.none` / `.unexpected(String)` / `.indeterminate(String)`), with
+default-implemented protocol requirements so existing conformers compile
+unchanged. `AccessibilityProbeClassification.isDeterminedAbsence` admits only
+`.noValue`, `.attributeUnsupported`, `.invalidUIElement` as definitive empty
+answers; every other `AXError` is indeterminate. The control loop halts
+terminally as `.failed(reason: "secure-field check unavailable: …")` / `"modal
+check unavailable: …")` on indeterminate; the executor's own guard refuses with
+its own message. `.wait` stays exempt at the executor (it generates no input and
+is how a caller yields to the user during a credential prompt); a determined
+negative answer still proceeds, so the guard does not degrade into a blanket
+refusal. Truthfulness was preserved deliberately: an unreadable state is **not**
+reported as `.secureFieldBlocked` or `.unexpectedModalDialog` — that would claim
+an observation never made, the exact defect SP-008 removed one layer up.
+
+`R4DetectorFailClosedTests.swift` (11 tests) covers the probe contract, the
+`AXError` classification (the falsifier: if any of `.cannotComplete`/
+`.apiDisabled`/`.notImplemented`/`.failure` and six more ever classifies as an
+absence, an unreadable credential surface reads as "clear" again), the real
+detector's boolean/probe agreement (environment-independent), the control-loop
+halt under its own reason, the executor refusal, and the `.wait` exemption.
+Verified **21/21 bundles, 942/942 tests, 0 failed** (`AuraComputerUseTests`
+104/104, up from 93); all four governance validators exit 0; 38/38 governance
+unit tests. Evidence: `EV-SP-008-20260817-DETECTOR-04`.
+
+**`RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` is reduced, not closed.** Its
+silent-failure mechanism is now false by construction and by regression. What
+remains open is the live-positive validation only (a real password field, a real
+`SecurityAgent` dialog, observed CGEvent cessation), which needs hardware
+authority SP-008 does not have. `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` is
+unchanged deliberately — closing it needs an intent-verification mechanism
+independent of the planner's declaration. `RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE`
+is unchanged. All changes are local and uncommitted.

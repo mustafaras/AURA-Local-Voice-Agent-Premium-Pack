@@ -643,6 +643,70 @@ app's own loop. **OPEN-05 therefore keeps a reachability leg open**, owned by R4
 productization / NL reachability, not by SP-008's adversarial-safety scope.
 Evidence: `EV-SP-008-20260817-CORRECTION-03`.
 
+### SP-008 detector-layer residual reduction — 2026-08-17T09:20:00Z
+
+The user asked to close whatever could be closed in SP-008's two open risks
+before opening SP-009. Reading the two production detectors showed that
+`RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`'s stated mechanism — "a detector that
+silently returns `false` makes every guard above it inert while all tests still
+pass" — was not a hypothetical property of live hardware; it was the code.
+`AccessibilitySecureFieldDetector.isSecureFieldFocused` returned `false` on
+**every** failure path (Accessibility not trusted, focused-element read failed,
+value not an `AXUIElement`, subrole read failed, subrole not a string), and
+`AccessibilityModalDialogDetector.detectUnexpectedModal` returned `nil` on the
+same class of failures. `false`/`nil` means "all clear", which is a licence to
+type — and the credential sheet or `SecurityAgent` dialog most likely to make
+an Accessibility read fail is the surface this check exists to guard.
+
+The fix introduces a third state both a boolean and `String?` cannot express:
+
+- `SecureFieldProbe` (`.focused` / `.notFocused` / `.indeterminate(String)`)
+  with `refusesInput` as the fail-closed collapse, and `probeSecureField` as a
+  protocol requirement with a default implementation deriving from the boolean,
+  so every existing conformer compiles unchanged.
+- `ModalProbe` (`.none` / `.unexpected(String)` / `.indeterminate(String)`) and
+  `probeModal` with the same default-implementation pattern.
+- `AccessibilityProbeClassification.isDeterminedAbsence(_:)` admits only
+  `.noValue`, `.attributeUnsupported`, `.invalidUIElement` as definitive empty
+  answers; every other `AXError` is indeterminate. `describe(_:)` gives a stable,
+  content-free error name for evidence and refusal messages.
+- The control loop halts terminally as `.failed(reason: "secure-field check
+  unavailable: …")` / `"modal check unavailable: …")` on indeterminate; the
+  executor's own guard refuses with its own message. `.wait` stays exempt at the
+  executor (it generates no input and is how a caller yields to the user during a
+  credential prompt); a *determined* negative answer still proceeds, so the guard
+  does not degrade into a blanket refusal.
+
+Truthfulness was preserved deliberately: an unreadable state is **not** reported
+as `.secureFieldBlocked` or `.unexpectedModalDialog` — that would claim an
+observation never made, the exact defect SP-008 removed one layer up. It is
+reported as the check that failed, naming the `AXError`.
+
+`Tests/AuraComputerUseTests/R4DetectorFailClosedTests.swift` (11 tests) covers
+the probe contract, the `AXError` classification (the falsifier: if any of
+`.cannotComplete`/`.apiDisabled`/`.notImplemented`/`.failure` and six more ever
+classifies as an absence, an unreadable credential surface reads as "clear"
+again), the real detector's boolean/probe agreement (environment-independent),
+the control-loop halt under its own reason, the executor refusal, and the
+`.wait` exemption. Verified **21/21 bundles, 942/942 tests, 0 failed**
+(`AuraComputerUseTests` 104/104, up from 93); all four governance validators exit
+0; 38/38 governance unit tests. Evidence: `EV-SP-008-20260817-DETECTOR-04`.
+
+**Effect on the open risks:**
+
+- `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` — **reduced, not closed.** Its
+  silent-failure mechanism is now false by construction and by regression. What
+  remains open is the live-positive validation only (a real password field, a
+  real `SecurityAgent` dialog, observed CGEvent cessation), which needs hardware
+  authority SP-008 does not have. Owned by R4 live acceptance / R9.
+- `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` — **unchanged, deliberately.**
+  Closing it needs an intent-verification mechanism independent of the planner's
+  declaration; every cheap version is a guess or a test that blesses current
+  behaviour. It stays owned by whichever prompt introduces a model-backed
+  `ComputerUsePlanning` conformer — there is no such conformer today.
+- `RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE` — unchanged; detector-layer work does
+  not affect reachability.
+
 ## OPEN-06 — R5: Browser, Mail, Calendar, and Contacts Adapters
 
 Prompt: [`06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md`](archive/first-pass-prompts/2026-08-12/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md)

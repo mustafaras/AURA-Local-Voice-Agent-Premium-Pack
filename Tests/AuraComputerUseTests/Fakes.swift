@@ -51,12 +51,23 @@ actor ScriptedTextRecognizer: TextRecognizing {
 actor ScriptedSecureFieldDetector: SecureFieldDetecting {
   var focusedBundleIdentifiers: Set<String>
 
-  init(focusedBundleIdentifiers: Set<String> = []) {
+  /// When set, the probe returns this verbatim instead of deriving an answer
+  /// from `focusedBundleIdentifiers` — the only way to script
+  /// `SecureFieldProbe.indeterminate`, which a yes/no fake cannot express.
+  var probeOverride: SecureFieldProbe?
+
+  init(focusedBundleIdentifiers: Set<String> = [], probeOverride: SecureFieldProbe? = nil) {
     self.focusedBundleIdentifiers = focusedBundleIdentifiers
+    self.probeOverride = probeOverride
   }
 
   func isSecureFieldFocused(applicationBundleIdentifier: String) async -> Bool {
-    focusedBundleIdentifiers.contains(applicationBundleIdentifier)
+    await probeSecureField(applicationBundleIdentifier: applicationBundleIdentifier).refusesInput
+  }
+
+  func probeSecureField(applicationBundleIdentifier: String) async -> SecureFieldProbe {
+    if let probeOverride { return probeOverride }
+    return focusedBundleIdentifiers.contains(applicationBundleIdentifier) ? .focused : .notFocused
   }
 }
 
@@ -161,13 +172,26 @@ actor TaskHandleBox {
 
 actor ScriptedModalDetector: ModalDialogDetecting {
   var bundleIdentifierToReturn: String?
+  /// Scripts `ModalProbe.indeterminate`, which `String?` cannot express.
+  var probeOverride: ModalProbe?
 
-  init(bundleIdentifierToReturn: String? = nil) {
+  init(bundleIdentifierToReturn: String? = nil, probeOverride: ModalProbe? = nil) {
     self.bundleIdentifierToReturn = bundleIdentifierToReturn
+    self.probeOverride = probeOverride
   }
 
   func detectUnexpectedModal(expectedBundleIdentifier: String) async -> String? {
-    bundleIdentifierToReturn
+    if case .unexpected(let bundleID) = await probeModal(
+      expectedBundleIdentifier: expectedBundleIdentifier)
+    {
+      return bundleID
+    }
+    return nil
+  }
+
+  func probeModal(expectedBundleIdentifier: String) async -> ModalProbe {
+    if let probeOverride { return probeOverride }
+    return bundleIdentifierToReturn.map { ModalProbe.unexpected($0) } ?? .none
   }
 }
 

@@ -641,3 +641,19 @@ Never use a lower evidence class to claim a higher operational state in `capabil
 | Artifact | `EV-SP-008-20260817-CORRECTION-03.md`; regression log SHA-256 `8106da00c089711b08626a4b5c42c29d32b3f7ad62b9c94e7bfe171d9982dec2` |
 | Class | Governance/audit evidence over deterministic re-execution; no new product or test source |
 | Limitations | Documentation, state-projection and risk-register scope only. SP-008's evidence class is unchanged — still deterministic, still not live. `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` and `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` are neither closed nor weakened |
+
+
+### EV-SP-008-20260817-DETECTOR-04 — SP-008 detector-layer fail-closed residual reduction
+
+| Field | Value |
+|---|---|
+| Evidence ID | `EV-SP-008-20260817-DETECTOR-04` |
+| Prompt | SP-008 — Computer-Use Adversarial Safety (residual reduction, same gap) |
+| Gap | OPEN-05 (R4) — adversarial/recovery residuals, detector layer |
+| Timestamp | 2026-08-17T09:20:00Z |
+| Commit | `0368709` (== `origin/main`) at start; changes local and uncommitted |
+| Command | `swift build --product AURA`; `./scripts/aura-test.sh` |
+| Result | **21/21 bundles, 942/942 tests, 0 failed** (`AuraComputerUseTests` 104/104, up from 93 — 11 new detector-fail-closed tests). Clean build. Four governance validators exit 0. 38/38 governance unit tests |
+| Artifact | `EV-SP-008-20260817-DETECTOR-04.md`; `Tests/AuraComputerUseTests/R4DetectorFailClosedTests.swift` (new, 11 tests); modified `SecureFieldDetecting.swift`, `AccessibilitySecureFieldDetector.swift`, `ModalDialogDetecting.swift`, `ComputerUseControlLoop_Run.swift`, `UIActionExecuting.swift`, `Fakes.swift` |
+| Class | Deterministic source-side evidence against the real production detectors, control loop and executor; scripted probes exercise the `AXError` classification and the indeterminate refusal at both layers |
+| Limitations | **Not live evidence.** The real `AXError` paths are exercised through scripted probes and the classification function, not by making a live Accessibility call fail. `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` is **reduced** (silent-failure mechanism closed) but **not closed** — live-positive validation (real password field, real `SecurityAgent` dialog, observed CGEvent cessation) still needs hardware authority. `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` unchanged |

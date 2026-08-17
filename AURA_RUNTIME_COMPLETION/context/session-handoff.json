@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-17T06:57:03Z",
-  "session_id": "AURA-SP-008-ADVERSARIAL-20260817",
-  "last_verified_commit": "49f42e5eb9f66530cbcb654926e45121d026b00f",
+  "updated_at": "2026-08-17T09:20:00Z",
+  "session_id": "AURA-SP-008-DETECTOR-20260817",
+  "last_verified_commit": "0368709de69b3b881f5eb77442ce333e881d7074",
   "active_prompt": {
     "id": "SP-009",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-009_SAFARI_EXTENSION_PACKAGING_AND_AUTHENTICATION.prompt.md",
     "state": "completed",
-    "step": "SP-008 completed for OPEN-05's adversarial/recovery residuals at the deterministic boundary, delivered and record-corrected under EV-SP-008-20260817-CORRECTION-03. SP-009 pending/unopened; active_state describes SP-008, per the program convention."
+    "step": "SP-008 detector-layer residual reduction completed under EV-SP-008-20260817-DETECTOR-04. Production detectors now return SecureFieldProbe.indeterminate / ModalProbe.indeterminate on failed Accessibility reads; control loop and executor refuse on it. 11 new tests; 21/21 bundles, 942/942 tests. RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL reduced (silent-failure mechanism closed; live-positive legs remain). SP-009 pending/unopened; active_state describes SP-008, per the program convention."
   },
-  "summary": "SP-008 COMPLETED (deterministic boundary). Three production defects fixed: secure-field refusal now terminal (.secureFieldBlocked) instead of a non-terminal .stop that reported noProgress; AXCGEventActionExecutor gained a required secure-field guard mirroring its emergency-stop guard; off-screen windows now report windowNotVisible instead of sensitiveApplication. Allowlist confinement moved to ComputerUseBetaAllowlist.liveValidatedProduction (no app added). 25 new adversarial tests. 21/21 bundles, 931/931 tests, 0 failed; 4 validators exit 0 after repairing an inherited verified_head drift from SP-007. Live legs held open as RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL.",
+  "summary": "SP-008 detector-layer residual reduction COMPLETED (EV-SP-008-20260817-DETECTOR-04). AccessibilitySecureFieldDetector and AccessibilityModalDialogDetector no longer return false/nil on every Accessibility failure - a failed read is now SecureFieldProbe.indeterminate / ModalProbe.indeterminate, and the control loop and executor both refuse on it under their own terminal reason. AccessibilityProbeClassification admits only .noValue/.attributeUnsupported/.invalidUIElement as definitive empty answers; .wait exempt at executor; determined negatives proceed. New R4DetectorFailClosedTests.swift, 11 tests. 21/21 bundles, 942/942 tests, 0 failed (AuraComputerUseTests 104/104, up from 93); 4 validators exit 0; 38/38 governance unit tests. RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL REDUCED: silent-failure mechanism closed by construction and regression; live-positive legs remain (R4/R9). RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST unchanged. RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE unchanged.",
   "completed": [
     "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
     "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",
@@ -57,12 +57,18 @@
     "Tests/AuraComputerUseTests/UIActionExecutingTests.swift",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-008-20260817-ADVERSARIAL-01.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-008-20260817-CLOSEOUT-02.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-008-20260817-CORRECTION-03.md"
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-008-20260817-CORRECTION-03.md",
+    "Sources/AuraScreen/SecureFieldDetecting.swift",
+    "Sources/AuraScreen/AccessibilitySecureFieldDetector.swift",
+    "Sources/AuraComputerUse/ModalDialogDetecting.swift",
+    "Tests/AuraComputerUseTests/R4DetectorFailClosedTests.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-008-20260817-DETECTOR-04.md"
   ],
   "evidence_ids": [
     "EV-SP-008-20260817-ADVERSARIAL-01",
     "EV-SP-008-20260817-CLOSEOUT-02",
-    "EV-SP-008-20260817-CORRECTION-03"
+    "EV-SP-008-20260817-CORRECTION-03",
+    "EV-SP-008-20260817-DETECTOR-04"
   ],
   "tests": [
     {
@@ -84,6 +90,16 @@
       "name": "second-pass + runtime-completion + repo-hygiene + supply-chain validators exit 0",
       "result": "passed",
       "evidence_id": "EV-SP-008-20260817-CLOSEOUT-02"
+    },
+    {
+      "name": "AuraComputerUseTests 104/104 (11 new detector-fail-closed tests; 93 before DETECTOR-04)",
+      "result": "passed",
+      "evidence_id": "EV-SP-008-20260817-DETECTOR-04"
+    },
+    {
+      "name": "Full sweep 21/21 bundles, 942/942 tests, 0 failed (DETECTOR-04 regression)",
+      "result": "passed",
+      "evidence_id": "EV-SP-008-20260817-DETECTOR-04"
     }
   ],
   "blockers": [],

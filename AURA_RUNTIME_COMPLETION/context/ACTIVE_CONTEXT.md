@@ -87,6 +87,46 @@ Forwarded unchanged: `RISK-SP-006-URL-OPEN-FAILS-LIVE`,
 `RISK-SP-004-HANDLER-COMPROMISE`, `RISK-SP-003-MODEL-LATENCY`,
 `RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING`.
 
+### SP-008 detector-layer residual reduction overlay — 2026-08-17T09:20:00Z
+
+`SP-009` / `completed` — `SP-008` / `OPEN-05` detector-layer residual reduction
+is **completed** under `EV-SP-008-20260817-DETECTOR-04`, superseding the SP-008
+closure overlay below for the detector layer only. The authoritative guard is
+unchanged: `completed_prompts` = `SP-000`…`SP-008`.
+
+The user asked to close whatever could be closed in SP-008's two open risks
+before SP-009. Reading the two production detectors showed that
+`RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`'s stated mechanism — "a detector that
+silently returns `false` makes every guard above it inert while all tests still
+pass" — was the code, not a hypothetical. Both
+`AccessibilitySecureFieldDetector` and `AccessibilityModalDialogDetector`
+returned `false`/`nil` on every Accessibility failure path. The fix introduces a
+third state: `SecureFieldProbe` (`.focused`/`.notFocused`/`.indeterminate`) and
+`ModalProbe` (`.none`/`.unexpected`/`.indeterminate`), with default-implemented
+protocol requirements so existing conformers compile unchanged.
+`AccessibilityProbeClassification.isDeterminedAbsence` admits only
+`.noValue`/`.attributeUnsupported`/`.invalidUIElement` as definitive empty
+answers; every other `AXError` is indeterminate. The control loop and executor
+both refuse on indeterminate under their own terminal reason; `.wait` stays
+exempt at the executor; determined negatives still proceed. Truthfulness
+preserved: an unreadable state is reported as the check that failed, not as
+`.secureFieldBlocked` or `.unexpectedModalDialog`.
+
+`Tests/AuraComputerUseTests/R4DetectorFailClosedTests.swift` (11 tests) covers
+the probe contract, the `AXError` classification (the falsifier), the real
+detector's boolean/probe agreement, the loop halt, the executor refusal, and the
+`.wait` exemption. Verified: **21/21 bundles, 942/942 tests, 0 failed**
+(`AuraComputerUseTests` 104/104, up from 93), all four governance validators
+exit 0, 38/38 governance unit tests. Evidence:
+`EV-SP-008-20260817-DETECTOR-04`.
+
+**`RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` — reduced, not closed.** Its
+silent-failure mechanism is now false by construction and by regression. The
+live-positive legs (a real password field, a real `SecurityAgent` dialog,
+observed CGEvent cessation) remain open, owned by R4 live acceptance / R9.
+**`RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` — unchanged, deliberately.**
+**`RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE` — unchanged.**
+
 ### Superseded overlay — 2026-08-16 (SP-007 closure; OPEN-05 closed)
 
 `SP-008` / `completed` — `SP-007` / `OPEN-05` (R4: Computer-Use Productization)

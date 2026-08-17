@@ -3,8 +3,8 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-17T06:57:03Z",
-  "session_id": "AURA-SP-008-ADVERSARIAL-20260817",
+  "updated_at": "2026-08-17T09:20:00Z",
+  "session_id": "AURA-SP-008-DETECTOR-20260817",
   "active_prompt": "SP-009",
   "active_state": "completed",
   "completed_prompts": [
@@ -58,7 +58,8 @@
     "EV-SP-007-20260816-LIVE-02",
     "EV-SP-008-20260817-ADVERSARIAL-01",
     "EV-SP-008-20260817-CLOSEOUT-02",
-    "EV-SP-008-20260817-CORRECTION-03"
+    "EV-SP-008-20260817-CORRECTION-03",
+    "EV-SP-008-20260817-DETECTOR-04"
   ],
   "authority": {
     "edit": true,
@@ -85,5 +86,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-008 COMPLETED for the deterministic boundary its authority covers. Three production defects found by reading the computer-use path and fixed: (1) a focused secure field returned non-terminal .stop so the session looped to its budget and reported noProgress instead of the security refusal that happened - new terminal ComputerUseLoopOutcome.secureFieldBlocked; (2) AXCGEventActionExecutor enforced emergency stop unconditionally but had no secure-field guard, so a direct call could type into a credential field - it now takes a required secureFieldDetector and refuses every input-generating kind, .wait exempt; (3) an off-screen window was refused but labelled sensitiveApplication - ScreenContextEngine.exclusionReason(for:) is now the single source of truth, with new ScreenCaptureBlockReason.windowNotVisible. Allowlist confinement moved to ComputerUseBetaAllowlist.liveValidatedProduction so a test can assert it; no app added. New R4AdversarialSafetyTests.swift, 25 tests, covering injection / secure field / modal / identity / cancellation / restart / emergency stop at all four stage boundaries / hostile planner / hidden window; every case asserts zero executor calls. Regression 21/21 bundles, 931/931 tests, 0 failed; all four validators exit 0. Also repaired an INHERITED failure: validate_runtime_completion.py was failing at clean HEAD because SP-007's delivery commit 0000b4a changed source while verified_head/remote_head/repository_commit still named 9774287; all three now name 0000b4a, on SP-007's recorded sweep rather than a fresh clean-tree run here. Evidence: EV-SP-008-20260817-ADVERSARIAL-01, EV-SP-008-20260817-CLOSEOUT-02. RESIDUAL, not claimed closed: RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL (a real secure field, a real modal, and observed CGEvent cessation need hardware authority SP-008 lacks; the user elected to close on the deterministic boundary) and RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST. SP-009 is next eligible, pending and unopened. SP-008 was DELIVERED under an explicit in-turn go-ahead together with EV-SP-008-20260817-CORRECTION-03, a post-closure re-verification that re-derived every claim from the tree (fresh 21/21 bundles, 931/931 tests, four validators exit 0, 38/38 governance unit tests) and confirmed the technical closure. It corrected two records - the new-test count 22->25 and the prior AuraComputerUseTests total 71->68, which is the pair that sums to the observed 93 - and session-handoff.json's active_prompt.file, which still named SP-008's prompt after id advanced to SP-009. NEW OPEN RISK, recorded not fixed: RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE - ComputerUseControlLoop.run is invoked only from AuraKernel.computerUseRun, which has no caller in Sources or Tests, and IntentKind/ToolRouter have no computer-use branch, so nothing in the shipped product can drive the loop SP-008 hardened. It is R4 productization wiring and must not be folded into SP-009."
+  "next_action": "SP-008 detector-layer residual reduction COMPLETED under EV-SP-008-20260817-DETECTOR-04. The two production detectors (AccessibilitySecureFieldDetector, AccessibilityModalDialogDetector) no longer collapse every Accessibility failure into nothing found - a failed read returns SecureFieldProbe.indeterminate / ModalProbe.indeterminate, and every caller (control loop and executor) refuses on it under its own terminal reason. AccessibilityProbeClassification.isDeterminedAbsence admits only .noValue/.attributeUnsupported/.invalidUIElement as definitive empty answers; .wait stays exempt at the executor; determined negatives still proceed. New R4DetectorFailClosedTests.swift, 11 tests. Regression 21/21 bundles, 942/942 tests, 0 failed (AuraComputerUseTests 104/104, up from 93); all four validators exit 0; 38/38 governance unit tests. RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL REDUCED: silent-failure mechanism closed by construction and regression; live-positive legs (real password field, real SecurityAgent dialog, observed CGEvent cessation) remain, owned by R4/R9. RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST unchanged deliberately. RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE unchanged. SP-009 is next eligible, pending and unopened. All DETECTOR-04 changes are local and uncommitted - delivery needs an explicit in-turn go-ahead."
 }

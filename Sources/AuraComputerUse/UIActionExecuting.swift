@@ -124,12 +124,21 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
     // a credential surface, and this mirrors the control loop, which blocks
     // the whole step regardless of kind. Divergence between the two layers
     // would itself be the defect.
-    guard
-      await !secureFieldDetector.isSecureFieldFocused(
-        applicationBundleIdentifier: applicationBundleIdentifier)
-    else {
+    switch await secureFieldDetector.probeSecureField(
+      applicationBundleIdentifier: applicationBundleIdentifier)
+    {
+    case .focused:
       throw AuraError.computerUseError(
         "A secure field is focused in \(applicationBundleIdentifier); refusing to generate input")
+    case .indeterminate(let reason):
+      // Unknown is not permission. This is the same defense-in-depth argument
+      // as the guard itself, extended to the case where the guard cannot see:
+      // an unreadable credential state must never read as "clear".
+      throw AuraError.computerUseError(
+        "Cannot determine the secure-field state of \(applicationBundleIdentifier) "
+          + "(\(reason)); refusing to generate input")
+    case .notFocused:
+      break
     }
 
     let trusted = await MainActor.run {

@@ -1642,3 +1642,15 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Evidence:** `EV-SP-008-20260817-CORRECTION-03`.
 - **Authority boundary:** documentation, state projections and the risk register only; no product or test source changed by this pass.
 - **Exact next safe action:** open SP-009 only under its own authority; give the new reachability risk its own prompt rather than absorbing it into SP-009.
+
+## 2026-08-17 — SP-008 detector-layer residual reduction: the silent-failure mechanism closed
+
+- **Session / authority:** `AURA-SP-008-DETECTOR-20260817`. Edit-only on the user's instruction to close whatever can be closed in SP-008's two open risks before SP-009. No install, launch, TCC mutation, provider contact, beta enrollment, signing, notarization, release, or deployment.
+- **Why this entry exists:** the ledger is append-only. The SP-008 completion and correction entries above keep their wording; this entry records the detector-layer work that reduced `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`.
+- **What was done:** read the two production detectors beneath SP-008's guards. Both `AccessibilitySecureFieldDetector` and `AccessibilityModalDialogDetector` collapsed every Accessibility failure into "nothing found" — the exact mechanism `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` named. Introduced `SecureFieldProbe` and `ModalProbe` (`.focused`/`.notFocused`/`.indeterminate` and `.none`/`.unexpected`/`.indeterminate`) with default-implemented protocol requirements; `AccessibilityProbeClassification.isDeterminedAbsence` admits only `.noValue`/`.attributeUnsupported`/`.invalidUIElement`; the control loop and executor refuse on indeterminate under their own terminal reason, `.wait` exempt, determined negatives still proceeding. Added `R4DetectorFailClosedTests.swift` (11 tests).
+- **Active prompt:** `SP-008` completed; `SP-009` pending/unopened.
+- **Regression:** **21/21 bundles, 942/942 tests, 0 failed** (`AuraComputerUseTests` 104/104, up from 93); clean `swift build --product AURA`; four governance validators exit 0; 38/38 governance unit tests.
+- **Blockers and residual risks:** `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` **reduced** — silent-failure mechanism closed by construction and regression; live-positive legs (real password field, real `SecurityAgent` dialog, observed CGEvent cessation) remain, owned by R4/R9. `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` unchanged deliberately. `RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE` unchanged. Forwarded unchanged: `RISK-SP-006-URL-OPEN-FAILS-LIVE`, `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED`, `RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-004-TOCTOU-RACE`, `RISK-SP-004-HANDLER-COMPROMISE`.
+- **Evidence:** `EV-SP-008-20260817-DETECTOR-04`.
+- **Authority boundary:** no install, launch, TCC mutation, provider contact, beta enrollment, signing, commit, push, merge, release, or deployment.
+- **Exact next safe action:** SP-009 stays pending and unopened; open it only under its own authority. All DETECTOR-04 changes are local and uncommitted — delivery needs an explicit in-turn go-ahead.

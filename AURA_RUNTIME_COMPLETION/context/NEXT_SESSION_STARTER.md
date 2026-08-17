@@ -1,8 +1,9 @@
 # AURA Next Session Starter — SP-009 is next, pending and unopened
 
-> Written: 2026-08-17, after SP-008 closed OPEN-05's adversarial and recovery
-> residuals. Never copy a commit out of this header; run `git rev-parse HEAD`
-> and `git status --short` at session start.
+> Written: 2026-08-17, after SP-008's detector-layer residual reduction closed
+> the silent-failure mechanism in `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`. Never
+> copy a commit out of this header; run `git rev-parse HEAD` and
+> `git status --short` at session start.
 >
 > Authoritative state is
 > `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json` and
@@ -87,13 +88,17 @@ on the deterministic boundary rather than grant it.
 `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` is the one to read first. SP-008 proved
 the *control flow*: given a detector that reports a secure field or a modal, the
 loop and the executor both refuse, and emergency stop terminates at every stage.
-What is unproven is the layer beneath — `AccessibilitySecureFieldDetector` and
-`AccessibilityModalDialogDetector` have never been observed against a real
-credential field or a real `SecurityAgent` dialog, and generated-event cessation
-has not been watched on hardware. **A detector that silently returns `false`
-would make every guard above it inert while all tests still pass.** That is the
-same failure shape as `RISK-SP-006-DEFAULT-GRANT-BREADTH`, whose test-only
-closure proved premature on live evidence — do not repeat it.
+The detector-layer reduction (`EV-SP-008-20260817-DETECTOR-04`) then closed the
+silent-failure mechanism: both production detectors now return
+`SecureFieldProbe.indeterminate` / `ModalProbe.indeterminate` on a failed
+Accessibility read, and every caller refuses on it — a detector that cannot see
+no longer reads as "all clear". What remains unproven is the *live-positive*
+detection only: whether a real password field yields `kAXSecureTextFieldSubrole`,
+whether a real `SecurityAgent` dialog is seen as modal, and whether
+generated-event cessation has been watched on hardware. These need a user-present
+run on granted Accessibility/Screen Recording hardware. Do not repeat the
+`RISK-SP-006-DEFAULT-GRANT-BREADTH` shape — test-only closure that proved
+premature on live evidence.
 
 Also open, and worth reading before trusting any SP-006-era claim:
 `RISK-SP-006-URL-OPEN-FAILS-LIVE` (the `url.open` adapter leg has failed in
