@@ -8,8 +8,8 @@
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "49f42e5eb9f66530cbcb654926e45121d026b00f",
-    "remote_head": "49f42e5eb9f66530cbcb654926e45121d026b00f",
+    "verified_head": "e4af29babd27acb6a3cf845ad5f8a795734ae46d",
+    "remote_head": "e4af29babd27acb6a3cf845ad5f8a795734ae46d",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "SP-008 (2026-08-17) is DELIVERED in commit 49f42e5eb9f66530cbcb654926e45121d026b00f together with EV-SP-008-20260817-CORRECTION-03: eleven production/test files under Sources/AuraCore, Sources/AuraScreen, Sources/AuraComputerUse, Sources/AURA and Tests/AuraComputerUseTests, plus the SP-008 evidence records and state projections. The delivery was authorized by an explicit in-turn user go-ahead. This projection commit aligns the pointers to it; only projection paths differ between verified_head and HEAD.",
