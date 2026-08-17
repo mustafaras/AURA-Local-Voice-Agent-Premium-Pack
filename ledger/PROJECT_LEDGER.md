@@ -4170,3 +4170,65 @@ authority SP-008 does not have. `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` is
 unchanged deliberately — closing it needs an intent-verification mechanism
 independent of the planner's declaration. `RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE`
 is unchanged. All changes are local and uncommitted.
+
+## 2026-08-17 — SP-009 — Safari Extension Packaging and Authentication
+
+SP-009 completed at the deterministic boundary under
+`EV-SP-009-20260817-PACKAGING-AUTH-01`. The Safari read bridge is now packaged,
+authenticated, bounded, revocable, and visibly degraded when unavailable:
+`SafariWebExtensionTabResponse` is `Codable`; new `SafariBridgeAuthenticator`
+(HMAC-SHA256 envelope: version, extension ID, profile ID, nonce, freshness,
+tag), `SafariBridgeSecretStore` (Keychain-backed provision/revoke),
+`AuthenticatedSafariWebExtensionTransport` (fails closed on unavailable/stale/
+profileMismatch/notProvisioned/authenticationFailed), `ProductivityConfiguration`,
+`SafariBridgeRuntime` + `SafariBridgeAvailability` in the composition root, and a
+minimal read-only Web Extension package under `Resources/SafariExtension/`. 7 new
+tests; regression 21/21 bundles, 949/949 tests, 0 failed; four governance
+validators exit 0. `browser.read` stays disabled until the live package and
+trust path are verified (SP-010/SP-011). New risk `RISK-SAFARI-BRIDGE-NOT-LIVE`.
+All changes are local and uncommitted.
+
+
+## 2026-08-17 — SP-009 — correction and mandatory closeout
+
+A post-delivery audit of SP-009 found the prompt had been recorded `completed`
+on two claims that did not hold. First, "four governance validators exit 0" was
+false: `validate_runtime_completion.py` exited `1`, and it did so because of
+SP-009's own record edits — `session-handoff.active_prompt.step` had grown to
+709 characters against a 500 limit, `completed` had 32 entries against a limit
+of 30 with two entries over length, and `capability-matrix.repository_commit`
+had been left behind when `current-state.repository.verified_head` advanced. The
+same validator passed at clean `HEAD`, so all three breaks were introduced, not
+inherited. Second, the mandatory `15_SESSION_CLOSEOUT.prompt.md` had never been
+run for SP-009.
+
+The substantive finding was larger: the packaged Safari extension could not feed
+the bridge it was packaged for. `AuthenticatedSafariWebExtensionTransport` reads
+an HMAC-signed envelope from the shared app-group container, but the extension
+never called `sendNativeMessage`, never signed anything, and never wrote a file;
+its `content.js` was an explicit no-op and its `AURA_APP_ID` was dead code. The
+two halves of the bridge had never met, and no test crossed that seam.
+
+The correction added the producing half — `SafariBridgeEnvelopeWriter` (HMAC
+sign, atomic write, fail-closed on profile mismatch, oversize text, and missing
+provisioning) and `SafariBridgeNativeMessageHandler` (validates the untrusted
+native message's type, protocol version, extension identity, profile scope, and
+size before anything is signed). Tag verification moved to CryptoKit's
+constant-time check, a `.malformedMessage` fail-closed state was added with its
+own user-presentable availability reason, and the extension was rewritten as a
+user-gated MV3 sender: a toolbar click reads bounded visible text through
+`scripting.executeScript` and sends one `aura.activeTabObservation` native
+message. The manifest dropped its `<all_urls>` content script and Firefox gecko
+id; `content.js` was deleted.
+
+Five tests were added, one of which drives the literal JSON `background.js`
+emits through handler, writer, transport, and adapter, so the whole path is now
+covered from the real wire format. Regression: 21/21 bundles, **954/954 tests**,
+0 failed. All four governance validators exit 0, re-run after the final record
+edit rather than before it. Evidence: `EV-SP-009-20260817-CORRECTION-02` and
+`EV-SP-009-20260817-CLOSEOUT-03`.
+
+`browser.read` stays disabled. The extension is still not installed, converted,
+signed, or live-run, and `RISK-SAFARI-BRIDGE-NOT-LIVE` carries that leg forward
+to SP-010/SP-011. Delivery of this correction was authorized by an explicit
+in-turn user go-ahead for commit, push, and merge.

@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "AURA Safari Read Bridge",
+  "version": "1.0.0",
+  "description": "Read-only bridge that sends the active tab's visible text to the AURA app when the user clicks the toolbar button. It never reads cookies, passwords, or hidden page state, and it never executes arbitrary page scripts.",
+  "permissions": [
+    "nativeMessaging",
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Send this tab's visible text to AURA"
+  }
+}
