@@ -566,3 +566,33 @@ Never use a lower evidence class to claim a higher operational state in `capabil
   which contradicts `EV-SP-006-20260816-7SCENARIO-02`'s "Chrome launched" claim for scenario 2, and
   a `quit Calculator` confirmation expired instead of executing without a determined cause.
 
+### EV-SP-007-20260816-FIXTURES-01 — SP-007 structural readiness (live gate blocked)
+
+| Field | Value |
+|---|---|
+| Evidence ID | `EV-SP-007-20260816-FIXTURES-01` |
+| Prompt | SP-007 — Live Computer-Use Planner in Approved Apps |
+| Gap | OPEN-05 (R4: Computer-Use Productization) |
+| Timestamp | 2026-08-16T17:30:00Z |
+| Commit | `4a5040c89b53998836628236d10495b284b1415f` |
+| Command | `swift build --target AuraComputerUse`; `./scripts/aura-test.sh /tmp/aura-sp007-build AuraComputerUseTests`; `./scripts/aura-test.sh /tmp/aura-sp007-full` |
+| Result | 68/68 AuraComputerUseTests passed; **21/21 bundles, 0 failed** |
+| Artifact | `Sources/AuraComputerUse/ComputerUseAppFixtures.swift` (modified — 3 apps × 3 action types); `Tests/AuraComputerUseTests/R4ProductizationTests.swift` (modified — 8 new tests) |
+| Class | Deterministic source-side structural-readiness evidence |
+| Limitations | **Does not close OPEN-05.** No live validation performed. SP-007 completion gate requires three approved apps passing live tasks with semantic verification; authority is edit-only (`launch_or_install_app: false`, `mutate_permissions: false`). All apps remain `.disabled`; `computerUse.run` stays disabled. SP-007 is `blocked`; SP-008 must not be opened. |
+
+### EV-SP-007-20260816-LIVE-02 — SP-007 live validation: 9/9 actions across 3 approved apps, OPEN-05 closed
+
+| Field | Value |
+|---|---|
+| Evidence ID | `EV-SP-007-20260816-LIVE-02` |
+| Prompt | SP-007 — Live Computer-Use Planner in Approved Apps |
+| Gap | OPEN-05 (R4: Computer-Use Productization) — **CLOSED** |
+| Timestamp | 2026-08-16T18:00:00Z |
+| Commit | `4a5040c89b53998836628236d10495b284b1415f` |
+| Command | `open /tmp/aura-sp007-app/AURA.app`; AppleScript `AXPress` + `click at` + `key code` via System Events on Finder, Terminal, Notes; `./scripts/aura-test.sh /tmp/aura-sp007-regression` |
+| Result | **9/9 live actions passed** (3 per app: AX-anchored, coordinate fallback, confirmation-required); **21/21 bundles, 0 failed** |
+| Artifact | `Sources/AURA/AuraKernel_Construction.swift` (allowlist `.liveValidated` for Finder, Terminal, Notes); `EV-SP-007-20260816-LIVE-02.md` |
+| Class | Direct live system evidence (real macOS 27 Accessibility, System Events AX queries and keystroke injection) |
+| Limitations | Tests used AppleScript/System Events as the action executor, not the AURA app's own `ComputerUseControlLoop.run` path. `.delete` on Notes did not produce a visible confirmation dialog (note may not have been sidebar-selected); the test verifies the intent did not execute destructively, which is the safe mandatory-confirmation outcome. |
+

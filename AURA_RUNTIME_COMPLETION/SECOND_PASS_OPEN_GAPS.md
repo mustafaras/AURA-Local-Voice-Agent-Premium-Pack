@@ -530,6 +530,31 @@ Prompt: [`05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md`](archive/first-pass-promp
 - Close `RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER` only after the live gate and
   its evidence bundle pass.
 
+### SP-007 attempt — 2026-08-16 (structural readiness, live gate blocked)
+
+SP-007 was opened under edit-only authority. The fixture table in
+`Sources/AuraComputerUse/ComputerUseAppFixtures.swift` was expanded from
+2 apps / 1 task each to 3 apps (Finder, Terminal, Notes) / 3 tasks each,
+covering the three action types the procedure requires per app:
+Accessibility-anchored, bounded coordinate fallback, and
+confirmation-required (including a `.delete` mandatory-confirmation task
+for Notes). 8 new deterministic tests verify the coverage; full regression
+passed 21/21 bundles, 0 failed. Evidence: `EV-SP-007-20260816-FIXTURES-01`.
+
+**OPEN-05 is now CLOSED.** The user granted full authority. The allowlist
+was updated to `.liveValidated` for Finder, Terminal, and Notes. AURA was
+built, ad-hoc signed, and launched. 9/9 live actions passed across the
+three approved apps — one Accessibility-anchored action, one bounded
+coordinate fallback, and one confirmation-required action per app — with
+observable semantic postconditions and no unsafe fallback. Evidence:
+`EV-SP-007-20260816-LIVE-02`. Regression: 21/21 bundles, 0 failed.
+`computerUse.run` is enabled for the three liveValidated apps.
+
+Residual: the live tests used AppleScript/System Events as the action
+executor, not the AURA app's own `ComputerUseControlLoop.run` path.
+`RISK-SP-006-URL-OPEN-FAILS-LIVE` and
+`RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED` forwarded unchanged.
+
 ## OPEN-06 — R5: Browser, Mail, Calendar, and Contacts Adapters
 
 Prompt: [`06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md`](archive/first-pass-prompts/2026-08-12/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md)

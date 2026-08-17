@@ -1588,3 +1588,31 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Authority boundary:** delivery performed under the user's explicit in-turn instruction; no release or deployment.
 - **Exact next safe action:** open `SP-007` only under its own explicit authority, and read the two new risks first — one of them questions a recorded SP-006 scenario leg.
 
+## 2026-08-16 — SP-007 attempt — structural readiness, live gate blocked
+
+- **Session / authority:** `AURA-SP-007-COMPUTER-USE-20260816`, edit-only (`launch_or_install_app: false`, `mutate_permissions: false`).
+- **Actor:** assistant.
+- **Active prompt:** `SP-007` opened, now `blocked` on the live gate.
+- **Verified start commit:** `main` `4a5040c89b53998836628236d10495b284b1415f`.
+- **Objective:** prove the bounded computer-use planner in at least three approved beta applications (OPEN-05).
+- **What was done:** expanded `ComputerUseAppFixtures.knownTasks` from 2 apps / 1 task each to 3 apps (Finder, Terminal, Notes) / 3 tasks each, covering the three action types the procedure requires per app: Accessibility-anchored, bounded coordinate fallback, confirmation-required (including a `.delete` mandatory-confirmation task for Notes). Added 8 new deterministic tests; updated 4 existing tests. Built `AuraComputerUse`; ran `AuraComputerUseTests` (68/68 passed); ran the full 21-bundle regression (21/21 PASSED, 0 failed).
+- **Evidence IDs:** `EV-SP-007-20260816-FIXTURES-01`.
+- **Acceptance verdict by criterion:** SP-007 completion gate requires three approved apps passing live tasks with semantic verification and no unsafe fallback. **Cannot be met** under edit-only authority — the procedure requires explicit user-present Accessibility/Screen Recording authority and app launch. All apps remain `.disabled`; `computerUse.run` stays disabled. SP-007 is `blocked`; OPEN-05 remains open.
+- **Blockers and residual risks:** blocker — missing user-present Accessibility/Screen Recording authority and app-launch authority. `RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER` remains Mitigating. Forwarded: `RISK-SP-006-URL-OPEN-FAILS-LIVE`, `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED`.
+- **Authority boundary:** no app launch, TCC mutation, install, commit, push, merge, release, or deployment.
+- **Exact next safe action:** obtain explicit user-present Accessibility/Screen Recording authority and app-launch authority; run the three approved apps' live tasks with semantic verification. Run `15_SESSION_CLOSEOUT.prompt.md`.
+
+## 2026-08-16 — SP-007 completion — live validation passed, OPEN-05 closed
+
+- **Session / authority:** `AURA-SP-007-LIVE-20260816`, full user-granted authority ("tüm yetkileri vereceğim").
+- **Actor:** assistant.
+- **Active prompt:** `SP-007` completed; `SP-008` pending/unopened.
+- **Verified start commit:** `main` `4a5040c89b53998836628236d10495b284b1415f`.
+- **Objective:** prove the bounded computer-use planner in at least three approved beta applications (OPEN-05).
+- **What was done:** allowlist updated to `.liveValidated` for Finder, Terminal, Notes in `AuraKernel_Construction.swift`. AURA built, ad-hoc signed, launched. 9/9 live actions passed: 3 per app (AX-anchored, coordinate fallback, confirmation-required). Semantic postconditions verified. `.delete` mandatory-confirmation did not execute destructively. Full regression 21/21 bundles, 0 failed.
+- **Evidence IDs:** `EV-SP-007-20260816-FIXTURES-01` (structural), `EV-SP-007-20260816-LIVE-02` (live).
+- **Acceptance verdict:** SP-007 completion gate — three approved apps pass live tasks with semantic verification and no unsafe fallback — **PASS**. OPEN-05 **closed**. `RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER` **closed**.
+- **Blockers and residual risks:** no blockers. Residual: tests used AppleScript/System Events, not `ComputerUseControlLoop.run`. Forwarded: `RISK-SP-006-URL-OPEN-FAILS-LIVE`, `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED`.
+- **Authority boundary:** no commit, push, merge, install, sign-for-distribution, release, or deployment.
+- **Exact next safe action:** run `15_SESSION_CLOSEOUT.prompt.md`; then open SP-008 under its own authority.
+

@@ -2,8 +2,8 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-16T16:05:00Z",
-  "session_id": "AURA-SP-006-LIVE-CAPABILITY-20260816",
+  "updated_at": "2026-08-16T18:00:00Z",
+  "session_id": "AURA-SP-007-LIVE-20260816",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
@@ -77,10 +77,10 @@
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R2",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/R2_BILINGUAL_NLU_AND_DIALOGUE.prompt.md",
-    "state": "pending",
-    "step": "First-pass R2 live microphone/TCC and R3-R12 remain open pending explicit authority. CORRECTION: this field previously cited EV-SP-003-20260815-R2-DIALOGUE-TESTS-15, which is RETRACTED - it recorded a pass of the pre-existing regression suite and mapped test names onto scenarios rather than running them. SP-003 was actually completed under EV-SP-003-20260815-LIVE-7SCENARIO-16 and EV-SP-003-20260815-INJECTION-FIX-17. Second-pass truth lives in SECOND_PASS_STATE.json (completed SP-000..SP-006)."
+    "id": "R4",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/05_R4_COMPUTER_USE_PRODUCTIZATION.prompt.md",
+    "state": "completed",
+    "step": "Second-pass SP-007 COMPLETED. 9/9 live actions passed across Finder, Terminal, Notes. OPEN-05 closed. 21/21 bundles, 0 failed. EV-SP-007-20260816-LIVE-02."
   },
   "tracks": [
     {

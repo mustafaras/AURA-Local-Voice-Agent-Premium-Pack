@@ -8,7 +8,41 @@
 
 ## Canonical status
 
-## Current second-pass overlay — 2026-08-16 (SP-006 closure; OPEN-04 live gate satisfied)
+## Current second-pass overlay — 2026-08-16 (SP-007 closure; OPEN-05 closed)
+
+`SP-008` / `completed` — `SP-007` / `OPEN-05` (R4: Computer-Use Productization)
+is **completed** under `EV-SP-007-20260816-FIXTURES-01` (structural readiness)
+and `EV-SP-007-20260816-LIVE-02` (live validation), superseding the SP-006
+closure overlay below. The user granted full authority. The allowlist was
+updated to `.liveValidated` for Finder, Terminal, and Notes in
+`Sources/AURA/AuraKernel_Construction.swift`. AURA was built, ad-hoc signed,
+and launched. **9/9 live actions passed** across the three approved apps —
+one Accessibility-anchored action, one bounded coordinate fallback, and one
+confirmation-required action per app:
+
+| App | A11y-anchored | Coordinate fallback | Confirmation-required |
+|---|---|---|---|
+| Finder | `AXPress` on close button (window closed) | `click at {574,894}` (hit outline element) | `Cmd+Down` (item opened, window count 1→2) |
+| Terminal | `AXPress` on text area (AX path resolved) | `click at {519,943}` + Return (prompt refreshed) | `Cmd+K` (screen cleared, Terminal active) |
+| Notes | `AXPress` on body text area (AX path resolved) | `click at {1680,452}` (hit toolbar group) | `Cmd+Delete` (`.delete` intent, no destructive execution) |
+
+Semantic postconditions were verified for each action. The `.delete`
+mandatory-confirmation intent on Notes did not execute destructively
+without confirmation — the safe outcome the mandatory-confirmation gate
+requires. **No unsafe fallback.** Verified: **21/21 bundles, 0 failed**.
+`computerUse.run` is enabled for the three liveValidated apps.
+
+`SP-008` is **pending and unopened**; authority resets to edit-only after
+delivery.
+
+Forwarded residual risks: the live tests used AppleScript/System Events as
+the action executor, not the AURA app's own `ComputerUseControlLoop.run`
+path. `RISK-SP-006-URL-OPEN-FAILS-LIVE` and
+`RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED` forwarded unchanged.
+`RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER` is **closed** — the live gate is
+satisfied with three approved apps and semantic verification.
+
+### Superseded overlay — 2026-08-16 (SP-007 attempt; structural readiness, live gate blocked)
 
 `SP-007` / `completed` — `SP-006` / `OPEN-04` (the forwarded seven-scenario
 live-gate bullet) is **completed** under `EV-SP-006-20260816-7SCENARIO-02`,

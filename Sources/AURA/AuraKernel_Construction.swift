@@ -214,6 +214,9 @@ extension AuraKernel {
       modalDetector: AccessibilityModalDialogDetector(), secureFieldDetector: secureFieldDetector,
       emergencyStop: emergencyStop, eventBus: eventBus, configuration: configuration.computerUse)
     self.computerUseAllowlist = ComputerUseBetaAllowlist.initial
+      .validating("com.apple.finder", appName: "Finder")
+      .validating("com.apple.Terminal", appName: "Terminal")
+      .validating("com.apple.Notes", appName: "Notes")
     await foundation.runtimeHealthRegistry.recordReady(
       "computer-use", detail: "bounded computer-use loop constructed")
     vscodeAdapter = VSCodeAdapter(

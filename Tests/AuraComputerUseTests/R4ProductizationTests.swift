@@ -96,7 +96,7 @@ func plannerEmitsTypedPlanForKnownObjective() async {
   let planner = DeterministicComputerUsePlanner(allowlist: allowlist)
   let observation = makeObservation(bundleID: approvedApp)
   let plan = await planner.propose(
-    observation: observation, objective: "reveal_downloads", previousSteps: [])
+    observation: observation, objective: "focus_search_field", previousSteps: [])
   #expect(!plan.isEmpty)
   #expect(plan.steps.allSatisfy { $0.targetAppBundleIdentifier == approvedApp })
 }
@@ -117,7 +117,7 @@ func plannerClarifiesWhenSecureFieldFocused() async {
   let planner = DeterministicComputerUsePlanner(allowlist: allowlist)
   let observation = makeObservation(bundleID: approvedApp, secureFieldFocused: true)
   let plan = await planner.propose(
-    observation: observation, objective: "reveal_downloads", previousSteps: [])
+    observation: observation, objective: "focus_search_field", previousSteps: [])
   #expect(plan.isEmpty)
 }
 
@@ -127,7 +127,7 @@ func plannerClarifiesWhenModalPresent() async {
   let planner = DeterministicComputerUsePlanner(allowlist: allowlist)
   let observation = makeObservation(bundleID: approvedApp, modalState: .unexpectedModalPresent)
   let plan = await planner.propose(
-    observation: observation, objective: "reveal_downloads", previousSteps: [])
+    observation: observation, objective: "focus_search_field", previousSteps: [])
   #expect(plan.isEmpty)
 }
 
@@ -273,8 +273,8 @@ func plannerNeverEmitsTextDrivenAction() async {
     structuralHash: "struct-terminal",
     provenance: ComputerUseCaptureProvenance(
       capturedAt: Date(), source: .accessibility, redactionCount: 0, rawImageRetained: false))
-  // The only curated Terminal objective is "print_working_directory"; an
-  // unknown objective must clarify, never produce a destructive action.
+  // The only curated Terminal objectives are known keys; an unknown
+  // objective must clarify, never produce a destructive action.
   let plan = await planner.propose(
     observation: observation, objective: "delete my home directory", previousSteps: [])
   #expect(plan.isEmpty)
@@ -286,7 +286,7 @@ func plannerScopesStepsToObservedApp() async {
   let planner = DeterministicComputerUsePlanner(allowlist: allowlist)
   let observation = makeObservation(bundleID: approvedApp)
   let plan = await planner.propose(
-    observation: observation, objective: "reveal_downloads", previousSteps: [])
+    observation: observation, objective: "focus_search_field", previousSteps: [])
   #expect(!plan.isEmpty)
   #expect(plan.steps.allSatisfy { $0.targetAppBundleIdentifier == approvedApp })
 }
@@ -315,4 +315,131 @@ func observationFreshnessReflectsScreenObservation() {
 func observationDoesNotRetainRawFrameByDefault() {
   let observation = makeObservation()
   #expect(!observation.provenance.rawImageRetained)
+}
+
+// MARK: - SP-007 fixture coverage (three approved apps, three action types each)
+
+private let finderBundle = "com.apple.finder"
+private let terminalBundle = "com.apple.Terminal"
+private let notesBundle = "com.apple.Notes"
+
+@Test("Finder fixtures cover Accessibility-anchored, coordinate fallback, and confirmation actions")
+func finderFixturesCoverThreeActionTypes() {
+  guard let tasks = ComputerUseAppFixtures.knownTasks(for: finderBundle) else {
+    Issue.record("Finder has no fixtures")
+    return
+  }
+  #expect(tasks.count == 3)
+  // (1) Accessibility-anchored
+  let a11yTask = tasks.first { $0.objectiveKey == "focus_search_field" }
+  #expect(a11yTask != nil)
+  #expect(a11yTask?.plan.steps.allSatisfy { $0.anchor.hasAccessibilityHint } ?? false)
+  // (2) Coordinate fallback
+  let coordTask = tasks.first { $0.objectiveKey == "quick_look_preview" }
+  #expect(coordTask != nil)
+  #expect(coordTask?.plan.steps.allSatisfy { $0.anchor.hasCoordinateFallback } ?? false)
+  // (3) Confirmation-required (navigate or destructive intent)
+  let confirmTask = tasks.first { $0.objectiveKey == "open_folder_new_window" }
+  #expect(confirmTask != nil)
+  let confirmIntent = confirmTask?.plan.steps.first?.semanticIntent
+  #expect(confirmIntent == .navigate || confirmIntent?.requiresMandatoryConfirmation == true)
+}
+
+@Test("Terminal fixtures cover Accessibility-anchored, coordinate fallback, and confirmation actions")
+func terminalFixturesCoverThreeActionTypes() {
+  guard let tasks = ComputerUseAppFixtures.knownTasks(for: terminalBundle) else {
+    Issue.record("Terminal has no fixtures")
+    return
+  }
+  #expect(tasks.count == 3)
+  let a11yTask = tasks.first { $0.objectiveKey == "focus_terminal" }
+  #expect(a11yTask != nil)
+  #expect(a11yTask?.plan.steps.allSatisfy { $0.anchor.hasAccessibilityHint } ?? false)
+  let coordTask = tasks.first { $0.objectiveKey == "print_working_directory" }
+  #expect(coordTask != nil)
+  #expect(coordTask?.plan.steps.allSatisfy { $0.anchor.hasCoordinateFallback } ?? false)
+  let confirmTask = tasks.first { $0.objectiveKey == "clear_screen" }
+  #expect(confirmTask != nil)
+  let confirmIntent = confirmTask?.plan.steps.first?.semanticIntent
+  #expect(confirmIntent == .navigate || confirmIntent?.requiresMandatoryConfirmation == true)
+}
+
+@Test("Notes fixtures cover Accessibility-anchored, coordinate fallback, and confirmation actions")
+func notesFixturesCoverThreeActionTypes() {
+  guard let tasks = ComputerUseAppFixtures.knownTasks(for: notesBundle) else {
+    Issue.record("Notes has no fixtures")
+    return
+  }
+  #expect(tasks.count == 3)
+  let a11yTask = tasks.first { $0.objectiveKey == "focus_note_body" }
+  #expect(a11yTask != nil)
+  #expect(a11yTask?.plan.steps.allSatisfy { $0.anchor.hasAccessibilityHint } ?? false)
+  let coordTask = tasks.first { $0.objectiveKey == "create_new_note" }
+  #expect(coordTask != nil)
+  #expect(coordTask?.plan.steps.allSatisfy { $0.anchor.hasCoordinateFallback } ?? false)
+  let confirmTask = tasks.first { $0.objectiveKey == "delete_current_note" }
+  #expect(confirmTask != nil)
+  let confirmIntent = confirmTask?.plan.steps.first?.semanticIntent
+  #expect(confirmIntent?.requiresMandatoryConfirmation == true)
+}
+
+@Test("Planner emits Accessibility-anchored plan for Finder focus_search_field")
+func plannerEmitsA11yAnchoredPlanForFinder() async {
+  let allowlist = ComputerUseBetaAllowlist.initial.validating(finderBundle)
+  let planner = DeterministicComputerUsePlanner(allowlist: allowlist)
+  let observation = makeObservation(bundleID: finderBundle)
+  let plan = await planner.propose(
+    observation: observation, objective: "focus_search_field", previousSteps: [])
+  #expect(!plan.isEmpty)
+  #expect(plan.steps.allSatisfy { $0.anchor.hasAccessibilityHint })
+}
+
+@Test("Planner emits coordinate-fallback plan for Finder quick_look_preview")
+func plannerEmitsCoordinateFallbackPlanForFinder() async {
+  let allowlist = ComputerUseBetaAllowlist.initial.validating(finderBundle)
+  let planner = DeterministicComputerUsePlanner(allowlist: allowlist)
+  let observation = makeObservation(bundleID: finderBundle)
+  let plan = await planner.propose(
+    observation: observation, objective: "quick_look_preview", previousSteps: [])
+  #expect(!plan.isEmpty)
+  #expect(plan.steps.allSatisfy { $0.anchor.hasCoordinateFallback })
+}
+
+@Test("Planner emits confirmation plan for Notes delete_current_note (destructive intent)")
+func plannerEmitsConfirmationPlanForNotesDelete() async {
+  let allowlist = ComputerUseBetaAllowlist.initial.validating(notesBundle)
+  let planner = DeterministicComputerUsePlanner(allowlist: allowlist)
+  let observation = makeObservation(bundleID: notesBundle)
+  let plan = await planner.propose(
+    observation: observation, objective: "delete_current_note", previousSteps: [])
+  #expect(!plan.isEmpty)
+  #expect(plan.steps.first?.semanticIntent == .delete)
+  #expect(plan.steps.first?.semanticIntent.requiresMandatoryConfirmation == true)
+}
+
+@Test("Planner emits typed plans for all three approved apps")
+func plannerEmitsPlansForAllThreeApprovedApps() async {
+  let allowlist = ComputerUseBetaAllowlist.initial
+    .validating(finderBundle)
+    .validating(terminalBundle)
+    .validating(notesBundle)
+  let planner = DeterministicComputerUsePlanner(allowlist: allowlist)
+  for bundle in [finderBundle, terminalBundle, notesBundle] {
+    let observation = makeObservation(bundleID: bundle)
+    let plan = await planner.propose(
+      observation: observation, objective: "focus_search_field", previousSteps: [])
+    // At least one of the three apps' first objective key is focus_search_field;
+    // the others have their own. Test each app's own first key.
+    let firstKey: String
+    switch bundle {
+    case finderBundle: firstKey = "focus_search_field"
+    case terminalBundle: firstKey = "focus_terminal"
+    case notesBundle: firstKey = "focus_note_body"
+    default: firstKey = ""
+    }
+    let plan2 = await planner.propose(
+      observation: observation, objective: firstKey, previousSteps: [])
+    #expect(!plan2.isEmpty, "planner should emit a plan for \(bundle) / \(firstKey)")
+    #expect(plan2.steps.allSatisfy { $0.targetAppBundleIdentifier == bundle })
+  }
 }

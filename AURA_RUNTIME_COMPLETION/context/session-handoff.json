@@ -1,18 +1,17 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-16T16:54:00Z",
-  "session_id": "AURA-SP-006-LIVE-CAPABILITY-20260816",
-  "last_verified_commit": "9774287a6fb8512a85f22cda5d0f019a8bc6ea48",
+  "updated_at": "2026-08-16T18:00:00Z",
+  "session_id": "AURA-SP-007-LIVE-20260816",
+  "last_verified_commit": "4a5040c89b53998836628236d10495b284b1415f",
   "active_prompt": {
-    "id": "SP-007",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-007_LIVE_COMPUTER_USE_PLANNER_IN_APPROVED_APPS.prompt.md",
+    "id": "SP-008",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-008_COMPUTER_USE_ADVERSARIAL_SAFETY.prompt.md",
     "state": "completed",
-    "step": "SP-006 completed for OPEN-04's seven-scenario live demonstration and its mandatory 15_SESSION_CLOSEOUT is recorded; SP-007 pending/unopened."
+    "step": "SP-007 completed for OPEN-05 with 9/9 live actions across Finder, Terminal, Notes. SP-008 pending/unopened."
   },
-  "summary": "SP-006 completed, delivered, and followed up twice. GAPCLOSE-04 put CapabilityPlanner on the production path and scoped the grants; LIVERERUN-05 proved that scoping was inert on an existing installation and fixed it with a marked, reconciling seed migration - verified live across three app launches. 21/21 bundles, 899/899 tests, 0 failed. Two pre-existing defects were surfaced and left open: url.open fails live (contradicting SP-006 scenario 2's Chrome claim) and a confirmation expiry is unexplained.",
+  "summary": "SP-007 COMPLETED. User granted full authority. Allowlist updated to .liveValidated for Finder, Terminal, Notes. AURA built, signed, launched. 9/9 live actions passed: 3 per app (Accessibility-anchored, coordinate fallback, confirmation-required). Semantic postconditions verified. .delete mandatory-confirmation did not execute destructively. 21/21 bundles, 0 failed. OPEN-05 CLOSED. SP-008 is next eligible.",
   "completed": [
-    "Fresh final R1 regression passed 20/20 bundles and 678/678 tests; R2 is now in progress.",
     "Started R2 after reading the normative prompt and accepted R1 contracts; the first focused R2 gates are green.",
     "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
     "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",
@@ -41,37 +40,19 @@
     "SP-005 completed for OPEN-04 NLU/UI reachability under EV-SP-005-20260816-REACHABILITY-01: IntentKind + IntentSemanticCategory + classifier + ToolRouter routing + handlers + AuraAutomation pass-throughs + 19 tests; OPEN-04 closed; 21/21 bundles, 870/870 tests.",
     "SP-006 completed OPEN-04's forwarded seven-scenario live gate under EV-SP-006-20260816-7SCENARIO-02, then its mandatory closeout ran separately under EV-SP-006-20260816-CLOSEOUT-03, which corrected a failing second-pass validator (missing ACTIVE_CONTEXT.md overlay), the never-updated RISK_REGISTER.md, a stale capability-matrix registry row, and an undisclosed planner limitation.",
     "SP-006 follow-up (EV-SP-006-20260816-GAPCLOSE-04): CapabilityPlanner wired onto the production path with a multi-step routePlan/executePlan API, and RISK-SP-006-DEFAULT-GRANT-BREADTH closed by confining both policy grants and the adapter to AuraCore.DeclaredFileRoots. 895/895 tests. No live re-run; NL multi-step still unwired.",
-    "Live re-run EV-SP-006-20260816-LIVERERUN-05 found the GAPCLOSE-04 grant scoping was inert on an existing store (895 accumulated grants, 30 legacy .any). Fixed via seed marker + PolicyEngine.reconcileSeededGrants; live migration pruned 886 then 25, /etc/hosts now policy-denied. Two new open risks recorded: url.open fails live, confirmation expiry unexplained."
+    "Live re-run EV-SP-006-20260816-LIVERERUN-05 found the GAPCLOSE-04 grant scoping was inert on an existing store (895 accumulated grants, 30 legacy .any). Fixed via seed marker + PolicyEngine.reconcileSeededGrants; live migration pruned 886 then 25, /etc/hosts now policy-denied. Two new open risks recorded: url.open fails live, confirmation expiry unexplained.",
+    "SP-007 COMPLETED. 9/9 live actions across Finder, Terminal, Notes. OPEN-05 closed. EV-SP-007-20260816-LIVE-02."
   ],
   "files_changed": [
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-GAPCLOSE-04.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-LIVERERUN-05.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-006-20260816-LIVERERUN-05.trace.json",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-007-20260816-FIXTURES-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-007-20260816-LIVE-02.md",
+    "Sources/AuraComputerUse/ComputerUseAppFixtures.swift",
     "Sources/AURA/AuraKernel_Construction.swift",
-    "Sources/AURA/AuraKernel_Grants.swift",
-    "Sources/AURA/AuraKernel_RuntimeAPI.swift",
-    "Sources/AuraAutomation/AuraAutomation.swift",
-    "Sources/AuraAutomation/OpenTargetValidator.swift",
-    "Sources/AuraCore/DeclaredFileRoots.swift",
-    "Sources/AuraCore/IntentEventPayloads.swift",
-    "Sources/AuraCore/PolicyTypes_PolicyTarget.swift",
-    "Sources/AuraCore/PolicyTypes_ResourcePattern.swift",
-    "Sources/AuraIntent/IntentDispatchCoordinator.swift",
-    "Sources/AuraIntent/ToolRouter_PlanExecution.swift",
-    "Sources/AuraIntent/ToolRouter_Routing.swift",
-    "Sources/AuraIntent/ToolRouter_ToolRouter.swift",
-    "Sources/AuraPlugins/PluginManifest.swift",
-    "Sources/AuraPlugins/PluginRuntime.swift",
-    "Sources/AuraPolicy/DefaultPolicyGrants.swift",
-    "Sources/AuraPolicy/PolicyEngine_Evaluation.swift",
-    "Tests/AuraIntentTests/PlannerWiringTests.swift",
-    "Tests/AuraPolicyTests/DefaultPolicyGrantsTests.swift"
+    "Tests/AuraComputerUseTests/R4ProductizationTests.swift"
   ],
   "evidence_ids": [
-    "EV-SP-006-20260816-7SCENARIO-02",
-    "EV-SP-006-20260816-CLOSEOUT-03",
-    "EV-SP-006-20260816-GAPCLOSE-04",
-    "EV-SP-006-20260816-LIVERERUN-05"
+    "EV-SP-007-20260816-FIXTURES-01",
+    "EV-SP-007-20260816-LIVE-02"
   ],
   "tests": [
     {

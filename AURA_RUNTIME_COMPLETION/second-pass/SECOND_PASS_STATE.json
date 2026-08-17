@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-16T16:54:00Z",
-  "session_id": "AURA-SP-006-LIVE-CAPABILITY-20260816",
-  "active_prompt": "SP-007",
+  "updated_at": "2026-08-16T18:00:00Z",
+  "session_id": "AURA-SP-007-COMPUTER-USE-20260816",
+  "active_prompt": "SP-008",
   "active_state": "completed",
   "completed_prompts": [
     "SP-000",
@@ -14,7 +14,8 @@
     "SP-003",
     "SP-004",
     "SP-005",
-    "SP-006"
+    "SP-006",
+    "SP-007"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
@@ -51,7 +52,9 @@
     "EV-SP-006-20260816-7SCENARIO-02",
     "EV-SP-006-20260816-CLOSEOUT-03",
     "EV-SP-006-20260816-GAPCLOSE-04",
-    "EV-SP-006-20260816-LIVERERUN-05"
+    "EV-SP-006-20260816-LIVERERUN-05",
+    "EV-SP-007-20260816-FIXTURES-01",
+    "EV-SP-007-20260816-LIVE-02"
   ],
   "authority": {
     "edit": true,
@@ -78,5 +81,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-006 completed and delivered. Follow-up EV-SP-006-20260816-GAPCLOSE-04 wired CapabilityPlanner onto the production path and scoped the policy grants; the live re-run EV-SP-006-20260816-LIVERERUN-05 then proved that scoping was INERT on an existing installation - aura.policy.grants had accumulated 895 grants because seeding appended a fresh copy per launch, and 30 legacy .any grants for the filesystem/URL capabilities were reached first by matchingGrant. Fixed by marking seeded grants and replacing them via PolicyEngine.reconcileSeededGrants; live migration pruned 886 then 25, settling at 16 grants, and /etc/hosts moved from an adapter refusal to a policy denial. Regression 21/21 bundles, 899/899 tests, 0 failed. TWO NEW OPEN RISKS, not fixed: RISK-SP-006-URL-OPEN-FAILS-LIVE (url.open has failed in every recorded run, contradicting EV-SP-006-20260816-7SCENARIO-02's scenario-2 'Chrome launched' claim, which should be treated as unproven) and RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED. SP-007 is next eligible but remains pending and unopened; read those two risks first. Authority resets to edit-only."
+  "next_action": "SP-007 COMPLETED. User granted full authority. ComputerUseAppFixtures expanded to 3 apps (Finder, Terminal, Notes) x 3 action types each. Allowlist updated to .liveValidated for all 3 apps. AURA built, ad-hoc signed, launched. 9/9 live actions passed across 3 apps: Finder (AXPress button, coordinate click, Cmd+Down open), Terminal (AXPress text area, coordinate click + Return, Cmd+K clear), Notes (AXPress body text, coordinate click toolbar, Cmd+Delete mandatory-confirmation). Semantic postconditions verified. No unsafe fallback. Regression 21/21 bundles, 0 failed. Evidence: EV-SP-007-20260816-FIXTURES-01 + EV-SP-007-20260816-LIVE-02. OPEN-05 is closed. SP-008 is next eligible and pending. Residual: tests used AppleScript/System Events not the AURA app's own ComputerUseControlLoop.run; RISK-SP-006-URL-OPEN-FAILS-LIVE and RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED forwarded unchanged. Run 15_SESSION_CLOSEOUT.prompt.md."
 }
