@@ -1,6 +1,7 @@
 import AppKit
 @preconcurrency import ApplicationServices
 import AuraCore
+import AuraScreen
 import Carbon.HIToolbox
 import CoreGraphics
 import Foundation
@@ -80,8 +81,21 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
   /// silently omit it.
   private let emergencyStop: EmergencyStopController
 
-  public init(emergencyStop: EmergencyStopController, maxTraversedElements: Int = 500) {
+  /// The same defense-in-depth argument as `emergencyStop`, applied to the
+  /// normative rule "never interact with password fields." The control loop
+  /// already refuses a step whose target app has a focused secure field, but
+  /// that refusal lives in the caller; a direct executor call would otherwise
+  /// synthesize input into a credential surface. Required, not optional, so
+  /// the guard cannot be omitted by wiring.
+  private let secureFieldDetector: any SecureFieldDetecting
+
+  public init(
+    emergencyStop: EmergencyStopController,
+    secureFieldDetector: any SecureFieldDetecting,
+    maxTraversedElements: Int = 500
+  ) {
     self.emergencyStop = emergencyStop
+    self.secureFieldDetector = secureFieldDetector
     self.maxTraversedElements = maxTraversedElements
   }
 
@@ -95,10 +109,27 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
       throw AuraError.computerUseError("Emergency stop is active; refusing to generate input")
     }
 
-    // `.wait` needs no permission, element, or coordinate at all.
+    // `.wait` needs no permission, element, or coordinate at all — and
+    // generates no input, so it is deliberately exempt from the secure-field
+    // guard below. Waiting is how a caller yields *to* the user while a
+    // credential prompt is on screen.
     if case .wait(let seconds) = kind {
       try? await Task.sleep(nanoseconds: UInt64(max(0, seconds) * 1_000_000_000))
       return UIActionExecutionResult(usedAccessibilityAnchor: false)
+    }
+
+    // Every remaining kind synthesizes pointer or keyboard input. Refuse all
+    // of them — not merely `.typeText`/`.keyPress` — while a secure field is
+    // focused: a click or scroll can dismiss, confirm, or shift focus within
+    // a credential surface, and this mirrors the control loop, which blocks
+    // the whole step regardless of kind. Divergence between the two layers
+    // would itself be the defect.
+    guard
+      await !secureFieldDetector.isSecureFieldFocused(
+        applicationBundleIdentifier: applicationBundleIdentifier)
+    else {
+      throw AuraError.computerUseError(
+        "A secure field is focused in \(applicationBundleIdentifier); refusing to generate input")
     }
 
     let trusted = await MainActor.run {

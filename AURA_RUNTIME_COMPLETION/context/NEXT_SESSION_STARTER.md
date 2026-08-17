@@ -1,183 +1,129 @@
-# AURA Next Session Starter — SP-007 is next, pending and unopened
+# AURA Next Session Starter — SP-009 is next, pending and unopened
 
-> Written: 2026-08-16, after the SP-006 delivery and its follow-up.
-> SP-006 was delivered to `origin/main` as `fe9e5db` (work + closeout),
-> `ea695d2` (projection alignment), and `ee053f5` (untracked-artifact record).
-> Never copy a commit out of this header; run `git rev-parse HEAD` and
-> `git status --short` at session start.
->
-> **`git status` will always show three untracked files** —
-> `EV-SP-006-20260816-7SCENARIO-02.entries.log` and two `EV-SP-006-*.png`. That
-> is the steady state, not unfinished work: `REPO_HYGIENE_SUPPLY_CHAIN_POLICY
-> .json` forbids `.log`/`.png` as *tracked* paths, and H-003's principle forbids
-> *ignoring* evidence paths, so they live on disk bound to the evidence record
-> by SHA-256.
+> Written: 2026-08-17, after SP-008 closed OPEN-05's adversarial and recovery
+> residuals. Never copy a commit out of this header; run `git rev-parse HEAD`
+> and `git status --short` at session start.
 >
 > Authoritative state is
 > `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json` and
-> `AURA_RUNTIME_COMPLETION/context/session-handoff.json`.
+> `AURA_RUNTIME_COMPLETION/context/session-handoff.json`. This file is a
+> reading aid, not authority.
 
-## Read this first
+## The worktree is dirty, and that is expected
 
-`SP-006` is **completed and delivered** — the seven-scenario live gate passed
-under `EV-SP-006-20260816-7SCENARIO-02`, the mandatory closeout is recorded
-under `EV-SP-006-20260816-CLOSEOUT-03`, and a follow-up under
-`EV-SP-006-20260816-GAPCLOSE-04` closed the two gaps that closeout had
-documented rather than fixed (see below).
+`git status` will show two distinct groups. Neither is unfinished work to
+"clean up":
 
-Delivery went straight to `main` at the user's explicit direction rather than
-the SP-004/SP-005 feature-branch + no-ff shape. Whichever shape a future session
-uses, the standing rule holds: a go-ahead covers only the work completed when it
-was given, and must be given **in the turn** the delivery happens.
+1. **Four untracked SP-006 evidence artifacts** —
+   `EV-SP-006-20260816-7SCENARIO-02.entries.log`,
+   `EV-SP-006-20260816-LIVERERUN-05.entries.log`,
+   `EV-SP-006-scenarios1-2-ui.png`, `EV-SP-006-scenario3-quit.png`.
+   `REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json` forbids `.log`/`.png` as *tracked*
+   paths, and H-003's principle forbids *ignoring* evidence paths, so they live
+   on disk bound to their evidence records by SHA-256. Permanent steady state.
+2. ~~**All of SP-008's work, local and uncommitted**~~ — **superseded
+   2026-08-17T08:15:11Z**: SP-008 was delivered under an explicit in-turn
+   go-ahead, together with the corrections in
+   `EV-SP-008-20260817-CORRECTION-03`. Only group 1 above should still appear
+   as untracked; if anything else is dirty, it is new work, not SP-008's.
 
-Not in scope without a fresh explicit grant: dependency installs, model
-downloads, provider accounts, telemetry, beta enrollment, Developer-ID
-signing/notarization, release, deployment.
+## Where the program actually is
 
-## Where the program actually stands
+`SP-008` is **completed** for `OPEN-05`'s adversarial and recovery residuals, at
+the deterministic boundary its own authority covers. `completed_prompts` =
+`SP-000`…`SP-008`. `SP-009` is next eligible, **pending and unopened**.
 
-| | |
+**Mind the convention trap.** `active_prompt` / `active_state` reading
+`SP-009` / `completed` means "SP-009 is next, SP-008 just closed" — it does not
+mean SP-009 ran. And prompt frontmatter reads `state: pending` on *every* SP
+prompt including finished ones, so frontmatter alone never proves a prompt is
+unopened. The authoritative guard is `completed_prompts`.
+
+## What SP-008 changed, and what it deliberately did not
+
+Reading the production computer-use path found three defects of one kind — a
+fail-closed control correct at one layer and silent at the next:
+
+| Defect | Fix |
 |---|---|
-| Completed | `SP-000` … `SP-006` |
-| Next eligible | **`SP-007`** — pending and **unopened** |
-| Blocked | none |
-| `OPEN-04` | **closed**, and its forwarded live-gate bullet is now satisfied by SP-006. |
+| A focused secure field returned non-terminal `.stop`, so the session looped to its budget and reported `noProgress` — failing closed but naming the wrong reason | Terminal `ComputerUseLoopOutcome.secureFieldBlocked` |
+| `AXCGEventActionExecutor` enforced emergency stop unconditionally but had no secure-field equivalent, so a direct call could type into a credential field | Required `secureFieldDetector`; every input-generating kind refused, `.wait` exempt |
+| An off-screen window was refused correctly but reported as `sensitiveApplication` | `ScreenContextEngine.exclusionReason(for:)` is the single source of truth; new `ScreenCaptureBlockReason.windowNotVisible` |
 
-Re-verified after the live re-run: **21/21 bundles / 899 tests / 0 failed**
-(totals recomputed from the log, not read off a summary line), all four
-governance validators exit 0. Recheck these rather than trusting the numbers.
+The beta allowlist moved into `ComputerUseBetaAllowlist.liveValidatedProduction`
+so allowlist confinement is a value a test asserts against. **No app was added**
+— the SP-007 bundle validates Finder, Terminal and Notes and nothing else.
 
-## What SP-006 actually proved, and what it did not
+`Tests/AuraComputerUseTests/R4AdversarialSafetyTests.swift` (25 tests) covers
+injection, secure-field refusal at both layers, modal mismatch, wrong identity,
+cancellation, restart/re-arm, emergency stop at all four stage boundaries, a
+hostile planner, and hidden-window/sensitive-app/self-capture refusal. Every
+case asserts the executor call count, not merely the reported outcome.
 
-Proved live, on the running app, through the production text → `Conversation` →
-`IntentEngine` → `ToolRouter` → `PolicyEngine` → adapter path with the local
-`gemma4:latest` model (cloud inference count 0): observation, reversible
-file/URL opens with real OS effects, confirmed mutation, unavailable capability
-staying unavailable, malformed model-plan rejection, and capability-health
-inspection. Cancellation, partial failure, rollback declaration, and
-no-unauthorized-delivery controls also pass.
+Verified: **21/21 bundles, 931/931 tests, 0 failed**; all four governance
+validators exit 0; 38/38 governance unit tests. Evidence:
+`EV-SP-008-20260817-ADVERSARIAL-01`, `EV-SP-008-20260817-CLOSEOUT-02`,
+`EV-SP-008-20260817-CORRECTION-03`.
 
-Two real defects were found and fixed *because* the run was live:
+**Re-verified after closure (`EV-SP-008-20260817-CORRECTION-03`).** The whole
+sweep was re-run from the tree rather than read off these records; the technical
+closure stands. Two record defects were corrected — the new-test count (22 to 25)
+and the prior bundle total (71 to 68) — along with `session-handoff.json`'s
+`active_prompt.file`, which still named SP-008's prompt while its `id` read
+`SP-009`. One finding was recorded rather than fixed:
+**`RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE`** — `ComputerUseControlLoop.run` is
+called only by `AuraKernel.computerUseRun`, which has no caller anywhere, and
+`IntentKind`/`ToolRouter` have no computer-use branch. Nothing in the shipped
+product can currently drive the loop SP-008 hardened. **Do not silently absorb
+this into SP-009** — it is R4 productization wiring and needs its own prompt and
+authority.
 
-1. The four `.reversible` filesystem/URL capabilities had **no seeded policy
-   grant**, so every live request would have been denied before the adapter —
-   despite the capabilities being registered `.ready`. Fixed by extracting
-   `Sources/AuraPolicy/DefaultPolicyGrants.swift` (testable outside the `AURA`
-   executable target) and seeding `.none`-confirmation grants that match each
-   manifest's declared `confirmationRule`.
-2. `ToolRouter.handleFileOpen` routed a `folderPath` slot to `openFile`, which
-   refuses non-regular files. Fixed to dispatch on the slot.
+**What it did not do:** no live run. SP-008's hard boundary withholds
+launch/install/TCC authority, and the user was asked directly and chose to close
+on the deterministic boundary rather than grant it.
 
-## Follow-up since delivery (`EV-SP-006-20260816-GAPCLOSE-04`)
+## Read this before starting SP-009
 
-Two things the closeout had *documented rather than fixed* were then closed at
-the user's direction:
+`RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` is the one to read first. SP-008 proved
+the *control flow*: given a detector that reports a secure field or a modal, the
+loop and the executor both refuse, and emergency stop terminates at every stage.
+What is unproven is the layer beneath — `AccessibilitySecureFieldDetector` and
+`AccessibilityModalDialogDetector` have never been observed against a real
+credential field or a real `SecurityAgent` dialog, and generated-event cessation
+has not been watched on hardware. **A detector that silently returns `false`
+would make every guard above it inert while all tests still pass.** That is the
+same failure shape as `RISK-SP-006-DEFAULT-GRANT-BREADTH`, whose test-only
+closure proved premature on live evidence — do not repeat it.
 
-1. **`CapabilityPlanner` is now on the production path.** It used to be
-   constructed only in tests. `ToolRouter` now owns one and validates every
-   routed intent through it (a missing required slot is refused by the planner,
-   not by a handler), `IntentPlanGeneratedEvent` carries a `planFingerprint`,
-   and `ToolRouter.routePlan` / `IntentDispatchCoordinator.executePlan` /
-   `AuraKernel.executePlan` execute validated multi-step plans in dependency
-   order — `.skipped` when a dependency did not execute, per-step declared
-   `rollbackStrategy`, explicitly **not** transactional.
-2. **Target confinement now exists at both layers.** Closing
-   `RISK-SP-006-DEFAULT-GRANT-BREADTH` revealed production had been building
-   `OpenTargetValidator()` with the default `approvedRoots: []` — *no root
-   restriction* — while the grants used `patterns: [.any]`. Neither layer
-   bounded where a file target could live. Both now read
-   `AuraCore.DeclaredFileRoots`.
+Also open, and worth reading before trusting any SP-006-era claim:
+`RISK-SP-006-URL-OPEN-FAILS-LIVE` (the `url.open` adapter leg has failed in
+every recorded run, contradicting SP-006 scenario 2's "Chrome launched" claim —
+treat that leg as unproven) and
+`RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED`.
 
-**Still not proved:** natural-language multi-step decomposition. The
-structured-NLU layer proposes at most one capability per turn, so no user
-sentence produces a multi-step plan — a caller must supply the steps. Recorded
-in `capability-matrix.json` under `intent.capability_registry.open_gaps`.
+New from SP-008: `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` — semantic intent
+is *declared by the planner* and `riskTier` is a pure function of it, so a
+future model-backed planner could label a destructive keystroke `.observe` and
+be evaluated at observation tier. Sound today because the only production
+conformer is the curated deterministic planner.
 
-3. **The live re-run (`EV-SP-006-20260816-LIVERERUN-05`) then caught that the
-   scoping was inert.** `aura.policy.grants` had accumulated **895 grants** —
-   seeding appended a fresh copy every launch — including **30 legacy `.any`
-   grants** that `matchingGrant` reached first, so `/etc/hosts` was stopped only
-   by the adapter. Fixed with a seed marker plus
-   `PolicyEngine.reconcileSeededGrants`; the live migration pruned 886 then 25,
-   settled at 16 grants, and `/etc/hosts` moved to a **policy** denial. Verified
-   21/21 bundles, **899/899 tests**, 0 failed.
+## A pointer trap that already bit once
 
-**Two pre-existing defects are open and unfixed — read these first:**
-
-- `RISK-SP-006-URL-OPEN-FAILS-LIVE` — `url.open` has failed in *every* recorded
-  run on this machine (13:18, 13:58, 14:12, 16:38). This **contradicts**
-  `EV-SP-006-20260816-7SCENARIO-02`'s scenario-2 claim that Chrome launched, so
-  treat that leg as **unproven** until re-demonstrated.
-- `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED` — a `quit Calculator`
-  confirmation expired where SP-006 recorded an acceptance; cause undetermined.
-
-Scenarios 4–7 were not re-run live in the follow-up; they rest on
-`EV-SP-006-20260816-7SCENARIO-02` and the deterministic suite.
-
-## Open residual risks to keep in view (none block SP-007)
-
-- `RISK-SP-003-MODEL-LATENCY` — **bound widened to 28.5–49.0 s** (was
-  19.8–36.1 s). Still inside the 90 s think budget and 120 s request timeout.
-  Plan live runs around it; SP-006 had to raise its demo per-turn budget from
-  45 s to 120 s after a 45 s cutoff produced a false `confirmationDenied`.
-- `RISK-SP-004-TOCTOU-RACE`, `RISK-SP-004-HANDLER-COMPROMISE` (R10 scope);
-  `RISK-INJECTION-COVERAGE-NON-DIALOGUE`; `RISK-SP-003-LIVE-VOICE-RESIDUAL`,
-  `RISK-STT-MIC-NOT-CAPTURING` (voice track — the user is speech-disabled, so
-  drive everything through the **text input / UI**, never the microphone).
+`validate_runtime_completion.py` was failing at clean `HEAD` for a whole session
+before SP-008 noticed. SP-007's delivery commit changed product source but never
+advanced `verified_head` / `remote_head` / the capability matrix's
+`repository_commit`. **After any delivery that touches non-projection paths,
+advance all three together.** SP-008 repaired them to `0000b4a`; note that the
+content verification at that SHA rests on SP-007's recorded sweep, not a fresh
+clean-tree run.
 
 ## First actions in the next session
 
-1. `git rev-parse HEAD` and `git status --short`. Expect a clean tree apart from
-   the three declared-untracked evidence artifacts named in the header.
-2. Read Tier 0 per `AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md`.
-3. Read the two open `RISK-SP-006-*` risks above before anything else — one of
-   them questions a recorded SP-006 scenario leg.
-4. Only then, and only under its own explicit authority, open SP-007
-   (`SP-007_LIVE_COMPUTER_USE_PLANNER_IN_APPROVED_APPS.prompt.md`) and read its
-   Tier 1 set.
-
-## Traps carried forward (do not relearn)
-
-- Prompt frontmatter `state: pending` appears on **every** SP prompt, including
-  completed ones — the validator enforces it. Truth is in
-  `SECOND_PASS_STATE.json.completed_prompts`.
-- `active_prompt`/`active_state: SP-007/completed` means "SP-007 is next, SP-006
-  just closed" — not "SP-007 is done".
-- **The second-pass validator derives its `ACTIVE_CONTEXT.md` requirement from
-  `SECOND_PASS_STATE.json`.** Advancing `active_prompt` without writing the
-  matching `` `SP-NNN` / `<state>` `` overlay in `ACTIVE_CONTEXT.md` turns the
-  validator red *after* the state edit. This exact mistake ended the SP-006
-  session with a failing validator and two ledgers claiming it was green.
-- `validate_second_pass_program.py` rejects `--ci`; the other three require it.
-- Handoff JSON is schema-strict: `risks` (not `risk_ids`),
-  `required_first_reads` (not `mandatory_first_read`), `tests` entries are
-  objects `{name, result, evidence_id}`, `last_verified_commit` must be a full
-  40-char hash, `evidence_ids` must exist in `EVIDENCE_INDEX.md`.
-- `EVIDENCE_INDEX.md` rows are appended after the last existing row; never in
-  table syntax at the end of a paragraph.
-- `capability-matrix.json.repository_commit`, `current-state.json
-  .verified_head/remote_head`, and `session-handoff.json.last_verified_commit`
-  must be aligned to the same commit **in the same commit**.
-- **The capability matrix rots quietly.** Bumping its header while leaving a
-  capability row describing a world three prompts old passes every validator.
-  SP-006's closeout found `intent.capability_registry` still claiming "no
-  adapter yet" and "the live demonstration has not been performed". Update the
-  row, not just the header.
-- **`RISK_REGISTER.md` is a named required record in the SP prompts** and is
-  easy to skip because nothing enforces it.
-- Test counts: 21 bundles / 899 tests as of the SP-006 live re-run. A different
-  total means a bundle was skipped or a test silently dropped — investigate.
-- **Never use plain `swift test`.** Use
-  `./scripts/aura-test.sh /tmp/<unique-path> [bundle-filter]` and capture full
-  output to a file — piping through `tail` has already hidden a real failure.
-  Recompute totals from the log rather than trusting a summary line.
-- **iCloud breaks code signing**: the repo lives under an iCloud-synced
-  Desktop. Copy the bundle outside the synced tree and `xattr -cr` before
-  signing.
-- **The installed app is not what you build**: `/Applications/AURA.app` is a
-  separate copy; check its mtime before claiming the user sees current code.
-- **TCC is per executable**; a grant to `AURA.app` does not extend to the
-  SwiftPM test helper.
-- Evidence artifacts live in `AURA_RUNTIME_COMPLETION/state/`, never `/tmp`.
-- Ledgers are append-only; corrections are new entries, historical wording
-  preserved.
+1. `git rev-parse HEAD`, `git rev-parse origin/main`, `git status --short`.
+2. Read Tier 0 per `SECOND_PASS_READ_FIRST.md`, then the `SP-009` prompt.
+3. Run `python3 scripts/validate_second_pass_program.py` and the other three
+   validators before any product work; if a projection disagrees, repair it
+   first.
+4. Open `SP-009` only under its own explicit authority. Authority is currently
+   **edit-only**: no install, launch, TCC mutation, provider contact, beta
+   enrollment, signing, commit, push, merge, release, or deploy.

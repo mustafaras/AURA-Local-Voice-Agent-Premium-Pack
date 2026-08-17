@@ -596,3 +596,48 @@ Never use a lower evidence class to claim a higher operational state in `capabil
 | Class | Direct live system evidence (real macOS 27 Accessibility, System Events AX queries and keystroke injection) |
 | Limitations | Tests used AppleScript/System Events as the action executor, not the AURA app's own `ComputerUseControlLoop.run` path. `.delete` on Notes did not produce a visible confirmation dialog (note may not have been sidebar-selected); the test verifies the intent did not execute destructively, which is the safe mandatory-confirmation outcome. |
 
+### EV-SP-008-20260817-ADVERSARIAL-01 — SP-008 computer-use adversarial and recovery matrix
+
+| Field | Value |
+|---|---|
+| Evidence ID | `EV-SP-008-20260817-ADVERSARIAL-01` |
+| Prompt | SP-008 — Computer-Use Adversarial Safety |
+| Gap | OPEN-05 (R4: Computer-Use Productization) — adversarial/recovery residuals |
+| Timestamp | 2026-08-17T06:57:03Z |
+| Commit | `0000b4afae1dc1bc748f7cf1f4ae22a00916e592` (== `origin/main`); changes local and uncommitted |
+| Command | `swift build --product AURA`; `./scripts/aura-test.sh /tmp/aurabuild-sp008-full` |
+| Result | **21/21 bundles, 931/931 tests, 0 failed** (`AuraComputerUseTests` 93/93, up from 68 — count corrected under `EV-SP-008-20260817-CORRECTION-03`). Three production defects fixed; 25 new adversarial tests |
+| Artifact | `EV-SP-008-20260817-ADVERSARIAL-01.md`; `Tests/AuraComputerUseTests/R4AdversarialSafetyTests.swift` (new); modified `ComputerUseTypes.swift`, `ScreenContextTypes.swift`, `ScreenContextEngine.swift`, `ComputerUseControlLoop_Run.swift`, `ComputerUseControlLoop_Events.swift`, `UIActionExecuting.swift`, `ComputerUseBetaAllowlist.swift`, `AuraKernel_Construction.swift`, `Fakes.swift`, `UIActionExecutingTests.swift`. Regression log SHA-256 `7f98b3b78e8b818ff92393f88bbe188a5de798596c65324f92a8ef971b15d111` |
+| Class | Deterministic source-side adversarial evidence against the real production control loop, executor and screen engine; scripted conformers only where the boundary is the OS itself |
+| Limitations | **Not live evidence.** A real focused secure field, a real system modal, and observed CGEvent cessation on emergency stop are not proven — SP-008's authority excludes app launch and the user elected to close on the deterministic boundary. Tracked as `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`. The real `AccessibilitySecureFieldDetector` and `AccessibilityModalDialogDetector` are unchanged and remain live-unproven. All changes local and uncommitted |
+
+### EV-SP-008-20260817-CLOSEOUT-02 — SP-008 mandatory session closeout and inherited pointer repair
+
+| Field | Value |
+|---|---|
+| Evidence ID | `EV-SP-008-20260817-CLOSEOUT-02` |
+| Prompt | `15_SESSION_CLOSEOUT.prompt.md` after SP-008 |
+| Gap | OPEN-15 (session closeout procedure) |
+| Timestamp | 2026-08-17T06:57:03Z |
+| Commit | `0000b4afae1dc1bc748f7cf1f4ae22a00916e592` (== `origin/main`) |
+| Command | `python3 scripts/validate_second_pass_program.py`; `validate_runtime_completion.py`; `validate_repo_hygiene_program.py`; `validate_repo_hygiene_supply_chain.py`; `./scripts/aura-test.sh` |
+| Result | All four governance validators exit 0 **after** repairing an inherited pointer drift; regression 21/21 bundles, 931/931 tests, 0 failed |
+| Artifact | `EV-SP-008-20260817-CLOSEOUT-02.md`; synchronized `SECOND_PASS_STATE.json`, `current-state.json`, `session-handoff.json`, `ACTIVE_CONTEXT.md`, `capability-matrix.json` |
+| Class | Governance/procedure evidence |
+| Limitations | `validate_runtime_completion.py` was failing **at clean HEAD before this session**: SP-007's delivery commit `0000b4a` changed product source but left `verified_head`/`remote_head`/`repository_commit` at `9774287`. Those pointers now name `0000b4a`; the content verification at that SHA rests on SP-007's recorded sweep, **not** a fresh clean-tree run by this session. No commit, push, merge, launch, install, TCC, release, or deployment occurred |
+
+
+### EV-SP-008-20260817-CORRECTION-03 — SP-008 post-closure re-verification and record correction
+
+| Field | Value |
+|---|---|
+| Evidence ID | `EV-SP-008-20260817-CORRECTION-03` |
+| Prompt | SP-008 — Computer-Use Adversarial Safety (user-requested re-verification of the closure) |
+| Gap | OPEN-05 (R4) — record accuracy of the SP-008 closure |
+| Timestamp | 2026-08-17T08:15:11Z |
+| Commit | audited at `0000b4afae1dc1bc748f7cf1f4ae22a00916e592`; SP-008 delivered under this evidence ID |
+| Command | `./scripts/aura-test.sh /tmp/aurabuild-verify-sp008`; `swift build --product AURA`; four governance validators; `python3 -m unittest discover -s scripts/tests`; `git diff --check` |
+| Result | SP-008's technical closure **re-confirmed by re-execution**: 21/21 bundles, 931/931 tests, 0 failed (totals recomputed from the log, not read off a summary line), clean build, four validators exit 0, 38/38 governance unit tests. Two record defects fixed: new-test count 22 to **25** and prior bundle total 71 to **68** (68+25=93, the observed total); `session-handoff.json` `active_prompt.file` still named SP-008's prompt while `id` read `SP-009`. One new finding recorded as a risk: `RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE` |
+| Artifact | `EV-SP-008-20260817-CORRECTION-03.md`; regression log SHA-256 `8106da00c089711b08626a4b5c42c29d32b3f7ad62b9c94e7bfe171d9982dec2` |
+| Class | Governance/audit evidence over deterministic re-execution; no new product or test source |
+| Limitations | Documentation, state-projection and risk-register scope only. SP-008's evidence class is unchanged — still deterministic, still not live. `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` and `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` are neither closed nor weakened |

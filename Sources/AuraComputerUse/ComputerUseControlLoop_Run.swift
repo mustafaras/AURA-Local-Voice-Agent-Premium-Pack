@@ -349,7 +349,13 @@ extension ComputerUseControlLoop {
         StepBlockInput(
           runID: context.runID, iteration: iteration, step: step, reason: .secureFieldFocused),
         correlationID: correlationID, actor: context.actor)
-      return .stop
+      // Terminal, not `.stop`: continuing the loop would re-observe, re-plan
+      // and re-refuse until the no-progress or iteration budget fired, and the
+      // session would then report `noProgress` — an untruthful account of a
+      // deliberate security refusal. Terminating also closes the window in
+      // which a secure field could lose focus mid-session and let an already
+      // planned step proceed against a credential surface.
+      return .terminal(.secureFieldBlocked(iterations: iteration))
     }
     if let lastActionAt,
       Date().timeIntervalSince(lastActionAt) < configuration.minActionIntervalSeconds

@@ -269,6 +269,12 @@ public enum ComputerUseLoopOutcome: Sendable, Equatable {
   /// `.allow` decision (e.g. via an overly permissive grant) — blocked
   /// unconditionally rather than trusting the grant.
   case mandatoryConfirmationBlocked(intent: ComputerUseSemanticIntent, iterations: Int)
+  /// A secure (password) field was focused in the target application, so the
+  /// session refused to generate further input and terminated. A distinct
+  /// terminal case rather than a silently-continued iteration: the user must
+  /// be told *why* the session stopped, and "no progress" would be an
+  /// untruthful description of a deliberate security refusal.
+  case secureFieldBlocked(iterations: Int)
   /// The planner proposed a plan violating a structural bound (too many
   /// steps, an invalid anchor) — rejected outright, not silently truncated.
   case invalidPlan(reason: String, iterations: Int)

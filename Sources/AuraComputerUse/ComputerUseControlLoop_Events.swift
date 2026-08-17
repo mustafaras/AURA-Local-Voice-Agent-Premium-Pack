@@ -56,6 +56,7 @@ extension ComputerUseControlLoop {
     case .confirmationRequired: return "confirmationRequired"
     case .mandatoryConfirmationBlocked(let intent, _):
       return "mandatoryConfirmationBlocked(\(intent.rawValue))"
+    case .secureFieldBlocked: return "secureFieldBlocked"
     case .invalidPlan(let reason, _): return "invalidPlan(\(reason))"
     case .failed(let reason, _): return "failed(\(reason))"
     }
@@ -71,6 +72,7 @@ extension ComputerUseControlLoop {
     case .identityChanged(let iterations): return iterations
     case .confirmationRequired(_, let iterations): return iterations
     case .mandatoryConfirmationBlocked(_, let iterations): return iterations
+    case .secureFieldBlocked(let iterations): return iterations
     case .invalidPlan(_, let iterations): return iterations
     case .failed(_, let iterations): return iterations
     }

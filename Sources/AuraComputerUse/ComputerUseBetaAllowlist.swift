@@ -85,4 +85,24 @@ public struct ComputerUseBetaAllowlist: Sendable, Equatable {
     ComputerUseBetaApp(
       appBundleIdentifier: "com.apple.mail", appName: "Mail", validationState: .disabled),
   ])
+
+  /// The allowlist production actually runs with: `initial` opened for
+  /// exactly the applications a live acceptance run directly validated.
+  ///
+  /// Finder, Terminal, and Notes were each exercised live under
+  /// `EV-SP-007-20260816-LIVE-02` with one Accessibility-anchored action, one
+  /// bounded coordinate fallback, and one confirmation-required action.
+  /// Safari, VS Code, Calendar, and Mail have **no** live evidence and remain
+  /// `.disabled`.
+  ///
+  /// Declared here rather than assembled at the kernel construction site so
+  /// "only directly validated apps are reachable" is one auditable value a
+  /// regression test can assert against, instead of a wiring detail that
+  /// could drift open unnoticed. Add an entry only together with its
+  /// evidence ID.
+  public static let liveValidatedProduction: ComputerUseBetaAllowlist =
+    initial
+    .validating("com.apple.finder", appName: "Finder")
+    .validating("com.apple.Terminal", appName: "Terminal")
+    .validating("com.apple.Notes", appName: "Notes")
 }

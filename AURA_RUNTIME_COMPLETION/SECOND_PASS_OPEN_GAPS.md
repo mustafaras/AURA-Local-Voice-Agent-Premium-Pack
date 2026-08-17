@@ -555,6 +555,94 @@ executor, not the AURA app's own `ComputerUseControlLoop.run` path.
 `RISK-SP-006-URL-OPEN-FAILS-LIVE` and
 `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED` forwarded unchanged.
 
+### SP-008 adversarial and recovery closure — 2026-08-17T06:57:03Z
+
+SP-008 carries the same `gap_ids: OPEN-05` and owns R4's **adversarial and
+recovery** residuals, which the SP-007 closure above did not cover. Reading the
+production path found three defects, all of one kind — a fail-closed control
+correct at one layer and silent at the next:
+
+1. A focused secure field returned a non-terminal `.stop`, so the session
+   re-observed and re-refused until its budget expired and then reported
+   `noProgress`. It failed closed but named the wrong reason, and left a window
+   in which the field could lose focus mid-session and let an already planned
+   step proceed against a credential surface. There is now a terminal
+   `ComputerUseLoopOutcome.secureFieldBlocked`.
+2. `AXCGEventActionExecutor` enforced emergency stop unconditionally — explicitly
+   so a direct caller bypassing the loop is still refused — but had no equivalent
+   secure-field guard. It now takes a required `secureFieldDetector` and refuses
+   every input-generating kind; `.wait` stays exempt because it generates no
+   input and is how a caller yields to the user during a credential prompt.
+3. An off-screen window was refused correctly but reported as
+   `sensitiveApplication`. `ScreenContextEngine.exclusionReason(for:)` is now the
+   single source of truth for both window listing and capture preflight, with a
+   new `ScreenCaptureBlockReason.windowNotVisible`.
+
+The beta allowlist was additionally moved off the kernel construction site into
+`ComputerUseBetaAllowlist.liveValidatedProduction`, so "only directly validated
+apps are reachable" is a value a regression test asserts against rather than a
+wiring detail that could drift open. **No app was added** — the SP-007 live
+bundle validates Finder, Terminal and Notes and nothing else.
+
+`Tests/AuraComputerUseTests/R4AdversarialSafetyTests.swift` (25 tests — the
+count was recorded as 22 and corrected under
+`EV-SP-008-20260817-CORRECTION-03`) covers
+SP-008's whole procedure: screen-content injection (plan invariance, curated key
+hidden in screen text, forged authority), secure-field refusal at loop and
+executor layers, modal mismatch with an executable plan pending, wrong identity
+before planning, cancellation at the Act stage, restart/re-arm across a run
+boundary, emergency stop at the observation / confirmation / execution / executor
+boundaries, a hostile planner proving raw text never becomes an action, and
+hidden-window / sensitive-app / assistant-self refusal. Every case asserts the
+executor call count, not merely the reported outcome. Verified **21/21 bundles,
+931/931 tests, 0 failed**; all four governance validators exit 0. Evidence:
+`EV-SP-008-20260817-ADVERSARIAL-01`, `EV-SP-008-20260817-CLOSEOUT-02`.
+
+**OPEN-05's adversarial and recovery residuals are closed at the deterministic
+boundary.** They are **not** closed live, and that is stated rather than implied:
+`RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` holds a real focused secure field, a real
+system modal, and observed cessation of generated events open as R4 live
+acceptance / R9 work, because SP-008's authority excludes app launch and the user
+elected to close on the deterministic boundary.
+`RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` records that semantic intent is
+planner-declared — sound for the curated deterministic planner, open for any
+future model-backed conformer.
+
+An inherited defect was also repaired: `validate_runtime_completion.py` had been
+failing **at clean HEAD** because SP-007's delivery commit `0000b4a` changed
+product source while `verified_head`, `remote_head`, and the capability matrix's
+`repository_commit` still named `9774287`. All three now name `0000b4a`; the
+content verification at that SHA rests on SP-007's recorded sweep, not a fresh
+clean-tree run by SP-008.
+
+### SP-008 post-closure re-verification — 2026-08-17T08:15:11Z
+
+The user asked whether SP-008 was truly complete, so every claim above was
+re-derived from the tree instead of read off these records: a fresh
+`./scripts/aura-test.sh` sweep with bundle and test totals recomputed from the
+log (**21/21 bundles, 931/931 tests, 0 failed**), a clean `swift build --product
+AURA`, four governance validators at exit 0, 38/38 governance unit tests, and a
+direct re-read of every changed source file. **The technical closure stands.**
+
+Two record defects were corrected — the new-test count (22 to **25**) and the
+prior bundle total (71 to **68**; 68 + 25 = 93, the number the runner reports) —
+along with `session-handoff.json`, whose `active_prompt.file` still named
+SP-008's prompt file after `active_prompt.id` had been advanced to `SP-009`.
+Historical ledger wording is preserved; the ledgers carry new correction entries
+instead.
+
+**A third finding is recorded, not fixed:**
+`RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE`. `ComputerUseControlLoop.run` is
+invoked only from `AuraKernel.computerUseRun(appBundleIdentifier:objective:)`,
+which has **no caller** in `Sources` or `Tests`; `IntentKind` has no
+computer-use case and `ToolRouter` has no computer-use branch. The guards SP-008
+added are correct and regression-covered, but nothing in the shipped product can
+currently drive the loop they protect — the deeper form of SP-007's recorded
+residual that its live actions used AppleScript/System Events rather than the
+app's own loop. **OPEN-05 therefore keeps a reachability leg open**, owned by R4
+productization / NL reachability, not by SP-008's adversarial-safety scope.
+Evidence: `EV-SP-008-20260817-CORRECTION-03`.
+
 ## OPEN-06 — R5: Browser, Mail, Calendar, and Contacts Adapters
 
 Prompt: [`06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md`](archive/first-pass-prompts/2026-08-12/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md)

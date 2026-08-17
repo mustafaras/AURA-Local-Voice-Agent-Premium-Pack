@@ -181,6 +181,11 @@ public enum ScreenCaptureBlockReason: String, Codable, Sendable, Equatable {
   case assistantSelfExclusion
   case policyDenied
   case windowNotFound
+  /// The window exists but is not on screen. Capturing an off-screen or
+  /// hidden window is refused; reported distinctly from
+  /// `sensitiveApplication` so a hidden-window refusal is never mislabelled
+  /// as a sensitive-application refusal in evidence.
+  case windowNotVisible
   case invalidRegion
 }
 

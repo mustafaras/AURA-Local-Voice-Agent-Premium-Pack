@@ -122,12 +122,7 @@ public actor ScreenContextEngine {
     guard let descriptor = windows.first(where: { $0.windowID == windowID }) else {
       return .blocked(.windowNotFound)
     }
-    guard isApproved(descriptor) else {
-      let reason: ScreenCaptureBlockReason =
-        descriptor.applicationBundleIdentifier == assistantBundleIdentifier
-        ? .assistantSelfExclusion : .sensitiveApplication
-      return .blocked(reason)
-    }
+    if let reason = exclusionReason(for: descriptor) { return .blocked(reason) }
     let policyRequest = PolicyEvaluationRequest(
       capability: .screenCapture,
       actor: actor,
@@ -243,12 +238,24 @@ public actor ScreenContextEngine {
   // MARK: - Exclusion
 
   private func isApproved(_ descriptor: ScreenWindowDescriptor) -> Bool {
-    guard descriptor.isOnScreen else { return false }
-    if let bundleID = descriptor.applicationBundleIdentifier {
-      if bundleID == assistantBundleIdentifier { return false }
-      if configuration.sensitiveApplicationBundleIdentifiers.contains(bundleID) { return false }
+    exclusionReason(for: descriptor) == nil
+  }
+
+  /// Why `descriptor` may not be captured, or `nil` when it is approved.
+  /// Single source of truth for both `listApprovedWindows` filtering and the
+  /// capture preflight, so a window can never be listed as approved but
+  /// blocked at capture (or blocked under a reason that does not match the
+  /// rule that actually excluded it).
+  private func exclusionReason(
+    for descriptor: ScreenWindowDescriptor
+  ) -> ScreenCaptureBlockReason? {
+    guard descriptor.isOnScreen else { return .windowNotVisible }
+    guard let bundleID = descriptor.applicationBundleIdentifier else { return nil }
+    if bundleID == assistantBundleIdentifier { return .assistantSelfExclusion }
+    if configuration.sensitiveApplicationBundleIdentifiers.contains(bundleID) {
+      return .sensitiveApplication
     }
-    return true
+    return nil
   }
 
   // MARK: - Region math

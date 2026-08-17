@@ -1616,3 +1616,29 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Authority boundary:** no commit, push, merge, install, sign-for-distribution, release, or deployment.
 - **Exact next safe action:** run `15_SESSION_CLOSEOUT.prompt.md`; then open SP-008 under its own authority.
 
+## 2026-08-17 — SP-008 completion — computer-use adversarial and recovery matrix closed
+
+- **Session / authority:** `AURA-SP-008-ADVERSARIAL-20260817`, edit-only. SP-008's hard boundary withholds launch/install/TCC; the user chose to close on the deterministic boundary rather than grant live authority.
+- **Actor:** assistant.
+- **Active prompt:** `SP-008` completed; `SP-009` pending/unopened.
+- **Verified start commit:** `main` `0000b4afae1dc1bc748f7cf1f4ae22a00916e592` (== `origin/main`).
+- **Objective:** close the R4 adversarial and recovery residuals of OPEN-05 without expanding computer-use scope.
+- **What was done:** three production defects found by reading the computer-use path and fixed — (1) a secure-field refusal returned a non-terminal `.stop`, so the session looped to its budget and reported `noProgress` instead of the security refusal that actually happened; (2) `AXCGEventActionExecutor` enforced emergency stop unconditionally but had no equivalent secure-field guard, so a direct call could type into a credential field; (3) an off-screen window was refused correctly but labelled `sensitiveApplication`. Added terminal `ComputerUseLoopOutcome.secureFieldBlocked`, a required `secureFieldDetector` on the executor refusing every input-generating kind, `ScreenCaptureBlockReason.windowNotVisible` with `exclusionReason(for:)` as the single source of truth, and `ComputerUseBetaAllowlist.liveValidatedProduction` so allowlist confinement is an asserted value rather than a wiring detail. New `R4AdversarialSafetyTests.swift` (22 tests) covers the whole SP-008 procedure; every case asserts zero executor calls, not just the reported outcome.
+- **Evidence IDs:** `EV-SP-008-20260817-ADVERSARIAL-01`, `EV-SP-008-20260817-CLOSEOUT-02`.
+- **Acceptance verdict:** SP-008 completion gate — all adversarial cases fail closed and emergency stop is proven across boundaries — **PASS at the deterministic boundary**. Regression 21/21 bundles, 931/931 tests, 0 failed; all four governance validators exit 0 after the inherited pointer repair below.
+- **Inherited defect repaired:** the runtime-completion validator was failing at clean HEAD before this session. SP-007's delivery commit `0000b4a` changed product source but left `verified_head`, `remote_head` and the capability matrix's `repository_commit` at `9774287`. All three now point at `0000b4a`; content verification at that SHA rests on SP-007's own sweep, not a fresh clean-tree run by this session.
+- **Blockers and residual risks:** no blockers. New: `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` (a real secure field, a real modal, and observed event cessation need hardware authority SP-008 lacks), `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` (intent is planner-declared; sound for the curated planner, open for a future model-backed one). Forwarded unchanged: `RISK-SP-006-URL-OPEN-FAILS-LIVE`, `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED`, `RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-004-TOCTOU-RACE`, `RISK-SP-004-HANDLER-COMPROMISE`.
+- **Authority boundary:** no install, launch, TCC mutation, provider contact, beta enrollment, signing, commit, push, merge, release, or deployment.
+- **Exact next safe action:** open SP-009 only under its own authority. SP-008's changes are local and uncommitted; delivery needs an explicit in-turn go-ahead.
+
+
+## 2026-08-17 — SP-008 correction: post-closure re-verification, two record fixes, one new risk
+
+- **Session / authority:** `AURA-SP-008-CORRECTION-20260817`. Audit edit-only; correction, commit and push authorized by an explicit in-turn user go-ahead. No launch, install, TCC mutation, provider contact, beta enrollment, signing, release, or deployment.
+- **Why this entry exists:** the ledger is append-only. The SP-008 entry above keeps its wording, including the corrected numbers.
+- **What was done:** re-derived every SP-008 claim from the tree — fresh full sweep with totals recomputed from the log (21/21 bundles, 931/931 tests, 0 failed), clean product build, four validators at exit 0, 38/38 governance unit tests, `git diff --check`, secret scan, commit-pointer comparison, and a direct re-read of each changed source file. SP-008's technical closure is confirmed by re-execution.
+- **Corrected:** new-test count 22 to **25**; prior `AuraComputerUseTests` total 71 to **68** (68 + 25 = 93, the observed total); `session-handoff.json` `active_prompt.file`, which still named SP-008's prompt after `id` advanced to `SP-009`.
+- **Recorded, not fixed:** `RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE` — the hardened loop has no user-reachable route; `AuraKernel.computerUseRun` has no caller and dispatch has no computer-use branch. Owned by R4 productization / NL reachability.
+- **Evidence:** `EV-SP-008-20260817-CORRECTION-03`.
+- **Authority boundary:** documentation, state projections and the risk register only; no product or test source changed by this pass.
+- **Exact next safe action:** open SP-009 only under its own authority; give the new reachability risk its own prompt rather than absorbing it into SP-009.

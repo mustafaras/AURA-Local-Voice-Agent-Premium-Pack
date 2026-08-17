@@ -1,18 +1,17 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-16T18:00:00Z",
-  "session_id": "AURA-SP-007-LIVE-20260816",
-  "last_verified_commit": "4a5040c89b53998836628236d10495b284b1415f",
+  "updated_at": "2026-08-17T06:57:03Z",
+  "session_id": "AURA-SP-008-ADVERSARIAL-20260817",
+  "last_verified_commit": "0000b4afae1dc1bc748f7cf1f4ae22a00916e592",
   "active_prompt": {
-    "id": "SP-008",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-008_COMPUTER_USE_ADVERSARIAL_SAFETY.prompt.md",
+    "id": "SP-009",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-009_SAFARI_EXTENSION_PACKAGING_AND_AUTHENTICATION.prompt.md",
     "state": "completed",
-    "step": "SP-007 completed for OPEN-05 with 9/9 live actions across Finder, Terminal, Notes. SP-008 pending/unopened."
+    "step": "SP-008 completed for OPEN-05's adversarial/recovery residuals at the deterministic boundary, delivered and record-corrected under EV-SP-008-20260817-CORRECTION-03. SP-009 pending/unopened; active_state describes SP-008, per the program convention."
   },
-  "summary": "SP-007 COMPLETED. User granted full authority. Allowlist updated to .liveValidated for Finder, Terminal, Notes. AURA built, signed, launched. 9/9 live actions passed: 3 per app (Accessibility-anchored, coordinate fallback, confirmation-required). Semantic postconditions verified. .delete mandatory-confirmation did not execute destructively. 21/21 bundles, 0 failed. OPEN-05 CLOSED. SP-008 is next eligible.",
+  "summary": "SP-008 COMPLETED (deterministic boundary). Three production defects fixed: secure-field refusal now terminal (.secureFieldBlocked) instead of a non-terminal .stop that reported noProgress; AXCGEventActionExecutor gained a required secure-field guard mirroring its emergency-stop guard; off-screen windows now report windowNotVisible instead of sensitiveApplication. Allowlist confinement moved to ComputerUseBetaAllowlist.liveValidatedProduction (no app added). 25 new adversarial tests. 21/21 bundles, 931/931 tests, 0 failed; 4 validators exit 0 after repairing an inherited verified_head drift from SP-007. Live legs held open as RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL.",
   "completed": [
-    "Started R2 after reading the normative prompt and accepted R1 contracts; the first focused R2 gates are green.",
     "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
     "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",
     "Recorded R2/R3/R4/R5 deferred completion gates in AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md without closing any gate; transitioned the active prompt to R6.",
@@ -41,74 +40,67 @@
     "SP-006 completed OPEN-04's forwarded seven-scenario live gate under EV-SP-006-20260816-7SCENARIO-02, then its mandatory closeout ran separately under EV-SP-006-20260816-CLOSEOUT-03, which corrected a failing second-pass validator (missing ACTIVE_CONTEXT.md overlay), the never-updated RISK_REGISTER.md, a stale capability-matrix registry row, and an undisclosed planner limitation.",
     "SP-006 follow-up (EV-SP-006-20260816-GAPCLOSE-04): CapabilityPlanner wired onto the production path with a multi-step routePlan/executePlan API, and RISK-SP-006-DEFAULT-GRANT-BREADTH closed by confining both policy grants and the adapter to AuraCore.DeclaredFileRoots. 895/895 tests. No live re-run; NL multi-step still unwired.",
     "Live re-run EV-SP-006-20260816-LIVERERUN-05 found the GAPCLOSE-04 grant scoping was inert on an existing store (895 accumulated grants, 30 legacy .any). Fixed via seed marker + PolicyEngine.reconcileSeededGrants; live migration pruned 886 then 25, /etc/hosts now policy-denied. Two new open risks recorded: url.open fails live, confirmation expiry unexplained.",
-    "SP-007 COMPLETED. 9/9 live actions across Finder, Terminal, Notes. OPEN-05 closed. EV-SP-007-20260816-LIVE-02."
+    "SP-007 COMPLETED. 9/9 live actions across Finder, Terminal, Notes. OPEN-05 closed. EV-SP-007-20260816-LIVE-02.",
+    "SP-008 COMPLETED for OPEN-05's adversarial/recovery residuals at the deterministic boundary (EV-SP-008-20260817-ADVERSARIAL-01, EV-SP-008-20260817-CLOSEOUT-02). Fixed: secure-field refusal was non-terminal and reported noProgress; the real executor had no secure-field guard; off-screen windows were labelled sensitiveApplication. 25 new tests; 21/21 bundles, 931/931 tests. Live legs stay open."
   ],
   "files_changed": [
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-007-20260816-FIXTURES-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-007-20260816-LIVE-02.md",
-    "Sources/AuraComputerUse/ComputerUseAppFixtures.swift",
+    "Sources/AuraCore/ComputerUseTypes.swift",
+    "Sources/AuraCore/ScreenContextTypes.swift",
+    "Sources/AuraScreen/ScreenContextEngine.swift",
+    "Sources/AuraComputerUse/ComputerUseControlLoop_Run.swift",
+    "Sources/AuraComputerUse/ComputerUseControlLoop_Events.swift",
+    "Sources/AuraComputerUse/UIActionExecuting.swift",
+    "Sources/AuraComputerUse/ComputerUseBetaAllowlist.swift",
     "Sources/AURA/AuraKernel_Construction.swift",
-    "Tests/AuraComputerUseTests/R4ProductizationTests.swift"
+    "Tests/AuraComputerUseTests/R4AdversarialSafetyTests.swift",
+    "Tests/AuraComputerUseTests/Fakes.swift",
+    "Tests/AuraComputerUseTests/UIActionExecutingTests.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-008-20260817-ADVERSARIAL-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-008-20260817-CLOSEOUT-02.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-008-20260817-CORRECTION-03.md"
   ],
   "evidence_ids": [
-    "EV-SP-007-20260816-FIXTURES-01",
-    "EV-SP-007-20260816-LIVE-02"
+    "EV-SP-008-20260817-ADVERSARIAL-01",
+    "EV-SP-008-20260817-CLOSEOUT-02",
+    "EV-SP-008-20260817-CORRECTION-03"
   ],
   "tests": [
     {
-      "name": "swift build (production targets)",
+      "name": "swift build --product AURA",
       "result": "passed",
-      "evidence_id": "EV-SP-006-20260816-7SCENARIO-02"
+      "evidence_id": "EV-SP-008-20260817-ADVERSARIAL-01"
     },
     {
-      "name": "strict-concurrency warnings-as-errors build (zero warnings)",
+      "name": "AuraComputerUseTests 93/93 (25 new adversarial tests; 68 before SP-008)",
       "result": "passed",
-      "evidence_id": "EV-SP-006-20260816-7SCENARIO-02"
+      "evidence_id": "EV-SP-008-20260817-ADVERSARIAL-01"
     },
     {
-      "name": "Seven live capability scenarios (observation, reversible, confirmed mutation, two-step plan, unavailable, malformed plan, health)",
+      "name": "Full sweep 21/21 bundles, 931/931 tests, 0 failed (totals recomputed from the log, SHA-256 7f98b3b78e8b818ff92393f88bbe188a5de798596c65324f92a8ef971b15d111)",
       "result": "passed",
-      "evidence_id": "EV-SP-006-20260816-7SCENARIO-02"
+      "evidence_id": "EV-SP-008-20260817-ADVERSARIAL-01"
     },
     {
-      "name": "Full sweep 21/21 bundles, 880/880 tests, 0 failed",
+      "name": "second-pass + runtime-completion + repo-hygiene + supply-chain validators exit 0",
       "result": "passed",
-      "evidence_id": "EV-SP-006-20260816-7SCENARIO-02"
-    },
-    {
-      "name": "validate_second_pass_program.py + runtime/hygiene/supply-chain validators exit 0",
-      "result": "passed",
-      "evidence_id": "EV-SP-006-20260816-CLOSEOUT-03"
-    },
-    {
-      "name": "Closeout re-verification sweep 21/21 bundles, 880/880 tests, 0 failed (totals recomputed from the log, SHA-256 1eb02473728b19c9130d97f4fdba6eb595c82bcda13ffc111971654eeb130c8c)",
-      "result": "passed",
-      "evidence_id": "EV-SP-006-20260816-CLOSEOUT-03"
-    },
-    {
-      "name": "Follow-up sweep 21/21 bundles, 895/895 tests, 0 failed (totals recomputed from the log, SHA-256 7ba3a200601c313373286b394480272fef66ce20b90b8ed3874c580268301ea1)",
-      "result": "passed",
-      "evidence_id": "EV-SP-006-20260816-GAPCLOSE-04"
-    },
-    {
-      "name": "Post-live-fix sweep 21/21 bundles, 899/899 tests, 0 failed (log SHA-256 63e9d8f0012e03082965d9f37f9d553bee25ad0868658bca6f5ccdb1e1f96d19)",
-      "result": "passed",
-      "evidence_id": "EV-SP-006-20260816-LIVERERUN-05"
+      "evidence_id": "EV-SP-008-20260817-CLOSEOUT-02"
     }
   ],
   "blockers": [],
   "open_decisions": [],
   "risks": [
+    "RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL",
+    "RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST",
+    "RISK-SP-006-URL-OPEN-FAILS-LIVE",
+    "RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED",
+    "RISK-INJECTION-COVERAGE-NON-DIALOGUE",
     "RISK-SP-004-TOCTOU-RACE",
     "RISK-SP-004-HANDLER-COMPROMISE",
-    "RISK-INJECTION-COVERAGE-NON-DIALOGUE",
     "RISK-SP-003-MODEL-LATENCY",
     "RISK-SP-003-LIVE-VOICE-RESIDUAL",
-    "RISK-STT-MIC-NOT-CAPTURING",
-    "RISK-SP-006-URL-OPEN-FAILS-LIVE",
-    "RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED"
+    "RISK-STT-MIC-NOT-CAPTURING"
   ],
-  "next_action": "Open SP-007 only under its own explicit authority, and read RISK-SP-006-URL-OPEN-FAILS-LIVE first - it casts doubt on a recorded SP-006 scenario leg.",
+  "next_action": "SP-008 is delivered and its records were re-verified against the tree under EV-SP-008-20260817-CORRECTION-03 (fresh 21/21 bundles / 931 tests, four validators exit 0; new-test count corrected 22->25 and prior bundle total 71->68; this file's active_prompt.file corrected to SP-009's prompt). New open risk RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE: ComputerUseControlLoop.run is reached only from AuraKernel.computerUseRun, which has no caller, and IntentKind/ToolRouter have no computer-use branch - do NOT absorb it into SP-009, it needs its own prompt and authority. Open SP-009 only under its own explicit authority. Read RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL first: SP-008's guards are proven in control flow but the detectors beneath them (AccessibilitySecureFieldDetector, AccessibilityModalDialogDetector) have never been observed against a real credential field or a real SecurityAgent dialog, and a detector that silently returns false makes every guard above it inert while all tests still pass.",
   "required_first_reads": [
     "AGENTS.md",
     "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
@@ -120,5 +112,5 @@
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md"
   ],
-  "notes": "FINAL/CLOSEOUT remains a blocked product/release handoff, not a release decision. H-010 is terminal and no H-011 exists. Completed H-000..H-010 and first-pass 00-13 prompt/context definitions are preserved under AURA_RUNTIME_COMPLETION/archive/ and excluded from default second-pass context. Second-pass truth: completed_prompts = SP-000..SP-006; SP-007 is next eligible but pending and unopened. Note the convention trap - active_prompt/active_state 'SP-007/completed' means 'SP-007 is next, SP-006 just closed', and prompt frontmatter reads state: pending on every SP prompt including finished ones. SP-006's live gate and its mandatory closeout are both recorded (EV-SP-006-20260816-7SCENARIO-02, EV-SP-006-20260816-CLOSEOUT-03); the working tree is dirty_expected and uncommitted, and delivery needs an explicit in-turn go-ahead. Full history lives in PROGRAM_LEDGER.md and SECOND_PASS_LEDGER.md. Authority is edit-only. No product/release/deployment claim follows."
+  "notes": "Second-pass truth: completed_prompts = SP-000..SP-008; SP-009 is next eligible but pending and unopened. Note the convention trap - active_prompt/active_state 'SP-009/completed' means 'SP-009 is next, SP-008 just closed', and prompt frontmatter reads state: pending on every SP prompt including finished ones, so frontmatter alone never proves a prompt is unopened. SP-008 closed OPEN-05's adversarial/recovery residuals at the DETERMINISTIC boundary only; the user was asked and chose that over granting live authority, so three live legs stay open under RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL. This session also repaired an inherited failure: validate_runtime_completion.py had been failing at clean HEAD since SP-007's delivery, because verified_head/remote_head/repository_commit still named 9774287 while HEAD was 0000b4a; they now name 0000b4a on SP-007's recorded sweep, not a fresh clean-tree run here. The completed[] array is a bounded 30-item rolling window, not an append-only ledger; full history is in PROGRAM_LEDGER.md and SECOND_PASS_LEDGER.md. The working tree is dirty_expected: all SP-008 changes are local and uncommitted, plus the four intentionally untracked SP-006 evidence artifacts. Authority is edit-only. No product, release, or deployment claim follows."
 }

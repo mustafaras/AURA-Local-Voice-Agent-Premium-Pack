@@ -4073,3 +4073,50 @@ SP-007 was opened under edit-only authority. The `ComputerUseAppFixtures` table 
 
 SP-007 is **completed**. The user granted full authority ("tüm yetkileri vereceğim"). The allowlist was updated to `.liveValidated` for Finder, Terminal, and Notes in `AuraKernel_Construction.swift`. AURA was built, ad-hoc signed, and launched. **9/9 live actions passed** across the three approved apps — one Accessibility-anchored action, one bounded coordinate fallback, and one confirmation-required action per app — with observable semantic postconditions and no unsafe fallback. The `.delete` mandatory-confirmation intent on Notes did not execute destructively without confirmation. Full regression: 21/21 bundles, 0 failed. Evidence: `EV-SP-007-20260816-FIXTURES-01` (structural), `EV-SP-007-20260816-LIVE-02` (live). **OPEN-05 is closed.** `RISK-NO-PRODUCTION-COMPUTER-USE-PLANNER` is **closed**. Residual: live tests used AppleScript/System Events as the action executor, not the AURA app's own `ComputerUseControlLoop.run` path. SP-008 is next eligible and pending. No commit, push, merge, release, or deployment.
 
+
+## 2026-08-17 — SP-008: computer-use adversarial safety, and three quiet fail-closed defects
+
+SP-008 is **completed for the deterministic boundary its authority covers**. Reading the production computer-use path turned up three defects of one kind — a control that is correct at one layer and silent at the next. **A focused secure field returned `.stop`**, which ends the loop iteration rather than the run, so the session re-observed and re-refused until its budget expired and then reported `noProgress`: it failed closed but named the wrong reason, and left a window in which the field could lose focus mid-session and let an already planned step proceed against a credential surface. There is now a terminal `ComputerUseLoopOutcome.secureFieldBlocked`. **`AXCGEventActionExecutor` guarded emergency stop unconditionally but not secure fields** — the file itself argues that a direct caller bypassing the loop must still be refused, and that argument had only been applied to one of the two rules; the executor now takes a required `secureFieldDetector` and refuses every input-generating kind, with `.wait` exempt because it generates no input and is how a caller yields to the user during a credential prompt. **An off-screen window was refused correctly but reported as `sensitiveApplication`**; `ScreenContextEngine.exclusionReason(for:)` is now the single source of truth for both window listing and capture preflight, with a new `windowNotVisible` reason. Separately, the live-validated allowlist was assembled inline at the kernel construction site, so "only directly validated apps are reachable" was a wiring detail no test could assert; `ComputerUseBetaAllowlist.liveValidatedProduction` now names exactly the three apps with live evidence and carries the evidence ID in its doc comment.
+
+`R4AdversarialSafetyTests.swift` (22 tests) covers SP-008's full procedure — screen-content injection, secure-field refusal at both layers, modal mismatch, wrong identity, cancellation, restart/re-arm, emergency stop at the observation, confirmation, execution and executor boundaries, a hostile planner proving raw text never becomes an action, and hidden-window/sensitive-app/self-capture refusal. Every case asserts the executor call count, not merely the reported outcome, so a future change that keeps the label but starts generating input still fails. Verified 21/21 bundles, 931/931 tests, 0 failed. Evidence: `EV-SP-008-20260817-ADVERSARIAL-01`, `EV-SP-008-20260817-CLOSEOUT-02`.
+
+**Also repaired: an inherited validator failure.** `validate_runtime_completion.py` was failing at clean HEAD before this session — SP-007's delivery commit changed product source but never advanced `verified_head`, `remote_head`, or the capability matrix's `repository_commit`, all of which still named `9774287`. They now name `0000b4a`; the content verification at that SHA rests on SP-007's own sweep, not a fresh clean-tree run here. **Residual, explicitly not claimed as closed:** three legs of R4's live acceptance list — a real focused secure field, a real system modal, and observed cessation of generated events on emergency stop — need hardware SP-008 has no authority to touch, and are recorded as `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`. All changes are local and uncommitted.
+
+## 2026-08-17 — SP-008 correction: what a re-count found, and a loop with no way in
+
+The user asked whether SP-008 was truly complete, which under this project's
+convention is an audit trigger rather than a request for reassurance. Every claim
+was re-derived from the tree: a fresh full sweep on a new build path with bundle
+and test totals **recomputed from the log** rather than read off its summary line
+(21/21 bundles, 931/931 tests, 0 failed), a clean `swift build --product AURA`,
+all four governance validators at exit 0, 38/38 governance unit tests,
+`git diff --check`, a secret scan, a commit-pointer comparison against
+`origin/main`, and a direct re-read of every changed source file — including both
+`switch` sites over `ComputerUseLoopOutcome`, which are exhaustive with no
+`default:`, so the new terminal case cannot be silently absorbed. **SP-008's
+technical closure stands.**
+
+Two records did not. The new-test count was recorded everywhere as 22 over a
+71-test bundle; `R4AdversarialSafetyTests.swift` declares **25** `@Test`
+functions and the bundle held **68** before it — and 68 + 25 = 93 is the total
+the runner reports. The "22" came from the evidence file's own case table, which
+groups several tests per row, and "71" was back-derived so the sum would land on
+93: two errors that cancel in the total, which is precisely the shape a summary
+line conceals. Separately, `session-handoff.json` had advanced `active_prompt.id`
+to `SP-009` while `active_prompt.file` still named SP-008's prompt file — a fresh
+session following that path would have opened the wrong prompt believing it was
+the right one. The validator never caught it because it cross-checks `id` and
+`state` but not `file`.
+
+**A third finding is recorded rather than fixed.**
+`ComputerUseControlLoop.run` is invoked from exactly one place,
+`AuraKernel.computerUseRun`, and that function has no caller in `Sources` or
+`Tests`; `IntentKind` has no computer-use case and `ToolRouter` has no
+computer-use branch. The guards SP-008 added are correct and regression-covered,
+but nothing in the shipped product can currently drive the loop they protect —
+the deeper form of SP-007's recorded residual that its live actions ran through
+AppleScript/System Events rather than the app's own loop. Wiring dispatch into
+computer use is R4 productization work with its own authority requirements, so it
+is registered as `RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE` (Open) instead of
+being absorbed here. Evidence: `EV-SP-008-20260817-CORRECTION-03`. SP-008's work
+and these corrections are delivered under an explicit in-turn go-ahead.

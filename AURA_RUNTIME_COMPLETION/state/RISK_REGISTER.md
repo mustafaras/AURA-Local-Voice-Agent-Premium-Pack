@@ -500,3 +500,34 @@ into the SP-006 evidence file.
 - **Assessment:** expiry-without-execution is a *safe* outcome and the deterministic confirmation suite passes, so no code defect is asserted. But the difference between two runs of the same path is unexplained, and an unexplained difference in a confirmation path is worth holding open rather than dismissing.
 - **Closure criterion:** a determined cause — presenter selection, timing, or model classification variance — with a test or a documented environmental explanation.
 - **Evidence:** `EV-SP-006-20260816-LIVERERUN-05`
+
+### 2026-08-17T06:57:03Z — SP-008 adversarial-safety risk disposition
+
+- **Risk ID:** `RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`
+- **Status:** **Open — new**
+- **Owner:** R4 live acceptance / R9
+- **Risk:** three legs of R4's "Live acceptance" list are proven only at the deterministic boundary — a **real focused secure field**, a **real system modal / security dialog**, and **observed cessation of generated CGEvents** after an emergency stop. SP-008 closed the control-flow question completely: the loop terminates with `.secureFieldBlocked`, the executor refuses input at both layers, the modal path halts before planning, and stop is proven at all four stage boundaries and across a run boundary. What is *not* proven is the layer beneath those decisions — `AccessibilitySecureFieldDetector` and `AccessibilityModalDialogDetector` are exercised through scripted conformers, so the guards are only as good as detectors that have never been observed against a genuine credential field or a genuine `SecurityAgent` dialog.
+- **Why it is open rather than accepted:** a detector that silently returns `false` would make every guard above it inert while every test still passes. That is the same failure shape as `RISK-SP-006-DEFAULT-GRANT-BREADTH`, whose test-only closure proved premature on live evidence.
+- **Why it is not owned by SP-008:** the prompt's hard boundary withholds launch/install/TCC authority, and when asked directly the user elected to close on the deterministic boundary.
+- **Closure criterion:** a user-present run on granted Accessibility/Screen Recording hardware showing (1) a real password field producing `.secureFieldBlocked` with no keystroke delivered, (2) a real system modal producing `.unexpectedModalDialog`, and (3) generated events verifiably ceasing on stop and not resuming without explicit re-arm.
+- **Evidence:** `EV-SP-008-20260817-ADVERSARIAL-01`
+
+- **Risk ID:** `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST`
+- **Status:** **Open — new, bounded**
+- **Owner:** whichever prompt introduces a model-backed `ComputerUsePlanning` conformer
+- **Risk:** `ComputerUseSemanticIntent` is **declared by the planner**, and `Capability.forComputerUse(intent:)` derives the policy risk tier as a pure function of that declaration. A planner that labels a destructive keystroke `.observe` is therefore evaluated at observation tier and never reaches the mandatory-confirmation gate. The type comment states the tier "can never be spoofed or under-reported by a caller" — that is true of a *caller* downstream of the planner, but not of the planner itself.
+- **Assessment:** not a live defect. The only production conformer is `DeterministicComputerUsePlanner`, whose intents come from the curated `ComputerUseAppFixtures` table, and SP-008 proved a hostile planner still cannot smuggle text into an executed action (`plannerRationaleTextNeverBecomesTheExecutedAction`) or retarget another application. The exposure appears only when an untrusted planner can choose intents.
+- **Deliberately not "fixed" here:** inferring intent from the action kind would be a guess, and asserting the current behaviour in a test would bless it. Recording it is the truthful handling.
+- **Closure criterion:** either an intent-verification step that derives or cross-checks risk tier independently of the planner's declaration, or an explicit accepted-risk decision by the release owner at the point a model-backed planner is introduced.
+- **Evidence:** `EV-SP-008-20260817-ADVERSARIAL-01`
+
+### 2026-08-17T08:15:11Z — SP-008 post-closure re-verification finding
+
+- **Risk ID:** `RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE`
+- **Status:** **Open — new**
+- **Owner:** R4 productization / NL reachability (whichever prompt wires computer use into dispatch)
+- **Risk:** the hardened computer-use path has no user-reachable entry point. `ComputerUseControlLoop.run` is invoked from exactly one place, `AuraKernel.computerUseRun(appBundleIdentifier:objective:)` in `Sources/AURA/AuraKernel_RuntimeAPI.swift`, and that function has **no caller** in `Sources` or in `Tests`. `IntentKind` declares no computer-use case and `ToolRouter` has no computer-use branch, so no utterance can reach it either. The `computerUse.run` capability manifest, the policy capability, the beta allowlist and the deterministic planner all exist and are tested; the wiring between dispatch and the loop does not.
+- **Assessment:** not a safety defect — an unreachable action path fails closed by construction, and SP-008's guards are correct and regression-covered independently of reachability. It is a **truthfulness and productization** risk: the capability is registered and the allowlist is `.liveValidated` for three apps, which reads as "usable" in the capability surface while no route exists. It is also the deeper form of the residual SP-007 recorded — its live actions used AppleScript/System Events rather than the app's own `ComputerUseControlLoop.run`, which is not merely unexercised but currently unreachable.
+- **Why it is not owned by SP-008:** adding an `IntentKind` case and a router branch is product wiring, not an adversarial or recovery residual; SP-008's hard boundary forbids absorbing another prompt's objective, and the user's go-ahead covered correcting the records, not extending scope.
+- **Closure criterion:** either a dispatch route from a typed intent to `computerUseRun` with reachability tests and a live run through the app's own loop, or an explicit decision — recorded, not implied — that computer use stays an internal API for this release, with the capability surface saying so.
+- **Evidence:** `EV-SP-008-20260817-CORRECTION-03`

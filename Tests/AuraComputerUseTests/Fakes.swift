@@ -102,6 +102,13 @@ actor ScriptedActionExecutor: UIActionExecuting {
   var resultToReturn: UIActionExecutionResult = UIActionExecutionResult(
     usedAccessibilityAnchor: false)
 
+  /// Runs *after* the given number of successful executions, so a test can
+  /// trigger external state (e.g. an emergency stop) precisely at the Act
+  /// stage — between two steps of one plan — rather than only before planning
+  /// as `ScriptedPlanner.sideEffect` allows.
+  private var sideEffectAfterExecutions: Int?
+  private var sideEffect: (@Sendable () async -> Void)?
+
   var executeCallCount: Int { executedSteps.count }
 
   func setResultToReturn(_ result: UIActionExecutionResult) {
@@ -110,6 +117,11 @@ actor ScriptedActionExecutor: UIActionExecuting {
 
   func setShouldThrow(_ value: Bool) {
     shouldThrow = value
+  }
+
+  func setSideEffect(afterExecutions count: Int, _ effect: @escaping @Sendable () async -> Void) {
+    sideEffectAfterExecutions = count
+    sideEffect = effect
   }
 
   func execute(
@@ -122,6 +134,11 @@ actor ScriptedActionExecutor: UIActionExecuting {
       throw AuraError.computerUseError("scripted failure")
     }
     executedSteps.append((kind, resultToReturn.usedAccessibilityAnchor))
+    if let sideEffectAfterExecutions, executedSteps.count == sideEffectAfterExecutions,
+      let sideEffect
+    {
+      await sideEffect()
+    }
     return resultToReturn
   }
 }
