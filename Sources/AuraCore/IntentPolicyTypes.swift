@@ -28,6 +28,18 @@ public enum IntentSemanticCategory: String, Codable, Sendable, Equatable, CaseIt
   case fileReveal
   /// Open a URL in the default browser (reversible tier).
   case urlOpen
+  /// Read the approved browser profile's active page through the structured
+  /// Safari bridge (observation tier — reading a page changes nothing).
+  case browserRead
+  /// Read mail metadata or an approved thread through a read-only provider
+  /// scope (observation tier). Reading is sensitive data access, not external
+  /// communication; compose and send are deliberately absent categories.
+  case mailRead
+  /// Read events from explicitly authorized calendars (observation tier).
+  case calendarRead
+  /// Resolve only the contact candidates the current request needs
+  /// (observation tier).
+  case contactsLookup
   /// Classification confidence too low, or more than one candidate scored
   /// comparably — never dispatched, always surfaced as ambiguous.
   case unknown
@@ -36,7 +48,12 @@ public enum IntentSemanticCategory: String, Codable, Sendable, Equatable, CaseIt
   /// tier — never independently guessed by a caller.
   public var riskTier: PermissionRiskTier {
     switch self {
-    case .converse, .unknown:
+    // The four read-first productivity categories are observation: they
+    // return bounded, non-authoritative data and mutate nothing. Their real
+    // controls are elsewhere — an approved account or profile, a read-only
+    // OAuth scope, and a registry availability state — not a confirmation
+    // prompt on every read.
+    case .converse, .unknown, .browserRead, .mailRead, .calendarRead, .contactsLookup:
       return .observation
     case .appActivate, .fileOpen, .fileReveal, .urlOpen:
       return .reversible

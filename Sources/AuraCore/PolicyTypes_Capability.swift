@@ -249,6 +249,14 @@ extension Capability {
     case .fileOpen: return .fileOpen
     case .fileReveal: return .fileReveal
     case .urlOpen: return .urlOpen
+    // SP-010. Each maps to the observation-tier read capability that already
+    // existed for it. No read category borrows a broader capability, and none
+    // maps to `.oauthEscalate`, which therefore stays unreachable from any
+    // classified utterance.
+    case .browserRead: return .browserRead
+    case .mailRead: return .mailRead
+    case .calendarRead: return .calendarRead
+    case .contactsLookup: return .contactsLookup
     case .unknown: return .intentConverse
     }
   }

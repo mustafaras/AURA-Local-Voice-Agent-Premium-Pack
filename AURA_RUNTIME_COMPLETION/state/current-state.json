@@ -2,84 +2,18 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-17T16:30:00Z",
-  "session_id": "AURA-SP-009-PACKAGING-AUTH-20260817",
+  "updated_at": "2026-08-19T09:55:06Z",
+  "session_id": "AURA-SP-011-NATIVE-LEGS-AND-EXTENSION-20260819",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "643789a85266d5822ac94261790d4118a0a50f94",
-    "remote_head": "643789a85266d5822ac94261790d4118a0a50f94",
-    "working_tree_state": "clean",
+    "verified_head": "33688e2a54f1e5d53574d0ddea22d5256eec29c7",
+    "remote_head": "33688e2a54f1e5d53574d0ddea22d5256eec29c7",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
-      "SP-009 (2026-08-17) Safari bridge packaging/authentication COMPLETED at the deterministic boundary under EV-SP-009-20260817-PACKAGING-AUTH-01. SafariWebExtensionTabResponse is Codable; new SafariBridgeAuthenticator (HMAC-SHA256 envelope: version, extension ID, profile ID, nonce, freshness, tag), SafariBridgeSecretStore (Keychain-backed provision/revoke), AuthenticatedSafariWebExtensionTransport (fails closed on unavailable/stale/profileMismatch/notProvisioned/authenticationFailed), ProductivityConfiguration, SafariBridgeRuntime + SafariBridgeAvailability in the composition root, and a minimal read-only Web Extension package under Resources/SafariExtension/. 7 new tests; regression 21/21 bundles, 949/949 tests, 0 failed; four validators exit 0. browser.read stays disabled until the live package and trust path are verified. New risk RISK-SAFARI-BRIDGE-NOT-LIVE. All changes are local and uncommitted.",
-      "SP-008 (2026-08-17) is DELIVERED in commit 49f42e5eb9f66530cbcb654926e45121d026b00f together with EV-SP-008-20260817-CORRECTION-03: eleven production/test files under Sources/AuraCore, Sources/AuraScreen, Sources/AuraComputerUse, Sources/AURA and Tests/AuraComputerUseTests, plus the SP-008 evidence records and state projections. The delivery was authorized by an explicit in-turn user go-ahead. This projection commit aligns the pointers to it; only projection paths differ between verified_head and HEAD.",
-      "INHERITED POINTER REPAIR (2026-08-17): verified_head/remote_head and the capability matrix repository_commit were advanced from 9774287a6fb8512a85f22cda5d0f019a8bc6ea48 to 0000b4afae1dc1bc748f7cf1f4ae22a00916e592 during the SP-008 closeout, because SP-007's delivery commit changed product source without advancing them and validate_runtime_completion.py had been failing at clean HEAD. They now name 49f42e5eb9f66530cbcb654926e45121d026b00f, the SP-008 delivery commit, whose content was verified by a full 21/21 bundle / 931-test sweep in this session.",
-      "Four intentionally untracked SP-006 evidence artifacts remain under AURA_RUNTIME_COMPLETION/state/: EV-SP-006-20260816-7SCENARIO-02.entries.log, EV-SP-006-20260816-LIVERERUN-05.entries.log, EV-SP-006-scenarios1-2-ui.png and EV-SP-006-scenario3-quit.png. They cannot be tracked (REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json forbids .log/.png as tracked paths) and are deliberately not ignored (H-003 keeps evidence paths visible); they stay on disk bound to their evidence records by SHA-256. This is the steady state, not pending work.",
-      "No unrelated user-owned changes were present at bootstrap start.",
-      "R0 governance/toolchain/CI and state projection changes are committed; no product source was modified.",
-      "The ordered manifest contains BOOTSTRAP, R0-R12, and FINAL; 15_SESSION_CLOSEOUT.prompt.md is a mandatory out-of-manifest session procedure documented by the archived first-pass context and the active prompt contracts.",
-      "R1 runtime integration and R2 bilingual dialogue changes were validated, committed as b8f8960, and pushed to origin/main.",
-      "This session's ledger/state/evidence/risk-register/handoff updates recording the live Ollama benchmark and app-launch smoke (EV-R2-20260803-OLLAMA-LIVE-BENCHMARK-01, EV-R2-20260803-APP-LAUNCH-LIVE-01) remain local and uncommitted pending explicit commit/push authorization.",
-      "This session also modified product source with user authorization: a debug-gated (env-var-inert-by-default) text-demo hook in Sources/AURA/AuraAppModel.swift, a debug-gated response-text log in Sources/AuraAgent/Conversation.swift, and a new default policy grant for .agentOllamaLocalInference in Sources/AURA/AuraKernel.swift (documented as a 2026-08-03 addendum to ADR-036, EV-R2-20260803-TEXTDEMO-LIVE-01). Full regression re-verified at 20/20 bundles, 695/695 tests after each change. All remain local and uncommitted.",
-      "R5 first read-first adapter slice is implemented and locally tested, but remains uncommitted and unwired from the live composition/UI/provider paths; no live OAuth/TCC, mutation/send, commit, or push was performed.",
-      "R2/R3/R4/R5 deferred gates are recorded in AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md; R6 is now the active prompt and its policy/bridge plus typed-route slices remain local and uncommitted.",
-      "R7 local voice routing/resource slice was committed as bd062fa0ad8a9420c5faa3eb3050e893d9e00b14 and pushed to origin/main after the final local regression passed 21/21 bundles and 774/774 tests. Live wake/STT/voice/recovery/soak gates and ADR-042 approval remain open.",
-      "R8 memory/personalization/explainability slice is implemented locally with purpose-aware memory writes, bounded preference profiles, authority-ranked context, conflict surfacing, provenance inspection, and local-only/remote fail-closed delivery. Focused validation is recorded by EV-R8-20260808-MEMORY-POLICY-01 and EV-R8-20260808-CONTEXT-PRODUCT-02; live product demonstrations, R9 UI, and ADR-043 acceptance remain open.",
-      "R8 full available regression passed 21/21 bundles and 782/782 tests with zero failed bundles; runtime-completion validation, 13 governance tests, JSON parsing, shell syntax, and git diff check also passed. Changes remain local and uncommitted.",
-      "R9 first-pass product UI/accessibility/onboarding slice is implemented locally. swift build --target AURA passed; the R9ProductUIState integration target compiled and its direct Swift Testing run passed 3/3. R9 live VoiceOver/keyboard/manual layout, full control coverage, onboarding denial/restart, and user-present acceptance remained open before delivery.",
-      "R9 was committed as 2879cbfd430ba3caba7cf361d83f1a802b1cf463 on feature/r9-product-ui-accessibility, pushed, merged to main as a5a1f5fd702cc5dd34ace31ffe2dcfa254798548, and pushed to origin/main. R9 remains in_progress with its open gates preserved; the user explicitly authorized transition to R10.",
-      "Six exact byte-identical Finder-copy artifacts were removed before R10 validation; the tracked originals were preserved and no unrelated user-owned files remain in the worktree.",
-      "R10 first-pass boundary commit 2f6d8f5b734041cebd575034faca42a708e8eb6d was pushed to origin/feature/r10-security-boundaries and merged to main as e1ecf82e2650823ddf4e4b553c0d8dda58e74911; delivery and the synchronized projection state are recorded.",
-      "R11 edit-only release-readiness changes are intentionally dirty until the artifact/manifest validation slice, CI workflow scope review, governance evidence, and final scope review are complete; no signing, notarization, installation, publication, or deployment was performed.",
-      "R11 CI artifact-evidence workflow configuration now invokes the existing development_unverified builder after successful tests and retains only the ZIP/manifest for 14 days; YAML and local governance checks pass, but no post-change CI run has been observed.",
-      "R12 was activated by explicit user request despite the incomplete R11 dependency. The local beta-readiness contract is blocked by default; no cohort, telemetry, app launch/install, beta, release-candidate, or release operation is authorized.",
-      "FINAL/CLOSEOUT was activated by explicit user request despite the incomplete R12 dependency. The blocked maintainer handoff and exact owning-track return are recorded; no release-candidate or release claim is authorized.",
-      "The full 0–15 prompt/state/source audit is recorded under EV-OPEN-GAPS-20260809-FULL-AUDIT-01; SECOND_PASS_OPEN_GAPS.md now contains OPEN-00–OPEN-15 and S00–S14 closure steps without closing any unverified gate.",
-      "The synchronized second-pass control plane is recorded under EV-SECOND-PASS-20260809-CONTROL-PLANE-01: SP-000 is pending, the chain contains 34 linear prompts, and no product/live/release gate was closed.",
-      "A final second-pass prompt-markdown normalization is recorded under EV-SECOND-PASS-20260809-CONTROL-PLANE-02; all 34 files now have closed inline-code markers and remain validator-clean.",
-      "The repository-hygiene control plane is recorded under EV-REPO-HYGIENE-H-000-20260809-02: H-000 is ready at the live baseline ee95b7c2e5caba9f77debf3c57e0873feb45ebf9; .git/refs/.DS_Store is confirmed generated macOS metadata, while Git recovery remains fail-closed and no cleanup or Git recovery mutation is authorized.",
-      "H-001 was read-only audited under EV-REPO-HYGIENE-H-001-20260809-01 after exact ONAY: H-001. Strict fsck still exits 8 with 199 malformed object entries and 8,909 dangling objects; local backup refs are not independent, no verified clean clone/backup was available, and H-002 must not open.",
-      "H-001 recovery artifact verification is recorded under EV-REPO-HYGIENE-H-001-20260809-02: a fresh remote clone passes strict fsck with zero findings, matches the local main closure, and preserves the current control-plane worktree mapping. The original `.git` remains unrepaired; H-001 is ready and held pending exact ONAY: H-002.",
-      "H-002 read-only ownership/disposition evidence is recorded under EV-REPO-HYGIENE-H-002-20260809-01: 18 tracked control-plane modifications, 0 untracked paths, and 69,939 ignored paths are mapped path-by-path; generated artifacts remain in place because quarantine/move/deletion authority is absent. H-002 is ready and held pending exact ONAY: H-003.",
-      "H-003 ignore-rule evidence is recorded under EV-REPO-HYGIENE-H-003-20260809-01: root /.venv/ is now explicit, tracked generated artifacts remain at zero, authored source/fixture/manifest paths remain visible, and the isolated fixture regression passes 2/2. H-003 is ready and held pending exact ONAY: H-004; CI checkout defaults remain an explicit open risk.",
-      "H-003 closeout is recorded under EV-REPO-HYGIENE-H-003-CLOSEOUT-20260809-01: hygiene validator, focused 3/3, ignore 2/2, runtime governance, full 31/31 script tests, JSON, diff, and tracked-artifact audits pass; authority is reset for the next session.",
-      "H-004 canonical toolchain/documentation evidence is recorded under EV-REPO-HYGIENE-H-004-20260810-01: the active macOS 27+/arm64/Swift 6.4/SDK 27 baseline and 21 Swift test targets are reconciled; Package.swift and scripts/aura-test.sh use discovered/fail-closed Swift Testing paths; source build, AuraCoreTests 27/27, validators, JSON/YAML, documentation references, shell syntax, and diff checks pass. Full Xcode remains unavailable; H-005 was the next approved prompt.",
-      "H-005 bounded formatter/toolchain evidence and mandatory closeout are recorded under EV-REPO-HYGIENE-H-005-20260810-02 and EV-REPO-HYGIENE-H-005-CLOSEOUT-20260810-02: .swift-format schema version 1 and explicit CI strict flags are present; 1,019 findings across 116 files were remediated in reviewed batches; recursive formatter lint, strict build, and 21/21 bundles with 794/794 tests pass. SwiftLint 0.65.0 is provisioned, while full SourceKit-backed lint remains explicitly blocked under the toolchain-owner risk. H-005 is complete for chain order.",
-      "H-005 delivery is recorded at merge commit 3b1aa85f8c55e17b49c43daea008f98fd6515f15 after feature commit d3c77b4c172f0b3600cf3ddba403b2853f4b92f5 was pushed and merged. The H-008 hygiene delivery feature commit abed46b69387fa9cb19c8db5adcaaef9c8e66afa was pushed and merged to main at 47775180c224f87fa5a58703f793515ffcb2c35c; the synchronized state projection follows. H-006 and H-007 are complete for chain order with their evidence preserved. H-007 remediation is recorded under EV-REPO-HYGIENE-H-007-20260810-02 and EV-REPO-HYGIENE-H-007-CLOSEOUT-20260810-02; its explicit host-boundary scope passes at 70.02% against the unchanged 70% ratchet, while raw all-source coverage remains 65.15%. H-008 is ready under EV-REPO-HYGIENE-H-008-20260810-01, EV-REPO-HYGIENE-H-008-DELIVERY-20260810-01, and EV-REPO-HYGIENE-H-008-QUARANTINE-20260810-01: current-tree secret/dependency/workflow checks pass, the six byte-identical duplicate copies were SHA-validated and moved to the recoverable quarantine at /Users/m_ras/Desktop/AURA-H008-QUARANTINE-20260810, history and vulnerability/SBOM limitations remain explicit, and H-009 remains unopened.",
-      "Historical H-009/H-010 reconciliation snapshot (superseded): the bounded context/source map, architecture audit, validators, inventory, and handoff correction were synchronized at the time; later final local and hosted evidence superseded its blocked H-010 disposition.",
-      "Separate HYGIENE-REMEDIATION-01 evidence is recorded under EV-REPO-HYGIENE-REMEDIATION-20260810-01 and EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01: a recoverable pre-change backup and independent fsck-clean clone exist; formatter/source, local scanner, pre-commit, strict build, test, and validator gates pass. The damaged pre-adoption Git database is preserved for rollback; full Xcode/SourceKit remains open, while hosted-CI observation is closed by run 31484275244.",
-      "EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01 records the authorized lock-graph remediation: OSV and Grype are zero on the authoritative graph, runtime/helper evidence passes, and the generated .venv exclusion is policy-bound. The fsck-clean recovery candidate remains unadopted; no commit, push, merge, H-011, or automatic transition occurred.",
-      "Historical H-010 Xcode/SourceKit revalidation snapshot (superseded): Xcode/SourceKit, strict build/formatter, and the default 21-bundle matrix were verified; the then-recorded 1,330-finding lint result was later resolved by bounded remediation.",
-      "Historical H-010 bounded-remediation snapshot (superseded): the intermediate strict lint exit 2/528 findings and wrapper exit 1/66.10% were later resolved without policy weakening; final local and hosted evidence is recorded separately.",
-      "EV-REPO-HYGIENE-H-010-DELIVERY-20260812-01 records feature commit ab83672 pushed and no-ff merge f6958c4 pushed to origin/main; canonical state/handoff now point to the merge commit and no new hosted-CI result is claimed.",
-      "EV-REPO-HYGIENE-H-010-FINAL-20260812-01 records zero strict SwiftLint violations, 21/21 bundles, 795 tests, 70.57% coverage, zero in-repository untracked paths, and the recoverable 219-file quarantine. Feature commit de320a05 was pushed and no-ff merge d0527d9 was delivered to main.",
-      "EV-REPO-HYGIENE-H-010-HOSTED-CI-FINAL-20260812-01 records final run 31598491689 success on main SHA 6d4d6da: governance/build-and-test, 38 governance tests, 21/21 bundles, 70.59% coverage, manifest validation, and two-file artifact upload. The temporary runner was deregistered; no H-011 exists.",
-      "Document-archive maintenance moved the terminal H-000..H-010 prompt definitions to AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12 and updated the hygiene manifest; this is expected control-plane dirt pending explicit delivery.",
-      "Second-pass context maintenance moved completed first-pass prompt/context prose to AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12 and AURA_RUNTIME_COMPLETION/archive/first-pass-context/2026-08-12; ADR/subsystem docs remain named on-demand Tier-1 references.",
-      "The control-plane archive and structural cleanup was delivered as feature commit 19046eb05b6db9a93f20575ab0dd7b60197743d5, pushed to origin, merged by PR #3 as de34f1d24d5c1c452cfe87760125e441d0eb6c19, and verified with HEAD == origin/main and a clean worktree. Main CI run 31613321170 is queued; no repository-defined signed/notarized/public deployment target exists, so no deploy claim follows.",
-      "Post-delivery state, handoff, and ledger projections were delivered in projection commit 822f339e2b353e1dc6ac126eb6aa7f592bfa0e91 and merged to main; no product source, prompt transition, or release/deployment claim is implied.",
-      "SP-000 baseline and synchronization lock completed at live main 05af25de7d0e21a5fff114a7fb2cba083009a923. Control-plane pointers were reconciled, the validator was made active-state aware, and SP-001 is pending. No product source, app, permission, provider, beta, release, commit, push, merge, or deployment action occurred. Evidence: EV-SP-000-20260813-BASELINE-01.",
-      "SP-000 control-plane delivery commit d82fde6be6e95bc8d3ccb64341bd2538baf12a92 was pushed to its feature branch, fast-forward merged into main, and pushed to origin/main. Canonical pointers now use that verified non-projection baseline; later delivery descendants are projection-only. Evidence: EV-SP-000-20260814-DELIVERY-01.",
-      "SP-001 attempt at main HEAD 76ce21ab423bd3c828e3386fb7174bf11ec56862 ran the prompt-relevant AuraCore/AuraPolicy/AURAIntegration/AuraAgent/AuraAudio suites successfully, but the required user-present live trace and reversible mutation were not run because this prompt does not authorize app launch/install. SP-001 remains blocked. Evidence: EV-SP-001-20260814-ATTEMPT-01.",
-      "SP-001 mandatory closeout at 2026-08-14T07:30:27Z passed the second-pass, runtime, hygiene, supply-chain, JSON, handoff-coverage, 38-test, Python compile, shell syntax, and diff checks. The worktree remains expected local control-plane dirt; no live evidence or SP-002 transition follows. Evidence: EV-SP-001-20260814-CLOSEOUT-02.",
-      "SP-001 authorized user-present live attempt is recorded under EV-SP-001-20260814-LIVE-TRACE-03: speech observation, displayed confirmation, one reversible Calculator termination with NOT_RUNNING verification, deny, changed-plan, emergency-stop/re-arm, and restart no-replay behavior were observed. Correlation/causation IDs were not exposed or durably persisted; explicit timeout/dismissal/failed-verification/concurrent-turn traces remain unproven. SP-001 remains blocked and SP-002 remains unopened.",
-      "SP-001 mandatory 15_SESSION_CLOSEOUT at 2026-08-14T09:10:21Z is recorded under EV-SP-001-20260814-CLOSEOUT-03: JSON, second-pass, runtime, hygiene, supply-chain, 38-test, compile, shell, and diff checks passed. Authority reset to edit-only; SP-001 remains blocked and SP-002 remains unopened.",
-      "SP-001 source-side OPEN-02 mitigation at 2026-08-14T11:11:19Z is recorded under EV-SP-001-20260814-TRACE-FIX-04: redacted trace persistence, confirmation outcomes, UI trace prefixes, and lifecycle/store/UI tests were added; swift build, six focused suites, governance validators, and 38 deterministic tests passed. No launch/TCC/install/commit/push/merge/deploy occurred. SP-001 remains blocked pending separately authorized target-Mac live proof; SP-002 remains unopened.",
-      "SP-001 post-fix bounded live rerun at 2026-08-14T12:10:25Z is recorded under EV-SP-001-20260814-LIVE-TRACE-FIX-05: date allow/deny, Calculator confirmation expiry, one allowed Calculator close, distinct execution/verification, redacted UI prefixes, durable redacted rows, and no-running-process verification passed. The narrower authority did not cover post-fix changed-plan/replay/dismissal/cancellation/concurrent-turn cases; SP-001 remains blocked and SP-002 remains unopened.",
-      "SP-001 mandatory 15_SESSION_CLOSEOUT at 2026-08-14T12:16:54Z is recorded under EV-SP-001-20260814-CLOSEOUT-06: current AURA build, JSON, second-pass/runtime/hygiene/supply-chain validators, 38 deterministic tests, compileall, shell syntax, and diff checks passed. Authority reset to edit-only; SP-001 remains blocked and SP-002 remains unopened.",
-      "SP-001 post-fix dismissal wiring and live evidence at 2026-08-15T09:32:18Z is recorded under EV-SP-001-20260815-LIVE-DISMISSAL-07: the red WindowGroup close path now persists requested → dismissed → policy blocked with no /bin/date execution; build and AURAIntegrationTests 23/23 passed. SP-001 remains blocked for the remaining post-fix matrix; SP-002 remains unopened.",
-      "SP-001 bounded checkpoint delivery at 2026-08-15T09:40:18Z is recorded under EV-SP-001-20260815-DELIVERY-08: feature commit 144b0fa was pushed, no-ff merged into main as fd7270797547a395b57bf1fa6ed5f0a13d1b9aa2, and origin/main was updated. SP-001 remains blocked; authority resets to edit-only after pointer reconciliation.",
-      "SP-001 mandatory closeout at 2026-08-15T09:45:50Z is recorded under EV-SP-001-20260815-CLOSEOUT-09: pointer projection c14e39e was pushed, local closeout checks passed, the worktree is normalized clean, and SP-001 remains blocked for the remaining post-fix live matrix.",
-      "SP-001 current-build residual live matrix at 2026-08-15T10:44:08Z is recorded under EV-SP-001-20260815-LIVE-RESIDUAL-10: changed-plan, replay, concurrent-turn isolation, truthful failed-result handling, reversible Calculator/no-process verification, and restart behavior are proven; emergency-stop prevented execution but emitted no distinct confirmation.cancelled terminal trace. SP-001 remains blocked, authority is edit-only, and SP-002 remains unopened.",
-      "SP-001 mandatory closeout at 2026-08-15T10:55:08Z is recorded under EV-SP-001-20260815-CLOSEOUT-11: 21/21 bundles, 794/794 tests, validators, 38/38 Python tests, compileall, shell syntax, and diff checks passed. SP-001 remains blocked solely on the distinct cancellation terminal trace; SP-002 remains unopened and authority is edit-only.",
-      "SP-001 OPEN-02 completion at 2026-08-15T11:17:34Z is recorded under EV-SP-001-20260815-CANCELLATION-12: the current unsigned build produced requested → cancelled → policy blocked for a pending /bin/sleep 20 request with no execution, and accepted Calculator app.quit verified with independent no-process verification and restart no-replay. SP-001 is complete for bounded OPEN-02; SP-002 is pending/unopened; authority is edit-only.",
-      "SP-001 mandatory 15_SESSION_CLOSEOUT at 2026-08-15T11:29:26Z is recorded under EV-SP-001-20260815-CLOSEOUT-13: the full wrapper passed 21/21 bundles and 794/794 tests with zero failed bundles, AURAIntegrationTests passed 24/24, all governance validators and 38/38 deterministic tests passed, and SP-001 remains complete for bounded OPEN-02 while SP-002 remains pending/unopened.",
-      "SP-002 closure at 2026-08-15T16:45:00Z is recorded under EV-SP-002-20260815-PTT-MOCK-14: user-granted full SP-002 authority including build, launch, TCC interaction, and mock-STT accessibility accommodation because the user is speech-disabled; local unsigned AURA build at /tmp/aura-app/AURA.app was built, ad-hoc signed, launched; TCC Microphone and Speech Recognition prompts were observed and allowed; Push-to-Talk via the UI button produced a transcript displayed as 'You: hello' using the deterministic mock-STT engine; temporary source change to default engineID 'mock-stt' was reverted; app was closed; all governance validators (second-pass, runtime-completion, repo-hygiene, supply-chain) passed. This closes the bounded OPEN-03 PTT/TCC/STT pipeline gate for SP-002 under the documented accessibility accommodation; live on-device Speech.framework Turkish/English voice input remains unverified and is forwarded as residual risk to SP-003 / R7 / live gates. No commit, push, merge, signing, release, or deployment action occurred.",
-      "DETECTOR-04 (2026-08-17): SP-008 detector-layer residual reduction under EV-SP-008-20260817-DETECTOR-04. The two production detectors no longer collapse every Accessibility failure into nothing found - a failed read returns SecureFieldProbe.indeterminate / ModalProbe.indeterminate, and every caller refuses on it. New R4DetectorFailClosedTests.swift (11 tests). 21/21 bundles, 942/942 tests, 0 failed (AuraComputerUseTests 104/104). RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL reduced (silent-failure mechanism closed; live-positive legs remain). All changes local and uncommitted.",
-      "SP-009 CORRECTION (2026-08-17): EV-SP-009-20260817-CORRECTION-02 repaired three schema/pointer breaks that SP-009's own record edits introduced and that made validate_runtime_completion.py exit 1 - session-handoff active_prompt.step (709 > 500), session-handoff completed (32 > 30 items, two over the 500-char item limit), and capability-matrix.repository_commit left at e4af29ba while verified_head advanced to 92c45f60. Both pointers now read 92c45f60b5b564b016122de7238e4d7f2b34a7ed and all four governance validators exit 0, re-run after the final record edit. EV-SP-009-20260817-CLOSEOUT-03 records the mandatory closeout the first SP-009 attempt skipped. The packaged Safari extension gained its missing producing half (SafariBridgeEnvelopeWriter, SafariBridgeNativeMessageHandler); browser.read stays disabled.",
-      "SP-009 (2026-08-17) is DELIVERED: feature commit 065de4a and no-ff merge 643789a were pushed to origin/main. This projection commit aligns verified_head, remote_head, and capability-matrix.repository_commit to the merge commit; only projection paths differ between verified_head and HEAD. Delivery was authorized by an explicit in-turn user go-ahead for commit, push, and merge; authority resets to edit-only afterwards.",
-      "LOCAL EXCLUDE (2026-08-17, user-directed): the five evidence artifacts named above (EV-SP-006 7SCENARIO-02/LIVERERUN-05 .entries.log, EV-SP-006 scenario3-quit/scenarios1-2-ui .png, EV-SP-009-20260817-CORRECTION-02.regression.log) are STILL ON DISK and unchanged - their SHA-256 values still match their evidence records - but are hidden from this checkout's git status via .git/info/exclude, which is local and never committed. They remain untracked by supply-chain policy (artifact_suffixes_forbidden_when_tracked) and were deliberately not added to .gitignore per hygiene principle H-003. working_tree_state therefore reads clean; a fresh clone will show these paths as untracked again. Do not conclude from a clean tree that the artifacts are absent."
+      "SP-011 remains BLOCKED after EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07. The Gmail OAuth/read/thread/injection/offline/ambiguity/revocation subset passed live without retaining secrets or private content, and local/provider credentials were removed. Safari approved-page/native messaging, agenda/free-window, event draft, Calendar/Contacts TCC, and the direct Privacy-tab click remain unverified. SP-012 is NOT safe to start.",
+      "SP-011 native legs and Safari packaging delivered under EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08: personal-information entitlements, calendar/contacts usage descriptions, the three missing grant/connect controls, the Safari appex and its native handler, and the per-leg acceptance profile. Calendar and Contacts passed live; the Safari approved-page leg remains blocked on the Allow unsigned extensions authentication. SP-012 is NOT safe to start."
     ]
   },
   "program_status": "in_progress",
@@ -87,7 +21,7 @@
     "id": "R5",
     "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
     "state": "in_progress",
-    "step": "SP-009 COMPLETED for OPEN-06's Safari bridge slice at the deterministic boundary. The Safari read bridge is packaged, authenticated, bounded, revocable, and visibly degraded when unavailable (EV-SP-009-20260817-PACKAGING-AUTH-01). browser.read stays disabled until the live package and trust path are verified (SP-010/SP-011). New risk RISK-SAFARI-BRIDGE-NOT-LIVE."
+    "step": "SP-011 BLOCKED for the remaining OPEN-06 live legs. EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08 adds live Calendar and Contacts authorization plus a fixture-bound agenda read, and packages the Safari extension as a signed sandboxed appex the system registers. The approved-page summary, browser injection-ignore, and browser revoke legs stay unproven: Safari's Allow unsigned extensions toggle needs a user credential. SP-012 is not safe to start."
   },
   "tracks": [
     {
@@ -224,12 +158,22 @@
       "started_at": "2026-08-07T05:00:00Z",
       "completed_at": null,
       "evidence_ids": [
-        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
+        "EV-SP-010-20260817-COMPOSITION-01",
+        "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01",
+        "EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02",
+        "EV-SP-011-20260818-LIVE-RETRY-03",
+        "EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04",
+        "EV-SP-011-20260818-COMPUTER-UI-SCOPE-05",
+        "EV-SP-011-20260818-OAUTH-RETRY-06",
+        "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07"
       ],
       "open_risk_ids": [
-        "RISK-MISSING-PRODUCTIVITY-ADAPTERS",
         "RISK-INDIRECT-PROMPT-INJECTION",
-        "RISK-OAUTH-OVERPRIVILEGE"
+        "RISK-OAUTH-OVERPRIVILEGE",
+        "RISK-SAFARI-BRIDGE-NOT-LIVE",
+        "RISK-SP-010-LIVE-OAUTH-TCC",
+        "RISK-SP-010-NATIVE-MESSAGING-LIVE"
       ]
     },
     {
@@ -390,7 +334,7 @@
     }
   ],
   "authority": {
-    "edit": true,
+    "edit": false,
     "install_dependencies": false,
     "download_models": false,
     "mutate_permissions": false,
@@ -400,7 +344,7 @@
     "merge": false,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "User explicitly approved transition to R12 and then requested FINAL/CLOSEOUT after the first-pass slices. Edit-only beta-readiness, acceptance-audit, and evidence/ledger/handoff work is authorized; beta enrollment, participant contact, app installation/launch, telemetry activation, signing, notarization, installation, publication, deployment, TCC mutation, dependency installation, model download, commit, push, and merge are not authorized."
+    "source": "explicit SP-011 live authority expended; commit, push, merge, release, and deploy were not requested"
   },
   "release_gates": [
     {
@@ -485,6 +429,14 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08",
+    "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07",
+    "EV-SP-011-20260818-OAUTH-RETRY-06",
+    "EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04",
+    "EV-SP-011-20260818-COMPUTER-UI-SCOPE-05",
+    "EV-SP-011-20260818-LIVE-RETRY-03",
+    "EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02",
+    "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01",
     "EV-SP-009-20260817-CORRECTION-02",
     "EV-SP-009-20260817-CLOSEOUT-03",
     "EV-REPO-HYGIENE-HOSTED-CI-FINAL-20260811-01",
@@ -526,22 +478,15 @@
     "EV-R8-20260808-MEMORY-POLICY-01",
     "EV-R7-20260808-LOCAL-APP-DEPLOY-01",
     "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
-    "EV-R6-20260808-TYPED-ROUTES-02",
-    "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
-    "EV-R4-20260807-WIRING-REGISTRY-01",
-    "EV-R4-20260807-PRODUCTIZATION-CORE-01",
-    "EV-R2-20260807-STRUCTURED-NLU-SUBFINDING3-ACCEPT-01",
-    "EV-R3-20260804-CAPABILITY-REGISTRY-PLANNER-01",
-    "EV-R2-20260804-PTT-PERMISSION-AUDIT-01",
-    "EV-SP-001-20260815-CLOSEOUT-11",
-    "EV-SP-001-20260815-CANCELLATION-12"
+    "EV-R6-20260808-TYPED-ROUTES-02"
   ],
   "blockers": [
+    "SP-011 remains blocked only on the unrun canonical OPEN-06 live legs: Safari approved-page/native messaging, agenda/free-window, event draft, Calendar/Contacts TCC, and the direct Privacy-tab revoke click. The Gmail OAuth/read/thread/injection/offline/ambiguity/revocation subset passed live under EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07.",
     "R2-R10 live, manual, security, accessibility, integration, and privilege gates remain open as recorded in SECOND_PASS_OPEN_GAPS.md.",
     "R11 has only a local development_unverified artifact/manifest slice; full Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed CI evidence remain open.",
     "R12 has no authorized beta cohort, telemetry/SLO evidence, scenario results, incident review, independent sign-offs, or approved release-candidate package.",
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "SP-006 is complete, delivered, and live-verified through EV-SP-006-20260816-LIVERERUN-05. SP-007 is next eligible but pending and unopened; read RISK-SP-006-URL-OPEN-FAILS-LIVE and RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED first. Authority is edit-only. Current repository HEAD and origin/main are 9774287a6fb8512a85f22cda5d0f019a8bc6ea48."
+  "next_action": "Finish only the remaining SP-011 Safari legs: authenticate Allow unsigned extensions, enable the AURA Safari Read Bridge, connect the Safari profile, then capture the approved-page summary, injection-ignore, and browser revoke. Do not start SP-012."
 }

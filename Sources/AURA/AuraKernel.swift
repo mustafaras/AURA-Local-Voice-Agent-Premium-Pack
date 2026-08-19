@@ -73,6 +73,12 @@ actor AuraKernel {
   /// path are verified; `safariBridgeRuntime?.availability()` reports the
   /// truthful state.
   var safariBridgeRuntime: SafariBridgeRuntime?
+  /// SP-010's read-first productivity composition: onboarding plus the
+  /// browser, mail, calendar, and contacts adapters. The four capabilities'
+  /// registry availability is recomputed from this runtime rather than
+  /// declared, so the health surface cannot claim a state the composition
+  /// does not actually have.
+  var productivityRuntime: ProductivityRuntime?
   var started = false
   var sttStarted = false
   var audioStarted = false

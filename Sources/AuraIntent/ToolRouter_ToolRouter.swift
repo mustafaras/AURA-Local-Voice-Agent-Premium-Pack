@@ -42,6 +42,13 @@ public actor ToolRouter {
   let configuration: IntentEngineConfiguration
   let dialogueEngine: DialogueEngine
   let destructivePatternMatchers: [NSRegularExpression]
+  /// SP-010's read-first productivity port, supplied by the composition root.
+  ///
+  /// Optional because the router must build in fixtures and tests that wire
+  /// no integrations at all. `nil` is not a soft failure: the four read
+  /// handlers refuse with a truthful reason rather than answering as though
+  /// the mailbox, calendar, or address book were empty.
+  let productivityReader: (any ProductivityReading)?
 
   public init(
     policyEngine: PolicyEngine,
@@ -54,7 +61,8 @@ public actor ToolRouter {
     eventBus: AuraEventBus,
     configuration: IntentEngineConfiguration,
     dialogueEngine: DialogueEngine = DialogueEngine(),
-    codingTaskCoordinator: CodingTaskCoordinator? = nil
+    codingTaskCoordinator: CodingTaskCoordinator? = nil,
+    productivityReader: (any ProductivityReading)? = nil
   ) {
     self.policyEngine = policyEngine
     self.automation = automation
@@ -68,6 +76,7 @@ public actor ToolRouter {
     self.eventBus = eventBus
     self.configuration = configuration
     self.dialogueEngine = dialogueEngine
+    self.productivityReader = productivityReader
     self.destructivePatternMatchers = configuration.destructiveShellPatterns.compactMap {
       try? NSRegularExpression(pattern: $0, options: [.caseInsensitive])
     }

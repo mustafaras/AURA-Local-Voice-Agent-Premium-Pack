@@ -1,8 +1,67 @@
 import Foundation
 
 extension AuraConfiguration {
-  /// Default configuration for bootstrap and tests.
+  /// Default configuration for bootstrap and tests. Remains neutral so unit
+  /// tests and production launches never carry a real account or test flag.
   public static var `default`: AuraConfiguration { AuraConfiguration() }
+
+  /// Configuration used only for the SP-011 Productivity Live Acceptance run.
+  /// Enabled by setting `AURA_SP011_LIVE_ACCEPTANCE=1` in the environment.
+  /// The approved test Gmail account is read from `AURA_SP011_TEST_EMAIL` so
+  /// no real account address is hard-coded in source or ledgers.
+  public static var liveAcceptance: AuraConfiguration {
+    liveAcceptance(environment: ProcessInfo.processInfo.environment)
+  }
+
+  /// Injectable environment projection keeps the acceptance-only account
+  /// ambiguity path deterministic in tests. The optional second account is
+  /// never a fallback choice: two entries deliberately keep mail disabled
+  /// until the user identifies one.
+  public static func liveAcceptance(environment: [String: String]) -> AuraConfiguration {
+    let testEmail = environment["AURA_SP011_TEST_EMAIL"] ?? ""
+    let secondTestEmail = environment["AURA_SP011_SECOND_TEST_EMAIL"] ?? ""
+    let oauthClientID = environment["AURA_SP011_OAUTH_CLIENT_ID"] ?? ""
+    let accounts = [testEmail, secondTestEmail].filter { !$0.isEmpty }
+    let defaults = ProductivityConfiguration()
+    // Every acceptance leg stays off unless its own variable turns it on. The
+    // earlier profile enabled only mail, which left the calendar, contacts and
+    // Safari legs uncomposed and therefore unrunnable — the acceptance profile
+    // could not exercise the matrix it exists for.
+    return AuraConfiguration(
+      productivity: ProductivityConfiguration(
+        safariProfileID: environment["AURA_SP011_SAFARI_PROFILE_ID"]
+          ?? defaults.safariProfileID,
+        safariExtensionID: environment["AURA_SP011_SAFARI_EXTENSION_ID"]
+          ?? defaults.safariExtensionID,
+        safariSharedContainerPath: environment["AURA_SP011_SAFARI_CONTAINER"]
+          ?? defaults.safariSharedContainerPath,
+        safariAllowedHosts: Self.hostList(environment["AURA_SP011_SAFARI_ALLOWED_HOSTS"]),
+        mailAccountIDs: accounts,
+        mailAllowedHosts: ["gmail.googleapis.com"],
+        calendarReadEnabled: environment["AURA_SP011_ENABLE_CALENDAR"] == "1",
+        contactsReadEnabled: environment["AURA_SP011_ENABLE_CONTACTS"] == "1",
+        allowsTestAccountAuthorization: true,
+        gmailOAuthClientID: oauthClientID
+      )
+    )
+  }
+
+  /// Split a comma-separated allowed-host list, dropping blanks so a trailing
+  /// comma cannot introduce an empty host that would match nothing and read
+  /// as a configured entry.
+  private static func hostList(_ raw: String?) -> [String] {
+    (raw ?? "")
+      .split(separator: ",")
+      .map { $0.trimmingCharacters(in: .whitespaces) }
+      .filter { !$0.isEmpty }
+  }
+
+  /// Bootstrap-time configuration: neutral defaults unless the environment
+  /// explicitly requests the SP-011 live acceptance profile.
+  public static var bootstrap: AuraConfiguration {
+    ProcessInfo.processInfo.environment["AURA_SP011_LIVE_ACCEPTANCE"] == "1"
+      ? liveAcceptance : `default`
+  }
 
   /// Alias used by tests that only need the base set of subsystems before
   /// Phase 4. It produces the same defaults as `default`.
@@ -59,7 +118,14 @@ extension AuraConfiguration {
       log: try Self.decoded(container, .log, defaults.log),
       security: try Self.decoded(container, .security, defaults.security),
       plugins: try Self.decoded(container, .plugins, defaults.plugins),
-      intent: try Self.decoded(container, .intent, defaults.intent))
+      intent: try Self.decoded(container, .intent, defaults.intent),
+      // SP-009 added the `productivity` section and its coding key but never
+      // decoded it here, so a configuration file that set a Safari profile,
+      // extension ID, or shared container path was parsed and then discarded
+      // — the bridge always ran on defaults and nothing said so. SP-010 needs
+      // the section to be real, so it is decoded, merged, and validated like
+      // every other one.
+      productivity: try Self.decoded(container, .productivity, defaults.productivity))
   }
 
   /// Merge a partial configuration over the hard-coded defaults.
@@ -73,7 +139,8 @@ extension AuraConfiguration {
       worktree: worktree.mergedWithDefaults(), context: context.mergedWithDefaults(),
       screen: screen.mergedWithDefaults(), computerUse: computerUse.mergedWithDefaults(),
       privacy: mergedPrivacy(), log: mergedLog(), security: security.mergedWithDefaults(),
-      plugins: plugins.mergedWithDefaults(), intent: intent.mergedWithDefaults())
+      plugins: plugins.mergedWithDefaults(), intent: intent.mergedWithDefaults(),
+      productivity: productivity.mergedWithDefaults())
   }
 
   private func mergedApp() -> AppConfiguration {
@@ -227,5 +294,6 @@ extension AuraConfiguration {
     try security.validate()
     try plugins.validate()
     try intent.validate()
+    try productivity.validate()
   }
 }

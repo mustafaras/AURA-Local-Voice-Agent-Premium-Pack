@@ -107,6 +107,10 @@ public actor IntentDispatchCoordinator {
     case .fileOpen: return "filesystem.open_file"
     case .fileReveal: return "filesystem.reveal"
     case .urlOpen: return "url.open"
+    case .browserRead: return "browser.read"
+    case .mailRead: return "mail.read"
+    case .calendarRead: return "calendar.read"
+    case .contactsLookup: return "contacts.lookup"
     case .unknown: return nil
     }
   }
@@ -120,9 +124,14 @@ public actor IntentDispatchCoordinator {
   /// agents or policy review that should not be held against the
   /// simple-command budget.
   private func isSimpleLocalCommand(intent: TypedIntent, outcome: IntentExecutionOutcome) -> Bool {
+    // SP-010: the three device-local reads join this list; `.mailRead` does
+    // not. Mail is the one read that leaves the machine, so holding a
+    // provider round trip to the simple-command budget would mean reporting a
+    // normal network wait as a latency regression.
     let localKinds: [IntentKind] = [
       .converse, .appActivate, .appTerminate, .shellExecute,
       .fileOpen, .fileReveal, .urlOpen,
+      .browserRead, .calendarRead, .contactsLookup,
     ]
     guard localKinds.contains(intent.kind) else { return false }
     switch outcome {

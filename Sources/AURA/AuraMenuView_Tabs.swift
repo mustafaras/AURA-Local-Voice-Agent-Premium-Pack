@@ -1,5 +1,6 @@
 import AuraAgent
 import AuraCore
+import AuraIntent
 import SwiftUI
 
 extension AuraMenuView {
@@ -148,6 +149,85 @@ extension AuraMenuView {
     }
   }
 
+  /// The read-first integrations panel.
+  ///
+  /// Every row states three things: whether the integration works right now,
+  /// which account or profile it is bound to (masked), and — when it does not
+  /// work — the one next step the user can take. A row that only said
+  /// "disabled" would tell the user their assistant is broken without telling
+  /// them what to do, which is what "actionable UI state" rules out.
+  var integrationsSection: some View {
+    GroupBox(copy("integrations.title")) {
+      VStack(alignment: .leading, spacing: 8) {
+        ForEach(model.integrationRows, id: \AuraIntegrationRow.id) {
+          (integration: AuraIntegrationRow) in
+          VStack(alignment: .leading, spacing: 3) {
+            HStack {
+              Text(integration.title).bold()
+              Spacer()
+              Text(integration.state)
+                .foregroundStyle(integration.isReady ? .green : .orange)
+            }
+            if let accountLabel = integration.accountLabel {
+              Text(accountLabel).font(.caption).foregroundStyle(.secondary)
+            }
+            Text(integration.detail)
+              .font(.caption)
+              .foregroundStyle(integration.isReady ? Color.secondary : Color.orange)
+              .fixedSize(horizontal: false, vertical: true)
+            if !integration.remediation.isEmpty {
+              Label(
+                "\(copy("integrations.action")): \(integration.remediation)",
+                systemImage: "arrow.right.circle"
+              )
+              .font(.caption)
+              .fixedSize(horizontal: false, vertical: true)
+            }
+            if integration.canConnect {
+              let connectKey =
+                integration.id == InitialCapabilitySet.browserRead.id
+                ? "integrations.connectBrowser" : "integrations.connect"
+              let connectSymbol =
+                integration.id == InitialCapabilitySet.browserRead.id
+                ? "safari" : "envelope.badge.plus"
+              Button {
+                model.connectIntegration(integration)
+              } label: {
+                Label(copy(connectKey), systemImage: connectSymbol)
+              }
+              .accessibilityLabel(copy(connectKey))
+            }
+            if integration.canGrantAccess {
+              Button {
+                model.grantIntegrationAccess(integration)
+              } label: {
+                Label(copy("integrations.grantAccess"), systemImage: "lock.open")
+              }
+              .accessibilityLabel(
+                "\(copy("integrations.grantAccess")): \(integration.title)")
+            }
+            if integration.isRevocable {
+              Button(role: .destructive) {
+                model.disconnectIntegration(integration)
+              } label: {
+                Label(copy("integrations.revoke"), systemImage: "minus.circle")
+              }
+              .accessibilityLabel("\(copy("integrations.revoke")): \(integration.title)")
+            }
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        if model.integrationRows.isEmpty {
+          Text(copy("integrations.none")).foregroundStyle(.secondary)
+        }
+        Text(copy("integrations.readOnly"))
+          .font(.caption).foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
+  }
+
   var privacyTab: some View {
     VStack(alignment: .leading, spacing: 12) {
       sectionTitle("privacy.title", symbol: "lock.shield")
@@ -162,6 +242,7 @@ extension AuraMenuView {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
       }
+      integrationsSection
       HStack {
         Button {
           model.exportMemory()

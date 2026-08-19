@@ -11,6 +11,7 @@ public enum ProductivityError: Error, Sendable, Equatable {
   case notConfigured
   case permissionRequired
   case permissionDenied
+  case oauthTokenExchangeRejected(OAuthTokenExchangeRejection)
   case tokenExpiredOrRevoked
   case networkUnavailable
   case providerUnavailable
@@ -23,4 +24,19 @@ public enum ProductivityError: Error, Sendable, Equatable {
   case hostNotAllowed(host: String)
   case unsupported(String)
   case cancelled
+}
+
+/// A bounded, provider-independent classification of an OAuth token endpoint
+/// rejection. Only reviewed protocol error identifiers enter this type; the
+/// provider's free-form response body and description are never surfaced.
+public enum OAuthTokenExchangeRejection: String, Sendable, Equatable {
+  case invalidGrant = "invalid_grant"
+  case invalidClient = "invalid_client"
+  case invalidRequest = "invalid_request"
+  case redirectURIMismatch = "redirect_uri_mismatch"
+  case unauthorizedClient = "unauthorized_client"
+  case clientSecretRequired = "client_secret_required"
+  case codeVerifierRejected = "code_verifier_rejected"
+  case authorizationCodeRejected = "authorization_code_rejected"
+  case unknown
 }

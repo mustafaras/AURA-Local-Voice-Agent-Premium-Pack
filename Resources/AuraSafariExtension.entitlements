@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+      Safari refuses to load a web extension that is not App Sandbox confined,
+      so this entitlement is not optional: without it the extension never
+      appears in Safari's list at all.
+
+      The sandbox redirects the extension's home directory to
+      ~/Library/Containers/ai.aura.local.agent.SafariExtension/Data, which is
+      where SafariExtensionConfiguration resolves its relative container path
+      and therefore where the signed observation envelope is written. The
+      containing app is deliberately not sandboxed and reads that absolute
+      path directly, which is what lets the two halves share a container
+      without an App Group — App Groups need a provisioned Team ID this
+      locally signed build does not have.
+    -->
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+</dict>
+</plist>

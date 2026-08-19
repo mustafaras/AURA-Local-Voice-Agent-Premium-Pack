@@ -75,6 +75,46 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
   private static let urlOpenPrefixes = ["open url ", "open link ", "open site ", "go to "]
   private static let urlOpenPrefixesTR = ["bağlantı aç ", "site aç ", "adrese git "]
 
+  // SP-010: read-first productivity patterns. These run BEFORE the file/URL
+  // and app classifiers because several triggers share a leading verb with
+  // them — "read this page" and "show my calendar" would otherwise be
+  // swallowed by `revealPrefixes`, and "open mail" by `activatePrefixes`.
+  // Each trigger is an explicit multi-word phrase rather than a bare verb, so
+  // "open safari" still activates the app instead of reading a tab.
+  private static let browserReadTriggers = [
+    "read this page", "read the current page", "read the active tab",
+    "what is on this page", "summarize this page", "what does this page say",
+    "bu sayfayı oku", "bu sayfada ne yazıyor", "açık sekmeyi oku",
+    "geçerli sayfayı oku", "bu sayfayı özetle",
+  ]
+  private static let mailSearchPrefixes = [
+    "search mail for ", "search my mail for ", "search email for ",
+    "find mail about ", "find email about ", "look in my mail for ",
+    "postada ara ", "postalarımda ara ", "e-postada ara ", "mailde ara ",
+  ]
+  private static let mailThreadPrefixes = [
+    "summarize mail thread about ", "summarize email thread about ",
+    "summarize the mail thread about ", "summarize the email thread about ",
+    "posta zincirini özetle ", "e-posta zincirini özetle ", "mail zincirini özetle ",
+  ]
+  private static let mailUnreadTriggers = [
+    "check my mail", "check my email", "do i have new mail", "any new mail",
+    "postalarımı kontrol et", "yeni postam var mı", "e-postalarımı kontrol et",
+  ]
+  private static let calendarTodayTriggers = [
+    "what is on my calendar", "what's on my calendar", "show my calendar",
+    "my agenda today", "what do i have today", "check my calendar",
+    "takvimimde ne var", "takvimimi göster", "bugün ne var", "ajandam ne durumda",
+  ]
+  private static let calendarTomorrowTriggers = [
+    "what do i have tomorrow", "my agenda tomorrow", "calendar tomorrow",
+    "yarın ne var", "yarınki takvimim",
+  ]
+  private static let contactsLookupPrefixes = [
+    "find contact ", "look up contact ", "find the contact ", "contact info for ",
+    "kişi bul ", "kişiyi bul ", "rehberde ara ", "kişi ara ",
+  ]
+
   public init() {}
 
   public func classify(normalized: String, raw: String) -> ClassificationResult {
@@ -85,6 +125,11 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
       break
     }
     if let result = classifyCodingAgent(commandText) { return result.withLanguage(language) }
+    // SP-010: productivity reads run before file/URL and app classification;
+    // see `productivityReadTriggers` for why the ordering matters.
+    if let result = classifyProductivityRead(commandText) {
+      return result.withLanguage(language)
+    }
     // SP-005: file/URL classification runs before app-activate because
     // "open " is shared. A path-shaped target (contains /, ~, ://, or a
     // dotted extension) is routed to the filesystem/URL adapter, not the
@@ -141,6 +186,92 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
     return nil
   }
 
+  // MARK: - SP-010: Read-first productivity classification
+
+  /// Classify the four read-first productivity utterances in both languages.
+  ///
+  /// The classifier never resolves *which* account or profile to read: it
+  /// emits only the query and range the user actually said. Account
+  /// resolution belongs to `ApprovedIntegrationAccounts`, which fails closed
+  /// on ambiguity — a classifier that guessed an account here would silently
+  /// bypass that boundary.
+  private func classifyProductivityRead(_ normalized: String) -> ClassificationResult? {
+    let lowered = normalized.lowercased()
+
+    for trigger in Self.browserReadTriggers where lowered.hasPrefix(trigger) {
+      return ClassificationResult(
+        kind: .browserRead,
+        semanticCategory: .browserRead,
+        confidence: 0.85,
+        contextRequirements: ["browserProfile"])
+    }
+
+    for prefix in Self.mailThreadPrefixes where lowered.hasPrefix(prefix) {
+      let query = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
+      guard !query.isEmpty else { return nil }
+      return ClassificationResult(
+        kind: .mailRead,
+        semanticCategory: .mailRead,
+        slots: [
+          IntentSlot(name: IntentSlotName.query, value: query),
+          IntentSlot(name: IntentSlotName.threadSummary, value: "true"),
+        ],
+        confidence: 0.85,
+        contextRequirements: ["mailAccount"])
+    }
+    for prefix in Self.mailSearchPrefixes where lowered.hasPrefix(prefix) {
+      let query = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
+      guard !query.isEmpty else { return nil }
+      return ClassificationResult(
+        kind: .mailRead,
+        semanticCategory: .mailRead,
+        slots: [IntentSlot(name: IntentSlotName.query, value: query)],
+        confidence: 0.85,
+        contextRequirements: ["mailAccount"])
+    }
+    for trigger in Self.mailUnreadTriggers where lowered.hasPrefix(trigger) {
+      // "Check my mail" has no query, but the mail capability requires one.
+      // `is:unread` is the provider's own read-only query language, not
+      // caller-supplied free text, so it stays a fixed constant here.
+      return ClassificationResult(
+        kind: .mailRead,
+        semanticCategory: .mailRead,
+        slots: [IntentSlot(name: IntentSlotName.query, value: "is:unread")],
+        confidence: 0.85,
+        contextRequirements: ["mailAccount"])
+    }
+
+    for trigger in Self.calendarTomorrowTriggers where lowered.hasPrefix(trigger) {
+      return ClassificationResult(
+        kind: .calendarRead,
+        semanticCategory: .calendarRead,
+        slots: [IntentSlot(name: IntentSlotName.dayRange, value: "2")],
+        confidence: 0.85,
+        contextRequirements: ["calendarAuthorization"])
+    }
+    for trigger in Self.calendarTodayTriggers where lowered.hasPrefix(trigger) {
+      return ClassificationResult(
+        kind: .calendarRead,
+        semanticCategory: .calendarRead,
+        slots: [IntentSlot(name: IntentSlotName.dayRange, value: "1")],
+        confidence: 0.85,
+        contextRequirements: ["calendarAuthorization"])
+    }
+
+    for prefix in Self.contactsLookupPrefixes where lowered.hasPrefix(prefix) {
+      let query = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
+      guard !query.isEmpty else { return nil }
+      return ClassificationResult(
+        kind: .contactsLookup,
+        semanticCategory: .contactsLookup,
+        slots: [IntentSlot(name: IntentSlotName.query, value: query)],
+        confidence: 0.85,
+        contextRequirements: ["contactsAuthorization"])
+    }
+
+    return nil
+  }
+
   // MARK: - SP-005: Filesystem and URL classification
 
   /// Classify "open <path>", "reveal <path>", and "open <url>" utterances
@@ -152,8 +283,7 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
     // URL detection: "open url ", "open link ", "go to ", TR variants, or
     // the target itself starts with http/https/mailto.
     for prefix in Self.urlOpenPrefixes + Self.urlOpenPrefixesTR
-      where normalized.lowercased().hasPrefix(prefix)
-    {
+    where normalized.lowercased().hasPrefix(prefix) {
       let target = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
       guard !target.isEmpty, looksLikeURL(target) else { return nil }
       return ClassificationResult(
@@ -175,8 +305,7 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
 
     // Reveal detection: "reveal <path>", "show <path>", TR "göster <path>"
     for prefix in Self.revealPrefixes + Self.revealPrefixesTR
-      where normalized.lowercased().hasPrefix(prefix)
-    {
+    where normalized.lowercased().hasPrefix(prefix) {
       let target = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
       guard !target.isEmpty, looksLikePath(target) else { return nil }
       return ClassificationResult(
@@ -191,12 +320,12 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
     // Must run after URL and reveal checks, and must guard on path-shape
     // so "open safari" still routes to app-activate.
     for prefix in Self.fileOpenPrefixes + Self.fileOpenPrefixesTR
-      where normalized.lowercased().hasPrefix(prefix)
-    {
+    where normalized.lowercased().hasPrefix(prefix) {
       let target = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
       guard !target.isEmpty, looksLikePath(target) else { return nil }
       // Distinguish folder from file by trailing slash or "folder" prefix
-      let isFolder = target.hasSuffix("/") || normalized.lowercased().hasPrefix("open folder ")
+      let isFolder =
+        target.hasSuffix("/") || normalized.lowercased().hasPrefix("open folder ")
         || normalized.lowercased().hasPrefix("klasör aç ")
       return ClassificationResult(
         kind: .fileOpen,

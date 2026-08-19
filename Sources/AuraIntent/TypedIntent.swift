@@ -15,6 +15,15 @@ public enum IntentKind: String, Codable, Sendable, Equatable, CaseIterable {
   case fileOpen
   case fileReveal
   case urlOpen
+  // SP-010: the four read-first productivity capabilities. Each is reachable
+  // only while its capability is `.ready` in the registry, which in turn
+  // requires an onboarded account or profile — so an utterance naming a
+  // disconnected integration is refused with a truthful reason instead of
+  // reaching an adapter.
+  case browserRead
+  case mailRead
+  case calendarRead
+  case contactsLookup
   case unknown
 }
 
@@ -46,6 +55,18 @@ public enum IntentSlotName {
   public static let filePath = "filePath"
   public static let folderPath = "folderPath"
   public static let url = "url"
+  // SP-010 productivity slots. `accountID` and `profileID` are private
+  // values: they may reach an adapter, but every event, log line, and prompt
+  // quotes `ProductivityRedaction.fingerprint` instead.
+  public static let accountID = "accountID"
+  public static let profileID = "profileID"
+  public static let query = "query"
+  /// `true` only for an explicit thread-summary utterance. The same
+  /// read-only `mail.read` capability owns both search and thread reads; this
+  /// slot selects which typed adapter method runs without inventing a second
+  /// capability or broadening OAuth scope.
+  public static let threadSummary = "threadSummary"
+  public static let dayRange = "dayRange"
 }
 
 /// The typed, closed-schema result of classifying one `TurnCompletedEvent`.

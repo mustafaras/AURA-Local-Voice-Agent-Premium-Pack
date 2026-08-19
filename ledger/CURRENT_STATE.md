@@ -1,9 +1,9 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-14.
+Projection refreshed from live repository and command evidence on 2026-08-19.
 
-## Authoritative current status — 2026-08-14T06:55:43Z
+## Authoritative current status — 2026-08-19T09:55:06Z
 
 Repository hygiene H-010 is terminally complete. The verified non-projection
 control-plane baseline is `main` /
@@ -22,14 +22,47 @@ The terminal H-000…H-010 prompt definitions are archived under
 manifest remains their canonical locator. The archive/cleanup delivery is
 merged by PR #3; SP-000 state/validator delivery is merged to `main`. Main CI
 run `31613321170` is a historical queued observation; no repository-defined
-signed/notarized/public deployment target exists. The second-pass baseline lock
-`SP-000` is complete. The bounded `SP-001` / OPEN-02 attempt is currently
-blocked: deterministic prompt-relevant suites passed, but direct user-present
-live trace, displayed confirmation, reversible mutation, and
-execution/verification evidence were not captured because app launch/install is
-not authorized by the prompt. The worktree contains expected local
-control-plane closeout edits; no product, beta, signing, release, or deployment
-completion is implied. Evidence: `EV-SP-001-20260814-ATTEMPT-01`.
+signed/notarized/public deployment target exists.
+
+The active second-pass prompt is `SP-011` / `blocked` at `main` with
+`HEAD == origin/main == 33688e2a54f1e5d53574d0ddea22d5256eec29c7` and an
+expected dirty SP-010/SP-011 worktree. Under
+`EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07`, the prior Gmail OAuth blocker is
+resolved and the approved-account Gmail read-only subset passed live: bounded
+PKCE callback/token exchange and Keychain enrollment, controlled two-message
+summary without private leakage, injection refusal, offline classification,
+two-account clarification before provider contact, local Keychain removal,
+Google grant removal, and immediate post-revoke refusal. Fixtures remain in
+recoverable Trash; local callback tabs/process/clipboard/acceptance environment
+were cleared. No credential, authorization code, secret, account identifier,
+message body, or screenshot is retained in evidence.
+
+Under `EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08` the Calendar and
+Contacts legs also passed live. Reaching them required fixing four defects that
+made three legs unrunnable rather than failing: `requestReadAccess()` on both
+native adapters and `AuraKernel.connectBrowserProfile` had no production caller
+while three health rows named Setup controls that did not exist; the app
+entitlements lacked `com.apple.security.personal-information.calendars` and
+`.addressbook`, so tccd refused to display any prompt; `AURA-Info.plist` carried
+neither usage description; and the Safari extension had no native half and was
+never packaged. Both TCC prompts then appeared with AURA's own usage strings and
+were granted, and a typed agenda turn moved from "Nothing is scheduled in that
+range." to "1 event(s): AURA SP-011 acceptance fixture" against a disposable
+fixture that was then deleted. The Safari extension is now a signed, sandboxed
+`.appex` that `pluginkit` lists at `com.apple.Safari.web-extension`.
+
+SP-011 is still not complete because the live approved-page summary, the browser
+injection-ignore leg, and the browser profile revocation remain unexecuted:
+Safari will not enable a non-Developer-ID extension without its `Allow unsigned
+extensions` toggle, which raises a Touch ID / password sheet that was
+deliberately not answered. A Developer ID signature plus notarization removes
+that requirement and is the production answer, owned by R11. Free-window
+computation and event draft remain unimplemented and mutation-class, and AURA
+compose/send remains excluded. No non-empty contacts read is recorded, by
+choice, because only the user's own address book exists on this machine. The
+full regression passed 21/21 bundles, 1035/1035 tests, 0 failed, including nine
+new `SP011LiveAcceptanceReadinessTests` cases; all four governance validators
+and 38/38 governance unit tests pass. SP-012 is not safe to start.
 
 ## Canonical State Notice — 2026-08-09
 

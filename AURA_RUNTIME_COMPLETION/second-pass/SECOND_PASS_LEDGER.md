@@ -638,3 +638,937 @@ Corrections are appended, never rewritten.
 - **Next action:** `15_SESSION_CLOSEOUT.prompt.md` was run in-session
   (`EV-SP-009-20260817-CLOSEOUT-03`). SP-010 is next eligible, pending and
   unopened; open it only under its own authority.
+### 2026-08-17T16:59:23Z — SP-010_PROVIDER_ACCOUNT_AND_UI_COMPOSITION — completed
+
+- **Prompt ID / gap IDs:** SP-010 / OPEN-06 (deterministic slice only).
+- **Session:** AURA-SP-010-COMPOSITION-20260817; actor: GitHub Copilot.
+- **Authority:** User explicitly authorized completing the partially-finished SP-010 prompt. No live provider OAuth, TCC mutation, app launch/install, Safari extension install, commit, push, merge, signing, release, or deployment action was authorized or performed.
+- **Verified state:** Branch main; worktree dirty_expected with SP-010 product/source/state changes; completed_prompts = SP-000..SP-009 before this entry.
+- **Objective:** Close the deterministic slice of OPEN-06 by adding explicitly authorized provider/account onboarding, bounded provider transports, composition-root availability, redacting read bridge, registry/routing, and actionable UI state for the four read-first capabilities.
+- **Assumptions:** Existing SP-009 Safari bridge packaging/authentication evidence (EV-SP-009-20260817-PACKAGING-AUTH-01 / EV-SP-009-20260817-CLOSEOUT-03) remains valid; live acceptance gates are intentionally outside SP-010 authority.
+- **Risks:** Projection drift between prompt file front matter and machine state; stale working_tree_state causing validate_runtime_completion.py to fail; claiming live acceptance from deterministic evidence.
+- **Exact work:**
+  - Reconciled SECOND_PASS_STATE.json and session-handoff.json, which already claimed SP-010/completed, with the prompt file that still read pending.
+  - Updated current-state.json to working_tree_state: dirty_expected with an explicit SP-010 user-owned-change description, fixing the runtime validator failure.
+  - Implemented/verified IntegrationOnboardingService (ApprovedIntegrationAccounts, .read-only tier enforcement, IntegrationAuthorizationSource, Keychain-backed account records).
+  - Implemented/verified bounded HTTPProviderTransport and URLSessionGmailReadTransport.
+  - Implemented/verified ProductivityRuntime composition root deriving availability from token store and SafariBridgeAvailability.
+  - Implemented/verified ProductivityReadBridge as the only adapter-to-decision boundary, redacting and gating the four read-first capabilities.
+  - Implemented/verified AuraKernel_Productivity passthroughs and ToolRouter_ProductivityHandlers + ToolRouter_Routing + InitialCapabilitySet_ExternalCapabilities registry wiring.
+  - Implemented/verified AuraAppModel_ProductState and AuraMenuView_Tabs actionable integration UI rows with revocation.
+  - Added SP010ProviderAccountTests (48), SP010ProductivityRoutingTests, and SP010ProductivityCompositionTests.
+  - Updated SECOND_PASS_OPEN_GAPS.md to record SP-010 closure at the deterministic boundary and forwarded live/provider/OAuth/TCC/mutation/send gates to SP-011.
+  - Updated EVIDENCE_INDEX.md with EV-SP-010-20260817-COMPOSITION-01.
+  - Closed RISK-MISSING-PRODUCTIVITY-ADAPTERS; added RISK-SP-010-LIVE-OAUTH-TCC, RISK-SP-010-REAL-ACCOUNT-CONFIG, RISK-SP-010-NATIVE-MESSAGING-LIVE.
+  - Updated ACTIVE_CONTEXT.md overlay to SP-011/pending, SP-010/completed.
+  - Updated PROGRAM_LEDGER.md, PROJECT_LEDGER.md, current-state.json, session-handoff.json.
+- **Cognitive completion record:**
+  1. **Symptom:** SP-010 prompt file front matter was pending while machine state already recorded completed, and validate_runtime_completion.py failed because current-state.json claimed a clean tree despite 32 SP-010 changes.
+  2. **Mechanism/root cause:** The prior SP-009 closeout recorded SP-010 as the next eligible prompt in the pending convention (active_prompt), but the prompt file itself was never opened/edited; additionally, the working-tree projection was not updated for the SP-010 source additions.
+  3. **Resolution:** Reconcile the prompt file with the machine state by leaving the front matter pending (per validator contract that every prompt file must read pending) while advancing SECOND_PASS_STATE.json/session-handoff.json to SP-011/pending; update current-state.json to dirty_expected.
+  4. **Evidence:** EV-SP-010-20260817-COMPOSITION-01 — product source/build/test/state class; artifact hashes in EVIDENCE_INDEX.md.
+  5. **Falsifier:** Any validator/test failure, missing per-capability composition path, account-isolation bypass, leaked secret in logs/events, or claim that the four capabilities are enabled/live would falsify this entry.
+  6. **Residual:** Live provider OAuth consent, real account configuration, TCC/Contacts/Calendar prompts, Safari extension install/native messaging, mutation/send, and user-present acceptance remain open and are owned by SP-011.
+  7. **Why SP-011 is safe to start:** SP-010's deterministic boundary is closed with passing tests/validators, the predecessor chain SP-000..SP-010 is complete, and SP-011's authority scope (live acceptance) is cleanly separated from SP-010's source/composition authority.
+- **Evidence IDs:** EV-SP-010-20260817-COMPOSITION-01.
+- **Tests:**
+  -  focused SP-010: 48/48 passed.
+  - : routing/classification/risk fail-closed passed.
+  - : composition/read bridge/UI redaction passed.
+  - Full ==> Cleaning build path: /tmp/aura-sp010-final
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1255]
+[Planning deferred tasks]
+[158 / 376]
+[177 / 376]
+[178 / 377] AuraCore
+[188 / 425]
+[196 / 425]
+[198 / 425]
+[203 / 425]
+[207 / 425]
+[211 / 425]
+[213 / 425]
+[214 / 425]
+[226 / 425] AuraCore
+[227 / 425] AuraCore
+[242 / 431] AuraCore
+[242 / 431] AuraAutomationHelper-product
+[252 / 489] AuraShellHelper-product
+[260 / 510]
+[283 / 510]
+[293 / 510] AuraStore
+[297 / 510] AuraShellHelper-product
+[303 / 510] AuraShell
+[309 / 510]
+[319 / 512]
+[323 / 514] AuraStore
+[328 / 514]
+[330 / 514] AuraTasks
+[339 / 550] AuraTasks
+[351 / 550] AuraTasks
+[361 / 550] AuraVSCode
+[375 / 550] AuraConfig
+[387 / 550] AuraMemory
+[399 / 550] AuraConfig
+[407 / 550] AuraAutomation
+[420 / 550] AuraSTT
+[424 / 550] AuraConfig
+[428 / 550] AuraAudio
+[430 / 551] AuraTasks
+[438 / 553] AuraTasks-product
+[440 / 564] AuraVSCode
+[441 / 572] AuraSecurity
+[443 / 586] AuraSecurity
+[463 / 586] AuraVSCode-product
+[466 / 586] AuraVSCode
+[474 / 586] AuraSecurity
+[484 / 590] AuraContext
+[490 / 591]
+[493 / 591]
+[498 / 591] AuraScreen
+[502 / 609] AuraVSCode
+[510 / 635] AuraScreen
+[530 / 635] AuraPlugins
+[536 / 646] AuraProductivity
+[542 / 646] AuraSTT
+[550 / 646] AuraProductivity
+[556 / 646] AuraProductivity
+[564 / 646] AuraScreen
+[568 / 646] AuraPlugins
+[571 / 646] AuraPlugins-product
+[584 / 646] AuraContext
+[588 / 646] AuraContext
+[593 / 646] AuraIntent
+[600 / 646] AuraPlugins
+[608 / 646]
+[616 / 649] AuraAgent
+[616 / 649] AuraPluginHost-product
+[618 / 651] AuraAgent
+[629 / 673] AuraComputerUse
+[630 / 673] AuraPluginHost-product
+[632 / 673] AuraPluginHost-product
+[643 / 673] AuraComputerUse
+[652 / 673] AuraIntent
+[663 / 674] AuraAgent-product
+[666 / 674] AuraIntent-product
+[666 / 674] AuraComputerUse
+[669 / 674] AURA-product
+[681 / 686] AURA-product
+[682 / 686] AURA-product
+[684 / 686] AURA-product
+Build complete! (15,70 secs)
+==> Building test targets
+--- AuraCoreTests
+Building for debugging...
+[Pre-planning 1 / 65]
+[Constructing 35 / 149]
+[15 / 26] AuraCoreTests-product
+[16 / 37]
+[26 / 37] AuraCoreTests-product
+[33 / 37] AuraCoreTests-product
+Build complete! (1,60 secs)
+--- AuraStoreTests
+Building for debugging...
+[Pre-planning 1 / 94]
+[Constructing 1 / 212]
+[15 / 26] AuraStoreTests-product
+[18 / 29] AuraStoreTests-product
+[23 / 29] AuraStoreTests-product
+[25 / 29] AuraStoreTests-product
+Build complete! (1,33 secs)
+--- AURAIntegrationTests
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 645]
+[Planning deferred tasks]
+[17 / 40] AURA
+[28 / 51] AURA
+[36 / 51] AURA
+[41 / 52] AURAIntegrationTests-product
+[54 / 65] AURAIntegrationTests-product
+[59 / 65] AURAIntegrationTests-product
+[61 / 65] AURAIntegrationTests-product
+Build complete! (4,40 secs)
+--- AuraAudioTests
+Building for debugging...
+[Pre-planning 1 / 94]
+[Planning deferred tasks]
+[15 / 26] AuraAudioTests-product
+[24 / 35] AuraAudioTests-product
+[29 / 35] AuraAudioTests-product
+[31 / 35] AuraAudioTests-product
+Build complete! (1,72 secs)
+--- AuraAutomationTests
+Building for debugging...
+[Pre-planning 1 / 94]
+[Constructing 1 / 212]
+[15 / 26] AuraAutomationTests-product
+[19 / 30] AuraAutomationTests-product
+[24 / 30] AuraAutomationTests-product
+[26 / 30] AuraAutomationTests-product
+Build complete! (1,89 secs)
+--- AuraAgentTests
+Building for debugging...
+[Pre-planning 1 / 327]
+[Planning deferred tasks]
+[13 / 49]
+[19 / 30] AuraAgentTests-product
+[30 / 41] AuraAgentTests-product
+[37 / 41] AuraAgentTests-product
+Build complete! (3,30 secs)
+--- AuraSTTTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Creating build graph]
+[10 / 33]
+[15 / 26] AuraSTTTests-product
+[21 / 32] AuraSTTTests-product
+[26 / 32] AuraSTTTests-product
+[28 / 32] AuraSTTTests-product
+Build complete! (1,59 secs)
+--- AuraPolicyTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Describing: 155 / 275]
+[15 / 26] AuraPolicyTests-product
+[20 / 31] AuraPolicyTests-product
+[25 / 31] AuraPolicyTests-product
+[27 / 31] AuraPolicyTests-product
+Build complete! (1,41 secs)
+--- AuraShellTests
+Building for debugging...
+[Pre-planning 1 / 94]
+[Constructing 1 / 212]
+[15 / 26] AuraShellTests-product
+[19 / 30] AuraShellTests-product
+[24 / 30] AuraShellTests-product
+[26 / 30] AuraShellTests-product
+Build complete! (1,22 secs)
+--- AuraComputerUseTests
+Building for debugging...
+[Pre-planning 1 / 210]
+[Finalizing plan]
+[15 / 26] AuraComputerUseTests-product
+[26 / 37] AuraComputerUseTests-product
+[31 / 37] AuraComputerUseTests-product
+[33 / 37] AuraComputerUseTests-product
+Build complete! (2,20 secs)
+--- AuraSecurityTests
+Building for debugging...
+[Pre-planning 1 / 152]
+[Creating build graph]
+[10 / 35]
+[15 / 26] AuraSecurityTests-product
+[22 / 33] AuraSecurityTests-product
+[27 / 33] AuraSecurityTests-product
+[29 / 33] AuraSecurityTests-product
+Build complete! (1,38 secs)
+--- AuraPluginsTests
+Building for debugging...
+[Pre-planning 1 / 152]
+[Finalizing plan]
+[15 / 26] AuraPluginsTests-product
+[22 / 33] AuraPluginsTests-product
+[27 / 33] AuraPluginsTests-product
+[29 / 33] AuraPluginsTests-product
+Build complete! (1,47 secs)
+--- AuraIntentTests
+Building for debugging...
+[Pre-planning 1 / 413]
+[Planning deferred tasks]
+[10 / 53]
+[15 / 26] AuraIntentTests-product
+[25 / 37] AuraIntentTests-product
+[26 / 37] AuraIntentTests-product
+[33 / 37] AuraIntentTests-product
+Build complete! (2,57 secs)
+--- AuraConfigTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Constructing 1 / 275]
+[15 / 26] AuraConfigTests-product
+[18 / 29] AuraConfigTests-product
+[23 / 29] AuraConfigTests-product
+[25 / 29] AuraConfigTests-product
+Build complete! (1,36 secs)
+--- AuraVSCodeTests
+Building for debugging...
+[Pre-planning 1 / 181]
+[Finalizing plan]
+[15 / 26] AuraVSCodeTests-product
+[19 / 30] AuraVSCodeTests-product
+[24 / 30] AuraVSCodeTests-product
+[26 / 30] AuraVSCodeTests-product
+Build complete! (1,39 secs)
+--- AuraTasksTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Finalizing plan]
+[10 / 33]
+[15 / 26] AuraTasksTests-product
+[19 / 30] AuraTasksTests-product
+[24 / 30] AuraTasksTests-product
+[26 / 30] AuraTasksTests-product
+Build complete! (1,41 secs)
+--- AuraMemoryTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Planning deferred tasks]
+[10 / 33]
+[15 / 26] AuraMemoryTests-product
+[20 / 31] AuraMemoryTests-product
+[25 / 31] AuraMemoryTests-product
+[27 / 31] AuraMemoryTests-product
+Build complete! (1,70 secs)
+--- AuraContextTests
+Building for debugging...
+[Pre-planning 1 / 152]
+[Creating build graph]
+[10 / 35]
+[15 / 26] AuraContextTests-product
+[21 / 32] AuraContextTests-product
+[26 / 32] AuraContextTests-product
+[28 / 32] AuraContextTests-product
+Build complete! (1,55 secs)
+--- AuraScreenTests
+Building for debugging...
+[Pre-planning 1 / 152]
+[Creating build graph]
+[10 / 35]
+[15 / 26] AuraScreenTests-product
+[21 / 32] AuraScreenTests-product
+[26 / 32] AuraScreenTests-product
+[28 / 32] AuraScreenTests-product
+Build complete! (1,84 secs)
+--- AuraAdversarialTests
+Building for debugging...
+[Pre-planning 1 / 471]
+[Planning deferred tasks]
+[15 / 26] AuraAdversarialTests-product
+[26 / 37] AuraAdversarialTests-product
+[31 / 37] AuraAdversarialTests-product
+[33 / 37] AuraAdversarialTests-product
+Build complete! (1,86 secs)
+--- AuraProductivityTests
+Building for debugging...
+[Pre-planning 1 / 442]
+[Planning deferred tasks]
+[15 / 26] AuraProductivityTests-product
+[19 / 30] AuraProductivityTests-product
+[24 / 30] AuraProductivityTests-product
+[26 / 30] AuraProductivityTests-product
+Build complete! (2,15 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AuraCoreTests ===
+✔ Test advancingPreservesTraceAndAuthorityMetadata() passed after 0.001 seconds.
+✔ Test expiryPlanChangeAndReplayFailClosed() passed after 0.001 seconds.
+✔ Test envelopeUsesContextCorrelationAndCausation() passed after 0.001 seconds.
+✔ Test contextRoundTripsThroughCodable() passed after 0.001 seconds.
+✔ Test eventEnvelopeChildInheritsCausality() passed after 0.001 seconds.
+✔ Test helperIPCValidRequestBindsPlanPayloadAndFreshness() passed after 0.001 seconds.
+✔ Test newStoreCannotReplayPriorAuthorization() passed after 0.001 seconds.
+✔ Test loggerRespectsMinimumLevel() passed after 0.001 seconds.
+✔ Test helperIPCReplayGuardConsumesNonceExactlyOnce() passed after 0.001 seconds.
+✔ Test helperIPCDeniesCapabilityEscalationAcrossHelperKinds() passed after 0.001 seconds.
+✔ Test eventEnvelopeSchemaValidationRejectsUnsupportedVersion() passed after 0.001 seconds.
+✔ Test eventBusRecordsOnlyRedactedTraceProjection() passed after 0.001 seconds.
+✔ Test authorizedTransactionExecutesAndVerifiesExactlyOnce() passed after 0.001 seconds.
+✔ Test configurationValidationRejectsInvalidLogLevel() passed after 0.001 seconds.
+✔ Test eventEnvelopeRoundTrip() passed after 0.001 seconds.
+✔ Test configurationLoadingMergesDefaults() passed after 0.001 seconds.
+✔ Test helperIPCResponseMustBindRequestAndPayload() passed after 0.001 seconds.
+✔ Test helperIPCRejectsExpiredTamperedAndWrongKindRequests() passed after 0.001 seconds.
+✔ Test configurationDefaultsValidate() passed after 0.001 seconds.
+✔ Test run with 28 tests in 6 suites passed after 0.002 seconds.
+PASSED: AuraCoreTests
+=== AuraStoreTests ===
+✔ Test storeOpensAndMigrates() passed after 0.025 seconds.
+✔ Test storePersistsOnlyRedactedTraceColumns() passed after 0.028 seconds.
+✔ Test storePersistsEvent() passed after 0.028 seconds.
+✔ Test storeDeleteMemoryRecordRemovesRow() passed after 0.029 seconds.
+✔ Test storeAppendsImmutablePluginAuditHistory() passed after 0.029 seconds.
+✔ Test storeAppendsLedgerEntry() passed after 0.029 seconds.
+✔ Test storeAppendsAndQueriesMemoryRecord() passed after 0.030 seconds.
+✔ Test entriesRespectsSinceAndLimit() passed after 0.030 seconds.
+✔ Test storeAppendsAndUpdatesMemoryConflictResolution() passed after 0.030 seconds.
+✔ Test storeMemoryRecordsExcludesSupersededByDefault() passed after 0.031 seconds.
+✔ Test run with 10 tests in 1 suite passed after 0.032 seconds.
+PASSED: AuraStoreTests
+=== AURAIntegrationTests ===
+✔ Test "safe production fallback denies confirmation" passed after 0.016 seconds.
+✔ Test "STT errors are health events and never stable user intent" passed after 0.023 seconds.
+✔ Test "STT health failures end listening with the concrete error" passed after 0.023 seconds.
+✔ Test "clean profile creates private application support directory" passed after 0.017 seconds.
+✔ Test "STT pipeline emits stable segments for two consecutive finalized turns" passed after 0.035 seconds.
+✔ Test "a malformed mail endpoint disables only mail, not calendar and contacts" passed after 0.040 seconds.
+✔ Test "Push to Talk ends exactly once after observed speech and configured silence" passed after 0.052 seconds.
+✔ Test endToEndPipelineNeverGuessesAnUnresolvedApplication() passed after 0.062 seconds.
+✔ Test endToEndPipelineCompletesSimpleCommandUnderBudget() passed after 0.061 seconds.
+✔ Test endToEndPipelineActivatesApplicationFromScriptedUtterance() passed after 0.064 seconds.
+✔ Test "with nothing approved, every read capability is disabled with a next step" passed after 0.091 seconds.
+✔ Test "a calendar read with the adapter disabled refuses rather than reporting an empty day" passed after 0.091 seconds.
+✔ Test "disabling the native reads in configuration removes their adapters entirely" passed after 0.100 seconds.
+✔ Test "calendar and contacts state their next step whenever they are not authorized" passed after 0.110 seconds.
+✔ Test "AppModel projects runtime events and constructs every product surface" passed after 0.112 seconds.
+✔ Test "Push to Talk hard deadline closes a session even when no speech is observed" passed after 0.151 seconds.
+✔ Test "emergency stop cancels a pending confirmation and persists redacted trace" passed after 0.168 seconds.
+✔ Test "window close dismisses a pending confirmation and persists only redacted trace" passed after 0.168 seconds.
+✔ Test "confirmation lifecycle persists redacted terminal outcomes" passed after 0.206 seconds.
+✔ Test run with 43 tests in 9 suites passed after 0.207 seconds.
+PASSED: AURAIntegrationTests
+=== AuraAudioTests ===
+✔ Test bargeInInterruptsActiveStream() passed after 0.001 seconds.
+✔ Test antiTriggerDoesNotLoopOnOwnSpeech() passed after 0.001 seconds.
+✔ Test consecutiveStopSpeakingIsIdempotent() passed after 0.001 seconds.
+✔ Test runtimeConfigurationFailsClosedAtEveryMaterialBoundary() passed after 0.004 seconds.
+✔ Test unconfiguredRuntimeUsesFemaleSystemFallbackContract() passed after 0.007 seconds.
+✔ Test stopTerminatesHelperAndKeepsFallbackReady() passed after 0.008 seconds.
+✔ Test configuredHelperWarmsAndSynthesizesLocally() passed after 0.010 seconds.
+✔ Test helperCannotEscapePrivateOutputDirectory() passed after 0.014 seconds.
+✔ Test promptLengthIsBoundedBeforeHelperInvocation() passed after 0.016 seconds.
+✔ Test helperTimeoutFallsBackAndStopsTheHelper() passed after 0.026 seconds.
+✔ Test privacyModeRequiresShortcut() passed after 0.062 seconds.
+✔ Test antiTriggerSuppressesWakeDuringOutput() passed after 0.114 seconds.
+✔ Test explicitFemaleYeldaPreferenceOverridesQualityRanking() passed after 0.124 seconds.
+✔ Test bestTurkishVoiceUsesHighestInstalledQuality() passed after 0.130 seconds.
+✔ Test startReportsReadyWhenVoicesExist() passed after 0.130 seconds.
+✔ Test healthAfterStartIsReady() passed after 0.170 seconds.
+✔ Test wakePipelineAcceptsWakeAndReportsMetrics() passed after 0.210 seconds.
+✔ Test startIgnoredWhenNotIdle() passed after 0.325 seconds.
+✔ Test stateTransitionsThroughStartAndStop() passed after 0.326 seconds.
+✔ Test run with 35 tests in 5 suites passed after 0.326 seconds.
+PASSED: AuraAudioTests
+=== AuraAutomationTests ===
+✔ Test "a false return from the Finder selection call is also a failure" passed after 0.009 seconds.
+✔ Test "refuses a sensitive location spelled with different case (APFS is case-insensitive)" passed after 0.009 seconds.
+✔ Test "does not treat a sibling root with a shared prefix as contained" passed after 0.009 seconds.
+✔ Test "refuses an http URL with no host" passed after 0.009 seconds.
+✔ Test "refuses credential and privacy-state locations" passed after 0.009 seconds.
+✔ Test "accepts a target inside an approved root" passed after 0.009 seconds.
+✔ Test "reveal uses the Finder selection call, not a plain open" passed after 0.009 seconds.
+✔ Test "rejects a target that escapes the approved roots via .." passed after 0.009 seconds.
+✔ Test "rejects executable and location-forwarding extensions that LaunchServices would run" with 8 test cases passed after 0.009 seconds.
+✔ Test "accepts a plain regular file and returns its canonical path" passed after 0.009 seconds.
+✔ Test "rejects control characters and null bytes in a path" passed after 0.009 seconds.
+✔ Test "a false return from the system is a failure, never a silent success" passed after 0.009 seconds.
+✔ Test "rejects a target longer than the configured limit" passed after 0.009 seconds.
+✔ Test "rejects a symlink inside an approved root that points outside it" passed after 0.009 seconds.
+✔ Test "opens an accepted file and reports the canonical target" passed after 0.009 seconds.
+✔ Test "reports the resolved destination of a symlink, never the caller's raw input" passed after 0.009 seconds.
+✔ Test "a refused target is never handed to LaunchServices" passed after 0.009 seconds.
+✔ Test "a task cancelled before the handoff opens nothing" passed after 0.009 seconds.
+✔ Test "rejects an application bundle for both open_file and open_folder" passed after 0.012 seconds.
+✔ Test run with 39 tests in 3 suites passed after 0.013 seconds.
+PASSED: AuraAutomationTests
+=== AuraAgentTests ===
+✔ Test orchestratorApprovesOnFirstReviewIteration() passed after 0.306 seconds.
+✔ Test orchestratorCorrectsOnceThenApproves() passed after 0.127 seconds.
+✔ Test "response plan with summary starts TTS" passed after 0.201 seconds.
+✔ Test "response plan without spoken response returns to idle" passed after 0.001 seconds.
+✔ Test "barge-in during speaking stops TTS and returns to listening" passed after 0.057 seconds.
+✔ Test orchestratorEscalatesAfterBoundedIterationsExhausted() passed after 0.131 seconds.
+✔ Test "barge-in grace window suppresses repeated interruptions" passed after 0.032 seconds.
+✔ Test orchestratorValidationFailureOverridesReviewerApproval() passed after 0.135 seconds.
+✔ Test orchestratorZeroInvocationBudgetPreventsAnyAgentSpawn() passed after 0.052 seconds.
+✔ Test orchestratorPlannerFailureNeverCreatesWorktree() passed after 0.051 seconds.
+✔ Test orchestratorImplementerFailureEmbedsWorktreePathInReason() passed after 0.082 seconds.
+✔ Test "queued prompts are spoken in order" passed after 0.303 seconds.
+✔ Test orchestratorSpecialistSwarmRunsIsolatedTasksConcurrently() passed after 0.107 seconds.
+✔ Test orchestratorSpecialistSwarmIsolatesOneTaskFailureFromOthers() passed after 0.084 seconds.
+✔ Test "TTS chunks are emitted for spoken response" passed after 0.204 seconds.
+✔ Test orchestratorSpecialistSwarmRejectsOversizedRequest() passed after 0.052 seconds.
+✔ Test "wake-to-ack latency is measured and labeled mock engine" passed after 0.206 seconds.
+✔ Test "simple-command completion latency is measured after TTS" passed after 0.212 seconds.
+✔ Test "non-simple response plan does not emit simple-command completion" passed after 0.204 seconds.
+✔ Test run with 220 tests in 6 suites passed after 1.736 seconds.
+PASSED: AuraAgentTests
+=== AuraSTTTests ===
+✔ Test "WER matches reference words within insertions and substitutions" passed after 0.001 seconds.
+✔ Test "entity error rate detects missing code-switch term" passed after 0.001 seconds.
+✔ Test "matches deterministic Turkish/English early commands" passed after 0.001 seconds.
+✔ Test "provides technical terms as contextual hints" passed after 0.001 seconds.
+✔ Test "health reflects ready and cancelled states" passed after 0.001 seconds.
+✔ Test "emits partial then stable segment for scripted frames" passed after 0.001 seconds.
+✔ Test "cancellation does not leak further results" passed after 0.001 seconds.
+✔ Test selectsTheFirstReadyLocalEngineAndAnnotatesResults() passed after 0.001 seconds.
+✔ Test resourceDenialFailsClosedBeforeStartingCandidates() passed after 0.001 seconds.
+✔ Test "engineID and locale are exposed correctly" passed after 0.009 seconds.
+✔ Test "health is idle before start" passed after 0.009 seconds.
+✔ Test "vocabulary hints are accepted without crashing" passed after 0.009 seconds.
+✔ Test "cancel moves health to cancelled without crashing" passed after 0.009 seconds.
+✔ Test "start returns not authorized when speech recognition is not denied" passed after 0.023 seconds.
+✔ Test "cancel stops the session without emitting a stable result" passed after 0.024 seconds.
+✔ Test "ingest before start is safe when recognizer is unavailable" passed after 0.190 seconds.
+✔ Test run with 19 tests in 4 suites passed after 0.191 seconds.
+PASSED: AuraSTTTests
+=== AuraPolicyTests ===
+✔ Test "reconciliation leaves grants outside the seed signature untouched" passed after 0.003 seconds.
+✔ Test "a file request carrying no path matches no scoped grant" passed after 0.003 seconds.
+✔ Test "ungranted reversible capability outside the seeded set is still denied" passed after 0.003 seconds.
+✔ Test "filesystem grants are root-scoped, never .any" passed after 0.003 seconds.
+✔ Test "appActivate stays allowed without confirmation" passed after 0.003 seconds.
+✔ Test "RISK-SP-006-DEFAULT-GRANT-BREADTH: a path outside every declared root is denied" passed after 0.003 seconds.
+✔ Test "reconciliation is idempotent — repeated seeding cannot grow the grant set" passed after 0.003 seconds.
+✔ Test "reconciliation prunes legacy broad grants so scoping actually takes effect" passed after 0.003 seconds.
+✔ Test "no seeded grant uses an unrestricted .any pattern on a targetable capability" passed after 0.003 seconds.
+✔ Test "mailto has no host, so scheme scoping must still authorize it" passed after 0.003 seconds.
+✔ Test "ungranted destructive capability is still denied by default" passed after 0.003 seconds.
+✔ Test "SP-006: filesystem/URL capabilities are allowed for in-scope targets" passed after 0.003 seconds.
+✔ Test "appTerminate requires confirmation under the seeded grant" passed after 0.003 seconds.
+✔ Test "url.open is scoped to the adapter's scheme allowlist" passed after 0.003 seconds.
+✔ Test "shellExec requires confirmation on every request" passed after 0.003 seconds.
+✔ Test denyRuleOverridesAllowByDefault() passed after 0.016 seconds.
+✔ Test grantsPersistAcrossReloads() passed after 0.017 seconds.
+✔ Test confirmationExpiryDenies() passed after 0.017 seconds.
+✔ Test removeDenyRuleRestoresDefault() passed after 0.017 seconds.
+✔ Test run with 38 tests in 1 suite passed after 0.020 seconds.
+PASSED: AuraPolicyTests
+=== AuraShellTests ===
+✔ Test commandRejectsDisallowedEnvironmentKey() passed after 0.001 seconds.
+✔ Test commandRejectsShellString() passed after 0.001 seconds.
+✔ Test commandRejectsTimeoutOutOfBounds() passed after 0.001 seconds.
+✔ Test commandEffectiveArgumentsOmitsTrailingArgumentWhenNil() passed after 0.001 seconds.
+✔ Test redactorMasksDefaultPatterns() passed after 0.002 seconds.
+✔ Test evidenceSnapshotListsFiles() passed after 0.005 seconds.
+✔ Test evidenceDiffDetectsChange() passed after 0.005 seconds.
+✔ Test streamingEnforcesOutputLineBound() passed after 0.024 seconds.
+✔ Test streamingDeliversStdinAndLinesInOrder() passed after 0.024 seconds.
+✔ Test streamingDeliversSemicolonLadenPromptSafely() passed after 0.024 seconds.
+✔ Test streamingDeliversTrailingArgumentContainingMetacharacters() passed after 0.024 seconds.
+✔ Test runnerBoundsOutput() passed after 0.024 seconds.
+✔ Test runnerEchoesStdout() passed after 0.024 seconds.
+✔ Test runnerRedactsOutput() passed after 0.024 seconds.
+✔ Test auraShellExecutesEcho() passed after 0.024 seconds.
+✔ Test runnerReportsNonzeroExitAsFailed() passed after 0.024 seconds.
+✔ Test streamingCancelTerminatesInFlightProcess() passed after 0.116 seconds.
+✔ Test runnerCancelsInFlightCommand() passed after 0.128 seconds.
+✔ Test runnerTimesOut() passed after 0.276 seconds.
+✔ Test run with 23 tests in 0 suites passed after 0.276 seconds.
+PASSED: AuraShellTests
+=== AuraComputerUseTests ===
+✔ Test "A step whose declared target app differs from the session target halts the loop" passed after 0.010 seconds.
+✔ Test "An unreadable secure-field state halts the session under its own reason" passed after 0.010 seconds.
+✔ Test "Cancellation between two executed steps halts before the next one runs" passed after 0.010 seconds.
+✔ Test "A mandatory-confirmation intent never executes even when a grant permits it with no confirmation" passed after 0.011 seconds.
+✔ Test "A zero minimum action interval never throttles" passed after 0.010 seconds.
+✔ Test "A minimum action interval throttles a second step in the same plan" passed after 0.011 seconds.
+✔ Test "Emergency stop at the act stage halts before the next step of the same plan" passed after 0.009 seconds.
+✔ Test "Loop stops at the configured iteration ceiling and never runs unbounded" passed after 0.010 seconds.
+✔ Test "A completed negative answer still lets the session proceed" passed after 0.011 seconds.
+✔ Test "Identical observations across consecutive iterations escalate to noProgress" passed after 0.011 seconds.
+✔ Test "The step outcome reports the anchoring mode used" passed after 0.011 seconds.
+✔ Test "A destructive-intent step is blocked by default deny without any grant" passed after 0.011 seconds.
+✔ Test "Only an explicit reset lets a stopped session restart and execute" passed after 0.010 seconds.
+✔ Test "A step requiring confirmation halts the loop and surfaces the challenge" passed after 0.012 seconds.
+✔ Test clickActionDegradesSafelyWithoutGeneratingInput() passed after 0.012 seconds.
+✔ Test "The real secure-field detector's boolean answer is its probe, failing closed" passed after 0.014 seconds.
+✔ Test waitActionSucceedsWithoutRequiringAccessibilityTrust() passed after 0.017 seconds.
+✔ Test "The secure-field guard is scoped to generated input and still permits waiting" passed after 0.017 seconds.
+✔ Test modalDetectorReturnsNilWithoutAccessibilityTrust() passed after 0.023 seconds.
+✔ Test run with 104 tests in 0 suites passed after 0.025 seconds.
+PASSED: AuraComputerUseTests
+=== AuraSecurityTests ===
+✔ Test inMemoryStoreRoundTripsAValue() passed after 0.002 seconds.
+✔ Test inMemoryStoreReturnsNilForMissingKey() passed after 0.002 seconds.
+✔ Test scannerDetectsHex40() passed after 0.002 seconds.
+✔ Test scannerReportsEmptyForEmptyInput() passed after 0.002 seconds.
+✔ Test scannerDetectsOpenAIStyleKey() passed after 0.002 seconds.
+✔ Test exactHostMatchIsAllowed() passed after 0.002 seconds.
+✔ Test inMemoryStoreDeleteRemovesValue() passed after 0.002 seconds.
+✔ Test scannerDetectsPrivateKeyBlock() passed after 0.002 seconds.
+✔ Test keychainStoreRejectsEmptyKey() passed after 0.002 seconds.
+✔ Test classifierBlocksRoleHijackInAgentToolOutput() passed after 0.003 seconds.
+✔ Test inMemoryStoreRejectsEmptyKey() passed after 0.002 seconds.
+✔ Test classifierReturnsCleanForBenignRepositoryContent() passed after 0.002 seconds.
+✔ Test scannerDetectsJWT() passed after 0.002 seconds.
+✔ Test classifierProducesSuspiciousBelowBlockThreshold() passed after 0.002 seconds.
+✔ Test classifierNeverScansAuthoritativeUserUtterance() passed after 0.002 seconds.
+✔ Test scannerAndOutputRedactorAgreeOnDetection() passed after 0.002 seconds.
+✔ Test keychainStoreReturnsNilForMissingKey() passed after 0.005 seconds.
+✔ Test keychainStoreOverwritesExistingValue() passed after 0.040 seconds.
+✔ Test keychainStoreRoundTripsAValue() passed after 0.041 seconds.
+✔ Test run with 38 tests in 0 suites passed after 0.044 seconds.
+PASSED: AuraSecurityTests
+=== AuraPluginsTests ===
+✔ Test quarantineBlocksSubsequentEnable() passed after 0.007 seconds.
+✔ Test signedPayloadChangesWhenContentHashChanges() passed after 0.006 seconds.
+✔ Test verifierRejectsStructurallyInvalidManifestBeforeCryptography() passed after 0.006 seconds.
+✔ Test manifestRejectsNonHexContentHash() passed after 0.007 seconds.
+✔ Test installDeniedByPolicyNeverRegistersThePlugin() passed after 0.007 seconds.
+✔ Test uninstallIsIdempotent() passed after 0.007 seconds.
+✔ Test uninstallRevokesGrantsAndPreservesAuditRecord() passed after 0.007 seconds.
+✔ Test marketplaceRequiresExplicitSourceApproval() passed after 0.007 seconds.
+✔ Test installAcceptsAVerifiedPluginAndIssuesGrants() passed after 0.007 seconds.
+✔ Test installRejectsTamperedBundleHash() passed after 0.007 seconds.
+✔ Test operatingOnUnknownPluginIDThrows() passed after 0.006 seconds.
+✔ Test verifierRejectsManifestWithTamperedRequiredPermissions() passed after 0.007 seconds.
+✔ Test manifestMigrationNotesAndKeyIDAreSignatureBound() passed after 0.007 seconds.
+✔ Test enableDisableRoundTrip() passed after 0.007 seconds.
+✔ Test artifactTamperBlocksEnableBeforeRuntime() passed after 0.008 seconds.
+✔ Test disabledAndQuarantinedPluginsNeverReachRuntime() passed after 0.009 seconds.
+✔ Test pluginGrantsAreScopedToPluginActorAndHaveExpiry() passed after 0.027 seconds.
+✔ Test registryPersistsAndReloadsFromStore() passed after 0.028 seconds.
+✔ Test updateRollbackUninstallPreserveAuditAndRemoveArtifacts() passed after 0.035 seconds.
+✔ Test run with 37 tests in 0 suites passed after 0.036 seconds.
+PASSED: AuraPluginsTests
+=== AuraIntentTests ===
+✔ Test "classifies 'open ~/Documents/' as fileOpen with folderPath slot" passed after 0.037 seconds.
+✔ Test "IntentKind has exactly 13 cases: 9 from SP-005 plus SP-010's four reads" passed after 0.037 seconds.
+✔ Test "planner accepts fileReveal with a valid path argument" passed after 0.037 seconds.
+✔ Test "planner rejects browser.read which remains disabled" passed after 0.037 seconds.
+✔ Test "IntentSemanticCategory has the new cases" passed after 0.033 seconds.
+✔ Test "classifies 'open /path/to/file.txt' as fileOpen, not appActivate" passed after 0.033 seconds.
+✔ Test "ToolRouter.capabilityID maps the new kinds to registered manifest IDs" passed after 0.033 seconds.
+✔ Test "planner accepts fileOpen with a valid path argument" passed after 0.033 seconds.
+✔ Test "classifies bare 'https://example.com' as urlOpen without prefix" passed after 0.033 seconds.
+✔ Test "a mail read without a query is refused by the planner, not by the adapter" passed after 0.078 seconds.
+✔ Test routerExecutesNonDestructiveShellCommand() passed after 0.080 seconds.
+✔ Test "a step whose dependency did not execute is skipped, not attempted" passed after 0.051 seconds.
+✔ Test "every routable intent kind round-trips through the capability mapping" passed after 0.052 seconds.
+✔ Test "the planner rejects an unknown capability, so routePlan never sees it" passed after 0.052 seconds.
+✔ Test "the planner refuses a missing required slot before any handler runs" passed after 0.052 seconds.
+✔ Test "a disabled capability never reaches an adapter" passed after 0.053 seconds.
+✔ Test "routing a single intent emits a real plan fingerprint" passed after 0.053 seconds.
+✔ Test "a self-referencing dependency is rejected as a cycle" passed after 0.054 seconds.
+✔ Test "routePlan executes a two-step dependent plan through policy and adapters" passed after 0.113 seconds.
+✔ Test run with 117 tests in 5 suites passed after 0.155 seconds.
+PASSED: AuraIntentTests
+=== AuraConfigTests ===
+✔ Test migrationCanReverseWithinCompatibilityWindow() passed after 0.001 seconds.
+✔ Test featureFlagsRequireCompleteFutureDatedGovernanceMetadata() passed after 0.001 seconds.
+✔ Test rolloutAssignmentIsStableAndBounded() passed after 0.001 seconds.
+✔ Test reversibleMigrationRenamesKeysAndPreservesCompatibilitySnapshot() passed after 0.001 seconds.
+✔ Test registryMayExplicitlyPermitOrdinaryProjectOptIn() passed after 0.001 seconds.
+✔ Test persistenceFailureNeverMakesCandidateEffective() passed after 0.001 seconds.
+✔ Test unknownKeysAreRejectedWarnedAndAudited() passed after 0.001 seconds.
+✔ Test projectOverrideCannotEnableGovernedOffFlag() passed after 0.001 seconds.
+✔ Test sessionOverridesExpireOnRestartButRemainAudited() passed after 0.001 seconds.
+✔ Test projectConfigurationMayStrengthenConfirmationBoundary() passed after 0.001 seconds.
+✔ Test projectConfigurationCannotWeakenHigherRiskPolicy() passed after 0.001 seconds.
+✔ Test telemetryIsAggregateOnlyAndRequiresExplicitOptIn() passed after 0.001 seconds.
+✔ Test expiredFlagAndKillSwitchOverrideEveryOtherDecision() passed after 0.002 seconds.
+✔ Test machinePolicySecurityBoundCannotBeRelaxedByUserOrSession() passed after 0.002 seconds.
+✔ Test layersResolveInNormativeOrderAndCanBeRevoked() passed after 0.002 seconds.
+✔ Test recommendationIsExplainableAndNeverAppliesWithoutAcceptance() passed after 0.002 seconds.
+✔ Test rollbackSurvivesStoreAndEngineRestart() passed after 0.011 seconds.
+✔ Test run with 17 tests in 0 suites passed after 0.011 seconds.
+PASSED: AuraConfigTests
+=== AuraVSCodeTests ===
+✔ Test "static bridge exposes typed command results without a raw command escape hatch" passed after 0.001 seconds.
+✔ Test "policyRequest maps openFile to vscodeOpen capability" passed after 0.001 seconds.
+✔ Test "policyRequest maps terminalCommand to vscodeInjectTerminal" passed after 0.001 seconds.
+✔ Test "typed bridge task command maps to a dedicated reversible capability" passed after 0.001 seconds.
+✔ Test "file bridge reports unavailable when state path is nil" passed after 0.001 seconds.
+✔ Test "adapter activeWorkspace reads bridge editor state" passed after 0.001 seconds.
+✔ Test "AlwaysAllow confirmation allows" passed after 0.001 seconds.
+✔ Test "CLI arguments for openWorkspace newWindow include --new-window" passed after 0.001 seconds.
+✔ Test "CLI arguments for openWorkspace include path" passed after 0.001 seconds.
+✔ Test "CLI arguments for openFile include --goto with line and column" passed after 0.001 seconds.
+✔ Test "CLI arguments for manageExtension install" passed after 0.001 seconds.
+✔ Test "adapter fails closed when PolicyEngine denies an action" passed after 0.001 seconds.
+✔ Test "authenticated bridge command envelope binds the typed command and request nonce" passed after 0.002 seconds.
+✔ Test "workspace resolver marks multiple candidates ambiguous" passed after 0.002 seconds.
+✔ Test "workspace resolver follows explicit, active, durable, then candidate precedence" passed after 0.002 seconds.
+✔ Test "adapter fails closed when policy requires confirmation" passed after 0.003 seconds.
+✔ Test "authenticated bridge accepts a signed fresh snapshot" passed after 0.003 seconds.
+✔ Test "file bridge reads snapshot JSON" passed after 0.003 seconds.
+✔ Test "authenticated bridge rejects tampering and nonce replay" passed after 0.003 seconds.
+✔ Test run with 22 tests in 1 suite passed after 0.004 seconds.
+PASSED: AuraVSCodeTests
+=== AuraTasksTests ===
+✔ Test cancelUnknownTaskThrowsNotFound() passed after 0.028 seconds.
+✔ Test deleteRemovesTaskAndData() passed after 0.032 seconds.
+✔ Test queueCapacityRejectsExcessTasks() passed after 0.079 seconds.
+✔ Test maxConcurrentTasksLimitsActiveRunners() passed after 0.085 seconds.
+✔ Test enqueueReturnsPendingStatus() passed after 0.088 seconds.
+✔ Test pauseAndResumeRunningTask() passed after 0.088 seconds.
+✔ Test priorityQueueOrdersHighBeforeNormal() passed after 0.139 seconds.
+✔ Test cancellationMovesTaskToCancelled() passed after 0.140 seconds.
+✔ Test checkpointPersistsAndCanBeLoaded() passed after 0.140 seconds.
+✔ Test expiredTaskFailsWithoutRetry() passed after 0.288 seconds.
+✔ Test inactiveTaskFailsWithoutRetry() passed after 0.288 seconds.
+✔ Test retryExhaustionFailsTask() passed after 0.345 seconds.
+✔ Test run with 12 tests in 0 suites passed after 0.346 seconds.
+PASSED: AuraTasksTests
+=== AuraMemoryTests ===
+✔ Test memoryEngineActiveBeliefsExcludeShadowedRecords() passed after 0.095 seconds.
+✔ Test r8SecretLikeContentIsRejectedEvenWhenMarkedInternal() passed after 0.094 seconds.
+✔ Test memoryEngineContradictionCreatesConflictsWithEdge() passed after 0.095 seconds.
+✔ Test memoryEngineDeleteRemovesRecordAndEmitsContentFreeAuditEvent() passed after 0.094 seconds.
+✔ Test memoryEngineSupersessionCreatesProvenanceEdge() passed after 0.094 seconds.
+✔ Test memoryEngineRejectsFactWithoutEvidence() passed after 0.094 seconds.
+✔ Test memoryEngineCorrectRejectsAuditRecords() passed after 0.095 seconds.
+✔ Test memoryEngineRejectsSecretEphemeralWithIndefiniteRetention() passed after 0.095 seconds.
+✔ Test memoryEngineDeleteRejectsAuditRecords() passed after 0.095 seconds.
+✔ Test memoryEngineCorrectAppendsSupersedingRecordAndEmitsEvent() passed after 0.095 seconds.
+✔ Test r8PreferenceProfileRoundTripsThroughASeparateStoreHandle() passed after 0.105 seconds.
+✔ Test memoryEngineDetectsContradictionForSameKeyDifferentStatement() passed after 0.106 seconds.
+✔ Test memoryEngineAnnotateAddsNodeAndEdges() passed after 0.107 seconds.
+✔ Test memoryEngineInspectExcludesAuditRecords() passed after 0.109 seconds.
+✔ Test memoryEngineActiveBeliefsRespectAuthorityTieBreaker() passed after 0.111 seconds.
+✔ Test memoryEngineCurrentStateMostRecentWinsOnUnresolvedConflict() passed after 0.111 seconds.
+✔ Test r8PreferenceProfilePersistsAndCannotWeakenLocalOnlyPolicy() passed after 0.112 seconds.
+✔ Test memoryEngineEvidenceReferenceCreatesEvidenceForEdge() passed after 0.114 seconds.
+✔ Test memoryEngineCurrentStateReturnsLatestNonSupersededRecord() passed after 0.114 seconds.
+✔ Test run with 30 tests in 0 suites passed after 0.114 seconds.
+PASSED: AuraMemoryTests
+=== AuraContextTests ===
+✔ Test bundleIncludesActiveWorkspaceWhenProvided() passed after 0.069 seconds.
+✔ Test resolveTiedStrongCandidatesForDestructiveActionStaysAmbiguous() passed after 0.069 seconds.
+✔ Test resolveWithNoCandidatesReturnsNone() passed after 0.069 seconds.
+✔ Test secretOrNonInjectableOverrideCannotEnterBundle() passed after 0.069 seconds.
+✔ Test resolveMutationTierCandidateWithWeakEvidenceAlsoBlocks() passed after 0.069 seconds.
+✔ Test r8RemoteContextFailsClosedBeforeAnyTransmission() passed after 0.069 seconds.
+✔ Test contextConfigurationPartialDecodePreservesPhase22Defaults() passed after 0.069 seconds.
+✔ Test ambiguousReferenceNeverGuessesBetweenTwoStrongFiles() passed after 0.069 seconds.
+✔ Test recentLowConfidenceInjectedCandidateCannotSilentlyWinADestructiveResolution() passed after 0.069 seconds.
+✔ Test r8ContextBundleCarriesPurposeProvenanceAndBoundedBudget() passed after 0.069 seconds.
+✔ Test bundleAlwaysIncludesUtteranceAndConversationState() passed after 0.071 seconds.
+✔ Test semanticRetrievalMatchesRelevantFactAndSkipsUnrelatedOne() passed after 0.075 seconds.
+✔ Test scopeMatchingPreferenceOutranksMismatchedScopePreference() passed after 0.083 seconds.
+✔ Test r8ContextSurfacesUnresolvedContradictionButUsesAuthorityWinner() passed after 0.094 seconds.
+✔ Test trueMostRecentLedgerEntrySurfacesEvenWithManyOlderEntries() passed after 0.105 seconds.
+✔ Test userCanInspectExcludeAndExplicitlyIncludeContext() passed after 0.109 seconds.
+✔ Test multiHopFileTaskDecisionPreferenceLineageIsInjected() passed after 0.127 seconds.
+✔ Test bundleIsBoundedByConfiguredBudgetEvenWithManyCandidates() passed after 0.190 seconds.
+✔ Test tokenBudgetRetainsMandatoryContextAndDropsOptionalTail() passed after 0.289 seconds.
+✔ Test run with 33 tests in 0 suites passed after 0.289 seconds.
+PASSED: AuraContextTests
+=== AuraScreenTests ===
+✔ Test regionsRelativeToCaptureDropsNonOverlappingRegion() passed after 0.004 seconds.
+✔ Test regionsRelativeToCaptureClipsAndTranslatesOverlappingRegion() passed after 0.004 seconds.
+✔ Test captureBlockedForOutOfBoundsRegionAndNeverCallsCaptureSource() passed after 0.004 seconds.
+✔ Test captureBlockedWhenDisabledByConfigurationAndNeverTouchesCaptureSource() passed after 0.004 seconds.
+✔ Test captureBlockedForNegativeOriginRegion() passed after 0.004 seconds.
+✔ Test captureBlockedWhenWindowNotFound() passed after 0.004 seconds.
+✔ Test captureBlockedWhenPolicyDenies() passed after 0.004 seconds.
+✔ Test doesNotFalsePositiveOnShortOrdinaryNumbers() passed after 0.004 seconds.
+✔ Test redactsAuthenticationCodeShapedText() passed after 0.004 seconds.
+✔ Test listApprovedWindowsReturnsEmptyWhenDisabled() passed after 0.004 seconds.
+✔ Test freshnessDeadlineReflectsConfiguredWindowAndObservationStartsFresh() passed after 0.004 seconds.
+✔ Test multipleRegionsProduceIndependentMatchesAtTheirOwnBoundingBoxes() passed after 0.004 seconds.
+✔ Test captureSucceedsAndRedactsRecognizedFinancialData() passed after 0.004 seconds.
+✔ Test captureWithValidRegionRecordsRegionAndForwardsItToCaptureSource() passed after 0.004 seconds.
+✔ Test sensitiveWindowTitleIsRedactedInObservation() passed after 0.004 seconds.
+✔ Test captureRespectsSecureFieldFocusAndMasksEntireFrame() passed after 0.004 seconds.
+✔ Test retainedRawFramesExpireAfterConfiguredRetentionWindow() passed after 0.004 seconds.
+✔ Test captureNeverRetainsRawFrameByDefault() passed after 0.004 seconds.
+✔ Test captureRetainsRawFrameOnlyWhenExplicitlyOptedIn() passed after 0.004 seconds.
+✔ Test run with 36 tests in 0 suites passed after 0.005 seconds.
+PASSED: AuraScreenTests
+=== AuraAdversarialTests ===
+✔ Test loweringMinimumConfirmationRiskIsRejected() passed after 0.034 seconds.
+✔ Test unknownToolIntentIsAmbiguous() passed after 0.035 seconds.
+✔ Test pluginManifestRejectsCapabilityEscalationWithAnyPermission() passed after 0.034 seconds.
+✔ Test mandatoryConfirmationCannotBeBypassedByDenyRule() passed after 0.034 seconds.
+✔ Test indirectHiddenHTMLCommentBlockedInRepositoryFile() passed after 0.034 seconds.
+✔ Test hallucinatedBundleIdentifierDoesNotActivateDisallowedApp() passed after 0.035 seconds.
+✔ Test trustedProvenanceHasNoSpecialRoutingBypass() passed after 0.035 seconds.
+✔ Test pluginVerifierDetectsBundleVendorSwapToUntrustedSource() passed after 0.034 seconds.
+✔ Test routerRejectsDestructiveShellIntentWithoutConfirmation() passed after 0.035 seconds.
+✔ Test pluginVerifierAcceptsTrustedSignedManifest() passed after 0.034 seconds.
+✔ Test shellExecuteWithoutExecutableFails() passed after 0.034 seconds.
+✔ Test numberBelowMinimumIsRejected() passed after 0.034 seconds.
+✔ Test directInstructionOverrideBlockedInWebContent() passed after 0.034 seconds.
+✔ Test lowConfidenceIntentIsAmbiguous() passed after 0.047 seconds.
+✔ Test shellDestructivePatternEscalatesAndRequiresConfirmation() passed after 0.047 seconds.
+✔ Test memoryRejectsPoisonedPreferenceFromUntrustedSource() passed after 0.052 seconds.
+✔ Test memoryConflictDetectedWhenPoisonContradictsUserPreference() passed after 0.053 seconds.
+✔ Test confirmationChallengeExpiryEnforced() passed after 0.062 seconds.
+✔ Test routerRejectsOutOfSchemaBundleSlotOnShellExecute() passed after 0.071 seconds.
+✔ Test run with 61 tests in 0 suites passed after 0.072 seconds.
+PASSED: AuraAdversarialTests
+=== AuraProductivityTests ===
+✔ Test "the diagnostic drops the candidate addresses that errorDescription leaks" passed after 0.001 seconds.
+✔ Test browserAdapterEnforcesProfileAndDomainScope() passed after 0.005 seconds.
+✔ Test "profile ambiguity and invalid input drop their private detail too" passed after 0.001 seconds.
+✔ Test "compose and send tiers are refused at enrollment" passed after 0.001 seconds.
+✔ Test safariBridgeTransportRejectsIdentityMismatchAndTamperedEnvelope() passed after 0.005 seconds.
+✔ Test "bounded text collapses newlines, truncates, and scrubs secret shapes" passed after 0.001 seconds.
+✔ Test "an unapproved profile is never reported as connected" passed after 0.001 seconds.
+✔ Test "an approved account is not connected until it is enrolled" passed after 0.001 seconds.
+✔ Test "browser profile enrollment provisions a secret and revocation clears it" passed after 0.001 seconds.
+✔ Test "a fingerprint is stable, distinguishing, and does not contain the address" passed after 0.001 seconds.
+✔ Test "revocation disconnects the account and clears the credential" passed after 0.001 seconds.
+✔ Test "two approved accounts with no stated account is ambiguous, never a guess" passed after 0.001 seconds.
+✔ Test "being offline is reported as a network failure, not a bad credential" passed after 0.005 seconds.
+✔ Test "a malformed provider payload is an outage, never a half-built message" passed after 0.005 seconds.
+✔ Test "the bearer token travels in a header and never in the URL" passed after 0.005 seconds.
+✔ Test "a revoked credential stops reads at the adapter" passed after 0.002 seconds.
+✔ Test "each provider status maps to its own distinct failure" passed after 0.005 seconds.
+✔ Test "a recorded thread decodes headers and a base64url plain-text body" passed after 0.003 seconds.
+✔ Test "an enrollment record never carries token material, even when described" passed after 0.007 seconds.
+✔ Test run with 48 tests in 6 suites passed after 0.010 seconds.
+PASSED: AuraProductivityTests
+==> Done. Failed bundles: 0: 21/21 bundles, 954/954 tests, 0 failed.
+  - SECOND-PASS VALIDATION PASSED: passed.
+  - AURA runtime-completion validation passed
+CI governance checks: schema, state, manifest, evidence, capability, toolchain, and legacy pointers: passed.
+  - REPO-HYGIENE VALIDATION PASSED
+- 11 prompts are linear, present, and marker-complete
+- state is synchronized at H-010/completed
+- control contracts, read-first context, gap headings, and ledger exist: passed.
+  - Tracked-content secret scan: 6 intentional fixture findings allowed by exact marker/path/pattern; 0 unallowlisted findings
+  allowed fixture: Tests/AuraAgentTests/RepositoryInstructionsScannerTests.swift:62:private_key_block
+  allowed fixture: Tests/AuraAutomationTests/FileSystemURLOpenerTests.swift:314:basic_auth_url
+  allowed fixture: Tests/AuraProductivityTests/AuraProductivityTests.swift:225:generic_credential_assignment
+  allowed fixture: Tests/AuraSecurityTests/NetworkAllowlistTests.swift:80:basic_auth_url
+  allowed fixture: Tests/AuraSecurityTests/SecretScannerTests.swift:35:private_key_block
+  allowed fixture: Tests/AuraSecurityTests/SecretScannerTests.swift:43:jwt
+Tracked prompt/ledger/log/artifact audit: no tracked log, crash, audio, screen, or archive artifacts; secret scan covers tracked text
+Swift dependency provenance: 0 external dependencies
+Python dependency provenance: 150 locked packages; uv lock --check executed
+GitHub Actions provenance: 3 action references checked; all references are policy-approved full SHA pins
+History scan: adopted-Git history scan is recorded separately; this validator covers current tracked content and provenance
+AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
+  - `python3 -m unittest discover -s scripts/tests -p 'test_*.py'`: 38/38 passed.
+- **Residual risks:** `RISK-SAFARI-BRIDGE-NOT-LIVE`, `RISK-SP-010-LIVE-OAUTH-TCC`, `RISK-SP-010-REAL-ACCOUNT-CONFIG`, `RISK-SP-010-NATIVE-MESSAGING-LIVE` remain Open and owned by SP-011.
+- **Acceptance verdict:** SP-010 completed for the deterministic onboarding/composition/UI slice of OPEN-06. R5 remains `in_progress`; the four read-first capabilities remain `.disabled` pending SP-011 live acceptance.
+- **Next prompt/action:** `SP-011` is the only pending eligible prompt; open it only under explicit live-test authority.
+
+### 2026-08-18T00:00:00Z — SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE — blocked
+
+- **Prompt ID / gap IDs:** SP-011 / OPEN-06 (live acceptance).
+- **Session:** AURA-SP-011-LIVE-ACCEPTANCE-20260818; actor: GitHub Copilot.
+- **Authority:** `edit: true`; deterministic test execution and governance validation. Explicitly unavailable per `SECOND_PASS_STATE.json`: `launch_or_install_app=false`, `mutate_permissions=false`, `provider_accounts=false`, `commit/push/merge=false`, `sign_or_notarize=false`, `release_or_deploy=false`. The user's "go apply be perfect" phrase was interpreted (consistent with SP-003 precedent) as bounded to edit/test/state authority; it does not grant live consequential authority.
+- **Verified state:** Branch `main`; `HEAD == origin/main == 33688e2a54f1e5d53574d0ddea22d5256eec29c7`; worktree `dirty_expected` with SP-010 uncommitted changes.
+- **Objective:** Run the authorized R5 live acceptance matrix (unread mail/thread summary, draft-only mail, agenda/free-window, event draft, approved page summary, injection-ignore) and revocation, keeping all externally consequential actions separately gated.
+- **Observed symptom / missing postcondition:** The SP-011 completion gate requires live user-present evidence of the read-first matrix and revocation against a real provider account, real TCC/Contacts/Calendar permission prompts, real Safari native messaging, and a real app launch. None of that live authority is present in this session.
+- **Mechanism / root cause / layer:** The residual is an authority/live-evidence boundary at the R5 runtime integration spine, not a demonstrated source failure. The prompt's own hard boundaries forbid install, launch, TCC mutation, provider contact, and mutation/send without explicit per-action authority.
+- **Direct procedure / result:**
+  - Verified baseline: `main`, `HEAD == origin/main == 33688e2a54f1e5d53574d0ddea22d5256eec29c7`, worktree `dirty_expected`.
+  - Ran focused `AuraProductivityTests`: **48/48 passed** (offline distinct from bad credential, revocation disconnects/clears credential, account ambiguity never guesses, injection content rejected, token in header never URL, revoked credential stops reads).
+  - Ran full regression `./scripts/aura-test.sh /tmp/aura-sp011-full`: **21/21 bundles, 0 failed**.
+  - Ran all four governance validators: `validate_second_pass_program.py`, `validate_runtime_completion.py --ci`, `validate_repo_hygiene_program.py`, `validate_repo_hygiene_supply_chain.py` — all **exit 0**.
+  - Ran governance unit tests: **38/38 passed**.
+  - No app launch, TCC mutation, provider contact, Safari extension install, mutation/send, commit, push, or merge was performed.
+- **Cognitive completion record:**
+  1. **Symptom:** The live R5 read-first matrix and revocation gate is not met; no live provider account, TCC/Contacts/Calendar prompt, real Safari native messaging, or app launch was exercised.
+  2. **Mechanism/root cause:** The residual is an authority/live-evidence boundary at the R5 runtime integration spine. The prompt's hard boundaries forbid install, launch, TCC mutation, provider contact, and mutation/send without explicit per-action authority, and this session's authority block does not grant them.
+  3. **Resolution:** Re-verified the deterministic boundary (offline/degraded, revocation, account ambiguity, injection-ignore) which is fully covered by the existing SP-010 test surface; recorded the live gate as blocked rather than claiming completion from deterministic evidence.
+  4. **Evidence:** `EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01` — deterministic contract/integration-simulated + state-record (blocked) class; artifact `AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01.md`.
+  5. **Falsifier:** A future user-present authorized run that captures the live read-first matrix and revocation with real provider accounts, real TCC/Contacts/Calendar prompts, and real Safari native messaging would falsify the conclusion that the live gate remains unproven. Any validator/test failure or product-path diff would also falsify this bounded attempt's recorded state.
+  6. **Residual:** `RISK-SP-010-LIVE-OAUTH-TCC`, `RISK-SP-010-REAL-ACCOUNT-CONFIG`, `RISK-SP-010-NATIVE-MESSAGING-LIVE`, `RISK-SAFARI-BRIDGE-NOT-LIVE` remain Open. Mutation/send remains separately gated and explicitly excluded. These are outside this prompt because the live authority is not present.
+  7. **Why SP-012 is NOT safe to start:** SP-011 is the first uncompleted prompt and its completion gate is still open; advancing would violate the linear prompt dependency and conceal an unresolved OPEN-06 live residual.
+- **Evidence IDs:** `EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01`.
+- **Tests:** AuraProductivityTests 48/48; full regression 21/21 bundles 0 failed; all four governance validators exit 0; 38/38 governance unit tests.
+- **Acceptance verdict:** SP-011 remains **blocked**, not completed. The deterministic boundary is healthy and re-verified, but the live read-first matrix and revocation gate is not met. `SP-012` is not safe to start.
+- **Next prompt/action:** Obtain explicit live-test authority (provider account, TCC, app launch, Safari extension install) and retry only SP-011. Do not start SP-012.
+
+### 2026-08-18T17:50:03Z — SP-011 OAuth retry: provider redirect reached, local callback refused
+
+- **Evidence:** `EV-SP-011-20260818-OAUTH-RETRY-06`.
+- **Authority:** The user explicitly instructed Codex to retry the timed-out Continue flow and complete the operations. Computer Use was used in the authenticated browser session. No password, 2FA, client secret, authorization code, access token, refresh token, or private provider data was read, copied, recorded, or exposed.
+- **Observed:** The approved read-only Google OAuth flow reached `127.0.0.1:48080/oauth2callback`, then Chrome reported `ERR_CONNECTION_REFUSED`. The temporary AURA process was alive as PID 14636, but no TCP 48080 listener was present.
+- **Source boundary:** AURA has `OAuthPKCESession` and an externally-fed `connectMailAccount(accountID:accessToken:...)` seam, but no live callback listener, URL handler, token exchange, or user-facing OAuth enrollment control. A temporary callback/token-exchange feature was not silently added under SP-011.
+- **Acceptance verdict:** This is partial provider-redirect evidence only. OAuth enrollment, Gmail read/thread summary, revocation, Safari native messaging, and TCC/Contacts/Calendar live evidence remain absent. SP-011 remains **blocked**; SP-012 is not safe to start. Mutation/send was not attempted.
+- **Deterministic checks retained:** 21/21 bundles and 1010/1010 tests; AuraProductivityTests 48/48; four validators exit 0; governance unit tests 38/38; `git diff --check` exit 0.
+- **Next safe action:** Implement or authorize a fail-closed callback/enrollment path as a separate scope, then retry only SP-011 with user-present live evidence. Do not start SP-012.
+
+### 2026-08-18T10:15:00Z — SP-011 follow-up: user authorized all live tests; external resources absent — blocked
+
+- **Prompt ID / gap IDs:** SP-011 / OPEN-06 (live acceptance).
+- **Session:** AURA-SP-011-LIVE-ACCEPTANCE-20260818; actor: GitHub Copilot.
+- **Authority:** The user explicitly authorized all live tests and autonomous execution ("tüm canlı testleri onaylıyorum ... tu yetkin var"). This covers app build, launch, and observation. It does not fabricate external resources that do not exist.
+- **Verified state:** Branch `main`; `HEAD == origin/main == 33688e2a54f1e5d53574d0ddea22d5256eec29c7`; worktree `dirty_expected`.
+- **Objective:** Run the authorized R5 live acceptance matrix and revocation, keeping all externally consequential actions separately gated.
+- **Observed symptom / missing postcondition:** The full live read-first matrix and revocation gate is not met. The required external resources are NOT present and cannot be fabricated: (1) no Gmail OAuth client ID + redirect URI is configured, (2) no real Gmail test account is in `mailAccountIDs`, (3) full Xcode is unavailable so the Safari extension cannot be packaged/installed, (4) TCC/Contacts/Calendar physical clicks require a present user.
+- **Mechanism / root cause / layer:** The residual is an external-resource/live-evidence boundary at the R5 runtime integration spine. The prompt's hard boundaries forbid fabricating completion from types, fakes, or model assertions; the live matrix genuinely requires real provider/browser/TCC resources that do not exist in this environment.
+- **Direct procedure / result:**
+  - Built production `AURA.app` to `/tmp/aura-sp011-live` via `BUILD_DIR=/tmp/aura-sp011-live ./scripts/build-app-bundle.sh` (avoids the iCloud/FileProvider xattr issue in `.build/`).
+  - Ad-hoc signed via `./scripts/codesign-adhoc.sh /tmp/aura-sp011-live/AURA.app` — **Local signing complete.**
+  - Launched via `/usr/bin/open /tmp/aura-sp011-live/AURA.app`.
+  - Confirmed process alive: `pgrep -fl "AURA"` → `58326 /private/tmp/aura-sp011-live/AURA.app/Contents/MacOS/AURA`.
+  - Observed live os_log `[ai.aura.local:wake]` events from PID 58326 (subsystem `ai.aura.local`).
+  - Quit via `osascript -e 'tell application "AURA" to quit'`; confirmed `AURA process stopped`.
+- **Cognitive completion record:**
+  1. **Symptom:** The full live read-first matrix and revocation gate is not met; the required external resources are absent.
+  2. **Mechanism/root cause:** External-resource/live-evidence boundary. No Gmail OAuth client ID + redirect URI, no real Gmail test account, no full Xcode for Safari extension packaging, no present user for TCC/Contacts/Calendar clicks.
+  3. **Resolution:** Observed and recorded a real live launch (app builds/signs/launches/runs/quits, os_log `[ai.aura.local:wake]` events) as partial live evidence; recorded the live gate as blocked rather than fabricating completion.
+  4. **Evidence:** `EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02` — live hardware/partial (app launch + degraded behavior) class; artifact `AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02.md`.
+  5. **Falsifier:** A future user-present authorized run that configures a real Gmail OAuth client + test account, installs/enables the Safari extension, and clicks the TCC/Contacts/Calendar prompts, then captures the full read-first matrix and revocation, would falsify the conclusion that the live gate remains unproven.
+  6. **Residual:** `RISK-SP-010-LIVE-OAUTH-TCC`, `RISK-SP-010-REAL-ACCOUNT-CONFIG`, `RISK-SP-010-NATIVE-MESSAGING-LIVE`, `RISK-SAFARI-BRIDGE-NOT-LIVE` remain Open. Mutation/send remains separately gated and explicitly excluded.
+  7. **Why SP-012 is NOT safe to start:** SP-011 is the first uncompleted prompt and its completion gate is still open; advancing would violate the linear prompt dependency and conceal an unresolved OPEN-06 live residual.
+- **Evidence IDs:** `EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02`.
+- **Tests:** AuraProductivityTests 48/48; full regression 21/21 bundles 0 failed; all four governance validators exit 0; 38/38 governance unit tests.
+- **Acceptance verdict:** SP-011 remains **blocked**, not completed. A real live launch was observed and recorded, but the full live read-first matrix and revocation gate is not met because the required external resources are absent and cannot be fabricated. `SP-012` is not safe to start.
+- **Next prompt/action:** To complete SP-011, the user must supply a Gmail OAuth client ID + redirect URI, a real test account, enable the Safari extension, and click the TCC/Contacts/Calendar prompts. Do not start SP-012.
+
+### 2026-08-18T12:12:05Z — SP-011 retry: partial live runtime evidence; blocked
+
+- **Actor:** Codex session, under the user's explicit `go` for the attached SP-011 live-acceptance prompt.
+- **Prompt / gap:** SP-011 / OPEN-06 (R5 live acceptance).
+- **Verified state:** `main`, `HEAD == origin/main == 33688e2a54f1e5d53574d0ddea22d5256eec29c7`; worktree remains intentionally dirty with pre-existing SP-010/SP-011 changes. Xcode 27.0.0 beta 5 and Swift 6.4 are present.
+- **Objective:** Retry the authorized live boundary and record whether the SP-011 read-first matrix and revocation gate can be proven without fabricating provider or user-owned resources.
+- **Authority:** Build, sign, launch, observe, and stop the temporary app bundle were performed under the current user instruction. No OAuth secret, provider contact, TCC mutation, Safari install, mutation/send, commit, push, merge, release, or deployment was performed.
+- **Observed symptom / missing postcondition:** The app launch/runtime leg is now proven, but the live read-first matrix and revocation gate remains unproven: no Gmail OAuth client/access token or real provider account was supplied; no Gmail read/thread/revoke flow, Safari package/install/native-messaging trust path, or TCC/Contacts/Calendar prompt click occurred.
+- **Direct procedure / result:** `BUILD_DIR=/tmp/aura-sp011-live ./scripts/build-app-bundle.sh` exit 0; `./scripts/codesign-adhoc.sh /tmp/aura-sp011-live/AURA.app` exit 0; `./scripts/verify-signature.sh /tmp/aura-sp011-live/AURA.app` exit 0; `/usr/bin/open /tmp/aura-sp011-live/AURA.app` exit 0; PID 89390 and privacy-redacted `ai.aura.local:wake` events observed; exact temporary PID stopped and absent. The executable SHA-256 is recorded in `EV-SP-011-20260818-LIVE-RETRY-03`.
+- **Deterministic checks:** Final `./scripts/aura-test.sh /tmp/aura-sp011-final` completed **21/21 bundles, 1010/1010 tests, 0 failed bundles**, including `AuraProductivityTests` 48/48; all four governance validators exit 0; governance unit tests 38/38; `git diff --check` exit 0.
+- **Formatting limitation:** `xcrun swift-format lint --recursive --strict --configuration .swift-format Sources Tests` exited 1 with 66 diagnostics across 22 existing dirty source/test files. No formatter mutation was made; this remains outside the SP-011 live gate and is carried as an unresolved repository-quality limitation.
+- **Cognitive completion record:**
+  1. **Symptom:** Live provider read/revocation acceptance is still absent despite a successful app runtime launch.
+  2. **Mechanism/root cause:** The remaining boundary is external-resource and user-present live evidence, not a demonstrated deterministic adapter failure; no provider credential/account or live Safari/TCC path is available to exercise.
+  3. **Resolution:** Added partial live launch/sign/runtime evidence and preserved the fail-closed blocked state; no source workaround or secret fabrication was attempted.
+  4. **Evidence:** `EV-SP-011-20260818-LIVE-RETRY-03`, live hardware/partial class, artifact `AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-LIVE-RETRY-03.md`.
+  5. **Falsifier:** A user-present run with a real Gmail OAuth/account, live Gmail read and revoke, installed Safari trust path, and TCC/Contacts/Calendar prompt evidence would falsify the conclusion that the completion gate remains unproven.
+  6. **Residual:** `RISK-SP-010-LIVE-OAUTH-TCC`, `RISK-SP-010-REAL-ACCOUNT-CONFIG`, `RISK-SP-010-NATIVE-MESSAGING-LIVE`, and `RISK-SAFARI-BRIDGE-NOT-LIVE` remain Open; mutation/send remains explicitly excluded.
+  7. **Why SP-012 is not safe:** SP-011's direct completion gate is still open, so linear prompt advancement would conceal an unresolved OPEN-06 live residual.
+- **Acceptance verdict:** SP-011 remains **blocked**, not completed. SP-012 is not safe to start.
+- **Next prompt/action:** Supply the user-owned Gmail OAuth/account setup, live Safari package/install trust path, and present-user TCC/Contacts/Calendar actions, then retry only SP-011.
+
+### 2026-08-18T12:40:45Z — SP-011 Computer Use preflight: partially configured Google project; blocked
+
+- **Evidence:** `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`.
+- **Observed:** Google Cloud project `aura-505908` is reachable; a Desktop OAuth client and one test user exist; Gmail API is enabled. Data Access has no scopes, so `gmail.readonly` was not entered or saved. Safari reports `redirect_uri_mismatch` and its Extensions view has no AURA extension. The exact temporary AURA bundle remained at `Starting. Starting local services` during bounded observation and was stopped.
+- **Authority / safety:** Navigation and read-only inspection only. No password, 2FA, credential, OAuth grant/token, TCC mutation, extension install, provider read/revoke, mutation/send, or user-data rewrite occurred.
+- **Verdict:** SP-011 remains blocked; deterministic evidence remains healthy, but the live matrix/revocation gate is unproven. SP-012 is not safe to start.
+- **Next safe action:** Obtain just-in-time confirmation before adding and saving `https://www.googleapis.com/auth/gmail.readonly`; then require user handoff for Google authentication/consent and present-user Safari trust/TCC actions. Retry only SP-011.
+
+### 2026-08-18T12:53:09Z — SP-011 Computer Use scope follow-up: grant paused
+
+- **Evidence:** `EV-SP-011-20260818-COMPUTER-UI-SCOPE-05`.
+- **Observed symptom / missing postcondition:** The least-privilege Gmail scope is configured, but the live provider matrix and revocation postcondition remain absent. The Google consent page is ready at the final grant button; no grant has been made.
+- **Mechanism / root cause:** External OAuth authorization and token exchange are separate persistent-access actions. AURA's current UI does not expose the OAuth connection path; its kernel seam accepts token material supplied by a caller and stores it in Keychain. No token was fabricated or handled.
+- **Direct procedure / result:** User-present Computer Use saved `gmail.readonly` in the Google Auth Platform Data Access page, verified the saved Gmail scope description and disabled save controls, selected the approved account session, passed the Testing warning, and reached the consent page. The final `Continue` grant was intentionally paused for a separate just-in-time confirmation.
+- **Falsifier:** A separately confirmed grant followed by a working callback/token-exchange and AURA enrollment, then direct Gmail read/thread/injection/offline/revocation evidence, would falsify this blocked conclusion.
+- **Residual / boundary:** Safari extension packaging/trust, TCC/Contacts/Calendar prompts, provider read/revoke, and mutation/send remain open; send/mutation stays excluded. No screenshot, account content, secret, code, or token was recorded.
+- **Acceptance verdict:** SP-011 remains **blocked**, and SP-012 is not safe to start.
+- **Next safe action:** Ask for just-in-time approval immediately before the Google consent `Continue` action; after any grant, use only a safe in-scope token exchange/enrollment path and keep token material out of output and records.
+
+### 2026-08-19T08:08:02Z — SP-011 Gmail live matrix passed; broader canonical gate remains blocked
+
+- **Evidence:** `EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07`.
+- **Authority:** The user explicitly and repeatedly approved the SP-011 live actions, including the final provider grant, exact controlled fixture creation, live reads, ambiguity/offline checks, cleanup, and revocation. AURA mutation/send capability, commit, push, merge, release, and deployment were not authorized or performed.
+- **Objective / architecture:** Repair the live Gmail OAuth enrollment blocker and complete the authorized Gmail portion through the existing productivity onboarding, Keychain, runtime, typed router, read bridge, and SwiftUI integration surfaces. No parallel router, broader OAuth scope, or architecture/security-policy change was introduced.
+- **Cognitive completion record:**
+  1. **Symptom / missing postcondition:** The prior provider redirect ended at a refused loopback callback, so AURA could not enroll a credential or execute the Gmail live matrix. A typed thread-summary route was also incomplete.
+  2. **Mechanism / root cause / layer:** The R5 provider-onboarding layer had PKCE types but no running loopback callback/token-exchange/enrollment coordinator; the intent-to-productivity layer did not carry the exact thread-summary request end to end. The provider's desktop token endpoint also required its client credential, which must remain process-only.
+  3. **Resolution / direct procedure:** Added a bounded loopback PKCE listener, state validation, token exchange, approved-account probe, Keychain-only enrollment, process-only optional client credential, redacted error classification, typed thread-summary routing, and user-facing connect/revoke controls. Live AURA then passed a controlled two-message summary without account/body leakage, blocked a controlled injection fixture, distinguished offline from bad credential, clarified two-account ambiguity before provider contact, removed the local Keychain credential and Google grant, and refused a post-revoke read before provider execution. Controlled fixtures were moved to recoverable Trash and the acceptance process/environment was cleared.
+  4. **Evidence ID / class:** `EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07` — direct user-present provider/UI/store/process evidence plus deterministic source-side regression. Temporary source-parity artifact SHA-256: `083d171455f88d14a21cfe00fe60c5b520c823ccc71ba9e1253c6587a6094de0`.
+  5. **Falsifier:** Any secret/account/body leakage; clean thread count other than two; injected content emitted; offline classified as credential failure; ambiguity reaching the provider; post-revoke provider result; Keychain item still present; or Google connection still listed after reload.
+  6. **Residual:** Safari approved-page/native messaging, EventKit agenda/free-window, event draft, and Contacts/Calendar TCC live acceptance remain absent. Direct clicking of AURA's Privacy-tab revoke control was not observed because Computer Use's native pipe closed on that SwiftUI tab; the equivalent Keychain backend deletion, provider revocation, disconnected UI, and post-revoke refusal prove the security postcondition only. AURA compose/send remains unimplemented and excluded; fixture sends were separate test-data provisioning.
+  7. **Why SP-012 is not safe:** SP-011's canonical procedure requires the remaining Safari and Calendar/Contacts live legs. Completing only Gmail cannot satisfy the linear prompt gate, so advancing would conceal an unresolved OPEN-06 residual.
+- **Tests:** Focused SP-011/SP-010 suites 76/76; `./scripts/aura-test.sh /tmp/aura-sp011-final-20260819` 21/21 bundles, 1023/1023 tests, 0 failed; `AuraProductivityTests` 55/55; all four governance validators and 38/38 governance unit tests passed after final record synchronization; `git diff --check` passed; no candidate client-secret literal found.
+- **Acceptance verdict:** Gmail/OAuth subset **passed live**. Canonical SP-011 remains **blocked**, not completed. SP-012 is not safe to start.
+- **Next safe action:** Run only the remaining Safari approved-page/native-messaging and Calendar/Contacts user-present TCC scenarios, then retry the direct Privacy-tab revoke interaction if the automation bridge remains attached. Do not start SP-012.
+
+### 2026-08-19T09:55:06Z — SP-011 native legs pass live; Safari package registered; canonical gate still blocked
+
+- **Evidence:** `EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08`.
+- **Authority:** The user granted full computer-use authority for this turn, plus commit, push, and merge at its end. AURA mutation/send, release, and deployment were neither authorized nor performed.
+- **Objective / architecture:** Close the calendar, contacts, and Safari legs left open by `EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07`, using the existing productivity runtime, onboarding, read-bridge, kernel, and SwiftUI surfaces. No parallel router, no widened scope, no new mutation capability.
+- **Cognitive completion record:**
+  1. **Symptom / missing postcondition:** Three legs of the matrix were not failing — they were unrunnable. The calendar and contacts rows told the user to grant access "during Setup" and no Setup control existed; the browser row told the user to connect the Safari profile and no control existed; and once a grant action was wired, macOS refused to display the prompt at all. Separately, the Safari extension had no native half, so no envelope the containing app validates could ever be produced.
+  2. **Mechanism / root cause / layer:** Four distinct causes across three layers. **(a)** Composition/UI layer: `EventKitCalendarReadAdapter.requestReadAccess()`, `ContactsFrameworkLookupAdapter.requestReadAccess()`, and `AuraKernel.connectBrowserProfile` all existed with no production caller, so the health surface's remediations were unreachable by construction. **(b)** Packaging layer: `Resources/AURA.entitlements` carried the Hardened Runtime audio-input key but not `com.apple.security.personal-information.calendars`/`.addressbook`; tccd logged `Prompting policy for hardened runtime; service: kTCCServiceCalendar requires entitlement ... but it is missing` and then `Policy disallows prompt`. The file's own comment had mis-classified those two keys as App Sandbox keys. **(c)** Packaging layer: `AURA-Info.plist` had no calendar or contacts usage description, so the request would have terminated the app rather than prompting. **(d)** Extension layer: `SafariBridgeNativeMessageHandler` named a `SafariWebExtensionHandler` shim that was never written and `build-app-bundle.sh` packaged no extension, so `browser.read` could not reach `ready` on any real Mac.
+  3. **Resolution / direct procedure:** Wrote the missing native half as a SwiftPM executable whose `main.swift` calls `NSExtensionMain` (SwiftPM has no entry-point setting), delegating to the already-validated message handler and echoing a status word only. Added appex assembly and extension-before-app signing, both entitlements, both usage descriptions, a `canGrantAccess` snapshot state with `requestNativeAccess`/`grantNativeIntegrationAccess`/`connectConfiguredBrowserProfile` and their two UI controls, `defaultSafariSharedContainerPath` for the sandboxed extension's container, and a per-leg acceptance configuration profile. Live: both TCC prompts appeared carrying AURA's own usage strings and were granted; the agenda answer moved from "Nothing is scheduled in that range." to "1 event(s): AURA SP-011 acceptance fixture" against a disposable fixture that was then deleted; `pluginkit` lists the extension at Safari's web-extension point only once the App Sandbox entitlement is present, and returned `(no matches)` without it.
+  4. **Evidence ID / class:** `EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08` — direct user-present product/TCC/system-log evidence plus deterministic source-side regression. Locally signed artifacts, SHA-256 `464e83ef59d4e09cc02d5b0179b198f0a3b22eeff576bb8eb735c9001eb13c92` (app) and `7ed4fe4a5cacb144a230b1a9338ac9ac7dcc7cc1e500f0f125724eb8b3588bb5` (appex handler).
+  5. **Falsifier:** A read succeeding while authorization is `notDetermined` or `denied`; a grant button on a row macOS has already decided; an agenda answer not bound to the exact fixture; `pluginkit` no longer listing the extension for an installed build; private calendar or contact content in any output; or the app's transport accepting an envelope without a valid version, identity, profile, nonce, freshness and tag.
+  6. **Residual:** The live approved-page summary, the browser injection-ignore leg, and the browser revocation remain unexecuted. Safari additionally requires its `Allow unsigned extensions` toggle, which raises a Touch ID / password sheet that was deliberately not answered; a Developer ID signature plus notarization is the correct production answer and removes the toggle entirely. No non-empty contacts read was performed by choice, because only the user's real address book exists on this machine and this prompt forbids recording private account data. The machine's screen locked partway through, ending UI automation. Mutation/send stays excluded.
+  7. **Why SP-012 is not safe:** the approved-page summary through real Safari native messaging is named directly in SP-011's own procedure and is still unproven, so advancing would conceal an unresolved OPEN-06 residual.
+- **Tests:** `./scripts/aura-test.sh /tmp/aura-sp011-full-20260819` — 21/21 bundles, **1035/1035 tests**, 0 failed; `AURAIntegrationTests` 59/59 including 9 new `SP011LiveAcceptanceReadinessTests` cases; `AuraProductivityTests` 55/55. All four governance validators exit 0 and 38/38 governance unit tests pass after the final record edit.
+- **Acceptance verdict:** calendar and contacts authorization and the live calendar read **passed**; the Safari package and registration are **proven as far as the system allows without a user credential**. Canonical SP-011 remains **blocked**, not completed. SP-012 is not safe to start.
+- **Next safe action:** with the screen unlocked, authenticate Safari's `Allow unsigned extensions`, enable "AURA Safari Read Bridge", click `Connect Safari profile` in AURA, click the extension's toolbar button on an approved page, then run the approved-page summary, the injection-ignore leg, and the browser revoke. Do not start SP-012.

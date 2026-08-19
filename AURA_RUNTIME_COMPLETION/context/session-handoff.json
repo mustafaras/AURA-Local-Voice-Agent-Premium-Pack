@@ -1,17 +1,18 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-17T16:30:00Z",
-  "session_id": "AURA-SP-009-PACKAGING-AUTH-20260817",
-  "last_verified_commit": "643789a85266d5822ac94261790d4118a0a50f94",
+  "updated_at": "2026-08-19T09:55:06Z",
+  "session_id": "AURA-SP-011-NATIVE-LEGS-AND-EXTENSION-20260819",
+  "last_verified_commit": "33688e2a54f1e5d53574d0ddea22d5256eec29c7",
   "active_prompt": {
-    "id": "SP-010",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-010_PROVIDER_ACCOUNT_AND_UI_COMPOSITION.prompt.md",
-    "state": "completed",
-    "step": "SP-009 completed under EV-SP-009-20260817-PACKAGING-AUTH-01 and corrected under EV-SP-009-20260817-CORRECTION-02: HMAC-signed Safari read bridge (authenticator, Keychain secret store, fail-closed transport, envelope writer, native-message handler), composition-root wiring, and a user-gated read-only Web Extension. 12 SP-009 tests; 21/21 bundles, 954/954 tests, 0 failed; four validators exit 0. browser.read stays disabled. SP-010 pending/unopened."
+    "id": "SP-011",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
+    "state": "blocked",
+    "step": "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08 adds live Calendar and Contacts authorization and a fixture-bound agenda read, and packages the Safari extension as a signed sandboxed appex the system registers at Safari's web-extension point. SP-011 stays blocked on the approved-page summary, browser injection-ignore, and browser revoke: Safari's Allow unsigned extensions toggle needs a user credential."
   },
-  "summary": "SP-009 Safari bridge packaging/authentication COMPLETE and CORRECTED (EV-SP-009-20260817-PACKAGING-AUTH-01, EV-SP-009-20260817-CORRECTION-02, EV-SP-009-20260817-CLOSEOUT-03). The audit found the original record claimed four validators exit 0 while validate_runtime_completion.py exited 1, and found the packaged extension had no producing half. Added SafariBridgeEnvelopeWriter and SafariBridgeNativeMessageHandler, constant-time HMAC verification, a .malformedMessage fail-closed state, and a user-gated MV3 extension; repaired the three schema/pointer breaks. 12 SP-009 tests; 21/21 bundles, 954/954 tests, 0 failed; four validators exit 0. browser.read stays disabled; RISK-SAFARI-BRIDGE-NOT-LIVE owns the live leg. SP-010 pending/unopened.",
+  "summary": "SP-011 remains BLOCKED, but its prior Gmail OAuth blocker is resolved. EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07 records a live approved-account Gmail read-only pass: callback/exchange/Keychain enrollment, controlled two-message summary without private leakage, injection refusal, offline classification, ambiguity before provider contact, local Keychain removal, Google grant removal, and immediate post-revoke refusal. Fixtures are in recoverable Trash; callback tabs, process, clipboard, and acceptance environment are cleared. Safari approved-page/native messaging, agenda/free-window, event draft, Calendar/Contacts TCC, and direct Privacy-tab click evidence remain absent. SP-012 is not safe to start.",
   "completed": [
+    "SP-010 provider/account and UI composition completed under EV-SP-010-20260817-COMPOSITION-01",
     "SP-009 Safari bridge packaging/authentication completed under EV-SP-009-20260817-PACKAGING-AUTH-01, corrected under EV-SP-009-20260817-CORRECTION-02: HMAC envelope with constant-time tag check, Keychain secret provisioning/revocation, fail-closed transport, envelope writer plus native-message handler (the producing half), composition-root wiring, and a user-gated read-only Web Extension. 12 tests; 954/954 pass; four validators exit 0.",
     "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
     "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",
@@ -40,103 +41,150 @@
     "SP-005 completed for OPEN-04 NLU/UI reachability under EV-SP-005-20260816-REACHABILITY-01: IntentKind + IntentSemanticCategory + classifier + ToolRouter routing + handlers + AuraAutomation pass-throughs + 19 tests; OPEN-04 closed; 21/21 bundles, 870/870 tests.",
     "SP-006 completed OPEN-04's forwarded seven-scenario live gate under EV-SP-006-20260816-7SCENARIO-02, then its mandatory closeout ran separately under EV-SP-006-20260816-CLOSEOUT-03, which corrected a failing second-pass validator (missing ACTIVE_CONTEXT.md overlay), the never-updated RISK_REGISTER.md, a stale capability-matrix registry row, and an undisclosed planner limitation.",
     "SP-006 follow-up (EV-SP-006-20260816-GAPCLOSE-04): CapabilityPlanner wired onto the production path with a multi-step routePlan/executePlan API, and RISK-SP-006-DEFAULT-GRANT-BREADTH closed by confining both policy grants and the adapter to AuraCore.DeclaredFileRoots. 895/895 tests. No live re-run; NL multi-step still unwired.",
-    "Live re-run EV-SP-006-20260816-LIVERERUN-05 found the GAPCLOSE-04 grant scoping was inert on an existing store (895 accumulated grants, 30 legacy .any). Fixed via seed marker + PolicyEngine.reconcileSeededGrants; live migration pruned 886 then 25, /etc/hosts now policy-denied. Two new open risks recorded: url.open fails live, confirmation expiry unexplained.",
-    "SP-007 COMPLETED. 9/9 live actions across Finder, Terminal, Notes. OPEN-05 closed. EV-SP-007-20260816-LIVE-02."
+    "2026-08-19 SP-011: fixed the three unreachable Setup remediations, the missing personal-information entitlements that stopped tccd prompting, and the missing calendar/contacts usage descriptions; wrote and packaged the Safari extension's native half. Calendar and Contacts passed live; the Safari page-summary leg remains blocked."
   ],
   "files_changed": [
-    "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeNativeMessage.swift",
-    "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeEnvelopeWriter.swift",
-    "Sources/AuraProductivity/ProductivityAdapters_SafariWebExtensionTabResponse.swift",
-    "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeSecurity.swift",
-    "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeSecretStore.swift",
-    "Sources/AuraProductivity/ProductivityAdapters_AuthenticatedSafariTransport.swift",
-    "Sources/AuraCore/Configuration_ProductivityConfiguration.swift",
-    "Sources/AuraCore/AuraConfiguration.swift",
-    "Sources/AURA/SafariBridgeRuntime.swift",
-    "Sources/AURA/SafariBridgeAvailability.swift",
+    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+    "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+    "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+    "AURA_RUNTIME_COMPLETION/state/current-state.json",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-COMPUTER-UI-SCOPE-05.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-LIVE-RETRY-03.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-OAUTH-RETRY-06.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07.md",
+    "Package.swift",
+    "Sources/AURA/AuraAppModel.swift",
+    "Sources/AURA/AuraAppModel_ProductState.swift",
+    "Sources/AURA/AuraAppModel_Runtime.swift",
     "Sources/AURA/AuraKernel.swift",
     "Sources/AURA/AuraKernel_Construction.swift",
-    "Resources/SafariExtension/manifest.json",
-    "Resources/SafariExtension/background.js",
-    "Resources/SafariExtension/content.js",
-    "Resources/SafariExtension/README.md",
-    "Tests/AuraProductivityTests/AuraProductivityTests.swift",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-009-20260817-PACKAGING-AUTH-01.md"
+    "Sources/AURA/AuraKernel_Productivity.swift",
+    "Sources/AURA/AuraMenuView_Content.swift",
+    "Sources/AURA/AuraMenuView_Tabs.swift",
+    "Sources/AURA/ProductUIState.swift",
+    "Sources/AURA/ProductivityReadBridge.swift",
+    "Sources/AURA/ProductivityRuntime.swift",
+    "Sources/AuraCore/AuraConfigurationLoading.swift",
+    "Sources/AuraCore/Configuration_ProductivityConfiguration.swift",
+    "Sources/AuraCore/IntentPolicyTypes.swift",
+    "Sources/AuraCore/PolicyTypes_Capability.swift",
+    "Sources/AuraIntent/IntentDispatchCoordinator.swift",
+    "Sources/AuraIntent/IntentEngine_RuleBasedUtteranceClassifier.swift",
+    "Sources/AuraIntent/ProductivityReading.swift",
+    "Sources/AuraIntent/ToolRouter_PlanExecution.swift",
+    "Sources/AuraIntent/ToolRouter_ProductivityHandlers.swift",
+    "Sources/AuraIntent/ToolRouter_Routing.swift",
+    "Sources/AuraIntent/ToolRouter_ToolRouter.swift",
+    "Sources/AuraIntent/TypedIntent.swift",
+    "Sources/AuraProductivity/ProductivityAdapters_HTTPProviderTransport.swift",
+    "Sources/AuraProductivity/ProductivityAdapters_IntegrationOnboardingService.swift",
+    "Sources/AuraProductivity/ProductivityAdapters_URLSessionGmailReadTransport.swift",
+    "Sources/AuraProductivity/ProductivityTypes.swift",
+    "Sources/AuraProductivity/ProductivityTypes_AuthorizationProbe.swift",
+    "Sources/AuraProductivity/ProductivityTypes_GmailOAuthAuthorization.swift",
+    "Sources/AuraProductivity/ProductivityTypes_IntegrationOnboarding.swift",
+    "Sources/AuraProductivity/ProductivityTypes_ProductivityError.swift",
+    "Sources/AuraProductivity/ProductivityTypes_ProductivityRedaction.swift",
+    "Tests/AURAIntegrationTests/SP010ProductivityCompositionTests.swift",
+    "Tests/AuraIntentTests/SP005CapabilityReachabilityTests.swift",
+    "Tests/AuraIntentTests/SP010ProductivityRoutingTests.swift",
+    "Tests/AuraProductivityTests/GmailOAuthAuthorizationTests.swift",
+    "Tests/AuraProductivityTests/SP010ProviderAccountTests.swift",
+    "ledger/CURRENT_STATE.md",
+    "ledger/PROJECT_LEDGER.md",
+    "scripts/tests/test_validate_second_pass.py",
+    "Sources/AuraSafariExtensionHandler/SafariWebExtensionHandler.swift",
+    "Sources/AuraSafariExtensionHandler/SafariExtensionConfiguration.swift",
+    "Sources/AuraSafariExtensionHandler/main.swift",
+    "Resources/AuraSafariExtension-Info.plist",
+    "Resources/AuraSafariExtension.entitlements",
+    "Resources/AURA.entitlements",
+    "Resources/AURA-Info.plist",
+    "scripts/build-app-bundle.sh",
+    "scripts/codesign-adhoc.sh",
+    "Tests/AURAIntegrationTests/SP011LiveAcceptanceReadinessTests.swift"
   ],
   "evidence_ids": [
-    "EV-SP-009-20260817-CORRECTION-02",
-    "EV-SP-009-20260817-CLOSEOUT-03",
-    "EV-SP-009-20260817-PACKAGING-AUTH-01"
+    "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08",
+    "EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02",
+    "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01",
+    "EV-SP-010-20260817-COMPOSITION-01",
+    "EV-SP-011-20260818-LIVE-RETRY-03",
+    "EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04",
+    "EV-SP-011-20260818-COMPUTER-UI-SCOPE-05",
+    "EV-SP-011-20260818-OAUTH-RETRY-06",
+    "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07"
   ],
   "tests": [
     {
-      "name": "./scripts/aura-test.sh full regression: 21/21 bundles, 954/954 tests, 0 failed",
+      "name": "Full regression 21/21 bundles, 1035/1035 tests; 9 new SP011LiveAcceptanceReadinessTests",
       "result": "passed",
-      "evidence_id": "EV-SP-009-20260817-CORRECTION-02"
+      "evidence_id": "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08"
     },
     {
-      "name": "node --check Resources/SafariExtension/background.js",
+      "name": "SP-011 focused suites 76/76 and full regression 21/21 bundles, 1023/1023 tests",
       "result": "passed",
-      "evidence_id": "EV-SP-009-20260817-CORRECTION-02"
+      "evidence_id": "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07"
     },
     {
-      "name": "Four governance validators (second_pass_program, runtime_completion, repo_hygiene_program, repo_hygiene_supply_chain) exit 0",
+      "name": "Production AURA build/signature/launch/clean stop; full regression 21/21 bundles, 1010/1010 tests",
       "result": "passed",
-      "evidence_id": "EV-SP-009-20260817-CORRECTION-02"
+      "evidence_id": "EV-SP-011-20260818-LIVE-RETRY-03"
     },
     {
-      "name": "swift build --target AuraProductivity",
+      "name": "Full regression (21 bundles, 0 failed)",
       "result": "passed",
-      "evidence_id": "EV-SP-009-20260817-PACKAGING-AUTH-01"
+      "evidence_id": "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01"
     },
     {
-      "name": "swift build --product AURA",
+      "name": "validate_second_pass_program.py",
       "result": "passed",
-      "evidence_id": "EV-SP-009-20260817-PACKAGING-AUTH-01"
+      "evidence_id": "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01"
     },
     {
-      "name": "AuraProductivityTests 19/19 (7 new SP-009 tests; 12 before)",
+      "name": "validate_runtime_completion.py --ci",
       "result": "passed",
-      "evidence_id": "EV-SP-009-20260817-PACKAGING-AUTH-01"
+      "evidence_id": "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01"
     },
     {
-      "name": "Full sweep 21/21 bundles, 949/949 tests, 0 failed",
+      "name": "validate_repo_hygiene_program.py",
       "result": "passed",
-      "evidence_id": "EV-SP-009-20260817-PACKAGING-AUTH-01"
+      "evidence_id": "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01"
     },
     {
-      "name": "second-pass + runtime-completion + repo-hygiene + supply-chain validators exit 0",
+      "name": "validate_repo_hygiene_supply_chain.py",
       "result": "passed",
-      "evidence_id": "EV-SP-009-20260817-PACKAGING-AUTH-01"
+      "evidence_id": "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01"
+    },
+    {
+      "name": "Governance unit tests 38/38",
+      "result": "passed",
+      "evidence_id": "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01"
     }
   ],
-  "blockers": [],
-  "open_decisions": [],
-  "risks": [
-    "RISK-SAFARI-BRIDGE-NOT-LIVE",
-    "RISK-MISSING-PRODUCTIVITY-ADAPTERS",
-    "RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL",
-    "RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST",
-    "RISK-SP-006-URL-OPEN-FAILS-LIVE",
-    "RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED",
-    "RISK-INJECTION-COVERAGE-NON-DIALOGUE",
-    "RISK-SP-004-TOCTOU-RACE",
-    "RISK-SP-004-HANDLER-COMPROMISE",
-    "RISK-SP-003-MODEL-LATENCY",
-    "RISK-SP-003-LIVE-VOICE-RESIDUAL",
-    "RISK-STT-MIC-NOT-CAPTURING"
+  "blockers": [
+    "Safari will not enable a non-Developer-ID web extension without its Allow unsigned extensions toggle, which raises a Touch ID/password sheet. The approved-page summary, browser injection-ignore, and browser revoke legs stay unproven until that is answered or the app is Developer ID signed and notarized.",
+    "No non-empty contacts read is recorded, deliberately: only the user's own address book exists on this machine and SP-011 forbids recording private account data."
   ],
-  "next_action": "SP-009 Safari bridge packaging/authentication COMPLETED at the deterministic boundary under EV-SP-009-20260817-PACKAGING-AUTH-01. The Safari read bridge is now packaged, authenticated, bounded, revocable, and visibly degraded when unavailable. browser.read stays disabled until the live package and trust path are verified. New risk RISK-SAFARI-BRIDGE-NOT-LIVE: the extension is packaged as source only, not installed/signed/live-verified; the real native-messaging round trip and real app-group shared container are not exercised. SP-010 (provider/account composition and UI) is next eligible but pending and unopened; open it only under its own authority. All SP-009 changes are local and uncommitted - delivery needs an explicit in-turn go-ahead.",
+  "open_decisions": [],
+  "next_action": "Finish only the remaining SP-011 Safari legs: authenticate Allow unsigned extensions, enable the AURA Safari Read Bridge, connect the Safari profile, then capture the approved-page summary, injection-ignore, and browser revoke. Do not start SP-012.",
   "required_first_reads": [
-    "AGENTS.md",
-    "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
-    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md"
-  ],
-  "notes": "Second-pass truth: completed_prompts = SP-000..SP-009; SP-010 is next eligible but pending and unopened. Note the convention trap - active_prompt/active_state 'SP-010/completed' means 'SP-010 is next, SP-009 just closed', and prompt frontmatter reads state: pending on every SP prompt including finished ones, so frontmatter alone never proves a prompt is unopened. SP-009 closed OPEN-06's Safari bridge slice at the DETERMINISTIC boundary only; the extension is packaged as source but not installed/signed/live-verified, so the live package and trust path stay open under RISK-SAFARI-BRIDGE-NOT-LIVE (SP-010/SP-011). The completed[] array is a bounded 30-item rolling window, not an append-only ledger; full history is in PROGRAM_LEDGER.md and SECOND_PASS_LEDGER.md. The working tree is dirty_expected: all SP-009 changes are local and uncommitted, plus the four intentionally untracked SP-006 evidence artifacts. Authority is edit-only. No product, release, or deployment claim follows."
+    "ledger/CURRENT_STATE.md",
+    "ledger/PROJECT_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md"
+  ]
 }

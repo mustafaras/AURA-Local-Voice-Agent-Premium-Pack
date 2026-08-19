@@ -26,6 +26,8 @@ let package = Package(
         .executable(name: "AuraPluginHost", targets: ["AuraPluginHost"]),
         .executable(name: "AuraAutomationHelper", targets: ["AuraAutomationHelper"]),
         .executable(name: "AuraShellHelper", targets: ["AuraShellHelper"]),
+        .executable(
+            name: "AuraSafariExtensionHandler", targets: ["AuraSafariExtensionHandler"]),
         .library(name: "AuraCore", targets: ["AuraCore"]),
         .library(name: "AuraAudio", targets: ["AuraAudio"]),
         .library(name: "AuraAutomation", targets: ["AuraAutomation"]),
@@ -294,6 +296,21 @@ let package = Package(
                 .linkedFramework("Security", .when(platforms: [.macOS]))
             ]
         ),
+        // The native half of the Safari Web Extension. Built as a plain
+        // executable and assembled into `AURA.app/Contents/PlugIns` as an
+        // `.appex` by `scripts/build-app-bundle.sh`; its `main.swift` calls
+        // `NSExtensionMain` so no Xcode-only entry-point setting is needed.
+        .executableTarget(
+            name: "AuraSafariExtensionHandler",
+            dependencies: ["AuraCore", "AuraSecurity", "AuraProductivity"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("Security", .when(platforms: [.macOS])),
+                .linkedFramework("SafariServices", .when(platforms: [.macOS])),
+            ]
+        ),
         .testTarget(
             name: "AuraSecurityTests",
             dependencies: ["AuraSecurity", "AuraPolicy", "AuraStore"],
@@ -326,7 +343,8 @@ let package = Package(
             ],
             linkerSettings: [
                 .linkedFramework("EventKit", .when(platforms: [.macOS])),
-                .linkedFramework("Contacts", .when(platforms: [.macOS]))
+                .linkedFramework("Contacts", .when(platforms: [.macOS])),
+                .linkedFramework("Network", .when(platforms: [.macOS]))
             ]
         ),
         .testTarget(
@@ -403,7 +421,8 @@ let package = Package(
                 "AuraContext",
                 "AuraIntent",
                 "AuraConfig",
-                "AuraSecurity"
+                "AuraSecurity",
+                "AuraProductivity"
             ],
             swiftSettings: testingSwiftSettings
         )

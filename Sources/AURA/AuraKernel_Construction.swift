@@ -1,3 +1,4 @@
+import AppKit
 import AuraAgent
 import AuraAudio
 import AuraAutomation
@@ -40,6 +41,15 @@ struct AuraKernelAgents {
 private struct AuraKernelIntent {
   let intentEngine: IntentEngine
   let toolRouter: ToolRouter
+}
+
+/// Acceptance-only failure injector for the live application path. It is
+/// selected only when both SP-011 mode and its explicit offline flag are set;
+/// neutral/production launches always use `URLSessionProviderFetcher`.
+private struct SP011OfflineProviderFetcher: HTTPProviderFetching {
+  func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+    throw URLError(.notConnectedToInternet)
+  }
 }
 
 extension AuraKernel {
@@ -240,7 +250,7 @@ extension AuraKernel {
     do {
       let profile = try BrowserProfileScope(profileID: configuration.productivity.safariProfileID)
       let sharedContainer = URL(
-        fileURLWithPath: configuration.productivity.safariSharedContainerPath)
+        fileURLWithPath: configuration.productivity.resolvedSafariSharedContainerPath)
       let secretStore = SafariBridgeSecretStore(
         secretStore: KeychainSecretStore(
           serviceName: configuration.productivity.safariSecretServiceName),
@@ -276,6 +286,41 @@ extension AuraKernel {
         componentID: "safari-bridge", status: .configurationInvalid,
         detail: "Safari read bridge could not be constructed: \(error.localizedDescription)")
     }
+
+    // SP-010: compose the remaining read-first integrations around the same
+    // Keychain seam the bridge uses. A leg that cannot be composed is left
+    // absent with a recorded reason rather than aborting the others, and no
+    // capability becomes reachable until its snapshot says it is usable.
+    // The SP-011 Desktop client secret is a process-scoped acceptance input,
+    // never part of Codable application configuration. Neutral launches do
+    // not read it, and no health or event record carries its value.
+    let gmailOAuthClientSecret =
+      ProcessInfo.processInfo.environment["AURA_SP011_LIVE_ACCEPTANCE"] == "1"
+      ? ProcessInfo.processInfo.environment["AURA_SP011_OAUTH_CLIENT_SECRET"] : nil
+    let providerFetcher: any HTTPProviderFetching
+    if ProcessInfo.processInfo.environment["AURA_SP011_LIVE_ACCEPTANCE"] == "1",
+      ProcessInfo.processInfo.environment["AURA_SP011_FORCE_OFFLINE"] == "1"
+    {
+      providerFetcher = SP011OfflineProviderFetcher()
+    } else {
+      providerFetcher = URLSessionProviderFetcher()
+    }
+    let productivity = ProductivityRuntime.make(
+      configuration: configuration.productivity,
+      safariBridge: safariBridgeRuntime,
+      secretStore: KeychainSecretStore(serviceName: configuration.app.serviceName),
+      gmailOAuthClientSecret: gmailOAuthClientSecret,
+      fetcher: providerFetcher,
+      injectionClassifier: injectionClassifier ?? PromptInjectionClassifier(),
+      openURL: { NSWorkspace.shared.open($0) })
+    self.productivityRuntime = productivity
+    let readyCount = await productivity.snapshots().filter(\.isReady).count
+    await foundation.runtimeHealthRegistry.record(
+      componentID: "productivity",
+      status: readyCount == 0 ? .disabledByConfiguration : .ready,
+      detail: readyCount == 0
+        ? "no read-first integration is connected yet"
+        : "\(readyCount) of 4 read-first integrations are connected")
   }
 
   private func constructIntentSubsystems(
@@ -289,6 +334,11 @@ extension AuraKernel {
     let capabilityRegistry = CapabilityRegistry()
     await InitialCapabilitySet.registerAll(in: capabilityRegistry)
     self.capabilityRegistry = capabilityRegistry
+    // The four read-first manifests register with a placeholder disabled
+    // reason; replace it immediately with the composition's real state, so
+    // no window exists in which the registry reports a capability's
+    // availability from a string written months ago.
+    await refreshProductivityAvailability()
     await foundation.runtimeHealthRegistry.recordReady(
       "capabilityRegistry",
       detail: "\(InitialCapabilitySet.manifests().count) capabilities registered")
@@ -299,7 +349,8 @@ extension AuraKernel {
       agentTaskRunner: agents.taskRunner,
       capabilityRegistry: capabilityRegistry, confirmationPresenter: confirmationPresenter,
       eventBus: eventBus, configuration: configuration.intent, dialogueEngine: dialogue,
-      codingTaskCoordinator: codingTaskCoordinator)
+      codingTaskCoordinator: codingTaskCoordinator,
+      productivityReader: productivityRuntime.map { ProductivityReadBridge(runtime: $0) })
     let intentEngine = IntentEngine(
       classifier: RuleBasedUtteranceClassifier(), contextEngine: foundation.context,
       contextBuilder: foundation.contextBuilder, memoryEngine: foundation.memory,

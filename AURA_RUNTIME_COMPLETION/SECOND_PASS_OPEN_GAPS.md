@@ -726,24 +726,120 @@ authenticationFailed), `ProductivityConfiguration`, `SafariBridgeRuntime` +
 `SafariBridgeAvailability` in the composition root, and a minimal read-only Web
 Extension package under `Resources/SafariExtension/`. 7 new tests; regression
 21/21 bundles, 949/949 tests, 0 failed. The `browser.read` capability **stays
-disabled** until the live package and trust path are verified. The remaining
-OPEN-06 items below are preserved and not closed by SP-009.
+disabled** until the live package and trust path are verified.
+
+**SP-010 (2026-08-17) — Provider/account onboarding and UI composition completed
+at the deterministic boundary** under `EV-SP-010-20260817-COMPOSITION-01`. The
+read-first adapters now have explicitly authorized test-account/profile
+onboarding (`IntegrationOnboardingService`, `ApprovedIntegrationAccounts`,
+`.read` tier enforcement, Keychain-backed token references), bounded provider
+transports (`HTTPProviderTransport`, `URLSessionGmailReadTransport`), account
+ambiguity and offline/degraded state handling, revocation, composition-root
+availability (`ProductivityRuntime` + `SafariBridgeAvailability`), a redacting
+read bridge (`ProductivityReadBridge`), registry/routing reachability
+(`ToolRouter_ProductivityHandlers`, `InitialCapabilitySet_ExternalCapabilities`),
+and actionable UI state (`AuraAppModel_ProductState`, `AuraMenuView_Tabs`). 48
+`AuraProductivityTests`, 21/21 bundles, 954/954 tests, 0 failed; second-pass,
+repo-hygiene, and supply-chain validators pass. The four capabilities remain
+`.disabled` until the live acceptance gates below are satisfied. SP-010 closes
+the deterministic account/composition/UI slice of OPEN-06.
 
 - Package and authenticate the Safari Web Extension/native messaging bridge;
   the current Swift bridge is a structured contract, not a live extension.
   **SP-009 packaged and authenticated the bridge at the deterministic boundary;
-  the live package/trust path remains unverified (SP-010/SP-011).**
+  the live package/trust path remains unverified (SP-011).**
 - Add real provider transports and explicitly authorized account/profile
   onboarding.
+  **SP-010 added bounded provider transports and the onboarding/authorization
+  boundary at the deterministic boundary; live provider OAuth consent, real
+  account configuration, and TCC/Contacts/Calendar permission prompts remain
+  unverified (SP-011).**
 - Wire browser/mail/calendar/contacts through `AuraKernel`, Dialogue, and UI
   reachability while keeping the four manifests disabled until verified.
+  **SP-010 wired registry, routing, kernel passthroughs, dialogue classification,
+  and UI reachability; the four manifests are still `.disabled` pending live
+  evidence (SP-011).**
 - Run live offline/degraded, permission, account ambiguity, revocation, and
   injection-acceptance tests with the user present where required.
+  **Forwarded to SP-011; not closed by SP-010.**
 - Keep compose/send, calendar/contact mutation, and any OAuth scope escalation
   behind separate immutable confirmation, least-privilege escalation, and
   post-action verification gates.
+  **Forwarded to SP-011; no mutation/send path was added by SP-010.**
 - Do not mark R5 complete based only on `AuraProductivityTests` or the full
   local Swift regression.
+  **R5 remains `in_progress`; only the deterministic SP-009/SP-010 slices are
+  closed.**
+
+**SP-011 (2026-08-18) — live acceptance attempted and BLOCKED on the authority
+boundary** under `EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01`. The live R5
+read-first matrix (unread mail/thread summary, draft-only mail,
+agenda/free-window, event draft, approved page summary, injection-ignore) and
+revocation require live provider accounts, TCC/Contacts/Calendar permission
+prompts, real Safari native messaging, and app launch — none of which this
+session's authority grants (`launch_or_install_app=false`,
+`mutate_permissions=false`, `provider_accounts=false`). The deterministic
+boundary was re-verified: `AuraProductivityTests` 48/48 (offline distinct from
+bad credential, revocation disconnects/clears credential, account ambiguity
+never guesses, injection content rejected, token in header never URL, revoked
+credential stops reads); full regression 21/21 bundles 0 failed; all four
+governance validators exit 0; 38/38 governance tests. **SP-011 remains
+`blocked`; SP-012 is not safe to start.** The live gate is owned by a future
+explicitly-authorized SP-011 live session.
+
+**SP-011 follow-up (2026-08-18) — user authorized all live tests and autonomous
+execution, but the required external resources are NOT present and cannot be
+fabricated** under `EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02`. A real live
+launch was observed: production `AURA.app` built to `/tmp/aura-sp011-live`,
+ad-hoc signed (Local signing complete), launched via `/usr/bin/open`, process
+alive (PID 58326), live os_log `[ai.aura.local:wake]` events, clean quit. This
+proves the app builds/signs/launches/runs/quits on this machine. The full live
+read-first matrix and revocation gate remains open because: (1) no Gmail OAuth
+client ID + redirect URI is configured, (2) no real Gmail test account is in
+`mailAccountIDs`, (3) full Xcode is unavailable so the Safari extension cannot
+be packaged/installed, (4) TCC/Contacts/Calendar physical clicks require a
+present user. **SP-011 remains `blocked`; SP-012 is not safe to start.** To
+complete SP-011, the user must supply a Gmail OAuth client ID + redirect URI, a
+real test account, enable the Safari extension, and click the TCC/Contacts/
+Calendar prompts.
+
+**SP-011 retry (2026-08-18) — partial live launch evidence, still blocked** under
+`EV-SP-011-20260818-LIVE-RETRY-03`. Xcode 27.0/Swift 6.4 is present on this
+machine, so the retry corrected the earlier toolchain assumption: the
+production bundle was built, locally signed, strict-verified, launched with
+`/usr/bin/open`, observed alive with privacy-redacted `ai.aura.local:wake`
+events, and cleanly stopped. The live completion gate is nevertheless still
+open: no Gmail OAuth client/access token or real provider account was supplied,
+no Gmail read/thread/revoke flow ran, no Safari extension was packaged/
+installed or native-messaging round trip exercised, and no TCC/Contacts/
+Calendar prompt was clicked. **SP-011 remains `blocked`; SP-012 is not safe to
+start.**
+
+**SP-011 Computer Use preflight (2026-08-18) — external configuration partially
+present, still blocked** under `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`.
+Authenticated Chrome reached the existing Google Cloud project: the Desktop
+OAuth client, Testing audience, test user, and Gmail API are present. Data
+Access has no saved scope; `gmail.readonly` was intentionally not entered or
+saved pending just-in-time confirmation because it expands persistent access.
+Safari reports `redirect_uri_mismatch` and its Extensions view has no AURA
+extension. The exact temporary AURA bundle remained at `Starting` during the
+bounded UI observation and was stopped. No credential, OAuth grant/token, TCC
+mutation, extension installation, provider read/revoke, mutation/send, or user
+data rewrite occurred. **SP-011 remains `blocked`; SP-012 is not safe to start.**
+
+**SP-011 Computer Use scope follow-up (2026-08-18) — scope saved; OAuth grant
+paused** under `EV-SP-011-20260818-COMPUTER-UI-SCOPE-05`. With the user's
+just-in-time approval, the Google Cloud Data Access UI saved the least-privilege
+Gmail read scope and displayed the saved Gmail scope. The desktop OAuth flow
+then selected the approved test-account session, passed the Testing-app warning,
+and reached the consent screen showing only read access to email messages and
+settings. The actual `Continue` grant was not clicked because it creates the
+provider authorization grant and must be confirmed separately at that exact
+step. The temporary AURA bundle launched to `Idle / Ready`; its Setup surface
+has no OAuth connect control, while the source connection seam requires
+externally obtained token material. No credential, token, TCC change, Safari
+install, provider read/revoke, mutation/send, or private data capture occurred.
+**SP-011 remains `blocked`; SP-012 is not safe to start.**
 
 ## OPEN-07 — R6: VS Code and Coding-Agent Completion
 
@@ -1102,3 +1198,88 @@ is a distinct fail-closed state, and the manifest dropped its `<all_urls>`
 content script. 12 SP-009 tests; 21/21 bundles, 954/954 tests, 0 failed; all
 four validators exit 0. The live package/trust path is still unverified and the
 remaining OPEN-06 items above are still not closed.
+
+## SP-011 Computer Use OAuth retry (2026-08-18)
+
+`EV-SP-011-20260818-OAUTH-RETRY-06` records the user's explicit retry of the
+timed-out Google OAuth Continue flow. The provider redirect reached
+`127.0.0.1:48080/oauth2callback` and Chrome reported `ERR_CONNECTION_REFUSED`.
+No authorization code or token material was copied, parsed, logged, or exposed.
+The temporary AURA process was alive, but no TCP 48080 listener existed. Source
+inspection found no live callback listener, token exchange, or OAuth enrollment
+UI; AURA only exposes the externally-fed `connectMailAccount` seam. Therefore
+the provider redirect is partial live evidence, not a connected account or a
+live Gmail read/revocation result. SP-011 remains blocked and SP-012 must not
+start. Adding a callback/token-exchange feature requires a separate explicit
+scope decision.
+
+## SP-011 Gmail live closeout reconciliation (2026-08-19)
+
+`EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07` supersedes the OAuth-callback and
+real-account portions of the 2026-08-18 blocker without rewriting their
+historical observations. AURA now has a bounded loopback PKCE callback, provider
+token exchange, approved-account probe, Keychain-only enrollment, user-facing
+connect/revoke actions, typed thread-summary routing, and redacted failure
+classification. Under explicit user-present authority, the Gmail read-only
+subset passed live: a controlled two-message thread was summarized without
+address/body leakage; controlled injected instructions were blocked; offline
+transport was distinguished from credential failure; two approved accounts
+caused clarification before provider contact; the local Keychain credential and
+Google grant were removed; and a post-revocation read failed closed before the
+provider. Controlled fixtures were moved to recoverable Gmail Trash, all local
+callback tabs/processes/acceptance environment were cleared, and no token,
+authorization code, secret, account identifier, message body, or screenshot was
+placed in repository evidence.
+
+The full OPEN-06 / SP-011 live gate is still open. No live Safari
+extension/native-messaging approved-page summary, EventKit agenda/free-window,
+event draft, or Contacts/Calendar TCC acceptance was performed. AURA compose/send
+remains unimplemented and explicitly excluded; Gmail UI sends were separately
+authorized fixture provisioning only. The direct AURA Privacy-tab revoke click
+also could not be observed because the Computer Use native pipe closed whenever
+that SwiftUI tab was selected; the equivalent Keychain backend deletion and
+provider-side grant removal prove the security postcondition but not that exact
+UI interaction. **SP-011 remains `blocked`; SP-012 is not safe to start.**
+
+### OPEN-06 update — 2026-08-19 (native legs live; Safari extension packaged and registered)
+
+`EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08`. The historical wording above
+is preserved; this entry records what changed.
+
+Three of the legs listed as "not performed" were **unrunnable, not merely
+unperformed**, for four separate reasons found by attempting them:
+
+1. **No caller.** `EventKitCalendarReadAdapter.requestReadAccess()`,
+   `ContactsFrameworkLookupAdapter.requestReadAccess()` and
+   `AuraKernel.connectBrowserProfile` existed with no production caller, while
+   the calendar, contacts and browser health rows each published a remediation
+   naming a Setup control that did not exist.
+2. **No entitlement.** `Resources/AURA.entitlements` lacked
+   `com.apple.security.personal-information.calendars` and `.addressbook`, so
+   tccd refused to show the prompt even once the grant action was wired
+   (`Policy disallows prompt ...; access to kTCCServiceCalendar denied`).
+3. **No usage description.** `Resources/AURA-Info.plist` carried neither string,
+   so the request would have terminated the app.
+4. **No native half.** The Safari extension's `SafariWebExtensionHandler` was
+   never written and `build-app-bundle.sh` packaged no extension, so the
+   producing side of the bridge did not exist.
+
+All four are fixed. **Now closed within OPEN-06:** the Calendar and Contacts TCC
+acceptance, including the real prompts carrying AURA's own usage strings, and a
+live EventKit agenda read bound to a known disposable fixture ("1 event(s): AURA
+SP-011 acceptance fixture"), verified against the same query returning
+"Nothing is scheduled in that range." beforehand. The Safari extension is now a
+real signed, sandboxed `.appex` that the system registers at
+`com.apple.Safari.web-extension`.
+
+**Still open within OPEN-06:** the live approved-page summary through real Safari
+native messaging, the browser injection-ignore leg, and the browser profile
+revocation. Safari will not enable a non-Developer-ID extension without its
+`Allow unsigned extensions` toggle, which requires a Touch ID or password
+authentication that was deliberately not supplied; a Developer ID signature plus
+notarization removes the requirement entirely and is the production answer,
+owned by R11. Free-window computation and event draft remain unimplemented and
+mutation-class. No non-empty contacts read is recorded, by choice, because only
+the user's own address book exists on this machine and this prompt forbids
+recording real private account data. **SP-011 remains `blocked`; SP-012 is not
+safe to start.**

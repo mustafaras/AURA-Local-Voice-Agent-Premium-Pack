@@ -20,7 +20,7 @@ enum ConfirmationResolution: String, Sendable {
 extension AuraAppModel {
   func bootstrap() async {
     do {
-      let configuration = AuraConfiguration.default
+      let configuration = AuraConfiguration.bootstrap
       try configuration.validate()
       let logger = AuraLogger(
         subsystem: configuration.app.bundleIdentifier,

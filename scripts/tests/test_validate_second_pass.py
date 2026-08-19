@@ -41,7 +41,14 @@ class SecondPassProgramTests(unittest.TestCase):
         expected_active = self.manifest["prompts"][len(completed)]["id"]
         self.assertEqual(self.state["active_prompt"], expected_active)
         self.assertNotIn(expected_active, completed)
-        self.assertEqual(self.state["blocked_prompts"], [])
+        # The active prompt is the first uncompleted prompt. It may be
+        # `pending`, `in_progress`, or `blocked`; if it is blocked it must be
+        # listed in `blocked_prompts` so the blocker is explicit and the
+        # linear chain cannot advance past it.
+        if self.state["active_state"] == "blocked":
+            self.assertIn(expected_active, self.state["blocked_prompts"])
+        else:
+            self.assertEqual(self.state["blocked_prompts"], [])
         handoff = json.loads(
             (ROOT / "AURA_RUNTIME_COMPLETION/context/session-handoff.json").read_text()
         )
