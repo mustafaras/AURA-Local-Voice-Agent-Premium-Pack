@@ -9,6 +9,29 @@ import Foundation
 public struct SafariBridgeSignedPayload: Codable, Sendable, Equatable {
   public static let currentProtocolVersion = 1
 
+  /// How long one observation stays usable, in seconds.
+  ///
+  /// This is the single number both halves of the bridge must agree on: the
+  /// extension stamps `expiresAt` with it, and the app refuses a file older
+  /// than it. It was 30 seconds, and at 30 seconds the feature could not work
+  /// on any machine — not as a tuning problem, but arithmetically. The flow
+  /// the product supports is "click the toolbar button, then ask AURA about
+  /// the page", and that pipeline is measured at roughly 13 s of extension
+  /// cold start, a few seconds of admission, and one local-model turn that
+  /// SP-006 measured at 19.8–36.1 s and for which the product's own text
+  /// driver budgets 120 s. The observation therefore expired while the model
+  /// was still deciding what the user had asked for, every time, and the user
+  /// was told the bridge was stale for a page they had just shared.
+  ///
+  /// 180 s covers that pipeline with headroom above the product's own turn
+  /// budget. What widens is the replay window for a signed observation of a
+  /// page the user explicitly shared, held in a directory only the app and the
+  /// extension can write — the cost is that a summary can describe a page up
+  /// to three minutes old, which is a freshness question rather than a
+  /// confidentiality one. Recorded as `RISK-SP-011-OBSERVATION-LIFETIME` for
+  /// R10 review.
+  public static let observationLifetimeSeconds: Double = 180
+
   public let protocolVersion: Int
   public let extensionID: String
   public let profileID: String
@@ -130,7 +153,7 @@ public struct SafariBridgeSigner: Sendable {
     profileID: String,
     nonce: String,
     issuedAt: Date = Date(),
-    lifetimeSeconds: Double = 30
+    lifetimeSeconds: Double = SafariBridgeSignedPayload.observationLifetimeSeconds
   ) throws(AuraError) -> SafariBridgeEnvelope {
     guard !extensionID.isEmpty, !profileID.isEmpty, !nonce.isEmpty else {
       throw AuraError.securityError(

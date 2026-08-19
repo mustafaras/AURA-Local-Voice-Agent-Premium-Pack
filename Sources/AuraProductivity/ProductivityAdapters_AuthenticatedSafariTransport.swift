@@ -38,7 +38,7 @@ public struct AuthenticatedSafariWebExtensionTransport: SafariWebExtensionTransp
     secretStore: SafariBridgeSecretStore,
     now: @escaping @Sendable () -> Date = { Date() },
     clockSkewSeconds: Double = 5,
-    maxObservationAge: Double = 30,
+    maxObservationAge: Double = SafariBridgeSignedPayload.observationLifetimeSeconds,
     maxPayloadBytes: Int = 1_048_576
   ) {
     self.extensionID = extensionID

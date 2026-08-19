@@ -365,3 +365,54 @@ struct LaunchPathTests {
     #expect(source.contains("componentID: \"productivity\", status: .loading"))
   }
 }
+
+// MARK: - A lookup must not be able to kill the app
+
+/// Asking AURA to find a contact crashed the whole application. The adapter
+/// attached `CNContact.predicateForContacts(matchingName:)` to a
+/// `CNContactFetchRequest` and enumerated it, and that combination raises an
+/// Objective-C `NSException` — which Swift cannot catch. The exception unwound
+/// through `do`/`catch` into `objc_exception_rethrow`, `std::terminate` and
+/// `SIGABRT`; the crash report named
+/// `CNContactStore.enumerateContactsWithFetchRequest:error:usingBlock:`
+/// directly above `ContactsFrameworkLookupAdapter.lookup(query:limit:)`.
+///
+/// Asserted against the source because the failure is a process abort: a test
+/// that exercised it would take the test runner down with it, and there is no
+/// seam that makes an `NSException` observable from Swift.
+@Suite("contacts lookup crash")
+struct ContactsLookupCrashTests {
+  private func adapterSource() throws -> String {
+    try String(
+      contentsOf: repositoryRoot.appending(
+        path: "Sources/AuraProductivity/NativeProductivityAdapters.swift"),
+      encoding: .utf8)
+  }
+
+  /// Matches the call, not the word: the fix's own comment names the API it
+  /// replaced, and an assertion that cannot tell an explanation from a call
+  /// site fails for the wrong reason.
+  @Test("a name predicate is never enumerated")
+  func namePredicateIsNeverEnumerated() throws {
+    let source = try adapterSource()
+    #expect(!source.contains("contactStore.enumerateContacts"))
+    #expect(!source.contains("try contactStore.enumerateContacts"))
+  }
+
+  @Test("name matching goes through the unified-contacts query")
+  func nameMatchingUsesUnifiedContacts() throws {
+    let source = try adapterSource()
+    #expect(source.contains("unifiedContacts("))
+    #expect(source.contains("predicateForContacts(matchingName:"))
+  }
+
+  /// The second crash, same class as the first: `CNContactFormatter` read
+  /// `middleName`, which the hand-written key list did not fetch, and an
+  /// unfetched property raises rather than returning nil. Only the formatter
+  /// knows what the formatter needs.
+  @Test("the formatter's own key requirements are fetched")
+  func formatterKeysAreFetched() throws {
+    let source = try adapterSource()
+    #expect(source.contains("CNContactFormatter.descriptorForRequiredKeys(for: .fullName)"))
+  }
+}

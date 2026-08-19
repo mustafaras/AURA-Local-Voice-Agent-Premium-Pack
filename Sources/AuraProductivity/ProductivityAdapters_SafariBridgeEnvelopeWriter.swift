@@ -29,7 +29,7 @@ public struct SafariBridgeEnvelopeWriter: Sendable {
     sharedContainerURL: URL,
     secretStore: SafariBridgeSecretStore,
     now: @escaping @Sendable () -> Date = { Date() },
-    lifetimeSeconds: Double = 30,
+    lifetimeSeconds: Double = SafariBridgeSignedPayload.observationLifetimeSeconds,
     makeNonce: @escaping @Sendable () -> String = { UUID().uuidString }
   ) {
     self.extensionID = extensionID

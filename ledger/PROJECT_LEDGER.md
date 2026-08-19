@@ -4382,3 +4382,12 @@ Recorded under `EV-SP-011-20260818-OAUTH-RETRY-06` after the user's explicit ret
 - **Verification:** 21/21 bundles, **1068/1068 tests**, 0 failed; four governance validators exit 0; 38/38 governance unit tests pass.
 - **Residual:** the approved-page summary, browser injection-ignore, browser revocation, and contacts non-empty read remain unexecuted. The free-window live proof is partial — the turn answered with a truthful authorization refusal because calendar access had been reset to `denied`. The extension's click-to-write latency is instrumented but not yet measured.
 - **Acceptance / next prompt:** SP-011 remains `blocked`. SP-012 is not safe to start.
+
+### 2026-08-19T18:55:00Z — SP-011 live browser and contacts legs
+
+- **Evidence / class:** `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`; direct user-present product/UI/crash-report evidence plus deterministic regression.
+- **Outcome:** approved page summary, browser injection-ignore, browser revocation, and contacts non-empty read all passed live. Fixed an observation lifetime that made the browser feature arithmetically impossible, and two Contacts-framework calls that aborted the whole application through Objective-C exceptions Swift cannot catch.
+- **Falsifier:** a contacts lookup aborting the process again; a summary produced from an expired envelope; injection text appearing in an answer; a read succeeding after revocation; or a contact's email or phone value, rather than its count, reaching an output.
+- **Verification:** 21/21 bundles, **1070/1070 tests**, 0 failed.
+- **Residual:** the free-window non-empty read, blocked by a calendar authorization this attempt destroyed and could not restore.
+- **Acceptance / next prompt:** SP-011 remains `blocked`. SP-012 is not safe to start.

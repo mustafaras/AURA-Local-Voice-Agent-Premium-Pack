@@ -572,3 +572,18 @@ SP-011 remains `blocked`: the approved-page summary, the browser
 injection-ignore leg, the browser revocation leg, and the contacts non-empty
 read are still unexecuted. Evidence:
 `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`. SP-012 is not safe to start.
+
+### SP-011 live browser and contacts legs — 2026-08-19T18:55:00Z
+
+Four legs passed live with the operator present: the approved page summary
+(blocked since 2026-08-18), the browser injection-ignore leg, the browser
+revocation leg, and the contacts non-empty read. Three defects were found by
+running them — an observation lifetime of 30 seconds that could not cover the
+~13 s extension cold start plus one local-model turn, and two Contacts-framework
+calls that aborted the whole application through Objective-C exceptions Swift
+cannot catch. 21/21 bundles, 1070/1070 tests, 0 failed.
+
+SP-011 remains `blocked`: the free-window non-empty read is owed, because this
+attempt destroyed the calendar authorization by running `tccutil reset Calendar`
+against a working grant and could not restore it. Evidence:
+`EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`. SP-012 is not safe to start.

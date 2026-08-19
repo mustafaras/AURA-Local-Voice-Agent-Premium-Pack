@@ -127,38 +127,59 @@ public actor ContactsFrameworkLookupAdapter: ContactsLookupAdapter {
     let boundedLimit = min(max(limit, 1), 10)
     try requireReadAuthorization()
 
+    // `CNContactFormatter` reads more of a contact than a full name obviously
+    // needs — middle name, prefixes, suffixes, and the script hints it uses to
+    // choose a name order. Reading a property that was not fetched raises an
+    // Objective-C `NSException`, which Swift cannot catch, so a formatter run
+    // against a hand-listed key set aborted the process: the crash report
+    // showed `CNContactFormatter.stringFromContact:` reaching
+    // `CNContact.middleName` and `+[NSException raise:format:]` two frames
+    // later. `descriptorForRequiredKeys` is the framework's own answer to
+    // "what does this formatter need"; listing keys by hand cannot be right,
+    // because the answer belongs to the formatter and changes with the OS.
     let keys: [CNKeyDescriptor] = [
       CNContactIdentifierKey as CNKeyDescriptor,
       CNContactGivenNameKey as CNKeyDescriptor,
       CNContactFamilyNameKey as CNKeyDescriptor,
       CNContactEmailAddressesKey as CNKeyDescriptor,
       CNContactPhoneNumbersKey as CNKeyDescriptor,
+      CNContactFormatter.descriptorForRequiredKeys(for: .fullName),
     ]
-    let request = CNContactFetchRequest(keysToFetch: keys)
-    request.predicate = CNContact.predicateForContacts(matchingName: normalizedQuery)
-    var candidates: [ContactCandidate] = []
+    // `unifiedContacts(matching:)`, not `enumerateContacts(with:)`.
+    //
+    // The name predicates are only supported by the unified-contacts query.
+    // Attaching one to a `CNContactFetchRequest` and enumerating raises an
+    // Objective-C `NSException`, which Swift's `try` cannot catch: the
+    // exception unwinds straight through `do`/`catch` into `objc_exception_
+    // rethrow`, `std::terminate`, and `SIGABRT`. Asking AURA to find a
+    // contact therefore killed the whole application — a crash, not a failed
+    // lookup, and one no amount of error handling at this layer could have
+    // contained.
+    let matched: [CNContact]
     do {
-      try contactStore.enumerateContacts(with: request) { [classifier] contact, stop in
-        guard candidates.count < boundedLimit else {
-          stop.pointee = true
-          return
-        }
-        let displayName = CNContactFormatter.string(from: contact, style: .fullName) ?? ""
-        let content = ExternalContent(
-          sourceID: "contact:\(contact.identifier):name",
-          text: displayName,
-          provenance: .contactRecord,
-          classifier: classifier)
-        guard !content.isBlocked else { return }
-        candidates.append(
-          ContactCandidate(
-            id: contact.identifier,
-            displayName: content,
-            emailAddresses: contact.emailAddresses.map { String($0.value) },
-            phoneNumbers: contact.phoneNumbers.map { $0.value.stringValue }))
-      }
+      matched = try contactStore.unifiedContacts(
+        matching: CNContact.predicateForContacts(matchingName: normalizedQuery),
+        keysToFetch: keys)
     } catch {
       throw .providerUnavailable
+    }
+
+    var candidates: [ContactCandidate] = []
+    for contact in matched {
+      guard candidates.count < boundedLimit else { break }
+      let displayName = CNContactFormatter.string(from: contact, style: .fullName) ?? ""
+      let content = ExternalContent(
+        sourceID: "contact:\(contact.identifier):name",
+        text: displayName,
+        provenance: .contactRecord,
+        classifier: classifier)
+      guard !content.isBlocked else { continue }
+      candidates.append(
+        ContactCandidate(
+          id: contact.identifier,
+          displayName: content,
+          emailAddresses: contact.emailAddresses.map { String($0.value) },
+          phoneNumbers: contact.phoneNumbers.map { $0.value.stringValue }))
     }
     return ScopedContactResolution(query: normalizedQuery, candidates: candidates)
   }

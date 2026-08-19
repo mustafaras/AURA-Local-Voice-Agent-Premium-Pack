@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-19T17:20:00Z",
-  "session_id": "AURA-SP-011-LAUNCH-AND-HARNESS-20260819",
+  "updated_at": "2026-08-19T18:55:00Z",
+  "session_id": "AURA-SP-011-LIVE-BROWSER-AND-CONTACTS-20260819",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "34ab968da2a9f4b637d64f5c1f4cbb4820cf3d68",
-    "remote_head": "34ab968da2a9f4b637d64f5c1f4cbb4820cf3d68",
+    "verified_head": "51e00d8237a807755aea4eb0ce3cc0763f0af964",
+    "remote_head": "51e00d8237a807755aea4eb0ce3cc0763f0af964",
     "working_tree_state": "clean",
     "user_owned_changes": []
   },
@@ -18,7 +18,7 @@
     "id": "R5",
     "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
     "state": "in_progress",
-    "step": "SP-011 BLOCKED. EV-SP-011-20260819-LAUNCH-AND-HARNESS-11 fixed a defect that stopped AURA launching at all (construct() blocked in SecItemCopyMatching waiting on securityd, with no reachable control), implemented the missing agenda/free-window leg, fixed two accessibility defects that left the transcript unreadable, and added a resumable acceptance harness. The approved-page summary, browser injection-ignore, browser revocation, and contacts non-empty read remain unexecuted."
+    "step": "SP-011 BLOCKED. EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12: the approved page summary, browser injection-ignore, browser revocation, and contacts non-empty read all passed live. Fixed an observation lifetime that made the browser feature impossible and two Contacts calls that aborted the app. The free-window non-empty read is owed: this attempt destroyed the calendar authorization and could not restore it."
   },
   "tracks": [
     {

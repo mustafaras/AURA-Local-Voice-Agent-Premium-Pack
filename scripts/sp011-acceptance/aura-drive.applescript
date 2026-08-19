@@ -151,8 +151,33 @@ on findByID(root, targetID, unusedDepth)
 			end repeat
 		end tell
 	end timeout
-	return missing value
+	-- `entire contents` is not dependable on this window: it has returned an
+	-- empty list, and a truncated one, for a scroll area that answered direct
+	-- child queries correctly at the same moment. The integrations list was
+	-- visibly on screen while the flat scan reported its rows missing. Walking
+	-- the children explicitly is slower but does not lie.
+	return descendByID(root, targetID, 0)
 end findByID
+
+on descendByID(node, targetID, depth)
+	if depth > 6 then return missing value
+	tell application "System Events"
+		try
+			if (value of attribute "AXIdentifier" of node) is targetID then return node
+		end try
+		set kids to {}
+		try
+			set kids to UI elements of node
+		on error
+			return missing value
+		end try
+		repeat with child in kids
+			set hit to my descendByID(child, targetID, depth + 1)
+			if hit is not missing value then return hit
+		end repeat
+	end tell
+	return missing value
+end descendByID
 
 on roleOf(el)
 	tell application "System Events"

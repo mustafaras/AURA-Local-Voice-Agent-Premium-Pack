@@ -703,6 +703,7 @@ func safariBridgeTransportAcceptsAnObservationForItsFullLifetime() async throws 
   let container = makeSafariContainerURL()
   defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
 
+  let lifetime = SafariBridgeSignedPayload.observationLifetimeSeconds
   let written = Date()
   try writeSafariEnvelope(
     try signer.makeEnvelope(
@@ -710,21 +711,46 @@ func safariBridgeTransportAcceptsAnObservationForItsFullLifetime() async throws 
       extensionID: "com.aura.safari-extension",
       profileID: "personal",
       nonce: "nonce-1",
-      issuedAt: written,
-      lifetimeSeconds: 30),
+      issuedAt: written),
     to: container)
 
-  // Twenty seconds later — well past the old five-second bound — the same
-  // observation is still readable.
+  // The whole point of the lifetime is that it outlives one turn: the user
+  // clicks the extension, AURA spends a local-model turn deciding what they
+  // asked for, and the observation must still be readable when the adapter
+  // finally runs. Read near the end of the window, not at the start.
   let readable = makeSafariTransport(
-    containerURL: container, secretStore: secretStore, now: { written.addingTimeInterval(20) })
+    containerURL: container, secretStore: secretStore,
+    now: { written.addingTimeInterval(lifetime - 5) })
   #expect(try await readable.readActiveTab(profileID: "personal").tabID == "tab-1")
 
-  // Past the envelope's own expiry it is refused again.
-  let expired = makeSafariTransport(
-    containerURL: container, secretStore: secretStore, now: { written.addingTimeInterval(120) })
+  // Past the file-age bound the observation is stale. This is the cheap
+  // rejection that happens before the envelope is even decoded.
+  let stale = makeSafariTransport(
+    containerURL: container, secretStore: secretStore,
+    now: { written.addingTimeInterval(lifetime + 60) })
   await #expect(throws: SafariBridgeTransportError.stale) {
-    _ = try await expired.readActiveTab(profileID: "personal")
+    _ = try await stale.readActiveTab(profileID: "personal")
+  }
+
+  // An envelope whose own expiry has passed is refused even while the file is
+  // young enough — and it is refused as an authentication failure, not as
+  // staleness, because a short-lived envelope in a fresh file is a signed
+  // claim that has lapsed rather than a file nobody has refreshed.
+  let shortLived = makeSafariContainerURL()
+  defer { try? FileManager.default.removeItem(at: shortLived.deletingLastPathComponent()) }
+  try writeSafariEnvelope(
+    try signer.makeEnvelope(
+      tab: makeSafariTab(),
+      extensionID: "com.aura.safari-extension",
+      profileID: "personal",
+      nonce: "nonce-2",
+      issuedAt: written.addingTimeInterval(-60),
+      lifetimeSeconds: 30),
+    to: shortLived)
+  let lapsed = makeSafariTransport(
+    containerURL: shortLived, secretStore: secretStore, now: { written })
+  await #expect(throws: SafariBridgeTransportError.authenticationFailed) {
+    _ = try await lapsed.readActiveTab(profileID: "personal")
   }
 }
 

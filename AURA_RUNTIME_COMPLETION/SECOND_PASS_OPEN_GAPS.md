@@ -867,6 +867,25 @@ another Safari authentication. 21/21 bundles, **1068/1068 tests**, 0 failed.
 injection-ignore leg, the browser revocation leg, and the contacts non-empty
 read are still unexecuted. SP-012 is not safe to start.
 
+**SP-011 (2026-08-19, fifth attempt) — four legs pass live** under
+`EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`. With the operator supplying
+Safari's unsigned-extension authentication and one disposable contact, the
+**approved page summary** (blocked since 2026-08-18), the **browser
+injection-ignore** leg, the **browser revocation** leg, and the **contacts
+non-empty read** all passed live. Three defects were found by running them: the
+bridge's 30-second observation lifetime could not cover the pipeline it exists
+for — roughly 13 s of extension cold start plus a local-model turn the product
+itself budgets 120 s for — making the feature arithmetically impossible rather
+than mistuned (now one shared 180-second constant,
+`RISK-SP-011-OBSERVATION-LIFETIME`); and two Contacts-framework calls aborted
+the whole application with Objective-C exceptions Swift cannot catch, first
+`enumerateContacts` with a name predicate and then `CNContactFormatter` reading
+an unfetched `middleName`. 21/21 bundles, **1070/1070 tests**, 0 failed.
+**SP-011 remains `blocked`:** the free-window **non-empty** read is still owed,
+because this attempt destroyed the calendar authorization by running
+`tccutil reset Calendar` against a working grant
+(`RISK-SP-011-CALENDAR-GRANT-DESTROYED`). SP-012 is not safe to start.
+
 ## OPEN-07 — R6: VS Code and Coding-Agent Completion
 
 Prompt: [`07_R6_VSCODE_AND_CODING_AGENTS.prompt.md`](archive/first-pass-prompts/2026-08-12/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md)

@@ -26,7 +26,7 @@ public struct SafariBridgeRuntime: Sendable {
     classifier: PromptInjectionClassifier = PromptInjectionClassifier(),
     now: @escaping @Sendable () -> Date = { Date() },
     clockSkewSeconds: Double = 5,
-    maxObservationAge: Double = 30
+    maxObservationAge: Double = SafariBridgeSignedPayload.observationLifetimeSeconds
   ) {
     self.profile = profile
     self.extensionID = extensionID

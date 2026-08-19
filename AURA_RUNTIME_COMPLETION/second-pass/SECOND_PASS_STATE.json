@@ -3,8 +3,8 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-19T17:20:00Z",
-  "session_id": "AURA-SP-011-LAUNCH-AND-HARNESS-20260819",
+  "updated_at": "2026-08-19T18:55:00Z",
+  "session_id": "AURA-SP-011-LIVE-BROWSER-AND-CONTACTS-20260819",
   "active_prompt": "SP-011",
   "active_state": "blocked",
   "completed_prompts": [
@@ -24,6 +24,7 @@
     "SP-011"
   ],
   "last_evidence_ids": [
+    "EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12",
     "EV-SP-011-20260819-LAUNCH-AND-HARNESS-11",
     "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10",
     "EV-SP-011-20260819-SAFARI-TRUST-PATH-09",
@@ -72,9 +73,7 @@
     "EV-SP-008-20260817-ADVERSARIAL-01",
     "EV-SP-008-20260817-CLOSEOUT-02",
     "EV-SP-008-20260817-CORRECTION-03",
-    "EV-SP-008-20260817-DETECTOR-04",
-    "EV-SP-010-20260817-COMPOSITION-01",
-    "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01"
+    "EV-SP-008-20260817-DETECTOR-04"
   ],
   "authority": {
     "edit": true,
@@ -101,5 +100,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-011 remains BLOCKED after EV-SP-011-20260819-LAUNCH-AND-HARNESS-11. The launch-blocking Keychain probe, the missing free-window leg, and two accessibility defects are fixed, and scripts/sp011-acceptance/ makes the live run resumable. Run preflight.sh then run-browser-legs.sh, with the operator supplying the Safari authentication, the extension enablement, the toolbar clicks, the calendar grant, and one disposable contact. Do not start SP-012."
+  "next_action": "SP-011 remains BLOCKED after EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12. Four legs passed live; only the free-window non-empty read is owed, and it is blocked by a calendar authorization this attempt destroyed. Restore it (a logout or restart is the normal remedy for a stuck TCC decision), then run one agenda and one free-window turn against a disposable fixture event. Do not start SP-012."
 }

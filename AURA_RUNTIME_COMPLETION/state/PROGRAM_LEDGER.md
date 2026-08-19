@@ -1913,3 +1913,12 @@ Evidence `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`: Google Cloud project/cli
 - **Why SP-012 is not safe:** the approved-page summary is named directly in SP-011's procedure and is still unobserved.
 - **Authority boundary:** the user approved every phase and declined Apple Developer Program enrolment. `sign_or_notarize` remains `false`; no release, deployment, notarization, or AURA mutation/send occurred.
 - **Next safe action:** run `scripts/sp011-acceptance/preflight.sh`, then `run-browser-legs.sh`, with the operator supplying the Safari authentication, the extension enablement, the toolbar clicks, the calendar grant, and one disposable contact. Do not start SP-012.
+
+### 2026-08-19T18:55:00Z — SP-011 four legs pass live; two application-aborting crashes fixed
+
+- **Evidence:** `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`; direct user-present product/UI/crash-report evidence plus deterministic regression.
+- **Outcome:** the approved page summary, the browser injection-ignore leg, the browser revocation leg, and the contacts non-empty read all passed live, with the operator supplying Safari's authentication and one disposable contact fixture. Three defects were found by running them: a 30-second observation lifetime that could not cover the ~13 s extension cold start plus a local-model turn the product budgets 120 s for; `enumerateContacts` with a name predicate, which raises an uncatchable Objective-C exception and aborted the process; and `CNContactFormatter` reading an unfetched `middleName`, which aborted it again.
+- **Verification:** 21/21 bundles, **1070/1070 tests**, 0 failed.
+- **Residual / why outside the closed subset:** the free-window non-empty read. This attempt destroyed the calendar authorization by running `tccutil reset Calendar` against a working grant, and neither that nor `reset All` clears the resulting state. Recorded as damage caused here, with the remedy — a logout or restart — left to the operator.
+- **Why SP-012 is not safe:** `agenda/free-window` is named in SP-011's procedure and only its agenda half has a live non-empty result.
+- **Next safe action:** restore the calendar authorization, then run one agenda and one free-window turn against a disposable fixture event. Do not start SP-012.

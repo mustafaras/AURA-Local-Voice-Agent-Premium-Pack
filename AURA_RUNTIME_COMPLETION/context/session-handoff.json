@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-19T17:20:00Z",
-  "session_id": "AURA-SP-011-LAUNCH-AND-HARNESS-20260819",
-  "last_verified_commit": "34ab968da2a9f4b637d64f5c1f4cbb4820cf3d68",
+  "updated_at": "2026-08-19T18:55:00Z",
+  "session_id": "AURA-SP-011-LIVE-BROWSER-AND-CONTACTS-20260819",
+  "last_verified_commit": "51e00d8237a807755aea4eb0ce3cc0763f0af964",
   "active_prompt": {
     "id": "SP-011",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
     "state": "blocked",
-    "step": "EV-SP-011-20260819-LAUNCH-AND-HARNESS-11: fixed a launch-blocking Keychain probe in AuraKernel.construct() that left AURA unable to start and unreachable, implemented the missing agenda/free-window leg, fixed two accessibility defects, and added a resumable acceptance harness. The approved-page summary, browser injection-ignore, browser revocation, and contacts non-empty read remain unexecuted."
+    "step": "EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12: the approved page summary, browser injection-ignore, browser revocation, and contacts non-empty read all passed live. Fixed an observation lifetime that made the browser feature impossible and two Contacts calls that aborted the app. The free-window non-empty read is owed: this attempt destroyed the calendar authorization and could not restore it."
   },
-  "summary": "SP-011 remains BLOCKED. This attempt closed the parts of the matrix that live inside the product: a launch-blocking Keychain probe in AuraKernel.construct() that left the app unable to start and unreachable, the missing agenda/free-window leg (now a pure derivation over the agenda calendar.read already returns, selected by a slot, with no new capability or authorization), two accessibility defects that made every transcript message an unlabelled AXUnknown and left the section pills and composer buttons nameless, and a local-signing flake on an iCloud-synced checkout. scripts/sp011-acceptance/ adds a preflight, an environment-preserving relaunch, an identifier-addressed driver, page fixtures, and a resumable browser-leg runner, so an interruption costs time rather than another Safari authentication. 21/21 bundles, 1068/1068 tests. Still unexecuted: the approved-page summary, the browser injection-ignore leg, the browser revocation leg, and the contacts non-empty read. SP-012 is not safe to start.",
+  "summary": "SP-011 remains BLOCKED, with four legs newly passed live: the approved page summary (blocked since 2026-08-18), the browser injection-ignore leg, the browser revocation leg, and the contacts non-empty read. Three defects were found by running them: the Safari bridge's 30-second observation lifetime could not cover the ~13 s extension cold start plus one local-model turn, making the feature arithmetically impossible (now one shared 180-second constant); and two Contacts-framework calls aborted the whole application through Objective-C exceptions Swift cannot catch. 21/21 bundles, 1070/1070 tests. The free-window non-empty read is owed: this attempt destroyed the calendar authorization by running tccutil reset against a working grant and could not restore it — a logout or restart is the normal remedy and is the operator's call. SP-012 is not safe to start.",
   "completed": [
     "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
     "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",

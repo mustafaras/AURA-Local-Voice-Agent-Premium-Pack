@@ -622,3 +622,27 @@ into the SP-006 evidence file.
 - **Assessment:** the earlier record attributed this to the Keychain without measuring it. `SafariWebExtensionHandler` now logs `sign-and-write` and `accept-total` durations — durations only, no page text, identity or key material — so the appex's internal cost can be separated from appex cold start. No fix has been made on the strength of a guess.
 - **Closure criterion:** one live toolbar click with the instrumented build, then a fix targeted at whichever phase dominates.
 - **Evidence:** `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`
+
+- **Risk ID:** `RISK-SP-011-OBSERVATION-LIFETIME`
+- **Status:** **Open — accepted, documented, needs R10 review**
+- **Owner:** R5 productivity / R10 security review
+- **Risk:** the Safari bridge's observation lifetime was raised from 30 to 180 seconds, widening the window in which a signed observation can be replayed.
+- **Assessment:** at 30 seconds the capability could not work at all. The flow it exists for is "click the toolbar button, then ask AURA about the page", and that pipeline costs roughly 13 s of extension cold start plus one local-model turn, measured at 19.8–36.1 s in SP-006 and budgeted at 120 s by the product's own text driver. The envelope expired while the model was still classifying the request, every time. What widens is the replay window for a signed observation of a page the user explicitly shared, held in a directory only the app and the extension can write; the practical cost is that a summary can describe a page up to three minutes old — a freshness question rather than a confidentiality one.
+- **Closure criterion:** R10 review of the window, or a design in which freshness is judged once at admission and the admitted observation is carried through the turn, which would allow a shorter window without breaking the flow.
+- **Evidence:** `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`
+
+- **Risk ID:** `RISK-SP-011-CALENDAR-GRANT-DESTROYED`
+- **Status:** **Open — damage caused by SP-011, remedy is the operator's**
+- **Owner:** SP-011 live acceptance
+- **Risk:** the calendar authorization was working and is now stuck. This attempt ran `tccutil reset Calendar ai.aura.local.agent` against a working grant, on the strength of a "denied" reading taken from a build that was hung at launch.
+- **Assessment:** neither `tccutil reset Calendar` nor `reset All` clears the resulting state; `EKEventStore.authorizationStatus(for: .event)` still reports denied or restricted, and AURA is no longer listed in System Settings › Privacy & Security › Calendars, so the product's own remediation points at a control that does not exist. `reset All` reported success while leaving microphone, screen-recording and contacts grants intact, so it did not take effect either. This is not a product defect; the product reported the state it was given, truthfully.
+- **Closure criterion:** the authorization restored — a logout or restart is the normal remedy for a stuck TCC decision — and one live free-window read returning a non-empty result.
+- **Evidence:** `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`
+
+- **Risk ID:** `RISK-SP-011-OBJC-EXCEPTIONS-ABORT-THE-APP`
+- **Status:** **Closed for the two observed paths; the class remains**
+- **Owner:** R5 productivity
+- **Risk:** the Contacts framework raises Objective-C exceptions that Swift cannot catch. Two of them aborted the whole application on the ordinary path of asking AURA to find a contact, and the surrounding `do`/`catch` was inert in both cases.
+- **Assessment:** both were fixed at their cause — the unified-contacts query in place of enumerating a name predicate, and the formatter's own key descriptor in place of a hand-written key list. The general hazard is not closed: any Cocoa API that raises rather than returning an error can still take the process down, and Swift offers no seam to contain it.
+- **Closure criterion:** an audit of the remaining Contacts and EventKit call sites for raise-rather-than-return APIs, owned by R10.
+- **Evidence:** `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`
