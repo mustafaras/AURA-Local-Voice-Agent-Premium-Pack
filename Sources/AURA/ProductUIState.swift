@@ -48,6 +48,31 @@ struct AuraCapabilityRow: Identifiable, Equatable, Sendable {
   let isEnabled: Bool
 }
 
+/// One read-first integration as the user sees it.
+///
+/// `accountLabel` is deliberately the masked form produced by
+/// `ProductivityRedaction.displayLabel`. This row can end up in a screenshot,
+/// a screen recording, or a support conversation, and none of those need a
+/// full address to tell two accounts apart.
+struct AuraIntegrationRow: Identifiable, Equatable, Sendable {
+  let id: String
+  let title: String
+  let state: String
+  let detail: String
+  /// The next concrete user action; empty when the integration is ready.
+  let remediation: String
+  /// Masked account or profile label, or `nil` when nothing is connected.
+  let accountLabel: String?
+  let isReady: Bool
+  let isRevocable: Bool
+  /// Whether the user can start the provider's in-app authorization flow.
+  let canConnect: Bool
+  /// Whether the user can trigger this leg's macOS permission prompt from
+  /// here. False once macOS has recorded a decision — then the remediation
+  /// points at System Settings, which is the only place left to change it.
+  let canGrantAccess: Bool
+}
+
 struct AuraMemoryRow: Identifiable, Equatable, Sendable {
   let id: UUID
   let memoryClass: String
@@ -236,6 +261,29 @@ enum AuraCopy {
     "privacy.noMemory": [
       .english: "No user-inspectable memory records.",
       .turkish: "Kullanıcının inceleyebileceği bellek kaydı yok.",
+    ],
+    "integrations.title": [
+      .english: "Read-only integrations", .turkish: "Salt okunur entegrasyonlar",
+    ],
+    "integrations.connected": [.english: "Connected", .turkish: "Bağlı"],
+    "integrations.notConnected": [.english: "Not connected", .turkish: "Bağlı değil"],
+    "integrations.action": [.english: "Next step", .turkish: "Sonraki adım"],
+    "integrations.revoke": [.english: "Disconnect", .turkish: "Bağlantıyı kes"],
+    "integrations.connect": [.english: "Connect Gmail", .turkish: "Gmail'i bağla"],
+    "integrations.connectBrowser": [
+      .english: "Connect Safari profile", .turkish: "Safari profilini bağla",
+    ],
+    "integrations.grantAccess": [
+      .english: "Grant access", .turkish: "Erişim izni ver",
+    ],
+    "integrations.readOnly": [
+      .english: "AURA reads only. Sending mail and changing events or contacts are not enabled.",
+      .turkish:
+        "AURA yalnızca okur. Posta gönderme ve etkinlik veya kişi değiştirme etkin değildir.",
+    ],
+    "integrations.none": [
+      .english: "No read-only integration is composed in this build.",
+      .turkish: "Bu sürümde yapılandırılmış salt okunur entegrasyon yok.",
     ],
     "recovery.title": [.english: "Recovery & Diagnostics", .turkish: "Kurtarma ve Tanılama"],
     "recovery.refresh": [

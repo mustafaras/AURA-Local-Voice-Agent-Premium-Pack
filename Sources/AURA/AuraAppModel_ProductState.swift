@@ -46,6 +46,43 @@ extension AuraAppModel {
       isEnabled: isEnabled)
   }
 
+  /// Project one integration snapshot into its row.
+  ///
+  /// The title comes from the capability manifest's localized presentation
+  /// rather than a second hardcoded list, so the integrations panel and the
+  /// capability panel cannot disagree about what a capability is called.
+  private func integrationRow(_ snapshot: ProductivityIntegrationSnapshot) -> AuraIntegrationRow {
+    let language: DialogueLanguage = productUIState.language == .turkish ? .turkish : .english
+    let title =
+      InitialCapabilitySet.manifests()
+      .first { $0.0.id == snapshot.capabilityID }?
+      .0.presentation.title(for: language) ?? snapshot.capabilityID
+    let state: String
+    let detail: String
+    switch snapshot.availability {
+    case .ready:
+      state = AuraCopy.text("integrations.connected", language: productUIState.language)
+      detail = AuraCopy.text("capabilities.ready", language: productUIState.language)
+    case .degraded(let reason):
+      state = AuraCopy.text("capabilities.degraded", language: productUIState.language)
+      detail = reason
+    case .disabled(let reason):
+      state = AuraCopy.text("integrations.notConnected", language: productUIState.language)
+      detail = reason
+    }
+    return AuraIntegrationRow(
+      id: snapshot.capabilityID,
+      title: title,
+      state: state,
+      detail: detail,
+      remediation: snapshot.remediation,
+      accountLabel: snapshot.accountLabel,
+      isReady: snapshot.isReady,
+      isRevocable: snapshot.isRevocable,
+      canConnect: snapshot.canConnect,
+      canGrantAccess: snapshot.canGrantAccess)
+  }
+
   private func memoryRow(_ record: MemoryRecord) -> AuraMemoryRow {
     AuraMemoryRow(
       id: record.id,
@@ -73,6 +110,7 @@ extension AuraAppModel {
           .map { capabilityRow(manifest: $0, availability: $1) }
           .sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
         backendHealth = await kernel.refreshAgentBackendHealth()
+        integrationRows = try await kernel.productivityIntegrationSnapshots().map(integrationRow)
         let records = try await kernel.memoryRecordsSnapshot()
         memoryRows = records.map(memoryRow)
       } catch {
@@ -92,6 +130,115 @@ extension AuraAppModel {
         refreshProductSnapshots()
       } catch {
         setError("Task cancellation failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  /// Disconnect one integration.
+  ///
+  /// The row's capability ID decides which credential is revoked, so the UI
+  /// never passes an address around; the kernel resolves the approved account
+  /// or profile itself. Availability is refreshed afterwards by the kernel,
+  /// and the rows are re-read here, so a failed revocation keeps showing the
+  /// integration as connected instead of a state it is not in.
+  func disconnectIntegration(_ row: AuraIntegrationRow) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        let snapshots = try await kernel.productivityIntegrationSnapshots()
+        guard let snapshot = snapshots.first(where: { $0.capabilityID == row.id }) else {
+          throw AuraError.invalidConfiguration("that integration is no longer present")
+        }
+        switch snapshot.capabilityID {
+        case InitialCapabilitySet.mailRead.id:
+          let approved = try await kernel.approvedMailAccountIDs()
+          guard let accountID = approved.first, approved.count == 1 else {
+            throw AuraError.invalidConfiguration(
+              "more than one approved account matches; disconnect it from Setup")
+          }
+          try await kernel.revokeMailAccount(accountID: accountID)
+        case InitialCapabilitySet.browserRead.id:
+          // The kernel resolves its own configured profile; the UI does not
+          // get to name which profile's secret is deleted.
+          try await kernel.revokeConnectedBrowserProfile()
+        default:
+          throw AuraError.invalidConfiguration(
+            "that integration has no stored credential to disconnect")
+        }
+        lastOperationMessage = "Integration disconnected; its stored credential was deleted."
+        refreshProductSnapshots()
+      } catch {
+        setError("Disconnect failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  /// Connect whichever integration the row names.
+  ///
+  /// Mail runs the user-present OAuth flow; the Safari profile provisions the
+  /// bridge secret its extension's native half signs with. The provisioned
+  /// secret is deliberately dropped here rather than shown: the native half
+  /// reads it from the Keychain itself, so putting it on screen would expose a
+  /// credential nobody has to handle.
+  func connectIntegration(_ row: AuraIntegrationRow) {
+    switch row.id {
+    case InitialCapabilitySet.browserRead.id:
+      Task {
+        do {
+          guard let kernel else {
+            throw AuraError.invalidConfiguration("AURA runtime is not started")
+          }
+          _ = try await kernel.connectConfiguredBrowserProfile()
+          lastOperationMessage = "Safari profile connected; the read bridge is provisioned."
+          refreshProductSnapshots()
+        } catch {
+          setError("Safari profile connection failed: \(error.localizedDescription)")
+        }
+      }
+    default:
+      connectMailIntegration()
+    }
+  }
+
+  /// Start the only user-facing Gmail enrollment path. Token material stays
+  /// inside the kernel/coordinator and never enters this observable model.
+  func connectMailIntegration() {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        lastOperationMessage = "Opening the Gmail read-only authorization page."
+        try await kernel.connectMailAccountViaOAuth()
+        lastOperationMessage = "Gmail read-only integration connected."
+        refreshProductSnapshots()
+      } catch {
+        setError("Gmail connection failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  /// Ask macOS for a native integration's permission from the row's button.
+  ///
+  /// The row state is re-read from the real authorization status afterwards,
+  /// so a dismissed or denied prompt reports the refusal rather than leaving
+  /// the row claiming an access the user did not give.
+  func grantIntegrationAccess(_ row: AuraIntegrationRow) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        let granted = try await kernel.grantNativeIntegrationAccess(capabilityID: row.id)
+        lastOperationMessage =
+          granted
+          ? "\(row.title) access granted."
+          : "\(row.title) access was not granted."
+        refreshProductSnapshots()
+      } catch {
+        setError("Access request failed: \(error.localizedDescription)")
       }
     }
   }

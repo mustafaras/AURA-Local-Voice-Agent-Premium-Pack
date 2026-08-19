@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+
+    <key>CFBundleDisplayName</key>
+    <string>AURA Safari Read Bridge</string>
+
+    <key>CFBundleExecutable</key>
+    <string>AuraSafariExtensionHandler</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>ai.aura.local.agent.SafariExtension</string>
+
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <key>CFBundleName</key>
+    <string>AuraSafariExtension</string>
+
+    <key>CFBundlePackageType</key>
+    <string>XPC!</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+
+    <key>CFBundleVersion</key>
+    <string>1</string>
+
+    <key>LSMinimumSystemVersion</key>
+    <string>27.0</string>
+
+    <!--
+      The bridge contract, read by SafariExtensionConfiguration. Safari
+      launches this extension, so it inherits none of the app's environment;
+      these four values are the only configuration it has. They must match the
+      containing app's `productivity` configuration or the native handler
+      refuses the observation as an identity or profile mismatch.
+    -->
+    <key>AURAExtensionID</key>
+    <string>com.aura.safari-extension</string>
+
+    <key>AURAProfileID</key>
+    <string>personal</string>
+
+    <key>AURASecretServiceName</key>
+    <string>com.aura.safari-bridge</string>
+
+    <!-- Relative to the user's home directory unless it starts with "/". -->
+    <key>AURASharedContainerPath</key>
+    <string>Library/Application Support/AURA/SafariBridge/observation.json</string>
+
+    <key>NSExtension</key>
+    <dict>
+        <key>NSExtensionPointIdentifier</key>
+        <string>com.apple.Safari.web-extension</string>
+        <key>NSExtensionPrincipalClass</key>
+        <string>SafariWebExtensionHandler</string>
+    </dict>
+</dict>
+</plist>

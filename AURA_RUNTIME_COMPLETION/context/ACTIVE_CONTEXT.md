@@ -8,84 +8,140 @@
 
 ## Canonical status
 
-## Current second-pass overlay — 2026-08-17 (SP-008 closure; OPEN-05 adversarial residuals closed)
+## Current second-pass overlay — 2026-08-19 (SP-011 native legs live; Safari packaged; prompt BLOCKED)
 
-`SP-009` / `completed` — `SP-008` / `OPEN-05` (R4 adversarial and recovery
-residuals) is **completed for the deterministic boundary its authority covers**,
-superseding the SP-007 closure overlay below. Read the overlay pair as the
+`SP-011` / `blocked` — `EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08`
+supersedes the Gmail-subset overlay below. This attempt found that three legs of
+the matrix were **unrunnable rather than failing**, and fixed four causes:
+
+1. `EventKitCalendarReadAdapter.requestReadAccess()`,
+   `ContactsFrameworkLookupAdapter.requestReadAccess()` and
+   `AuraKernel.connectBrowserProfile` had **no production caller**, while the
+   calendar, contacts and browser health rows each told the user to use a Setup
+   control that did not exist.
+2. `Resources/AURA.entitlements` was missing
+   `com.apple.security.personal-information.calendars` and `.addressbook`. With
+   the grant action wired, tccd still refused to display anything, logging
+   `Prompting policy for hardened runtime; service: kTCCServiceCalendar requires
+   entitlement ... but it is missing`, then `Policy disallows prompt`. The
+   file's own comment had mis-classified both keys as App Sandbox keys.
+3. `Resources/AURA-Info.plist` carried neither usage description, so the request
+   would have terminated the app rather than prompting.
+4. The Safari extension had **no native half**: the `SafariWebExtensionHandler`
+   shim named in `SafariBridgeNativeMessageHandler`'s own documentation was
+   never written, and `build-app-bundle.sh` packaged no extension, so the app
+   validated an envelope nothing could produce.
+
+Live result with the user present: both TCC prompts appeared carrying AURA's own
+usage strings and were granted; both rows moved to Connected / Ready; and the
+typed agenda turn moved from "Nothing is scheduled in that range." to
+**"1 event(s): AURA SP-011 acceptance fixture"** against a disposable fixture
+that was then deleted. `pluginkit -m -p com.apple.Safari.web-extension` lists
+`ai.aura.local.agent.SafariExtension` with `Parent Bundle = /Applications/AURA.app`
+— and returned `(no matches)` before the App Sandbox entitlement was added, which
+is what proves the registration is real.
+
+**Still open.** Safari will not enable a non-Developer-ID extension without its
+`Allow unsigned extensions` toggle, which raises a Touch ID / password sheet that
+was deliberately not answered; a Developer ID signature plus notarization removes
+the requirement and is the production answer. The approved-page summary, the
+browser injection-ignore leg and the browser revocation are therefore unexecuted.
+No non-empty contacts read is recorded, by choice, because only the user's own
+address book exists on this machine and the prompt forbids recording private
+account data. The machine's screen locked partway through, ending UI automation.
+Mutation/send stays excluded. Full regression passed 21/21 bundles and
+**1035/1035 tests** with zero failed, including nine new
+`SP011LiveAcceptanceReadinessTests` cases. **SP-011 remains `blocked`; SP-012 is
+not safe to start.**
+
+## Superseded overlay — 2026-08-19 (SP-011 Gmail live subset passed; prompt BLOCKED)
+
+`SP-011` / `blocked` — `EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07`
+supersedes the prior OAuth-callback and real-account blockers. AURA now has a
+bounded loopback PKCE callback/token exchange, approved-account probe,
+Keychain-only enrollment, typed thread-summary route, redacted errors, and
+user-facing connect/revoke controls. With the user present, the Gmail read-only
+subset passed live: controlled two-message thread summary with no account/body
+leakage; injection refusal; offline classification distinct from credential
+failure; two-account clarification before provider contact; local Keychain
+credential removal; Google grant removal; and immediate post-revocation
+fail-closed read. Fixtures are in recoverable Trash. Callback tabs, diagnostic
+process, clipboard, and acceptance environment were cleared. No token, code,
+secret, account identifier, message body, or screenshot is retained.
+
+The canonical prompt still requires live Safari approved-page/native messaging,
+agenda/free-window, event-draft, and Calendar/Contacts TCC evidence. These were
+not run. Selecting AURA's Privacy tab also closed the Computer Use native pipe,
+so the direct revoke button click was not observed; equivalent Keychain backend
+deletion, provider grant removal, disconnected UI, and post-revoke refusal prove
+the security state only. AURA compose/send remains unimplemented and excluded;
+Gmail UI sends were separately authorized fixture provisioning. Focused suites
+passed 76/76; full regression passed 21/21 bundles and 1023/1023 tests with zero
+failed. **SP-011 remains `blocked`; SP-012 is not safe to start.**
+
+## Superseded overlay — 2026-08-17 (SP-010 closure; OPEN-06 deterministic slice closed)
+
+`SP-011` / `pending` — `SP-010` / `OPEN-06` (R5 provider/account and UI
+composition) is **completed for the deterministic boundary its authority covers**,
+superseding the SP-009 closure overlay below. Read the overlay pair as the
 program convention defines it: `active_prompt` is the *next eligible* prompt
-(`SP-009`, **pending and unopened**) and `active_state` is the state of the
-prompt just closed (`SP-008`). The authoritative guard is `completed_prompts` =
-`SP-000`…`SP-008`.
+(`SP-011`, **pending and unopened**) and `active_state` is the state of the
+prompt just closed (`SP-010`). The authoritative guard is `completed_prompts` =
+`SP-000`…`SP-010`.
 
-Reading the production computer-use path found **three defects of one kind** — a
-fail-closed control correct at one layer and silent at the next:
+SP-010 completed the deterministic provider/account onboarding and UI
+composition slice for OPEN-06 under `EV-SP-010-20260817-COMPOSITION-01`:
 
-| Defect | Was | Now |
-|---|---|---|
-| Secure-field refusal | `preflight` returned `.stop`, which ends the iteration not the run; the session re-observed and re-refused to its budget, then reported `noProgress` | Terminal `ComputerUseLoopOutcome.secureFieldBlocked` — truthful, and it closes the window in which the field could lose focus mid-session |
-| Executor secure-field guard | `AXCGEventActionExecutor` checked emergency stop unconditionally (explicitly so a direct caller bypassing the loop is still refused) but had **no** secure-field equivalent | Required `secureFieldDetector`; every input-generating kind refused, `.wait` exempt because it generates no input |
-| Hidden-window reason | An off-screen window was refused correctly but reported as `sensitiveApplication` | `ScreenContextEngine.exclusionReason(for:)` is the single source of truth for listing *and* preflight; new `ScreenCaptureBlockReason.windowNotVisible` |
+- `IntegrationOnboardingService` with `ApprovedIntegrationAccounts` resolves
+  explicitly approved test accounts and enforces `.read`-only tier authorization;
+  live provider consent, real account configuration, and TCC/Contacts/Calendar
+  prompts remain open under SP-011.
+- Bounded provider transports: `HTTPProviderTransport` and
+  `URLSessionGmailReadTransport` with typed request/response contracts,
+  redaction, and offline/degraded handling; no compose/send or mutation path
+  was added.
+- Composition root: `ProductivityRuntime` derives availability from
+  `OAuthTokenStoring` and `SafariBridgeAvailability`; `ProductivityReadBridge`
+  is the only adapter-to-decision boundary and redacts/gates the four read-first
+  capabilities.
+- Registry/routing: `ToolRouter_ProductivityHandlers` and
+  `InitialCapabilitySet_ExternalCapabilities` wire `browser.read`, `mail.read`,
+  `calendar.read`, and `contacts.lookup`; all four manifests remain `.disabled`
+  until SP-011.
+- UI projection: `AuraAppModel_ProductState` and `AuraMenuView_Tabs` render
+  integration rows with state, account label, detail, remediation, and revoke
+  action.
 
-The beta allowlist also moved off the kernel construction site into
-`ComputerUseBetaAllowlist.liveValidatedProduction`, so "only directly validated
-apps are reachable" is a value a test asserts against rather than wiring that
-could drift open. **No app was added** — the SP-007 bundle validates Finder,
-Terminal and Notes and nothing else.
-
-`Tests/AuraComputerUseTests/R4AdversarialSafetyTests.swift` (25 tests) covers the
-whole SP-008 procedure — screen-content injection, secure-field refusal at both
-layers, modal mismatch, wrong identity, cancellation, restart/re-arm, emergency
-stop at the observation / confirmation / execution / executor boundaries, a
-hostile planner proving raw text never becomes an action, and hidden-window /
-sensitive-app / self-capture refusal. Every case asserts the executor call count,
-not merely the reported outcome. Verified: **21/21 bundles, 931/931 tests, 0
-failed**, all four governance validators exit 0. Evidence:
-`EV-SP-008-20260817-ADVERSARIAL-01`, `EV-SP-008-20260817-CLOSEOUT-02`,
-`EV-SP-008-20260817-CORRECTION-03`. SP-008 was delivered under an explicit
-in-turn go-ahead; the state projections are aligned to the delivery commit by the
-immediately following `chore(state)` commit.
-
-**Post-closure re-verification — `EV-SP-008-20260817-CORRECTION-03`.** Every
-SP-008 claim was re-derived from the tree (fresh 21/21 / 931-test sweep with
-totals recomputed from the log, clean product build, four validators at exit 0,
-38/38 governance unit tests, direct re-read of each changed source file). The
-technical closure stands. Two record-level defects were found and fixed: the
-new-test count was recorded as 22 over a 71-test bundle — actually **25** new
-tests over a **68**-test bundle, the pair that genuinely sums to the observed 93;
-and `session-handoff.json` had advanced `active_prompt.id` to `SP-009` while
-`active_prompt.file` still pointed at SP-008's prompt file. A third finding is
-recorded as a risk rather than fixed:
-**`RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE`** — `ComputerUseControlLoop.run` is
-reached only from `AuraKernel.computerUseRun`, which has no caller in `Sources` or
-`Tests`, and `IntentKind`/`ToolRouter` have no computer-use branch, so nothing in
-the shipped product can currently drive the loop SP-008 hardened. Wiring it is R4
-productization work, not an adversarial-safety residual.
+Verified: `AuraProductivityTests` 48/48 focused SP-010 tests;
+`Tests/AuraIntentTests/SP010ProductivityRoutingTests.swift` (routing/classification/risk fail-closed);
+`Tests/AURAIntegrationTests/SP010ProductivityCompositionTests.swift` (composition, read bridge, UI redaction);
+full regression **21/21 bundles, 954/954 tests, 0 failed**;
+`validate_second_pass_program.py`, `validate_runtime_completion.py --ci`,
+`validate_repo_hygiene_program.py`, and `validate_repo_hygiene_supply_chain.py`
+all exit 0; 38/38 governance unit tests pass.
 
 **Not closed, and stated rather than implied:**
-`RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL` — the guards are proven in control flow,
-but the detectors beneath them have never been observed against a real credential
-field or a real `SecurityAgent` dialog, and generated-event cessation has not been
-watched on hardware. A detector that silently returns `false` would make every
-guard above it inert while all tests still pass — the same failure shape as
-`RISK-SP-006-DEFAULT-GRANT-BREADTH`, whose test-only closure proved premature.
-SP-008's authority excludes launch and the user elected to close on the
-deterministic boundary. `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST` records that
-semantic intent is planner-declared: sound for the curated deterministic planner,
-open for any future model-backed conformer.
+`RISK-SAFARI-BRIDGE-NOT-LIVE` — the extension is packaged as source only, not
+installed/signed/live-verified; the real native-messaging round trip and real
+app-group shared container are not exercised (owned by SP-011).
+`RISK-SP-010-LIVE-OAUTH-TCC` — live provider OAuth consent, TCC mutations, and
+native Contacts/Calendar permission prompts are not exercised.
+`RISK-SP-010-REAL-ACCOUNT-CONFIG` — no real provider account has been configured.
+`RISK-SP-010-NATIVE-MESSAGING-LIVE` — real Safari native messaging is not exercised.
 
-**Inherited defect repaired:** `validate_runtime_completion.py` had been failing
-**at clean HEAD** since the SP-007 delivery, because commit `0000b4a` changed
-product source while `verified_head`, `remote_head` and the capability matrix's
-`repository_commit` still named `9774287`. All three now name `0000b4a`; content
-verification at that SHA rests on SP-007's recorded sweep, not a fresh clean-tree
-run by SP-008.
+**Inherited state repair:** `validate_runtime_completion.py` was failing because
+`current-state.json` claimed `working_tree_state: clean` while the live tree was
+`dirty_expected` with SP-010 product/source/state changes; updated to
+`dirty_expected` with an explicit user-owned-change description, and the
+validator now passes.
 
 Forwarded unchanged: `RISK-SP-006-URL-OPEN-FAILS-LIVE`,
 `RISK-SP-006-CONFIRMATION-EXPIRY-UNEXPLAINED`,
 `RISK-INJECTION-COVERAGE-NON-DIALOGUE`, `RISK-SP-004-TOCTOU-RACE`,
 `RISK-SP-004-HANDLER-COMPROMISE`, `RISK-SP-003-MODEL-LATENCY`,
-`RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING`.
+`RISK-SP-003-LIVE-VOICE-RESIDUAL`, `RISK-STT-MIC-NOT-CAPTURING`,
+`RISK-SP-008-LIVE-ADVERSARIAL-RESIDUAL`, `RISK-SP-008-PLANNER-DECLARED-INTENT-TRUST`,
+`RISK-R4-COMPUTER-USE-NOT-USER-REACHABLE`.
 
 ### SP-008 detector-layer residual reduction overlay — 2026-08-17T09:20:00Z
 

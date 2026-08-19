@@ -59,6 +59,7 @@ final class AuraAppModel: ObservableObject {
   @Published var localRecommendationsEnabled = false
   @Published var taskStatuses: [TaskStatus] = []
   @Published var capabilityRows: [AuraCapabilityRow] = []
+  @Published var integrationRows: [AuraIntegrationRow] = []
   @Published var backendHealth: [AgentBackendHealth] = []
   @Published var memoryRows: [AuraMemoryRow] = []
   @Published var conversationMessages: [AuraConversationMessage] = []

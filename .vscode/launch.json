@@ -79,6 +79,26 @@
             "target": "AuraShellHelper",
             "configuration": "release",
             "preLaunchTask": "swift: Build Release AuraShellHelper"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Debug AuraSafariExtensionHandler",
+            "target": "AuraSafariExtensionHandler",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AuraSafariExtensionHandler"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Release AuraSafariExtensionHandler",
+            "target": "AuraSafariExtensionHandler",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AuraSafariExtensionHandler"
         }
     ]
 }

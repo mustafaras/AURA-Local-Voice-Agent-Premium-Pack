@@ -7,6 +7,25 @@
     <true/>
 
     <!--
+      Hardened Runtime resource access for the read-only calendar and contacts
+      integrations. These are Hardened Runtime keys, in the same family as
+      audio-input above, not App Sandbox keys — the distinction the comment
+      below draws for microphone and user-selected files.
+
+      They are not a grant. Without them tccd refuses to even show the prompt
+      ("Prompting policy for hardened runtime; service: kTCCServiceCalendar
+      requires entitlement com.apple.security.personal-information.calendars
+      but it is missing") and denies the request outright, so the user could
+      never say yes. TCC consent remains the only thing that authorizes a read,
+      and the Info.plist usage strings remain what the prompt shows.
+    -->
+    <key>com.apple.security.personal-information.calendars</key>
+    <true/>
+
+    <key>com.apple.security.personal-information.addressbook</key>
+    <true/>
+
+    <!--
       The main app is intentionally not App Sandbox enabled because its typed,
       policy-gated CLI and Accessibility adapters require capabilities that
       must first migrate to dedicated helpers. Network access is constrained

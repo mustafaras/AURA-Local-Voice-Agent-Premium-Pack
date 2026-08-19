@@ -16,6 +16,8 @@ SHELL_HELPER_ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AuraShellHelp
 HELPER_PATH="$APP_PATH/Contents/Helpers/AuraPluginHost.app"
 AUTOMATION_HELPER_PATH="$APP_PATH/Contents/Helpers/AuraAutomationHelper.app"
 SHELL_HELPER_PATH="$APP_PATH/Contents/Helpers/AuraShellHelper.app"
+SAFARI_EXTENSION_ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AuraSafariExtension.entitlements"
+SAFARI_EXTENSION_PATH="$APP_PATH/Contents/PlugIns/AuraSafariExtension.appex"
 LOCAL_IDENTITY="AURA Stable Local Signing"
 SIGNING_IDENTITY="${AURA_CODESIGN_IDENTITY:-}"
 
@@ -48,6 +50,11 @@ if [[ ! -d "$SHELL_HELPER_PATH" ]]; then
   exit 1
 fi
 
+if [[ ! -d "$SAFARI_EXTENSION_PATH" ]]; then
+  echo "Safari extension not found: $SAFARI_EXTENSION_PATH"
+  exit 1
+fi
+
 echo "Signing isolated plugin helper with identity '$SIGNING_IDENTITY' and $HELPER_ENTITLEMENTS"
 codesign \
   --force \
@@ -71,6 +78,17 @@ codesign \
   --options runtime \
   --entitlements "$SHELL_HELPER_ENTITLEMENTS" \
   "$SHELL_HELPER_PATH"
+
+# The extension must be signed before the app: the app's signature seals its
+# nested code, so signing the appex afterwards invalidates the containing
+# bundle and Safari refuses to load the extension.
+echo "Signing Safari extension with identity '$SIGNING_IDENTITY' and $SAFARI_EXTENSION_ENTITLEMENTS"
+codesign \
+  --force \
+  --sign "$SIGNING_IDENTITY" \
+  --options runtime \
+  --entitlements "$SAFARI_EXTENSION_ENTITLEMENTS" \
+  "$SAFARI_EXTENSION_PATH"
 
 echo "Signing $APP_PATH with identity '$SIGNING_IDENTITY' and entitlements $ENTITLEMENTS"
 codesign \

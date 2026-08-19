@@ -48,6 +48,15 @@
     <key>NSScreenCaptureUsageDescription</key>
     <string>AURA needs Screen Recording access to understand screen context for computer-use tasks. Captured frames are processed on-device and redacted before any model use.</string>
 
+    <key>NSCalendarsFullAccessUsageDescription</key>
+    <string>AURA needs Calendar access to read your agenda when you ask about your schedule. Events are read on-device and are never sent to remote services.</string>
+
+    <key>NSCalendarsUsageDescription</key>
+    <string>AURA needs Calendar access to read your agenda when you ask about your schedule. Events are read on-device and are never sent to remote services.</string>
+
+    <key>NSContactsUsageDescription</key>
+    <string>AURA needs Contacts access to resolve a name you mention into one contact. Only the matching candidates are read, on-device, and the full address book is never exposed.</string>
+
     <!-- Hardened runtime: required for notarization and distribution. -->
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.productivity</string>

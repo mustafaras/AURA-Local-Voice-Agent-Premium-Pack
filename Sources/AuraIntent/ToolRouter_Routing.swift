@@ -18,6 +18,10 @@ extension ToolRouter {
     case .fileOpen: return InitialCapabilitySet.filesystemOpenFile.id
     case .fileReveal: return InitialCapabilitySet.filesystemReveal.id
     case .urlOpen: return InitialCapabilitySet.urlOpen.id
+    case .browserRead: return InitialCapabilitySet.browserRead.id
+    case .mailRead: return InitialCapabilitySet.mailRead.id
+    case .calendarRead: return InitialCapabilitySet.calendarRead.id
+    case .contactsLookup: return InitialCapabilitySet.contactsLookup.id
     case .unknown: return nil
     }
   }
@@ -152,6 +156,18 @@ extension ToolRouter {
         intent, contract: contract, executionContext: executionContext)
     case .urlOpen:
       return await handleURLOpen(
+        intent, contract: contract, executionContext: executionContext)
+    case .browserRead:
+      return await handleBrowserRead(
+        intent, contract: contract, executionContext: executionContext)
+    case .mailRead:
+      return await handleMailRead(
+        intent, contract: contract, executionContext: executionContext)
+    case .calendarRead:
+      return await handleCalendarRead(
+        intent, contract: contract, executionContext: executionContext)
+    case .contactsLookup:
+      return await handleContactsLookup(
         intent, contract: contract, executionContext: executionContext)
     case .unknown:
       return .ambiguous(clarifyingQuestion: clarifyingQuestion(for: intent))

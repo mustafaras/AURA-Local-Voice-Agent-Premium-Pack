@@ -1,5 +1,6 @@
 import AuraAgent
 import AuraCore
+import AuraIntent
 import SwiftUI
 
 extension AuraMenuView {
@@ -164,6 +165,18 @@ extension AuraMenuView {
       Label(copy("conversation.local"), systemImage: "lock.fill")
         .foregroundStyle(.secondary)
         .accessibilityLabel("\(copy("conversation.local")). \(copy("conversation.cloudDisabled"))")
+      if let gmail = model.integrationRows.first(where: {
+        $0.id == InitialCapabilitySet.mailRead.id
+      }), gmail.canConnect {
+        GroupBox {
+          Button {
+            model.connectMailIntegration()
+          } label: {
+            Label(copy("integrations.connect"), systemImage: "envelope.badge.plus")
+          }
+          .accessibilityLabel(copy("integrations.connect"))
+        }
+      }
       ScrollView {
         LazyVStack(alignment: .leading, spacing: 8) {
           if model.conversationMessages.isEmpty {

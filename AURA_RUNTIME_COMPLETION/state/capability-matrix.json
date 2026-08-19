@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-17T06:57:03Z",
-  "repository_commit": "643789a85266d5822ac94261790d4118a0a50f94",
+  "updated_at": "2026-08-19T09:55:06Z",
+  "repository_commit": "33688e2a54f1e5d53574d0ddea22d5256eec29c7",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -406,15 +406,22 @@
       "id": "browser.structured",
       "name": "Structured browser automation and page reading",
       "domain": "browser",
-      "implementation_state": "partial",
-      "runtime_state": "constructed_inactive",
-      "user_path_state": "test_only",
+      "implementation_state": "implemented",
+      "runtime_state": "registered_disabled",
+      "user_path_state": "ui_reachable",
       "verification_state": "integration_simulated",
       "risk_tier": "mutation",
       "owning_track": "R5",
       "production_files": [
         "Sources/AuraProductivity/ProductivityAdapters.swift",
-        "Sources/AuraProductivity/ProductivitySecurity.swift"
+        "Sources/AuraProductivity/ProductivitySecurity.swift",
+        "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeEnvelopeWriter.swift",
+        "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeNativeMessage.swift",
+        "Sources/AuraProductivity/ProductivityAdapters_AuthenticatedSafariTransport.swift",
+        "Sources/AuraSafariExtensionHandler/SafariWebExtensionHandler.swift",
+        "Sources/AURA/SafariBridgeRuntime.swift",
+        "Resources/SafariExtension/manifest.json",
+        "Resources/AuraSafariExtension-Info.plist"
       ],
       "test_files": [
         "Tests/AuraProductivityTests/AuraProductivityTests.swift"
@@ -424,20 +431,21 @@
         "intent.capability_registry"
       ],
       "open_gaps": [
-        "Safari Web Extension target/native-messaging packaging, composition-root and NLU/UI reachability, mutation capabilities, and live approved-profile acceptance remain open."
+        "The extension is now a real signed, sandboxed .appex that the system registers at com.apple.Safari.web-extension, and the missing native half is written and covered by regression. Enabling it in Safari still needs the Allow unsigned extensions toggle, which raises a Touch ID/password sheet; a Developer ID signature plus notarization removes that requirement. The live approved-page summary, browser injection-ignore leg, and browser revocation remain unexecuted."
       ],
       "evidence_ids": [
-        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
+        "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08"
       ],
-      "notes": "Read-only browser.read is typed and disabled truthfully until the structured bridge is packaged and wired. Computer use remains a fallback, not the primary integration."
+      "notes": "Read-only browser.read stays disabled truthfully until the extension is enabled in Safari and writes its first signed observation. The Connect Safari profile control now exists, so the health surface's remediation is reachable. Computer use remains a fallback, not the primary integration."
     },
     {
       "id": "mail.read_draft_send",
       "name": "Mail read, summarize, draft, and send",
       "domain": "mail",
       "implementation_state": "partial",
-      "runtime_state": "constructed_inactive",
-      "user_path_state": "test_only",
+      "runtime_state": "registered_disabled",
+      "user_path_state": "ui_reachable",
       "verification_state": "integration_simulated",
       "risk_tier": "destructive",
       "owning_track": "R5",
@@ -453,26 +461,31 @@
         "intent.capability_registry"
       ],
       "open_gaps": [
-        "No live Gmail transport/account consent, composition-root reachability, draft review, immutable send confirmation, post-action verification, or live injection acceptance."
+        "The Gmail read/thread-summary subset passed live, including OAuth, ambiguity, offline behavior, injection refusal, and revocation. Draft review, immutable send confirmation, send post-action verification, and the broader SP-011 browser/calendar matrix remain open."
       ],
       "evidence_ids": [
-        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
+        "EV-SP-010-20260817-COMPOSITION-01",
+        "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07"
       ],
-      "notes": "Gmail read-only scope, Keychain reference, account ambiguity, provenance, and revoke behavior are contract-tested; compose/send remain unimplemented and disabled."
+      "notes": "Gmail read-only is user-reachable and passed direct live acceptance on an approved test account. The current registry state is disabled because the credential and provider grant were revoked at closeout. This combined row remains integration_simulated overall because compose/send is unimplemented and disabled."
     },
     {
       "id": "calendar.events",
       "name": "Calendar agenda and event management",
       "domain": "calendar",
       "implementation_state": "partial",
-      "runtime_state": "constructed_inactive",
-      "user_path_state": "test_only",
-      "verification_state": "integration_simulated",
+      "runtime_state": "registered_ready",
+      "user_path_state": "ui_reachable",
+      "verification_state": "live_verified",
       "risk_tier": "mutation",
       "owning_track": "R5",
       "production_files": [
         "Sources/AuraProductivity/NativeProductivityAdapters.swift",
-        "Sources/AuraProductivity/ProductivitySecurity.swift"
+        "Sources/AuraProductivity/ProductivitySecurity.swift",
+        "Sources/AURA/ProductivityRuntime.swift",
+        "Sources/AURA/ProductivityReadBridge.swift",
+        "Sources/AURA/AuraKernel_Productivity.swift"
       ],
       "test_files": [
         "Tests/AuraProductivityTests/AuraProductivityTests.swift"
@@ -481,26 +494,29 @@
         "intent.capability_registry"
       ],
       "open_gaps": [
-        "EventKit authorization/composition-root reachability, draft/write/delete flows, attendee confirmation, provider verification, and live acceptance remain open."
+        "Agenda read passed live against a known fixture after a real EventKit prompt. Free-window computation, event draft, and every write/mutation flow remain unimplemented and out of the read-first scope."
       ],
       "evidence_ids": [
-        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
+        "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08"
       ],
-      "notes": "EventKit read adapter, explicit permission boundary, provenance mapping, and conflict logic are implemented; read agenda remains disabled until wiring and user authorization."
+      "notes": "EventKit read is user-reachable through the Privacy & Memory grant control and passed direct live acceptance: the real macOS prompt appeared with AURA's own usage string, and the agenda answer moved from empty to the exact fixture event. Raising the prompt at all required the Hardened Runtime com.apple.security.personal-information.calendars entitlement plus the Info.plist usage description; without them tccd refused to prompt."
     },
     {
       "id": "contacts.lookup",
       "name": "Scoped contacts resolution",
       "domain": "contacts",
       "implementation_state": "partial",
-      "runtime_state": "constructed_inactive",
-      "user_path_state": "test_only",
-      "verification_state": "integration_simulated",
+      "runtime_state": "registered_ready",
+      "user_path_state": "ui_reachable",
+      "verification_state": "live_verified",
       "risk_tier": "observation",
       "owning_track": "R5",
       "production_files": [
         "Sources/AuraProductivity/NativeProductivityAdapters.swift",
-        "Sources/AuraProductivity/ProductivitySecurity.swift"
+        "Sources/AuraProductivity/ProductivitySecurity.swift",
+        "Sources/AURA/ProductivityRuntime.swift",
+        "Sources/AURA/ProductivityReadBridge.swift"
       ],
       "test_files": [
         "Tests/AuraProductivityTests/AuraProductivityTests.swift"
@@ -510,12 +526,13 @@
         "mail.read_draft_send"
       ],
       "open_gaps": [
-        "Contacts authorization/composition-root and NLU/UI reachability, provider attendee integration, and live limited/full-access acceptance remain open."
+        "Authorization passed live and the capability reports ready. No non-empty lookup was recorded, deliberately, because only the user's own address book exists on this machine; candidate scoping and tie clarification remain covered by deterministic tests only (RISK-SP-011-CONTACTS-NON-EMPTY-READ)."
       ],
       "evidence_ids": [
-        "EV-R5-20260808-READ-FIRST-ADAPTERS-01"
+        "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
+        "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08"
       ],
-      "notes": "Bounded CNContactFetchRequest candidate lookup and tie clarification are implemented; the full address book is never exposed to models."
+      "notes": "Bounded CNContactFetchRequest candidate lookup is user-reachable through the Privacy & Memory grant control and was authorized live through the real macOS prompt carrying AURA's own usage string. The full address book is never exposed to models."
     },
     {
       "id": "vscode.workspace",
@@ -804,8 +821,8 @@
       "domain": "security",
       "implementation_state": "partial",
       "runtime_state": "constructed_inactive",
-      "user_path_state": "developer_only",
-      "verification_state": "integration_simulated",
+      "user_path_state": "ui_reachable",
+      "verification_state": "live_verified",
       "risk_tier": "restricted",
       "owning_track": "R10",
       "production_files": [
@@ -818,12 +835,13 @@
         "security.network_enforcement"
       ],
       "open_gaps": [
-        "PKCE/state/redirect/scope and Keychain expiry/revoke contracts are tested, but provider token exchange/callback wiring, account isolation, live revocation, and leakage prevention across all support paths remain open."
+        "Gmail callback/exchange, account probe, Keychain enrollment, and two-sided live revocation are verified. Direct Privacy-tab automation, other providers, expiry refresh, and leakage prevention across all support paths remain open."
       ],
       "evidence_ids": [
-        "EV-R10-20260809-BOUNDARY-SLICE-01"
+        "EV-R10-20260809-BOUNDARY-SLICE-01",
+        "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07"
       ],
-      "notes": "Secrets must be referenced, never copied into events or prompts; the active transport is not wired."
+      "notes": "The Gmail OAuth path is wired and live-verified without retaining token/code/secret values in evidence. The runtime is inactive at closeout because both the local credential and provider grant were intentionally revoked."
     },
     {
       "id": "security.privilege_separation",

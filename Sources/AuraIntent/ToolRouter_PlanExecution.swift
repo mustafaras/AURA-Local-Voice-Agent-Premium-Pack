@@ -87,6 +87,8 @@ extension ToolRouter {
       IntentSlotName.bundleIdentifier, IntentSlotName.executable, IntentSlotName.arguments,
       IntentSlotName.backend, IntentSlotName.objective, IntentSlotName.filePath,
       IntentSlotName.folderPath, IntentSlotName.url,
+      IntentSlotName.accountID, IntentSlotName.profileID, IntentSlotName.query,
+      IntentSlotName.dayRange,
     ] {
       if let value = intent.slotValue(name), !value.isEmpty {
         arguments[name] = value
@@ -105,9 +107,16 @@ extension ToolRouter {
     case .shellExecute: return [IntentSlotName.executable]
     case .urlOpen: return [IntentSlotName.url]
     case .fileReveal: return [IntentSlotName.filePath]
+    // A mail search or a contact lookup without a query has nothing to run;
+    // the handlers already fail on the missing slot, so the planner refuses
+    // it one step earlier for the same reason.
+    case .mailRead, .contactsLookup: return [IntentSlotName.query]
     // `.fileOpen` accepts either a file or a folder slot and dispatches on
     // whichever is present, so neither is individually required.
-    case .fileOpen, .converse, .codingAgentRun, .unknown: return []
+    // `.browserRead` reads the active tab of the single approved profile and
+    // `.calendarRead` defaults to today, so both are complete without slots.
+    case .fileOpen, .converse, .codingAgentRun, .browserRead, .calendarRead, .unknown:
+      return []
     }
   }
 
@@ -128,6 +137,10 @@ extension ToolRouter {
     case .fileOpen: return .fileOpen
     case .fileReveal: return .fileReveal
     case .urlOpen: return .urlOpen
+    case .browserRead: return .browserRead
+    case .mailRead: return .mailRead
+    case .calendarRead: return .calendarRead
+    case .contactsLookup: return .contactsLookup
     case .unknown: return .unknown
     }
   }
@@ -145,6 +158,10 @@ extension ToolRouter {
     case InitialCapabilitySet.filesystemOpenFolder.id: return .fileOpen
     case InitialCapabilitySet.filesystemReveal.id: return .fileReveal
     case InitialCapabilitySet.urlOpen.id: return .urlOpen
+    case InitialCapabilitySet.browserRead.id: return .browserRead
+    case InitialCapabilitySet.mailRead.id: return .mailRead
+    case InitialCapabilitySet.calendarRead.id: return .calendarRead
+    case InitialCapabilitySet.contactsLookup.id: return .contactsLookup
     default: return nil
     }
   }

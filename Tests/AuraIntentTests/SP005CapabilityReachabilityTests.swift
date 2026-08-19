@@ -204,12 +204,21 @@ struct SP005CapabilityReachabilityTests {
 
   // MARK: - IntentKind is closed and exhaustive
 
-  @Test("IntentKind has exactly 9 cases including the 3 new ones")
+  /// The count is asserted so the vocabulary can only grow on purpose: a new
+  /// case has to be added here too, which is the moment someone checks that
+  /// every exhaustive switch over `IntentKind` was updated. SP-005 pinned it
+  /// at 9; SP-010 added exactly four read-first productivity kinds, so 13 is
+  /// the current deliberate size.
+  @Test("IntentKind has exactly 13 cases: 9 from SP-005 plus SP-010's four reads")
   func intentKindCaseCount() {
-    #expect(IntentKind.allCases.count == 9)
+    #expect(IntentKind.allCases.count == 13)
     #expect(IntentKind.allCases.contains(.fileOpen))
     #expect(IntentKind.allCases.contains(.fileReveal))
     #expect(IntentKind.allCases.contains(.urlOpen))
+    #expect(IntentKind.allCases.contains(.browserRead))
+    #expect(IntentKind.allCases.contains(.mailRead))
+    #expect(IntentKind.allCases.contains(.calendarRead))
+    #expect(IntentKind.allCases.contains(.contactsLookup))
   }
 
   @Test("IntentSemanticCategory has the new cases")
@@ -217,5 +226,9 @@ struct SP005CapabilityReachabilityTests {
     #expect(IntentSemanticCategory.allCases.contains(.fileOpen))
     #expect(IntentSemanticCategory.allCases.contains(.fileReveal))
     #expect(IntentSemanticCategory.allCases.contains(.urlOpen))
+    #expect(IntentSemanticCategory.allCases.contains(.browserRead))
+    #expect(IntentSemanticCategory.allCases.contains(.mailRead))
+    #expect(IntentSemanticCategory.allCases.contains(.calendarRead))
+    #expect(IntentSemanticCategory.allCases.contains(.contactsLookup))
   }
 }

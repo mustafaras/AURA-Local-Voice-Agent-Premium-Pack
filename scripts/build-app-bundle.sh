@@ -33,6 +33,10 @@ swift build \
   -c release \
   --product "AuraShellHelper" \
   --build-path "$BUILD_DIR/swiftpm"
+swift build \
+  -c release \
+  --product "AuraSafariExtensionHandler" \
+  --build-path "$BUILD_DIR/swiftpm"
 
 # Assemble .app bundle
 CONTENTS="$BUILD_DIR/$APP_NAME.app/Contents"
@@ -47,7 +51,15 @@ AUTOMATION_HELPER_MACOS="$AUTOMATION_HELPER_CONTENTS/MacOS"
 SHELL_HELPER_APP="$CONTENTS/Helpers/AuraShellHelper.app"
 SHELL_HELPER_CONTENTS="$SHELL_HELPER_APP/Contents"
 SHELL_HELPER_MACOS="$SHELL_HELPER_CONTENTS/MacOS"
+# The Safari Web Extension. It must live in Contents/PlugIns for Safari to
+# discover it when the containing app is registered with Launch Services;
+# anywhere else and the extension simply never appears in Safari's list.
+SAFARI_EXTENSION_APPEX="$CONTENTS/PlugIns/AuraSafariExtension.appex"
+SAFARI_EXTENSION_CONTENTS="$SAFARI_EXTENSION_APPEX/Contents"
+SAFARI_EXTENSION_MACOS="$SAFARI_EXTENSION_CONTENTS/MacOS"
+SAFARI_EXTENSION_RESOURCES="$SAFARI_EXTENSION_CONTENTS/Resources"
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR" "$HELPER_MACOS" "$AUTOMATION_HELPER_MACOS" "$SHELL_HELPER_MACOS"
+mkdir -p "$SAFARI_EXTENSION_MACOS" "$SAFARI_EXTENSION_RESOURCES"
 mkdir -p "$RESOURCES_DIR/Chatterbox"
 
 # Copy executable
@@ -67,6 +79,18 @@ cp "$REPO_ROOT/Resources/AuraAutomationHelper.entitlements" "$RESOURCES_DIR/Aura
 cp "$REPO_ROOT/Resources/AuraShellHelper.entitlements" "$RESOURCES_DIR/AuraShellHelper.entitlements"
 cp "$REPO_ROOT/Runtime/chatterbox/chatterbox_helper.py" \
   "$RESOURCES_DIR/Chatterbox/chatterbox_helper.py"
+
+# Assemble the Safari Web Extension. The web half (manifest + service worker)
+# ships verbatim from Resources/SafariExtension so the reviewed source is the
+# thing that runs; the native half is the SwiftPM executable built above.
+cp "$BUILD_DIR/swiftpm/release/AuraSafariExtensionHandler" \
+  "$SAFARI_EXTENSION_MACOS/AuraSafariExtensionHandler"
+cp "$REPO_ROOT/Resources/AuraSafariExtension-Info.plist" \
+  "$SAFARI_EXTENSION_CONTENTS/Info.plist"
+cp "$REPO_ROOT/Resources/SafariExtension/manifest.json" \
+  "$SAFARI_EXTENSION_RESOURCES/manifest.json"
+cp "$REPO_ROOT/Resources/SafariExtension/background.js" \
+  "$SAFARI_EXTENSION_RESOURCES/background.js"
 
 echo "Built $BUILD_DIR/$APP_NAME.app"
 echo "Next step: ./scripts/codesign-adhoc.sh $BUILD_DIR/$APP_NAME.app"

@@ -12,6 +12,8 @@ extension ProductivityError: LocalizedError {
       return "The user must grant access before this integration can be read."
     case .permissionDenied:
       return "Access to this productivity integration was denied."
+    case .oauthTokenExchangeRejected(let reason):
+      return "The OAuth token exchange was rejected: \(reason.rawValue)."
     case .tokenExpiredOrRevoked:
       return "The provider token is expired or revoked."
     case .networkUnavailable:
