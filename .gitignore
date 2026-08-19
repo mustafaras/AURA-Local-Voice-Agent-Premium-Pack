@@ -26,3 +26,6 @@ DerivedData/
 
 # SP-011 acceptance private values (approved test account, OAuth client)
 scripts/sp011-acceptance/acceptance.env
+
+# SP-011 fixture TLS material — regenerated on demand, never tracked
+scripts/sp011-acceptance/fixtures/*.pem
