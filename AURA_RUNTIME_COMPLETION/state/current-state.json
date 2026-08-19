@@ -2,18 +2,17 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-19T09:55:06Z",
+  "updated_at": "2026-08-19T10:20:00Z",
   "session_id": "AURA-SP-011-NATIVE-LEGS-AND-EXTENSION-20260819",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "33688e2a54f1e5d53574d0ddea22d5256eec29c7",
-    "remote_head": "33688e2a54f1e5d53574d0ddea22d5256eec29c7",
+    "verified_head": "90166ea33ed1e7383c06c2d7942390885d56d2eb",
+    "remote_head": "90166ea33ed1e7383c06c2d7942390885d56d2eb",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
-      "SP-011 remains BLOCKED after EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07. The Gmail OAuth/read/thread/injection/offline/ambiguity/revocation subset passed live without retaining secrets or private content, and local/provider credentials were removed. Safari approved-page/native messaging, agenda/free-window, event draft, Calendar/Contacts TCC, and the direct Privacy-tab click remain unverified. SP-012 is NOT safe to start.",
-      "SP-011 native legs and Safari packaging delivered under EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08: personal-information entitlements, calendar/contacts usage descriptions, the three missing grant/connect controls, the Safari appex and its native handler, and the per-leg acceptance profile. Calendar and Contacts passed live; the Safari approved-page leg remains blocked on the Allow unsigned extensions authentication. SP-012 is NOT safe to start."
+      "Pointer realignment only: verified_head, remote_head, repository_commit and last_verified_commit follow the pushed SP-011 merge commit. No product change."
     ]
   },
   "program_status": "in_progress",

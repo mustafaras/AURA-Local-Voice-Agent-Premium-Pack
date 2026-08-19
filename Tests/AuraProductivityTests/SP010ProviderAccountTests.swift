@@ -275,6 +275,11 @@ struct SP010RedactionTests {
     #expect(!inputDiagnostic.contains("path.txt"))
   }
 
+  // REPO_HYGIENE_SECRET_FIXTURE: github_token
+  // The literal below is a synthetic, never-issued GitHub token shape. It has
+  // to keep that shape: the assertion is that `boundedText` scrubs a real
+  // token pasted into third-party message content, and a fixture the scanner
+  // does not recognise would prove nothing.
   @Test("bounded text collapses newlines, truncates, and scrubs secret shapes")
   func boundedTextSanitizes() {
     let hostile =

@@ -16,3 +16,10 @@ DerivedData/
 .swiftpm/configuration/registries.json
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .netrc
+
+# iCloud Drive conflict copies. This repository lives under a synced Desktop,
+# and iCloud resolves a conflict by writing "Name 2.swift" beside "Name.swift".
+# SwiftPM globs Sources/**/*.swift, so a stray copy is not merely untidy — it
+# redeclares every type in the file and breaks the build.
+* 2.*
+* [0-9].swift

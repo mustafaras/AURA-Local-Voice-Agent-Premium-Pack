@@ -56,6 +56,19 @@ Four separate defects made three legs of the matrix **unrunnable**, not merely f
 - New suite `Tests/AURAIntegrationTests/SP011LiveAcceptanceReadinessTests.swift` — nine cases covering the grant-action state machine across all five authorization states, the refusal for a leg with no system permission, the Safari connect/revoke transition, the acceptance profile's per-leg composition and allowed-host parsing, the two usage-description keys, the extension's entry point and sandbox entitlement, the container-path agreement between the extension's relative path and the app's default, and the extension-before-app signing order.
 - `python3 scripts/validate_second_pass_program.py`, `validate_runtime_completion.py --ci`, `validate_repo_hygiene_program.py --ci`, `validate_repo_hygiene_supply_chain.py --ci` — all exit 0.
 - `python3 -m unittest discover -s scripts/tests -p 'test_*.py'` — **38/38 passed**.
+- **Post-commit regression caught and fixed.** Tracking the previously untracked
+  `SP010ProviderAccountTests.swift` exposed a synthetic `ghp_`-shaped fixture to
+  `validate_repo_hygiene_supply_chain.py`, which failed with two unallowlisted
+  findings. The literal is deliberate — the assertion is that `boundedText`
+  scrubs a real token shape — so it was marked with the policy's exact
+  `REPO_HYGIENE_SECRET_FIXTURE: github_token` marker and allowlisted by exact
+  path and pattern, matching the six existing fixtures.
+- **iCloud conflict copies removed.** The repository lives on a synced Desktop,
+  and committing files iCloud was mid-sync produced 22 `Name 2.swift`-style
+  copies. SwiftPM globs `Sources/**/*.swift`, so each one redeclared every type
+  in its file and broke the build. All 22 were verified byte-identical to (or an
+  older snapshot of) their tracked counterparts before deletion, and `.gitignore`
+  now excludes the pattern so the hazard cannot recur silently.
 
 ## Artifacts
 
