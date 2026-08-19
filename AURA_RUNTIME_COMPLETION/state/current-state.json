@@ -2,7 +2,7 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-19T10:35:00Z",
+  "updated_at": "2026-08-19T10:40:00Z",
   "session_id": "AURA-SP-011-NATIVE-LEGS-AND-EXTENSION-20260819",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
@@ -10,10 +10,8 @@
     "active_branch": "main",
     "verified_head": "bd8cce71c79445cfccb4b4dc1de8d80392113c9c",
     "remote_head": "bd8cce71c79445cfccb4b4dc1de8d80392113c9c",
-    "working_tree_state": "dirty_expected",
-    "user_owned_changes": [
-      "Pointer-only realignment to the pushed SP-011 chore(state) commit. No product change."
-    ]
+    "working_tree_state": "clean",
+    "user_owned_changes": []
   },
   "program_status": "in_progress",
   "active_prompt": {
