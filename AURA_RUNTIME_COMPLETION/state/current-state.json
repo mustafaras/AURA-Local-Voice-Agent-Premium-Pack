@@ -18,7 +18,7 @@
     "id": "R5",
     "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
     "state": "in_progress",
-    "step": "SP-011 BLOCKED. EV-SP-011-20260819-LAUNCH-AND-HARNESS-11: fixed a defect that stopped AURA launching at all (construct() blocked in SecItemCopyMatching waiting on securityd, with no reachable control because an LSUIElement app with no window cannot be activated), implemented the missing agenda/free-window leg, fixed two accessibility defects that made the transcript unreadable and the controls unaddressable, and added a resumable acceptance harness. The approved-page summary, browser injection-ignore, browser revocation, and contacts non-empty read remain unexecuted."
+    "step": "SP-011 BLOCKED. EV-SP-011-20260819-LAUNCH-AND-HARNESS-11 fixed a defect that stopped AURA launching at all (construct() blocked in SecItemCopyMatching waiting on securityd, with no reachable control), implemented the missing agenda/free-window leg, fixed two accessibility defects that left the transcript unreadable, and added a resumable acceptance harness. The approved-page summary, browser injection-ignore, browser revocation, and contacts non-empty read remain unexecuted."
   },
   "tracks": [
     {
