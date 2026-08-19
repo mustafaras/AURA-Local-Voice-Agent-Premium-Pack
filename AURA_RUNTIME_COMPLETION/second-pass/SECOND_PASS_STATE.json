@@ -3,8 +3,8 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-19T09:55:06Z",
-  "session_id": "AURA-SP-011-NATIVE-LEGS-AND-EXTENSION-20260819",
+  "updated_at": "2026-08-19T13:05:00Z",
+  "session_id": "AURA-SP-011-SAFARI-TRUST-PATH-20260819",
   "active_prompt": "SP-011",
   "active_state": "blocked",
   "completed_prompts": [
@@ -24,6 +24,7 @@
     "SP-011"
   ],
   "last_evidence_ids": [
+    "EV-SP-011-20260819-SAFARI-TRUST-PATH-09",
     "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08",
     "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07",
     "EV-SP-011-20260818-OAUTH-RETRY-06",
@@ -72,9 +73,7 @@
     "EV-SP-008-20260817-DETECTOR-04",
     "EV-SP-010-20260817-COMPOSITION-01",
     "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01",
-    "EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02",
-    "EV-SP-011-20260818-LIVE-RETRY-03",
-    "EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04"
+    "EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02"
   ],
   "authority": {
     "edit": true,
@@ -101,5 +100,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-011 remains BLOCKED after EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08. Calendar and contacts authorization and the live calendar read passed, and the Safari extension is now a real signed sandboxed appex the system registers. Enable it in Safari (needs the Allow unsigned extensions authentication), then run only the approved-page summary, browser injection-ignore, and browser revoke legs. Do not start SP-012."
+  "next_action": "SP-011 remains BLOCKED after EV-SP-011-20260819-SAFARI-TRUST-PATH-09. The extension now loads, runs and reaches its native half. The remaining legs need a decision: enroll in the Apple Developer Program so the App Group and keychain access group work as designed (R11), or replace the shared-secret bridge with an asymmetric one that needs no Team ID. Do not start SP-012."
 }

@@ -2,7 +2,7 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-19T10:40:00Z",
+  "updated_at": "2026-08-19T13:05:00Z",
   "session_id": "AURA-SP-011-NATIVE-LEGS-AND-EXTENSION-20260819",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
@@ -10,15 +10,17 @@
     "active_branch": "main",
     "verified_head": "bd8cce71c79445cfccb4b4dc1de8d80392113c9c",
     "remote_head": "bd8cce71c79445cfccb4b4dc1de8d80392113c9c",
-    "working_tree_state": "clean",
-    "user_owned_changes": []
+    "working_tree_state": "dirty_expected",
+    "user_owned_changes": [
+      "SP-011 Safari trust-path findings: sandbox exception for the bridge directory, a shared-container default both halves can reach, and the evidence record."
+    ]
   },
   "program_status": "in_progress",
   "active_prompt": {
     "id": "R5",
     "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
     "state": "in_progress",
-    "step": "SP-011 BLOCKED for the remaining OPEN-06 live legs. EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08 adds live Calendar and Contacts authorization plus a fixture-bound agenda read, and packages the Safari extension as a signed sandboxed appex the system registers. The approved-page summary, browser injection-ignore, and browser revoke legs stay unproven: Safari's Allow unsigned extensions toggle needs a user credential. SP-012 is not safe to start."
+    "step": "SP-011 BLOCKED. EV-SP-011-20260819-SAFARI-TRUST-PATH-09 closed the Touch ID blocker and proved the Safari extension loads, runs and reaches its native half. The remaining legs are blocked because a sandboxed extension and an unsandboxed app cannot share a keychain item or a container without a Team ID. Decide between Developer Program enrollment and an asymmetric bridge redesign."
   },
   "tracks": [
     {
@@ -426,6 +428,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-011-20260819-SAFARI-TRUST-PATH-09",
     "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08",
     "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07",
     "EV-SP-011-20260818-OAUTH-RETRY-06",
@@ -474,8 +477,7 @@
     "EV-R8-20260808-CONTEXT-PRODUCT-02",
     "EV-R8-20260808-MEMORY-POLICY-01",
     "EV-R7-20260808-LOCAL-APP-DEPLOY-01",
-    "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
-    "EV-R6-20260808-TYPED-ROUTES-02"
+    "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
   ],
   "blockers": [
     "SP-011 remains blocked only on the unrun canonical OPEN-06 live legs: Safari approved-page/native messaging, agenda/free-window, event draft, Calendar/Contacts TCC, and the direct Privacy-tab revoke click. The Gmail OAuth/read/thread/injection/offline/ambiguity/revocation subset passed live under EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07.",
@@ -485,5 +487,5 @@
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "Finish only the remaining SP-011 Safari legs: authenticate Allow unsigned extensions, enable the AURA Safari Read Bridge, connect the Safari profile, then capture the approved-page summary, injection-ignore, and browser revoke. Do not start SP-012."
+  "next_action": "Decide the Safari bridge trust path: Apple Developer Program enrollment, or an asymmetric extension key that needs no Team ID. Then finish only the SP-011 approved-page, injection-ignore and browser-revoke legs. Do not start SP-012."
 }

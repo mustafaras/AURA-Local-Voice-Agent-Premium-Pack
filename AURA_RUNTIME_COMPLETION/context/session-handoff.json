@@ -1,18 +1,17 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-19T10:35:00Z",
-  "session_id": "AURA-SP-011-NATIVE-LEGS-AND-EXTENSION-20260819",
+  "updated_at": "2026-08-19T13:05:00Z",
+  "session_id": "AURA-SP-011-SAFARI-TRUST-PATH-20260819",
   "last_verified_commit": "bd8cce71c79445cfccb4b4dc1de8d80392113c9c",
   "active_prompt": {
     "id": "SP-011",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
     "state": "blocked",
-    "step": "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08 adds live Calendar and Contacts authorization and a fixture-bound agenda read, and packages the Safari extension as a signed sandboxed appex the system registers at Safari's web-extension point. SP-011 stays blocked on the approved-page summary, browser injection-ignore, and browser revoke: Safari's Allow unsigned extensions toggle needs a user credential."
+    "step": "EV-SP-011-20260819-SAFARI-TRUST-PATH-09: the Safari extension now loads, is enabled, and its toolbar button reaches the native half. The remaining legs are blocked because a sandboxed extension and an unsandboxed app cannot share a keychain item or a container without a Team ID; this machine has none."
   },
   "summary": "SP-011 remains BLOCKED, but its prior Gmail OAuth blocker is resolved. EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07 records a live approved-account Gmail read-only pass: callback/exchange/Keychain enrollment, controlled two-message summary without private leakage, injection refusal, offline classification, ambiguity before provider contact, local Keychain removal, Google grant removal, and immediate post-revoke refusal. Fixtures are in recoverable Trash; callback tabs, process, clipboard, and acceptance environment are cleared. Safari approved-page/native messaging, agenda/free-window, event draft, Calendar/Contacts TCC, and direct Privacy-tab click evidence remain absent. SP-012 is not safe to start.",
   "completed": [
-    "SP-010 provider/account and UI composition completed under EV-SP-010-20260817-COMPOSITION-01",
     "SP-009 Safari bridge packaging/authentication completed under EV-SP-009-20260817-PACKAGING-AUTH-01, corrected under EV-SP-009-20260817-CORRECTION-02: HMAC envelope with constant-time tag check, Keychain secret provisioning/revocation, fail-closed transport, envelope writer plus native-message handler (the producing half), composition-root wiring, and a user-gated read-only Web Extension. 12 tests; 954/954 pass; four validators exit 0.",
     "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
     "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",
@@ -41,7 +40,8 @@
     "SP-005 completed for OPEN-04 NLU/UI reachability under EV-SP-005-20260816-REACHABILITY-01: IntentKind + IntentSemanticCategory + classifier + ToolRouter routing + handlers + AuraAutomation pass-throughs + 19 tests; OPEN-04 closed; 21/21 bundles, 870/870 tests.",
     "SP-006 completed OPEN-04's forwarded seven-scenario live gate under EV-SP-006-20260816-7SCENARIO-02, then its mandatory closeout ran separately under EV-SP-006-20260816-CLOSEOUT-03, which corrected a failing second-pass validator (missing ACTIVE_CONTEXT.md overlay), the never-updated RISK_REGISTER.md, a stale capability-matrix registry row, and an undisclosed planner limitation.",
     "SP-006 follow-up (EV-SP-006-20260816-GAPCLOSE-04): CapabilityPlanner wired onto the production path with a multi-step routePlan/executePlan API, and RISK-SP-006-DEFAULT-GRANT-BREADTH closed by confining both policy grants and the adapter to AuraCore.DeclaredFileRoots. 895/895 tests. No live re-run; NL multi-step still unwired.",
-    "2026-08-19 SP-011: fixed the three unreachable Setup remediations, the missing personal-information entitlements that stopped tccd prompting, and the missing calendar/contacts usage descriptions; wrote and packaged the Safari extension's native half. Calendar and Contacts passed live; the Safari page-summary leg remains blocked."
+    "2026-08-19 SP-011: fixed the three unreachable Setup remediations, the missing personal-information entitlements that stopped tccd prompting, and the missing calendar/contacts usage descriptions; wrote and packaged the Safari extension's native half. Calendar and Contacts passed live; the Safari page-summary leg remains blocked.",
+    "2026-08-19 SP-011: enabled the Safari extension end to end and proved native messaging reaches the appex; diagnosed the remaining blocker as the sandboxed/unsandboxed keychain split, which needs a Team ID to bridge."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -114,6 +114,7 @@
     "Tests/AURAIntegrationTests/SP011LiveAcceptanceReadinessTests.swift"
   ],
   "evidence_ids": [
+    "EV-SP-011-20260819-SAFARI-TRUST-PATH-09",
     "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08",
     "EV-SP-011-20260818-LIVE-LAUNCH-DEGRADED-02",
     "EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01",
@@ -125,6 +126,11 @@
     "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07"
   ],
   "tests": [
+    {
+      "name": "Full regression 21/21 bundles, 1035/1035 tests after the trust-path findings",
+      "result": "passed",
+      "evidence_id": "EV-SP-011-20260819-SAFARI-TRUST-PATH-09"
+    },
     {
       "name": "Full regression 21/21 bundles, 1035/1035 tests; 9 new SP011LiveAcceptanceReadinessTests",
       "result": "passed",
@@ -172,11 +178,11 @@
     }
   ],
   "blockers": [
-    "Safari will not enable a non-Developer-ID web extension without its Allow unsigned extensions toggle, which raises a Touch ID/password sheet. The approved-page summary, browser injection-ignore, and browser revoke legs stay unproven until that is answered or the app is Developer ID signed and notarized.",
-    "No non-empty contacts read is recorded, deliberately: only the user's own address book exists on this machine and SP-011 forbids recording private account data."
+    "A sandboxed Safari web extension uses the data-protection keychain and the unsandboxed containing app uses the file-based login keychain. Bridging them needs keychain-access-groups or an App Group, both restricted entitlements that require a provisioning profile; adding them made the app fail to launch (POSIX 163). This machine has no Team ID.",
+    "Decision needed: Apple Developer Program enrollment, or replace the shared-secret bridge with an asymmetric extension key that needs no Team ID."
   ],
   "open_decisions": [],
-  "next_action": "Finish only the remaining SP-011 Safari legs: authenticate Allow unsigned extensions, enable the AURA Safari Read Bridge, connect the Safari profile, then capture the approved-page summary, injection-ignore, and browser revoke. Do not start SP-012.",
+  "next_action": "Decide the Safari bridge trust path, then finish only the SP-011 approved-page, injection-ignore and browser-revoke legs. Do not start SP-012.",
   "required_first_reads": [
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",

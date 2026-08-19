@@ -570,3 +570,13 @@ into the SP-006 evidence file.
 - **Assessment:** deliberate. The only contacts on this machine are the user's own, and SP-011's own procedure forbids recording real private account data; a disposable fixture was attempted through three routes and each was refused by TCC or hung. The empty result still proves an authorized query executed, because an unauthorized one refuses with the remediation text instead.
 - **Closure criterion:** a live lookup against a disposable contact on an account whose contents may be recorded, showing one bounded candidate and a tie clarification, with no address or phone number spoken back.
 - **Evidence:** `EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08`
+
+### 2026-08-19T13:05:00Z — SP-011 Safari bridge trust path re-diagnosed
+
+- **Risk ID:** `RISK-SAFARI-BRIDGE-NOT-LIVE`
+- **Status:** **Open — re-diagnosed, previous closure criterion superseded**
+- **Owner:** R5 productivity (design) / R11 release (signing)
+- **Risk:** the earlier entry named Safari's `Allow unsigned extensions` authentication as the binding blocker. That is now answered, the extension is enabled, and its toolbar button reaches the native half live — yet no envelope is written.
+- **Assessment:** the real constraint is structural. Safari requires the extension to be App Sandbox confined; a sandboxed process uses the data-protection keychain while the unsandboxed containing app uses the file-based login keychain; and sharing either a keychain item or a container across that boundary requires `keychain-access-groups` or `com.apple.security.application-groups`, which are restricted entitlements needing a provisioning profile. Adding them made the app fail to launch (POSIX 163). This machine has only a self-signed identity and no Team ID, so the SP-009 shared-secret design is unexercisable here as written.
+- **Closure criterion (updated):** either (a) Apple Developer Program enrollment, after which the App Group plus keychain access group work as designed and Developer ID signing with notarization also removes the unsigned-extension toggle; or (b) an asymmetric bridge in which the extension keeps a private signing key in its own keychain and publishes only its public key to the shared directory, which the app pins when the user connects the profile — no Team ID, no shared secret, but it supersedes `SafariBridgeAuthenticator` and needs its own ADR.
+- **Evidence:** `EV-SP-011-20260819-SAFARI-TRUST-PATH-09`

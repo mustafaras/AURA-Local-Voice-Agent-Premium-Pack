@@ -67,22 +67,28 @@ public struct ProductivityConfiguration: Codable, Sendable, Equatable {
 
   /// Where the shipped Safari extension writes its envelope.
   ///
-  /// Safari refuses a web extension that is not App Sandbox confined, so the
-  /// extension's `NSHomeDirectory()` is its own sandbox container rather than
-  /// the user's home. The containing app is not sandboxed and reads that
-  /// absolute path directly — which is how the two halves share a file
-  /// without an App Group, since App Groups need a provisioned Team ID.
+  /// Both halves have to name the same file, and neither default location
+  /// works. Safari refuses a web extension that is not App Sandbox confined,
+  /// so the extension's own `NSHomeDirectory()` is its sandbox container — and
+  /// macOS protects one app's container from every other process, so the
+  /// containing app cannot read it. An App Group would be the usual shared
+  /// location and needs a provisioned Team ID.
+  ///
+  /// So the bridge uses one ordinary Application Support directory, which the
+  /// unsandboxed app reads freely and the extension reaches through a
+  /// home-relative-path sandbox exception scoped to exactly this directory.
   ///
   /// Leaving this unset used to leave the path empty, which resolved to the
   /// process's working directory: the bridge could never find an envelope the
   /// extension had genuinely written, and reported itself unavailable for a
   /// reason no user could act on.
+  public static let safariSharedContainerRelativePath =
+    "Library/Application Support/AURA/SafariBridge/observation.json"
+
   public static func defaultSafariSharedContainerPath(
-    extensionBundleID: String = "ai.aura.local.agent.SafariExtension",
     homeDirectory: String = NSHomeDirectory()
   ) -> String {
-    "\(homeDirectory)/Library/Containers/\(extensionBundleID)/Data"
-      + "/Library/Application Support/AURA/SafariBridge/observation.json"
+    "\(homeDirectory)/\(safariSharedContainerRelativePath)"
   }
 
   /// The path actually used, resolving the empty default.

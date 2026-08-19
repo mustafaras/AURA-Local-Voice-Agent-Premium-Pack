@@ -6,17 +6,31 @@
       Safari refuses to load a web extension that is not App Sandbox confined,
       so this entitlement is not optional: without it the extension never
       appears in Safari's list at all.
-
-      The sandbox redirects the extension's home directory to
-      ~/Library/Containers/ai.aura.local.agent.SafariExtension/Data, which is
-      where SafariExtensionConfiguration resolves its relative container path
-      and therefore where the signed observation envelope is written. The
-      containing app is deliberately not sandboxed and reads that absolute
-      path directly, which is what lets the two halves share a container
-      without an App Group — App Groups need a provisioned Team ID this
-      locally signed build does not have.
     -->
     <key>com.apple.security.app-sandbox</key>
     <true/>
+
+    <!--
+      One narrow hole in that sandbox, for the bridge's shared file.
+
+      The sandbox would otherwise redirect the extension's writes into
+      ~/Library/Containers/ai.aura.local.agent.SafariExtension/Data, and macOS
+      protects one app's container from every other process — so the containing
+      app could not read the envelope it exists to validate. An App Group would
+      be the usual answer and needs a provisioned Team ID this locally signed
+      build does not have.
+
+      The exception is scoped to one directory that holds one file: the signed
+      observation envelope. It grants no access to the rest of the home
+      directory, and the envelope carries observations only — never cookies,
+      passwords, hidden page state, or authority to act. The containing app
+      still refuses any envelope whose version, extension identity, profile,
+      nonce, freshness, or HMAC does not check out.
+    -->
+    <key>com.apple.security.temporary-exception.files.home-relative-path.read-write</key>
+    <array>
+        <string>/Library/Application Support/AURA/SafariBridge/</string>
+    </array>
+
 </dict>
 </plist>

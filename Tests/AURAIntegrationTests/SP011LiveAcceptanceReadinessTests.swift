@@ -233,15 +233,23 @@ func safariExtensionIsSandboxedAndItsContainerIsTheDefault() throws {
   #expect(entitlements["com.apple.security.app-sandbox"] as? Bool == true)
 
   let info = try plist(at: "Resources/AuraSafariExtension-Info.plist")
-  let bundleID = try #require(info["CFBundleIdentifier"] as? String)
   let relativePath = try #require(info["AURASharedContainerPath"] as? String)
 
-  let resolved = ProductivityConfiguration.defaultSafariSharedContainerPath(
-    extensionBundleID: bundleID, homeDirectory: "/Users/example")
-  // The app's default must name the exact file the sandboxed extension writes:
-  // its container's Data directory joined with the extension's own relative
-  // path. Anything else and the bridge looks for an envelope nothing places.
-  #expect(resolved == "/Users/example/Library/Containers/\(bundleID)/Data/\(relativePath)")
+  // Both halves must name the same file. The extension resolves its relative
+  // path against its own home; the app resolves the same relative path against
+  // the real home. That only lines up because the sandbox exception below
+  // keeps the extension's writes out of its container.
+  #expect(relativePath == ProductivityConfiguration.safariSharedContainerRelativePath)
+  #expect(
+    ProductivityConfiguration.defaultSafariSharedContainerPath(homeDirectory: "/Users/example")
+      == "/Users/example/\(relativePath)")
+
+  // The exception has to name exactly the directory holding that file, with a
+  // trailing slash — macOS treats a path without one as a single file.
+  let exceptions =
+    entitlements["com.apple.security.temporary-exception.files.home-relative-path.read-write"]
+    as? [String]
+  #expect(exceptions == ["/" + (relativePath as NSString).deletingLastPathComponent + "/"])
 
   // An unset path must resolve to that default rather than to the process's
   // working directory.
