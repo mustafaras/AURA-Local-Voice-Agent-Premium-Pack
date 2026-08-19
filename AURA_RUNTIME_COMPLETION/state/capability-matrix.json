@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-19T13:15:00Z",
-  "repository_commit": "10e52ddeca8cced3dfae9d83e5971598f9442f6c",
+  "updated_at": "2026-08-19T15:40:00Z",
+  "repository_commit": "9ae984ce9bbbc4c5b30677bc1e11b4679da42486",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -413,15 +413,17 @@
       "risk_tier": "mutation",
       "owning_track": "R5",
       "production_files": [
+        "Resources/AuraSafariExtension-Info.plist",
+        "Resources/SafariExtension/manifest.json",
+        "Sources/AURA/SafariBridgeRuntime.swift",
         "Sources/AuraProductivity/ProductivityAdapters.swift",
-        "Sources/AuraProductivity/ProductivitySecurity.swift",
+        "Sources/AuraProductivity/ProductivityAdapters_AuthenticatedSafariTransport.swift",
         "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeEnvelopeWriter.swift",
         "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeNativeMessage.swift",
-        "Sources/AuraProductivity/ProductivityAdapters_AuthenticatedSafariTransport.swift",
-        "Sources/AuraSafariExtensionHandler/SafariWebExtensionHandler.swift",
-        "Sources/AURA/SafariBridgeRuntime.swift",
-        "Resources/SafariExtension/manifest.json",
-        "Resources/AuraSafariExtension-Info.plist"
+        "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeSecretStore.swift",
+        "Sources/AuraProductivity/ProductivitySecurity.swift",
+        "Sources/AuraSafariExtensionHandler/SafariExtensionConfiguration.swift",
+        "Sources/AuraSafariExtensionHandler/SafariWebExtensionHandler.swift"
       ],
       "test_files": [
         "Tests/AuraProductivityTests/AuraProductivityTests.swift"
@@ -431,11 +433,12 @@
         "intent.capability_registry"
       ],
       "open_gaps": [
-        "The extension is now a real signed, sandboxed .appex that the system registers at com.apple.Safari.web-extension, and the missing native half is written and covered by regression. Enabling it in Safari still needs the Allow unsigned extensions toggle, which raises a Touch ID/password sheet; a Developer ID signature plus notarization removes that requirement. The live approved-page summary, browser injection-ignore leg, and browser revocation remain unexecuted."
+        "The bridge is asymmetric and needs no Team ID. Live, the extension signs an envelope into the shared directory and the app's pinned key matches it. Only the observed conversational page summary remains, blocked on Safari's Allow unsigned extensions authentication, which recurs on every Safari restart until the app is Developer ID signed and notarized."
       ],
       "evidence_ids": [
         "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
-        "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08"
+        "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08",
+        "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10"
       ],
       "notes": "Read-only browser.read stays disabled truthfully until the extension is enabled in Safari and writes its first signed observation. The Connect Safari profile control now exists, so the health surface's remediation is reachable. Computer use remains a fallback, not the primary integration."
     },

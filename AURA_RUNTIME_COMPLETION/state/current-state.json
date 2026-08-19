@@ -2,18 +2,16 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-19T15:31:13Z",
+  "updated_at": "2026-08-19T15:40:00Z",
   "session_id": "AURA-SP-011-NATIVE-LEGS-AND-EXTENSION-20260819",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "10e52ddeca8cced3dfae9d83e5971598f9442f6c",
-    "remote_head": "10e52ddeca8cced3dfae9d83e5971598f9442f6c",
-    "working_tree_state": "dirty_expected",
-    "user_owned_changes": [
-      "SP-011 asymmetric Safari bridge: signer/verifier pair, published verifying key, sandbox exception, real-home resolution, observation lifetime, turn-time availability refresh, and the unavailable-vs-unregistered routing distinction."
-    ]
+    "verified_head": "9ae984ce9bbbc4c5b30677bc1e11b4679da42486",
+    "remote_head": "9ae984ce9bbbc4c5b30677bc1e11b4679da42486",
+    "working_tree_state": "clean",
+    "user_owned_changes": []
   },
   "program_status": "in_progress",
   "active_prompt": {
