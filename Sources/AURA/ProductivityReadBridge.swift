@@ -183,6 +183,74 @@ struct ProductivityReadBridge: ProductivityReading {
     }
   }
 
+  /// "When am I free?" — the other half of SP-011's `agenda/free-window` leg.
+  ///
+  /// It runs the same authorization check and the same EventKit read as the
+  /// agenda, then reports the gaps instead of the events. Free windows carry
+  /// no titles, locations, or attendees, so this answer is strictly less
+  /// revealing than the agenda one it is derived from.
+  func readCalendarFreeWindows(
+    dayRange: Int,
+    minimumMinutes: Int
+  ) async -> Result<ProductivityReadResult, ProductivityReadFailure> {
+    let snapshot = runtime.calendarSnapshot()
+    if let blocked = Self.blocking(snapshot) { return .failure(blocked) }
+    guard let calendar = runtime.calendar else {
+      return .failure(.notConfigured(reason: "calendar reading is not enabled"))
+    }
+    let boundedDays = min(max(dayRange, 1), 31)
+    let boundedMinutes = min(max(minimumMinutes, 5), 480)
+    // The window opens now, not at midnight: a gap that has already passed is
+    // not free time, and reporting it is how a scheduling answer becomes
+    // actively misleading.
+    let now = Date()
+    let dayStart = Calendar.current.startOfDay(for: now)
+    guard let end = Calendar.current.date(byAdding: .day, value: boundedDays, to: dayStart),
+      end > now
+    else {
+      return .failure(.failed(reason: "the requested date range could not be computed"))
+    }
+    do {
+      let events = try await calendar.agenda(from: now, to: end, calendarIDs: nil)
+      let windows = CalendarFreeWindows.windows(
+        between: now,
+        and: end,
+        busy: events.map(\.range),
+        minimumDuration: TimeInterval(boundedMinutes * 60))
+      let summary = Self.freeWindowSummary(windows, minimumMinutes: boundedMinutes)
+      return .success(
+        ProductivityReadResult(
+          capabilityID: InitialCapabilitySet.calendarRead.id,
+          itemCount: windows.count,
+          summary: summary,
+          sourceFingerprint: ProductivityRedaction.fingerprint("local-calendar")))
+    } catch {
+      return .failure(Self.failure(from: error))
+    }
+  }
+
+  /// At most three windows, so a wide-open week reports "free all day"-shaped
+  /// guidance rather than reciting every gap.
+  private static func freeWindowSummary(
+    _ windows: [CalendarFreeWindow],
+    minimumMinutes: Int
+  ) -> String {
+    guard !windows.isEmpty else {
+      return "No free window of at least \(minimumMinutes) minutes in that range."
+    }
+    let formatter = DateFormatter()
+    formatter.timeStyle = .short
+    formatter.dateStyle = windows.contains { !Calendar.current.isDateInToday($0.start) }
+      ? .short : .none
+    let described =
+      windows
+      .prefix(3)
+      .map { "\(formatter.string(from: $0.start))–\(formatter.string(from: $0.end))" }
+      .joined(separator: ", ")
+    let suffix = windows.count > 3 ? " (and \(windows.count - 3) more)" : ""
+    return "\(windows.count) free window(s): \(described)\(suffix)."
+  }
+
   func lookupContacts(
     query: String,
     limit: Int

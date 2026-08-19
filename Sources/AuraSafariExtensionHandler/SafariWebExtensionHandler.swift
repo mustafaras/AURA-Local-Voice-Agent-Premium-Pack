@@ -65,6 +65,21 @@ public final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandli
     }
   }
 
+  /// Wall-clock durations for one observation, in milliseconds.
+  ///
+  /// SP-011 measured roughly thirteen seconds between the toolbar click and
+  /// the envelope appearing on disk, which consumed most of the envelope's
+  /// own lifetime and made the "click, then ask" flow miss its window. The
+  /// cause was attributed to the keychain without being measured. These are
+  /// durations only — no page text, URL, identity, or key material — so they
+  /// are safe to log at `.public` and can be read back with `log show`.
+  private static func logDuration(_ phase: String, _ elapsed: Duration) {
+    let milliseconds = Double(elapsed.components.seconds) * 1000
+      + Double(elapsed.components.attoseconds) / 1e15
+    log.info(
+      "phase=\(phase, privacy: .public) ms=\(milliseconds, privacy: .public)")
+  }
+
   /// One in-flight request's context, moved into the completion task.
   private struct PendingRequest: @unchecked Sendable {
     let context: NSExtensionContext
@@ -78,6 +93,7 @@ public final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandli
     messageData: Data,
     configuration: SafariExtensionConfiguration
   ) async -> String {
+    let started = ContinuousClock.now
     do {
       try FileManager.default.createDirectory(
         at: configuration.sharedContainerURL.deletingLastPathComponent(),
@@ -100,7 +116,10 @@ public final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandli
       writer: writer)
 
     do {
+      let writeStarted = ContinuousClock.now
       _ = try await handler.handle(messageData: messageData)
+      logDuration("sign-and-write", ContinuousClock.now - writeStarted)
+      logDuration("accept-total", ContinuousClock.now - started)
       return "accepted"
     } catch {
       // The reason is logged as a bare case name — never the message, the

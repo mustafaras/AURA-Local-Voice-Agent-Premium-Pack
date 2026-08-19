@@ -598,3 +598,27 @@ into the SP-006 evidence file.
 - **Assessment:** deliberate and bounded. Pinning happens only on an explicit user action, the key file lives in a directory only the extension and the app can write, and a later key is refused as impersonation until the user disconnects and reconnects. The alternative — a shared secret — needs a Team ID and is what this design replaced.
 - **Closure criterion:** independent security review of the trust-on-first-use boundary as part of R10, or a Developer ID build where the extension's code identity can be checked directly.
 - **Evidence:** `EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10`
+
+- **Risk ID:** `RISK-SP-011-LAUNCH-KEYCHAIN-BLOCKING`
+- **Status:** **Closed — fixed and asserted**
+- **Owner:** R5 productivity / composition root
+- **Risk:** `AuraKernel.construct()` probed external capability availability inline. Each probe reads the Keychain, `SecItemCopyMatching` blocks until securityd answers, and securityd may first need to authorize the calling binary — which it cannot do while the app is still launching. The observed failure was total: the app never finished launching, never presented a window, and because an `LSUIElement` app with no window cannot be activated, no control was reachable by any means. Any user whose Keychain prompted — after an app update, for instance — would have got an application that never starts.
+- **Assessment:** found by sampling the hung process, not by reading source. `construct()` now records the affected components as `.loading` and `start()` dispatches `probeExternalAvailability()` detached; launch is bounded by construction alone. Nothing routes against the unresolved placeholder because `submitText` re-derives availability before every turn.
+- **Closure criterion:** met. Five cases assert the construction path contains no call that reads the Keychain, and that unprobed integrations are recorded as loading rather than ready.
+- **Evidence:** `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`
+
+- **Risk ID:** `RISK-SP-011-TRANSCRIPT-ACCESSIBILITY`
+- **Status:** **Closed — fixed**
+- **Owner:** R9 product surfaces
+- **Risk:** `AuraMessageBubble` combined its children into one accessibility element, which this SwiftUI version exposes as an unlabelled `AXUnknown` once the bubble is inside a lazy stack — no value, no description, no children. Every message in AURA's conversation was an anonymous blank node to assistive technology, so a VoiceOver user could not read the assistant's answers at all. The six section pills and the composer's buttons were likewise nameless.
+- **Assessment:** a product accessibility failure, not merely a test-harness obstacle; it is what forced earlier live runs to address controls positionally. Fixed with `.contain` on the bubble and stable, deliberately unlocalized identifiers (`AuraAccessibilityID`) on the tabs, composer and integration rows.
+- **Closure criterion:** met for the controls and the transcript; a full VoiceOver audit of the remaining surfaces is not in SP-011's scope and belongs to an R9 accessibility pass.
+- **Evidence:** `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`
+
+- **Risk ID:** `RISK-SP-011-EXTENSION-WRITE-LATENCY`
+- **Status:** **Open — instrumented, not yet measured**
+- **Owner:** R5 productivity
+- **Risk:** the Safari extension takes roughly thirteen seconds from toolbar click to envelope on disk, which consumes most of the envelope's own thirty-second lifetime and makes the natural "click, then ask" flow miss its window.
+- **Assessment:** the earlier record attributed this to the Keychain without measuring it. `SafariWebExtensionHandler` now logs `sign-and-write` and `accept-total` durations — durations only, no page text, identity or key material — so the appex's internal cost can be separated from appex cold start. No fix has been made on the strength of a guess.
+- **Closure criterion:** one live toolbar click with the instrumented build, then a fix targeted at whichever phase dominates.
+- **Evidence:** `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`

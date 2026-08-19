@@ -4358,3 +4358,27 @@ Recorded under `EV-SP-011-20260818-OAUTH-RETRY-06` after the user's explicit ret
 - **Verification:** 21/21 bundles, **1035/1035 tests**, 0 failed; 9 new `SP011LiveAcceptanceReadinessTests` cases; four governance validators exit 0; 38/38 governance unit tests pass.
 - **Residual:** The live approved-page summary, browser injection-ignore, and browser revoke legs are unexecuted — Safari's `Allow unsigned extensions` toggle raises a Touch ID / password sheet that was deliberately not answered, and a Developer ID signature plus notarization is the production fix. No non-empty contacts read was performed, by choice, to keep the user's real address book out of the records. The screen locked partway through, ending UI automation.
 - **Acceptance / next prompt:** calendar and contacts authorization and the live calendar read passed; canonical SP-011 remains `blocked`. SP-012 is not safe to start.
+
+### 2026-08-19T14:10:00Z — SP-011 Safari trust path (retroactive entry)
+
+- **Recorded late.** This entry and the one below were omitted from this ledger when their evidence was written, although SP-011's prompt names it among the required records. Found while recording `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11` and corrected here rather than silently backfilled.
+- **Evidence / class:** `EV-SP-011-20260819-SAFARI-TRUST-PATH-09`; direct user-present UI/system-log evidence plus deterministic regression.
+- **Outcome:** the extension loads and reaches the native half. The real blocker was named: Safari requires App Sandbox confinement, which splits the two halves across different keychains, and bridging them needs `keychain-access-groups` — a restricted entitlement that broke startup on a machine with no Team ID.
+- **Verification:** 21/21 bundles, 1035/1035 tests, 0 failed.
+- **Acceptance / next prompt:** SP-011 remains `blocked`; SP-012 is not safe to start.
+
+### 2026-08-19T15:31:13Z — SP-011 asymmetric Safari bridge (retroactive entry)
+
+- **Evidence / class:** `EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10`; direct user-present UI/system-log/filesystem evidence plus deterministic regression.
+- **Outcome:** the shared secret was replaced with an ECDSA P-256 signer/verifier pair, removing the Team ID dependency entirely; five further defects across the sandbox container, home resolution, freshness bounds, availability refresh, and router error reporting were found by running it. Live, the extension signs an envelope into the shared directory and the app's pinned key is byte-identical to the published one.
+- **Verification:** 21/21 bundles, 1041/1041 tests, 0 failed.
+- **Acceptance / next prompt:** SP-011 remains `blocked`; SP-012 is not safe to start.
+
+### 2026-08-19T17:20:00Z — SP-011 launch-path defect, free-window, acceptance harness
+
+- **Evidence / class:** `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`; direct user-present product/process-sample/UI evidence plus deterministic regression. Regression log SHA-256 `e1b73b5a9c69ee075e817658e06891740c21faf2d1c65a3652a472ef6ab31364`.
+- **Outcome:** fixed a defect that stopped AURA launching at all — `AuraKernel.construct()` blocked inside `SecItemCopyMatching` waiting on securityd, and an `LSUIElement` app with no window cannot be activated, so there was no recovery path. Implemented the missing `agenda/free-window` leg as a pure derivation over the agenda `calendar.read` already returns. Fixed two accessibility defects: nameless section pills and composer buttons, and a transcript whose every message was an unlabelled `AXUnknown` and therefore unreadable to assistive technology. Made local signing survive an iCloud-synced checkout. Added `scripts/sp011-acceptance/`, a resumable live-run harness.
+- **Falsifier:** `construct()` regaining a Keychain-reading call; a capability reporting ready before its probe resolves; a free-window answer containing an event title; the free-window slot reaching a capability other than `calendar.read`; a transcript message again unreachable by accessibility; or an identifier that changes with the interface language.
+- **Verification:** 21/21 bundles, **1068/1068 tests**, 0 failed; four governance validators exit 0; 38/38 governance unit tests pass.
+- **Residual:** the approved-page summary, browser injection-ignore, browser revocation, and contacts non-empty read remain unexecuted. The free-window live proof is partial — the turn answered with a truthful authorization refusal because calendar access had been reset to `denied`. The extension's click-to-write latency is instrumented but not yet measured.
+- **Acceptance / next prompt:** SP-011 remains `blocked`. SP-012 is not safe to start.

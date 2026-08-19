@@ -8,8 +8,10 @@
 // arbitrary page scripts on the model's behalf.
 //
 // The containing app validates a signed envelope (version, extension
-// identity, profile identity, nonce, freshness, HMAC) before any capability
-// can consume the observation, so nothing here is trusted by itself.
+// identity, profile identity, nonce, freshness, and an ECDSA P-256 signature
+// made by a key the app pinned when the user connected the profile) before
+// any capability can consume the observation, so nothing here is trusted by
+// itself.
 
 const AURA_MESSAGE_TYPE = "aura.activeTabObservation";
 const AURA_PROTOCOL_VERSION = 1;

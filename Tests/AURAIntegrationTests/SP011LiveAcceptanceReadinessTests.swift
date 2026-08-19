@@ -305,3 +305,63 @@ func buildScriptsPackageAndSignTheExtension() throws {
   // invalidates the containing bundle and Safari refuses to load it.
   #expect(extensionSigning.lowerBound < appSigning.lowerBound)
 }
+
+// MARK: - Launch must not be hostage to an external service
+
+/// AURA hung at launch, with no window and no reachable control, because
+/// `AuraKernel.construct()` probed the Safari bridge's availability inline.
+/// That probe reads the Keychain; `SecItemCopyMatching` blocks until securityd
+/// answers, and securityd may first need to authorize the calling binary —
+/// which it cannot do while the app is still launching. A sample of the hung
+/// process showed `construct()` stopped inside `SecItemCopyMatching`, three
+/// frames below `SafariBridgeAvailability.availability`.
+///
+/// This is asserted against the source rather than by running a kernel because
+/// `AuraKernel` constructs the real audio, screen-capture, and automation
+/// stack; there is no seam to inject a slow Keychain into. The invariant that
+/// was actually violated is "the construction path contains no external
+/// probe", and that is exactly what is checked.
+@Suite("launch path")
+struct LaunchPathTests {
+  private func constructionSource() throws -> String {
+    try String(
+      contentsOf: repositoryRoot.appending(path: "Sources/AURA/AuraKernel_Construction.swift"),
+      encoding: .utf8)
+  }
+
+  @Test(
+    "construction never probes an external service",
+    arguments: [
+      "bridge.availability()",
+      "safariBridgeRuntime.availability()",
+      "productivity.snapshots()",
+      "productivityRuntime.snapshots()",
+      "refreshProductivityAvailability()",
+    ])
+  func constructionDoesNotProbe(call: String) throws {
+    let source = try constructionSource()
+    #expect(
+      !source.contains(call),
+      "\(call) blocks on the Keychain and must run after launch, not during construction")
+  }
+
+  /// The probe has to exist somewhere, or the capabilities would simply never
+  /// resolve — a hang traded for a permanent "loading".
+  @Test("the deferred probe is started once the runtime is up")
+  func startKicksOffTheProbe() throws {
+    let runtimeAPI = try String(
+      contentsOf: repositoryRoot.appending(path: "Sources/AURA/AuraKernel_RuntimeAPI.swift"),
+      encoding: .utf8)
+    #expect(runtimeAPI.contains("probeExternalAvailability()"))
+  }
+
+  /// The health surface must say "still checking" rather than "ready" while
+  /// the probe is outstanding, so an unresolved Keychain is visible instead of
+  /// being reported as a working integration.
+  @Test("unprobed integrations are recorded as loading, not ready")
+  func unprobedIntegrationsReportLoading() throws {
+    let source = try constructionSource()
+    #expect(source.contains("componentID: \"safari-bridge\", status: .loading"))
+    #expect(source.contains("componentID: \"productivity\", status: .loading"))
+  }
+}

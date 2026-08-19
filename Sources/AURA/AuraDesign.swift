@@ -215,7 +215,15 @@ struct AuraMessageBubble: View {
       }
     }
     .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
-    .accessibilityElement(children: .combine)
+    // `.combine` collapsed the bubble into a single element that this SwiftUI
+    // version exposes as an unlabelled `AXUnknown` once the bubble is inside a
+    // lazy stack: no value, no description, no children. The transcript was
+    // therefore unreadable to assistive technology — every message in the
+    // conversation was an anonymous blank node. `.contain` keeps the message
+    // text, the role, and the provenance lines individually reachable, which
+    // is what a transcript wants anyway: a reader can move through a long
+    // answer instead of receiving it as one unnavigable string.
+    .accessibilityElement(children: .contain)
     .accessibilityLabel("\(roleLabel): \(text)")
   }
 

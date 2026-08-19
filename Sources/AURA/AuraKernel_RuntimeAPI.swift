@@ -36,6 +36,13 @@ extension AuraKernel {
     try await construct()
     try await startPipeline()
     started = true
+    // Detached on purpose. Every external probe inside it can block on
+    // securityd, and `start()` is what the app's first render waits on — the
+    // window must not be hostage to a Keychain round trip. The health surface
+    // shows these components as still loading until the probe resolves them.
+    Task.detached { [weak self] in
+      await self?.probeExternalAvailability()
+    }
     await logger.info("AuraKernel running; push-to-talk ready", actor: .system)
   }
 

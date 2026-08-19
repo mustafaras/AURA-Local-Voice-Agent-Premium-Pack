@@ -3,8 +3,8 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-19T15:31:13Z",
-  "session_id": "AURA-SP-011-ASYMMETRIC-BRIDGE-20260819",
+  "updated_at": "2026-08-19T17:20:00Z",
+  "session_id": "AURA-SP-011-LAUNCH-AND-HARNESS-20260819",
   "active_prompt": "SP-011",
   "active_state": "blocked",
   "completed_prompts": [
@@ -24,6 +24,7 @@
     "SP-011"
   ],
   "last_evidence_ids": [
+    "EV-SP-011-20260819-LAUNCH-AND-HARNESS-11",
     "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10",
     "EV-SP-011-20260819-SAFARI-TRUST-PATH-09",
     "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08",
@@ -100,5 +101,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-011 remains BLOCKED after EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10. The bridge is asymmetric, needs no Team ID, and runs end to end to the shared file: the live extension signs an envelope and the app's pin matches it. Only the observed conversational summary remains, blocked on Safari's unsigned-extension authentication. Do not start SP-012."
+  "next_action": "SP-011 remains BLOCKED after EV-SP-011-20260819-LAUNCH-AND-HARNESS-11. The launch-blocking Keychain probe, the missing free-window leg, and two accessibility defects are fixed, and scripts/sp011-acceptance/ makes the live run resumable. Run preflight.sh then run-browser-legs.sh, with the operator supplying the Safari authentication, the extension enablement, the toolbar clicks, the calendar grant, and one disposable contact. Do not start SP-012."
 }

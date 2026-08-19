@@ -85,6 +85,14 @@ public protocol ProductivityReading: Sendable {
     dayRange: Int
   ) async -> Result<ProductivityReadResult, ProductivityReadFailure>
 
+  /// Report the unscheduled gaps in the same range the agenda covers.
+  /// Implementations derive this from the agenda read rather than widening
+  /// authorization, and must not place event titles in the result.
+  func readCalendarFreeWindows(
+    dayRange: Int,
+    minimumMinutes: Int
+  ) async -> Result<ProductivityReadResult, ProductivityReadFailure>
+
   func lookupContacts(
     query: String,
     limit: Int

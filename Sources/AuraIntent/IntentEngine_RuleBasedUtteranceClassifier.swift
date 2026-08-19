@@ -110,6 +110,16 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
     "what do i have tomorrow", "my agenda tomorrow", "calendar tomorrow",
     "yarın ne var", "yarınki takvimim",
   ]
+  /// "When am I free" reads exactly the same events as an agenda request and
+  /// answers a different question about them, so it classifies to
+  /// `.calendarRead` with a slot rather than to a capability of its own.
+  private static let calendarFreeWindowTriggers = [
+    "when am i free", "when am i available", "am i free", "find me a free slot",
+    "find a free slot", "do i have any free time", "my free time",
+    "ne zaman boşum", "ne zaman müsaitim", "boş vaktim var mı", "boş zamanım",
+    "müsait miyim",
+  ]
+  private static let calendarFreeWindowTomorrowMarkers = ["tomorrow", "yarın"]
   private static let contactsLookupPrefixes = [
     "find contact ", "look up contact ", "find the contact ", "contact info for ",
     "kişi bul ", "kişiyi bul ", "rehberde ara ", "kişi ara ",
@@ -241,6 +251,23 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
         contextRequirements: ["mailAccount"])
     }
 
+    // Checked before the agenda triggers: "when am i free tomorrow" also
+    // contains a tomorrow marker, and the free-window reading is the more
+    // specific one.
+    for trigger in Self.calendarFreeWindowTriggers where lowered.hasPrefix(trigger) {
+      let spansTomorrow = Self.calendarFreeWindowTomorrowMarkers.contains {
+        lowered.contains($0)
+      }
+      return ClassificationResult(
+        kind: .calendarRead,
+        semanticCategory: .calendarRead,
+        slots: [
+          IntentSlot(name: IntentSlotName.dayRange, value: spansTomorrow ? "2" : "1"),
+          IntentSlot(name: IntentSlotName.freeWindows, value: "true"),
+        ],
+        confidence: 0.85,
+        contextRequirements: ["calendarAuthorization"])
+    }
     for trigger in Self.calendarTomorrowTriggers where lowered.hasPrefix(trigger) {
       return ClassificationResult(
         kind: .calendarRead,

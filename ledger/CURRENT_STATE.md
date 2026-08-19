@@ -550,3 +550,25 @@ compile, shell, and diff checks passed. SP-001 remains blocked for changed
 plan, replay, cancellation, concurrent-turn, and required failed-verification
 evidence; SP-002 remains unopened. Evidence:
 `EV-SP-001-20260815-CLOSEOUT-09`.
+
+### SP-011 launch-path defect, free-window, acceptance harness — 2026-08-19T17:20:00Z
+
+`AuraKernel.construct()` probed external availability inline; a process sample
+showed it stopped inside `SecItemCopyMatching` waiting on securityd, and
+because an `LSUIElement` app with no window cannot be activated, AURA neither
+finished launching nor offered any way in. `construct()` now records the
+affected components as `.loading` and `start()` dispatches
+`probeExternalAvailability()` detached.
+
+The `agenda/free-window` leg had no implementation; `CalendarFreeWindows` now
+derives free windows from the agenda `calendar.read` already returns, selected
+by a slot rather than by a second capability. Two accessibility defects were
+fixed: the section pills and composer buttons had no accessible name, and the
+transcript's messages were unlabelled `AXUnknown` nodes, unreadable to
+assistive technology. `scripts/sp011-acceptance/` adds a resumable live-run
+harness. 21/21 bundles, 1068/1068 tests, 0 failed.
+
+SP-011 remains `blocked`: the approved-page summary, the browser
+injection-ignore leg, the browser revocation leg, and the contacts non-empty
+read are still unexecuted. Evidence:
+`EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`. SP-012 is not safe to start.

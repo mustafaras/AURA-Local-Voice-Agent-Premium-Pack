@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-19T15:40:00Z",
-  "session_id": "AURA-SP-011-NATIVE-LEGS-AND-EXTENSION-20260819",
+  "updated_at": "2026-08-19T17:20:00Z",
+  "session_id": "AURA-SP-011-LAUNCH-AND-HARNESS-20260819",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "9ae984ce9bbbc4c5b30677bc1e11b4679da42486",
-    "remote_head": "9ae984ce9bbbc4c5b30677bc1e11b4679da42486",
+    "verified_head": "50236eaa7e9fd83d8c8fd5078f9968a5e1c2b3fd",
+    "remote_head": "50236eaa7e9fd83d8c8fd5078f9968a5e1c2b3fd",
     "working_tree_state": "clean",
     "user_owned_changes": []
   },
@@ -18,7 +18,7 @@
     "id": "R5",
     "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
     "state": "in_progress",
-    "step": "SP-011 BLOCKED. EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10 replaced the shared-secret bridge with an asymmetric one that needs no Team ID, and fixed five further defects found by running it. The live extension now signs an envelope the app's pin matches. Only the observed conversational summary remains, blocked on Safari's unsigned-extension authentication."
+    "step": "SP-011 BLOCKED. EV-SP-011-20260819-LAUNCH-AND-HARNESS-11: fixed a defect that stopped AURA launching at all (construct() blocked in SecItemCopyMatching waiting on securityd, with no reachable control because an LSUIElement app with no window cannot be activated), implemented the missing agenda/free-window leg, fixed two accessibility defects that made the transcript unreadable and the controls unaddressable, and added a resumable acceptance harness. The approved-page summary, browser injection-ignore, browser revocation, and contacts non-empty read remain unexecuted."
   },
   "tracks": [
     {

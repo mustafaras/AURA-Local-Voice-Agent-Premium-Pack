@@ -23,3 +23,6 @@ DerivedData/
 # redeclares every type in the file and breaks the build.
 * 2.*
 * [0-9].swift
+
+# SP-011 acceptance private values (approved test account, OAuth client)
+scripts/sp011-acceptance/acceptance.env

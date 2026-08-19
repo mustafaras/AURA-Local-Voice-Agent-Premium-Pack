@@ -55,6 +55,18 @@ if [[ ! -d "$SAFARI_EXTENSION_PATH" ]]; then
   exit 1
 fi
 
+# This repository commonly lives on an iCloud-synced Desktop, and sync writes
+# extended attributes onto the bundle while it is being assembled. codesign
+# refuses those outright ("resource fork, Finder information, or similar
+# detritus not allowed"), and it does so partway through — leaving a bundle
+# with some nested code signed and the rest not. Stripping immediately before
+# signing is the reliable order; stripping once up front is not, because sync
+# can re-add attributes between the first nested signature and the last.
+strip_detritus() {
+  xattr -cr "$APP_PATH" 2>/dev/null || true
+}
+
+strip_detritus
 echo "Signing isolated plugin helper with identity '$SIGNING_IDENTITY' and $HELPER_ENTITLEMENTS"
 codesign \
   --force \
@@ -63,6 +75,7 @@ codesign \
   --entitlements "$HELPER_ENTITLEMENTS" \
   "$HELPER_PATH"
 
+strip_detritus
 echo "Signing automation helper with identity '$SIGNING_IDENTITY' and $AUTOMATION_HELPER_ENTITLEMENTS"
 codesign \
   --force \
@@ -71,6 +84,7 @@ codesign \
   --entitlements "$AUTOMATION_HELPER_ENTITLEMENTS" \
   "$AUTOMATION_HELPER_PATH"
 
+strip_detritus
 echo "Signing shell helper with identity '$SIGNING_IDENTITY' and $SHELL_HELPER_ENTITLEMENTS"
 codesign \
   --force \
@@ -82,6 +96,7 @@ codesign \
 # The extension must be signed before the app: the app's signature seals its
 # nested code, so signing the appex afterwards invalidates the containing
 # bundle and Safari refuses to load the extension.
+strip_detritus
 echo "Signing Safari extension with identity '$SIGNING_IDENTITY' and $SAFARI_EXTENSION_ENTITLEMENTS"
 codesign \
   --force \
@@ -90,6 +105,7 @@ codesign \
   --entitlements "$SAFARI_EXTENSION_ENTITLEMENTS" \
   "$SAFARI_EXTENSION_PATH"
 
+strip_detritus
 echo "Signing $APP_PATH with identity '$SIGNING_IDENTITY' and entitlements $ENTITLEMENTS"
 codesign \
   --force \

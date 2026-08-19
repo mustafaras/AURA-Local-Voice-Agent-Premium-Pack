@@ -841,6 +841,32 @@ externally obtained token material. No credential, token, TCC change, Safari
 install, provider read/revoke, mutation/send, or private data capture occurred.
 **SP-011 remains `blocked`; SP-012 is not safe to start.**
 
+**SP-011 (2026-08-19, fourth attempt) — launch-path defect fixed, free-window
+implemented, acceptance harness built** under
+`EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`. Enumerating the prompt's matrix
+against the existing evidence showed five open legs and two owed exclusions,
+not the single leg the previous record named: `agenda/free-window` had **no
+implementation at all** — `CalendarReadAdapter` exposed only
+`agenda(from:to:calendarIDs:)`. A launch-blocking defect was also found by
+sampling a hung process: `AuraKernel.construct()` probed external availability
+inline, blocked inside `SecItemCopyMatching` waiting on securityd, and because
+an `LSUIElement` app with no window cannot be activated, the app never started
+and no control was reachable by any means. `construct()` now records `.loading`
+and `start()` dispatches `probeExternalAvailability()` detached. Free windows
+are now derived by `CalendarFreeWindows` through a `freeWindows` slot on
+`calendar.read` — no new capability and no new authorization. Two accessibility
+defects were fixed: the section pills and composer buttons had no accessible
+name (now stable, unlocalized `AuraAccessibilityID` identifiers), and
+`AuraMessageBubble`'s `.combine` made every transcript message an unlabelled
+`AXUnknown`, so the conversation was unreadable to assistive technology.
+`scripts/sp011-acceptance/` adds a preflight, an environment-preserving
+relaunch, an identifier-addressed driver with bounded scans, page fixtures, and
+a resumable browser-leg runner, so an interruption costs time rather than
+another Safari authentication. 21/21 bundles, **1068/1068 tests**, 0 failed.
+**SP-011 remains `blocked`:** the approved-page summary, the browser
+injection-ignore leg, the browser revocation leg, and the contacts non-empty
+read are still unexecuted. SP-012 is not safe to start.
+
 ## OPEN-07 — R6: VS Code and Coding-Agent Completion
 
 Prompt: [`07_R6_VSCODE_AND_CODING_AGENTS.prompt.md`](archive/first-pass-prompts/2026-08-12/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md)

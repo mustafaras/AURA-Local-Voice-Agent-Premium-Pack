@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-19T15:40:00Z",
-  "session_id": "AURA-SP-011-ASYMMETRIC-BRIDGE-20260819",
-  "last_verified_commit": "9ae984ce9bbbc4c5b30677bc1e11b4679da42486",
+  "updated_at": "2026-08-19T17:20:00Z",
+  "session_id": "AURA-SP-011-LAUNCH-AND-HARNESS-20260819",
+  "last_verified_commit": "50236eaa7e9fd83d8c8fd5078f9968a5e1c2b3fd",
   "active_prompt": {
     "id": "SP-011",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
     "state": "blocked",
-    "step": "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10: the Safari bridge is asymmetric and needs no Team ID. The live extension signs an envelope into the shared directory and the app's pinned key matches it. Only the observed conversational summary remains, blocked on Safari's unsigned-extension authentication, which recurs on every Safari restart."
+    "step": "EV-SP-011-20260819-LAUNCH-AND-HARNESS-11: fixed a defect that stopped AURA launching at all (construct() blocked in SecItemCopyMatching waiting on securityd, with no reachable control because an LSUIElement app with no window cannot be activated), implemented the missing agenda/free-window leg, fixed two accessibility defects that made the transcript unreadable and the controls unaddressable, and added a resumable acceptance harness. The approved-page summary, browser injection-ignore, browser revocation, and contacts non-empty read remain unexecuted."
   },
-  "summary": "SP-011 remains BLOCKED, but its prior Gmail OAuth blocker is resolved. EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07 records a live approved-account Gmail read-only pass: callback/exchange/Keychain enrollment, controlled two-message summary without private leakage, injection refusal, offline classification, ambiguity before provider contact, local Keychain removal, Google grant removal, and immediate post-revoke refusal. Fixtures are in recoverable Trash; callback tabs, process, clipboard, and acceptance environment are cleared. Safari approved-page/native messaging, agenda/free-window, event draft, Calendar/Contacts TCC, and direct Privacy-tab click evidence remain absent. SP-012 is not safe to start.",
+  "summary": "SP-011 remains BLOCKED. This attempt closed the parts of the matrix that live inside the product: a launch-blocking Keychain probe in AuraKernel.construct() that left the app unable to start and unreachable, the missing agenda/free-window leg (now a pure derivation over the agenda calendar.read already returns, selected by a slot, with no new capability or authorization), two accessibility defects that made every transcript message an unlabelled AXUnknown and left the section pills and composer buttons nameless, and a local-signing flake on an iCloud-synced checkout. scripts/sp011-acceptance/ adds a preflight, an environment-preserving relaunch, an identifier-addressed driver, page fixtures, and a resumable browser-leg runner, so an interruption costs time rather than another Safari authentication. 21/21 bundles, 1068/1068 tests. Still unexecuted: the approved-page summary, the browser injection-ignore leg, the browser revocation leg, and the contacts non-empty read. SP-012 is not safe to start.",
   "completed": [
     "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
     "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",

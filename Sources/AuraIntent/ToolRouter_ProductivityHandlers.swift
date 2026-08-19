@@ -65,10 +65,17 @@ extension ToolRouter {
     executionContext: ToolExecutionContext
   ) async -> IntentExecutionOutcome {
     let dayRange = Int(intent.slotValue(IntentSlotName.dayRange) ?? "1") ?? 1
+    let wantsFreeWindows = intent.slotValue(IntentSlotName.freeWindows) == "true"
+    let minimumMinutes = Int(intent.slotValue(IntentSlotName.minimumMinutes) ?? "30") ?? 30
     return await runProductivityRead(
       intent, contract: contract, executionContext: executionContext, target: .empty
     ) { reader in
-      await reader.readCalendarAgenda(dayRange: dayRange)
+      if wantsFreeWindows {
+        await reader.readCalendarFreeWindows(
+          dayRange: dayRange, minimumMinutes: minimumMinutes)
+      } else {
+        await reader.readCalendarAgenda(dayRange: dayRange)
+      }
     }
   }
 

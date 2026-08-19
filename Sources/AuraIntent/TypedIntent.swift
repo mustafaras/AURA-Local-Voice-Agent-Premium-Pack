@@ -67,6 +67,14 @@ public enum IntentSlotName {
   /// capability or broadening OAuth scope.
   public static let threadSummary = "threadSummary"
   public static let dayRange = "dayRange"
+  /// `true` only for an explicit "when am I free" utterance. Free windows are
+  /// derived from the agenda `calendar.read` already returns, so this slot
+  /// selects the shape of the answer without a second capability or a wider
+  /// authorization — the same reason `threadSummary` exists on `mail.read`.
+  public static let freeWindows = "freeWindows"
+  /// The shortest gap worth reporting as free, in minutes. Bounded by the
+  /// read bridge; a caller cannot use it to widen the range that is read.
+  public static let minimumMinutes = "minimumMinutes"
 }
 
 /// The typed, closed-schema result of classifying one `TurnCompletedEvent`.

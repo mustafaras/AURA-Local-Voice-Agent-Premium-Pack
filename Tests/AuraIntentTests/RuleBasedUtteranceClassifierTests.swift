@@ -129,3 +129,44 @@ func classifierFallsBackToConverseForOrdinaryText() {
   #expect(result.semanticCategory == .converse)
   #expect(result.confidence >= 0.6)
 }
+
+// MARK: - SP-011 free-window classification
+
+/// "When am I free" is the second half of SP-011's `agenda/free-window` leg.
+/// It reads the same events as an agenda request, so it must reach the same
+/// `calendar.read` capability with a slot rather than a capability of its own.
+@Test
+func classifierRoutesFreeWindowRequestToCalendarRead() {
+  let result = classifier.classify(normalized: "when am i free", raw: "When am I free?")
+  #expect(result.kind == .calendarRead)
+  #expect(result.semanticCategory == .calendarRead)
+  #expect(result.slots.first { $0.name == IntentSlotName.freeWindows }?.value == "true")
+  #expect(result.slots.first { $0.name == IntentSlotName.dayRange }?.value == "1")
+}
+
+@Test
+func classifierWidensFreeWindowRangeForTomorrow() {
+  let result = classifier.classify(
+    normalized: "when am i free tomorrow", raw: "When am I free tomorrow?")
+  #expect(result.kind == .calendarRead)
+  #expect(result.slots.first { $0.name == IntentSlotName.freeWindows }?.value == "true")
+  #expect(result.slots.first { $0.name == IntentSlotName.dayRange }?.value == "2")
+}
+
+@Test
+func classifierRecognizesTurkishFreeWindowRequest() {
+  let result = classifier.classify(normalized: "ne zaman boşum", raw: "Ne zaman boşum?")
+  #expect(result.kind == .calendarRead)
+  #expect(result.slots.first { $0.name == IntentSlotName.freeWindows }?.value == "true")
+}
+
+/// An agenda request must not acquire the free-window slot: the two answers
+/// are different, and a silent switch would report gaps where the user asked
+/// for events.
+@Test
+func classifierKeepsAgendaRequestsFreeOfTheFreeWindowSlot() {
+  let result = classifier.classify(
+    normalized: "what do i have today", raw: "What do I have today?")
+  #expect(result.kind == .calendarRead)
+  #expect(result.slots.first { $0.name == IntentSlotName.freeWindows } == nil)
+}

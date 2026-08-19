@@ -72,6 +72,13 @@ private struct ProductivityReaderFake: ProductivityReading {
     return result
   }
 
+  func readCalendarFreeWindows(
+    dayRange: Int, minimumMinutes: Int
+  ) async -> Result<ProductivityReadResult, ProductivityReadFailure> {
+    await spy.record("calendar-free:\(dayRange):\(minimumMinutes)")
+    return result
+  }
+
   func lookupContacts(
     query: String, limit: Int
   ) async -> Result<ProductivityReadResult, ProductivityReadFailure> {
@@ -316,6 +323,50 @@ struct SP010RoutingTests {
     }
     #expect(await spy.calls.isEmpty)
     #expect(harness.recorder.invokedTools.isEmpty)
+  }
+
+  /// SP-011: the free-window slot must select a different adapter method on
+  /// the *same* capability. If it were routed to a capability of its own the
+  /// user would face a second authorization for data they had already
+  /// approved; if the slot were ignored they would be handed an agenda when
+  /// they asked when they were free.
+  @Test("the free-window slot selects free windows without a second capability")
+  func freeWindowSlotSelectsFreeWindowRead() async throws {
+    let spy = ReaderSpy()
+    let harness = try await makeProductivityHarness(
+      reader: ProductivityReaderFake(spy: spy), spy: spy,
+      readyCapabilities: [InitialCapabilitySet.calendarRead.id])
+
+    _ = await harness.router.route(
+      makeReadIntent(
+        kind: .calendarRead, category: .calendarRead,
+        slots: [
+          IntentSlot(name: IntentSlotName.dayRange, value: "1"),
+          IntentSlot(name: IntentSlotName.freeWindows, value: "true"),
+        ]),
+      actor: .user, sessionID: harness.sessionID, correlationID: UUID(), causationID: UUID())
+
+    let calls = await spy.calls
+    #expect(calls.contains { $0.hasPrefix("calendar-free:") })
+    #expect(!calls.contains { $0.hasPrefix("calendar:") })
+  }
+
+  @Test("an agenda request without the slot still reads the agenda")
+  func agendaRequestStillReadsAgenda() async throws {
+    let spy = ReaderSpy()
+    let harness = try await makeProductivityHarness(
+      reader: ProductivityReaderFake(spy: spy), spy: spy,
+      readyCapabilities: [InitialCapabilitySet.calendarRead.id])
+
+    _ = await harness.router.route(
+      makeReadIntent(
+        kind: .calendarRead, category: .calendarRead,
+        slots: [IntentSlot(name: IntentSlotName.dayRange, value: "1")]),
+      actor: .user, sessionID: harness.sessionID, correlationID: UUID(), causationID: UUID())
+
+    let calls = await spy.calls
+    #expect(calls.contains { $0.hasPrefix("calendar:") })
+    #expect(!calls.contains { $0.hasPrefix("calendar-free:") })
   }
 
   @Test("a ready capability with no wired reader refuses instead of answering empty")

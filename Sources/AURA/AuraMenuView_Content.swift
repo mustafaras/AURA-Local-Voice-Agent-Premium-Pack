@@ -145,6 +145,11 @@ extension AuraMenuView {
     // Selection is announced through the trait rather than only by tint, so it
     // is conveyed without relying on colour.
     .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+    // The pill's label is an icon plus text inside a `.plain` button, which
+    // SwiftUI did not surface as an accessible name: every tab read as a bare
+    // "button" to VoiceOver and to the acceptance driver alike.
+    .accessibilityLabel(copy(tab.copyKey))
+    .accessibilityIdentifier(AuraAccessibilityID.tab(tab.rawValue))
   }
 
   @ViewBuilder
@@ -215,6 +220,7 @@ extension AuraMenuView {
               .font(AuraDesign.Typography.body)
               .onSubmit { model.submitText() }
               .accessibilityLabel(copy("conversation.input"))
+              .accessibilityIdentifier(AuraAccessibilityID.composerInput)
             Button {
               model.submitText()
             } label: {
@@ -226,6 +232,7 @@ extension AuraMenuView {
             .buttonStyle(.plain)
             .disabled(model.textInput.isEmpty)
             .accessibilityLabel(copy("conversation.submit"))
+            .accessibilityIdentifier(AuraAccessibilityID.composerSubmit)
           }
           .padding(.horizontal, AuraDesign.Spacing.m)
           .padding(.vertical, AuraDesign.Spacing.s)
@@ -244,6 +251,7 @@ extension AuraMenuView {
           .disabled(model.emergencyStopActive)
           .keyboardShortcut(.space, modifiers: [.command, .shift])
           .accessibilityHint(copy("conversation.pushHint"))
+          .accessibilityIdentifier(AuraAccessibilityID.composerPushToTalk)
         }
       }
 

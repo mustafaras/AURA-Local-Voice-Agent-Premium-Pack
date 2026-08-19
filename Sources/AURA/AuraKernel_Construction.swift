@@ -264,22 +264,17 @@ extension AuraKernel {
           allowlist: NetworkAllowlist(
             allowedHosts: Set(configuration.productivity.safariAllowedHosts))))
       self.safariBridgeRuntime = bridge
-      let availability = await bridge.availability()
-      let status: RuntimeHealthStatus
-      let detail: String
-      switch availability {
-      case .ready:
-        status = .ready
-        detail = "Safari read bridge authenticated and ready"
-      case .degraded(let reason):
-        status = .degraded
-        detail = "Safari read bridge degraded: \(reason)"
-      case .disabled(let reason):
-        status = .disabledByConfiguration
-        detail = "Safari read bridge disabled: \(reason)"
-      }
+      // Constructed, deliberately not probed. Probing reads the Keychain, and
+      // a Keychain read is not a fast local operation: securityd may need to
+      // authorize the caller, and it cannot complete that before the app has
+      // finished launching. Probing here deadlocked startup — `construct()`
+      // blocked inside `SecItemCopyMatching`, so the app never finished
+      // launching, never showed a window, and left the user with a menu bar
+      // item stuck on "Starting" and no way to reach any control. The probe
+      // now runs after construction; see `probeExternalAvailability`.
       await foundation.runtimeHealthRegistry.record(
-        componentID: "safari-bridge", status: status, detail: detail)
+        componentID: "safari-bridge", status: .loading,
+        detail: "Safari read bridge constructed; trust path not checked yet")
     } catch {
       self.safariBridgeRuntime = nil
       await foundation.runtimeHealthRegistry.record(
@@ -314,13 +309,12 @@ extension AuraKernel {
       injectionClassifier: injectionClassifier ?? PromptInjectionClassifier(),
       openURL: { NSWorkspace.shared.open($0) })
     self.productivityRuntime = productivity
-    let readyCount = await productivity.snapshots().filter(\.isReady).count
+    // Counting ready integrations means taking every leg's snapshot, and each
+    // snapshot reads the Keychain — the same blocking call that deadlocked
+    // startup through the Safari bridge above.
     await foundation.runtimeHealthRegistry.record(
-      componentID: "productivity",
-      status: readyCount == 0 ? .disabledByConfiguration : .ready,
-      detail: readyCount == 0
-        ? "no read-first integration is connected yet"
-        : "\(readyCount) of 4 read-first integrations are connected")
+      componentID: "productivity", status: .loading,
+      detail: "read-first integrations composed; connection state not checked yet")
   }
 
   private func constructIntentSubsystems(
@@ -338,7 +332,9 @@ extension AuraKernel {
     // reason; replace it immediately with the composition's real state, so
     // no window exists in which the registry reports a capability's
     // availability from a string written months ago.
-    await refreshProductivityAvailability()
+    // Left at the registered placeholder until `probeExternalAvailability`
+    // resolves it. Nothing can route against the placeholder in the meantime:
+    // `submitText` re-derives availability before every turn.
     await foundation.runtimeHealthRegistry.recordReady(
       "capabilityRegistry",
       detail: "\(InitialCapabilitySet.manifests().count) capabilities registered")

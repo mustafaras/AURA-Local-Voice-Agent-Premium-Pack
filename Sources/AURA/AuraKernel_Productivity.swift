@@ -15,8 +15,20 @@ extension AuraKernel {
   /// the UI shows, so the registry, the health surface, and the router cannot
   /// disagree with one another.
   func refreshProductivityAvailability() async {
-    guard let capabilityRegistry, let productivityRuntime else { return }
-    for snapshot in await productivityRuntime.snapshots() {
+    guard let productivityRuntime else { return }
+    await applyProductivityAvailability(await productivityRuntime.snapshots())
+  }
+
+  /// Apply snapshots that have already been taken.
+  ///
+  /// Taking a snapshot reads the Keychain, so the caller that needs both the
+  /// registry updated and the count reported takes them once rather than
+  /// paying for that twice.
+  private func applyProductivityAvailability(
+    _ snapshots: [ProductivityIntegrationSnapshot]
+  ) async {
+    guard let capabilityRegistry else { return }
+    for snapshot in snapshots {
       guard let manifest = await capabilityRegistry.resolveLatest(id: snapshot.capabilityID) else {
         continue
       }
@@ -38,6 +50,58 @@ extension AuraKernel {
 
   private static func actionable(_ reason: String, _ remediation: String) -> String {
     remediation.isEmpty ? reason : "\(reason) \(remediation)"
+  }
+
+  /// Resolve every external integration's real availability, after the app has
+  /// finished launching.
+  ///
+  /// `construct()` used to do this inline, and that was a launch-blocking
+  /// mistake rather than a slow one. Each probe reads the Keychain;
+  /// `SecItemCopyMatching` blocks until securityd answers, and securityd may
+  /// need to authorize the calling binary first — which it cannot do while the
+  /// app is still launching and has no window to host the request. The
+  /// observed failure was total: `construct()` stopped inside the Keychain
+  /// call, the app never finished launching, no window ever appeared, and the
+  /// menu bar item sat at "Starting" with no control reachable by any means.
+  ///
+  /// Running it here bounds launch by construction alone. Nothing routes
+  /// against the unresolved placeholder in the meantime, because `submitText`
+  /// re-derives availability before every turn.
+  func probeExternalAvailability() async {
+    guard let productivityRuntime else {
+      await runtimeHealthRegistry?.record(
+        componentID: "productivity", status: .disabledByConfiguration,
+        detail: "no read-first integration is configured")
+      return
+    }
+
+    let snapshots = await productivityRuntime.snapshots()
+    await applyProductivityAvailability(snapshots)
+    let readyCount = snapshots.filter(\.isReady).count
+    await runtimeHealthRegistry?.record(
+      componentID: "productivity",
+      status: readyCount == 0 ? .disabledByConfiguration : .ready,
+      detail: readyCount == 0
+        ? "no read-first integration is connected yet"
+        : "\(readyCount) of \(snapshots.count) read-first integrations are connected")
+
+    guard let safariBridgeRuntime else { return }
+    let availability = await safariBridgeRuntime.availability()
+    let status: RuntimeHealthStatus
+    let detail: String
+    switch availability {
+    case .ready:
+      status = .ready
+      detail = "Safari read bridge authenticated and ready"
+    case .degraded(let reason):
+      status = .degraded
+      detail = "Safari read bridge degraded: \(reason)"
+    case .disabled(let reason):
+      status = .disabledByConfiguration
+      detail = "Safari read bridge disabled: \(reason)"
+    }
+    await runtimeHealthRegistry?.record(
+      componentID: "safari-bridge", status: status, detail: detail)
   }
 
   /// The integration projection the R9 surfaces render. Gated by the same

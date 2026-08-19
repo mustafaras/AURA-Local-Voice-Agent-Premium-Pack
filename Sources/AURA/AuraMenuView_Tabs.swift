@@ -167,6 +167,8 @@ extension AuraMenuView {
               Spacer()
               Text(integration.state)
                 .foregroundStyle(integration.isReady ? .green : .orange)
+                .accessibilityIdentifier(
+                  AuraAccessibilityID.integrationState(integration.id))
             }
             if let accountLabel = integration.accountLabel {
               Text(accountLabel).font(.caption).foregroundStyle(.secondary)
@@ -196,6 +198,8 @@ extension AuraMenuView {
                 Label(copy(connectKey), systemImage: connectSymbol)
               }
               .accessibilityLabel(copy(connectKey))
+              .accessibilityIdentifier(
+                AuraAccessibilityID.integrationConnect(integration.id))
             }
             if integration.canGrantAccess {
               Button {
@@ -205,6 +209,8 @@ extension AuraMenuView {
               }
               .accessibilityLabel(
                 "\(copy("integrations.grantAccess")): \(integration.title)")
+              .accessibilityIdentifier(
+                AuraAccessibilityID.integrationGrant(integration.id))
             }
             if integration.isRevocable {
               Button(role: .destructive) {
@@ -213,6 +219,8 @@ extension AuraMenuView {
                 Label(copy("integrations.revoke"), systemImage: "minus.circle")
               }
               .accessibilityLabel("\(copy("integrations.revoke")): \(integration.title)")
+              .accessibilityIdentifier(
+                AuraAccessibilityID.integrationRevoke(integration.id))
             }
           }
           .frame(maxWidth: .infinity, alignment: .leading)
