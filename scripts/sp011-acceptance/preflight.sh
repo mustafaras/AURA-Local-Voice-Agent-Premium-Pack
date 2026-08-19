@@ -65,13 +65,17 @@ else
             "the window may be on another Space — switch to it, or close and reopen it from the AURA menu bar item"
     fi
 
+    # The composer only exists on the conversation tab, so select it before
+    # probing: a control that is merely on another tab must not be reported as
+    # a build that predates the identifiers.
+    osascript "$DRIVER" click aura.tab.conversation >/dev/null 2>&1
     for identifier in aura.composer.input aura.composer.submit; do
         probe="$(osascript "$DRIVER" find "$identifier" 2>&1)"
         if [[ "$probe" == OK* ]]; then
             pass "control $identifier is addressable"
         else
             fail "control $identifier is missing" \
-                "the installed build predates the accessibility identifiers; rebuild and reinstall"
+                "select the Conversation tab; if it is already selected, the installed build predates the accessibility identifiers — rebuild and reinstall"
         fi
     done
 fi
