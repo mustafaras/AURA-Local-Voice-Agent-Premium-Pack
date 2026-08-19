@@ -4,10 +4,10 @@ import Foundation
 /// The producing half of the Safari bridge contract.
 ///
 /// `AuthenticatedSafariWebExtensionTransport` consumes a signed envelope from
-/// the shared app-group container; this writer is what puts one there. It runs
-/// in the Safari app-extension process (through
-/// `SafariBridgeNativeMessageHandler`), signs the observation with the
-/// profile's provisioned shared secret, and writes it atomically.
+/// the shared directory; this writer is what puts one there. It runs in the
+/// Safari app-extension process (through `SafariBridgeNativeMessageHandler`),
+/// signs the observation with the extension's own private key, and writes it
+/// atomically alongside the public key the app pins.
 ///
 /// Without this type the two halves of the bridge never meet: the containing
 /// app would validate an envelope that nothing in the package produces.
@@ -58,18 +58,21 @@ public struct SafariBridgeEnvelopeWriter: Sendable {
       throw .malformedMessage
     }
 
-    let secret = try await provisionedSecret()
-
-    let authenticator: SafariBridgeAuthenticator
+    let signer: SafariBridgeSigner
     do {
-      authenticator = try SafariBridgeAuthenticator(sharedSecret: secret)
+      signer = SafariBridgeSigner(privateKey: try await secretStore.signingKey(profileID: profileID))
     } catch {
       throw .unavailable
     }
 
+    // The verifying key is republished on every observation, not only the
+    // first. The user may connect the profile at any point, and a key file
+    // that went missing must not leave the bridge permanently unpinnable.
+    try publishVerifyingKey(signer)
+
     let envelope: SafariBridgeEnvelope
     do {
-      envelope = try authenticator.makeEnvelope(
+      envelope = try signer.makeEnvelope(
         tab: tab,
         extensionID: extensionID,
         profileID: profileID,
@@ -84,16 +87,22 @@ public struct SafariBridgeEnvelopeWriter: Sendable {
     return envelope
   }
 
-  private func provisionedSecret() async throws(SafariBridgeTransportError) -> String {
+  /// Where the extension publishes its verifying key, beside the envelope.
+  public static func verifyingKeyURL(besideEnvelopeAt envelopeURL: URL) -> URL {
+    envelopeURL.deletingLastPathComponent().appending(path: "extension-key.json")
+  }
+
+  private func publishVerifyingKey(
+    _ signer: SafariBridgeSigner
+  ) throws(SafariBridgeTransportError) {
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.sortedKeys]
     do {
-      guard let provisioned = try await secretStore.sharedSecret(profileID: profileID) else {
-        throw SafariBridgeTransportError.notProvisioned
-      }
-      return provisioned
-    } catch let error as SafariBridgeTransportError {
-      throw error
+      let published = signer.publishedKey(extensionID: extensionID, profileID: profileID)
+      try encoder.encode(published).write(
+        to: Self.verifyingKeyURL(besideEnvelopeAt: sharedContainerURL), options: .atomic)
     } catch {
-      throw SafariBridgeTransportError.unavailable
+      throw .unavailable
     }
   }
 

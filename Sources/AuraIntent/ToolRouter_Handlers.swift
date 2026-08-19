@@ -36,13 +36,36 @@ extension ToolRouter {
     return .executed(summary: response.text, hasSpokenResponse: !response.text.isEmpty)
   }
 
-  func resolveContract(for kind: IntentKind) async -> CapabilityManifest? {
-    guard let id = capabilityID(for: kind) else { return nil }
-    guard let manifest = await capabilityRegistry.resolveLatest(id: id) else { return nil }
-    if case .ready = await capabilityRegistry.availability(qualifiedID: manifest.qualifiedID) {
-      return manifest
+  /// Why a request could not be routed, kept distinct because the two cases
+  /// need different answers.
+  ///
+  /// "No such tool" is a build-time fact the user can do nothing about. "This
+  /// tool is not usable right now" is a live state that always carries a next
+  /// step — connect an account, grant access, click the extension button
+  /// again. Collapsing both into `noToolRegistered` told a user whose Safari
+  /// bridge had simply gone stale that AURA had no browser capability at all.
+  enum ContractResolution: Sendable {
+    case ready(CapabilityManifest)
+    case unavailable(reason: String)
+    case unknown
+  }
+
+  func resolveContract(for kind: IntentKind) async -> ContractResolution {
+    guard let id = capabilityID(for: kind),
+      let manifest = await capabilityRegistry.resolveLatest(id: id)
+    else {
+      return .unknown
     }
-    return nil
+    switch await capabilityRegistry.availability(qualifiedID: manifest.qualifiedID) {
+    case .ready:
+      return .ready(manifest)
+    case .degraded(let reason), .disabled(let reason):
+      return .unavailable(reason: reason)
+    case nil:
+      // Registered but never given an availability. Treated as unusable
+      // rather than ready: an unknown state is not a usable one.
+      return .unavailable(reason: "\(manifest.id) has no recorded availability")
+    }
   }
 
   func handleAppLifecycle(

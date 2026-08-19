@@ -1,4 +1,5 @@
 import AuraCore
+import CryptoKit
 import AuraSecurity
 import Foundation
 import Testing
@@ -192,23 +193,57 @@ struct SP010ConnectionStateTests {
     #expect(await onboarding.records().isEmpty)
   }
 
-  @Test("browser profile enrollment provisions a secret and revocation clears it")
+  @Test("browser profile enrollment pins the published key and revocation clears it")
   func browserProfileLifecycle() async throws {
     let secretStore = SafariBridgeSecretStore(
       secretStore: ProductivitySecretStoreFake(), serviceName: "test.bridge")
     let onboarding = makeOnboarding(
       tokenStore: OAuthTokenStoreFake(), browserSecretStore: secretStore)
+    let signer = SafariBridgeSigner(
+      privateKey: try await secretStore.signingKey(profileID: "personal"))
 
     #expect(await onboarding.browserProfileState(profileID: "personal") == .notProvisioned)
-    let secret = try await onboarding.enrollBrowserProfile(
-      BrowserProfileAuthorization(profileID: "personal", source: .userOnboardingConsent))
-    #expect(!secret.isEmpty)
+    try await onboarding.enrollBrowserProfile(
+      BrowserProfileAuthorization(profileID: "personal", source: .userOnboardingConsent),
+      publishedKey: signer.publishedKey(
+        extensionID: "com.aura.safari-extension", profileID: "personal"))
     #expect(
       await onboarding.browserProfileState(profileID: "personal")
         == .connected(fingerprint: ProductivityRedaction.fingerprint("personal")))
 
     try await onboarding.revokeBrowserProfile(profileID: "personal")
     #expect(await onboarding.browserProfileState(profileID: "personal") == .notProvisioned)
+  }
+
+  /// Pinning is what binds a profile to one extension identity. A key
+  /// published for a different profile must not be accepted for this one.
+  @Test("a key published for another profile is never pinned")
+  func mismatchedPublishedKeyIsRefused() async throws {
+    let secretStore = SafariBridgeSecretStore(
+      secretStore: ProductivitySecretStoreFake(), serviceName: "test.bridge")
+    let onboarding = makeOnboarding(
+      tokenStore: OAuthTokenStoreFake(), browserSecretStore: secretStore)
+    let signer = SafariBridgeSigner(
+      privateKey: try await secretStore.signingKey(profileID: "personal"))
+
+    await #expect(throws: ProductivityError.self) {
+      try await onboarding.enrollBrowserProfile(
+        BrowserProfileAuthorization(profileID: "personal", source: .userOnboardingConsent),
+        publishedKey: signer.publishedKey(
+          extensionID: "com.aura.safari-extension", profileID: "work"))
+    }
+    #expect(await onboarding.browserProfileState(profileID: "personal") == .notProvisioned)
+  }
+
+  /// The extension keeps one identity for a profile's lifetime. Regenerating
+  /// on every call would invalidate the app's pin on every observation.
+  @Test("a profile's signing key is stable across reads")
+  func signingKeyIsStable() async throws {
+    let secretStore = SafariBridgeSecretStore(
+      secretStore: ProductivitySecretStoreFake(), serviceName: "test.bridge")
+    let first = try await secretStore.signingKey(profileID: "personal")
+    let second = try await secretStore.signingKey(profileID: "personal")
+    #expect(first.rawRepresentation == second.rawRepresentation)
   }
 
   @Test("an unapproved profile is never reported as connected")

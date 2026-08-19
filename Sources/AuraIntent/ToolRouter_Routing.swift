@@ -49,13 +49,20 @@ extension ToolRouter {
     _ intent: TypedIntent,
     context: TurnContext, dialogueContext: [DialogueContextItem] = []
   ) async -> IntentExecutionOutcome {
-    let contract = await resolveContract(for: intent.kind)
+    // Only a usable tool is named in the trace's backend IDs; an unavailable
+    // one has not been invoked and must not read as though it had.
+    let resolvedToolID: String?
+    if case .ready(let manifest) = await resolveContract(for: intent.kind) {
+      resolvedToolID = manifest.id
+    } else {
+      resolvedToolID = nil
+    }
     let routingContext = context.withBackendIDs(
       TurnBackendIDs(
         stt: context.backendIDs.stt,
         tts: context.backendIDs.tts,
         model: context.backendIDs.model,
-        tool: contract?.id))
+        tool: resolvedToolID))
     let executionContext = ToolExecutionContext(
       actor: context.actor,
       sessionID: context.sessionID,
@@ -87,7 +94,17 @@ extension ToolRouter {
       return .ambiguous(clarifyingQuestion: clarifyingQuestion(for: intent))
     }
 
-    guard let contract = await resolveContract(for: intent.kind) else {
+    let contract: CapabilityManifest
+    switch await resolveContract(for: intent.kind) {
+    case .ready(let manifest):
+      contract = manifest
+    case .unavailable(let reason):
+      await emit(
+        IntentBlockedEvent(intentID: intent.id, reason: "capabilityUnavailable"),
+        correlationID: executionContext.correlationID,
+        causationID: executionContext.causationID)
+      return .failed(reason: reason)
+    case .unknown:
       await emit(
         IntentBlockedEvent(intentID: intent.id, reason: "noToolRegistered"),
         correlationID: executionContext.correlationID,

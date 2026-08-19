@@ -19,6 +19,21 @@ struct SafariExtensionConfiguration: Equatable {
   static let secretServiceNameKey = "AURASecretServiceName"
   static let sharedContainerPathKey = "AURASharedContainerPath"
 
+  /// The user's real home directory, not the sandbox container.
+  ///
+  /// `NSHomeDirectory()` is redirected to the container for a sandboxed
+  /// process, but the `temporary-exception.files.home-relative-path`
+  /// entitlement grants access relative to the *real* home. Resolving the
+  /// shared path against the container instead wrote the envelope somewhere
+  /// nothing reads and the exception did not cover — the bridge stayed silent
+  /// with no error to show for it.
+  static func realHomeDirectory() -> URL {
+    if let entry = getpwuid(getuid()), let dir = entry.pointee.pw_dir {
+      return URL(fileURLWithPath: String(cString: dir))
+    }
+    return URL(fileURLWithPath: NSHomeDirectory())
+  }
+
   /// Build the configuration from an Info.plist projection.
   ///
   /// A blank or absent value falls back to the shipped default rather than

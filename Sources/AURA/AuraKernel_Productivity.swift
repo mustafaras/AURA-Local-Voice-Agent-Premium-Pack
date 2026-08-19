@@ -106,33 +106,39 @@ extension AuraKernel {
     await refreshProductivityAvailability()
   }
 
-  /// Provision the Safari bridge secret for the approved profile and return
-  /// it once, for the user to hand to the extension. The value goes to the
-  /// caller and nowhere else — it is not logged, emitted, or persisted
-  /// outside the Keychain.
+  /// Connect the approved Safari profile by pinning the key its extension
+  /// published.
+  ///
+  /// Nothing is returned and nothing secret is handled: the extension keeps
+  /// its private key, and this only records which public key this profile will
+  /// accept from now on. It fails when the extension has not published a key
+  /// yet, which is the honest answer — the user has not run it once.
   func connectBrowserProfile(
     profileID: String,
     source: IntegrationAuthorizationSource = .userOnboardingConsent
-  ) async throws(AuraError) -> String {
-    guard started, let productivityRuntime else {
+  ) async throws(AuraError) {
+    guard started, let productivityRuntime, let bridge = productivityRuntime.safariBridge else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
     }
-    let secret: String
+    guard let published = bridge.publishedExtensionKey() else {
+      throw AuraError.permissionDenied(
+        "the AURA Safari extension has not published a key yet; "
+          + "open a page and click its toolbar button once, then connect")
+    }
     do {
-      secret = try await productivityRuntime.onboarding.enrollBrowserProfile(
-        BrowserProfileAuthorization(profileID: profileID, source: source))
+      try await productivityRuntime.onboarding.enrollBrowserProfile(
+        BrowserProfileAuthorization(profileID: profileID, source: source),
+        publishedKey: published)
     } catch {
       throw AuraError.permissionDenied(ProductivityRedaction.diagnostic(for: error))
     }
     await refreshProductivityAvailability()
-    return secret
   }
 
   /// Provision the configured Safari profile's bridge secret. The kernel names
   /// the profile from its own configuration, mirroring the revoke path, so no
   /// caller can point provisioning at a profile the user never approved.
-  @discardableResult
-  func connectConfiguredBrowserProfile() async throws(AuraError) -> String {
+  func connectConfiguredBrowserProfile() async throws(AuraError) {
     try await connectBrowserProfile(profileID: configuration.productivity.safariProfileID)
   }
 

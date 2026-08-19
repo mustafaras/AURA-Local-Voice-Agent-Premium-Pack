@@ -4,13 +4,14 @@ import Foundation
 
 /// A `SafariWebExtensionTransport` that reads a signed native-messaging
 /// observation envelope from the shared app-group container, validates it
-/// (version, extension identity, profile identity, nonce, freshness, HMAC),
+/// (version, extension identity, profile identity, nonce, freshness, signature),
 /// and returns the typed active-tab response. It fails closed on every
 /// unavailable, stale, mismatched, revoked, or unauthenticated state.
 ///
-/// The extension writes the envelope to the shared container; the containing
-/// app reads and validates it. The shared secret is provisioned through
-/// `SafariBridgeSecretStore` and is never embedded in the payload.
+/// The extension writes the envelope to the shared directory; the containing
+/// app reads it and checks the signature against the public key it pinned when
+/// the user connected the profile. Nothing secret crosses the boundary and the
+/// app holds no signing capability of its own.
 public struct AuthenticatedSafariWebExtensionTransport: SafariWebExtensionTransport, Sendable {
   private let extensionID: String
   private let profileID: String
@@ -18,8 +19,18 @@ public struct AuthenticatedSafariWebExtensionTransport: SafariWebExtensionTransp
   private let secretStore: SafariBridgeSecretStore
   private let now: @Sendable () -> Date
   private let clockSkewSeconds: Double
+  private let maxObservationAge: Double
   private let maxPayloadBytes: Int
 
+  /// - Parameters:
+  ///   - clockSkewSeconds: tolerance for the two processes' clocks disagreeing.
+  ///   - maxObservationAge: how long a written observation stays readable.
+  ///     This must match the writer's envelope lifetime. It used to be the
+  ///     clock-skew value, which made the file unreadable after five seconds
+  ///     while the envelope it contained claimed thirty — so a user who
+  ///     clicked the extension button and then asked AURA to read the page
+  ///     always missed the window, and `browser.read` was never registered as
+  ///     a usable tool by the time the request arrived.
   public init(
     extensionID: String,
     profileID: String,
@@ -27,6 +38,7 @@ public struct AuthenticatedSafariWebExtensionTransport: SafariWebExtensionTransp
     secretStore: SafariBridgeSecretStore,
     now: @escaping @Sendable () -> Date = { Date() },
     clockSkewSeconds: Double = 5,
+    maxObservationAge: Double = 30,
     maxPayloadBytes: Int = 1_048_576
   ) {
     self.extensionID = extensionID
@@ -35,6 +47,7 @@ public struct AuthenticatedSafariWebExtensionTransport: SafariWebExtensionTransp
     self.secretStore = secretStore
     self.now = now
     self.clockSkewSeconds = clockSkewSeconds
+    self.maxObservationAge = maxObservationAge
     self.maxPayloadBytes = maxPayloadBytes
   }
 
@@ -43,23 +56,23 @@ public struct AuthenticatedSafariWebExtensionTransport: SafariWebExtensionTransp
     guard profileID == self.profileID else {
       throw SafariBridgeTransportError.profileMismatch
     }
-    // The shared secret must be provisioned; otherwise the bridge is revoked
-    // or never onboarded.
-    let secret: String
+    // A pinned key must exist; otherwise the profile was never connected or
+    // has been revoked, and an unpinned signature proves nothing.
+    let pinned: String
     do {
-      guard let provisioned = try await secretStore.sharedSecret(profileID: profileID) else {
+      guard let existing = try await secretStore.pinnedPublicKey(profileID: profileID) else {
         throw SafariBridgeTransportError.notProvisioned
       }
-      secret = provisioned
+      pinned = existing
     } catch let error as SafariBridgeTransportError {
       throw error
     } catch {
       throw SafariBridgeTransportError.unavailable
     }
 
-    let authenticator: SafariBridgeAuthenticator
+    let verifier: SafariBridgeVerifier
     do {
-      authenticator = try SafariBridgeAuthenticator(sharedSecret: secret)
+      verifier = try SafariBridgeVerifier(pinnedPublicKey: pinned)
     } catch {
       throw SafariBridgeTransportError.unavailable
     }
@@ -67,9 +80,9 @@ public struct AuthenticatedSafariWebExtensionTransport: SafariWebExtensionTransp
     // Read the envelope from the shared container.
     let envelope = try readEnvelope()
 
-    // Validate version, identity, profile, nonce, freshness, and HMAC.
+    // Validate version, identity, profile, nonce, freshness, and signature.
     do {
-      try authenticator.validate(
+      try verifier.validate(
         envelope,
         expectedExtensionID: extensionID,
         expectedProfileID: profileID,
@@ -91,8 +104,12 @@ public struct AuthenticatedSafariWebExtensionTransport: SafariWebExtensionTransp
     else {
       throw .unavailable
     }
-    // A stale observation (older than the freshness window) is refused.
-    guard now().timeIntervalSince(modificationDate) <= clockSkewSeconds else {
+    // A stale observation is refused. The bound is the observation's own
+    // lifetime plus clock tolerance; the envelope's `expiresAt` is then
+    // checked again during signature validation, so this is a cheap early
+    // rejection, not the only expiry check.
+    guard now().timeIntervalSince(modificationDate) <= maxObservationAge + clockSkewSeconds
+    else {
       throw .stale
     }
     guard let data = try? Data(contentsOf: sharedContainerURL),
@@ -119,9 +136,10 @@ public enum SafariBridgeTransportError: Error, Sendable, Equatable {
   case stale
   /// The requested profile does not match the transport's bound profile.
   case profileMismatch
-  /// The shared secret is not provisioned (never onboarded or revoked).
+  /// No extension key is pinned (never connected or revoked).
   case notProvisioned
-  /// Version, identity, profile, nonce, freshness, or HMAC validation failed.
+  /// Version, identity, profile, nonce, freshness, or signature validation
+  /// failed.
   case authenticationFailed
   /// The extension's native message was absent, undecodable, wrong-typed,
   /// wrong-versioned, or over the bounded observation size.

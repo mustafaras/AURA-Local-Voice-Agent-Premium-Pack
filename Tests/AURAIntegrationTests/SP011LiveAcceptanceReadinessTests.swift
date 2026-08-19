@@ -6,6 +6,7 @@ import Foundation
 import Testing
 
 @testable import AURA
+@testable import AuraSafariExtensionHandler
 
 /// The onboarding service needs a token store; nothing here enrolls anything,
 /// so an in-memory one keeps the suite off the real Keychain.
@@ -133,8 +134,11 @@ func unprovisionedSafariProfileCanConnect() async throws {
   #expect(before.canConnect)
   #expect(!before.isRevocable)
 
-  _ = try await runtime.onboarding.enrollBrowserProfile(
-    BrowserProfileAuthorization(profileID: "personal", source: .userOnboardingConsent))
+  let signingKey = try await bridgeSecrets.signingKey(profileID: "personal")
+  try await runtime.onboarding.enrollBrowserProfile(
+    BrowserProfileAuthorization(profileID: "personal", source: .userOnboardingConsent),
+    publishedKey: SafariBridgeSigner(privateKey: signingKey).publishedKey(
+      extensionID: "com.aura.safari-extension", profileID: "personal"))
 
   // Provisioned: the connect action is spent and the revoke action appears.
   // The capability is still not ready — no envelope has been written — which
@@ -259,6 +263,22 @@ func safariExtensionIsSandboxedAndItsContainerIsTheDefault() throws {
   #expect(
     ProductivityConfiguration(safariSharedContainerPath: "/tmp/x.json")
       .resolvedSafariSharedContainerPath == "/tmp/x.json")
+}
+
+/// The sandbox redirects `NSHomeDirectory()` to the container, but the
+/// entitlement grants the real home — so the extension has to resolve its
+/// relative path against the real one or it writes where nothing reads.
+@Test("The extension resolves its shared path against the real home, not the container")
+func extensionResolvesAgainstRealHome() throws {
+  let real = SafariExtensionConfiguration.realHomeDirectory().path
+  #expect(!real.contains("/Library/Containers/"))
+  #expect(real == NSHomeDirectory() || !NSHomeDirectory().hasPrefix(real + "/Library/Containers"))
+
+  let info = try plist(at: "Resources/AuraSafariExtension-Info.plist")
+  let relativePath = try #require(info["AURASharedContainerPath"] as? String)
+  let configuration = SafariExtensionConfiguration(
+    infoDictionary: info, homeDirectory: URL(fileURLWithPath: "/Users/example"))
+  #expect(configuration.sharedContainerURL.path == "/Users/example/" + relativePath)
 }
 
 @Test("The bundle script packages the extension and the signing script seals it first")

@@ -580,3 +580,21 @@ into the SP-006 evidence file.
 - **Assessment:** the real constraint is structural. Safari requires the extension to be App Sandbox confined; a sandboxed process uses the data-protection keychain while the unsandboxed containing app uses the file-based login keychain; and sharing either a keychain item or a container across that boundary requires `keychain-access-groups` or `com.apple.security.application-groups`, which are restricted entitlements needing a provisioning profile. Adding them made the app fail to launch (POSIX 163). This machine has only a self-signed identity and no Team ID, so the SP-009 shared-secret design is unexercisable here as written.
 - **Closure criterion (updated):** either (a) Apple Developer Program enrollment, after which the App Group plus keychain access group work as designed and Developer ID signing with notarization also removes the unsigned-extension toggle; or (b) an asymmetric bridge in which the extension keeps a private signing key in its own keychain and publishes only its public key to the shared directory, which the app pins when the user connects the profile — no Team ID, no shared secret, but it supersedes `SafariBridgeAuthenticator` and needs its own ADR.
 - **Evidence:** `EV-SP-011-20260819-SAFARI-TRUST-PATH-09`
+
+### 2026-08-19T15:31:13Z — SP-011 Safari bridge Team ID dependency removed
+
+- **Risk ID:** `RISK-SAFARI-BRIDGE-NOT-LIVE`
+- **Status:** **Open — substantially reduced**
+- **Owner:** R11 release (signing)
+- **Risk:** the bridge could not be exercised without an Apple Developer Team ID.
+- **Assessment:** the dependency is gone. The bridge is now asymmetric — the extension holds a private signing key in its own keychain and publishes only its public key, which the app pins on connect — so no entitlement has to span the sandbox boundary. Live, the extension signs an envelope into the shared directory and the app's pinned key is byte-identical to the published one. What remains is Safari's `Allow unsigned extensions` toggle, which does not survive a Safari restart and requires a Touch ID or password each time.
+- **Closure criterion:** one observed conversational page summary from a live envelope. Developer ID signing plus notarization removes the toggle permanently and is the production answer.
+- **Evidence:** `EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10`
+
+- **Risk ID:** `RISK-SP-011-BRIDGE-TOFU-PINNING`
+- **Status:** **Open — accepted, documented**
+- **Owner:** R5 productivity / R10 security review
+- **Risk:** the app pins whatever verifying key is published at the moment the user connects. A hostile extension that published first would be pinned instead of the real one.
+- **Assessment:** deliberate and bounded. Pinning happens only on an explicit user action, the key file lives in a directory only the extension and the app can write, and a later key is refused as impersonation until the user disconnects and reconnects. The alternative — a shared secret — needs a Team ID and is what this design replaced.
+- **Closure criterion:** independent security review of the trust-on-first-use boundary as part of R10, or a Developer ID build where the extension's code identity can be checked directly.
+- **Evidence:** `EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10`

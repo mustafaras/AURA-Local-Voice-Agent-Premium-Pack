@@ -1,4 +1,5 @@
 import AuraCore
+import CryptoKit
 import AuraIntent
 import AuraProductivity
 import AuraSecurity
@@ -355,12 +356,39 @@ private func makeSafariTransport(
     now: now)
 }
 
+/// A throwaway extension identity: the signer the extension would hold and the
+/// verifier the app would build from the key it pinned.
+private struct SafariBridgePair {
+  let signer: SafariBridgeSigner
+  let verifier: SafariBridgeVerifier
+  let publicKey: String
+
+  init() {
+    let key = P256.Signing.PrivateKey()
+    signer = SafariBridgeSigner(privateKey: key)
+    verifier = SafariBridgeVerifier(publicKey: key.publicKey)
+    publicKey = key.publicKey.rawRepresentation.base64EncodedString()
+  }
+}
+
+/// Put a store into the state a connected profile is in: the extension has a
+/// signing key and the app has pinned the matching public key.
+private func provisionSafariBridge(
+  _ store: SafariBridgeSecretStore,
+  profileID: String = "personal"
+) async throws -> SafariBridgeSigner {
+  let key = try await store.signingKey(profileID: profileID)
+  try await store.pin(
+    publicKey: key.publicKey.rawRepresentation.base64EncodedString(), profileID: profileID)
+  return SafariBridgeSigner(privateKey: key)
+}
+
 @Test
 func safariBridgeAuthenticatorRoundTripsAndRejectsTampering() throws {
-  let authenticator = try SafariBridgeAuthenticator(sharedSecret: "test-secret")
+  let pair = SafariBridgePair()
   let tab = makeSafariTab()
   let now = Date(timeIntervalSince1970: 1_000)
-  let envelope = try authenticator.makeEnvelope(
+  let envelope = try pair.signer.makeEnvelope(
     tab: tab,
     extensionID: "com.aura.safari-extension",
     profileID: "personal",
@@ -368,7 +396,7 @@ func safariBridgeAuthenticatorRoundTripsAndRejectsTampering() throws {
     issuedAt: now,
     lifetimeSeconds: 30)
 
-  try authenticator.validate(
+  try pair.verifier.validate(
     envelope,
     expectedExtensionID: "com.aura.safari-extension",
     expectedProfileID: "personal",
@@ -376,7 +404,7 @@ func safariBridgeAuthenticatorRoundTripsAndRejectsTampering() throws {
 
   // Wrong extension identity.
   #expect(throws: AuraError.self) {
-    try authenticator.validate(
+    try pair.verifier.validate(
       envelope,
       expectedExtensionID: "com.attacker.extension",
       expectedProfileID: "personal",
@@ -384,7 +412,7 @@ func safariBridgeAuthenticatorRoundTripsAndRejectsTampering() throws {
   }
   // Wrong profile identity.
   #expect(throws: AuraError.self) {
-    try authenticator.validate(
+    try pair.verifier.validate(
       envelope,
       expectedExtensionID: "com.aura.safari-extension",
       expectedProfileID: "work",
@@ -392,7 +420,7 @@ func safariBridgeAuthenticatorRoundTripsAndRejectsTampering() throws {
   }
   // Expired envelope.
   #expect(throws: AuraError.self) {
-    try authenticator.validate(
+    try pair.verifier.validate(
       envelope,
       expectedExtensionID: "com.aura.safari-extension",
       expectedProfileID: "personal",
@@ -400,7 +428,7 @@ func safariBridgeAuthenticatorRoundTripsAndRejectsTampering() throws {
   }
   // Issued in the future beyond clock skew.
   #expect(throws: AuraError.self) {
-    try authenticator.validate(
+    try pair.verifier.validate(
       envelope,
       expectedExtensionID: "com.aura.safari-extension",
       expectedProfileID: "personal",
@@ -409,9 +437,9 @@ func safariBridgeAuthenticatorRoundTripsAndRejectsTampering() throws {
   // Tampered authentication tag.
   let tampered = SafariBridgeEnvelope(
     payload: envelope.payload,
-    authenticationTag: "AAAA")
+    signature: "AAAA")
   #expect(throws: AuraError.self) {
-    try authenticator.validate(
+    try pair.verifier.validate(
       tampered,
       expectedExtensionID: "com.aura.safari-extension",
       expectedProfileID: "personal",
@@ -421,12 +449,17 @@ func safariBridgeAuthenticatorRoundTripsAndRejectsTampering() throws {
 
 @Test
 func safariBridgeAuthenticatorRejectsEmptySecretAndNonce() {
+  // There is no shared secret to be empty any more; the equivalent failure is
+  // a pinned key that is not a usable P-256 public key.
   #expect(throws: AuraError.self) {
-    _ = try SafariBridgeAuthenticator(sharedSecret: "")
+    _ = try SafariBridgeVerifier(pinnedPublicKey: "")
   }
-  let authenticator = try! SafariBridgeAuthenticator(sharedSecret: "test-secret")
   #expect(throws: AuraError.self) {
-    _ = try authenticator.makeEnvelope(
+    _ = try SafariBridgeVerifier(pinnedPublicKey: "bm90LWEta2V5")
+  }
+  let pair = SafariBridgePair()
+  #expect(throws: AuraError.self) {
+    _ = try pair.signer.makeEnvelope(
       tab: makeSafariTab(),
       extensionID: "com.aura.safari-extension",
       profileID: "personal",
@@ -438,27 +471,30 @@ func safariBridgeAuthenticatorRejectsEmptySecretAndNonce() {
 @Test
 func safariBridgeSecretStoreProvisionsRetrievesAndRevokes() async throws {
   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
-  let secret = try await secretStore.provision(profileID: "personal")
-  #expect(!secret.isEmpty)
-  #expect(try await secretStore.sharedSecret(profileID: "personal") == secret)
-  // The secret value never appears in the key.
-  #expect(secret.contains("personal") == false)
+  let signer = try await provisionSafariBridge(secretStore)
+  let pinned = try await secretStore.pinnedPublicKey(profileID: "personal")
+  #expect(pinned?.isEmpty == false)
+  #expect(
+    pinned
+      == signer.publishedKey(extensionID: "com.aura.safari-extension", profileID: "personal")
+      .publicKey)
 
+  // Revocation clears the app's pin. The extension keeps its own signing key,
+  // which is the point: an unpinned signature is as untrusted as none.
   try await secretStore.revoke(profileID: "personal")
-  #expect(try await secretStore.sharedSecret(profileID: "personal") == nil)
+  #expect(try await secretStore.pinnedPublicKey(profileID: "personal") == nil)
+  #expect(try await secretStore.signingKey(profileID: "personal").rawRepresentation.isEmpty == false)
 }
 
 @Test
 func safariBridgeTransportReadsAuthenticatedObservation() async throws {
   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
-  let provisionedSecret = try await secretStore.provision(profileID: "personal")
-  let container = FileManager.default.temporaryDirectory
-    .appendingPathComponent("aura-safari-\(UUID().uuidString).json")
-  defer { try? FileManager.default.removeItem(at: container) }
+  let signer = try await provisionSafariBridge(secretStore)
+  let container = makeSafariContainerURL()
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
 
-  let authenticator = try SafariBridgeAuthenticator(sharedSecret: provisionedSecret)
   let now = Date()
-  let envelope = try authenticator.makeEnvelope(
+  let envelope = try signer.makeEnvelope(
     tab: makeSafariTab(),
     extensionID: "com.aura.safari-extension",
     profileID: "personal",
@@ -477,12 +513,11 @@ func safariBridgeTransportReadsAuthenticatedObservation() async throws {
 @Test
 func safariBridgeTransportFailsClosedOnUnavailableStaleMismatchAndRevocation() async throws {
   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
-  _ = try await secretStore.provision(profileID: "personal")
-  let container = FileManager.default.temporaryDirectory
-    .appendingPathComponent("aura-safari-\(UUID().uuidString).json")
-  defer { try? FileManager.default.removeItem(at: container) }
+  let signer = try await provisionSafariBridge(secretStore)
+  let container = makeSafariContainerURL()
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
 
-  let authenticator = try SafariBridgeAuthenticator(sharedSecret: "test-secret")
+  let pair = SafariBridgePair()
   let now = Date()
 
   // Unavailable: no envelope file exists.
@@ -492,7 +527,7 @@ func safariBridgeTransportFailsClosedOnUnavailableStaleMismatchAndRevocation() a
   }
 
   // Stale: envelope written before the freshness window.
-  let staleEnvelope = try authenticator.makeEnvelope(
+  let staleEnvelope = try pair.signer.makeEnvelope(
     tab: makeSafariTab(),
     extensionID: "com.aura.safari-extension",
     profileID: "personal",
@@ -523,16 +558,15 @@ func safariBridgeTransportFailsClosedOnUnavailableStaleMismatchAndRevocation() a
 @Test
 func safariBridgeTransportRejectsIdentityMismatchAndTamperedEnvelope() async throws {
   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
-  _ = try await secretStore.provision(profileID: "personal")
-  let container = FileManager.default.temporaryDirectory
-    .appendingPathComponent("aura-safari-\(UUID().uuidString).json")
-  defer { try? FileManager.default.removeItem(at: container) }
+  let signer = try await provisionSafariBridge(secretStore)
+  let container = makeSafariContainerURL()
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
 
-  let authenticator = try SafariBridgeAuthenticator(sharedSecret: "test-secret")
+  let pair = SafariBridgePair()
   let now = Date()
 
   // Identity mismatch: envelope signed for a different extension.
-  let wrongIdentity = try authenticator.makeEnvelope(
+  let wrongIdentity = try pair.signer.makeEnvelope(
     tab: makeSafariTab(),
     extensionID: "com.attacker.extension",
     profileID: "personal",
@@ -546,14 +580,14 @@ func safariBridgeTransportRejectsIdentityMismatchAndTamperedEnvelope() async thr
   }
 
   // Tampered envelope: valid structure, wrong authentication tag.
-  let valid = try authenticator.makeEnvelope(
+  let valid = try pair.signer.makeEnvelope(
     tab: makeSafariTab(),
     extensionID: "com.aura.safari-extension",
     profileID: "personal",
     nonce: "nonce-2",
     issuedAt: now,
     lifetimeSeconds: 30)
-  let tampered = SafariBridgeEnvelope(payload: valid.payload, authenticationTag: "AAAA")
+  let tampered = SafariBridgeEnvelope(payload: valid.payload, signature: "AAAA")
   try writeSafariEnvelope(tampered, to: container)
   let tamperTransport = makeSafariTransport(containerURL: container, secretStore: secretStore, now: { now })
   await #expect(throws: SafariBridgeTransportError.self) {
@@ -581,9 +615,16 @@ func safariBridgeAdapterRejectsInjectionContentAndEnforcesDomainScope() async th
 
 // MARK: - SP-009 correction: the producing half of the bridge
 
+/// One directory per test, not one file.
+///
+/// The writer publishes its verifying key *beside* the envelope, so tests that
+/// only randomised the file name shared a single `extension-key.json` in the
+/// temporary directory and overwrote each other's.
 private func makeSafariContainerURL() -> URL {
-  FileManager.default.temporaryDirectory
-    .appendingPathComponent("aura-safari-\(UUID().uuidString).json")
+  let directory = FileManager.default.temporaryDirectory
+    .appendingPathComponent("aura-safari-\(UUID().uuidString)", isDirectory: true)
+  try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+  return directory.appendingPathComponent("observation.json")
 }
 
 private func makeSafariWriter(
@@ -605,9 +646,9 @@ private func makeSafariWriter(
 @Test
 func safariBridgeEnvelopeWriterSignsObservationTheTransportAccepts() async throws {
   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
-  _ = try await secretStore.provision(profileID: "personal")
+  _ = try await provisionSafariBridge(secretStore)
   let container = makeSafariContainerURL()
-  defer { try? FileManager.default.removeItem(at: container) }
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
 
   let writer = makeSafariWriter(containerURL: container, secretStore: secretStore)
   let written = try await writer.write(tab: makeSafariTab())
@@ -622,9 +663,9 @@ func safariBridgeEnvelopeWriterSignsObservationTheTransportAccepts() async throw
 @Test
 func safariBridgeEnvelopeWriterFailsClosedOnMismatchOversizeAndRevocation() async throws {
   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
-  _ = try await secretStore.provision(profileID: "personal")
+  _ = try await provisionSafariBridge(secretStore)
   let container = makeSafariContainerURL()
-  defer { try? FileManager.default.removeItem(at: container) }
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
   let writer = makeSafariWriter(containerURL: container, secretStore: secretStore)
 
   // An observation from another profile is never signed.
@@ -639,12 +680,101 @@ func safariBridgeEnvelopeWriterFailsClosedOnMismatchOversizeAndRevocation() asyn
     _ = try await writer.write(tab: makeSafariTab(visibleText: oversize))
   }
 
-  // After revocation the producing half stops signing too, not just the
-  // consuming half.
+  // Revocation now clears the app's pin rather than the extension's key, so
+  // the producing half keeps signing — and the consuming half refuses. That is
+  // the right place for the authority to live: the user revokes trust in AURA,
+  // and cannot be expected to reach into the extension's own keychain.
   try await secretStore.revoke(profileID: "personal")
+  _ = try await writer.write(tab: makeSafariTab())
+  let revokedTransport = makeSafariTransport(containerURL: container, secretStore: secretStore)
   await #expect(throws: SafariBridgeTransportError.notProvisioned) {
-    _ = try await writer.write(tab: makeSafariTab())
+    _ = try await revokedTransport.readActiveTab(profileID: "personal")
   }
+}
+
+/// The writer stamps a 30-second envelope, so the reader must accept the file
+/// for that long. Bounding the file to the clock-skew value instead made the
+/// observation unreadable five seconds after the user clicked, which no real
+/// "click the button, then ask AURA" flow can beat.
+@Test
+func safariBridgeTransportAcceptsAnObservationForItsFullLifetime() async throws {
+  let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
+  let signer = try await provisionSafariBridge(secretStore)
+  let container = makeSafariContainerURL()
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
+
+  let written = Date()
+  try writeSafariEnvelope(
+    try signer.makeEnvelope(
+      tab: makeSafariTab(),
+      extensionID: "com.aura.safari-extension",
+      profileID: "personal",
+      nonce: "nonce-1",
+      issuedAt: written,
+      lifetimeSeconds: 30),
+    to: container)
+
+  // Twenty seconds later — well past the old five-second bound — the same
+  // observation is still readable.
+  let readable = makeSafariTransport(
+    containerURL: container, secretStore: secretStore, now: { written.addingTimeInterval(20) })
+  #expect(try await readable.readActiveTab(profileID: "personal").tabID == "tab-1")
+
+  // Past the envelope's own expiry it is refused again.
+  let expired = makeSafariTransport(
+    containerURL: container, secretStore: secretStore, now: { written.addingTimeInterval(120) })
+  await #expect(throws: SafariBridgeTransportError.stale) {
+    _ = try await expired.readActiveTab(profileID: "personal")
+  }
+}
+
+/// The pin is what binds the app to one extension identity. A different key —
+/// a second extension, or a replaced one — must not be accepted silently.
+@Test
+func safariBridgeTransportRefusesAnEnvelopeFromAnUnpinnedKey() async throws {
+  let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
+  _ = try await provisionSafariBridge(secretStore)
+  let container = makeSafariContainerURL()
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
+
+  // An impostor signs a well-formed envelope with its own key.
+  let impostor = SafariBridgePair()
+  try writeSafariEnvelope(
+    try impostor.signer.makeEnvelope(
+      tab: makeSafariTab(),
+      extensionID: "com.aura.safari-extension",
+      profileID: "personal",
+      nonce: "nonce-1",
+      issuedAt: Date()),
+    to: container)
+
+  let transport = makeSafariTransport(containerURL: container, secretStore: secretStore)
+  await #expect(throws: SafariBridgeTransportError.authenticationFailed) {
+    _ = try await transport.readActiveTab(profileID: "personal")
+  }
+}
+
+/// The writer publishes the key the app has to pin. Without it, connecting is
+/// impossible and the bridge can never leave `notProvisioned`.
+@Test
+func safariBridgeEnvelopeWriterPublishesItsVerifyingKey() async throws {
+  let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
+  let container = makeSafariContainerURL()
+  let keyURL = SafariBridgeEnvelopeWriter.verifyingKeyURL(besideEnvelopeAt: container)
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
+
+  let writer = makeSafariWriter(containerURL: container, secretStore: secretStore)
+  _ = try await writer.write(tab: makeSafariTab())
+
+  let published = try JSONDecoder().decode(
+    SafariBridgeExtensionKey.self, from: try Data(contentsOf: keyURL))
+  #expect(published.extensionID == "com.aura.safari-extension")
+  #expect(published.profileID == "personal")
+  // The published value must be a usable verifying key, and it must be the
+  // public half — never the private one.
+  let signingKey = try await secretStore.signingKey(profileID: "personal")
+  #expect(published.publicKey == signingKey.publicKey.rawRepresentation.base64EncodedString())
+  #expect(published.publicKey != signingKey.rawRepresentation.base64EncodedString())
 }
 
 /// End-to-end over the real wire format: the exact JSON `background.js` sends
@@ -652,9 +782,9 @@ func safariBridgeEnvelopeWriterFailsClosedOnMismatchOversizeAndRevocation() asyn
 @Test
 func safariBridgeNativeMessageCompletesTheExtensionToAdapterPath() async throws {
   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
-  _ = try await secretStore.provision(profileID: "personal")
+  _ = try await provisionSafariBridge(secretStore)
   let container = makeSafariContainerURL()
-  defer { try? FileManager.default.removeItem(at: container) }
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
 
   let handler = SafariBridgeNativeMessageHandler(
     expectedExtensionID: "com.aura.safari-extension",
@@ -697,9 +827,9 @@ func safariBridgeNativeMessageCompletesTheExtensionToAdapterPath() async throws 
 @Test
 func safariBridgeNativeMessageHandlerRejectsUntrustedMessages() async throws {
   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
-  _ = try await secretStore.provision(profileID: "personal")
+  _ = try await provisionSafariBridge(secretStore)
   let container = makeSafariContainerURL()
-  defer { try? FileManager.default.removeItem(at: container) }
+  defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
   let handler = SafariBridgeNativeMessageHandler(
     expectedExtensionID: "com.aura.safari-extension",
     expectedProfileID: "personal",
@@ -761,9 +891,9 @@ func safariBridgeNativeMessageHandlerRejectsUntrustedMessages() async throws {
 /// truncated, and non-base64 tags rather than crashing or accepting them.
 @Test
 func safariBridgeAuthenticatorRejectsMalformedTags() throws {
-  let authenticator = try SafariBridgeAuthenticator(sharedSecret: "test-secret")
+  let pair = SafariBridgePair()
   let now = Date(timeIntervalSince1970: 1_000)
-  let envelope = try authenticator.makeEnvelope(
+  let envelope = try pair.signer.makeEnvelope(
     tab: makeSafariTab(),
     extensionID: "com.aura.safari-extension",
     profileID: "personal",
@@ -771,10 +901,10 @@ func safariBridgeAuthenticatorRejectsMalformedTags() throws {
     issuedAt: now,
     lifetimeSeconds: 30)
 
-  for badTag in ["", "!!!not-base64!!!", String(envelope.authenticationTag.dropLast(4))] {
+  for badTag in ["", "!!!not-base64!!!", String(envelope.signature.dropLast(4))] {
     #expect(throws: AuraError.self) {
-      try authenticator.validate(
-        SafariBridgeEnvelope(payload: envelope.payload, authenticationTag: badTag),
+      try pair.verifier.validate(
+        SafariBridgeEnvelope(payload: envelope.payload, signature: badTag),
         expectedExtensionID: "com.aura.safari-extension",
         expectedProfileID: "personal",
         now: now.addingTimeInterval(10))

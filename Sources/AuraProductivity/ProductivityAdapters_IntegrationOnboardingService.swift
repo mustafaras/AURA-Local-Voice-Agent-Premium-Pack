@@ -150,21 +150,30 @@ public actor IntegrationOnboardingService {
 
   // MARK: - Browser profiles
 
-  /// Enroll one explicitly authorized Safari profile by provisioning its
-  /// shared bridge secret. The secret is returned exactly once, for the
-  /// operator to hand to the extension; it is never returned again and never
-  /// enters an event, a log, or a record.
+  /// Enroll one explicitly authorized Safari profile by pinning the key its
+  /// extension published.
+  ///
+  /// Pinning is trust-on-first-use, and the "first use" is deliberately the
+  /// user's click rather than the extension's first appearance: whatever key
+  /// is published at that moment becomes the only one this profile will ever
+  /// accept, and a later key is rejected as an impersonation until the user
+  /// disconnects and reconnects. Nothing is returned — there is no secret for
+  /// a caller to handle.
   public func enrollBrowserProfile(
-    _ authorization: BrowserProfileAuthorization
-  ) async throws(ProductivityError) -> String {
+    _ authorization: BrowserProfileAuthorization,
+    publishedKey: SafariBridgeExtensionKey
+  ) async throws(ProductivityError) {
     try requireAuthority(authorization.source)
     let profileID = try approvedProfiles.resolve(requestedID: authorization.profileID)
     guard let browserSecretStore else {
       throw .notConfigured
     }
-    let secret = try await browserSecretStore.provision(profileID: profileID)
+    // A key published for another profile must not be pinned to this one.
+    guard publishedKey.profileID == profileID else {
+      throw .profileAmbiguous(candidates: [profileID, publishedKey.profileID].sorted())
+    }
+    try await browserSecretStore.pin(publicKey: publishedKey.publicKey, profileID: profileID)
     enrolledProfiles.insert(profileID)
-    return secret
   }
 
   public func revokeBrowserProfile(profileID: String) async throws(ProductivityError) {
@@ -179,14 +188,16 @@ public actor IntegrationOnboardingService {
       return .unavailable(reason: "profile is not approved")
     }
     do {
-      guard let secret = try await browserSecretStore.sharedSecret(profileID: profileID),
-        !secret.isEmpty
+      guard let pinned = try await browserSecretStore.pinnedPublicKey(profileID: profileID),
+        !pinned.isEmpty
       else {
         return .notProvisioned
       }
       return .connected(fingerprint: ProductivityRedaction.fingerprint(profileID))
-    } catch {
+    } catch let error as ProductivityError {
       return .unavailable(reason: ProductivityRedaction.diagnostic(for: error))
+    } catch {
+      return .unavailable(reason: "the bridge key store is unavailable")
     }
   }
 

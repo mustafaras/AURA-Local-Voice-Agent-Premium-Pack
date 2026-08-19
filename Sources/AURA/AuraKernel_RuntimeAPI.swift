@@ -102,6 +102,15 @@ extension AuraKernel {
     guard started, let conversation else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
     }
+    // Re-derive the productivity capabilities before the turn is routed.
+    //
+    // Their readiness is time-bounded: the Safari bridge is usable only while
+    // the user's last page observation is fresh. A registry refreshed on
+    // onboarding actions alone was therefore stale by the time any real
+    // request arrived — the user clicked the extension button, asked AURA to
+    // read the page, and the router refused with "no tool registered" against
+    // a bridge that was working.
+    await refreshProductivityAvailability()
     let context = TurnContext(
       sessionID: sessionID,
       activationSource: .text,

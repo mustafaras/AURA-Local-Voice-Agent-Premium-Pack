@@ -423,7 +423,7 @@ let package = Package(
                 "AuraConfig",
                 "AuraSecurity",
                 "AuraProductivity"
-            ],
+            , "AuraSafariExtensionHandler"],
             swiftSettings: testingSwiftSettings
         )
     ]

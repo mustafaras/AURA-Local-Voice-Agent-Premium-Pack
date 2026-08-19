@@ -102,6 +102,13 @@ extension AuraAppModel {
       guard let self else { return }
       await refreshRuntimeHealth()
       guard let kernel else { return }
+      // Re-derive the productivity capabilities' availability before reading
+      // any of it back. The Safari bridge's readiness expires with its last
+      // observation, so a registry refreshed only by onboarding actions went
+      // stale between them: a freshly clicked page left `browser.read`
+      // unregistered, and the router refused the turn with "no tool
+      // registered" while the health surface showed the bridge as usable.
+      await kernel.refreshProductivityAvailability()
       do {
         taskStatuses = try await kernel.taskStatuses()
         let capabilitySnapshot = try await kernel.capabilityHealthSnapshot()

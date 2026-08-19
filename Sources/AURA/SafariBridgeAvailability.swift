@@ -15,15 +15,15 @@ public enum SafariBridgeAvailability {
     profileID: String,
     secretStore: SafariBridgeSecretStore
   ) async -> CapabilityAvailability {
-    // A missing shared secret means the profile was never onboarded or was
+    // A missing pinned key means the profile was never connected or was
     // revoked — the bridge is not authenticated.
-    let secret: String?
+    let pinned: String?
     do {
-      secret = try await secretStore.sharedSecret(profileID: profileID)
+      pinned = try await secretStore.pinnedPublicKey(profileID: profileID)
     } catch {
-      return .degraded(reason: "Safari bridge secret store is unavailable")
+      return .degraded(reason: "Safari bridge key store is unavailable")
     }
-    guard let secret, !secret.isEmpty else {
+    guard let pinned, !pinned.isEmpty else {
       return .disabled(reason: "Safari bridge is not provisioned for this profile")
     }
 

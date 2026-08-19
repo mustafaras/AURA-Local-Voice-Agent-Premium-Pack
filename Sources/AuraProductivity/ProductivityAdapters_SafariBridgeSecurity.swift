@@ -37,34 +37,93 @@ public struct SafariBridgeSignedPayload: Codable, Sendable, Equatable {
 }
 
 /// The authenticated envelope the extension produces and the app validates.
-/// The authentication tag is an HMAC over the canonical JSON of the payload;
-/// the shared secret is never included in the payload, logs, or diagnostics.
+/// The signature is an ECDSA P-256 signature over the canonical JSON of the
+/// payload. Only the extension can produce it, and the app needs nothing
+/// secret to check it.
 public struct SafariBridgeEnvelope: Codable, Sendable, Equatable {
   public let payload: SafariBridgeSignedPayload
-  public let authenticationTag: String
+  public let signature: String
 
-  public init(payload: SafariBridgeSignedPayload, authenticationTag: String) {
+  public init(payload: SafariBridgeSignedPayload, signature: String) {
     self.payload = payload
-    self.authenticationTag = authenticationTag
+    self.signature = signature
   }
 }
 
-/// HMAC authenticator for the Safari native-messaging bridge. The shared
-/// secret is provisioned into the Keychain-backed secret store and supplied to
-/// the extension at onboarding; it is never embedded in source, fixtures, or
-/// ledgers.
-public struct SafariBridgeAuthenticator: Sendable {
-  private let key: SymmetricKey
+/// The extension's published verifying key.
+///
+/// The extension writes this beside the envelope. It is deliberately public
+/// data: it authenticates the extension to the app and reveals nothing, which
+/// is the whole reason the bridge no longer needs a shared secret.
+public struct SafariBridgeExtensionKey: Codable, Sendable, Equatable {
+  public let protocolVersion: Int
+  public let extensionID: String
+  public let profileID: String
+  /// Base64 of the P-256 public key's raw (x||y) representation.
+  public let publicKey: String
 
-  public init(sharedSecret: String) throws(AuraError) {
-    guard !sharedSecret.isEmpty else {
-      throw AuraError.securityError("Safari bridge shared secret must not be empty")
+  public init(
+    protocolVersion: Int = SafariBridgeSignedPayload.currentProtocolVersion,
+    extensionID: String,
+    profileID: String,
+    publicKey: String
+  ) {
+    self.protocolVersion = protocolVersion
+    self.extensionID = extensionID
+    self.profileID = profileID
+    self.publicKey = publicKey
+  }
+}
+
+/// Canonical JSON for a payload. Sorted keys and ISO-8601 dates keep the
+/// signing input byte-identical on both sides of the bridge.
+enum SafariBridgeCanonicalEncoding {
+  static func data(for payload: SafariBridgeSignedPayload) throws(AuraError) -> Data {
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .iso8601
+    encoder.outputFormatting = [.sortedKeys]
+    do {
+      return try encoder.encode(payload)
+    } catch {
+      throw AuraError.serializationError(
+        "could not encode Safari bridge payload: " + error.localizedDescription)
     }
-    self.key = SymmetricKey(data: Data(sharedSecret.utf8))
+  }
+}
+
+/// The extension's signing half.
+///
+/// SP-009 authenticated the bridge with an HMAC over a secret both halves
+/// held. SP-011 found that unbuildable on a locally signed Mac: Safari refuses
+/// a web extension that is not App Sandbox confined, a sandboxed process's
+/// keychain queries are routed to the data-protection keychain while the
+/// unsandboxed containing app uses the file-based login keychain, and sharing
+/// an item across that boundary needs `keychain-access-groups` — a restricted
+/// entitlement that requires a provisioning profile.
+///
+/// Signing asymmetrically removes the requirement rather than working around
+/// it. The private key never leaves the extension's own keychain, so there is
+/// no secret to share, publish, or leak; the app holds only a public key it
+/// pinned when the user connected the profile.
+public struct SafariBridgeSigner: Sendable {
+  private let privateKey: P256.Signing.PrivateKey
+
+  public init(privateKey: P256.Signing.PrivateKey) {
+    self.privateKey = privateKey
   }
 
-  /// Produce an authenticated envelope for a tab observation. Used by the
-  /// extension side (or by tests) to sign a payload.
+  /// The published form of this signer's verifying key.
+  public func publishedKey(
+    extensionID: String,
+    profileID: String
+  ) -> SafariBridgeExtensionKey {
+    SafariBridgeExtensionKey(
+      extensionID: extensionID,
+      profileID: profileID,
+      publicKey: privateKey.publicKey.rawRepresentation.base64EncodedString())
+  }
+
+  /// Produce a signed envelope for one tab observation.
   public func makeEnvelope(
     tab: SafariWebExtensionTabResponse,
     extensionID: String,
@@ -88,14 +147,39 @@ public struct SafariBridgeAuthenticator: Sendable {
       expiresAt: issuedAt.addingTimeInterval(lifetimeSeconds),
       tab: tab
     )
+    let canonical = try SafariBridgeCanonicalEncoding.data(for: payload)
+    let signature: P256.Signing.ECDSASignature
+    do {
+      signature = try privateKey.signature(for: canonical)
+    } catch {
+      throw AuraError.securityError("Safari bridge payload could not be signed")
+    }
     return SafariBridgeEnvelope(
       payload: payload,
-      authenticationTag: try tag(for: payload)
-    )
+      signature: signature.derRepresentation.base64EncodedString())
+  }
+}
+
+/// The app's verifying half. It holds only the public key the user pinned.
+public struct SafariBridgeVerifier: Sendable {
+  private let publicKey: P256.Signing.PublicKey
+
+  public init(publicKey: P256.Signing.PublicKey) {
+    self.publicKey = publicKey
+  }
+
+  /// Build a verifier from a pinned key's base64 raw representation.
+  public init(pinnedPublicKey: String) throws(AuraError) {
+    guard let raw = Data(base64Encoded: pinnedPublicKey),
+      let key = try? P256.Signing.PublicKey(rawRepresentation: raw)
+    else {
+      throw AuraError.securityError("pinned Safari bridge key is not a P-256 public key")
+    }
+    self.publicKey = key
   }
 
   /// Validate an envelope received from the extension. Fails closed on any
-  /// version, identity, nonce, freshness, or authentication mismatch.
+  /// version, identity, nonce, freshness, or signature mismatch.
   public func validate(
     _ envelope: SafariBridgeEnvelope,
     expectedExtensionID: String?,
@@ -129,44 +213,14 @@ public struct SafariBridgeAuthenticator: Sendable {
     guard payload.expiresAt > now else {
       throw AuraError.securityError("Safari bridge envelope is expired")
     }
-    guard try isValidTag(envelope.authenticationTag, for: payload) else {
+    // ECDSA verification is inherently constant-time with respect to the
+    // signature bytes, so there is no tag-comparison timing leak to guard.
+    guard let provided = Data(base64Encoded: envelope.signature),
+      let parsed = try? P256.Signing.ECDSASignature(derRepresentation: provided),
+      publicKey.isValidSignature(
+        parsed, for: try SafariBridgeCanonicalEncoding.data(for: payload))
+    else {
       throw AuraError.securityError("Safari bridge authentication failed")
     }
-  }
-
-  /// Canonical JSON for the payload. Sorted keys and ISO-8601 dates keep the
-  /// signing input byte-identical on both sides of the bridge.
-  private func canonicalData(for payload: SafariBridgeSignedPayload) throws(AuraError) -> Data {
-    let encoder = JSONEncoder()
-    encoder.dateEncodingStrategy = .iso8601
-    encoder.outputFormatting = [.sortedKeys]
-    do {
-      return try encoder.encode(payload)
-    } catch {
-      throw AuraError.serializationError(
-        "could not encode Safari bridge payload: " + error.localizedDescription)
-    }
-  }
-
-  private func tag(for payload: SafariBridgeSignedPayload) throws(AuraError) -> String {
-    let digest = HMAC<SHA256>.authenticationCode(for: try canonicalData(for: payload), using: key)
-    return Data(digest).base64EncodedString()
-  }
-
-  /// Constant-time tag verification. Comparing authentication tags with `==`
-  /// short-circuits on the first differing byte and leaks how much of a forged
-  /// tag was correct, so verification goes through CryptoKit's constant-time
-  /// check instead.
-  private func isValidTag(
-    _ tag: String,
-    for payload: SafariBridgeSignedPayload
-  ) throws(AuraError) -> Bool {
-    guard let provided = Data(base64Encoded: tag) else {
-      return false
-    }
-    return HMAC<SHA256>.isValidAuthenticationCode(
-      provided,
-      authenticating: try canonicalData(for: payload),
-      using: key)
   }
 }

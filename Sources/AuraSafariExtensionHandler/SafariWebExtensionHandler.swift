@@ -50,7 +50,7 @@ public final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandli
 
     let configuration = SafariExtensionConfiguration(
       infoDictionary: Bundle.main.infoDictionary ?? [:],
-      homeDirectory: URL(fileURLWithPath: NSHomeDirectory()))
+      homeDirectory: SafariExtensionConfiguration.realHomeDirectory())
 
     // `NSExtensionContext` is not `Sendable` and the protocol requirement is
     // not actor-isolated, so the context has to be carried into the task by
