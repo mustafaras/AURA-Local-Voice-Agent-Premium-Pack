@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-19T17:20:00Z",
+  "updated_at": "2026-08-20T07:30:00Z",
   "repository_commit": "8ec3e6fdf56d087d3865c82bb00841f5eea83cff",
   "capabilities": [
     {
@@ -497,7 +497,7 @@
         "intent.capability_registry"
       ],
       "open_gaps": [
-        "Agenda read passed live against a known fixture after a real EventKit prompt. Free-window computation, event draft, and every write/mutation flow remain unimplemented and out of the read-first scope."
+        "Agenda and free-window reads both passed live under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13: the agenda returned a disposable fixture event and the free-window read returned '2 free window(s)' bounded by it, carrying no title, location or attendee. Both ran under AURA's own EventKit authorization, granted through the product's own control after the app was launched by LaunchServices; the earlier terminal-exec launch path had made macOS attribute AURA's TCC requests to the terminal's application. Event draft and every write/mutation flow remain unimplemented and explicitly excluded as mutation class."
       ],
       "evidence_ids": [
         "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
@@ -529,7 +529,7 @@
         "mail.read_draft_send"
       ],
       "open_gaps": [
-        "Authorization passed live and the capability reports ready. No non-empty lookup was recorded, deliberately, because only the user's own address book exists on this machine; candidate scoping and tie clarification remain covered by deterministic tests only (RISK-SP-011-CONTACTS-NON-EMPTY-READ)."
+        "A non-empty lookup passed live under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13 against one disposable fixture contact, reporting channels as counts rather than values, and under AURA's own Contacts authorization. The earlier non-empty read recorded by EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12 ran on the terminal-exec launch path, so it exercised the terminal's grant and was re-run rather than relied on. Candidate scoping and tie clarification against a large real address book remain unexercised."
       ],
       "evidence_ids": [
         "EV-R5-20260808-READ-FIRST-ADAPTERS-01",

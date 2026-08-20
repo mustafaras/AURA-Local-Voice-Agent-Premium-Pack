@@ -886,6 +886,37 @@ because this attempt destroyed the calendar authorization by running
 `tccutil reset Calendar` against a working grant
 (`RISK-SP-011-CALENDAR-GRANT-DESTROYED`). SP-012 is not safe to start.
 
+**SP-011 (2026-08-20, sixth attempt) — the last leg passes live; SP-011 is
+complete** under `EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`. The
+previous record's root cause was wrong. The machine was restarted, which that
+record named as the remedy, and the calendar row still read denied; a second
+`tccutil reset Calendar ai.aura.local.agent` reported success and changed
+nothing. The mechanism is **TCC responsible-process attribution**:
+`scripts/sp011-acceptance/launch-aura.sh` exec'd the bundle's binary from the
+shell so the app would inherit the acceptance environment, and a terminal-exec'd
+binary is not responsible for its own TCC requests — its ancestor is. System
+Settings listed only *Visual Studio Code* under Calendars (No Access) and
+Contacts (on), with AURA absent from both: the app was truthfully reporting the
+terminal's decisions, and `tccutil` had no AURA decision to reset. Relaunching
+the identical bundle through LaunchServices (`open --env`, PPID 1) moved Read
+Calendar and Find Contact to `notDetermined` and Microphone/Screen observation
+from `Granted` to `Not requested`/`Denied`, before any permission was changed.
+The operator then granted calendar and contacts to **AURA itself**, and the
+matrix closed: agenda `1 event(s): AURA SP-011 acceptance fixture`, the owed
+**free-window non-empty read** `2 free window(s): 10:07–14:00, 15:00–00:00`
+bounded by the fixture and carrying no title, location or attendee, and the
+contacts non-empty read re-run under AURA's own grant because the earlier one
+had exercised the terminal's. Both fixtures were deleted and their absence
+re-read. The launcher now launches through LaunchServices and both it and
+`preflight.sh` assert `PPID == 1`. 21/21 bundles, **1071/1071 tests**, 0 failed.
+`RISK-SP-011-CALENDAR-GRANT-DESTROYED` is **closed and corrected**;
+`RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION` is opened and closed for the
+harness path with the class left standing. Draft-only mail and event draft
+remain explicitly excluded as mutation class, asserted by test. **SP-011 is
+`completed`; SP-012 is safe to start.** R5 itself stays `in_progress` for the
+items this prompt does not own: Developer ID signing and notarization, which
+would remove Safari's `Allow unsigned extensions` requirement, is owned by R11.
+
 ## OPEN-07 — R6: VS Code and Coding-Agent Completion
 
 Prompt: [`07_R6_VSCODE_AND_CODING_AGENTS.prompt.md`](archive/first-pass-prompts/2026-08-12/07_R6_VSCODE_AND_CODING_AGENTS.prompt.md)

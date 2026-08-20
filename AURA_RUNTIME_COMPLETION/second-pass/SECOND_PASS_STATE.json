@@ -3,10 +3,10 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-19T18:55:00Z",
-  "session_id": "AURA-SP-011-LIVE-BROWSER-AND-CONTACTS-20260819",
-  "active_prompt": "SP-011",
-  "active_state": "blocked",
+  "updated_at": "2026-08-20T07:30:00Z",
+  "session_id": "AURA-SP-011-CALENDAR-IDENTITY-AND-FREE-WINDOW-20260820",
+  "active_prompt": "SP-012",
+  "active_state": "pending",
   "completed_prompts": [
     "SP-000",
     "SP-001",
@@ -18,12 +18,12 @@
     "SP-007",
     "SP-008",
     "SP-009",
-    "SP-010"
-  ],
-  "blocked_prompts": [
+    "SP-010",
     "SP-011"
   ],
+  "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13",
     "EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12",
     "EV-SP-011-20260819-LAUNCH-AND-HARNESS-11",
     "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10",
@@ -100,5 +100,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-011 remains BLOCKED after EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12. Four legs passed live; only the free-window non-empty read is owed, and it is blocked by a calendar authorization this attempt destroyed. Restore it (a logout or restart is the normal remedy for a stuck TCC decision), then run one agenda and one free-window turn against a disposable fixture event. Do not start SP-012."
+  "next_action": "SP-011 is completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13. The owed free-window non-empty read passed live once AURA was launched through LaunchServices and held its own calendar grant; the previous 'destroyed grant' diagnosis was wrong and is corrected in the risk register. Run 15_SESSION_CLOSEOUT.prompt.md, then start SP-012."
 }

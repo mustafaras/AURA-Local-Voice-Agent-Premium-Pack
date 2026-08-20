@@ -4391,3 +4391,12 @@ Recorded under `EV-SP-011-20260818-OAUTH-RETRY-06` after the user's explicit ret
 - **Verification:** 21/21 bundles, **1070/1070 tests**, 0 failed.
 - **Residual:** the free-window non-empty read, blocked by a calendar authorization this attempt destroyed and could not restore.
 - **Acceptance / next prompt:** SP-011 remains `blocked`. SP-012 is not safe to start.
+
+### 2026-08-20T07:30:00Z — SP-011 completed; calendar blocker was launch-path identity, not a destroyed grant
+
+- **Evidence / class:** `EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`; direct user-present product/TCC/System-Settings evidence plus deterministic regression.
+- **Outcome:** the last owed leg, the **free-window non-empty read**, passed live — `2 free window(s): 10:07–14:00, 15:00–00:00`, bounded by a disposable fixture and carrying no title, location or attendee. The previous record's root cause was wrong: no grant had been destroyed. `launch-aura.sh` exec'd the app's binary from the shell, so macOS attributed AURA's TCC requests to the terminal's application — System Settings listed only *Visual Studio Code* under Calendars (No Access) and Contacts (on), with AURA absent from both. Relaunching the identical bundle through LaunchServices moved both rows to `notDetermined` before any permission changed; the operator then granted them to AURA itself. The contacts leg was re-run under AURA's own grant.
+- **Falsifier:** AURA appearing in a privacy pane while launched by a terminal exec; a free-window answer containing an event title, location or attendee; windows not bounded by the fixture's span; a read succeeding while authorization is `notDetermined` or `denied`; or either fixture outliving the run.
+- **Verification:** 21/21 bundles, **1071/1071 tests**, 0 failed; governance validators exit 0.
+- **Residual:** Safari's `Allow unsigned extensions` does not survive a Safari restart — Developer ID signing and notarization are owned by R11. Mutation/send stays explicitly excluded and asserted by test.
+- **Acceptance / next prompt:** SP-011 is **completed**. SP-012 is safe to start after `15_SESSION_CLOSEOUT.prompt.md`.

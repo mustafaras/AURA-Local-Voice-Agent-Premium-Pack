@@ -8,6 +8,44 @@
 
 ## Canonical status
 
+## Current second-pass overlay — 2026-08-20 (SP-011 COMPLETED; SP-012 next)
+
+`SP-012` / `pending` — `SP-011` is **completed** under
+`EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`, which supersedes
+every SP-011 overlay below. The one owed leg, the **free-window non-empty
+read**, passed live: *"2 free window(s): 10:07–14:00, 15:00–00:00"*, bounded by
+a disposable fixture event and carrying no title, location or attendee.
+
+The previous record's root cause was wrong, and correcting it is the substance
+of this attempt. `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12` held that
+`tccutil reset Calendar` had destroyed a working grant and that a logout or
+restart was the remedy. The machine was restarted and the row still read
+denied; a second reset reported success and changed nothing. The mechanism is
+**TCC responsible-process attribution**:
+`scripts/sp011-acceptance/launch-aura.sh` exec'd the bundle's binary from the
+shell so the app would inherit the acceptance profile, and a terminal-exec'd
+binary is not responsible for its own TCC requests — its ancestor is. System
+Settings listed only *Visual Studio Code* under Calendars (No Access) and
+Contacts (on), with AURA absent from both, so the product was truthfully
+reporting the terminal's decisions and `tccutil` had no AURA decision to reset.
+
+Relaunching the identical bundle through LaunchServices (`open --env`, PPID 1)
+moved Read Calendar and Find Contact to `notDetermined` and Microphone and
+Screen observation from `Granted` to `Not requested`/`Denied` — before any
+permission was changed. The operator then granted calendar and contacts to
+**AURA itself**, and the matrix closed: the agenda read returned the fixture,
+the free-window read returned the windows around it, and the contacts non-empty
+read was re-run under AURA's own grant because the earlier one had exercised
+the terminal's. Both fixtures were deleted and their absence re-read.
+
+`launch-aura.sh` now launches through LaunchServices and both it and
+`preflight.sh` assert `PPID == 1`. 21/21 bundles, **1071/1071 tests**, 0 failed.
+`RISK-SP-011-CALENDAR-GRANT-DESTROYED` is closed and corrected;
+`RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION` is closed for the harness path
+with the class left standing. Draft-only mail and event draft remain explicitly
+excluded as mutation class, asserted by test. R5/OPEN-06 itself stays open for
+items SP-011 does not own, chiefly Developer ID signing and notarization (R11).
+
 ## Current second-pass overlay — 2026-08-19 (SP-011 native legs live; Safari packaged; prompt BLOCKED)
 
 `SP-011` / `blocked` — `EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08`

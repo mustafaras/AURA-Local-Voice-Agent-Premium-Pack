@@ -48,6 +48,17 @@ if [[ -z "$aura_pid" ]]; then
     fail "AURA is not running" "launch it with the acceptance environment (see launch-aura.sh)"
 else
     pass "AURA is running (pid $aura_pid)"
+
+    # A terminal-exec'd AURA inherits that terminal's TCC decisions instead of
+    # owning its own, which reads as a truthful-but-wrong permission row rather
+    # than as an error. See the comment in launch-aura.sh.
+    if [[ "$(ps -o ppid= -p "$aura_pid" | tr -d ' ')" == "1" ]]; then
+        pass "AURA is its own responsible process"
+    else
+        fail "AURA was launched by this terminal, not by LaunchServices" \
+            "its calendar/contacts decisions belong to the terminal's app; relaunch with launch-aura.sh"
+    fi
+
     aura_env="$(ps -E -p "$aura_pid" 2>/dev/null | tr ' ' '\n' | grep '^AURA_SP011_' || true)"
     if [[ -z "$aura_env" ]]; then
         fail "AURA has no acceptance environment" \

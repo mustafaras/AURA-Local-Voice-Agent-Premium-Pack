@@ -1,18 +1,17 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-19T18:55:00Z",
-  "session_id": "AURA-SP-011-LIVE-BROWSER-AND-CONTACTS-20260819",
-  "last_verified_commit": "8ec3e6fdf56d087d3865c82bb00841f5eea83cff",
+  "updated_at": "2026-08-20T07:30:00Z",
+  "session_id": "AURA-SP-011-CALENDAR-IDENTITY-AND-FREE-WINDOW-20260820",
+  "last_verified_commit": "ff87ead11c6fc65bae79c51d1a830da703e52d20",
   "active_prompt": {
-    "id": "SP-011",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
-    "state": "blocked",
-    "step": "EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12: the approved page summary, browser injection-ignore, browser revocation, and contacts non-empty read all passed live. Fixed an observation lifetime that made the browser feature impossible and two Contacts calls that aborted the app. The free-window non-empty read is owed: this attempt destroyed the calendar authorization and could not restore it."
+    "id": "SP-012",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
+    "state": "pending",
+    "step": "SP-011 completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13: the owed free-window non-empty read passed live and the calendar blocker was traced to TCC responsible-process attribution in the acceptance harness, not a destroyed grant. SP-012 is next and unopened; run 15_SESSION_CLOSEOUT.prompt.md first."
   },
-  "summary": "SP-011 remains BLOCKED, with four legs newly passed live: the approved page summary (blocked since 2026-08-18), the browser injection-ignore leg, the browser revocation leg, and the contacts non-empty read. Three defects were found by running them: the Safari bridge's 30-second observation lifetime could not cover the ~13 s extension cold start plus one local-model turn, making the feature arithmetically impossible (now one shared 180-second constant); and two Contacts-framework calls aborted the whole application through Objective-C exceptions Swift cannot catch. 21/21 bundles, 1070/1070 tests. The free-window non-empty read is owed: this attempt destroyed the calendar authorization by running tccutil reset against a working grant and could not restore it — a logout or restart is the normal remedy and is the operator's call. SP-012 is not safe to start.",
+  "summary": "SP-011 is COMPLETED. The one owed leg, the free-window non-empty read, passed live: '2 free window(s): 10:07-14:00, 15:00-00:00', bounded by a disposable fixture event and carrying no title, location or attendee. The previous record's root cause was wrong: no calendar grant had been destroyed. scripts/sp011-acceptance/launch-aura.sh exec'd the app's binary from the shell so it would inherit the acceptance environment, and macOS attributes a TCC request to the responsible process - an ancestor, for a terminal-exec'd binary. System Settings listed only Visual Studio Code under Calendars (No Access) and Contacts (on), with AURA absent from both, so AURA was truthfully reporting the terminal's decisions and tccutil reset against AURA's bundle id was a no-op. Relaunching the identical bundle through LaunchServices (open --env, PPID 1) moved Read Calendar and Find Contact to notDetermined and Microphone/Screen observation from Granted to Not requested/Denied, before any permission was changed. The operator then granted calendar and contacts to AURA itself; agenda, free windows, and a re-run contacts read all passed, and both fixtures were deleted and their absence re-read. launch-aura.sh now launches through LaunchServices and it and preflight.sh assert PPID == 1. 21/21 bundles, 1071/1071 tests, 0 failed. RISK-SP-011-CALENDAR-GRANT-DESTROYED is closed and corrected; RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION is closed for the harness path with the class left standing. Mutation/send stays explicitly excluded. SP-012 is safe to start after 15_SESSION_CLOSEOUT.",
   "completed": [
-    "Added DialogueLanguage/DialogueAct metadata, Turkish and mixed-language fast-path handling, DialogueEngine, and provider-neutral structured-NLU contracts.",
     "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",
     "Recorded R2/R3/R4/R5 deferred completion gates in AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md without closing any gate; transitioned the active prompt to R6.",
     "Implemented and verified the R6 first policy/bridge slice under EV-R6-20260808-POLICY-BRIDGE-01; kept ADR-041 Proposed and all live R6 gates open.",
@@ -41,7 +40,8 @@
     "SP-006 follow-up (EV-SP-006-20260816-GAPCLOSE-04): CapabilityPlanner wired onto the production path with a multi-step routePlan/executePlan API, and RISK-SP-006-DEFAULT-GRANT-BREADTH closed by confining both policy grants and the adapter to AuraCore.DeclaredFileRoots. 895/895 tests. No live re-run; NL multi-step still unwired.",
     "2026-08-19 SP-011: fixed the three unreachable Setup remediations, the missing personal-information entitlements that stopped tccd prompting, and the missing calendar/contacts usage descriptions; wrote and packaged the Safari extension's native half. Calendar and Contacts passed live; the Safari page-summary leg remains blocked.",
     "2026-08-19 SP-011: enabled the Safari extension end to end and proved native messaging reaches the appex; diagnosed the remaining blocker as the sandboxed/unsandboxed keychain split, which needs a Team ID to bridge.",
-    "2026-08-19 SP-011: replaced the shared-secret Safari bridge with an asymmetric one and fixed five further defects found by running it; the live extension now signs an envelope the app's pin matches."
+    "2026-08-19 SP-011: replaced the shared-secret Safari bridge with an asymmetric one and fixed five further defects found by running it; the live extension now signs an envelope the app's pin matches.",
+    "Closed SP-011: the free-window non-empty read passed live after the calendar blocker was traced to TCC responsible-process attribution in the acceptance harness, not a destroyed grant; launch-aura.sh and preflight.sh now require LaunchServices (PPID == 1)."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -115,7 +115,11 @@
     "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeSecurity.swift",
     "Sources/AuraProductivity/ProductivityAdapters_SafariBridgeSecretStore.swift",
     "Sources/AuraIntent/ToolRouter_Handlers.swift",
-    "Sources/AURA/AuraKernel_RuntimeAPI.swift"
+    "Sources/AURA/AuraKernel_RuntimeAPI.swift",
+    "scripts/sp011-acceptance/launch-aura.sh",
+    "scripts/sp011-acceptance/preflight.sh",
+    "scripts/sp011-acceptance/README.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13.md"
   ],
   "evidence_ids": [
     "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10",
@@ -128,7 +132,8 @@
     "EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04",
     "EV-SP-011-20260818-COMPUTER-UI-SCOPE-05",
     "EV-SP-011-20260818-OAUTH-RETRY-06",
-    "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07"
+    "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07",
+    "EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13"
   ],
   "tests": [
     {
@@ -188,11 +193,12 @@
     }
   ],
   "blockers": [
-    "Safari's Allow unsigned extensions toggle does not survive a Safari restart and requires a Touch ID/password sheet each time. Developer ID signing plus notarization removes it (R11).",
-    "UI automation cannot reach windows the user has moved to another Space, and the screen locked twice during the session."
+    "Safari's Allow unsigned extensions toggle does not survive a Safari restart and requires a Touch ID/password sheet each time. Developer ID signing plus notarization removes it (R11). This blocks re-running the browser legs, not SP-011, which has live evidence for them."
   ],
-  "open_decisions": [],
-  "next_action": "Answer Safari's unsigned-extension authentication, press the AURA toolbar button, then submit one page-summary turn. Do not start SP-012.",
+  "open_decisions": [
+    "RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION is mitigated by two shell assertions. Closing the class properly means the app itself refusing to present a permission row when it is not its own responsible process; that is a product decision, not a harness one."
+  ],
+  "next_action": "Run 15_SESSION_CLOSEOUT.prompt.md for this SP-011 attempt, then start SP-012. Do not re-open SP-011: every leg named in its procedure has live evidence, both revocation legs passed, and mutation/send is explicitly excluded and asserted by test.",
   "required_first_reads": [
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",

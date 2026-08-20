@@ -16,7 +16,7 @@ and it fails loudly and early instead of clicking the wrong thing.
 | Script | Purpose |
 |---|---|
 | `preflight.sh` | Reports every precondition and its exact remediation. Changes nothing. Run it before spending an authentication. |
-| `launch-aura.sh` | Relaunches the installed AURA with the acceptance environment, which is inherited at launch and lost on quit. |
+| `launch-aura.sh` | Relaunches the installed AURA through LaunchServices with the acceptance environment, which is inherited at launch and lost on quit. It must not be exec'd from a shell: a terminal-exec'd app is not the responsible process for its own TCC requests, so its calendar and contacts decisions get recorded against the terminal's app instead. |
 | `serve-fixtures.sh` | Serves the two page fixtures on `127.0.0.1` for the browser legs. |
 | `aura-drive.applescript` | Addresses AURA's controls by accessibility identifier and reads the transcript. |
 | `run-browser-legs.sh` | Runs the approved-page, injection-ignore, and revocation legs, recording each completed step so a re-run resumes. |

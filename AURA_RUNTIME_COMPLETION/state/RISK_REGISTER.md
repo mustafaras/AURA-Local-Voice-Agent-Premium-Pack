@@ -632,12 +632,22 @@ into the SP-006 evidence file.
 - **Evidence:** `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`
 
 - **Risk ID:** `RISK-SP-011-CALENDAR-GRANT-DESTROYED`
-- **Status:** **Open — damage caused by SP-011, remedy is the operator's**
+- **Status:** **Closed 2026-08-20 — the risk as originally stated did not exist.** The original status line read *"Open — damage caused by SP-011, remedy is the operator's"* and is preserved here; the closure note at the end of this entry explains what was actually happening.
 - **Owner:** SP-011 live acceptance
 - **Risk:** the calendar authorization was working and is now stuck. This attempt ran `tccutil reset Calendar ai.aura.local.agent` against a working grant, on the strength of a "denied" reading taken from a build that was hung at launch.
 - **Assessment:** neither `tccutil reset Calendar` nor `reset All` clears the resulting state; `EKEventStore.authorizationStatus(for: .event)` still reports denied or restricted, and AURA is no longer listed in System Settings › Privacy & Security › Calendars, so the product's own remediation points at a control that does not exist. `reset All` reported success while leaving microphone, screen-recording and contacts grants intact, so it did not take effect either. This is not a product defect; the product reported the state it was given, truthfully.
 - **Closure criterion:** the authorization restored — a logout or restart is the normal remedy for a stuck TCC decision — and one live free-window read returning a non-empty result.
 - **Evidence:** `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`
+- **Closed 2026-08-20 — and the diagnosis above is wrong.** No grant was destroyed. The machine was restarted and the row still read denied; a second `tccutil reset Calendar ai.aura.local.agent` reported success and changed nothing. The mechanism is TCC responsible-process attribution: `scripts/sp011-acceptance/launch-aura.sh` exec'd the bundle's binary from the shell so the app would inherit the acceptance environment, and a terminal-exec'd binary is not responsible for its own TCC requests — its ancestor is. System Settings listed only *Visual Studio Code* under both Calendars (No Access) and Contacts (on), with AURA absent from both, so AURA was truthfully reporting the terminal's decisions. `tccutil reset` was a no-op because no AURA decision existed. Relaunching the identical bundle through LaunchServices (`open --env`, PPID 1) moved Read Calendar and Find Contact to `notDetermined` before any permission was changed. The operator then granted both to AURA itself, and the free-window read returned `2 free window(s): 10:07–14:00, 15:00–00:00`. The launcher and preflight now assert `PPID == 1`. Closing evidence: `EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`.
+
+- **Risk ID:** `RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION`
+- **Status:** **Closed for the acceptance harness; the class remains**
+- **Owner:** SP-011 live acceptance / R11 packaging
+- **Risk:** any tooling that starts AURA by exec'ing its binary — a script, a test harness, a debugger, a CI step — makes an ancestor process responsible for AURA's TCC requests. The app then reads and reports *that* process's permission decisions as its own, truthfully and wrongly, and `tccutil` operations against AURA's bundle identifier are silent no-ops.
+- **Assessment:** this cost SP-011 two attempts and produced a false root-cause record (`RISK-SP-011-CALENDAR-GRANT-DESTROYED`). It is invisible at launch: no error, no log line, no degraded state — only a permission row that reports someone else's decision. It is also self-concealing, because the wrong decision is often *permissive*, in which case the leg passes and the evidence silently claims an authorization the app does not hold. That is what happened to the contacts leg in `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`, which had to be re-run.
+- **Closure criterion for the class:** a check that cannot be bypassed by a future launcher — ideally the app itself refusing to present a permission row when it is not its own responsible process, rather than two shell assertions.
+- **Mitigation in place:** `launch-aura.sh` launches through LaunchServices with `open --env` and asserts `PPID == 1`; `preflight.sh` carries the same assertion and names the remediation; the harness README records why the obvious shell-exec is wrong.
+- **Evidence:** `EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`
 
 - **Risk ID:** `RISK-SP-011-OBJC-EXCEPTIONS-ABORT-THE-APP`
 - **Status:** **Closed for the two observed paths; the class remains**
