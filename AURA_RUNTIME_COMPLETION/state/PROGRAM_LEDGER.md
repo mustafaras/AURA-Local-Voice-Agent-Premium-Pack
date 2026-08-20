@@ -1958,3 +1958,4 @@ Evidence `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`: Google Cloud project/cli
 - **Safari unsigned extensions:** `security find-identity -v` returns 0 valid identities and only a self-signed codesigning identity exists, so notarization is an Apple Developer Program enrolment decision, not an engineering task. Stays with R11.
 - **Authority boundary:** edit and commit only. No live procedure, no product source change, no release action.
 - **Next safe action:** start SP-012.
+- **Correction, same day:** the `AURA SP011Fixture` contact has been deleted on the user's explicit instruction (`SP011Fixture remaining: 0`). Both SP-011 fixtures are now removed; the entry above's statement that the contact was left in place no longer holds.

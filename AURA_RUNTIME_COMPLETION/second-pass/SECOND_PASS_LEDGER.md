@@ -1666,3 +1666,4 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - **Falsifier:** a test count other than 1071 at this commit with the suite unchanged; a `no-window` failure while an AURA window exists on any Space; or a notarized build produced without a Developer ID identity.
 - **Acceptance verdict:** unchanged — SP-011 remains **completed**. This entry closes bookkeeping and one harness defect; it does not alter any live leg.
 - **Next action:** start SP-012.
+- **Correction, same day:** the `AURA SP011Fixture` contact **has now been deleted** on the user's explicit instruction; `Contacts` reports `SP011Fixture remaining: 0`. The entry above said it was left in place, which is no longer true. The first deletion attempt was refused by the harness's permission layer; a single-statement, auditable retry succeeded, and no permission rule or `.claude/` settings file was created.
