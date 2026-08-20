@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "updated_at": "2026-08-20T07:30:00Z",
   "session_id": "AURA-SP-011-CALENDAR-IDENTITY-AND-FREE-WINDOW-20260820",
-  "last_verified_commit": "8baf7d78b1e4f582423ad7d24dca2443c1dbcc86",
+  "last_verified_commit": "aaf2e8730218668a7b3c6a4a81fd1e2e2af3a93d",
   "active_prompt": {
     "id": "SP-012",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
