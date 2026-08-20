@@ -1934,3 +1934,17 @@ Evidence `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`: Google Cloud project/cli
 - **Why SP-012 is safe:** every leg named in SP-011's procedure now has live evidence, both revocation legs pass, and mutation/send is explicitly excluded rather than silently skipped.
 - **Authority boundary:** user-present live session; the operator answered both TCC prompts. No provider account, signing, notarization, release, deployment, or AURA mutation/send occurred.
 - **Next safe action:** run `15_SESSION_CLOSEOUT.prompt.md`, then SP-012.
+
+### 2026-08-20T07:45:00Z — SP-011 session closeout
+
+- **Session:** `AURA-SP-011-CALENDAR-IDENTITY-AND-FREE-WINDOW-20260820`; actor: Claude Code under a user-present live session.
+- **Active prompt at start:** SP-011 / `blocked`. **At end:** SP-011 `completed`; the second-pass pointer advances to SP-012 / `pending`, unopened.
+- **Verified start commit:** `ff87ead` (== `origin/main`). **End commit:** `addc7ef` plus this projection alignment.
+- **Objective:** close the one owed leg of SP-011's live matrix — the free-window non-empty read — and explain why the calendar authorization could not be restored by the remedy the previous record named.
+- **Delivered:** the free-window non-empty read passed live; the calendar and contacts authorizations were obtained under AURA's own TCC identity; the contacts non-empty read was re-run because the earlier one had exercised the terminal's grant; `launch-aura.sh` now launches through LaunchServices and it and `preflight.sh` assert `PPID == 1`; the harness README records why the shell-exec is wrong.
+- **Evidence:** `EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`.
+- **Acceptance by criterion:** read-first live matrix — **passed** (mail and provider revocation under `EV-...-07`, browser legs and browser revocation under `EV-...-12`, agenda/free-window/contacts here); revocation — **passed**, both legs; mutation/send — **explicitly excluded**, asserted by test, no send or mutation performed.
+- **Commands actually run:** `./scripts/aura-test.sh /tmp/aura-sp011-13` (21/21 bundles, 1071/1071 tests, 0 failed); `python3 scripts/validate_second_pass_program.py`, `validate_runtime_completion.py`, `validate_repo_hygiene_program.py`, `validate_repo_hygiene_supply_chain.py` — all exit 0; `python3 -m unittest discover -s scripts/tests` — 38/38. Live: two TCC prompts answered by the operator, three product turns through AURA's own composer, one `.ics` fixture imported and deleted.
+- **Blockers / residual risks:** Safari's `Allow unsigned extensions` does not survive a Safari restart (R11 owns Developer ID signing and notarization). `RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION` is mitigated by two shell assertions; the class closes properly only when the app itself refuses to present a permission row it is not responsible for. The regression counted 1071 tests against the previous record's 1070 with no Swift source changed; reported as measured, not reconciled.
+- **Authority boundary:** edit, launch, permission-prompt, commit. `provider_accounts`, `sign_or_notarize`, `release_or_deploy` remained `false` and were not exercised. No push was performed as part of this closeout.
+- **Next safe action:** start SP-012 (`SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md`) with its own read-first pass. Do not re-open SP-011.

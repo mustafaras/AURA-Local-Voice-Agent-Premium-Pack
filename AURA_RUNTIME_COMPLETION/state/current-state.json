@@ -8,25 +8,10 @@
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "8ec3e6fdf56d087d3865c82bb00841f5eea83cff",
-    "remote_head": "8ec3e6fdf56d087d3865c82bb00841f5eea83cff",
-    "working_tree_state": "dirty_expected",
-    "user_owned_changes": [
-      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
-      "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-      "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13.md",
-      "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-      "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
-      "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-      "AURA_RUNTIME_COMPLETION/state/current-state.json",
-      "ledger/PROJECT_LEDGER.md",
-      "scripts/sp011-acceptance/README.md",
-      "scripts/sp011-acceptance/launch-aura.sh",
-      "scripts/sp011-acceptance/preflight.sh"
-    ]
+    "verified_head": "addc7efe9904764a144c1f574d80bf1a9eaf0980",
+    "remote_head": "ff87ead11c6fc65bae79c51d1a830da703e52d20",
+    "working_tree_state": "clean",
+    "user_owned_changes": []
   },
   "program_status": "in_progress",
   "active_prompt": {
