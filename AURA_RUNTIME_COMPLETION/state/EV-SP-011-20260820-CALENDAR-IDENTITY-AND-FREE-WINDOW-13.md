@@ -102,13 +102,19 @@ was the terminal's. Re-run under AURA's own contacts grant:
 Channels are still reported as counts rather than values. The earlier record's
 observation stands; this one makes its authorization claim true.
 
-### Fixture removal — **verified twice**
+### Fixture removal — **verified twice for the event**
 
 The fixture event was deleted in Calendar. Calendar's own search for
 `SP-011 acceptance fixture` returns `rows=0`, and AURA's next agenda read
 answered:
 
 > *Nothing is scheduled in that range. [source ac-7adf9a57e111]*
+
+The **contact** fixture was not created here: `AURA SP011Fixture` already
+existed, created by the operator for
+`EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12` and not removed at the end of
+that attempt. It was reused rather than duplicated, and it is still present. It
+is the operator's to delete, and this record does not claim otherwise.
 
 ## Direct change
 
@@ -139,7 +145,7 @@ if a free-window answer ever contains an event title, location, or attendee; if
 the reported windows are not bounded by the fixture's own span; if a read
 succeeds while authorization is `notDetermined` or `denied`; if the free-window
 slot reaches any capability other than `calendar.read`; or if the fixture event
-or fixture contact outlives the run.
+outlives the run.
 
 ## Scope, limitations, and verdict
 
@@ -147,5 +153,6 @@ or fixture contact outlives the run.
 - **Corrected here:** `RISK-SP-011-CALENDAR-GRANT-DESTROYED`. No grant was destroyed and none was unrecoverable; the mechanism was responsible-process attribution in the acceptance harness.
 - **Still excluded, by the prompt's own completion gate:** draft-only mail and event draft are mutation class and remain explicitly excluded, asserted by test. No send, mutation, or scope escalation was performed here.
 - **Not closed here:** Safari's `Allow unsigned extensions` still does not survive a Safari restart. Developer ID signing plus notarization removes it and is owned by R11.
-- **Recorded content:** no real calendar event, contact value, message body, token, screenshot, or account identifier. Only the two disposable fixtures created for this run are named.
+- **Recorded content:** no real calendar event, contact value, message body, token, screenshot, or account identifier. Only the two disposable fixtures are named — the calendar event created and deleted here, and the contact fixture carried over from the previous attempt.
+- **Left for the operator:** the `AURA SP011Fixture` contact still exists in the address book. Deleting it is the operator's call; this attempt did not remove another session's fixture from the user's own data.
 - **Canonical SP-011 verdict:** **completed.** Every leg named in SP-011's procedure now has live evidence, both revocation legs passed (`EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07` provider, `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12` browser), and mutation/send is explicitly excluded.
