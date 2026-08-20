@@ -129,14 +129,43 @@ records why the obvious shell-exec is wrong.
 
 ## Deterministic verification
 
-- `./scripts/aura-test.sh /tmp/aura-sp011-13` — **21/21 bundles, 1071/1071 tests, 0 failed**. Log SHA-256 `f40b6995635327a7b7f6afeda174d3f8e3a4db9b01adbec61536b0664a7f6871`. The count is one above the 1070 recorded by `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`; no Swift source changed in this attempt and the difference was not investigated, so it is reported as measured rather than reconciled.
+- `./scripts/aura-test.sh /tmp/aura-sp011-13` — **21/21 bundles, 1071/1071 tests, 0 failed**. Log SHA-256 `f40b6995635327a7b7f6afeda174d3f8e3a4db9b01adbec61536b0664a7f6871`.
+- **The 1071 vs 1070 discrepancy is resolved, and 1071 is the correct figure.** `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11` measured 1068. The only commit to touch `Tests/` since then is `ebf6249`, the commit carrying `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`'s work, and it adds **three** `@Test` declarations and removes none — so the correct count at that commit is 1068 + 3 = 1071. That record's 1070 was therefore measured before its own third test landed: it reported a number for a tree it had already moved past. Every parameterized test in the suite takes a literal argument array, so the count is deterministic and not environment-dependent. `git diff --stat ebf6249..HEAD -- Tests/` is empty, which is why the same 1071 holds here.
 - No source change was needed for this leg: the defect was in the acceptance harness, not in the product. `CalendarFreeWindows` keeps the 15 deterministic derivation/classification/routing cases added by `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`, which this run confirms live for the first time.
 - Four governance validators exit 0; governance unit tests pass.
+
+## Two harness findings closed after the leg passed
+
+### The driver treated a window on another Space as no window
+
+`aura-drive.applescript` failed with `ERR no-window` twice during this attempt
+against a window that was open the whole time. Measured: with AURA frontmost,
+System Events reports 1 window; with Finder frontmost on the same Space, still
+1; with the operator on a different Space, **0**. Activation brings that Space
+forward and the window is reported again. This is the same loss cause
+`EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10` recorded as "UI automation lost both
+windows to another Space", where it was treated as bad luck rather than as
+something the driver could handle.
+
+Every window-taking command now raises AURA and retries before concluding there
+is no window, and falls back to `ensureWindow()` after that. Verified by closing
+the window with ⌘W — `find aura.tab.conversation` still succeeds, where it
+previously returned `ERR no-window`.
+
+### `Allow unsigned extensions` cannot be closed on this machine
+
+`security find-identity -v` returns **0 valid identities** and
+`-p codesigning` returns only the self-signed `AURA Stable Local Signing`. There
+is no Developer ID Application certificate, so Developer ID signing plus
+notarization — the only supported way to remove Safari's unsigned-extension
+requirement outside the App Store — is not an engineering task here but an Apple
+Developer Program enrolment decision. `xcrun notarytool` is present and would
+work the moment a real identity exists. Recorded as owned by R11, unchanged.
 
 ## Artifacts
 
 - `/Applications/AURA.app` — locally signed with the stable local identity, Hardened Runtime, entitlements `com.apple.security.personal-information.calendars` and `.addressbook` present. **Not** Developer ID signed, notarized, or release class.
-- `scripts/sp011-acceptance/launch-aura.sh`, `scripts/sp011-acceptance/preflight.sh`, `scripts/sp011-acceptance/README.md` — modified.
+- `scripts/sp011-acceptance/launch-aura.sh`, `scripts/sp011-acceptance/preflight.sh`, `scripts/sp011-acceptance/aura-drive.applescript`, `scripts/sp011-acceptance/README.md` — modified.
 
 ## Falsifier
 
@@ -154,5 +183,5 @@ outlives the run.
 - **Still excluded, by the prompt's own completion gate:** draft-only mail and event draft are mutation class and remain explicitly excluded, asserted by test. No send, mutation, or scope escalation was performed here.
 - **Not closed here:** Safari's `Allow unsigned extensions` still does not survive a Safari restart. Developer ID signing plus notarization removes it and is owned by R11.
 - **Recorded content:** no real calendar event, contact value, message body, token, screenshot, or account identifier. Only the two disposable fixtures are named — the calendar event created and deleted here, and the contact fixture carried over from the previous attempt.
-- **Left for the operator:** the `AURA SP011Fixture` contact still exists in the address book. Deleting it is the operator's call; this attempt did not remove another session's fixture from the user's own data.
+- **Left for the operator:** the `AURA SP011Fixture` contact still exists in the address book. Deletion was attempted here at the operator's explicit request and was refused by the harness's own permission layer as a user-data deletion, so the fixture is named here with its exact removal command rather than silently left behind.
 - **Canonical SP-011 verdict:** **completed.** Every leg named in SP-011's procedure now has live evidence, both revocation legs passed (`EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07` provider, `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12` browser), and mutation/send is explicitly excluded.

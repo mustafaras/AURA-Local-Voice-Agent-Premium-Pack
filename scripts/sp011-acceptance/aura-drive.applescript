@@ -31,6 +31,20 @@ on run argv
 	if cmd is "window" then return ensureWindow()
 
 	set w to mainWindow()
+	if w is missing value then
+		-- A window on another Space is reported as no window at all, which is
+		-- how three earlier attempts lost their run: the operator moved to
+		-- another desktop while a turn was in flight and every later command
+		-- failed with `no-window` against a window that was open the whole
+		-- time. Activating brings its Space forward; only then is "there is no
+		-- window" a real answer.
+		my raiseWindow()
+		set w to mainWindow()
+		if w is missing value then
+			ensureWindow()
+			set w to mainWindow()
+		end if
+	end if
 	if w is missing value then return "ERR no-window"
 
 	if cmd is "transcript" then return readTranscript(w)
@@ -62,6 +76,21 @@ end run
 -- rather than spawning a duplicate. This is deliberately not the menu bar
 -- popover: the popover dismisses on focus loss, which is what repeatedly lost
 -- the run when the operator touched the machine.
+-- Activating is not cosmetic here: System Events reports zero windows for an
+-- application whose windows are all on another Space, and it reports them again
+-- once activation has brought that Space forward. Measured on 2026-08-20:
+-- AURA frontmost 1 window, Finder frontmost 1 window (same Space), operator on
+-- another Space 0 windows.
+on raiseWindow()
+	try
+		tell application "AURA" to activate
+	on error
+		return false
+	end try
+	delay 1.0
+	return true
+end raiseWindow
+
 on ensureWindow()
 	tell application "System Events"
 		if not (exists process "AURA") then return "ERR aura-not-running"

@@ -1948,3 +1948,13 @@ Evidence `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`: Google Cloud project/cli
 - **Blockers / residual risks:** Safari's `Allow unsigned extensions` does not survive a Safari restart (R11 owns Developer ID signing and notarization). `RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION` is mitigated by two shell assertions; the class closes properly only when the app itself refuses to present a permission row it is not responsible for. The regression counted 1071 tests against the previous record's 1070 with no Swift source changed; reported as measured, not reconciled.
 - **Authority boundary:** edit, launch, permission-prompt, commit. `provider_accounts`, `sign_or_notarize`, `release_or_deploy` remained `false` and were not exercised. No push was performed as part of this closeout.
 - **Next safe action:** start SP-012 (`SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md`) with its own read-first pass. Do not re-open SP-011.
+
+### 2026-08-20T08:20:00Z — SP-011 reconciliation entry
+
+- **Evidence:** `EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`, extended in place.
+- **Corrects:** the closeout entry above, which carried three items as residuals without investigating them.
+- **1071 vs 1070:** resolved by arithmetic, not re-measurement. 1068 at `EV-SP-011-20260819-LAUNCH-AND-HARNESS-11`, plus the three `@Test` declarations added by `ebf6249`, is 1071. The 1070 figure was measured before that attempt's third test landed. Parameterized tests all take literal argument arrays, so the count is deterministic.
+- **Harness defect fixed:** System Events reports zero windows for an application whose windows are on another Space, which is how three attempts lost their runs. `aura-drive.applescript` now raises AURA and retries before reporting `no-window`, then falls back to `ensureWindow()`.
+- **Safari unsigned extensions:** `security find-identity -v` returns 0 valid identities and only a self-signed codesigning identity exists, so notarization is an Apple Developer Program enrolment decision, not an engineering task. Stays with R11.
+- **Authority boundary:** edit and commit only. No live procedure, no product source change, no release action.
+- **Next safe action:** start SP-012.
