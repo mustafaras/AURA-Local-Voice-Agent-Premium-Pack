@@ -109,7 +109,8 @@ extension AuraKernel {
     guard started, let conversation else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
     }
-    // Re-derive the productivity capabilities before the turn is routed.
+    // Re-derive the productivity and VS Code capabilities before the turn is
+    // routed.
     //
     // Their readiness is time-bounded: the Safari bridge is usable only while
     // the user's last page observation is fresh. A registry refreshed on
@@ -117,7 +118,11 @@ extension AuraKernel {
     // request arrived — the user clicked the extension button, asked AURA to
     // read the page, and the router refused with "no tool registered" against
     // a bridge that was working.
+    //
+    // VS Code readiness also depends on live extension health, so it is
+    // refreshed here as part of the same pre-turn gate.
     await refreshProductivityAvailability()
+    await refreshVSCodeAvailability()
     let context = TurnContext(
       sessionID: sessionID,
       activationSource: .text,
@@ -127,6 +132,74 @@ extension AuraKernel {
       language: configuration.tts.defaultLocale,
       timingOrigin: ProcessInfo.processInfo.systemUptime)
     await conversation.submitTextTurn(text, context: context)
+  }
+
+  /// SP-012: provision the authenticated VS Code extension bridge's shared
+  /// secret.
+  ///
+  /// The secret is the user-controlled symmetric key both halves must mirror:
+  /// this stores it in the AURA Keychain, and the user enters the same value
+  /// in the companion extension's `AURA Bridge: Enter Shared Secret` command,
+  /// which stores it in VS Code's encrypted `SecretStorage`. The value is
+  /// never logged or echoed here. Requires the runtime to be started so the
+  /// kernel's retained secret store exists.
+  ///
+  /// - Parameters:
+  ///   - sharedSecret: the symmetric HMAC secret (UTF-8), at least 16
+  ///     characters.
+  ///   - extensionID: the companion extension identifier; must match the
+  ///     configured extension ID so the bridge binds the expected identity.
+  func provisionVSCodeBridge(
+    sharedSecret: String,
+    extensionID: String
+  ) async throws(AuraError) {
+    guard started, let secretStore = vscodeBridgeSecretStore else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    guard extensionID == configuration.vscode.extensionID else {
+      throw AuraError.permissionDenied(
+        "VS Code bridge extension ID does not match the configured extension")
+    }
+    guard sharedSecret.utf8.count >= 16 else {
+      throw AuraError.securityError("VS Code bridge shared secret must be at least 16 characters")
+    }
+    try await secretStore.provision(
+      sharedSecret: Data(sharedSecret.utf8), forExtensionID: extensionID)
+    await refreshVSCodeAvailability()
+  }
+
+  /// SP-012: revoke the authenticated VS Code extension bridge's shared secret.
+  ///
+  /// Deletes the Keychain item first and refreshes availability afterwards, so
+  /// a failed deletion leaves the capability reported as connected rather than
+  /// claiming a revocation that did not happen. After revocation every VS Code
+  /// capability returns to `.disabled` until the user re-provisions.
+  func revokeVSCodeBridge(extensionID: String) async throws(AuraError) {
+    guard started, let secretStore = vscodeBridgeSecretStore else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    guard extensionID == configuration.vscode.extensionID else {
+      throw AuraError.permissionDenied(
+        "VS Code bridge extension ID does not match the configured extension")
+    }
+    try await secretStore.revoke(extensionID: extensionID)
+    await refreshVSCodeAvailability()
+  }
+
+  /// SP-012: whether a shared secret has been provisioned for the configured
+  /// VS Code extension ID. Used by a UI to enable a revoke control and to
+  /// report provisioning state without handling the secret value. An empty or
+  /// unconfigured extension ID is reported as not provisioned rather than as an
+  /// error, matching how the bridge itself stays `.unauthorized`.
+  func vscodeBridgeProvisioned() async throws(AuraError) -> Bool {
+    guard let secretStore = vscodeBridgeSecretStore else {
+      return false
+    }
+    let extensionID = configuration.vscode.extensionID
+    guard !extensionID.isEmpty else {
+      return false
+    }
+    return try await secretStore.retrieveSecret(forExtensionID: extensionID) != nil
   }
 
   func triggerEmergencyStop() async {

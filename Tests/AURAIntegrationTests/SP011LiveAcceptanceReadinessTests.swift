@@ -416,3 +416,63 @@ struct ContactsLookupCrashTests {
     #expect(source.contains("CNContactFormatter.descriptorForRequiredKeys(for: .fullName)"))
   }
 }
+
+// MARK: - SP-012: the authenticated VS Code bridge must have a user-controlled
+// provisioning path on the AURA side
+
+/// SP-012's procedure step 1 is to "provision its shared secret ... through a
+/// user-controlled path". The deterministic bridge contract existed, but
+/// `VSCodeBridgeSecretStore.provision()` had no production caller: the kernel
+/// only *read* an already-present secret and nothing ever wrote one, so the
+/// live bridge could not be paired even after the extension was installed.
+/// These source assertions pin the two invariants that make live pairing
+/// possible: the secret store is retained on the kernel (not discarded after
+/// construction) and the kernel exposes provisioning/revoke/probe methods that
+/// a UI or CLI can call.
+@Suite("vscode bridge provisioning path")
+struct VSCodeBridgeProvisioningPathTests {
+  private func runtimeAPISource() throws -> String {
+    try String(
+      contentsOf: repositoryRoot.appending(path: "Sources/AURA/AuraKernel_RuntimeAPI.swift"),
+      encoding: .utf8)
+  }
+
+  private func constructionSource() throws -> String {
+    try String(
+      contentsOf: repositoryRoot.appending(path: "Sources/AURA/AuraKernel_Construction.swift"),
+      encoding: .utf8)
+  }
+
+  @Test("the kernel retains the VS Code secret store after construction")
+  func secretStoreIsRetained() throws {
+    let construction = try constructionSource()
+    #expect(construction.contains("self.vscodeBridgeSecretStore = secretStore"))
+    let kernel = try String(
+      contentsOf: repositoryRoot.appending(path: "Sources/AURA/AuraKernel.swift"),
+      encoding: .utf8)
+    #expect(kernel.contains("var vscodeBridgeSecretStore"))
+  }
+
+  @Test("the kernel exposes a user-controlled provisioning entry point")
+  func provisioningEntryPointExists() throws {
+    let source = try runtimeAPISource()
+    #expect(source.contains("func provisionVSCodeBridge("))
+    #expect(source.contains("func revokeVSCodeBridge(extensionID:"))
+    #expect(source.contains("func vscodeBridgeProvisioned()"))
+  }
+
+  @Test("provisioning rejects an extension ID that does not match the configured one")
+  func provisioningBindsToConfiguredExtensionID() throws {
+    let source = try runtimeAPISource()
+    #expect(
+      source.contains("extensionID == configuration.vscode.extensionID"),
+      "provisioning must bind to the configured extension ID, not an arbitrary one")
+  }
+
+  @Test("revocation refreshes availability so a failed delete is not reported as revoked")
+  func revocationRefreshesAvailability() throws {
+    let source = try runtimeAPISource()
+    #expect(
+      source.contains("revokeVSCodeBridge") && source.contains("await refreshVSCodeAvailability()"))
+  }
+}

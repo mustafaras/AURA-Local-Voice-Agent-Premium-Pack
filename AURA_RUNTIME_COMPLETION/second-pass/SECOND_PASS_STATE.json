@@ -3,10 +3,10 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-20T07:30:00Z",
-  "session_id": "AURA-SP-011-CALENDAR-IDENTITY-AND-FREE-WINDOW-20260820",
+  "updated_at": "2026-08-20T11:42:13Z",
+  "session_id": "AURA-SP-012-DETERMINISTIC-BRIDGE-20260820",
   "active_prompt": "SP-012",
-  "active_state": "pending",
+  "active_state": "in_progress",
   "completed_prompts": [
     "SP-000",
     "SP-001",
@@ -23,6 +23,7 @@
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01",
     "EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13",
     "EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12",
     "EV-SP-011-20260819-LAUNCH-AND-HARNESS-11",
@@ -77,17 +78,18 @@
   ],
   "authority": {
     "edit": true,
-    "launch_or_install_app": true,
-    "mutate_permissions": true,
+    "launch_or_install_app": false,
+    "mutate_permissions": false,
     "install_dependencies": false,
     "download_models": false,
     "provider_accounts": false,
     "telemetry_or_beta": false,
     "sign_or_notarize": false,
-    "commit": true,
-    "push": true,
-    "merge": true,
-    "release_or_deploy": false
+    "commit": false,
+    "push": false,
+    "merge": false,
+    "release_or_deploy": false,
+    "source": "SP-012 follow-up: edit/local-package authority only"
   },
   "control_files": {
     "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -100,5 +102,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-011 is completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13. The owed free-window non-empty read passed live once AURA was launched through LaunchServices and held its own calendar grant; the previous 'destroyed grant' diagnosis was wrong and is corrected in the risk register. Run 15_SESSION_CLOSEOUT.prompt.md, then start SP-012."
+  "next_action": "SP-012 deterministic source-side passed and the companion extension is packaged (aura-vscode-extension-0.1.0.vsix). Added the previously-missing AURA user-controlled provisioning path (provisionVSCodeBridge/revokeVSCodeBridge/vscodeBridgeProvisioned). Remaining blocker is live acceptance: install the .vsix in VS Code, set the three bridge paths, provision the shared secret through AURA and the extension command, and run a live authenticated round trip with disconnect/version-mismatch/replay/stale-editor/dirty-buffer/confirmation paths. Only then may SP-012 be marked completed."
 }

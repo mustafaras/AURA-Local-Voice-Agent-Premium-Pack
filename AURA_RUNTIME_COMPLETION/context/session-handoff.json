@@ -1,19 +1,17 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-20T07:30:00Z",
-  "session_id": "AURA-SP-011-CALENDAR-IDENTITY-AND-FREE-WINDOW-20260820",
-  "last_verified_commit": "aaf2e8730218668a7b3c6a4a81fd1e2e2af3a93d",
+  "updated_at": "2026-08-20T11:42:55Z",
+  "session_id": "AURA-SP-012-DETERMINISTIC-BRIDGE-20260820",
+  "last_verified_commit": "bdedcb7c809087aaeaa572f862ae0d3edbcf229e",
   "active_prompt": {
     "id": "SP-012",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
-    "state": "pending",
-    "step": "SP-011 completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13: the owed free-window non-empty read passed live and the calendar blocker was traced to TCC responsible-process attribution in the acceptance harness, not a destroyed grant. SP-012 is next and unopened; run 15_SESSION_CLOSEOUT.prompt.md first."
+    "state": "in_progress",
+    "step": "SP-012 deterministic source-side passed; companion extension packaged as aura-vscode-extension-0.1.0.vsix; AURA user-controlled provisioning path added (provisionVSCodeBridge/revokeVSCodeBridge/vscodeBridgeProvisioned). Blocked on live acceptance: install .vsix, mirror the shared secret into VS Code SecretStorage, and run an authenticated round trip."
   },
-  "summary": "SP-011 is COMPLETED. The one owed leg, the free-window non-empty read, passed live: '2 free window(s): 10:07-14:00, 15:00-00:00', bounded by a disposable fixture event and carrying no title, location or attendee. The previous record's root cause was wrong: no calendar grant had been destroyed. scripts/sp011-acceptance/launch-aura.sh exec'd the app's binary from the shell so it would inherit the acceptance environment, and macOS attributes a TCC request to the responsible process - an ancestor, for a terminal-exec'd binary. System Settings listed only Visual Studio Code under Calendars (No Access) and Contacts (on), with AURA absent from both, so AURA was truthfully reporting the terminal's decisions and tccutil reset against AURA's bundle id was a no-op. Relaunching the identical bundle through LaunchServices (open --env, PPID 1) moved Read Calendar and Find Contact to notDetermined and Microphone/Screen observation from Granted to Not requested/Denied, before any permission was changed. The operator then granted calendar and contacts to AURA itself; agenda, free windows, and a re-run contacts read all passed, and both fixtures were deleted and their absence re-read. launch-aura.sh now launches through LaunchServices and it and preflight.sh assert PPID == 1. 21/21 bundles, 1071/1071 tests, 0 failed. RISK-SP-011-CALENDAR-GRANT-DESTROYED is closed and corrected; RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION is closed for the harness path with the class left standing. Mutation/send stays explicitly excluded. SP-012 is safe to start after 15_SESSION_CLOSEOUT.",
+  "summary": "SP-012 deterministic source-side passed and the companion extension is packaged (aura-vscode-extension-0.1.0.vsix, SHA-256 d7a9072e…). Fixed a missing BridgeHealth import and pinned vsce. Added the previously-missing AURA user-controlled provisioning path: the kernel retains VSCodeBridgeSecretStore and exposes provisionVSCodeBridge/revokeVSCodeBridge/vscodeBridgeProvisioned, binding the extension ID and refreshing availability. AuraVSCodeTests 31/31 and SP011LiveAcceptanceReadinessTests 23/23 pass. SP-012 remains in_progress/blocked because the .vsix is not installed in VS Code, the shared secret is not mirrored into VS Code SecretStorage, and no live authenticated round trip has run.",
   "completed": [
-    "Implemented the first R5 read-first adapter slice: typed browser/mail/calendar/contacts contracts, Safari structured active-tab bridge, Gmail read-only OAuth/Keychain boundary, EventKit/Contacts native read adapters, provenance/injection guards, deterministic policy helpers, truthful disabled manifests, and 9/9 focused tests; full regression passed 21/21 bundles and 747/747 tests under EV-R5-20260808-READ-FIRST-ADAPTERS-01.",
-    "Recorded R2/R3/R4/R5 deferred completion gates in AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md without closing any gate; transitioned the active prompt to R6.",
     "Implemented and verified the R6 first policy/bridge slice under EV-R6-20260808-POLICY-BRIDGE-01; kept ADR-041 Proposed and all live R6 gates open.",
     "Implemented the R6 typed bridge/workspace/backend/coordinator/task-bounds slice under EV-R6-20260808-TYPED-ROUTES-02; source builds and the clean scratch runtime suite passed 21/21 bundles and 763/763 tests, while the repository runner retained the known AuraAudio helper exit-142 limitation.",
     "Started the R7 voice routing/resource-governor slice: production wake detection is explicitly disabled until a real model qualifies; local STT routing checks on-device capability and preserves engine-lifetime streams; incomplete turns, TTS interruption/timeout/fallback, and bounded STT/neural-TTS reservations are covered locally. Final available validation passed 21/21 bundles and 774/774 tests; R7 remains in_progress pending live evidence and explicit ADR-042 approval.",
@@ -41,7 +39,9 @@
     "2026-08-19 SP-011: fixed the three unreachable Setup remediations, the missing personal-information entitlements that stopped tccd prompting, and the missing calendar/contacts usage descriptions; wrote and packaged the Safari extension's native half. Calendar and Contacts passed live; the Safari page-summary leg remains blocked.",
     "2026-08-19 SP-011: enabled the Safari extension end to end and proved native messaging reaches the appex; diagnosed the remaining blocker as the sandboxed/unsandboxed keychain split, which needs a Team ID to bridge.",
     "2026-08-19 SP-011: replaced the shared-secret Safari bridge with an asymmetric one and fixed five further defects found by running it; the live extension now signs an envelope the app's pin matches.",
-    "Closed SP-011: the free-window non-empty read passed live after the calendar blocker was traced to TCC responsible-process attribution in the acceptance harness, not a destroyed grant; launch-aura.sh and preflight.sh now require LaunchServices (PPID == 1)."
+    "Closed SP-011: the free-window non-empty read passed live after the calendar blocker was traced to TCC responsible-process attribution in the acceptance harness, not a destroyed grant; launch-aura.sh and preflight.sh now require LaunchServices (PPID == 1).",
+    "SP-012 deterministic source-side passed (authenticated VS Code extension bridge contract); live extension acceptance blocked.",
+    "SP-012 follow-up: packaged the companion extension (aura-vscode-extension-0.1.0.vsix) and added the AURA user-controlled provisioning path (provisionVSCodeBridge/revokeVSCodeBridge/vscodeBridgeProvisioned); AuraVSCodeTests 31/31 and SP011LiveAcceptanceReadinessTests 23/23 pass."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -119,7 +119,28 @@
     "scripts/sp011-acceptance/launch-aura.sh",
     "scripts/sp011-acceptance/preflight.sh",
     "scripts/sp011-acceptance/README.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13.md"
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01.md",
+    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+    "docs/decisions/ADR-041-vscode-extension-bridge.md",
+    "Sources/AURA/AuraKernel_VSCodeAvailability.swift",
+    "Sources/AuraCore/Configuration_VSCodeConfiguration.swift",
+    "Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift",
+    "Sources/AuraVSCode/VSCodeAdapter.swift",
+    "Sources/AuraVSCode/VSCodeBridgeSecretStore.swift",
+    "Tests/AuraVSCodeTests/AuraVSCodeTests_More.swift",
+    "AuraVSCodeExtension/package.json",
+    "AuraVSCodeExtension/tsconfig.json",
+    "AuraVSCodeExtension/README.md",
+    "AuraVSCodeExtension/.gitignore",
+    "AuraVSCodeExtension/src/extension.ts",
+    "AuraVSCodeExtension/src/authenticator.ts",
+    "AuraVSCodeExtension/src/protocol.ts",
+    "AuraVSCodeExtension/src/stateCollector.ts",
+    "AuraVSCodeExtension/src/commandHandler.ts",
+    "AuraVSCodeExtension/src/logger.ts",
+    "AuraVSCodeExtension/package-lock.json",
+    "AuraVSCodeExtension/aura-vscode-extension-0.1.0.vsix"
   ],
   "evidence_ids": [
     "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10",
@@ -208,5 +229,19 @@
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md"
-  ]
+  ],
+  "authority": {
+    "edit": true,
+    "launch_or_install_app": false,
+    "mutate_permissions": false,
+    "install_dependencies": false,
+    "download_models": false,
+    "provider_accounts": false,
+    "telemetry_or_beta": false,
+    "sign_or_notarize": false,
+    "commit": false,
+    "push": false,
+    "merge": false,
+    "release_or_deploy": false
+  }
 }

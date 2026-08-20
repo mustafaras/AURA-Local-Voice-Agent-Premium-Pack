@@ -263,14 +263,13 @@ public actor VSCodeAdapter {
     actor: ActorID,
     correlationID: String
   ) async -> Result<String, AuraError> {
-    let bridgeCommand: VSCodeBridgeCommand
-    switch command {
-    case .runTask(let name, let workspacePath):
-      bridgeCommand = .runTask(name: name, workspacePath: workspacePath)
-    case .runTests(let target, let workspacePath):
-      bridgeCommand = .runTests(target: target, workspacePath: workspacePath)
-    default:
+    guard let bridgeCommand = command.bridgeCommand else {
       return .failure(AuraError.invalidConfiguration("command is not a bridge task/test command"))
+    }
+    let authorized = await authorize(bridgeCommand, actor: actor, correlationID: correlationID)
+    guard authorized else {
+      return .failure(
+        AuraError.permissionDenied("VS Code bridge command was not authorized by PolicyEngine"))
     }
     do {
       let result = try await bridge.execute(bridgeCommand)
@@ -338,6 +337,17 @@ extension VSCodeCommand {
       return true
     default:
       return false
+    }
+  }
+
+  fileprivate var bridgeCommand: VSCodeBridgeCommand? {
+    switch self {
+    case .runTask(let name, let workspacePath):
+      return .runTask(name: name, workspacePath: workspacePath)
+    case .runTests(let target, let workspacePath):
+      return .runTests(target: target, workspacePath: workspacePath)
+    default:
+      return nil
     }
   }
 }

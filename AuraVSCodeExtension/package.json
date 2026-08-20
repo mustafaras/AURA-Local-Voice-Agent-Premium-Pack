@@ -1,0 +1,72 @@
+{
+  "name": "aura-vscode-extension",
+  "displayName": "AURA Bridge",
+  "description": "Authenticated local bridge between AURA and VS Code.",
+  "version": "0.1.0",
+  "publisher": "aura",
+  "engines": { "vscode": "^1.96.0" },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "auraBridge.provision",
+        "title": "AURA Bridge: Enter Shared Secret"
+      },
+      {
+        "command": "auraBridge.revoke",
+        "title": "AURA Bridge: Revoke Shared Secret"
+      },
+      {
+        "command": "auraBridge.health",
+        "title": "AURA Bridge: Show Health"
+      }
+    ],
+    "configuration": {
+      "title": "AURA Bridge",
+      "properties": {
+        "auraBridge.statePath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path where AURA reads the signed state snapshot."
+        },
+        "auraBridge.commandPath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path where AURA writes authenticated bridge commands."
+        },
+        "auraBridge.responsePath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path where the extension writes authenticated bridge responses."
+        },
+        "auraBridge.extensionID": {
+          "type": "string",
+          "default": "aura.aura-vscode-extension",
+          "description": "Extension identifier used in authenticated envelopes."
+        },
+        "auraBridge.snapshotIntervalSeconds": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 60,
+          "description": "How often to write a fresh signed state snapshot."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.96.0",
+    "@vscode/vsce": "^3.2.0",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {}
+}

@@ -2,23 +2,23 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-20T07:30:00Z",
-  "session_id": "AURA-SP-011-CALENDAR-IDENTITY-AND-FREE-WINDOW-20260820",
+  "updated_at": "2026-08-20T11:41:53Z",
+  "session_id": "AURA-SP-012-DETERMINISTIC-BRIDGE-20260820",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "aaf2e8730218668a7b3c6a4a81fd1e2e2af3a93d",
-    "remote_head": "aaf2e8730218668a7b3c6a4a81fd1e2e2af3a93d",
-    "working_tree_state": "clean",
+    "verified_head": "bdedcb7c809087aaeaa572f862ae0d3edbcf229e",
+    "remote_head": "bdedcb7c809087aaeaa572f862ae0d3edbcf229e",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": []
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R5",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/06_R5_BROWSER_MAIL_CALENDAR_ADAPTERS.prompt.md",
+    "id": "R6",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/07_R6_VSCODE_AND_CODING_AGENT_COMPLETION.prompt.md",
     "state": "in_progress",
-    "step": "SP-011 COMPLETED. EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13: the owed free-window non-empty read passed live, bounded by a disposable fixture and carrying no title or attendee. The calendar blocker was TCC responsible-process attribution in the acceptance harness, not a destroyed grant; launch-aura.sh now launches through LaunchServices. R5 stays in_progress for items SP-011 does not own."
+    "step": "SP-012 in_progress/blocked: deterministic source-side passed and the companion extension is packaged (aura-vscode-extension-0.1.0.vsix, SHA-256 d7a9072e…). Added the previously-missing AURA user-controlled provisioning path (provisionVSCodeBridge/revokeVSCodeBridge/vscodeBridgeProvisioned) with a retained secret store. AuraVSCodeTests 31/31 and SP011LiveAcceptanceReadinessTests 23/23 pass. Live extension install, shared-secret pairing, and authenticated round trip remain unproven; VS Code capabilities stay disabled until bridge health is .ready."
   },
   "tracks": [
     {
@@ -190,7 +190,8 @@
       "completed_at": null,
       "evidence_ids": [
         "EV-R6-20260808-POLICY-BRIDGE-01",
-        "EV-R6-20260808-TYPED-ROUTES-02"
+        "EV-R6-20260808-TYPED-ROUTES-02",
+        "EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01"
       ],
       "open_risk_ids": [
         "RISK-VSCODE-POLICY-NOT-ENFORCED",
@@ -337,7 +338,7 @@
     }
   ],
   "authority": {
-    "edit": false,
+    "edit": true,
     "install_dependencies": false,
     "download_models": false,
     "mutate_permissions": false,
@@ -347,7 +348,7 @@
     "merge": false,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "explicit SP-011 live authority expended; commit, push, merge, release, and deploy were not requested"
+    "source": "SP-012 follow-up executed under the user autonomy instruction: packaged the extension and added the AURA provisioning path (edit/local-package authority only). No commit, install, launch, or live action was authorized or performed."
   },
   "release_gates": [
     {
@@ -491,5 +492,5 @@
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "Run 15_SESSION_CLOSEOUT.prompt.md for the SP-011 attempt of 2026-08-20, then start SP-012."
+  "next_action": "SP-012 remains in_progress/blocked pending live extension acceptance: install AuraVSCodeExtension/aura-vscode-extension-0.1.0.vsix in VS Code, set the three bridge paths, provision the shared secret through provisionVSCodeBridge and the extension's AURA Bridge: Enter Shared Secret command, and run a live authenticated round trip. Run 15_SESSION_CLOSEOUT.prompt.md after the live attempt."
 }

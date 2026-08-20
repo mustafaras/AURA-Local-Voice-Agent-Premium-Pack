@@ -282,9 +282,12 @@ extension InitialCapabilitySet {
     verificationMethod: "returned entry count matches the registry's own count",
     rollbackStrategy: "not applicable — no side effects")
 
+  // Placeholder text set at registration time. Real availability is recomputed
+  // from the authenticated extension bridge health snapshot on every external-
+  // probe pass, so users see the current reason (not provisioned, stale, version
+  // mismatch, etc.) rather than this launch-time string.
   private static let vscodeDisabledReason =
-    "Typed VS Code contracts exist, but the authenticated extension package, secret onboarding, "
-    + "and live composition route are not provisioned in this pass."
+    "VS Code capabilities start disabled until the authenticated extension bridge is live."
 
   public static let vscodeEditorState = vscodeObservationManifest(
     id: "vscode.editor_state",

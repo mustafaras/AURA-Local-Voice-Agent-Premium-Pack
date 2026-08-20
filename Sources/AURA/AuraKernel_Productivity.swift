@@ -102,6 +102,10 @@ extension AuraKernel {
     }
     await runtimeHealthRegistry?.record(
       componentID: "safari-bridge", status: status, detail: detail)
+
+    // SP-012: VS Code availability is recomputed from live bridge health so
+    // capabilities stay disabled until a real authenticated extension answers.
+    await refreshVSCodeAvailability()
   }
 
   /// The integration projection the R9 surfaces render. Gated by the same

@@ -1667,3 +1667,51 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - **Acceptance verdict:** unchanged — SP-011 remains **completed**. This entry closes bookkeeping and one harness defect; it does not alter any live leg.
 - **Next action:** start SP-012.
 - **Correction, same day:** the `AURA SP011Fixture` contact **has now been deleted** on the user's explicit instruction; `Contacts` reports `SP011Fixture remaining: 0`. The entry above said it was left in place, which is no longer true. The first deletion attempt was refused by the harness's permission layer; a single-statement, auditable retry succeeded, and no permission rule or `.claude/` settings file was created.
+
+### 2026-08-20T11:03:00Z — SP-012 started; deterministic source-side bridge passed, live acceptance blocked
+
+- **Evidence:** `EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01`.
+- **Authority:** edit and deterministic test only. No live app launch, no live VS Code extension install, no provider account, no permission mutation, no signing, no commit/push/merge/release/deploy.
+- **Objective / architecture:** replace the local file bridge with a real authenticated extension transport while preserving policy enforcement; keep VS Code capabilities disabled until live bridge health is `.ready`.
+- **Exact work:**
+  - Created `Sources/AuraVSCode/VSCodeBridgeSecretStore.swift` implementing `SecretStoring` over the macOS Keychain for a symmetric HMAC secret.
+  - Extended `Sources/AuraCore/Configuration_VSCodeConfiguration.swift` with `extensionID`, `secretServiceName`, `bridgeCommandPath`, and `bridgeResponsePath`.
+  - Added companion `AuraVSCodeExtension/` TypeScript package: `package.json`, `tsconfig.json`, `README.md`, `.gitignore`, `src/extension.ts`, `src/authenticator.ts`, `src/protocol.ts`, `src/stateCollector.ts`, `src/commandHandler.ts`, and `src/logger.ts`. Uses VS Code `SecretStorage` and Node `crypto` HMAC-SHA256; signed envelopes bind extension identity, protocol version, nonce, freshness, workspace, actor, and payload.
+  - Wired `AuraKernel` composition root in `Sources/AURA/AuraKernel_Construction.swift` to build `VSCodeFileBridge` with `requireAuthentication: true` and a `VSCodeBridgeSecretStore` authenticator when a Keychain secret is provisioned.
+  - Added `Sources/AURA/AuraKernel_VSCodeAvailability.swift` to recompute VS Code capability availability from live bridge health.
+  - Updated `Sources/AURA/AuraKernel_Productivity.swift` and `Sources/AURA/AuraKernel_RuntimeAPI.swift` to refresh VS Code availability at probe/submit boundaries.
+  - Updated `Sources/AuraVSCode/VSCodeAdapter.swift` with a `bridgeCommand` computed property and policy-authorization in `executeViaBridge`.
+  - Updated `Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift` so VS Code capabilities start disabled until the authenticated extension bridge is live.
+  - Fixed `Tests/AuraVSCodeTests/AuraVSCodeTests_More.swift` to assert confirmation denial and fail-closed behavior for stale-editor/dirty-buffer/replay/version-mismatch/disconnect paths with the correct `VSCodeEditorState` argument order and a nil policy engine.
+  - Added `AuraSecurity` to the `AuraVSCode` target in `Package.swift`.
+  - Created `docs/decisions/ADR-041-vscode-extension-bridge.md` documenting the symmetric-HMAC, signed-envelope, disabled-until-live design and the live-acceptance blocker.
+- **Cognitive completion record:**
+  1. **Symptom / missing postcondition:** SP-011's contract asserted SP-012 could start, but the bridge was a local file-based adapter without authentication, policy enforcement was not exercised on the Swift side, and VS Code capabilities were not gated on live bridge health.
+  2. **Mechanism / root cause / layer:** the Swift side already had a typed file-bridge contract; SP-012 adds a companion extension package, a Keychain-backed symmetric secret store, composition-root wiring, and failure-mode tests. The live extension installation/acceptance path is unproven and is therefore the next blocker.
+  3. **Resolution / direct procedure:** implemented the deterministic source-side contract end-to-end and recorded the residual live-path blocker explicitly rather than marking SP-012 complete prematurely.
+  4. **Evidence ID / class:** `EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01` — contract/integration-simulated. `swift test --filter AuraVSCodeTests` 28/28 passed; full Swift suite 21/21 bundles passed; `python3 scripts/validate_second_pass_program.py` PASSED.
+  5. **Falsifier:** VS Code capabilities enabled before bridge health reports `.ready`; a command executed without policy authorization; a signed envelope that does not bind all seven fields; a secret stored in source, logs, or prompts; or a claim that the live extension path was exercised.
+  6. **Residual / why SP-012 is not completed:** the companion extension package is buildable with `tsc` but has not been packaged with `vsce`, installed in VS Code, paired through a real shared secret, or run a live authenticated round trip. That is an explicit acceptance blocker, not a hidden one.
+- **Tests:** `swift test --filter AuraVSCodeTests --build-path /tmp/aura-build` 28/28; `swift test --build-path /tmp/aura-build` 21/21 bundles pass; `python3 scripts/validate_second_pass_program.py` PASSED.
+- **Acceptance verdict:** SP-012 is **in_progress / blocked** pending live extension acceptance. Do not mark completed until the extension is packaged, installed, provisioned, and run live with disconnect/version-mismatch/replay/stale-editor/dirty-buffer/confirmation paths.
+- **Next safe action:** package `AuraVSCodeExtension` with `vsce package` (or `npx @vscode/vsce package`), install the `.vsix` in VS Code, provision a shared secret via the product's UI or a controlled CLI path, and capture a live evidence file.
+
+### 2026-08-20T11:41:00Z — SP-012 follow-up: extension packaged; AURA provisioning path added
+
+- **Evidence:** `EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01` (extended in place, same attempt and same day).
+- **Authority:** edit/local-package only, executed under the user autonomy instruction. No commit, push, merge, install, launch, or live action was authorized or performed.
+- **Objective:** complete SP-012's procedure step 1 — package the extension and provision its shared secret through a user-controlled path — as far as is possible without a live install/launch authority.
+- **Exact work:**
+  - Packaged the companion extension: fixed a missing `BridgeHealth` import in `extension.ts` (TS2304), pinned `@vscode/vsce` ^3.9.2 as a local devDependency, ran `tsc -p ./` (exit 0) and `vsce package --allow-missing-repository` → `AuraVSCodeExtension/aura-vscode-extension-0.1.0.vsix` (SHA-256 `d7a9072e46cfe9cca13973bb4419ecba7875b38db026fdd51f75bae9035f2075`).
+  - Added the previously-missing AURA user-controlled provisioning path: `AuraKernel` now retains the `VSCodeBridgeSecretStore` (`AuraKernel.vscodeBridgeSecretStore`, set in `constructVSCodeAdapter`) and exposes `provisionVSCodeBridge(sharedSecret:extensionID:)`, `revokeVSCodeBridge(extensionID:)`, and `vscodeBridgeProvisioned()` in `AuraKernel_RuntimeAPI.swift`. Provisioning binds the extension ID to the configured value (mismatch denied), enforces a 16-character minimum, and refreshes capability availability after provisioning/revocation.
+  - Added deterministic tests: `Tests/AuraVSCodeTests/AuraVSCodeTests_More.swift` gained three in-memory `SecretStoring` round-trip tests (31/31 `AuraVSCodeTests`); `Tests/AURAIntegrationTests/SP011LiveAcceptanceReadinessTests.swift` gained a source-level `vscode bridge provisioning path` suite (23/23 pass). `Package.swift` adds `AuraSecurity` to the `AuraVSCodeTests` target.
+- **Cognitive completion record:**
+  1. **Symptom / missing postcondition:** the deterministic bridge contract existed but the live path was impossible — `VSCodeBridgeSecretStore.provision()` had no production caller and nothing ever wrote a secret to the Keychain, so even a packaged, installed extension could not be paired.
+  2. **Mechanism / root cause / layer:** the composition layer. `constructVSCodeAdapter` created a local `VSCodeBridgeSecretStore` and only *read* an already-present secret, discarding the store after construction. No kernel API, UI, or CLI surfaced provisioning.
+  3. **Resolution / direct procedure:** retained the secret store on the kernel and exposed provisioning/revoke/probe entry points that bind to the configured extension ID, plus packaged the extension so an installable artifact exists.
+  4. **Evidence ID / class:** `EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01` (extended) — contract/integration-simulated plus a packaged artifact. `AuraVSCodeTests` 31/31, `SP011LiveAcceptanceReadinessTests` 23/23, `python3 scripts/validate_second_pass_program.py` PASSED.
+  5. **Falsifier:** a secret provisioned for an extension ID other than the configured one being accepted; a 15-character secret being accepted; availability not refreshing after provisioning/revocation; or a claim that the live install/round trip was exercised.
+  6. **Residual / why SP-012 is not completed:** the `.vsix` has not been installed in VS Code, the shared secret has not been mirrored into VS Code `SecretStorage`, and no live authenticated round trip has run. That requires install/launch authority and a user-present secret entry.
+- **Tests:** `swift test --filter AuraVSCodeTests --build-path /tmp/aura-build-sp012` 31/31; `swift test --filter SP011LiveAcceptanceReadinessTests --build-path /tmp/aura-build-sp012` 23/23; `python3 scripts/validate_second_pass_program.py` PASSED.
+- **Acceptance verdict:** SP-012 remains **in_progress / blocked** pending live extension acceptance.
+- **Next safe action:** install `AuraVSCodeExtension/aura-vscode-extension-0.1.0.vsix`, set the three bridge paths, call `provisionVSCodeBridge` with a value also entered in the extension's `AURA Bridge: Enter Shared Secret` command, and run a live authenticated round trip.

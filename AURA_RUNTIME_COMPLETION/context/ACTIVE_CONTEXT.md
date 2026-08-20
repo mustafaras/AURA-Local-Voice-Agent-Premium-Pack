@@ -1,50 +1,52 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `FINAL`
-> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, FINAL active for blocked acceptance and closeout audit
-> **Live repository lineage:** `main` contains the delivered control-plane projections, with verified non-projection baseline `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`; later descendants are control-plane-only projections. Main CI run `31613321170` remains a historical queued observation and is not used as a pass for this control-plane session. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-012`
+> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, R6/SP-012 active
+> **Live repository lineage:** `main` contains the delivered control-plane projections, with verified non-projection baseline `bdedcb7c809087aaeaa572f862ae0d3edbcf229e`; later descendants are control-plane-only projections. Main CI run `31613321170` remains a historical queued observation and is not used as a pass for this control-plane session. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
 
-## Current second-pass overlay — 2026-08-20 (SP-011 COMPLETED; SP-012 next)
+## Current second-pass overlay — 2026-08-20 (SP-012 in_progress / blocked)
 
-`SP-012` / `pending` — `SP-011` is **completed** under
-`EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`, which supersedes
-every SP-011 overlay below. The one owed leg, the **free-window non-empty
-read**, passed live: *"2 free window(s): 10:07–14:00, 15:00–00:00"*, bounded by
-a disposable fixture event and carrying no title, location or attendee.
+`SP-012` / `in_progress` / `blocked` — `SP-011` is **completed** under
+`EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`. The deterministic
+source-side of SP-012 passed under `EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01`.
 
-The previous record's root cause was wrong, and correcting it is the substance
-of this attempt. `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12` held that
-`tccutil reset Calendar` had destroyed a working grant and that a logout or
-restart was the remedy. The machine was restarted and the row still read
-denied; a second reset reported success and changed nothing. The mechanism is
-**TCC responsible-process attribution**:
-`scripts/sp011-acceptance/launch-aura.sh` exec'd the bundle's binary from the
-shell so the app would inherit the acceptance profile, and a terminal-exec'd
-binary is not responsible for its own TCC requests — its ancestor is. System
-Settings listed only *Visual Studio Code* under Calendars (No Access) and
-Contacts (on), with AURA absent from both, so the product was truthfully
-reporting the terminal's decisions and `tccutil` had no AURA decision to reset.
+The local VS Code file bridge was replaced with a real authenticated extension
+transport. `VSCodeBridgeSecretStore` conforms to `SecretStoring` and stores a
+user-controlled symmetric HMAC secret in the macOS Keychain.
+`AuraVSCodeExtension/` is a companion TypeScript VS Code extension package that
+uses VS Code `SecretStorage` and Node `crypto` HMAC-SHA256; its signed
+envelopes bind extension identity, protocol version, nonce, freshness,
+workspace, actor, and payload. `AuraKernel` wires `VSCodeFileBridge` with
+`requireAuthentication: true`, derives VS Code capability availability from
+live bridge health, and keeps VS Code capabilities disabled until health reports
+`.ready`. `VSCodeAdapter` awaits `PolicyEngine` authorization and fails closed on
+missing, denied, or confirmation-required decisions.
 
-Relaunching the identical bundle through LaunchServices (`open --env`, PPID 1)
-moved Read Calendar and Find Contact to `notDetermined` and Microphone and
-Screen observation from `Granted` to `Not requested`/`Denied` — before any
-permission was changed. The operator then granted calendar and contacts to
-**AURA itself**, and the matrix closed: the agenda read returned the fixture,
-the free-window read returned the windows around it, and the contacts non-empty
-read was re-run under AURA's own grant because the earlier one had exercised
-the terminal's. Both fixtures were deleted and their absence re-read.
+`swift test --filter AuraVSCodeTests --build-path /tmp/aura-build` passed 28/28
+(now 31/31 after the follow-up); full Swift suite 21/21 bundles passed; `python3
+scripts/validate_second_pass_program.py` PASSED. `tsc -p ./` in
+`AuraVSCodeExtension/` exits 0. ADR-041 is accepted.
 
-`launch-aura.sh` now launches through LaunchServices and both it and
-`preflight.sh` assert `PPID == 1`. 21/21 bundles, **1071/1071 tests**, 0 failed.
-`RISK-SP-011-CALENDAR-GRANT-DESTROYED` is closed and corrected;
-`RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION` is closed for the harness path
-with the class left standing. Draft-only mail and event draft remain explicitly
-excluded as mutation class, asserted by test. R5/OPEN-06 itself stays open for
-items SP-011 does not own, chiefly Developer ID signing and notarization (R11).
+Follow-up (same day): the companion extension is now **packaged** as
+`AuraVSCodeExtension/aura-vscode-extension-0.1.0.vsix` (SHA-256 `d7a9072e…`; a
+missing `BridgeHealth` import was fixed and `@vscode/vsce` ^3.9.2 is pinned).
+The previously-missing AURA **user-controlled provisioning path** was added:
+`AuraKernel` retains `VSCodeBridgeSecretStore` and exposes
+`provisionVSCodeBridge(sharedSecret:extensionID:)`,
+`revokeVSCodeBridge(extensionID:)`, and `vscodeBridgeProvisioned()`, binding the
+extension ID to the configured value and refreshing capability availability.
+`AuraVSCodeTests` 31/31 and `SP011LiveAcceptanceReadinessTests` 23/23 pass.
+
+SP-012 is **not completed** because the live extension acceptance path is
+unproven: the `.vsix` has not been installed in VS Code, the shared secret has
+not been mirrored into VS Code `SecretStorage`, and no live authenticated round
+trip has run. The next safe action is to install the `.vsix`, set the three
+bridge paths, provision a shared secret through AURA and the extension command,
+and capture live evidence.
 
 ## Current second-pass overlay — 2026-08-19 (SP-011 native legs live; Safari packaged; prompt BLOCKED)
 

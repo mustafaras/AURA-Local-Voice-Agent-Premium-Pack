@@ -59,6 +59,12 @@ actor AuraKernel {
   var computerUseLoop: ComputerUseControlLoop?
   var computerUseAllowlist: ComputerUseBetaAllowlist?
   var vscodeAdapter: VSCodeAdapter?
+  /// SP-012: the Keychain-backed symmetric secret store for the authenticated
+  /// VS Code extension bridge. Retained so the kernel can provision and revoke
+  /// the shared secret through a user-controlled path without exposing the
+  /// value. Rebuilt after construction because `constructVSCodeAdapter`
+  /// derives the bridge's authenticator from it.
+  var vscodeBridgeSecretStore: VSCodeBridgeSecretStore?
   var pluginRegistry: PluginRegistry?
   var ollamaAdapter: OllamaAdapter?
   var worktreeManager: WorktreeManager?

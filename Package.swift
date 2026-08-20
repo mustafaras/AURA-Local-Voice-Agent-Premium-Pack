@@ -193,7 +193,7 @@ let package = Package(
         ),
         .target(
             name: "AuraVSCode",
-            dependencies: ["AuraCore", "AuraPolicy", "AuraShell"],
+            dependencies: ["AuraCore", "AuraPolicy", "AuraShell", "AuraSecurity"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
@@ -380,7 +380,7 @@ let package = Package(
         ),
         .testTarget(
             name: "AuraVSCodeTests",
-            dependencies: ["AuraVSCode", "AuraPolicy"],
+            dependencies: ["AuraVSCode", "AuraPolicy", "AuraSecurity"],
             swiftSettings: testingSwiftSettings
         ),
         .testTarget(

@@ -1,13 +1,13 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-19.
+Projection refreshed from live repository and command evidence on 2026-08-20.
 
-## Authoritative current status — 2026-08-19T09:55:06Z
+## Authoritative current status — 2026-08-20T11:03:26Z
 
 Repository hygiene H-010 is terminally complete. The verified non-projection
 control-plane baseline is `main` /
-`d82fde6be6e95bc8d3ccb64341bd2538baf12a92`; later descendants are
+`bdedcb7c809087aaeaa572f862ae0d3edbcf229e`; later descendants are
 projection-only delivery commits.
 The hosted workflow/source evidence was executed on
 `6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8`; descendants after that SHA are
@@ -24,45 +24,44 @@ merged by PR #3; SP-000 state/validator delivery is merged to `main`. Main CI
 run `31613321170` is a historical queued observation; no repository-defined
 signed/notarized/public deployment target exists.
 
-The active second-pass prompt is `SP-011` / `blocked` at `main` with
-`HEAD == origin/main == 33688e2a54f1e5d53574d0ddea22d5256eec29c7` and an
-expected dirty SP-010/SP-011 worktree. Under
-`EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07`, the prior Gmail OAuth blocker is
-resolved and the approved-account Gmail read-only subset passed live: bounded
-PKCE callback/token exchange and Keychain enrollment, controlled two-message
-summary without private leakage, injection refusal, offline classification,
-two-account clarification before provider contact, local Keychain removal,
-Google grant removal, and immediate post-revoke refusal. Fixtures remain in
-recoverable Trash; local callback tabs/process/clipboard/acceptance environment
-were cleared. No credential, authorization code, secret, account identifier,
-message body, or screenshot is retained in evidence.
+The active second-pass prompt is `SP-012` / `in_progress` / `blocked` at `main`
+with `HEAD == origin/main == bdedcb7c809087aaeaa572f862ae0d3edbcf229e` and an
+expected dirty SP-012 worktree. SP-011 was completed under
+`EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`; the owed free-window
+non-empty read passed live once AURA was launched through LaunchServices and
+held its own Calendar grant. SP-011 fixtures were removed.
 
-Under `EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08` the Calendar and
-Contacts legs also passed live. Reaching them required fixing four defects that
-made three legs unrunnable rather than failing: `requestReadAccess()` on both
-native adapters and `AuraKernel.connectBrowserProfile` had no production caller
-while three health rows named Setup controls that did not exist; the app
-entitlements lacked `com.apple.security.personal-information.calendars` and
-`.addressbook`, so tccd refused to display any prompt; `AURA-Info.plist` carried
-neither usage description; and the Safari extension had no native half and was
-never packaged. Both TCC prompts then appeared with AURA's own usage strings and
-were granted, and a typed agenda turn moved from "Nothing is scheduled in that
-range." to "1 event(s): AURA SP-011 acceptance fixture" against a disposable
-fixture that was then deleted. The Safari extension is now a signed, sandboxed
-`.appex` that `pluginkit` lists at `com.apple.Safari.web-extension`.
+Under `EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01`, SP-012's deterministic
+source-side passed: the local VS Code file bridge was replaced with an
+authenticated extension transport. A `VSCodeBridgeSecretStore` (`SecretStoring`
+over the macOS Keychain) holds a user-controlled symmetric HMAC secret. The
+companion `AuraVSCodeExtension/` TypeScript package uses VS Code `SecretStorage`
+and Node `crypto` HMAC-SHA256 and emits signed envelopes binding extension
+identity, protocol version, nonce, freshness, workspace, actor, and payload.
+`AuraKernel` wires the bridge with `requireAuthentication: true`, derives VS Code
+capability availability from live bridge health, and keeps VS Code capabilities
+disabled until health reports `.ready`. `VSCodeAdapter` awaits `PolicyEngine`
+authorization and fails closed for missing/denied/confirmation-required
+decisions. Failure-mode tests cover disconnect, version-mismatch, replay,
+stale-editor, dirty-buffer, and confirmation denial. `swift test --filter
+AuraVSCodeTests` passed 31/31; the full Swift suite passed 21/21 bundles;
+`python3 scripts/validate_second_pass_program.py` PASSED; ADR-041 is accepted.
 
-SP-011 is still not complete because the live approved-page summary, the browser
-injection-ignore leg, and the browser profile revocation remain unexecuted:
-Safari will not enable a non-Developer-ID extension without its `Allow unsigned
-extensions` toggle, which raises a Touch ID / password sheet that was
-deliberately not answered. A Developer ID signature plus notarization removes
-that requirement and is the production answer, owned by R11. Free-window
-computation and event draft remain unimplemented and mutation-class, and AURA
-compose/send remains excluded. No non-empty contacts read is recorded, by
-choice, because only the user's own address book exists on this machine. The
-full regression passed 21/21 bundles, 1035/1035 tests, 0 failed, including nine
-new `SP011LiveAcceptanceReadinessTests` cases; all four governance validators
-and 38/38 governance unit tests pass. SP-012 is not safe to start.
+A follow-up (same day) packaged the companion extension as
+`AuraVSCodeExtension/aura-vscode-extension-0.1.0.vsix` (SHA-256 `d7a9072e…`) and
+added the previously-missing AURA user-controlled provisioning path: `AuraKernel`
+now retains `VSCodeBridgeSecretStore` and exposes `provisionVSCodeBridge`,
+`revokeVSCodeBridge`, and `vscodeBridgeProvisioned`, binding the extension ID to
+the configured value and refreshing capability availability. `AuraVSCodeTests`
+31/31 and `SP011LiveAcceptanceReadinessTests` 23/23 pass.
+
+SP-012 is **not completed** because the live extension acceptance path is
+unproven: the `.vsix` has not been installed in VS Code, the shared secret has
+not been mirrored into VS Code `SecretStorage`, and no live authenticated round
+trip has run. The next safe action is to install the `.vsix`, set the three
+bridge paths, provision a shared secret through AURA and the extension command,
+and capture live evidence before marking SP-012 completed.
+
 
 ## Canonical State Notice — 2026-08-09
 

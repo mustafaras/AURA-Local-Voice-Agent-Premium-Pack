@@ -230,9 +230,9 @@ extension AuraKernel {
     self.computerUseAllowlist = ComputerUseBetaAllowlist.liveValidatedProduction
     await foundation.runtimeHealthRegistry.recordReady(
       "computer-use", detail: "bounded computer-use loop constructed")
-    vscodeAdapter = VSCodeAdapter(
-      configuration: configuration.vscode, shell: foundation.shell,
-      bridge: VSCodeFileBridge(statePath: configuration.vscode.bridgeStatePath),
+    vscodeAdapter = await constructVSCodeAdapter(
+      configuration: configuration.vscode,
+      shell: foundation.shell,
       policyEngine: foundation.policyEngine)
     secretScanner = SecretScanner()
     injectionClassifier = PromptInjectionClassifier(configuration: configuration.security)
@@ -441,4 +441,56 @@ extension AuraKernel {
   /// `.shellExecDestructive` deliberately has no grant: it falls through to
   /// deny-by-default, plus `ToolRouter`'s own non-bypassable mandatory-
   /// confirmation guard.
+
+  // SP-012: construct the authenticated VS Code bridge. Empty extension ID or
+  // missing Keychain secret leaves the bridge `.unauthorized`, which keeps
+  // every VS Code capability `.disabled` until the user provisions the
+  // companion extension.
+  private func constructVSCodeAdapter(
+    configuration: VSCodeConfiguration,
+    shell: AuraShell,
+    policyEngine: PolicyEngine?
+  ) async -> VSCodeAdapter {
+    let secretStore = VSCodeBridgeSecretStore(
+      secretStore: KeychainSecretStore(serviceName: configuration.secretServiceName),
+      serviceName: configuration.secretServiceName)
+    self.vscodeBridgeSecretStore = secretStore
+
+    let bridge: any VSCodeExtensionBridge
+    if configuration.extensionID.isEmpty {
+      bridge = VSCodeFileBridge(
+        statePath: configuration.bridgeStatePath,
+        authenticator: nil,
+        requireAuthentication: true,
+        expectedExtensionID: nil,
+        commandPath: configuration.bridgeCommandPath,
+        responsePath: configuration.bridgeResponsePath)
+    } else if let secret = try? await secretStore.retrieveSecret(
+      forExtensionID: configuration.extensionID),
+      let secretString = String(data: secret, encoding: .utf8),
+      let authenticator = try? VSCodeBridgeAuthenticator(sharedSecret: secretString)
+    {
+      bridge = VSCodeFileBridge(
+        statePath: configuration.bridgeStatePath,
+        authenticator: authenticator,
+        requireAuthentication: true,
+        expectedExtensionID: configuration.extensionID,
+        commandPath: configuration.bridgeCommandPath,
+        responsePath: configuration.bridgeResponsePath)
+    } else {
+      bridge = VSCodeFileBridge(
+        statePath: configuration.bridgeStatePath,
+        authenticator: nil,
+        requireAuthentication: true,
+        expectedExtensionID: configuration.extensionID,
+        commandPath: configuration.bridgeCommandPath,
+        responsePath: configuration.bridgeResponsePath)
+    }
+
+    return VSCodeAdapter(
+      configuration: configuration,
+      shell: shell,
+      bridge: bridge,
+      policyEngine: policyEngine)
+  }
 }
