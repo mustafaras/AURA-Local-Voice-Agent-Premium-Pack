@@ -1,4 +1,4 @@
-export const ProtocolVersion = 1;
+export const ProtocolVersion = 2;
 
 export interface VSCodeEditorState {
   activeFilePath?: string;
@@ -88,7 +88,8 @@ export interface BridgeCommandResult {
 }
 
 export interface SignedEnvelope {
-  payload: unknown;
+  /** Exact JSON text the authentication tag covers. */
+  payload: string;
   authenticationTag: string;
 }
 

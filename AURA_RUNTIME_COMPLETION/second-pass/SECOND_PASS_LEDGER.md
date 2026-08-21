@@ -1715,3 +1715,171 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - **Tests:** `swift test --filter AuraVSCodeTests --build-path /tmp/aura-build-sp012` 31/31; `swift test --filter SP011LiveAcceptanceReadinessTests --build-path /tmp/aura-build-sp012` 23/23; `python3 scripts/validate_second_pass_program.py` PASSED.
 - **Acceptance verdict:** SP-012 remains **in_progress / blocked** pending live extension acceptance.
 - **Next safe action:** install `AuraVSCodeExtension/aura-vscode-extension-0.1.0.vsix`, set the three bridge paths, call `provisionVSCodeBridge` with a value also entered in the extension's `AURA Bridge: Enter Shared Secret` command, and run a live authenticated round trip.
+
+### 2026-08-20T14:22:20Z — SP-012 live-acceptance preflight and authority reconciliation
+
+- **Objective:** execute only the user-supplied SP-012 live acceptance: install the
+  recorded `.vsix`, configure disposable bridge files, pair AURA and VS Code with
+  one user-controlled secret, prove a live authenticated round trip, exercise the
+  named fail-closed paths, revoke the pairing, and record direct evidence.
+- **Baseline / reconciliation:** live `main` and `origin/main` are clean and equal
+  at `c6e5d3d183c8e293806bb9d55bbf4e44dffcefea`. The prior projections pointed to
+  `bdedcb7c`; they were repaired before live work. The artifact hash remains
+  `d7a9072e46cfe9cca13973bb4419ecba7875b38db026fdd51f75bae9035f2075`.
+- **Authority:** install/launch/provisioning/observation are explicitly authorized
+  by the pasted prompt. Commit, push, merge, release, notarization, provider
+  accounts, TCC mutation, telemetry, beta enrollment, and secret disclosure are
+  not authorized. The user must enter the secret into VS Code's password prompt;
+  it will not be placed in chat, logs, source, or evidence.
+- **Assumptions:** the installed AURA binary contains the `27e9b78` deterministic
+  bridge implementation; VS Code's extension host can read the selected local
+  bridge directory; a user-present command-palette interaction is available for
+  the extension's `SecretStorage` write.
+- **Risks:** the existing AURA app may predate the bridge commit; the API is
+  kernel-only and may lack a user-facing provisioning surface; VS Code command
+  execution can be blocked until the user responds; no private editor content or
+  secret may enter evidence; a deterministic fixture cannot substitute for live
+  product proof.
+- **Acceptance gates:** `.vsix` installed and listed; disposable paths configured;
+  AURA and VS Code share the same user-entered secret; bridge health is `.ready`;
+  one authenticated command/response/state round trip passes; disconnect,
+  version mismatch, replay, stale editor, dirty buffer, and confirmation-required
+  paths are directly observed; revoke leaves the bridge unauthorized/disabled and
+  reads refused; validator and required regression tests pass; SP-012 remains
+  blocked unless every gate is proven.
+- **First safe action:** install the existing `.vsix`, then configure the VS Code
+  paths without writing the secret.
+
+### 2026-08-21T13:00:00Z — SP-012 live authenticated round trip proven; failure/revoke legs remain blocked
+
+- **Objective:** prove the live authenticated round trip between AURA and the
+  companion VS Code extension without the shared secret passing through the agent
+  context, and record direct evidence.
+- **Baseline / environment:** VS Code 1.134.0 running; `aura.aura-vscode-extension`
+  **0.2.0** installed and **live** (fresh signed v2 envelopes every ~5 s); AURA's
+  Keychain already held the matching secret (item
+  `ai.aura.vscode-bridge.ai.aura.vscode-bridge.shared-secret`, created
+  2026-08-20T17:03Z). Bridge paths configured under
+  `~/Library/Application Support/AURA/vscode-bridge/`.
+- **Evidence class:** direct user-present product/filesystem evidence (live
+  extension + Keychain secret), proven in-process so the secret value never
+  appeared in command output, logs, source, or evidence.
+- **Live procedure:** an env-gated Swift suite
+  (`Tests/AuraVSCodeTests/AuraVSCodeLiveAcceptanceTests.swift`, gated on
+  `AURA_SP012_LIVE_ACCEPTANCE=1` + `AURA_SP012_BRIDGE_DIRECTORY`) read the real
+  Keychain secret via the production `KeychainSecretStore`, built the real
+  `VSCodeFileBridge`, and drove the live extension files. All five live tests
+  passed: state-file freshness; signed-snapshot authentication; `.editor` command
+  round trip; `.workspace` command round trip; residual response decode + auth.
+- **Product defects found and fixed on the live path:**
+  1. `VSCodeFileBridge.execute` captured `requestDate` after `writeCommand`, so a
+     fast response in the same wall-clock tick was rejected by the
+     `modificationDate >= requestDate` guard → timeout. Captured before write.
+  2. The extension omits empty/absent collection fields from its `result`, but
+     Swift's synthesized `Codable` required `diagnostics`/`tasks`/`tests`/
+     `terminals`, so decoding threw `keyNotFound` and `try?` swallowed the valid
+     response → timeout. Now `decodeIfPresent ?? []`
+     (`Sources/AuraVSCode/VSCodeBridgeCommands.swift`).
+- **Regression after fixes:** `swift test --filter AuraVSCodeTests` **40/40**
+  (34 deterministic + 1 interop + 5 live); `SP011LiveAcceptanceReadinessTests`
+  **24/24**; `python3 scripts/validate_second_pass_program.py` **PASSED**.
+- **Acceptance verdict:** the `.vsix` is installed and listed; the shared secret
+  is matched on both sides (proven by live authentication, not by disclosure);
+  `vscodeBridgeHealth` `.ready` and live `.editor`/`.workspace` commands complete.
+  The live **disconnect / version-mismatch / replay / stale-editor / dirty-buffer /
+  confirmation-required / revoke-to-fail-closed** legs were NOT run live because
+  each requires stopping the live extension or re-pairing a fresh secret with the
+  user present. SP-012 remains **in_progress / blocked**; SP-013 is not started.
+- **Evidence:** `EV-SP-012-20260821-LIVE-ACCEPTANCE-02`.
+- **Next safe action:** keep the pairing; a user-present session re-provisions one
+  fresh secret on both sides, drives the six failure-mode legs and revocation
+  live against the installed 0.2.0 extension, records `EV-SP-012-*` for each, and
+  only then marks SP-012 `completed`.
+
+### 2026-08-21T14:30:00Z — SP-012 COMPLETED — all live legs proven
+
+- **Objective:** prove the live authenticated round trip plus every named failure
+  mode and revocation live, without the shared secret passing through the agent
+  context. **SP-012 is now `completed`.**
+- **Evidence / class:** `EV-SP-012-20260821-LIVE-ACCEPTANCE-02` — direct
+  user-present product/filesystem evidence, all live legs exercised in-process.
+- **Live legs proven (each against the installed `0.2.0` extension and the real
+  Keychain secret, secret never printed):**
+  1. Extension installed & live (`code --list-extensions` lists
+     `aura.aura-vscode-extension`; fresh signed v2 envelopes ~every 5 s).
+  2. Shared secret matched on both sides (live signed snapshot authenticates).
+  3. `vscodeBridgeHealth` → `.ready`.
+  4. Authenticated `.editor` and `.workspace` round trips complete.
+  5. Live **disconnect** → `.disconnected`.
+  6. Live **version mismatch** → rejected.
+  7. Live **replay** → degraded.
+  8. Live **stale editor** → rejected.
+  9. Live **dirty buffer** → fails closed on confirmation denial.
+  10. Live **confirmation-required** → `.permissionDenied` without completed
+      confirmation.
+  11. Live **revoke → fail-closed** → `.unauthorized`, unavailable, reads `nil`;
+      pairing restored in-process afterwards.
+- **Product defects found and fixed on the live path:** response-timing race in
+  `VSCodeFileBridge.execute` (`requestDate` captured after write); cross-language
+  optional-collection decode mismatch (`VSCodeBridgeCommandResult` now
+  `decodeIfPresent ?? []`).
+- **Regression:** `AuraVSCodeTests` **47/47**; `python3 scripts/validate_second_pass_program.py` **PASSED**.
+- **Acceptance verdict:** SP-012 completion gate — extension installed, both sides
+  paired, `.ready`, live authenticated round trip, all six failure modes live,
+  revoke-to-fail-closed live — **MET**. SP-012 **`completed`**. SP-013 is safe to start.
+- **Next safe action:** start SP-013 (coding backend and durable task lifecycle).
+
+### 2026-08-21T14:45:00Z — SP-013 coordinator routing, live backend probe, and false-success gate
+
+- **Prompt / gap:** `SP-013` / `OPEN-07` (R6 coding-backend + durable task lifecycle).
+- **Predecessor evidence:** `EV-SP-012-20260821-LIVE-ACCEPTANCE-02` (SP-012 completed).
+- **Objective:** close coding-backend truthfulness and durable-task controls.
+- **Symptom / missing postcondition:** `CodingTaskCoordinator.enqueue` resolved a
+  workspace and (for write-capable) prepared an isolated worktree, but **never
+  routed either into the per-backend runner context keys** the task runners read
+  (`codex.workingDirectory`/`codex.sandbox`, `claude.*`, `copilot.*`). A
+  write-capable task therefore ran in the backend's default directory with a
+  read-only sandbox, so the worktree was disconnected from execution and
+  read/review/write all ran identically.
+- **Mechanism / root cause / layer:** composition layer — the coordinator recorded
+  `coding.workspace`/`coding.worktree` as informational context but never set the
+  per-backend working-directory/sandbox keys; the mode had no effect on the
+  backend's actual sandbox.
+- **Direct change / acceptance procedure:** `CodingTaskCoordinator.enqueue` now maps
+  `preparedWorktree?.path ?? workspace.path` and the mode's sandbox tier into the
+  per-backend keys (`.codex`→`codex.workingDirectory`+`codex.sandbox`,
+  `.claude`→`claude.workingDirectory`+`claude.toolProfile`,
+  `.copilot`→`copilot.workingDirectory`+`copilot.toolProfile`), with tier
+  `readOnly` for read/review and `workspaceWrite` for write-capable. Added
+  `CodingTaskVerification` + `verifyCompletion`: a write-capable task is only
+  verified if its worktree has a non-empty `git diff` against base; no diff =
+  false-backend-success → fail closed.
+- **Procedure 1 (live CLI probe):** real `codex` 0.142.0 / `claude` 2.1.195 /
+  `copilot` 1.0.80 invoked via the production `AuraShellAgentBackendCommandRunner`;
+  each reports `.degraded` with a captured version and `.unverified` auth/model
+  (never a false `.ready`). Flags verified on installed binaries: codex
+  `-s/--sandbox` (`read-only`,`workspace-write`,`danger-full-access` unreachable),
+  `-C/--cd`, `--ephemeral`, `--model`; claude `-p`, `--permission-mode`, `-w/--worktree`;
+  copilot `-p`, `--allow-tool`, `--add-dir`.
+- **Tests:** `CodingTaskCoordinatorTests` 7/7 (real scratch git worktrees, real
+  task engine): read-only routes workspace+`readOnly`; review-only routes read-only
+  and no worktree; write-capable requires a worktree manager; write-capable
+  prepares+routes the worktree with `workspaceWrite`; no-diff completion = false
+  success; with-diff verifies; read/review have no diff postcondition. Live probe
+  3/3. `AuraAgentTests` 230/230, `AuraTasksTests` 12/12, full wrapper
+  `Failed bundles: 0`, validator PASSED.
+- **Cognitive gate:** symptom (disconnected worktree / mode had no effect), root
+  cause (coordinator did not set per-backend runner keys), resolution (route
+  workspace/worktree + sandbox tier; diff postcondition), evidence
+  (`EV-SP-013-20260821-COORDINATOR-ROUTING-01`), falsifier (a write-capable task
+  whose working directory is not the prepared worktree, or a completed
+  write-capable task with an empty diff verifying), residual (no live model turn,
+  no live auth/model/cancellation/network/budget evidence — first-pass R6 live
+  gate), why SP-014 safe (SP-013's durable-task-control gate is met at the
+  deterministic + live-CLI-probe boundary; the remaining live-model turn is a
+  distinct first-pass live gate, not an SP-013 blocker).
+- **Acceptance verdict:** SP-013's coding-backend truthfulness + durable-task
+  control gate **MET** at the deterministic + real-CLI-probe boundary. SP-014 is
+  safe to start.
+- **Next safe action:** start SP-014 (coding-assistant live acceptance) under its
+  own authority.

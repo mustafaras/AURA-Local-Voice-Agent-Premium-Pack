@@ -97,6 +97,18 @@ extension AuraMenuView {
       .help(copy("onboarding.title"))
       .accessibilityLabel(copy("onboarding.title"))
       .accessibilityHint(language == .turkish ? "Kurulum adımlarını açar" : "Opens guided setup")
+
+      Button {
+        openSettings()
+      } label: {
+        Image(systemName: "gearshape")
+          .font(.system(size: 13, weight: .medium))
+      }
+      .buttonStyle(.bordered)
+      .help(language == .turkish ? "Ayarlar" : "Settings")
+      .accessibilityLabel(language == .turkish ? "Ayarlar" : "Settings")
+      .accessibilityHint(
+        language == .turkish ? "AURA ayarlarını açar" : "Opens AURA settings")
     }
     .accessibilityElement(children: .contain)
   }
@@ -170,6 +182,37 @@ extension AuraMenuView {
       Label(copy("conversation.local"), systemImage: "lock.fill")
         .foregroundStyle(.secondary)
         .accessibilityLabel("\(copy("conversation.local")). \(copy("conversation.cloudDisabled"))")
+      if model.isVSCodeBridgeAcceptanceEnabled {
+        GroupBox("VS Code live bridge") {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Read-only probe through the authenticated AURA extension bridge.")
+              .font(.caption)
+              .foregroundStyle(.secondary)
+              .fixedSize(horizontal: false, vertical: true)
+            Text(
+              "AURA Keychain: \(model.isVSCodeBridgeProvisioned ? "Provisioned" : "Not provisioned")"
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            Button {
+              model.readVSCodeEditorState()
+            } label: {
+              Label("Read VS Code editor state", systemImage: "arrow.triangle.2.circlepath")
+            }
+            .disabled(!model.isVSCodeBridgeProvisioned)
+            .accessibilityLabel("Read VS Code editor state")
+            .accessibilityHint(
+              "Performs a read-only, policy-authorized live bridge check")
+            if !model.vscodeBridgeRoundTripStatus.isEmpty {
+              Text(model.vscodeBridgeRoundTripStatus)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+        }
+      }
       if let gmail = model.integrationRows.first(where: {
         $0.id == InitialCapabilitySet.mailRead.id
       }), gmail.canConnect {

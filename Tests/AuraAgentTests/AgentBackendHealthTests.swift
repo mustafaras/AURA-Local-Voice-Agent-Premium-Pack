@@ -90,3 +90,77 @@ struct AgentBackendHealthTests {
       detail: "fixture ready")
   }
 }
+
+// MARK: - Live CLI probe (Procedure 1)
+
+/// Runs the real `CLIAgentBackendHealthProbe` against the installed CLIs.
+/// SP-013 requires probing exact CLI version/interface and exposing
+/// unverified auth/model as not-ready. This test drives the production
+/// `AuraShellAgentBackendCommandRunner` (the same one the kernel uses) and
+/// asserts the health state is truthful: presence + version/help is only
+/// `.degraded`, never `.ready`, because authentication and model availability
+/// remain unverified.
+@Suite("Agent backend health live probe", .serialized)
+struct AgentBackendHealthLiveProbeTests {
+  private func makeLiveRunner(_ backend: AgentBackendID) -> AuraShellAgentBackendCommandRunner {
+    let executablePath: String
+    switch backend {
+    case .codex: executablePath = "/opt/homebrew/bin/codex"
+    case .claude: executablePath = "/opt/homebrew/bin/claude"
+    case .copilot: executablePath = "/opt/homebrew/bin/copilot"
+    }
+    // The shell must allowlist the exact backend executable (mirroring each
+    // backend's `derivedShellConfiguration()`), otherwise AuraShell refuses
+    // to spawn it and the probe would report .unavailable for a false reason.
+    let shell = AuraShell(
+      configuration: ShellConfiguration(
+        allowedExecutablePaths: [executablePath],
+        allowedWorkingDirectories: ["$HOME", "$TMPDIR"]))
+    return AuraShellAgentBackendCommandRunner(shells: [backend: shell])
+  }
+
+  @Test("codex live probe reports version and keeps auth/model unverified")
+  func codexLiveProbe() async {
+    guard FileManager.default.isExecutableFile(atPath: "/opt/homebrew/bin/codex") else {
+      return  // CLI not installed on this host; not a product failure.
+    }
+    let probe = CLIAgentBackendHealthProbe(
+      executablePaths: [.codex: "/opt/homebrew/bin/codex"],
+      runner: makeLiveRunner(.codex))
+    let health = await probe.probe(backend: .codex, workspacePath: "/tmp")
+    #expect(health.state == .degraded, "version+help pass is only .degraded, got \(health.state)")
+    #expect(health.version?.isEmpty == false, "live Codex version must be captured")
+    #expect(health.authentication == .unverified, "auth must stay unverified without onboarding evidence")
+    #expect(health.modelAvailability == "unverified")
+  }
+
+  @Test("claude live probe reports version and keeps auth/model unverified")
+  func claudeLiveProbe() async {
+    guard FileManager.default.isExecutableFile(atPath: "/opt/homebrew/bin/claude") else {
+      return
+    }
+    let probe = CLIAgentBackendHealthProbe(
+      executablePaths: [.claude: "/opt/homebrew/bin/claude"],
+      runner: makeLiveRunner(.claude))
+    let health = await probe.probe(backend: .claude, workspacePath: "/tmp")
+    #expect(health.state == .degraded, "got \(health.state)")
+    #expect(health.version?.isEmpty == false)
+    #expect(health.authentication == .unverified)
+    #expect(health.modelAvailability == "unverified")
+  }
+
+  @Test("copilot live probe reports version and keeps auth/model unverified")
+  func copilotLiveProbe() async {
+    guard FileManager.default.isExecutableFile(atPath: "/opt/homebrew/bin/copilot") else {
+      return
+    }
+    let probe = CLIAgentBackendHealthProbe(
+      executablePaths: [.copilot: "/opt/homebrew/bin/copilot"],
+      runner: makeLiveRunner(.copilot))
+    let health = await probe.probe(backend: .copilot, workspacePath: "/tmp")
+    #expect(health.state == .degraded, "got \(health.state)")
+    #expect(health.version?.isEmpty == false)
+    #expect(health.authentication == .unverified)
+    #expect(health.modelAvailability == "unverified")
+  }
+}

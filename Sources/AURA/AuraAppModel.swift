@@ -61,6 +61,10 @@ final class AuraAppModel: ObservableObject {
   @Published var capabilityRows: [AuraCapabilityRow] = []
   @Published var integrationRows: [AuraIntegrationRow] = []
   @Published var backendHealth: [AgentBackendHealth] = []
+  /// Transient user input only; never persisted, logged, or rendered back.
+  @Published var vscodeBridgeSecret = ""
+  @Published var isVSCodeBridgeProvisioned = false
+  @Published var vscodeBridgeRoundTripStatus = ""
   @Published var memoryRows: [AuraMemoryRow] = []
   @Published var conversationMessages: [AuraConversationMessage] = []
   @Published var partialTranscript = ""

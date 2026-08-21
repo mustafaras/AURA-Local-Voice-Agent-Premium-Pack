@@ -160,4 +160,38 @@ public struct VSCodeBridgeCommandResult: Codable, Sendable, Equatable {
     self.tests = tests
     self.terminals = terminals
   }
+
+  private enum CodingKeys: String, CodingKey {
+    case outcome, message, health, workspace, editor
+    case diagnostics, tasks, tests, terminals
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    outcome = try container.decode(Outcome.self, forKey: .outcome)
+    message = try container.decode(String.self, forKey: .message)
+    health = try container.decodeIfPresent(VSCodeBridgeHealth.self, forKey: .health)
+    workspace = try container.decodeIfPresent(VSCodeWorkspaceInfo.self, forKey: .workspace)
+    editor = try container.decodeIfPresent(VSCodeEditorState.self, forKey: .editor)
+    // The companion extension omits empty collection fields from its response.
+    // Treat absent collections as empty so a valid response is never rejected
+    // for lacking a key the extension did not emit.
+    diagnostics = try container.decodeIfPresent([VSCodeDiagnostic].self, forKey: .diagnostics) ?? []
+    tasks = try container.decodeIfPresent([VSCodeTaskInfo].self, forKey: .tasks) ?? []
+    tests = try container.decodeIfPresent([VSCodeTestInfo].self, forKey: .tests) ?? []
+    terminals = try container.decodeIfPresent([VSCodeTerminalState].self, forKey: .terminals) ?? []
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(outcome, forKey: .outcome)
+    try container.encode(message, forKey: .message)
+    try container.encodeIfPresent(health, forKey: .health)
+    try container.encodeIfPresent(workspace, forKey: .workspace)
+    try container.encodeIfPresent(editor, forKey: .editor)
+    try container.encode(diagnostics, forKey: .diagnostics)
+    try container.encode(tasks, forKey: .tasks)
+    try container.encode(tests, forKey: .tests)
+    try container.encode(terminals, forKey: .terminals)
+  }
 }

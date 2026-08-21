@@ -180,6 +180,22 @@ func liveAcceptanceProfileComposesEveryLeg() {
   #expect(configuration.productivity.safariAllowedHosts == ["example.com", "example.org"])
 }
 
+@Test("SP-012 live profile configures only non-secret bridge coordinates")
+func sp012LiveProfileConfiguresBridgeWithoutASecret() {
+  let environment = [
+    "AURA_SP012_LIVE_ACCEPTANCE": "1",
+    "AURA_SP012_STATE_PATH": "/tmp/aura-sp012/state.json",
+    "AURA_SP012_COMMAND_PATH": "/tmp/aura-sp012/command.json",
+    "AURA_SP012_RESPONSE_PATH": "/tmp/aura-sp012/response.json",
+    "AURA_SP012_EXTENSION_ID": "ai.aura.vscode-bridge",
+  ]
+  let configuration = AuraConfiguration.sp012LiveAcceptance(environment: environment)
+  #expect(configuration.vscode.bridgeStatePath == "/tmp/aura-sp012/state.json")
+  #expect(configuration.vscode.bridgeCommandPath == "/tmp/aura-sp012/command.json")
+  #expect(configuration.vscode.bridgeResponsePath == "/tmp/aura-sp012/response.json")
+  #expect(configuration.vscode.extensionID == "ai.aura.vscode-bridge")
+}
+
 // MARK: - The shipped bundle must be able to ask, and to host the extension
 
 private let repositoryRoot = URL(fileURLWithPath: #filePath)

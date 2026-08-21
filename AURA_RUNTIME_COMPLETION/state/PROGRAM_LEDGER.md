@@ -1991,3 +1991,45 @@ Evidence `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`: Google Cloud project/cli
 - **Blockers / residual risks:** the `.vsix` is not installed in VS Code, the shared secret is not mirrored into VS Code `SecretStorage`, and no live authenticated round trip has run. This requires install/launch authority and a user-present secret entry.
 - **Authority boundary:** edit/local-package only. No commit, push, merge, install, launch, or live action.
 - **Next safe action:** install the `.vsix`, set the three bridge paths, provision the shared secret through AURA and the extension command, and run a live authenticated round trip before marking SP-012 completed.
+
+### 2026-08-21T13:00:00Z — SP-012 live authenticated round trip proven; failure-mode/revoke legs still blocked
+
+- **Actor:** GitHub Copilot engineering session (autonomous, user unreachable; user requested autonomous progress).
+- **Evidence / class:** `EV-SP-012-20260821-LIVE-ACCEPTANCE-02` — direct user-present product/filesystem evidence, proven in-process so the shared secret never passed through the agent context.
+- **Baseline:** VS Code 1.134.0 running; `aura.aura-vscode-extension` **0.2.0** installed and live (fresh signed v2 envelopes ~every 5 s); AURA Keychain already held the matching secret; bridge paths configured under `~/Library/Application Support/AURA/vscode-bridge/`.
+- **Delivered:**
+  - Proved the **live authenticated round trip** between AURA and the installed extension without exposing the secret. An env-gated Swift suite (`AuraVSCodeLiveAcceptanceTests`) read the real Keychain secret via `KeychainSecretStore`, built the real `VSCodeFileBridge`, and drove live `.editor`/`.workspace` commands; all 5 live tests passed.
+  - Found and fixed two live-path product defects: a response-timing race (`requestDate` captured after `writeCommand` → same-tick responses rejected) and a cross-language decode mismatch (extension omits empty collection fields; Swift now `decodeIfPresent ?? []`).
+  - Added the live suite, an interop optional-collection regression test, and a frozen extension-produced vector suite.
+- **Commands actually run:** `AURA_SP012_LIVE_ACCEPTANCE=1 AURA_SP012_BRIDGE_DIRECTORY=… swift test --filter AuraVSCodeLiveAcceptance` 5/5; `swift test --filter AuraVSCodeTests` 40/40; `swift test --filter SP011LiveAcceptanceReadinessTests` 24/24; `python3 scripts/validate_second_pass_program.py` PASSED.
+- **Blockers / residual risks:** live **disconnect / version-mismatch / replay / stale-editor / dirty-buffer / confirmation-required / revoke-to-fail-closed** legs were NOT run live; each requires stopping the live extension or re-pairing a fresh secret with the user present. Deterministic coverage exists but does not close the SP-012 live gate. `RISK-BRIDGE-INCOMPLETE` and `RISK-VSCODE-POLICY-NOT-ENFORCED` further reduced but not closed.
+- **Authority boundary:** install/launch/provisioning/observation authorized by the pasted user prompt. No commit, push, merge, release, notarize, TCC mutation, provider action, or telemetry. The working tree remains dirty with the SP-012 v2-protocol + live fixes; no commit was made.
+- **Next safe action:** keep the pairing; a user-present session re-provisions one fresh secret on both sides, drives the six failure-mode legs and revocation live, records `EV-SP-012-*` per leg, then marks SP-012 `completed`. Do not start SP-013.
+
+### 2026-08-21T14:30:00Z — SP-012 COMPLETED — all live legs proven; SP-013 next
+
+- **Actor:** GitHub Copilot engineering session (user present for live testing).
+- **Evidence / class:** `EV-SP-012-20260821-LIVE-ACCEPTANCE-02` — direct user-present product/filesystem evidence, all live legs exercised in-process.
+- **Baseline:** extension `aura.aura-vscode-extension` **0.2.0** installed and live in VS Code 1.134; AURA Keychain held the matching secret; bridge paths configured.
+- **Delivered:**
+  - Proved the live authenticated round trip (`.editor`, `.workspace`) plus all six named failure modes (disconnect, version mismatch, replay, stale editor, dirty buffer, confirmation-required) and revoke-to-fail-closed — all live, against the real extension and real Keychain secret, with the secret never exposed.
+  - Revoke was followed by in-process pairing restore so the user-facing pairing stays intact.
+  - Fixed two live-path product defects (response-timing race; cross-language optional-collection decode).
+- **Commands run:** `swift test --filter AuraVSCodeTests` **47/47**; `python3 scripts/validate_second_pass_program.py` **PASSED**.
+- **Acceptance verdict:** SP-012 completion gate **MET** — extension installed, both sides paired, `.ready`, live authenticated round trip, all six failure modes live, revoke-to-fail-closed live. SP-012 **`completed`**. SP-013 is safe to start.
+- **Authority boundary:** no commit, push, merge, release, notarize, TCC mutation, provider action, or telemetry. Working tree remains dirty with the SP-012 v2-protocol + live fixes; no commit was made.
+
+### 2026-08-21T14:45:00Z — SP-013 coordinator routing, live backend probe, and false-success gate
+
+- **Actor:** GitHub Copilot engineering session (user present; computer-use and autonomous work authorized for SP-013).
+- **Evidence / class:** `EV-SP-013-20260821-COORDINATOR-ROUTING-01` — direct live CLI probe (real codex/claude/copilot) + deterministic contract/system.
+- **Objective / architecture:** close coding-backend truthfulness and durable-task controls without absorbing SP-014.
+- **Exact work:**
+  - Fixed `CodingTaskCoordinator.enqueue` to route the resolved workspace and the mode's sandbox tier into the per-backend runner context keys (`codex.workingDirectory`/`codex.sandbox`, `claude.workingDirectory`/`claude.toolProfile`, `copilot.workingDirectory`/`copilot.toolProfile`). Before, a write-capable task ran in the backend's default directory with a read-only sandbox, so the prepared worktree was disconnected from execution and read/review/write all ran identically.
+  - Added `CodingTaskVerification` + `verifyCompletion`: a write-capable task is only verified if its worktree has a non-empty `git diff` against base; no diff = false-backend-success → fail closed. Read/review have no mutable-diff postcondition.
+  - Procedure 1: `AgentBackendHealthLiveProbeTests` (3, `.serialized`) invoke the real installed `codex` 0.142.0 / `claude` 2.1.195 / `copilot` 1.0.80 CLIs through the production `AuraShellAgentBackendCommandRunner`, asserting `.degraded` + captured version + `.unverified` auth/model (never a false `.ready`). Flags verified on the installed binaries (codex `-s/--sandbox` with `read-only`/`workspace-write`, `-C/--cd`, `--ephemeral`, `--model`; claude `-p`, `--permission-mode`, `-w/--worktree`; copilot `-p`, `--allow-tool`, `--add-dir`).
+  - Procedure 4: `CodingTaskCoordinatorTests` (7) against a real `WorktreeManager` on a real scratch `git` repo and a real `AuraTaskEngine`/`AuraStore` — read-only routes workspace+`readOnly`; review-only routes read-only, no worktree; write-capable requires a worktree manager; write-capable prepares+routes the worktree with `workspaceWrite`; no-diff completion = false success; with-diff verifies; read/review have no diff postcondition.
+- **Cognitive gate:** symptom — worktree disconnected from execution, mode had no effect on sandbox; mechanism — coordinator never set per-backend runner context keys; change — route workspace/worktree + sandbox tier, add diff postcondition; evidence — `EV-SP-013-20260821-COORDINATOR-ROUTING-01`; falsifier — a write-capable task whose working directory is not the worktree, or a completed write-capable task with an empty diff verifying; residual — no live model turn, no live auth/model/cancellation/network/budget evidence (first-pass R6 live gate); SP-014 safe because SP-013's durable-task-control gate is met and the live-model turn is a distinct first-pass gate.
+- **Commands:** `AuraAgentTests` 230/230 (220 prior + 7 coordinator + 3 live probe); `AuraTasksTests` 12/12; full wrapper `Failed bundles: 0`; `validate_second_pass_program.py` PASSED.
+- **Acceptance verdict:** SP-013's coding-backend truthfulness + durable-task control gate **MET** at the deterministic + real-CLI-probe boundary. **SP-013 `completed`.** SP-014 is next.
+- **Authority boundary:** no commit, push, merge, release, notarize, TCC mutation, provider action, or telemetry. Working tree remains dirty; no commit made.

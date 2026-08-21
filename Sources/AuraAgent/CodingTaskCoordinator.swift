@@ -175,6 +175,27 @@ public actor CodingTaskCoordinator {
       context["coding.worktree"] = handle.path
     }
 
+    // Route the resolved workspace and the mode's sandbox tier into the
+    // per-backend context keys the task runners actually read. Before this,
+    // the coordinator resolved a workspace and prepared an isolated worktree
+    // but never set `codex.workingDirectory` / `claude.workingDirectory` /
+    // `copilot.workingDirectory` (nor the sandbox/profile keys), so a
+    // write-capable task ran in the backend's *default* working directory
+    // with its *default read-only* sandbox — the worktree was disconnected
+    // from execution. This is the R6 "route workspace and isolation" gate.
+    let workingDirectory = preparedWorktree?.path ?? preflight.workspace.path
+    switch request.backend {
+    case .codex:
+      context[CodexTaskRunner.workingDirectoryContextKey] = workingDirectory
+      context[CodexTaskRunner.sandboxContextKey] = request.mode.sandboxTier
+    case .claude:
+      context[ClaudeTaskRunner.workingDirectoryContextKey] = workingDirectory
+      context[ClaudeTaskRunner.toolProfileContextKey] = request.mode.sandboxTier
+    case .copilot:
+      context[CopilotTaskRunner.workingDirectoryContextKey] = workingDirectory
+      context[CopilotTaskRunner.toolProfileContextKey] = request.mode.sandboxTier
+    }
+
     let taskRequest = TaskRequest(
       objective: request.objective,
       deadline: request.deadline,
@@ -195,6 +216,86 @@ public actor CodingTaskCoordinator {
           force: false)
       }
       throw error
+    }
+  }
+}
+
+/// Maps a `CodingTaskMode` to the per-backend sandbox/tool tier it must run
+/// under. Write-capable mode uses the isolated worktree and the
+/// workspace-write tier; read-only and review-only both run against the
+/// resolved workspace under the read-only tier (review reads, never writes).
+private extension CodingTaskMode {
+  var sandboxTier: String {
+    switch self {
+    case .readOnly, .reviewOnly:
+      return "readOnly"
+    case .writeCapable:
+      return "workspaceWrite"
+    }
+  }
+}
+
+/// Verdict on whether a completed coding task satisfies its evidence
+/// postcondition. A write-capable task is only a success if its isolated
+/// worktree actually changed from the base ref; a backend that reports
+/// "completed" but produced no diff is a false-backend-success and must fail
+/// closed.
+public struct CodingTaskVerification: Sendable, Equatable {
+  public let taskID: UUID
+  public let verified: Bool
+  public let detail: String
+
+  public init(taskID: UUID, verified: Bool, detail: String) {
+    self.taskID = taskID
+    self.verified = verified
+    self.detail = detail
+  }
+}
+
+extension CodingTaskCoordinator {
+  /// Verify a write-capable task's evidence postcondition: the isolated
+  /// worktree must have a non-empty diff against its base ref. A write-capable
+  /// task that finished "completed" with no diff is a false backend success
+  /// and fails closed. Read-only and review-only tasks have no diff evidence
+  /// requirement (they are not expected to mutate the workspace), so this
+  /// returns verified unless a worktree was unexpectedly prepared.
+  public func verifyCompletion(
+    taskID: UUID,
+    mode: CodingTaskMode,
+    actor: ActorID = .user,
+    sessionID: UUID = UUID()
+  ) async -> CodingTaskVerification {
+    guard mode == .writeCapable else {
+      return CodingTaskVerification(
+        taskID: taskID, verified: true,
+        detail: "\(mode.rawValue) mode has no mutable-diff postcondition")
+    }
+    guard let worktreeManager else {
+      return CodingTaskVerification(
+        taskID: taskID, verified: false,
+        detail: "write-capable task cannot be verified without a worktree manager")
+    }
+    guard await worktreeManager.handle(for: taskID) != nil else {
+      return CodingTaskVerification(
+        taskID: taskID, verified: false,
+        detail: "write-capable task \(taskID) has no prepared worktree to verify")
+    }
+    do {
+      let diff = try await worktreeManager.diff(
+        taskID: taskID, actor: actor, sessionID: sessionID)
+      let trimmed = diff.trimmingCharacters(in: .whitespacesAndNewlines)
+      guard !trimmed.isEmpty else {
+        return CodingTaskVerification(
+          taskID: taskID, verified: false,
+          detail: "write-capable task \(taskID) reported completed but produced no diff (false-backend-success)")
+      }
+      return CodingTaskVerification(
+        taskID: taskID, verified: true,
+        detail: "write-capable task \(taskID) produced a non-empty diff against base")
+    } catch {
+      return CodingTaskVerification(
+        taskID: taskID, verified: false,
+        detail: "write-capable task \(taskID) diff verification failed: \(error.localizedDescription)")
     }
   }
 }

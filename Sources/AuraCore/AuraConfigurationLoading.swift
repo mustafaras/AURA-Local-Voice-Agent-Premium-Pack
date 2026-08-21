@@ -56,11 +56,41 @@ extension AuraConfiguration {
       .filter { !$0.isEmpty }
   }
 
-  /// Bootstrap-time configuration: neutral defaults unless the environment
-  /// explicitly requests the SP-011 live acceptance profile.
+  /// Bootstrap-time configuration: neutral defaults unless an explicit live
+  /// acceptance profile is requested. SP-012 only supplies non-secret bridge
+  /// coordinates through the process environment; the shared secret remains
+  /// user-entered through AURA's SecureField and is stored in Keychain.
   public static var bootstrap: AuraConfiguration {
-    ProcessInfo.processInfo.environment["AURA_SP011_LIVE_ACCEPTANCE"] == "1"
+    let environment = ProcessInfo.processInfo.environment
+    var configuration = environment["AURA_SP011_LIVE_ACCEPTANCE"] == "1"
       ? liveAcceptance : `default`
+    if environment["AURA_SP012_LIVE_ACCEPTANCE"] == "1" {
+      configuration.vscode = sp012LiveAcceptance(environment: environment).vscode
+    }
+    return configuration
+  }
+
+  /// Non-secret SP-012 bridge configuration used by the live acceptance
+  /// launcher and by deterministic tests. The shared secret is intentionally
+  /// absent; it is entered through the user-facing SecureField and stored only
+  /// by `provisionVSCodeBridge`.
+  public static func sp012LiveAcceptance(environment: [String: String]) -> AuraConfiguration {
+    let bridgeDirectory = environment["AURA_SP012_BRIDGE_DIRECTORY"]
+      ?? "\(NSHomeDirectory())/Library/Application Support/AURA/vscode-bridge"
+    let statePath = environment["AURA_SP012_STATE_PATH"]
+      ?? "\(bridgeDirectory)/vscode-state.json"
+    let commandPath = environment["AURA_SP012_COMMAND_PATH"]
+      ?? "\(bridgeDirectory)/vscode-command.json"
+    let responsePath = environment["AURA_SP012_RESPONSE_PATH"]
+      ?? "\(bridgeDirectory)/vscode-response.json"
+    var configuration = AuraConfiguration.default
+    configuration.vscode = VSCodeConfiguration(
+      cliPath: environment["AURA_SP012_CODE_PATH"] ?? "/usr/local/bin/code",
+      bridgeStatePath: statePath,
+      bridgeCommandPath: commandPath,
+      bridgeResponsePath: responsePath,
+      extensionID: environment["AURA_SP012_EXTENSION_ID"] ?? "ai.aura.vscode-bridge")
+    return configuration
   }
 
   /// Alias used by tests that only need the base set of subsystems before

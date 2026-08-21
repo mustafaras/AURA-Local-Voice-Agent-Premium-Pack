@@ -380,7 +380,7 @@ let package = Package(
         ),
         .testTarget(
             name: "AuraVSCodeTests",
-            dependencies: ["AuraVSCode", "AuraPolicy", "AuraSecurity"],
+            dependencies: ["AuraVSCode", "AuraPolicy", "AuraSecurity", "AuraShell"],
             swiftSettings: testingSwiftSettings
         ),
         .testTarget(

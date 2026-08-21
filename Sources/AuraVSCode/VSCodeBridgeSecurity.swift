@@ -2,24 +2,57 @@ import AuraCore
 import CryptoKit
 import Foundation
 
-private struct VSCodeEnvelopeValidationInput<P: Codable> {
+private struct VSCodeEnvelopeValidationInput {
   let protocolVersion: Int
   let extensionID: String
   let nonce: String
   let issuedAt: Date
   let expiresAt: Date
   let authenticationTag: String
-  let payload: P
+  /// Transmitted payload bytes the tag must cover.
+  let payloadText: String
   let expectedExtensionID: String?
   let now: Date
   let clockSkewSeconds: Double
+}
+
+/// Shared coder for bridge payload text. The authentication tag covers exactly
+/// the transmitted payload bytes, so both sides sign and verify the same string
+/// rather than a re-serialization of the decoded value. This removes every
+/// cross-language canonicalization dependency (key order, escaping, date
+/// precision, and fields one side does not model).
+enum VSCodeBridgePayloadCoder {
+  static func makeEncoder() -> JSONEncoder {
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .iso8601
+    encoder.outputFormatting = [.sortedKeys]
+    return encoder
+  }
+
+  static func makeDecoder() -> JSONDecoder {
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    return decoder
+  }
+
+  static func text<P: Encodable>(for payload: P) throws(AuraError) -> String {
+    do {
+      let data = try makeEncoder().encode(payload)
+      guard let text = String(data: data, encoding: .utf8) else {
+        throw AuraError.serializationError("could not encode VS Code bridge payload")
+      }
+      return text
+    } catch {
+      throw AuraError.serializationError("could not encode VS Code bridge payload")
+    }
+  }
 }
 
 /// Versioned, authenticated payload written by the companion VS Code
 /// extension. The bridge carries observations only; it never carries raw shell
 /// commands or authority to bypass AURA policy.
 public struct VSCodeBridgeSignedPayload: Codable, Sendable, Equatable {
-  public static let currentProtocolVersion = 1
+  public static let currentProtocolVersion = 2
 
   public let protocolVersion: Int
   public let extensionID: String
@@ -48,10 +81,34 @@ public struct VSCodeBridgeSignedPayload: Codable, Sendable, Equatable {
 public struct VSCodeBridgeEnvelope: Codable, Sendable, Equatable {
   public let payload: VSCodeBridgeSignedPayload
   public let authenticationTag: String
+  /// Exact transmitted JSON text of `payload`. The authentication tag is
+  /// computed over these bytes, never over a re-encoding of `payload`.
+  public let payloadText: String
+
+  private enum CodingKeys: String, CodingKey {
+    case payload
+    case authenticationTag
+  }
 
   public init(payload: VSCodeBridgeSignedPayload, authenticationTag: String) {
     self.payload = payload
     self.authenticationTag = authenticationTag
+    self.payloadText = (try? VSCodeBridgePayloadCoder.text(for: payload)) ?? ""
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let text = try container.decode(String.self, forKey: .payload)
+    self.payloadText = text
+    self.payload = try VSCodeBridgePayloadCoder.makeDecoder()
+      .decode(VSCodeBridgeSignedPayload.self, from: Data(text.utf8))
+    self.authenticationTag = try container.decode(String.self, forKey: .authenticationTag)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(payloadText, forKey: .payload)
+    try container.encode(authenticationTag, forKey: .authenticationTag)
   }
 }
 
@@ -86,10 +143,34 @@ public struct VSCodeBridgeCommandPayload: Codable, Sendable, Equatable {
 public struct VSCodeBridgeCommandEnvelope: Codable, Sendable, Equatable {
   public let payload: VSCodeBridgeCommandPayload
   public let authenticationTag: String
+  /// Exact transmitted JSON text of `payload`. The authentication tag is
+  /// computed over these bytes, never over a re-encoding of `payload`.
+  public let payloadText: String
+
+  private enum CodingKeys: String, CodingKey {
+    case payload
+    case authenticationTag
+  }
 
   public init(payload: VSCodeBridgeCommandPayload, authenticationTag: String) {
     self.payload = payload
     self.authenticationTag = authenticationTag
+    self.payloadText = (try? VSCodeBridgePayloadCoder.text(for: payload)) ?? ""
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let text = try container.decode(String.self, forKey: .payload)
+    self.payloadText = text
+    self.payload = try VSCodeBridgePayloadCoder.makeDecoder()
+      .decode(VSCodeBridgeCommandPayload.self, from: Data(text.utf8))
+    self.authenticationTag = try container.decode(String.self, forKey: .authenticationTag)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(payloadText, forKey: .payload)
+    try container.encode(authenticationTag, forKey: .authenticationTag)
   }
 }
 
@@ -125,10 +206,34 @@ public struct VSCodeBridgeResponsePayload: Codable, Sendable, Equatable {
 public struct VSCodeBridgeResponseEnvelope: Codable, Sendable, Equatable {
   public let payload: VSCodeBridgeResponsePayload
   public let authenticationTag: String
+  /// Exact transmitted JSON text of `payload`. The authentication tag is
+  /// computed over these bytes, never over a re-encoding of `payload`.
+  public let payloadText: String
+
+  private enum CodingKeys: String, CodingKey {
+    case payload
+    case authenticationTag
+  }
 
   public init(payload: VSCodeBridgeResponsePayload, authenticationTag: String) {
     self.payload = payload
     self.authenticationTag = authenticationTag
+    self.payloadText = (try? VSCodeBridgePayloadCoder.text(for: payload)) ?? ""
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let text = try container.decode(String.self, forKey: .payload)
+    self.payloadText = text
+    self.payload = try VSCodeBridgePayloadCoder.makeDecoder()
+      .decode(VSCodeBridgeResponsePayload.self, from: Data(text.utf8))
+    self.authenticationTag = try container.decode(String.self, forKey: .authenticationTag)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(payloadText, forKey: .payload)
+    try container.encode(authenticationTag, forKey: .authenticationTag)
   }
 }
 
@@ -166,7 +271,7 @@ public struct VSCodeBridgeAuthenticator: Sendable {
     )
     return VSCodeBridgeEnvelope(
       payload: payload,
-      authenticationTag: try tag(for: payload)
+      authenticationTag: tag(forText: try VSCodeBridgePayloadCoder.text(for: payload))
     )
   }
 
@@ -197,7 +302,8 @@ public struct VSCodeBridgeAuthenticator: Sendable {
     guard payload.expiresAt > now else {
       throw AuraError.securityError("VS Code bridge envelope is expired")
     }
-    guard envelope.authenticationTag == (try tag(for: payload)) else {
+    guard constantTimeEquals(envelope.authenticationTag, tag(forText: envelope.payloadText))
+    else {
       throw AuraError.securityError("VS Code bridge authentication failed")
     }
   }
@@ -224,7 +330,7 @@ public struct VSCodeBridgeAuthenticator: Sendable {
     )
     return VSCodeBridgeCommandEnvelope(
       payload: payload,
-      authenticationTag: try tag(for: payload)
+      authenticationTag: tag(forText: try VSCodeBridgePayloadCoder.text(for: payload))
     )
   }
 
@@ -252,7 +358,7 @@ public struct VSCodeBridgeAuthenticator: Sendable {
     )
     return VSCodeBridgeResponseEnvelope(
       payload: payload,
-      authenticationTag: try tag(for: payload)
+      authenticationTag: tag(forText: try VSCodeBridgePayloadCoder.text(for: payload))
     )
   }
 
@@ -270,7 +376,7 @@ public struct VSCodeBridgeAuthenticator: Sendable {
         issuedAt: envelope.payload.issuedAt,
         expiresAt: envelope.payload.expiresAt,
         authenticationTag: envelope.authenticationTag,
-        payload: envelope.payload,
+        payloadText: envelope.payloadText,
         expectedExtensionID: expectedExtensionID,
         now: now,
         clockSkewSeconds: clockSkewSeconds
@@ -296,7 +402,7 @@ public struct VSCodeBridgeAuthenticator: Sendable {
         issuedAt: envelope.payload.issuedAt,
         expiresAt: envelope.payload.expiresAt,
         authenticationTag: envelope.authenticationTag,
-        payload: envelope.payload,
+        payloadText: envelope.payloadText,
         expectedExtensionID: expectedExtensionID,
         now: now,
         clockSkewSeconds: clockSkewSeconds
@@ -304,8 +410,8 @@ public struct VSCodeBridgeAuthenticator: Sendable {
     )
   }
 
-  private func validateEnvelope<P: Codable>(
-    _ input: VSCodeEnvelopeValidationInput<P>
+  private func validateEnvelope(
+    _ input: VSCodeEnvelopeValidationInput
   ) throws(AuraError) {
     guard input.protocolVersion == VSCodeBridgeSignedPayload.currentProtocolVersion else {
       throw AuraError.securityError("unsupported VS Code bridge protocol version")
@@ -327,21 +433,26 @@ public struct VSCodeBridgeAuthenticator: Sendable {
     guard input.expiresAt > input.now else {
       throw AuraError.securityError("VS Code bridge envelope is expired")
     }
-    guard input.authenticationTag == (try tag(for: input.payload)) else {
+    guard constantTimeEquals(input.authenticationTag, tag(forText: input.payloadText)) else {
       throw AuraError.securityError("VS Code bridge authentication failed")
     }
   }
 
-  private func tag<P: Encodable>(for payload: P) throws(AuraError) -> String {
-    do {
-      let encoder = JSONEncoder()
-      encoder.dateEncodingStrategy = .iso8601
-      encoder.outputFormatting = [.sortedKeys]
-      let data = try encoder.encode(payload)
-      let code = HMAC<SHA256>.authenticationCode(for: data, using: key)
-      return Data(code).base64EncodedString()
-    } catch {
-      throw AuraError.serializationError("could not encode VS Code bridge payload")
+  /// Authenticates the exact transmitted payload bytes.
+  private func tag(forText text: String) -> String {
+    let code = HMAC<SHA256>.authenticationCode(for: Data(text.utf8), using: key)
+    return Data(code).base64EncodedString()
+  }
+
+  /// Compares tags without leaking match position through timing.
+  private func constantTimeEquals(_ lhs: String, _ rhs: String) -> Bool {
+    let left = Array(lhs.utf8)
+    let right = Array(rhs.utf8)
+    guard left.count == right.count else { return false }
+    var difference: UInt8 = 0
+    for index in left.indices {
+      difference |= left[index] ^ right[index]
     }
+    return difference == 0
   }
 }

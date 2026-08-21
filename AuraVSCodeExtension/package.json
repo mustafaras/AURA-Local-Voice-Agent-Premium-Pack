@@ -2,11 +2,17 @@
   "name": "aura-vscode-extension",
   "displayName": "AURA Bridge",
   "description": "Authenticated local bridge between AURA and VS Code.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "aura",
-  "engines": { "vscode": "^1.96.0" },
-  "categories": ["Other"],
-  "activationEvents": ["onStartupFinished"],
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [

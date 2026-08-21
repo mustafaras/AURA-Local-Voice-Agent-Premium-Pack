@@ -62,6 +62,20 @@ trip has run. The next safe action is to install the `.vsix`, set the three
 bridge paths, provision a shared secret through AURA and the extension command,
 and capture live evidence before marking SP-012 completed.
 
+**2026-08-21 update (EV-SP-012-20260821-LIVE-ACCEPTANCE-02):** the live
+authenticated round trip is now proven. The companion extension `0.2.0` is
+installed and live in VS Code 1.134, both halves are paired with a matching
+shared secret, and an env-gated in-process Swift suite read the Keychain secret
+(via the production `KeychainSecretStore`) and drove live `.editor` and
+`.workspace` commands end to end — all passing, with the secret value never in
+the agent context. Two live-path product defects were found and fixed (a
+response-timing race in `VSCodeFileBridge.execute`, and a cross-language
+optional-collection decode mismatch). `AuraVSCodeTests` 40/40,
+`SP011LiveAcceptanceReadinessTests` 24/24, validator PASSED. The live
+disconnect/version-mismatch/replay/stale-editor/dirty-buffer/confirmation and
+revoke-to-fail-closed legs remain unobserved and each requires a user-present
+re-pair, so SP-012 stays `in_progress`/`blocked` and SP-013 is not started.
+
 
 ## Canonical State Notice — 2026-08-09
 

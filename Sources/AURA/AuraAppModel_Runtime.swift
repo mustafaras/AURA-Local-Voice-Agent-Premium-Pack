@@ -39,6 +39,7 @@ extension AuraAppModel {
         confirmationPresenter: confirmationPresenter)
       self.kernel = kernel
       try await kernel.start()
+      refreshVSCodeBridgeProvisioning()
       await refreshRuntimeHealth()
       refreshProductSnapshots()
       refreshConfigurationInspection()
