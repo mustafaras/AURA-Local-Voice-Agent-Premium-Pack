@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-20T11:42:13Z",
-  "session_id": "AURA-SP-012-DETERMINISTIC-BRIDGE-20260820",
-  "active_prompt": "SP-012",
+  "updated_at": "2026-08-21T14:45:00Z",
+  "session_id": "AURA-SP-013-COORDINATOR-LIFECYCLE-20260821",
+  "active_prompt": "SP-014",
   "active_state": "in_progress",
   "completed_prompts": [
     "SP-000",
@@ -19,10 +19,14 @@
     "SP-008",
     "SP-009",
     "SP-010",
-    "SP-011"
+    "SP-011",
+    "SP-012",
+    "SP-013"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-013-20260821-COORDINATOR-ROUTING-01",
+    "EV-SP-012-20260821-LIVE-ACCEPTANCE-02",
     "EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01",
     "EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13",
     "EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12",
@@ -78,7 +82,7 @@
   ],
   "authority": {
     "edit": true,
-    "launch_or_install_app": false,
+    "launch_or_install_app": true,
     "mutate_permissions": false,
     "install_dependencies": false,
     "download_models": false,
@@ -89,7 +93,7 @@
     "push": false,
     "merge": false,
     "release_or_deploy": false,
-    "source": "SP-012 follow-up: edit/local-package authority only"
+    "source": "User-supplied SP-012 Codex live-acceptance prompt: install/launch/provisioning authority only; no delivery or permission mutation."
   },
   "control_files": {
     "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -102,5 +106,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-012 deterministic source-side passed and the companion extension is packaged (aura-vscode-extension-0.1.0.vsix). Added the previously-missing AURA user-controlled provisioning path (provisionVSCodeBridge/revokeVSCodeBridge/vscodeBridgeProvisioned). Remaining blocker is live acceptance: install the .vsix in VS Code, set the three bridge paths, provision the shared secret through AURA and the extension command, and run a live authenticated round trip with disconnect/version-mismatch/replay/stale-editor/dirty-buffer/confirmation paths. Only then may SP-012 be marked completed."
+  "next_action": "SP-013 completed under EV-SP-013-20260821-COORDINATOR-ROUTING-01: coordinator routes resolved workspace/worktree + mode sandbox tier into per-backend runner context; write-capable diff-evidence postcondition fails closed on false-backend-success; live codex/claude/copilot CLI probes confirm version/interface with auth/model left unverified. SP-014 (coding-assistant live acceptance) is next under its own authority."
 }

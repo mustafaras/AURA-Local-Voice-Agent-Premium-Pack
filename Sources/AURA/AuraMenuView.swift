@@ -4,6 +4,7 @@ import SwiftUI
 
 struct AuraMenuView: View {
   @ObservedObject var model: AuraAppModel
+  @Environment(\.openSettings) var openSettings
 
   var language: AuraUILanguage { model.productUIState.language }
 
@@ -278,6 +279,27 @@ struct AuraSettingsView: View {
         Button("Open Accessibility Settings") { model.openAccessibilitySettings() }
         Button("Open Screen Recording Settings") { model.openScreenRecordingSettings() }
         Button("Refresh Permission Status") { model.refreshPermissions() }
+      }
+      Section("VS Code Bridge") {
+        if model.isVSCodeBridgeAcceptanceEnabled {
+          Text("Local authenticated bridge; the shared secret stays in AURA Keychain and VS Code SecretStorage.")
+            .foregroundStyle(.secondary)
+          LabeledContent("Extension ID", value: model.vscodeBridgeExtensionID)
+          SecureField("Shared secret (16+ characters)", text: $model.vscodeBridgeSecret)
+            .textContentType(.password)
+          HStack {
+            Button("Provision in AURA") { model.provisionVSCodeBridge() }
+              .disabled(model.vscodeBridgeSecret.utf8.count < 16)
+            Button("Revoke") { model.revokeVSCodeBridge() }
+              .disabled(!model.isVSCodeBridgeProvisioned)
+          }
+          LabeledContent(
+            "AURA Keychain",
+            value: model.isVSCodeBridgeProvisioned ? "Provisioned" : "Not provisioned")
+        } else {
+          Text("The SP-012 live bridge profile is not enabled.")
+            .foregroundStyle(.secondary)
+        }
       }
       Section("Privacy") {
         Text("Speech recognition and system speech synthesis remain on device.")

@@ -928,16 +928,29 @@ second pass and do not close the R6 prompt gate.
 
 - Complete and provision the real authenticated VS Code extension transport;
   the current file bridge is a bounded local contract and has no live extension
-  package or shared-secret onboarding evidence.
+  package or shared-secret onboarding evidence. **DONE under
+  `EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01` + `EV-SP-012-20260821-LIVE-ACCEPTANCE-02`.**
 - Connect the typed workspace/editor/diagnostics/task/test/terminal routes to a
   real extension and verify disconnect, version mismatch, stale state, dirty
   buffers, and user confirmation behavior on the live path.
+  **DONE — all six failure modes and revoke-to-fail-closed exercised live under
+  `EV-SP-012-20260821-LIVE-ACCEPTANCE-02`.**
 - Complete the coding-agent backend gate for exact interface/version,
   authentication, model availability, sandbox/approval, cancellation,
   network, workspace, cost/time/file budgets, and actionable disabled states.
+  **SP-013 (2026-08-21) probed the real CLIs (codex 0.142.0, claude 2.1.195,
+  copilot 1.0.80), records exact version/interface, keeps auth/model
+  `.unverified` (fail-closed), and routes the resolved workspace/worktree and
+  mode sandbox tier into the per-backend runner context. **SP-013 completed**;
+  live model turn and auth/model/cancellation/network/budget evidence remain
+  the first-pass R6 live gate (`EV-SP-013-20260821-COORDINATOR-ROUTING-01`).**
 - Exercise durable read-only, review-only, and write-capable flows with
   explicit workspace resolution, isolated worktrees, progress/checkpoints,
   cancellation, restart/resume, diff/test/evidence verification, and cleanup.
+  **SP-013 added read-only/review-only/write-capable coordinator tests with a
+  real worktree manager and real task engine, and a diff-evidence
+  postcondition verification that fails closed on false-backend-success
+  (`EV-SP-013-20260821-COORDINATOR-ROUTING-01`).**
 - Keep the repository-wide test gate honest: the clean scratch SwiftPM run
   passed 21/21 bundles and 763/763 tests after placing the existing
   CommandLineTools `Testing.framework` and interop library in the temporary
@@ -947,6 +960,21 @@ second pass and do not close the R6 prompt gate.
   that unrelated audio limitation into a false R6 product claim.
 - Run the required user-present live acceptance, including no unauthorized
   commit/push/merge/release/deploy, before closing R6 or accepting ADR-041.
+
+**2026-08-21 update (EV-SP-012-20260821-LIVE-ACCEPTANCE-02):** the live
+authenticated round trip is now proven. The companion extension `0.2.0` is
+installed and live in VS Code 1.134, both halves are paired with a matching
+shared secret (AURA Keychain ↔ VS Code SecretStorage), and an env-gated
+in-process Swift suite read the Keychain secret and drove live `.editor` and
+`.workspace` commands end to end without the secret entering the agent context.
+Two live-path product defects were found and fixed (a response-timing race and
+a cross-language optional-collection decode mismatch). **All six named failure
+modes (disconnect, version mismatch, replay, stale editor, dirty buffer,
+confirmation-required) and revoke-to-fail-closed were exercised live** and are
+covered by the live suite; revoke was followed by in-process pairing restore.
+`AuraVSCodeTests` 47/47 and the validator pass. SP-012 is **completed**. The
+remaining OPEN-07 coding-agent backend and durable-task-lifecycle work is owned
+by SP-013.
 
 ## OPEN-08 — R7: Wake Word, STT/TTS Routing, and Resource Governor
 

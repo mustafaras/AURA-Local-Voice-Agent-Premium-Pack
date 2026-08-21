@@ -3,12 +3,58 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `SP-012`
 > **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, R6/SP-012 active
-> **Live repository lineage:** `main` contains the delivered control-plane projections, with verified non-projection baseline `bdedcb7c809087aaeaa572f862ae0d3edbcf229e`; later descendants are control-plane-only projections. Main CI run `31613321170` remains a historical queued observation and is not used as a pass for this control-plane session. No repository-defined signed/notarized/public deployment target exists.
+> **Live repository lineage:** `main` is clean and synchronized at `c6e5d3d183c8e293806bb9d55bbf4e44dffcefea`; the live-acceptance prompt is a control-plane-only descendant of the deterministic bridge delivery. Main CI run `31613321170` remains a historical queued observation and is not used as a pass for this control-plane session. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
 
-## Current second-pass overlay — 2026-08-20 (SP-012 in_progress / blocked)
+## Canonical status
+
+## Current second-pass overlay — 2026-08-21 (SP-013 completed; SP-014 next)
+
+`SP-014` / `in_progress` — `SP-013` is **`completed`** under
+`EV-SP-013-20260821-COORDINATOR-ROUTING-01`. `SP-012` was completed under
+`EV-SP-012-20260821-LIVE-ACCEPTANCE-02`. `SP-011` was completed under
+`EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`.
+
+The extension `aura.aura-vscode-extension` **0.2.0** is installed and live in
+VS Code 1.134, writing fresh signed v2 envelopes to the configured bridge
+directory. AURA's Keychain holds the matching shared secret. An env-gated
+in-process Swift suite (`AuraVSCodeLiveAcceptanceTests`) read that Keychain
+secret via the production `KeychainSecretStore` and drove live `.editor` and
+`.workspace` commands through the real `VSCodeFileBridge` **without the shared
+secret ever passing through the agent context**. All six named failure modes
+(disconnect, version mismatch, replay, stale editor, dirty buffer,
+confirmation-required) and the revoke-to-fail-closed leg were exercised live;
+revoke was followed by in-process pairing restore. Two live-path product
+defects were found and fixed (response-timing race; and a cross-language decode
+mismatch where the extension omits empty collection fields). `AuraVSCodeTests`
+47/47, `validate_second_pass_program.py` PASSED. SP-012 is **`completed`**;
+SP-013 is safe to start.
+
+**SP-013 slice (2026-08-21, `EV-SP-013-20260821-COORDINATOR-ROUTING-01`):** the
+`CodingTaskCoordinator` now routes the resolved workspace and the mode's sandbox
+tier into the per-backend runner context keys (`codex.workingDirectory`/
+`codex.sandbox`, `claude.*`, `copilot.*`) — before, a write-capable task ran in
+the backend's default directory with a read-only sandbox, so the prepared
+worktree was disconnected from execution and read/review/write all ran
+identically. Added `verifyCompletion`: a write-capable task is only verified if
+its worktree has a non-empty `git diff` against base (false-backend-success
+fails closed). A live Procedure-1 probe invoked the real `codex` 0.142.0 /
+`claude` 2.1.195 / `copilot` 1.0.80 CLIs through the production
+`AuraShellAgentBackendCommandRunner`, asserting `.degraded` + captured version +
+`.unverified` auth/model. `AuraAgentTests` 230/230, `AuraTasksTests` 12/12, full
+wrapper `Failed bundles: 0`, validator PASSED. **SP-013 is `completed`**;
+SP-014 (coding-assistant live acceptance) is next.
+
+This session has explicit user-supplied authority for `code --install-extension`,
+AURA/VS Code launch, shared-secret provisioning, and bounded live observation.
+Commit, push, merge, release, notarization, provider accounts, TCC mutation,
+telemetry, and beta enrollment remain excluded. The shared secret must be
+entered by the user into VS Code's password prompt and must not enter logs,
+chat, or repository evidence.
+
+## Current second-pass overlay — 2026-08-20 (SP-012 deterministic + provisioning path; live pending)
 
 `SP-012` / `in_progress` / `blocked` — `SP-011` is **completed** under
 `EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13`. The deterministic
@@ -47,6 +93,13 @@ not been mirrored into VS Code `SecretStorage`, and no live authenticated round
 trip has run. The next safe action is to install the `.vsix`, set the three
 bridge paths, provision a shared secret through AURA and the extension command,
 and capture live evidence.
+
+This session has explicit user-supplied authority for `code --install-extension`,
+AURA/VS Code launch, shared-secret provisioning, and bounded live observation.
+Commit, push, merge, release, notarization, provider accounts, TCC mutation,
+telemetry, and beta enrollment remain excluded. The shared secret must be
+entered by the user into VS Code's password prompt and must not enter logs,
+chat, or repository evidence.
 
 ## Current second-pass overlay — 2026-08-19 (SP-011 native legs live; Safari packaged; prompt BLOCKED)
 

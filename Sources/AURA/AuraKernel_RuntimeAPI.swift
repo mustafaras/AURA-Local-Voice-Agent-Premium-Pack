@@ -202,6 +202,18 @@ extension AuraKernel {
     return try await secretStore.retrieveSecret(forExtensionID: extensionID) != nil
   }
 
+  /// SP-012: perform a read-only, policy-authorized editor-state round trip
+  /// through the authenticated VS Code extension bridge. The returned model
+  /// stays in-process; callers must not surface its private editor details in
+  /// status text or evidence.
+  func readVSCodeEditorState() async -> Result<VSCodeBridgeCommandResult, AuraError> {
+    guard started, let vscodeAdapter else {
+      return .failure(.invalidConfiguration("AURA runtime is not started"))
+    }
+    return await vscodeAdapter.executeBridge(
+      .editor, actor: .user, correlationID: UUID().uuidString)
+  }
+
   func triggerEmergencyStop() async {
     await emergencyStop?.trigger(source: .userInterface, reason: "User activated emergency stop")
   }

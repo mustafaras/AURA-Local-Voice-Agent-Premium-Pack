@@ -26,8 +26,8 @@ export class CommandHandler {
     data: Buffer,
     authenticator: BridgeAuthenticator
   ): Promise<string> {
-    const command = await authenticator.validateCommand(data);
-    if (!command) {
+    const validated = await authenticator.validateCommand(data);
+    if (!validated) {
       const envelope = await authenticator.signResponse('unknown', {
         outcome: 'unavailable',
         message: 'command authentication or freshness check failed'
@@ -35,9 +35,11 @@ export class CommandHandler {
       return envelope ? JSON.stringify(envelope) : '{}';
     }
 
+    const { command, nonce } = validated;
     this.logger.log(`handling command: ${command.kind}`);
     const result = await this.execute(command);
-    const envelope = await authenticator.signResponse(command.kind, result);
+    // The response must echo the request nonce, not the command kind.
+    const envelope = await authenticator.signResponse(nonce, result);
     return envelope ? JSON.stringify(envelope) : '{}';
   }
 
@@ -58,8 +60,8 @@ export class CommandHandler {
         return {
           outcome: 'completed',
           message: 'editor state',
-          editor: this.collector.collect().then((s) => s.editor)
-        } as unknown as BridgeCommandResult;
+          editor: (await this.collector.collect()).editor
+        };
       case 'diagnostics':
         return {
           outcome: 'completed',

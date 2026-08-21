@@ -11,12 +11,18 @@ extension VSCodeFileBridge {
       command: command, extensionID: context.extensionID, nonce: requestNonce,
       lifetimeSeconds: context.timeoutSeconds)
     let data = try encodeCommand(envelope)
+    // Record the request time *before* issuing the command so a response the
+    // extension writes within the same wall-clock tick is never misread as a
+    // stale file. The response must only be newer than the command we just
+    // sent, never newer than an arbitrary post-write timestamp.
+    let requestDate = Date()
     try writeCommand(data, to: context.commandPath)
     return try await awaitResponse(
       BridgeResponseContext(
         responsePath: context.responsePath, extensionID: context.extensionID,
         requestNonce: requestNonce, timeoutSeconds: context.timeoutSeconds,
-        authenticator: context.authenticator))
+        authenticator: context.authenticator),
+      requestDate: requestDate)
   }
 
   private func executionContext(
@@ -73,9 +79,9 @@ extension VSCodeFileBridge {
   }
 
   private func awaitResponse(
-    _ context: BridgeResponseContext
+    _ context: BridgeResponseContext,
+    requestDate: Date
   ) async throws(AuraError) -> VSCodeBridgeCommandResult {
-    let requestDate = Date()
     let deadline = requestDate.addingTimeInterval(context.timeoutSeconds)
     let responseURL = URL(fileURLWithPath: context.responsePath)
     let decoder = JSONDecoder()
