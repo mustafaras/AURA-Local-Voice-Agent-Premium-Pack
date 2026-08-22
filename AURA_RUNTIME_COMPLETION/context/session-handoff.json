@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "updated_at": "2026-08-22T16:00:00Z",
   "session_id": "AURA-SP-014-LIVE-ACCEPTANCE-20260822",
-  "last_verified_commit": "1d12c91",
+  "last_verified_commit": "22c54fefb4c967505bcf3ed052a2edac98602278",
   "active_prompt": {
     "id": "SP-015",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-015_WAKE_WORD_DECISION_AND_EVALUATION.prompt.md",
