@@ -8,6 +8,49 @@
 
 ## Canonical status
 
+## Second-pass synchronized overlay — 2026-08-22 (SP-016 RE-VERIFIED; SP-017 next)
+
+`SP-017` / `pending` — `SP-016` is **`completed`**, now on adequate evidence,
+under `EV-SP-016-20260822-RECOVERY-MATRIX-04`.
+
+An operator re-verification pass found **two real defects** in the closure
+recorded earlier the same day. Both are fixed; the earlier overlay below stands
+as written.
+
+1. **A false blocker.** `EV-SP-016-20260822-BILINGUAL-QUALITY-03` recorded that
+   device-change recovery could not be tested without a Microphone grant for the
+   test host. That was inferred from the code and never run. `AuraAudio.start()`
+   reaches `.running` in the SwiftPM test host, so the path was deterministically
+   testable all along. A pre-existing permissive test that accepted either
+   `.running` or `.idle` had concealed it.
+2. **A missing capability.** SP-016 Procedure step 2 names sleep/wake, and there
+   was **no sleep/wake handling anywhere in `Sources/`**. SP-016 had been marked
+   `completed` with that leg neither implemented, tested, nor excluded.
+
+`AuraAudio` now suspends capture on sleep — engine stopped, tap removed, privacy
+indicator cleared, recoverable error emitted — instead of leaving a dead tap
+under a `.running` actor, and resumes on wake **only** when sleep caused the
+suspension, so an explicit user stop is never undone.
+`Tests/AuraAudioTests/SP016DeviceRecoveryTests.swift` (4 tests) locks
+device-change recovery, sleep/wake, and the privacy invariant that neither ever
+reopens the microphone after a user stop.
+
+**All eight legs named by Procedure step 2** are now implemented and
+deterministically covered; self-trigger protection is **not applicable** in the
+shipped Push-to-Talk-only scope, since the microphone opens only on an explicit
+press.
+
+**Residual:** `RISK-VOICE-RECOVERY-LIVE` stays **Open**, narrowed to *physical*
+verification — coverage is notification-driven, so no headset is unplugged, no
+real CoreAudio route change occurs, the machine is never actually slept, and
+acoustic barge-in/echo over a real speaker-to-mic path is unexercised. That
+needs a user-present session, not more authority.
+
+Full suite **21/21 bundles, 0 failed, run twice**; four governance validators
+exit 0; 38 governance tests OK.
+
+---
+
 ## Second-pass synchronized overlay — 2026-08-22 (SP-016 COMPLETED; SP-017 next)
 
 `SP-017` / `pending` — `SP-016` is **`completed`** under

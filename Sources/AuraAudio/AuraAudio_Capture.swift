@@ -1,4 +1,5 @@
 import AVFoundation
+import AppKit
 import AuraCore
 import Foundation
 
@@ -52,6 +53,7 @@ extension AuraAudio {
       await emitCaptureStarted(
         deviceID: inputFormat.channelLayout?.description, correlationID: correlationID)
       observeConfigurationChanges()
+      observeSleepWake()
 
       await logger.info("Audio capture running", correlationID: correlationID, actor: .audio)
     } catch {
@@ -107,6 +109,11 @@ extension AuraAudio {
 
     configurationChangeTask?.cancel()
     configurationChangeTask = nil
+    sleepWakeTask?.cancel()
+    sleepWakeTask = nil
+    // An explicit stop must survive a later wake: clearing this is what stops
+    // the microphone reopening on its own after the user closed it.
+    shouldResumeAfterWake = false
 
     if let engine = engine {
       engine.stop()
@@ -251,6 +258,78 @@ extension AuraAudio {
         guard let self = self, !Task.isCancelled else { return }
         await self.handleConfigurationChange()
       }
+    }
+  }
+
+  /// Sleep tears audio hardware down underneath a running engine, and on wake
+  /// the tap is dead: capture reports `.running` while delivering nothing. The
+  /// user discovers this by pressing Push to Talk and being met with silence,
+  /// which is the worst possible failure for a voice agent because it looks
+  /// like the agent ignored them.
+  ///
+  /// Suspend deliberately on sleep and resume on wake, but only when capture
+  /// was actually running when sleep began.
+  private func observeSleepWake() {
+    sleepWakeTask?.cancel()
+    sleepWakeTask = Task { [weak self] in
+      let center = NSWorkspace.shared.notificationCenter
+      await withTaskGroup(of: Void.self) { group in
+        group.addTask {
+          for await _ in center.notifications(named: NSWorkspace.willSleepNotification) {
+            guard let self, !Task.isCancelled else { return }
+            await self.handleSystemWillSleep()
+          }
+        }
+        group.addTask {
+          for await _ in center.notifications(named: NSWorkspace.didWakeNotification) {
+            guard let self, !Task.isCancelled else { return }
+            await self.handleSystemDidWake()
+          }
+        }
+      }
+    }
+  }
+
+  private func handleSystemWillSleep() async {
+    guard state == .running else { return }
+    let correlationID = captureCorrelationID ?? UUID()
+    await logger.info(
+      "System sleeping; suspending audio capture",
+      correlationID: correlationID,
+      actor: .audio
+    )
+
+    shouldResumeAfterWake = true
+    state = .recovering
+    if let engine = engine {
+      engine.stop()
+      engine.inputNode.removeTap(onBus: 0)
+      self.engine = nil
+    }
+    // The indicator must go dark: the microphone is genuinely closed, and a
+    // lit indicator over a dead tap is a privacy lie in the wrong direction.
+    await emitIndicator(active: false)
+    await emitCaptureError(
+      message: "Audio capture suspended for system sleep; recovering on wake",
+      recoverable: true,
+      correlationID: correlationID
+    )
+  }
+
+  private func handleSystemDidWake() async {
+    guard shouldResumeAfterWake else { return }
+    shouldResumeAfterWake = false
+    let correlationID = captureCorrelationID ?? UUID()
+    await logger.info(
+      "System woke; resuming audio capture", correlationID: correlationID, actor: .audio)
+
+    do {
+      try await start()
+    } catch {
+      let message = "Resume after wake failed: \(error.localizedDescription)"
+      await logger.error(message, correlationID: correlationID, actor: .audio)
+      state = .idle
+      await emitCaptureError(message: message, recoverable: false, correlationID: correlationID)
     }
   }
 

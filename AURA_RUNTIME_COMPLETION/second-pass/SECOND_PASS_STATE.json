@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-22T21:40:00Z",
+  "updated_at": "2026-08-22T23:10:00Z",
   "session_id": "AURA-SP-016-BILINGUAL-QUALITY-20260822",
   "active_prompt": "SP-017",
   "active_state": "pending",
@@ -28,6 +28,7 @@
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-016-20260822-RECOVERY-MATRIX-04",
     "EV-SP-016-20260822-BILINGUAL-QUALITY-03",
     "EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02",
     "EV-SP-016-20260822-TURN-END-METRIC-01",
@@ -108,5 +109,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-016 completed (EV-SP-016-20260822-BILINGUAL-QUALITY-03). A signed diagnostic probe bundle holding a scoped Speech grant measured the real on-device engine over 48 recognitions: Turkish and English general+command speech pass at entity recall 1.000 (WER 0.000-0.306; residual is number normalization), finalization latency 0.05 s. Code-switched English technical tokens inside Turkish fail (WER 0.562 / entity recall 0.417) and contextual hints did not recover them (0.833 -> 0.792), so that capability is explicitly excluded from release scope with fail-closed behaviour locked by SP016BilingualFailClosedTests. SP-017 (TTS, resource soak, ADR-042) is safe to start. Carry RISK-VOICE-RECOVERY-LIVE forward: the hardware recovery matrix is NOT closed and AuraAudio.handleConfigurationChange has zero test coverage because reaching .running needs a Microphone grant for the test host — closure path is to extend the probe bundle with a Microphone usage description and grant."
+  "next_action": "SP-016 completed and re-verified (EV-SP-016-20260822-RECOVERY-MATRIX-04). Operator re-verification found two real defects in the first closure and both are fixed: the claim that device-change recovery needed a Microphone grant was wrong (AuraAudio.start() reaches .running in the SwiftPM test host), and sleep/wake recovery did not exist at all despite Procedure step 2 naming it. AuraAudio now suspends capture on sleep and resumes on wake only when sleep caused it, so an explicit user stop is never undone; SP016DeviceRecoveryTests (4 tests) locks device-change recovery, sleep/wake, and the privacy invariant. All eight Procedure-step-2 legs are implemented and covered (self-trigger protection is N/A in the Push-to-Talk-only scope). Full suite 21/21 bundles, 0 failed, run twice. SP-017 is safe to start. RISK-VOICE-RECOVERY-LIVE stays Open, narrowed to physical verification only: no headset unplug, no real CoreAudio route change, no real sleep cycle, no acoustic barge-in/echo."
 }

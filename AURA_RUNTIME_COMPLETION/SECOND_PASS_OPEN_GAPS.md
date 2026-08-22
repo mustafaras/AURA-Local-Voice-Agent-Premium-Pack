@@ -1102,6 +1102,31 @@ or ADR-042 approval.
     scoped authority (Speech only) deliberately excludes. Concrete closure path:
     extend the probe bundle with a Microphone usage description and grant, then
     post `.AVAudioEngineConfigurationChange` and assert recover-and-restart.
+  - **SP-016 recovery-matrix correction (2026-08-22,
+    `EV-SP-016-20260822-RECOVERY-MATRIX-04`):** the Microphone-grant blocker
+    stated immediately above was **wrong**, and is corrected here without
+    deleting it. It was inferred from the code rather than checked; a one-line
+    diagnostic showed `AuraAudio.start()` reaching `.running` in the SwiftPM
+    test host, so device-change recovery was deterministically testable all
+    along and needed no extra authority. A second, larger defect surfaced in
+    the same audit: **sleep/wake recovery did not exist at all** — no
+    `willSleep`/`didWake` handling anywhere in `Sources/` — even though
+    Procedure step 2 names it. Both are now closed: `AuraAudio` suspends
+    capture on sleep (engine stopped, tap removed, privacy indicator cleared,
+    recoverable error emitted) and resumes on wake **only** if the suspension
+    was caused by sleep, so an explicit user stop is never undone;
+    `Tests/AuraAudioTests/SP016DeviceRecoveryTests.swift` (4 tests) covers
+    device-change recovery, sleep/wake, and the privacy invariant that neither
+    ever reopens the microphone after a user stop. Every leg named by Procedure
+    step 2 is now implemented and deterministically covered (self-trigger
+    protection is **not applicable** in the shipped Push-to-Talk-only scope,
+    since the microphone opens only on an explicit press).
+  - **Still open after the correction:** `RISK-VOICE-RECOVERY-LIVE` — the legs
+    are covered by **notification-driven** tests, not physical acts. No headset
+    is unplugged, no real CoreAudio route change occurs, the machine is never
+    actually slept, and acoustic barge-in/echo over a real speaker-to-mic path
+    is unexercised. Closing that needs a user-present session with physical
+    acts, not more authority.
     Human-speech quality (accent, disfluency, real room acoustics, real
     microphone colouration) also remains unmeasured; the synthetic corpus is an
     optimistic bound.

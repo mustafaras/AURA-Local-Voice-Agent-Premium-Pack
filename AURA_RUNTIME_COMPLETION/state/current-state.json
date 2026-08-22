@@ -18,7 +18,7 @@
     "id": "R7",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
     "state": "in_progress",
-    "step": "R7 via second pass: SP-016 completed (EV-SP-016-20260822-BILINGUAL-QUALITY-03). Bilingual STT measured on target hardware through the real on-device engine: Turkish/English general+command pass at entity recall 1.000, finalization latency 0.05 s; code-switched English technical tokens fail (WER 0.562) with contextual hints disproven, so that capability is explicitly excluded and locked fail-closed. SP-017 next. RISK-VOICE-RECOVERY-LIVE stays open."
+    "step": "R7 via second pass: SP-016 completed and re-verified (EV-SP-016-20260822-RECOVERY-MATRIX-04). Re-verification found the device-change 'needs Microphone grant' blocker was false and that sleep/wake recovery did not exist; both fixed, with AuraAudio suspending on sleep and resuming on wake only when sleep caused it. All eight recovery legs covered. SP-017 next. RISK-VOICE-RECOVERY-LIVE open for physical verification only."
   },
   "tracks": [
     {
@@ -435,6 +435,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-016-20260822-RECOVERY-MATRIX-04",
     "EV-SP-016-20260822-BILINGUAL-QUALITY-03",
     "EV-SP-013-20260821-COORDINATOR-ROUTING-01",
     "EV-SP-012-20260821-LIVE-ACCEPTANCE-02",
@@ -483,8 +484,7 @@
     "EV-R9-20260808-FAIL-CLOSED-06",
     "EV-R9-20260808-UI-REGRESSION-05",
     "EV-R9-20260808-GAPS-04",
-    "EV-R9-20260808-UI-TESTS-03",
-    "EV-R9-20260808-UI-BUILD-02"
+    "EV-R9-20260808-UI-TESTS-03"
   ],
   "blockers": [
     "SP-011 is completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13. Every leg named in its procedure has live evidence and both revocation legs passed; mutation/send is explicitly excluded and asserted by test. OPEN-06 itself stays open for items SP-011 does not own, chiefly Developer ID signing and notarization (R11), which would remove Safari's Allow-unsigned-extensions requirement.",

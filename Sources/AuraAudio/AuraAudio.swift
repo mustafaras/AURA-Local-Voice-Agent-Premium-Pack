@@ -70,6 +70,11 @@ public actor AuraAudio {
   var totalFrames: UInt64 = 0
   var lastTapTimestamp: TimeInterval = 0
   var configurationChangeTask: Task<Void, Never>?
+  var sleepWakeTask: Task<Void, Never>?
+  /// Set only when the system put the machine to sleep while capture was
+  /// running. It is the sole authority for resuming on wake, so an explicit
+  /// user stop can never be undone by a later wake notification.
+  var shouldResumeAfterWake: Bool = false
   var captureCorrelationID: UUID?
 
   /// Monotonic clock source for tests and frame timestamps.
