@@ -10,6 +10,48 @@
 
 ## Canonical status
 
+## Current second-pass overlay — 2026-08-22 (SP-014 COMPLETED; SP-015 next)
+
+`SP-015` / `pending` — `SP-014` is **`completed`** under
+`EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02`. `SP-013` was completed
+under `EV-SP-013-20260821-COORDINATOR-ROUTING-01`; `SP-012` under
+`EV-SP-012-20260821-LIVE-ACCEPTANCE-02`.
+
+The SP-014 ten-step R6 live acceptance now passes on the approved scratch repo
+`~/.aura-sp014/approved-repo`. **P1 (read-only live claude turn) PASS**, **P2
+(write-capable task in an isolated worktree producing a real diff) PASS**, **P3
+(disabled backend accurate health) PASS**, **P4 (no unauthorized
+commit/push/merge/PR; HEAD unchanged) PASS.**
+
+Two remaining product gaps were closed:
+1. **Claude write-capable now uses `--permission-mode acceptEdits`** —
+   `ClaudeArguments`/`claudePermissionMode(for:)` derive the mode from the tool
+   profile (`readOnly` → `dontAsk`, `workspaceWrite` → `acceptEdits`). The
+   previously hardcoded `dontAsk` blocked Write/Bash by design, so a write-capable
+   task could never actually write. `bypassPermissions` remains unreachable.
+2. **`WorktreeManager.diff` captures new (untracked) files** — it now returns
+   `git status --porcelain` + the tracked `git diff`, because a bare `git diff
+   <baseRef>` silently ignores untracked files, making a genuinely successful
+   new-file write look like a false-backend-success.
+
+Evidence: `EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02`. SP-014 is
+**`completed`**; **SP-015 (wake-word decision) is next**.
+
+## Current second-pass overlay — 2026-08-21 (SP-014 blocked)
+
+`SP-014` / `blocked` — SP-014's live acceptance was attempted on the approved
+scratch repo `~/.aura-sp014/approved-repo`. **P2 (write-capable with no diff
+fails closed), P3 (disabled backend accurate health), and P4 (no unauthorized
+commit/push/merge) PASS.** **P1 (read-only live claude turn) FAILS** because no
+backend can currently produce a genuine model turn: `claude -p` returns the
+session limit (resets 8:50pm Europe/Istanbul) and `--permission-mode dontAsk`
+blocks Write/Bash by design; `codex` default model `gpt-5.6-luna` requires a
+newer CLI and `gpt-5.1-codex` is rejected for a ChatGPT account; `copilot`
+monthly quota is exhausted. The SP-014 completion gate ("all live coding
+scenarios pass") is therefore **not met**. **SP-014 is `blocked`; SP-015 must
+NOT be opened.** Evidence:
+`EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01`.
+
 ## Current second-pass overlay — 2026-08-21 (SP-013 completed; SP-014 next)
 
 `SP-014` / `in_progress` — `SP-013` is **`completed`** under

@@ -2,30 +2,39 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-21T14:30:00Z",
-  "session_id": "AURA-SP-012-LIVE-ACCEPTANCE-20260821",
+  "updated_at": "2026-08-22T16:00:00Z",
+  "session_id": "AURA-SP-014-LIVE-ACCEPTANCE-20260822",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "c6e5d3d183c8e293806bb9d55bbf4e44dffcefea",
-    "remote_head": "c6e5d3d183c8e293806bb9d55bbf4e44dffcefea",
+    "verified_head": "1d12c91",
+    "remote_head": "1d12c91",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
       "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
       "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
       "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-      "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
-      "AURA_RUNTIME_COMPLETION/state/current-state.json"
+      "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01.md",
+      "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/current-state.json",
+      "Sources/AuraAgent/ClaudeArguments.swift",
+      "Sources/AuraAgent/ClaudeAdapter.swift",
+      "Sources/AuraAgent/WorktreeManager.swift",
+      "Tests/AuraAgentTests/SP014LiveAcceptanceTests.swift",
+      "Tests/AuraAgentTests/ClaudeArgumentsTests.swift"
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "SP-014",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-014_CODING_ASSISTANT_LIVE_ACCEPTANCE.prompt.md",
-    "state": "in_progress",
-    "step": "SP-013 completed (EV-SP-013-20260821-COORDINATOR-ROUTING-01): coordinator routes resolved workspace/worktree + mode sandbox tier into per-backend runner context; write-capable diff-evidence postcondition fails closed on false-backend-success; real codex/claude/copilot CLI probes confirm version/interface with auth/model left unverified. SP-014 (coding-assistant live acceptance) is next. commit/push/merge/release/provider/TCC/telemetry/notarization remain excluded."
+    "id": "SP-015",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-015_WAKE_WORD_DECISION_AND_EVALUATION.prompt.md",
+    "state": "pending",
+    "step": "SP-014 COMPLETED under EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02: all four live legs pass (P1 read-only claude turn, P2 write-capable with real diff, P3 accurate health, P4 no unauthorized delivery). Claude write-capable now uses acceptEdits; WorktreeManager.diff captures untracked files. AuraAgentTests 235/235. SP-015 (wake-word decision) is next. commit/push/export/release/provider/TCC/telemetry/notarization remain excluded."
   },
   "tracks": [
     {

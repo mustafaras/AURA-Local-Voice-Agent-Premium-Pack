@@ -10,18 +10,33 @@ import Foundation
 public let claudeWrapperPrompt =
   "Follow the objective provided via standard input, then respond accordingly."
 
+/// Maps a tool profile to the `--permission-mode` value.
+///
+/// `.readOnly` → `dontAsk` (deny any write; fail closed), `.workspaceWrite` →
+/// `acceptEdits` (auto-approve edits confined to the worktree). Never
+/// `bypassPermissions`.
+public func claudePermissionMode(for toolProfile: ClaudeToolProfile) -> String {
+  toolProfile == .readOnly ? "dontAsk" : "acceptEdits"
+}
+
 /// Builds the verified `claude -p` argument vector for a `ClaudeRunRequest`.
 ///
 /// Pure and unit-testable without spawning a process, mirroring
-/// `CodexArguments.make`. Invariants enforced structurally rather than by
+/// `CodexArguments.make`. Invitation enforced structurally rather than by
 /// convention:
-/// - `--permission-mode dontAsk` is always present and never derived from
-///   any parameter — `claude -p` has no TTY, and `dontAsk` is documented as
-///   "the only safe choice" for unattended/CI runs (any other mode either
-///   prompts, which blocks forever with no TTY, or bypasses checks entirely).
+/// - The permission mode is derived from the tool profile:
+///   `.readOnly` → `--permission-mode dontAsk` (deny any write; fail closed,
+///   exactly the unattended/CI-safe default), `.workspaceWrite` →
+///   `--permission-mode acceptEdits` (auto-approve edits — verified live to
+///   run under `-p` and produce a real file write — so a write-capable task
+///   can actually produce a diff). It is never `bypassPermissions`.
 /// - `--dangerously-skip-permissions`/`--allow-dangerously-skip-permissions`
 ///   never appear — structurally absent, not just avoided.
-/// - The real objective is never included here (see `claudeWrapperPrompt`).
+/// - A write-capable run is kept safe by the surrounding SP-013/SP-014
+///   boundary, not by the flag alone: it requires an explicit policy grant
+///   (`.agentClaudeRun`, `.destructive`), runs in an isolated `git` worktree,
+///   is verified by a non-empty `git diff` postcondition (false-backend-success
+///   fails closed), and the delivery/commit/push surface is separately gated.
 public enum ClaudeArguments {
   /// Build the argument vector. Throws if a requested working directory or
   /// `--add-dir` target falls outside `configuration.allowedWorkingDirectories`.
@@ -33,16 +48,15 @@ public enum ClaudeArguments {
       request.workingDirectory, allowedWorkingDirectories: configuration.allowedWorkingDirectories,
       makeError: AuraError.claudeError)
 
-    let tools =
-      request.toolProfile == .readOnly
-      ? configuration.readOnlyTools
-      : configuration.workspaceWriteTools
+    let isReadOnly = request.toolProfile == .readOnly
+    let tools = isReadOnly ? configuration.readOnlyTools : configuration.workspaceWriteTools
+    let permissionMode = claudePermissionMode(for: request.toolProfile)
 
     var args: [String] = [
       "-p",
       "--output-format", "stream-json",
       "--verbose",
-      "--permission-mode", "dontAsk",
+      "--permission-mode", permissionMode,
       "--tools", tools.joined(separator: ","),
     ]
 

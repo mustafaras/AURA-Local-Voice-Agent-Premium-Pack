@@ -39,13 +39,14 @@ extension ClaudeAdapter {
   }
 
   private func emitRunStarted(_ request: ClaudeRunRequest, context: ClaudePerformContext) async {
+    let permissionMode = claudePermissionMode(for: request.toolProfile)
     context.continuation.yield(
       .runStarted(
-        permissionMode: "dontAsk", workingDirectory: request.workingDirectory,
+        permissionMode: permissionMode, workingDirectory: request.workingDirectory,
         ephemeral: configuration.ephemeralByDefault, model: request.model))
     await emitAudit(
       ClaudeRunStartedEvent(
-        runID: context.runID, permissionMode: "dontAsk", model: request.model,
+        runID: context.runID, permissionMode: permissionMode, model: request.model,
         workingDirectory: request.workingDirectory, ephemeral: configuration.ephemeralByDefault),
       actor: context.actor,
       correlationID: context.correlationID,
@@ -125,13 +126,14 @@ extension ClaudeAdapter {
 /// process execution, JSONL normalization, budget observation, and
 /// cancellation.
 ///
-/// `claude -p` (non-interactive mode) always runs with
-/// `--permission-mode dontAsk` — verified as the documented "only safe
-/// choice" for unattended/CI runs, since a non-interactive run has no TTY to
-/// answer any other permission mode's prompts. Authorization instead happens
+/// `claude -p` (non-interactive mode) runs with a `--permission-mode` derived
+/// from the tool profile (`.readOnly` → `dontAsk`, `.workspaceWrite` →
+/// `acceptEdits`); both are non-prompting under `-p`. Authorization happens
 /// once, upfront, through `PolicyEngine.evaluate` before a process is ever
 /// spawned; the resulting tool profile (`--tools`) is exactly the profile
-/// that was evaluated. See ADR-012.
+/// that was evaluated, and a `.workspaceWrite` run is additionally confined
+/// to an isolated `git` worktree and verified by a diff postcondition (SP-013/
+/// SP-014). See ADR-012.
 public actor ClaudeAdapter {
   private let configuration: ClaudeConfiguration
   private let policyEngine: PolicyEngine

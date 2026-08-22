@@ -20,6 +20,26 @@ func claudeArgumentsAlwaysIncludePrintAndDontAsk() throws {
 }
 
 @Test
+func claudeArgumentsMapWriteCapableToAcceptEdits() throws {
+  // A write-capable turn must use `acceptEdits` (auto-approve edits confined
+  // to the isolated worktree) so it can actually produce a diff; it must never
+  // use the deny-only `dontAsk` (which makes real writes impossible) nor a
+  // bypass flag. The mode is derived from the tool profile.
+  let readOnly = ClaudeRunRequest(
+    objective: "p", workingDirectory: claudeAllowedWorkingDirectory, toolProfile: .readOnly)
+  let writable = ClaudeRunRequest(
+    objective: "p", workingDirectory: claudeAllowedWorkingDirectory, toolProfile: .workspaceWrite)
+  let args = try ClaudeArguments.make(request: writable, configuration: ClaudeConfiguration())
+  let modeIndex = args.firstIndex(of: "--permission-mode")!
+  #expect(args[args.index(after: modeIndex)] == "acceptEdits")
+  #expect(claudePermissionMode(for: readOnly.toolProfile) == "dontAsk")
+  #expect(claudePermissionMode(for: writable.toolProfile) == "acceptEdits")
+  #expect(!args.contains("--dangerously-skip-permissions"))
+  #expect(!args.contains("--allow-dangerously-skip-permissions"))
+  #expect(!args.contains("bypassPermissions"))
+}
+
+@Test
 func claudeArgumentsNeverContainDangerousBypassFlags() throws {
   let request = ClaudeRunRequest(
     objective: "irrelevant here",
