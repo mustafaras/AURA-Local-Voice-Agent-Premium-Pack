@@ -28,6 +28,8 @@ let package = Package(
         .executable(name: "AuraShellHelper", targets: ["AuraShellHelper"]),
         .executable(
             name: "AuraSafariExtensionHandler", targets: ["AuraSafariExtensionHandler"]),
+        .executable(
+            name: "AuraSpeechQualityProbe", targets: ["AuraSpeechQualityProbe"]),
         .library(name: "AuraCore", targets: ["AuraCore"]),
         .library(name: "AuraAudio", targets: ["AuraAudio"]),
         .library(name: "AuraAutomation", targets: ["AuraAutomation"]),
@@ -294,6 +296,19 @@ let package = Package(
             ],
             linkerSettings: [
                 .linkedFramework("Security", .when(platforms: [.macOS]))
+            ]
+        ),
+        // SP-016 bilingual STT quality probe. Diagnostic only: it is never
+        // copied into AURA.app by scripts/build-app-bundle.sh. It exists as a
+        // separate executable because Speech Recognition authorization is
+        // granted per executable, and the SwiftPM test helper is a bare binary
+        // that aborts instead of prompting. scripts/run-sp016-speech-probe.sh
+        // assembles it into a bundle that can legitimately hold the grant.
+        .executableTarget(
+            name: "AuraSpeechQualityProbe",
+            dependencies: ["AuraCore", "AuraAudio", "AuraSTT"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
             ]
         ),
         // The native half of the Safari Web Extension. Built as a plain

@@ -99,6 +99,26 @@
             "target": "AuraSafariExtensionHandler",
             "configuration": "release",
             "preLaunchTask": "swift: Build Release AuraSafariExtensionHandler"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Debug AuraSpeechQualityProbe",
+            "target": "AuraSpeechQualityProbe",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AuraSpeechQualityProbe"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Release AuraSpeechQualityProbe",
+            "target": "AuraSpeechQualityProbe",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AuraSpeechQualityProbe"
         }
     ]
 }

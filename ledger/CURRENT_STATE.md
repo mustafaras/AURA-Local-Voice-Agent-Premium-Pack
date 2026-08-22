@@ -1,11 +1,39 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-20.
+Projection refreshed from live repository and command evidence on 2026-08-22.
 
-## Authoritative current status — 2026-08-22T17:30:00Z
+## Authoritative current status — 2026-08-22T18:20:00Z
 
-The active second-pass prompt is **`SP-016` / `pending`** at `main`, `HEAD ==
+The active second-pass prompt is **`SP-016` / `in_progress`** at `main`, `HEAD ==
+origin/main == 94ee2be355046cab97189764e2a9dfb4f7efd57a` (SP-015), with an expected
+dirty worktree adding two intended product/test edits (STTPipeline turn-end metric
++ SP016 test) and the SP-016 control-plane projections.
+
+**SP-016 deterministic metric/fail-closed slice (EV-SP-016-20260822-TURN-END-METRIC-01):**
+added `STTPipeline.Metrics.turnEndLatencySeconds` (the R7-required turn-end
+latency, activation→first-stable elapsed time, reset to 0 per turn) and a new
+deterministic suite (`Tests/AURAIntegrationTests/SP016TurnEndLatencyTests.swift`,
+3 tests) proving the metric, its cross-turn reset, and the fail-closed invariant
+that non-stable/error transcripts are never promoted to a stable (command-eligible)
+segment. `swift test --filter SP016TurnEndLatencyTests` → 3/3 PASS; AuraSTTTests
+19/19; AuraAudioTests 35/35; AURAIntegrationTests 78/78;
+`validate_second_pass_program.py` PASSED. **A computer-use live read-only
+observation** (`EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02`) confirmed the
+running app's truthful live health: Microphone+Speech Granted, stt/audio ready,
+voice-resources ready (16384 MB), tts ready (Yelda fallback), wake-word
+unsupported (Push-to-Talk only); status `Idle — use Push to Talk`.
+
+**SP-016 completion gate NOT MET:** the live bilingual WER/entity corpus and the
+hardware recovery matrix (barge-in/echo/device/sleep/TCC/helper-crash) require a
+speech-capable operator and were not exercised (the user is speech-disabled; no
+speech-capable operator was present; no TCC mutation performed). **SP-016 remains
+`in_progress`; SP-017 must NOT start.** No
+commit/push/merge was performed (authority `commit:false`).
+
+## Authoritative current status — 2026-08-22T17:30:00Z (historical: SP-015 completed)
+
+The active second-pass prompt was **`SP-016` / `pending`** at `main`, `HEAD ==
 origin/main == 389ea344652d3d1d8211e6ce244f909eff42bc6e` (SP-014 merge and its
 pointer fix), with an expected dirty worktree adding the SP-015 control-plane
 changes (inventory, evidence, state, and ledger projections).

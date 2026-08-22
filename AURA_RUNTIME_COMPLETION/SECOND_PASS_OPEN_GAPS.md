@@ -1038,6 +1038,73 @@ or ADR-042 approval.
   corpus, qualified local Whisper/equivalent fallback, or user-present
   microphone/TCC acceptance. Locale fallback is fail-closed on engine start,
   not a silently quality-switching transcript rewrite.
+  - **SP-016 deterministic slice (2026-08-22,
+    `EV-SP-016-20260822-TURN-END-METRIC-01`):** `STTPipeline.Metrics` now
+    records `turnEndLatencySeconds` (the R7-required turn-end latency,
+    activation→first-stable elapsed time), reset to 0 per turn; a deterministic
+    suite proves the metric, its cross-turn reset, and the fail-closed invariant
+    that non-stable/error transcripts are never promoted to a stable
+    (command-eligible) segment.
+  - **SP-016 live read-only observation (2026-08-22,
+    `EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02`):** via computer use, the
+    running app was observed to report truthful live health: `Microphone:
+    Granted`, `Active speech recognition: Granted`, `Screen observation:
+    Denied`; `stt ready`, `audio ready`, `voice-resources ready (16384 MB)`,
+    `tts ready (Yelda fallback)`, `wake-word unsupported (Push-to-Talk only)`;
+    status `Idle — use Push to Talk`. This confirms the live truthful-health /
+    truthful-degradation readout but is not a WER or hardware-recovery
+    measurement.
+  - **Still open:** the bilingual Turkish/English/mixed WER/entity corpus and the
+    hardware recovery matrix (barge-in/echo/device/sleep/TCC/helper-crash)
+    require a speech-capable operator and were not exercised (the user is
+    speech-disabled; no speech-capable operator was present; no TCC mutation
+    was performed).
+  - **SP-016 measured bilingual quality + scoped exclusion (2026-08-22,
+    `EV-SP-016-20260822-BILINGUAL-QUALITY-03`):** the "requires a speech-capable
+    operator" verdict above was **partly wrong**, and is corrected here without
+    deleting it. Human speech is genuinely unavailable, but the recognition path
+    never needed a human throat — `SystemSTTEngine` ingests `AudioFrame`s, so
+    synthesized audio drives the real recognizer. The actual blocker was the
+    **host**: Speech authorization is per-executable and the SwiftPM test helper
+    is a bare binary (confirmed live: the gated suite returns
+    `.speechNotAuthorized`). Under a user-granted, scoped `mutate_permissions`
+    (one Speech grant to a local diagnostic bundle; no microphone, no model
+    download, no install), a signed probe bundle
+    (`scripts/run-sp016-speech-probe.sh`) ran 48 recognitions — 8 utterances ×
+    clean/noisy(10 dB SNR)/far-field × contextual-hints on/off — through the real
+    on-device engine (`tr-TR` and `en-US` both `onDevice=true`).
+    **Measured result:** Turkish and English **general and command** speech pass
+    with **entity recall 1.000** in every band (WER 0.000–0.306; the residual WER
+    is number normalization — "on beşte" → `15:00` — which entity recall credits
+    correctly). **Finalization latency 0.05 s** from end of audio to actionable
+    transcript. **Measured failure:** code-switched English technical tokens
+    inside Turkish utterances score **WER 0.562 / entity recall 0.417**;
+    `npm install` was heard as "DPM insan"/"Mnsa" and `pull request` as "Kırık ve"
+    or dropped. Supplying the terms as `contextualStrings` **did not recover
+    them** (entity recall 0.833 → 0.792), so the mitigation is disproven, not
+    merely untried.
+    **Decision:** voice-driven **code-switched English technical tokens** are
+    **explicitly excluded from the release scope** (the completion gate's own
+    "or the affected capability is excluded" branch), on a measurement rather
+    than an assumption. The exclusion is safe because the pipeline fails closed:
+    `Tests/AURAIntegrationTests/SP016BilingualFailClosedTests.swift` uses the
+    verbatim garbled transcripts to lock that none reaches a destructive tier,
+    that any still-executable classification stays at mutation tier or above
+    (confirmation shown before anything runs), and that
+    `matchDeterministicCommand` is exact rather than fuzzy — a bad transcript is
+    never rewritten into a successful command.
+  - **Still open after SP-016:** the **hardware recovery matrix** (barge-in,
+    acoustic echo/self-transcription, headset/device switching, sleep/wake,
+    interruption, TCC revocation, helper-crash recovery) is **not** closed.
+    `AuraAudio.handleConfigurationChange` is implemented but has **zero test
+    coverage**: reaching `state == .running` needs a real `AVAudioEngine` input
+    node and therefore a **Microphone** grant for the test host, which SP-016's
+    scoped authority (Speech only) deliberately excludes. Concrete closure path:
+    extend the probe bundle with a Microphone usage description and grant, then
+    post `.AVAudioEngineConfigurationChange` and assert recover-and-restart.
+    Human-speech quality (accent, disfluency, real room acoustics, real
+    microphone colouration) also remains unmeasured; the synthetic corpus is an
+    optimistic bound.
 - Bounded incomplete-turn continuation, duplicate-result suppression, and
   TTS interruption/cancellation paths are covered locally, but live barge-in,
   acoustic echo/self-transcription, headset/device switching, sleep/wake,

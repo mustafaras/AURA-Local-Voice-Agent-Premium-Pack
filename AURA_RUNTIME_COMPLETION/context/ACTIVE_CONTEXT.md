@@ -1,12 +1,95 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-016`
-> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, R7/SP-015 completed, SP-016 pending
-> **Live repository lineage:** `main` is clean and synchronized at `389ea344652d3d1d8211e6ce244f909eff42bc6e`. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-017`
+> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, R7/SP-015 and R7/SP-016 completed, SP-017 pending
+> **Live repository lineage:** `main` is clean and synchronized at `94ee2be355046cab97189764e2a9dfb4f7efd57a`. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
+
+## Second-pass synchronized overlay — 2026-08-22 (SP-016 COMPLETED; SP-017 next)
+
+`SP-017` / `pending` — `SP-016` is **`completed`** under
+`EV-SP-016-20260822-BILINGUAL-QUALITY-03`; `SP-015` under
+`EV-SP-015-20260822-WAKE-EXCLUSION-01`.
+
+**SP-016 closed OPEN-08's bilingual quality gate by measurement plus a scoped
+exclusion.** The prior blocker ("needs a speech-capable operator") was diagnosed
+as partly wrong: the recognition path never required a human throat —
+`SystemSTTEngine` ingests `AudioFrame`s — and the real blocker was that Speech
+TCC is granted **per executable** while the SwiftPM test helper is a bare binary
+that aborts instead of prompting (confirmed live: `.speechNotAuthorized`).
+
+Under a user-granted **scoped** `mutate_permissions` (one Speech grant to a local
+diagnostic bundle; no microphone, no model download, no install), a new signed
+probe — `Sources/AuraSpeechQualityProbe/` driven by
+`scripts/run-sp016-speech-probe.sh`, launched via LaunchServices so TCC attributes
+the request to the probe rather than the terminal — ran **48 recognitions**
+(8 utterances × clean/noisy-10 dB-SNR/far-field × contextual-hints on/off) through
+the real on-device engine (`tr-TR`/`en-US` both `onDevice=true`).
+
+- **PASS:** Turkish and English **general + command** speech at **entity recall
+  1.000** in every band (WER 0.000–0.306; the residual is number normalization,
+  "on beşte" → `15:00`). **Finalization latency 0.05 s** end-of-audio to
+  actionable transcript.
+- **FAIL, and excluded:** code-switched English technical tokens inside Turkish
+  utterances — WER 0.562 / entity recall 0.417; `npm install` → "DPM insan"/"Mnsa",
+  `pull request` → "Kırık ve"/dropped. Contextual hints were tested and
+  **disproven** as a mitigation (entity recall 0.833 → 0.792). That capability is
+  **explicitly excluded from the release scope** under the gate's own exclusion
+  branch, on a measurement rather than an assumption.
+
+The exclusion is safe because the pipeline fails closed, locked by
+`Tests/AURAIntegrationTests/SP016BilingualFailClosedTests.swift` over the verbatim
+garbled transcripts: none reaches a destructive tier, any still-executable
+classification stays at mutation tier or above (the exact command is shown for
+confirmation first), and `matchDeterministicCommand` is exact rather than fuzzy —
+a bad transcript is never rewritten into a successful command.
+
+**Residual, carried forward:** `RISK-VOICE-RECOVERY-LIVE` stays **Open**. The
+hardware recovery matrix (barge-in, echo, device switching, sleep/wake, TCC
+revocation, helper crash) is **not** closed, and `AuraAudio.handleConfigurationChange`
+has **zero test coverage** — reaching `state == .running` needs a real
+`AVAudioEngine` input node and therefore a **Microphone** grant for the test host,
+outside SP-016's Speech-only authority. Closure path: extend the probe bundle with
+a Microphone usage description and grant. Human-speech quality also remains
+unmeasured; the synthetic corpus is an **optimistic bound**.
+
+**SP-016 completion gate MET.** SP-016 is **`completed`**; **SP-017 (TTS, resource
+soak, and ADR-042) is safe to start.**
+
+---
+
+## Second-pass synchronized overlay — 2026-08-22 (SP-016 in_progress; deterministic metric slice)
+
+`SP-016` / `in_progress` — `SP-015` is **`completed`** under
+`EV-SP-015-20260822-WAKE-EXCLUSION-01`; `SP-014` under
+`EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02`; `SP-013` under
+`EV-SP-013-20260821-COORDINATOR-ROUTING-01`; `SP-012` under
+`EV-SP-012-20260821-LIVE-ACCEPTANCE-02`.
+
+**SP-016 deterministic metric/fail-closed slice (OPEN-08/R7) closed under
+`EV-SP-016-20260822-TURN-END-METRIC-01`:** `STTPipeline.Metrics` now records
+`turnEndLatencySeconds` (the R7-required turn-end latency, activation→first-stable
+elapsed time, reset to 0 per turn). A new deterministic suite
+(`Tests/AURAIntegrationTests/SP016TurnEndLatencyTests.swift`, 3 tests) proves the
+metric, its cross-turn reset, and the fail-closed invariant that non-stable/error
+transcripts are never promoted to a stable (command-eligible) segment.
+`swift test --filter SP016TurnEndLatencyTests` → 3/3 PASS; AuraSTTTests 19/19;
+AuraAudioTests 35/35; AURAIntegrationTests 78/78; `validate_second_pass_program.py`
+PASSED. **A computer-use live read-only observation**
+(`EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02`) confirmed the running app's
+truthful live health: Microphone+Speech Granted, stt/audio ready,
+voice-resources ready (16384 MB), tts ready (Yelda fallback), wake-word
+unsupported (Push-to-Talk only); status `Idle — use Push to Talk`.
+
+**SP-016 completion gate NOT MET.** The live bilingual WER/entity corpus and the
+hardware recovery matrix (barge-in/echo/device/sleep/TCC/helper-crash) require a
+speech-capable operator and were not exercised (the user is speech-disabled; no
+speech-capable operator was present; no TCC mutation performed). **SP-016 remains
+`in_progress`; SP-017 must NOT start** until the gate is met or the affected
+capability is explicitly excluded.
 
 ## Second-pass synchronized overlay — 2026-08-22 (SP-015 COMPLETED; SP-016 next)
 

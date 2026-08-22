@@ -20,6 +20,9 @@ public actor STTPipeline {
     public var deterministicEarlyCommands: UInt64 = 0
     public var firstPartialLatencySeconds: TimeInterval = 0
     public var lastStableLatencySeconds: TimeInterval = 0
+    /// Elapsed wall-clock time from activation to the first stable segment
+    /// (R7 turn-end latency). 0 until a stable segment is emitted.
+    public var turnEndLatencySeconds: TimeInterval = 0
 
     public init() {}
   }
@@ -121,6 +124,7 @@ public actor STTPipeline {
           tool: context.backendIDs.tool))
       state = .transcribing
       metrics.firstPartialLatencySeconds = 0
+      metrics.turnEndLatencySeconds = 0
       await logger.info("STT session started", actor: .audio)
     } else {
       guard state == .transcribing else { return }
@@ -174,6 +178,7 @@ public actor STTPipeline {
       }
       metrics.stableSegmentsEmitted += 1
       metrics.lastStableLatencySeconds = monotonicClock() - activationTime
+      metrics.turnEndLatencySeconds = metrics.lastStableLatencySeconds
       state = .activated
       await emitStableSegmentEvent(result)
     } else {

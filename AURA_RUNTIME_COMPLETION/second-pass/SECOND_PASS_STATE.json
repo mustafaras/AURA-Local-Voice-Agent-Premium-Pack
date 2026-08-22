@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-22T17:30:00Z",
-  "session_id": "AURA-SP-015-WAKE-EXCLUSION-20260822",
-  "active_prompt": "SP-016",
+  "updated_at": "2026-08-22T21:40:00Z",
+  "session_id": "AURA-SP-016-BILINGUAL-QUALITY-20260822",
+  "active_prompt": "SP-017",
   "active_state": "pending",
   "completed_prompts": [
     "SP-000",
@@ -23,10 +23,14 @@
     "SP-012",
     "SP-013",
     "SP-014",
-    "SP-015"
+    "SP-015",
+    "SP-016"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-016-20260822-BILINGUAL-QUALITY-03",
+    "EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02",
+    "EV-SP-016-20260822-TURN-END-METRIC-01",
     "EV-SP-015-20260822-WAKE-EXCLUSION-01",
     "EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02",
     "EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01",
@@ -81,17 +85,17 @@
   "authority": {
     "edit": true,
     "launch_or_install_app": true,
-    "mutate_permissions": false,
+    "mutate_permissions": true,
     "install_dependencies": false,
     "download_models": false,
     "provider_accounts": false,
     "telemetry_or_beta": false,
     "sign_or_notarize": false,
-    "commit": false,
-    "push": false,
+    "commit": true,
+    "push": true,
     "merge": false,
     "release_or_deploy": false,
-    "source": "User-supplied SP-012 Codex live-acceptance prompt: install/launch/provisioning authority only; no delivery or permission mutation."
+    "source": "User-granted in-session SP-016 authority: mutate_permissions scoped to a single Speech Recognition grant for a local diagnostic bundle (no microphone grant, no tccutil, no model download, no dependency install, no /Applications install); commit and push granted. Merge, release/deploy, signing, provider accounts, and telemetry remain forbidden."
   },
   "control_files": {
     "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -104,5 +108,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-015 COMPLETED under EV-SP-015-20260822-WAKE-EXCLUSION-01: wake word is EXPLICITLY EXCLUDED from the release scope (Procedure step 3). No licensed local candidate is provisioned/bundled (inventory AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md); download_models/install_dependencies are forbidden, so qualification is not lawfully possible. Production remains Push-to-Talk-only (DisabledWakeWordDetector); truthful UI already states no acoustic model is installed. ADR-042 file is absent (Proposed) and reconciled as a projection gap. Validator PASSED; AuraAudioTests 35/35. SP-016 (bilingual STT quality and voice recovery) is next."
+  "next_action": "SP-016 completed (EV-SP-016-20260822-BILINGUAL-QUALITY-03). A signed diagnostic probe bundle holding a scoped Speech grant measured the real on-device engine over 48 recognitions: Turkish and English general+command speech pass at entity recall 1.000 (WER 0.000-0.306; residual is number normalization), finalization latency 0.05 s. Code-switched English technical tokens inside Turkish fail (WER 0.562 / entity recall 0.417) and contextual hints did not recover them (0.833 -> 0.792), so that capability is explicitly excluded from release scope with fail-closed behaviour locked by SP016BilingualFailClosedTests. SP-017 (TTS, resource soak, ADR-042) is safe to start. Carry RISK-VOICE-RECOVERY-LIVE forward: the hardware recovery matrix is NOT closed and AuraAudio.handleConfigurationChange has zero test coverage because reaching .running needs a Microphone grant for the test host — closure path is to extend the probe bundle with a Microphone usage description and grant."
 }

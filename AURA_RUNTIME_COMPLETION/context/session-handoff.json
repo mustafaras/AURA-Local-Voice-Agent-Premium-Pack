@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-22T17:30:00Z",
-  "session_id": "AURA-SP-015-WAKE-EXCLUSION-20260822",
-  "last_verified_commit": "389ea344652d3d1d8211e6ce244f909eff42bc6e",
+  "updated_at": "2026-08-22T21:40:00Z",
+  "session_id": "AURA-SP-016-BILINGUAL-QUALITY-20260822",
+  "last_verified_commit": "94ee2be355046cab97189764e2a9dfb4f7efd57a",
   "active_prompt": {
-    "id": "SP-016",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-016_BILINGUAL_STT_QUALITY_AND_VOICE_RECOVERY.prompt.md",
+    "id": "SP-017",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
     "state": "pending",
-    "step": "SP-015 COMPLETED (EV-SP-015-20260822-WAKE-EXCLUSION-01): wake word EXPLICITLY EXCLUDED from the release scope (SP-015 Procedure step 3). No licensed local candidate is provisioned/bundled (inventory AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md); download_models/install_dependencies are forbidden, so qualification is not lawfully possible. Production remains Push-to-Talk-only (DisabledWakeWordDetector); truthful UI already states no acoustic model is installed. ADR-042 file absent (Proposed), reconciled as projection gap. Validator PASSED; AuraAudioTests 35/35. SP-016 (bilingual STT quality and voice recovery) is next."
+    "step": "SP-016 completed (EV-SP-016-20260822-BILINGUAL-QUALITY-03): bilingual conversational/command STT measured and passing (entity recall 1.000; finalization latency 0.05 s); code-switched English technical tokens measured failing (WER 0.562 / entity recall 0.417) with contextual hints disproven as a mitigation, so that capability is explicitly excluded from release scope and locked fail-closed. SP-017 (TTS, resource soak, ADR-042) may start. Carry RISK-VOICE-RECOVERY-LIVE: the hardware recovery matrix is NOT closed and AuraAudio.handleConfigurationChange has zero test coverage — closing it needs a Microphone grant for a bundled test host."
   },
-  "summary": "SP-015 (OPEN-08/R7) decided wake-word scope: EXPLICIT EXCLUSION from the release scope (Procedure step 3). Verified no licensed local wake candidate is provisioned or bundled (new WAKE_MODEL_INVENTORY.md records zero candidates; only Chatterbox ONNX library conformance fixtures exist under the venv, not wake models). Active authority forbids download_models/install_dependencies, so qualification is not lawfully possible in this pass. Production remains Push-to-Talk-only (DisabledWakeWordDetector; MarkerWakeWordDetector is test-only per ADR-003). Truthful UI confirmed: AuraMenuView 'Activation: Push to Talk'/'A trained acoustic wake-word model is not installed', onboarding .wakeWord 'no acoustic model is installed ... Push to Talk remains available', runtime warning 'Acoustic wake-word model unavailable; use Push to Talk'. No ADR-042 file exists anywhere (decision register references a nonexistent path) — reconciled as a projection gap, ADR-042 stays Proposed. Baseline: validator PASSED, AuraAudioTests 35/35, 0 failed bundles. OPEN-08 wake bullet updated without deleting history; evidence/risk/decision/capability/state/handoff all updated. SP-015 completed; SP-016 safe to start. No commit/push/merge/download performed (authority: edit only for delivery).",
+  "summary": "SP-016 (OPEN-08/R7) closed by measurement plus a scoped exclusion. The prior 'needs a speech-capable operator' blocker was diagnosed as partly wrong: the recognition path never needed a human throat (SystemSTTEngine ingests AudioFrames), and the real blocker was that Speech TCC is granted per executable while the SwiftPM test helper is a bare binary that aborts instead of prompting (confirmed live: .speechNotAuthorized). Under a user-granted scoped mutate_permissions (one Speech grant to a diagnostic bundle), a new signed probe (Sources/AuraSpeechQualityProbe/, scripts/run-sp016-speech-probe.sh, launched via LaunchServices so TCC attributes correctly) ran 48 recognitions — 8 utterances x clean/noisy-10dB/far-field x contextual-hints on/off — through the real on-device engine. Turkish and English general+command pass at entity recall 1.000 (WER 0.000-0.306; residual is number normalization such as 'on beste' -> 15:00); finalization latency 0.05 s. Code-switched English technical tokens inside Turkish fail (WER 0.562 / entity recall 0.417; npm install -> 'DPM insan', pull request dropped) and contextual hints did NOT recover them (0.833 -> 0.792), so that capability is explicitly excluded from release scope on a measurement. SP016BilingualFailClosedTests locks fail-closed behaviour over the verbatim garbled transcripts: none reaches a destructive tier, any still-executable classification stays at mutation tier or above, and matchDeterministicCommand is exact rather than fuzzy. Residual: RISK-VOICE-RECOVERY-LIVE stays Open — the hardware recovery matrix is unclosed and AuraAudio.handleConfigurationChange has zero coverage, needing a Microphone grant for a bundled test host; human-speech quality is still unmeasured (the synthetic corpus is an optimistic bound).",
   "completed": [
     "Implemented and verified the R6 first policy/bridge slice under EV-R6-20260808-POLICY-BRIDGE-01; kept ADR-041 Proposed and all live R6 gates open.",
     "Implemented the R6 typed bridge/workspace/backend/coordinator/task-bounds slice under EV-R6-20260808-TYPED-ROUTES-02; source builds and the clean scratch runtime suite passed 21/21 bundles and 763/763 tests, while the repository runner retained the known AuraAudio helper exit-142 limitation.",
@@ -43,9 +43,14 @@
     "SP-012 deterministic source-side passed (authenticated VS Code extension bridge contract); live extension acceptance blocked.",
     "SP-012 follow-up: packaged the companion extension (aura-vscode-extension-0.1.0.vsix) and added the AURA user-controlled provisioning path (provisionVSCodeBridge/revokeVSCodeBridge/vscodeBridgeProvisioned); AuraVSCodeTests 31/31 and SP011LiveAcceptanceReadinessTests 23/23 pass.",
     "SP-014 live acceptance attempted (EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01): P2 (write-capable no-diff fails closed, worktree cleaned), P3 (disabled backend accurate health), and P4 (no unauthorized commit/push/merge; HEAD unchanged) PASS. P1 (read-only live claude turn) FAIL blocked by claude session limit. No backend (claude dontAsk write-block + session limit, codex model/CLI/account mismatch, copilot quota) can currently produce a genuine model turn, so SP-014 completion gate is NOT met. SP-014 marked blocked; SP-015 must NOT be opened.",
-    "SP-014 live acceptance COMPLETED (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02): claude session limit reset, and the two remaining product gaps were fixed — ClaudeArguments now derives --permission-mode from the tool profile (workspaceWrite → acceptEdits) so a write-capable task actually writes, and WorktreeManager.diff uses git status --porcelain + git diff so new (untracked) files count as a real diff. All four live legs pass: P1 read-only claude turn, P2 write-capable real diff in an isolated worktree, P3 accurate disabled-backend health, P4 no unauthorized commit/push/merge. AuraAgentTests 235/235. SP-014 completed; SP-015 safe to start."
+    "SP-014 live acceptance COMPLETED (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02): claude session limit reset, and the two remaining product gaps were fixed — ClaudeArguments now derives --permission-mode from the tool profile (workspaceWrite → acceptEdits) so a write-capable task actually writes, and WorktreeManager.diff uses git status --porcelain + git diff so new (untracked) files count as a real diff. All four live legs pass: P1 read-only claude turn, P2 write-capable real diff in an isolated worktree, P3 accurate disabled-backend health, P4 no unauthorized commit/push/merge. AuraAgentTests 235/235. SP-014 completed; SP-015 safe to start.",
+    "SP-016 deterministic metric/fail-closed slice (EV-SP-016-20260822-TURN-END-METRIC-01): STTPipeline.Metrics now records turnEndLatencySeconds (R7 turn-end latency, reset per turn); a new deterministic suite proves the metric and the fail-closed invariant that non-stable/error transcripts are never promoted to stable commands. 3/3 SP016 tests, AuraSTTTests 19/19, AuraAudioTests 35/35, AURAIntegrationTests 78/78, validator PASSED. Live read-only observation (EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02) confirmed the running app truthfully reports Microphone+Speech Granted, stt/audio ready, wake-word unsupported (Push-to-Talk only). OPEN-08/SP-016 NOT closed: the live bilingual WER corpus and hardware recovery matrix need a speech-capable operator and were not exercised. SP-016 in_progress; SP-017 must NOT start."
   ],
   "files_changed": [
+    "Sources/AuraSTT/STTPipeline.swift",
+    "Tests/AURAIntegrationTests/SP016TurnEndLatencyTests.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-016-20260822-TURN-END-METRIC-01.md",
     "AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-015-20260822-WAKE-EXCLUSION-01.md",
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -149,6 +154,8 @@
     "AuraVSCodeExtension/aura-vscode-extension-0.1.0.vsix"
   ],
   "evidence_ids": [
+    "EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02",
+    "EV-SP-016-20260822-TURN-END-METRIC-01",
     "EV-SP-015-20260822-WAKE-EXCLUSION-01",
     "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10",
     "EV-SP-011-20260819-SAFARI-TRUST-PATH-09",
@@ -164,6 +171,16 @@
     "EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13"
   ],
   "tests": [
+    {
+      "name": "SP016TurnEndLatencyTests 3/3; AuraSTTTests 19/19; AuraAudioTests 35/35; AURAIntegrationTests 78/78; live app health readout confirmed (stt/audio ready, Mic+Speech Granted)",
+      "result": "passed",
+      "evidence_id": "EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02"
+    },
+    {
+      "name": "SP016TurnEndLatencyTests 3/3; AuraSTTTests 19/19; AuraAudioTests 35/35; AURAIntegrationTests 78/78",
+      "result": "passed",
+      "evidence_id": "EV-SP-016-20260822-TURN-END-METRIC-01"
+    },
     {
       "name": "validate_second_pass_program.py; AuraAudioTests 35/35 (wake tests); no bundled wake model",
       "result": "passed",
@@ -232,9 +249,10 @@
   "open_decisions": [
     "RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION is mitigated by two shell assertions. Closing the class properly means the app itself refusing to present a permission row when it is not its own responsible process; that is a product decision, not a harness one."
   ],
-  "next_action": "SP-015 COMPLETED (EV-SP-015-20260822-WAKE-EXCLUSION-01): wake word EXPLICITLY EXCLUDED from release scope (Procedure step 3). No licensed local candidate provisioned/bundled; download_models/install_dependencies forbidden. Production remains Push-to-Talk-only (DisabledWakeWordDetector); truthful UI states no acoustic model is installed. ADR-042 file absent (Proposed). SP-016 (bilingual STT quality and voice recovery) is safe to start. Do not commit, push, merge, release, notarize, mutate permissions, deploy, or download models unless explicitly authorized.",
+  "next_action": "SP-016 in_progress (deterministic metric/fail-closed slice EV-SP-016-20260822-TURN-END-METRIC-01 + live read-only state observation EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02): STTPipeline.Metrics.turnEndLatencySeconds added + deterministic suite proving the metric and that non-stable/error transcripts are never promoted to stable commands; a computer-use live observation confirmed the running app truthfully reports stt/audio ready, Microphone+Speech Granted, wake-word unsupported (Push-to-Talk only). Completion gate NOT met: the live bilingual WER/entity corpus and the hardware recovery matrix need a speech-capable operator and were not exercised. SP-017 must NOT start until the gate is met or the capability is explicitly excluded. Do not commit, push, merge, release, notarize, mutate permissions, deploy, or download models unless explicitly authorized.",
   "required_first_reads": [
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
+    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-016_BILINGUAL_STT_QUALITY_AND_VOICE_RECOVERY.prompt.md",
+    "AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
     "ledger/CURRENT_STATE.md",
