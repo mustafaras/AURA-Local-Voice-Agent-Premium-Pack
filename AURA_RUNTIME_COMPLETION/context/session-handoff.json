@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "updated_at": "2026-08-22T21:40:00Z",
   "session_id": "AURA-SP-016-BILINGUAL-QUALITY-20260822",
-  "last_verified_commit": "94ee2be355046cab97189764e2a9dfb4f7efd57a",
+  "last_verified_commit": "3196b6fa9cfed51080271b3780f0b704ffe5d914",
   "active_prompt": {
     "id": "SP-017",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
