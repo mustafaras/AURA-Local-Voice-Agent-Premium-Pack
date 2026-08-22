@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-21T14:45:00Z",
-  "session_id": "AURA-SP-013-COORDINATOR-LIFECYCLE-20260821",
-  "last_verified_commit": "c6e5d3d183c8e293806bb9d55bbf4e44dffcefea",
+  "updated_at": "2026-08-22T16:00:00Z",
+  "session_id": "AURA-SP-014-LIVE-ACCEPTANCE-20260822",
+  "last_verified_commit": "1d12c91",
   "active_prompt": {
-    "id": "SP-014",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-014_CODING_ASSISTANT_LIVE_ACCEPTANCE.prompt.md",
-    "state": "in_progress",
-    "step": "SP-013 completed (EV-SP-013-20260821-COORDINATOR-ROUTING-01): coordinator routing + diff-evidence false-success gate + live codex/claude/copilot CLI probes complete. SP-014 (coding-assistant live acceptance) is next under its own authority."
+    "id": "SP-015",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-015_WAKE_WORD_DECISION_AND_EVALUATION.prompt.md",
+    "state": "pending",
+    "step": "SP-014 COMPLETED (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02): all four live legs pass — P1 read-only claude turn, P2 write-capable with a real diff, P3 accurate disabled-backend health, P4 no unauthorized delivery. Claude write-capable now uses acceptEdits; WorktreeManager.diff captures untracked files. SP-015 (wake-word decision) is next."
   },
-  "summary": "SP-013 completed: fixed CodingTaskCoordinator.enqueue to route the resolved workspace and mode sandbox tier into per-backend runner context keys (before, a write-capable task ran in the backend default directory with read-only sandbox, so the worktree was disconnected from execution). Added verifyCompletion (write-capable fails closed if its worktree has no diff = false-backend-success). Live CLI probe invokes real codex 0.142.0 / claude 2.1.195 / copilot 1.0.80, leaving auth/model unverified. AuraAgentTests 230/230, AuraTasksTests 12/12, full wrapper 0 failed, validator PASSED. SP-014 is next.",
+  "summary": "SP-014 live acceptance completed on approved repo ~/.aura-sp014/approved-repo. Fixed the two remaining gaps: (1) ClaudeArguments now derives --permission-mode from tool profile — workspaceWrite uses acceptEdits (dontAsk hardcoded made real writes impossible) — so a write-capable task actually writes; (2) WorktreeManager.diff returns git status --porcelain + git diff so a new (untracked) file counts as a real diff (git diff alone ignored untracked files, producing a false fail-closed). All 4 live tests pass: P1 read-only claude turn, P2 write-capable real diff in isolated worktree, P3 accurate disabled-backend health, P4 no unauthorized commit/push/merge. AuraAgentTests 235/235 (filtered). SP-014 marked completed; SP-015 safe to start. No commit/push/merge performed (authority commit:false).",
   "completed": [
     "Implemented and verified the R6 first policy/bridge slice under EV-R6-20260808-POLICY-BRIDGE-01; kept ADR-041 Proposed and all live R6 gates open.",
     "Implemented the R6 typed bridge/workspace/backend/coordinator/task-bounds slice under EV-R6-20260808-TYPED-ROUTES-02; source builds and the clean scratch runtime suite passed 21/21 bundles and 763/763 tests, while the repository runner retained the known AuraAudio helper exit-142 limitation.",
@@ -41,7 +41,9 @@
     "2026-08-19 SP-011: replaced the shared-secret Safari bridge with an asymmetric one and fixed five further defects found by running it; the live extension now signs an envelope the app's pin matches.",
     "Closed SP-011: the free-window non-empty read passed live after the calendar blocker was traced to TCC responsible-process attribution in the acceptance harness, not a destroyed grant; launch-aura.sh and preflight.sh now require LaunchServices (PPID == 1).",
     "SP-012 deterministic source-side passed (authenticated VS Code extension bridge contract); live extension acceptance blocked.",
-    "SP-012 follow-up: packaged the companion extension (aura-vscode-extension-0.1.0.vsix) and added the AURA user-controlled provisioning path (provisionVSCodeBridge/revokeVSCodeBridge/vscodeBridgeProvisioned); AuraVSCodeTests 31/31 and SP011LiveAcceptanceReadinessTests 23/23 pass."
+    "SP-012 follow-up: packaged the companion extension (aura-vscode-extension-0.1.0.vsix) and added the AURA user-controlled provisioning path (provisionVSCodeBridge/revokeVSCodeBridge/vscodeBridgeProvisioned); AuraVSCodeTests 31/31 and SP011LiveAcceptanceReadinessTests 23/23 pass.",
+    "SP-014 live acceptance attempted (EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01): P2 (write-capable no-diff fails closed, worktree cleaned), P3 (disabled backend accurate health), and P4 (no unauthorized commit/push/merge; HEAD unchanged) PASS. P1 (read-only live claude turn) FAIL blocked by claude session limit. No backend (claude dontAsk write-block + session limit, codex model/CLI/account mismatch, copilot quota) can currently produce a genuine model turn, so SP-014 completion gate is NOT met. SP-014 marked blocked; SP-015 must NOT be opened.",
+    "SP-014 live acceptance COMPLETED (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02): claude session limit reset, and the two remaining product gaps were fixed — ClaudeArguments now derives --permission-mode from the tool profile (workspaceWrite → acceptEdits) so a write-capable task actually writes, and WorktreeManager.diff uses git status --porcelain + git diff so new (untracked) files count as a real diff. All four live legs pass: P1 read-only claude turn, P2 write-capable real diff in an isolated worktree, P3 accurate disabled-backend health, P4 no unauthorized commit/push/merge. AuraAgentTests 235/235. SP-014 completed; SP-015 safe to start."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -54,6 +56,8 @@
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01.md",
+    "Tests/AuraAgentTests/SP014LiveAcceptanceTests.swift",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-COMPUTER-UI-SCOPE-05.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01.md",
@@ -214,12 +218,13 @@
     }
   ],
   "blockers": [
+    "codex default model `gpt-5.6-luna` requires a newer CLI and `gpt-5.1-codex` is rejected for a ChatGPT account; copilot monthly quota exhausted — so no live codex/copilot model turn is possible on this machine (external account/CLI limits). This does not block SP-014, which is completed via claude. Tracked in RISK-NO-LIVE-BACKEND-TURN.",
     "Safari's Allow unsigned extensions toggle does not survive a Safari restart and requires a Touch ID/password sheet each time. Developer ID signing plus notarization removes it (R11). This blocks re-running the browser legs, not SP-011, which has live evidence for them."
   ],
   "open_decisions": [
     "RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION is mitigated by two shell assertions. Closing the class properly means the app itself refusing to present a permission row when it is not its own responsible process; that is a product decision, not a harness one."
   ],
-  "next_action": "SP-013 completed. SP-014 (coding-assistant live acceptance) is next under its own authority. Do not commit, push, merge, release, notarize, mutate permissions, or deploy unless explicitly authorized.",
+  "next_action": "SP-014 COMPLETED (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02): all four live legs pass. Claude write-capable now uses acceptEdits; WorktreeManager.diff captures untracked files via git status --porcelain. SP-015 (wake word decision) is safe to start. Do not commit, push, merge, release, notarize, mutate permissions, or deploy unless explicitly authorized.",
   "required_first_reads": [
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",

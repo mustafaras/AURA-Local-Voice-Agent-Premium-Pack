@@ -961,6 +961,35 @@ second pass and do not close the R6 prompt gate.
 - Run the required user-present live acceptance, including no unauthorized
   commit/push/merge/release/deploy, before closing R6 or accepting ADR-041.
 
+**2026-08-21 update (EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01):** the
+ten-step R6 user-present acceptance was attempted on the approved scratch repo
+`~/.aura-sp014/approved-repo`. **P2 (write-capable with no diff fails closed),
+P3 (disabled backend accurate health), and P4 (no unauthorized
+commit/push/merge/PR; HEAD unchanged) PASS. P1 (read-only live claude turn) FAILS
+because no backend can currently produce a genuine model turn**: `claude -p`
+returns the session limit (resets 8:50pm Europe/Istanbul) and
+`--permission-mode dontAsk` blocks Write/Bash by design; codex default model
+`gpt-5.6-luna` requires a newer CLI and `gpt-5.1-codex` is rejected for a
+ChatGPT account; copilot monthly quota is exhausted. The SP-014 completion gate
+("all live coding scenarios pass") was **not met**, so **SP-014 was `blocked`**.
+The suite fails closed (`.failed`), never fabricating a `.completed`.
+
+**2026-08-22 update (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02):** SP-014
+is **`completed`**. claude's session limit reset, and two remaining product gaps
+were closed: (1) `ClaudeArguments`/`claudePermissionMode(for:)` now derive
+`--permission-mode` from the tool profile — `.readOnly` → `dontAsk`,
+`.workspaceWrite` → `acceptEdits` — so a write-capable task can actually write
+(the previously hardcoded `dontAsk` blocked Write/Bash by design); (2)
+`WorktreeManager.diff` returns `git status --porcelain` + the tracked `git diff`
+so a new (untracked) file counts as a real change. Live result (claude 2.1.195):
+**P1 (read-only claude turn) PASS, P2 (write-capable in isolated worktree with a
+real diff) PASS, P3 (disabled backend accurate health) PASS, P4 (no unauthorized
+commit/push/merge; HEAD unchanged) PASS.** `SP014Live` 4/4, `AuraAgentTests`
+235/235 (timing flakes pass in isolation), validator PASSED. The OPEN-07
+user-present acceptance gate is **met**; the first-pass R6 live gate for
+codex/copilot turns remains open only because of external account/CLI limits
+(`RISK-NO-LIVE-BACKEND-TURN`).
+
 **2026-08-21 update (EV-SP-012-20260821-LIVE-ACCEPTANCE-02):** the live
 authenticated round trip is now proven. The companion extension `0.2.0` is
 installed and live in VS Code 1.134, both halves are paired with a matching

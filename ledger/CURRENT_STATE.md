@@ -3,6 +3,53 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-08-20.
 
+## Authoritative current status — 2026-08-22T16:00:00Z
+
+The active second-pass prompt is **`SP-014` / `completed`** at `main`, `HEAD ==
+origin/main == 1d12c91` (merge of SP-012 + SP-013), with an expected dirty
+worktree adding the SP-014 code + test + evidence changes.
+
+**SP-014 live acceptance COMPLETED (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02):**
+all four live legs pass on the approved scratch repo `~/.aura-sp014/approved-repo`
+(claude 2.1.195). **P1 (read-only live claude turn) PASS, P2 (write-capable in an
+isolated worktree producing a real diff) PASS, P3 (disabled backend accurate
+health) PASS, P4 (no unauthorized commit/push/merge/PR; HEAD unchanged) PASS.**
+
+Two remaining product gaps were closed:
+1. `ClaudeArguments`/`claudePermissionMode(for:)` now derive `--permission-mode`
+   from the tool profile — `.readOnly` → `dontAsk`, `.workspaceWrite` →
+   `acceptEdits` — so a write-capable task can actually write (the previously
+   hardcoded `dontAsk` blocked Write/Bash by design). `bypassPermissions` remains
+   unreachable.
+2. `WorktreeManager.diff` returns `git status --porcelain` + the tracked
+   `git diff` so a new (untracked) file counts as a real change (bare
+   `git diff <baseRef>` silently ignored untracked files).
+
+`SP014Live` 4/4; `AuraAgentTests` 235/235 (timing flakes pass in isolation);
+`WorktreeManagerTests` 7/7; `ClaudeArgumentsTests` 13/13; validator PASSED.
+**SP-014 is `completed`; SP-015 (wake-word decision) is safe to start.** No
+commit/push/merge was performed (authority `commit:false`).
+
+## Authoritative current status — 2026-08-21T16:40:00Z (historical: SP-014 blocked)
+
+The active second-pass prompt was **`SP-014` / `blocked`** at `main`, `HEAD ==
+origin/main == 1d12c91` (merge of SP-012 + SP-013), with an expected dirty
+worktree that adds only `Tests/AuraAgentTests/SP014LiveAcceptanceTests.swift`.
+
+**SP-014 live acceptance attempt (EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01):**
+the ten-step R6 user-present acceptance was run against the approved scratch repo
+`~/.aura-sp014/approved-repo`. **P2 (write-capable with no diff fails closed via
+`verifyCompletion`; worktree cleaned), P3 (disabled backend reports `.unavailable`
++ quota, never a false `.ready`), and P4 (no commit/push/merge/PR; HEAD unchanged)
+PASS. P1 (read-only live claude turn) FAILS** because no backend can currently
+produce a genuine model turn: `claude -p` returns the session limit (resets 8:50pm
+Europe/Istanbul) and `--permission-mode dontAsk` blocks Write/Bash by design;
+codex default `gpt-5.6-luna` needs a newer CLI and `gpt-5.1-codex` is rejected for
+a ChatGPT account; copilot quota exhausted. The suite fails closed (`.failed`), it
+does not fabricate a `.completed`. **SP-014 completion gate NOT met; SP-014 is
+`blocked`; SP-015 must NOT be opened** until a working backend account lets P1/P2
+run green. No commit/push/merge was performed (authority `commit:false`).
+
 ## Authoritative current status — 2026-08-20T11:03:26Z
 
 Repository hygiene H-010 is terminally complete. The verified non-projection

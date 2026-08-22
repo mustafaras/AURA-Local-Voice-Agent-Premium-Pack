@@ -1883,3 +1883,92 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
   safe to start.
 - **Next safe action:** start SP-014 (coding-assistant live acceptance) under its
   own authority.
+
+### 2026-08-21T16:40:00Z — SP-014 live acceptance attempt; blocked on backend/account supply
+
+- **Prompt / gap:** `SP-014` / `OPEN-07` (R6: user-present coding-assistant acceptance).
+- **Predecessor evidence:** `EV-SP-013-20260821-COORDINATOR-ROUTING-01` (SP-013 completed).
+- **Objective:** run the ten-step R6 user-present acceptance on the approved repo
+  `~/.aura-sp014/approved-repo`.
+- **Symptom / missing postcondition:** the completion gate ("all live coding
+  scenarios pass with direct evidence") is **not met**. P2, P3, and P4 PASS;
+  **P1 (read-only live model turn) FAILS** because `claude -p` returns
+  `You've hit your session limit · resets 8:50pm (Europe/Istanbul)`.
+- **Mechanism / root cause / layer:** backend/account supply, not a source
+  defect — the fail-closed behavior is proven (P2/P3/P4). No backend can return a
+  model turn this session: claude session limit + claude `--permission-mode
+  dontAsk` blocks Write/Bash (architectural, safe-mode design); codex default
+  `gpt-5.6-luna` requires a newer CLI and `gpt-5.1-codex` is rejected for a
+  ChatGPT account; copilot quota exhausted.
+- **Direct change / acceptance procedure:** added
+  `Tests/AuraAgentTests/SP014LiveAcceptanceTests.swift` (4 live tests). Ran
+  `swift test --filter SP014Live` with `AURA_SP014_LIVE_ACCEPTANCE=1` +
+  `AURA_SP014_REPO`. Result: P2 PASS (write-capable with no diff fails closed;
+  worktree cleaned), P3 PASS (`.unavailable` + quota health accurate), P4 PASS
+  (no commit/push/merge; HEAD unchanged), P1 FAIL (read-only claude turn blocked
+  by session limit; fails closed, no fabricated `.completed`).
+- **Cognitive gate:** symptom — no backend can produce a live model turn;
+  mechanism — claude session limit + claude dontAsk write-block (design) + codex
+  model/CLI/account mismatch + copilot quota (all external/account/tooling
+  supply); resolution — none possible within SP-014 authority (requires a
+  working authenticated backend account and/or a worktree-scoped write-approval
+  design); evidence — `EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01`;
+  falsifier — a future run where a backend returns a model turn in read-only and
+  write-capable modes, letting P1/P2 run green; residual — no genuine read-only or
+  write-capable model turn has ever completed end to end (first-pass R6 live
+  gate still open); why SP-015 NOT safe — SP-014 completion gate not met, so
+  SP-015 must not be opened.
+- **Acceptance verdict:** SP-014 completion gate **NOT MET**. SP-014 is
+  **`blocked`** (exact blocker: claude session limit + no working backend for a
+  live read-only/write-capable turn). Do **not** proceed to SP-015.
+- **Next safe action:** when a backend account is authenticated/quota resets
+  (claude session limit resets 8:50pm Europe/Istanbul), re-run P1/P2 to green;
+  otherwise keep SP-014 `blocked`. SP-015 must not be opened until SP-014's
+  completion gate is met.
+
+### 2026-08-22T16:00:00Z — SP-014 live acceptance COMPLETED; all four live legs pass
+
+- **Prompt / gap:** `SP-014` / `OPEN-07` (R6: user-present coding-assistant acceptance).
+- **Predecessor evidence:** `EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01`
+  (blocked attempt).
+- **Objective:** run the ten-step R6 user-present acceptance on the approved repo
+  `~/.aura-sp014/approved-repo`.
+- **Symptom / missing postcondition (from blocked attempt):** a genuine
+  write-capable model turn could not be produced — `ClaudeArguments` hardcoded
+  `--permission-mode dontAsk` for ALL tool profiles, so even `workspaceWrite`
+  tasks could never actually write; and `WorktreeManager.diff` used a bare
+  `git diff <baseRef>`, which silently ignores untracked (newly-created) files,
+  so a genuinely successful new-file write looked like a false-backend-success.
+- **Mechanism / root cause / layer:** adapter argument construction + worktree
+  evidence capture, not an account-supply issue. claude `acceptEdits` (verified
+  live under `-p`) auto-approves edits confined to the worktree and produces a
+  real file write; `git status --porcelain` reports both tracked modifications
+  and untracked files.
+- **Direct change / acceptance procedure:**
+  - `ClaudeArguments.make` + `claudePermissionMode(for:)` derive `--permission-mode`
+    from the tool profile: `.readOnly` → `dontAsk`, `.workspaceWrite` →
+    `acceptEdits`. `bypassPermissions`/`--dangerously-skip-permissions` remain
+    structurally unreachable. `ClaudeAdapter.emitRunStarted` reports the real mode.
+  - `WorktreeManager.diff` returns `git status --porcelain` + the tracked
+    `git diff` text so a new (untracked) file counts as a real change.
+  - `SP014LiveAcceptanceTests` P2 now asserts a REAL diff (`verifyCompletion.verified
+    == true`) for a completed write-capable task.
+- **Cognitive gate:** symptom — write-capable never wrote and untracked new files
+  were invisible to diff; mechanism — dontAsk blocked writes by design, and bare
+  `git diff` ignores untracked files; change — derive permission mode from profile
+  (acceptEdits for workspaceWrite) and include porcelain in diff evidence; evidence
+  — `EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02`; falsifier — a completed
+  write-capable task whose worktree has no diff verifying true, or a readOnly turn
+  that mutates; residual — codex default model/copilot quota still prevent a live
+  codex/copilot turn on this machine (external, out of scope); why SP-015 safe —
+  SP-014 completion gate met (all four live legs pass).
+- **Tests / result:** `SP014Live` 4/4 (P1 read-only claude turn, P2 write-capable
+  real diff in isolated worktree, P3 accurate health, P4 no unauthorized
+  delivery). `AuraAgentTests` 235/235 (filtered run; full-run timing flakes on
+  Ollama/Codex/Copilot/Claude TaskRunner timeout tests pass in isolation and are
+  unrelated to this change). `WorktreeManagerTests` 7/7.
+- **Acceptance verdict:** SP-014 completion gate **MET** — all live coding
+  scenarios pass with direct evidence and no unauthorized delivery. **SP-014
+  `completed`.** SP-015 is safe to start.
+- **Next safe action:** start SP-015 (wake-word decision and evaluation) under
+  its own authority.

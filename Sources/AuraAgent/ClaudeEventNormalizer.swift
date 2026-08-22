@@ -8,9 +8,9 @@ import Foundation
 /// (`runStarted`, `approvalRequested`, `approvalDecision`, `budgetExceeded`)
 /// have no Claude-native wire representation and are synthesized directly by
 /// `ClaudeAdapter` — "approval need" is the upfront per-run policy confirm
-/// cycle, not a mid-run prompt, since `claude -p` always runs with
-/// `--permission-mode dontAsk` (deny rather than prompt; verified `claude
-/// exec --help` has no interactive-capable mode usable without a TTY).
+/// cycle, not a mid-run prompt, since `claude -p` runs with a permission mode
+/// derived from the tool profile (`.readOnly` → `dontAsk`, `.workspaceWrite` →
+/// `acceptEdits`), both non-prompting under `-p`.
 public enum ClaudeNormalizedEvent: Sendable, Equatable {
   case runStarted(permissionMode: String, workingDirectory: String, ephemeral: Bool, model: String?)
   case approvalRequested(

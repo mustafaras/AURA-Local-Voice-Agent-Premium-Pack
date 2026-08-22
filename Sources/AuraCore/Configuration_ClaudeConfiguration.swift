@@ -2,12 +2,13 @@ import Foundation
 
 /// Configuration for the Claude Code CLI adapter.
 ///
-/// `claude -p` is always invoked with `--permission-mode dontAsk` (hardcoded
-/// in `ClaudeArguments`, never derived from configuration) — the same
-/// reasoning as `CodexConfiguration`: a non-interactive run has no TTY to
-/// answer a permission prompt, so any mode other than the deny-and-continue
-/// one could block forever. This configuration controls tool availability,
-/// hooks/settings scoping, timeouts, output bounds, and budgets.
+/// `claude -p` is invoked with a `--permission-mode` derived from the tool
+/// profile (in `ClaudeArguments`): `.readOnly` uses `dontAsk` (deny-and-
+/// continue, fail closed — the unattended-safe default), and `.workspaceWrite`
+/// uses `acceptEdits` (auto-approve edits confined to the isolated worktree,
+/// so a write-capable task can actually produce a diff). This configuration
+/// controls tool availability, hooks/settings scoping, timeouts, output
+/// bounds, and budgets.
 public struct ClaudeConfiguration: Codable, Sendable, Equatable {
   /// Absolute path to the `claude` CLI executable.
   public var executablePath: String

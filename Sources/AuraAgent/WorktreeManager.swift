@@ -203,9 +203,21 @@ public actor WorktreeManager {
     }
   }
 
-  /// Read the diff between a worktree's current state and its base ref.
-  /// Read-only evidence capture, analogous to `FilesystemEvidence` snapshots
-  /// elsewhere in the codebase — not policy-gated, since it mutates nothing.
+  /// Read the change evidence between a worktree's current state and its base
+  /// ref. Read-only evidence capture, analogous to `FilesystemEvidence`
+  /// snapshots elsewhere in the codebase — not policy-gated, since it mutates
+  /// nothing.
+  ///
+  /// Returns `git status --porcelain` (reports BOTH tracked modifications
+  /// ` M`/` M` AND untracked files `??`) concatenated with the full
+  /// `git diff <baseRef>` text (the content of tracked modifications). A bare
+  /// `git diff <baseRef>` silently ignores newly-created (untracked) files,
+  /// which would make a genuinely successful write task whose output is a new
+  /// file look like a false-backend-success (empty diff). The coordinator's
+  /// write-capable postcondition only needs "did the worktree diverge from
+  /// base", and porcelain captures every divergence including new files, while
+  /// the diff text keeps the tracked-change content for the existing test
+  /// contract.
   public func diff(
     taskID: UUID,
     actor: ActorID,
@@ -214,20 +226,30 @@ public actor WorktreeManager {
     guard let handle = activeWorktrees[taskID] else {
       throw AuraError.taskNotFound(taskID)
     }
-    let command = Command(
+    let statusCommand = Command(
+      executable: configuration.gitExecutablePath,
+      arguments: ["status", "--porcelain"],
+      workingDirectory: handle.path,
+      timeoutSeconds: configuration.defaultTimeoutSeconds,
+      riskTier: .observation
+    )
+    let diffCommand = Command(
       executable: configuration.gitExecutablePath,
       arguments: ["diff", handle.baseRef],
       workingDirectory: handle.path,
       timeoutSeconds: configuration.defaultTimeoutSeconds,
       riskTier: .observation
     )
-    let result = await shell.execute(
-      command: command, actor: actor, sessionID: sessionID, correlationID: taskID,
+    let statusResult = await shell.execute(
+      command: statusCommand, actor: actor, sessionID: sessionID, correlationID: taskID,
       causationID: taskID)
-    switch result {
-    case .success(let processResult):
-      return processResult.stdout
-    case .failure(let error):
+    let diffResult = await shell.execute(
+      command: diffCommand, actor: actor, sessionID: sessionID, correlationID: taskID,
+      causationID: taskID)
+    switch (statusResult, diffResult) {
+    case (.success(let status), .success(let diff)):
+      return status.stdout + diff.stdout
+    case (.failure(let error), _), (_, .failure(let error)):
       throw error
     }
   }
