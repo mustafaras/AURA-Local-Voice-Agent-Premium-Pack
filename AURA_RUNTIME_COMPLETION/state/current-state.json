@@ -8,31 +8,17 @@
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "94ee2be355046cab97189764e2a9dfb4f7efd57a",
-    "remote_head": "94ee2be355046cab97189764e2a9dfb4f7efd57a",
-    "working_tree_state": "dirty_expected",
-    "user_owned_changes": [
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-016-20260822-BILINGUAL-QUALITY-03.md",
-      "Sources/AuraSTT/STTPipeline.swift",
-      "Tests/AURAIntegrationTests/SP016TurnEndLatencyTests.swift",
-      "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-      "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-016-20260822-TURN-END-METRIC-01.md",
-      "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-      "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-      "AURA_RUNTIME_COMPLETION/state/current-state.json",
-      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
-      "ledger/PROJECT_LEDGER.md"
-    ]
+    "verified_head": "d430434ec5fa8dd904bea6658356bef0c5b51311",
+    "remote_head": "d430434ec5fa8dd904bea6658356bef0c5b51311",
+    "working_tree_state": "clean",
+    "user_owned_changes": []
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "SP-017",
+    "id": "R7",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
-    "state": "pending",
-    "step": "SP-016 completed (EV-SP-016-20260822-BILINGUAL-QUALITY-03). A signed diagnostic probe bundle holding a user-granted scoped Speech authorization measured the real on-device engine over 48 recognitions: Turkish and English general+command speech pass at entity recall 1.000 (WER 0.000-0.306, residual is number normalization), finalization latency 0.05 s. Code-switched English technical tokens inside Turkish fail (WER 0.562 / entity recall 0.417) and contextual hints were disproven as a mitigation (0.833 -> 0.792), so that capability is explicitly excluded from release scope with fail-closed behaviour locked by SP016BilingualFailClosedTests. SP-017 (TTS, resource soak, ADR-042) is safe to start. RISK-VOICE-RECOVERY-LIVE carried forward: hardware recovery matrix NOT closed; AuraAudio.handleConfigurationChange has zero test coverage pending a Microphone grant for a bundled test host. merge/export/release/provider/telemetry/notarization/model-download remain excluded."
+    "state": "in_progress",
+    "step": "R7 via second pass: SP-016 completed (EV-SP-016-20260822-BILINGUAL-QUALITY-03). Bilingual STT measured on target hardware through the real on-device engine: Turkish/English general+command pass at entity recall 1.000, finalization latency 0.05 s; code-switched English technical tokens fail (WER 0.562) with contextual hints disproven, so that capability is explicitly excluded and locked fail-closed. SP-017 next. RISK-VOICE-RECOVERY-LIVE stays open."
   },
   "tracks": [
     {
@@ -449,6 +435,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-016-20260822-BILINGUAL-QUALITY-03",
     "EV-SP-013-20260821-COORDINATOR-ROUTING-01",
     "EV-SP-012-20260821-LIVE-ACCEPTANCE-02",
     "EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01",
@@ -497,11 +484,7 @@
     "EV-R9-20260808-UI-REGRESSION-05",
     "EV-R9-20260808-GAPS-04",
     "EV-R9-20260808-UI-TESTS-03",
-    "EV-R9-20260808-UI-BUILD-02",
-    "EV-R9-20260808-UI-SLICE-START-01",
-    "EV-R8-20260808-REGRESSION-03",
-    "EV-R8-20260808-CONTEXT-PRODUCT-02",
-    "EV-R8-20260808-MEMORY-POLICY-01"
+    "EV-R9-20260808-UI-BUILD-02"
   ],
   "blockers": [
     "SP-011 is completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13. Every leg named in its procedure has live evidence and both revocation legs passed; mutation/send is explicitly excluded and asserted by test. OPEN-06 itself stays open for items SP-011 does not own, chiefly Developer ID signing and notarization (R11), which would remove Safari's Allow-unsigned-extensions requirement.",
