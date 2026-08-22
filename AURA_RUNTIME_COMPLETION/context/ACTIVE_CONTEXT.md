@@ -1,14 +1,46 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-012`
-> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, R6/SP-012 active
-> **Live repository lineage:** `main` is clean and synchronized at `c6e5d3d183c8e293806bb9d55bbf4e44dffcefea`; the live-acceptance prompt is a control-plane-only descendant of the deterministic bridge delivery. Main CI run `31613321170` remains a historical queued observation and is not used as a pass for this control-plane session. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-016`
+> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, R7/SP-015 completed, SP-016 pending
+> **Live repository lineage:** `main` is clean and synchronized at `389ea344652d3d1d8211e6ce244f909eff42bc6e`. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
 
-## Canonical status
+## Second-pass synchronized overlay — 2026-08-22 (SP-015 COMPLETED; SP-016 next)
+
+`SP-016` / `pending` — `SP-015` is **`completed`** under
+`EV-SP-015-20260822-WAKE-EXCLUSION-01`. `SP-014` was completed under
+`EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02`; `SP-013` under
+`EV-SP-013-20260821-COORDINATOR-ROUTING-01`; `SP-012` under
+`EV-SP-012-20260821-LIVE-ACCEPTANCE-02`.
+
+**SP-015 decided wake-word scope (OPEN-08/R7): explicit exclusion from the
+release scope** (SP-015 Procedure step 3). No licensed local candidate is
+provisioned or bundled — the new inventory
+`AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md` records zero
+candidates; `find . \( -name '*.mlmodel' -o -name '*.mlmodelc' -o -name
+'*.tflite' -o -name '*.onnx' -o -name '*.bin' \)` returns only Chatterbox ONNX
+library conformance fixtures, not wake-word models. The active authority forbids
+`download_models`/`install_dependencies`, so qualification is not lawfully
+possible in this pass.
+
+- Production remains Push-to-Talk-only through `DisabledWakeWordDetector`;
+  `MarkerWakeWordDetector` is test-only (ADR-003).
+- Truthful UI confirmed: `AuraMenuView.swift` "Activation: Push to Talk"/"A
+  trained acoustic wake-word model is not installed"; onboarding stage
+  `.wakeWord` "no acoustic model is installed ... Push to Talk remains
+  available"; `AuraAppModel_Runtime.swift` warning "Acoustic wake-word model
+  unavailable; use Push to Talk".
+- **ADR-042 file does not exist** anywhere in the repo (the decision register
+  references `docs/decisions/ADR-042-voice-routing-resource-governor.md`, which
+  is absent); ADR-042 stays `Proposed` and must be reconciled before acceptance.
+
+Evidence: `EV-SP-015-20260822-WAKE-EXCLUSION-01`. Validator PASSED;
+`AuraAudioTests` 35/35 (includes `disabledWakeDetectorNeverClaimsProductionActivation`).
+SP-015 is **`completed`**; **SP-016 (bilingual STT quality and voice recovery)
+is next** and safe to start.
 
 ## Current second-pass overlay — 2026-08-22 (SP-014 COMPLETED; SP-015 next)
 

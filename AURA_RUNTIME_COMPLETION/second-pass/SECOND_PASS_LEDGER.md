@@ -1972,3 +1972,48 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
   `completed`.** SP-015 is safe to start.
 - **Next safe action:** start SP-015 (wake-word decision and evaluation) under
   its own authority.
+
+### 2026-08-22T17:30:00Z — SP-015 — WAKE-WORD DECISION AND EVALUATION — OPEN-08/R7 — completed (exclusion)
+
+- **Prompt ID:** SP-015 — Wake-Word Decision and Evaluation.
+- **Gap IDs:** `OPEN-08` (R7 wake word).
+- **Predecessor evidence:** `EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02`.
+- **Objective:** Make one evidence-backed decision — qualify a real local wake
+  word or explicitly exclude it from the release scope (Procedure step 3).
+- **Authority:** `edit:true`; `download_models:false`; `install_dependencies:false`;
+  `commit/push/merge/release_or_deploy/mutate_permissions:false`.
+- **Symptom / missing postcondition observed:** a wake-word activation mode is
+  referenced as "optional" in the UI, but **no licensed local wake-word model is
+  provisioned or bundled**, so no real candidate exists to qualify. No wake model
+  inventory existed, and no `ADR-042` file exists anywhere (the decision register
+  references a nonexistent path).
+- **Mechanism / root cause / layer:** `AuraKernel_Construction.swift` wires the
+  production `WakeWordPipeline` with `DisabledWakeWordDetector` (which can never
+  detect); `MarkerWakeWordDetector` is explicitly test-only (ADR-003). The active
+  authority forbids `download_models`/`install_dependencies`, so no licensed local
+  candidate can lawfully be obtained or evaluated in this pass. A model-artifact
+  scan found only Chatterbox ONNX library conformance fixtures (operator tests),
+  not wake models.
+- **Direct decision / procedure:** applied SP-015 Procedure step 3 — **explicit
+  exclusion**. Created `AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md`
+  recording zero provisioned candidates; confirmed the truthful UI already states
+  "no acoustic model is installed; Push to Talk remains available" (`AuraMenuView`
+  activation "Push to Talk", onboarding `.wakeWord`, `AuraAppModel_Runtime`
+  warning). Production remains Push-to-Talk-only; no wake-word claim is made.
+- **Cognitive gate:** symptom — no licensed candidate exists and none can be
+  obtained under the active authority; mechanism — `download_models`/`install_dependencies`
+  are false and no model asset is bundled; change — explicit exclusion recorded
+  with a wake model inventory and truthful UI confirmation; evidence —
+  `EV-SP-015-20260822-WAKE-EXCLUSION-01`; falsifier — a bundled licensed wake
+  model wired to a detector, or a UI claiming wake activation without a detector;
+  residual — re-evaluation requires the user to grant model-download authority and
+  supply a licensed local candidate with Turkish/FAR-FRR/noise/self-trigger/
+  license-hash/soak evidence; why SP-016 safe — the wake decision is bounded and
+  truthfully recorded, so bilingual STT quality/recovery can proceed independently.
+- **Tests / result:** `python3 scripts/validate_second_pass_program.py` →
+  `SECOND-PASS VALIDATION PASSED`; `AuraAudioTests` 35/35 (includes
+  `disabledWakeDetectorNeverClaimsProductionActivation`), 0 failed bundles.
+- **Acceptance verdict:** SP-015 completion gate **MET** — wake word is live
+  excluded with truthful UI and no wake-word claim. **SP-015 `completed`.**
+- **Next safe action:** start SP-016 (bilingual STT quality and voice recovery)
+  under its own authority.

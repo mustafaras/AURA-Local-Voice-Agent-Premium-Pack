@@ -86,9 +86,10 @@
         "No evaluated production acoustic model, Turkish support, license/hash, FAR/FRR, noise/distance, self-trigger, or soak evidence."
       ],
       "evidence_ids": [
-        "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
+        "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
+        "EV-SP-015-20260822-WAKE-EXCLUSION-01"
       ],
-      "notes": "DisabledWakeWordDetector is the truthful production path; MarkerWakeWordDetector is test-only."
+      "notes": "DisabledWakeWordDetector is the truthful production path; MarkerWakeWordDetector is test-only. SP-015 (2026-08-22) explicitly EXCLUDES wake word from the release scope: no licensed local candidate is provisioned/bundled and download/install authority is absent; the UI truthfully states no acoustic model is installed and Push to Talk remains available. ADR-042 file is absent (Proposed)."
     },
     {
       "id": "voice.audio_capture",

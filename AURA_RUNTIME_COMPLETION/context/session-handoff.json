@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-22T16:00:00Z",
-  "session_id": "AURA-SP-014-LIVE-ACCEPTANCE-20260822",
-  "last_verified_commit": "22c54fefb4c967505bcf3ed052a2edac98602278",
+  "updated_at": "2026-08-22T17:30:00Z",
+  "session_id": "AURA-SP-015-WAKE-EXCLUSION-20260822",
+  "last_verified_commit": "389ea344652d3d1d8211e6ce244f909eff42bc6e",
   "active_prompt": {
-    "id": "SP-015",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-015_WAKE_WORD_DECISION_AND_EVALUATION.prompt.md",
+    "id": "SP-016",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-016_BILINGUAL_STT_QUALITY_AND_VOICE_RECOVERY.prompt.md",
     "state": "pending",
-    "step": "SP-014 COMPLETED (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02): all four live legs pass — P1 read-only claude turn, P2 write-capable with a real diff, P3 accurate disabled-backend health, P4 no unauthorized delivery. Claude write-capable now uses acceptEdits; WorktreeManager.diff captures untracked files. SP-015 (wake-word decision) is next."
+    "step": "SP-015 COMPLETED (EV-SP-015-20260822-WAKE-EXCLUSION-01): wake word EXPLICITLY EXCLUDED from the release scope (SP-015 Procedure step 3). No licensed local candidate is provisioned/bundled (inventory AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md); download_models/install_dependencies are forbidden, so qualification is not lawfully possible. Production remains Push-to-Talk-only (DisabledWakeWordDetector); truthful UI already states no acoustic model is installed. ADR-042 file absent (Proposed), reconciled as projection gap. Validator PASSED; AuraAudioTests 35/35. SP-016 (bilingual STT quality and voice recovery) is next."
   },
-  "summary": "SP-014 live acceptance completed on approved repo ~/.aura-sp014/approved-repo. Fixed the two remaining gaps: (1) ClaudeArguments now derives --permission-mode from tool profile — workspaceWrite uses acceptEdits (dontAsk hardcoded made real writes impossible) — so a write-capable task actually writes; (2) WorktreeManager.diff returns git status --porcelain + git diff so a new (untracked) file counts as a real diff (git diff alone ignored untracked files, producing a false fail-closed). All 4 live tests pass: P1 read-only claude turn, P2 write-capable real diff in isolated worktree, P3 accurate disabled-backend health, P4 no unauthorized commit/push/merge. AuraAgentTests 235/235 (filtered). SP-014 marked completed; SP-015 safe to start. No commit/push/merge performed (authority commit:false).",
+  "summary": "SP-015 (OPEN-08/R7) decided wake-word scope: EXPLICIT EXCLUSION from the release scope (Procedure step 3). Verified no licensed local wake candidate is provisioned or bundled (new WAKE_MODEL_INVENTORY.md records zero candidates; only Chatterbox ONNX library conformance fixtures exist under the venv, not wake models). Active authority forbids download_models/install_dependencies, so qualification is not lawfully possible in this pass. Production remains Push-to-Talk-only (DisabledWakeWordDetector; MarkerWakeWordDetector is test-only per ADR-003). Truthful UI confirmed: AuraMenuView 'Activation: Push to Talk'/'A trained acoustic wake-word model is not installed', onboarding .wakeWord 'no acoustic model is installed ... Push to Talk remains available', runtime warning 'Acoustic wake-word model unavailable; use Push to Talk'. No ADR-042 file exists anywhere (decision register references a nonexistent path) — reconciled as a projection gap, ADR-042 stays Proposed. Baseline: validator PASSED, AuraAudioTests 35/35, 0 failed bundles. OPEN-08 wake bullet updated without deleting history; evidence/risk/decision/capability/state/handoff all updated. SP-015 completed; SP-016 safe to start. No commit/push/merge/download performed (authority: edit only for delivery).",
   "completed": [
     "Implemented and verified the R6 first policy/bridge slice under EV-R6-20260808-POLICY-BRIDGE-01; kept ADR-041 Proposed and all live R6 gates open.",
     "Implemented the R6 typed bridge/workspace/backend/coordinator/task-bounds slice under EV-R6-20260808-TYPED-ROUTES-02; source builds and the clean scratch runtime suite passed 21/21 bundles and 763/763 tests, while the repository runner retained the known AuraAudio helper exit-142 limitation.",
@@ -46,18 +46,20 @@
     "SP-014 live acceptance COMPLETED (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02): claude session limit reset, and the two remaining product gaps were fixed — ClaudeArguments now derives --permission-mode from the tool profile (workspaceWrite → acceptEdits) so a write-capable task actually writes, and WorktreeManager.diff uses git status --porcelain + git diff so new (untracked) files count as a real diff. All four live legs pass: P1 read-only claude turn, P2 write-capable real diff in an isolated worktree, P3 accurate disabled-backend health, P4 no unauthorized commit/push/merge. AuraAgentTests 235/235. SP-014 completed; SP-015 safe to start."
   ],
   "files_changed": [
+    "AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-015-20260822-WAKE-EXCLUSION-01.md",
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
-    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+    "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
-    "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01.md",
-    "Tests/AuraAgentTests/SP014LiveAcceptanceTests.swift",
+    "ledger/PROJECT_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-COMPUTER-UI-SCOPE-05.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-011-20260818-LIVE-ACCEPTANCE-BLOCKED-01.md",
@@ -147,6 +149,7 @@
     "AuraVSCodeExtension/aura-vscode-extension-0.1.0.vsix"
   ],
   "evidence_ids": [
+    "EV-SP-015-20260822-WAKE-EXCLUSION-01",
     "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10",
     "EV-SP-011-20260819-SAFARI-TRUST-PATH-09",
     "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08",
@@ -161,6 +164,11 @@
     "EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13"
   ],
   "tests": [
+    {
+      "name": "validate_second_pass_program.py; AuraAudioTests 35/35 (wake tests); no bundled wake model",
+      "result": "passed",
+      "evidence_id": "EV-SP-015-20260822-WAKE-EXCLUSION-01"
+    },
     {
       "name": "Full regression 21/21 bundles, 1041/1041 tests after the asymmetric bridge",
       "result": "passed",
@@ -224,7 +232,7 @@
   "open_decisions": [
     "RISK-SP-011-TCC-RESPONSIBLE-PROCESS-ATTRIBUTION is mitigated by two shell assertions. Closing the class properly means the app itself refusing to present a permission row when it is not its own responsible process; that is a product decision, not a harness one."
   ],
-  "next_action": "SP-014 COMPLETED (EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02): all four live legs pass. Claude write-capable now uses acceptEdits; WorktreeManager.diff captures untracked files via git status --porcelain. SP-015 (wake word decision) is safe to start. Do not commit, push, merge, release, notarize, mutate permissions, or deploy unless explicitly authorized.",
+  "next_action": "SP-015 COMPLETED (EV-SP-015-20260822-WAKE-EXCLUSION-01): wake word EXPLICITLY EXCLUDED from release scope (Procedure step 3). No licensed local candidate provisioned/bundled; download_models/install_dependencies forbidden. Production remains Push-to-Talk-only (DisabledWakeWordDetector); truthful UI states no acoustic model is installed. ADR-042 file absent (Proposed). SP-016 (bilingual STT quality and voice recovery) is safe to start. Do not commit, push, merge, release, notarize, mutate permissions, deploy, or download models unless explicitly authorized.",
   "required_first_reads": [
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",

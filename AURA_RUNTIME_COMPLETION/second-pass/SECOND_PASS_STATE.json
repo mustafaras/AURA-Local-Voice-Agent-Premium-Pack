@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-22T16:00:00Z",
-  "session_id": "AURA-SP-014-LIVE-ACCEPTANCE-20260822",
-  "active_prompt": "SP-015",
+  "updated_at": "2026-08-22T17:30:00Z",
+  "session_id": "AURA-SP-015-WAKE-EXCLUSION-20260822",
+  "active_prompt": "SP-016",
   "active_state": "pending",
   "completed_prompts": [
     "SP-000",
@@ -22,10 +22,12 @@
     "SP-011",
     "SP-012",
     "SP-013",
-    "SP-014"
+    "SP-014",
+    "SP-015"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-015-20260822-WAKE-EXCLUSION-01",
     "EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02",
     "EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01",
     "EV-SP-013-20260821-COORDINATOR-ROUTING-01",
@@ -74,14 +76,7 @@
     "EV-SP-005-20260816-REACHABILITY-01",
     "EV-SP-006-20260816-7SCENARIO-02",
     "EV-SP-006-20260816-CLOSEOUT-03",
-    "EV-SP-006-20260816-GAPCLOSE-04",
-    "EV-SP-006-20260816-LIVERERUN-05",
-    "EV-SP-007-20260816-FIXTURES-01",
-    "EV-SP-007-20260816-LIVE-02",
-    "EV-SP-008-20260817-ADVERSARIAL-01",
-    "EV-SP-008-20260817-CLOSEOUT-02",
-    "EV-SP-008-20260817-CORRECTION-03",
-    "EV-SP-008-20260817-DETECTOR-04"
+    "EV-SP-006-20260816-GAPCLOSE-04"
   ],
   "authority": {
     "edit": true,
@@ -109,5 +104,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-014 COMPLETED under EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02: all four live legs pass (P1 read-only claude turn, P2 write-capable with real diff, P3 accurate health, P4 no unauthorized delivery). Claude write-capable now uses acceptEdits (dontAsk blocked writes); WorktreeManager.diff captures untracked files via git status --porcelain. AuraAgentTests 235/235. SP-015 (wake-word decision and evaluation) is next."
+  "next_action": "SP-015 COMPLETED under EV-SP-015-20260822-WAKE-EXCLUSION-01: wake word is EXPLICITLY EXCLUDED from the release scope (Procedure step 3). No licensed local candidate is provisioned/bundled (inventory AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md); download_models/install_dependencies are forbidden, so qualification is not lawfully possible. Production remains Push-to-Talk-only (DisabledWakeWordDetector); truthful UI already states no acoustic model is installed. ADR-042 file is absent (Proposed) and reconciled as a projection gap. Validator PASSED; AuraAudioTests 35/35. SP-016 (bilingual STT quality and voice recovery) is next."
 }

@@ -1019,6 +1019,20 @@ or ADR-042 approval.
   `DisabledWakeWordDetector`; the marker detector remains test-only. FAR/FRR,
   Turkish support, noise/distance, self-trigger, energy, debounce, privacy,
   model hash/license, and soak evidence remain open.
+  - **SP-015 decision (2026-08-22, `EV-SP-015-20260822-WAKE-EXCLUSION-01`):**
+    wake word is **explicitly excluded from the release scope**. No licensed
+    local candidate is provisioned or bundled (inventory:
+    `AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md`); the active
+    authority forbids `download_models`/`install_dependencies`, so no candidate
+    can lawfully be obtained or qualified in this pass. The truthful UI already
+    states "no acoustic model is installed; Push to Talk remains available"
+    (onboarding stage `.wakeWord`, menu, and runtime warning). No wake-word
+    claim is made. This exclusion can be revisited only if the user later grants
+    model-download authority and supplies a licensed local candidate with
+    Turkish support, FAR/FRR, noise/distance, self-trigger, license/hash, and
+    soak evidence. ADR-042 remains `Proposed` (no ADR-042 file exists yet; the
+    decision register path `docs/decisions/ADR-042-voice-routing-resource-governor.md`
+    is absent and must be reconciled before acceptance).
 - Apple on-device Speech capability checks and the reusable STT router are
   implemented, but there is no live Turkish/English/mixed-language WER/entity
   corpus, qualified local Whisper/equivalent fallback, or user-present

@@ -2,39 +2,38 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-22T16:00:00Z",
-  "session_id": "AURA-SP-014-LIVE-ACCEPTANCE-20260822",
+  "updated_at": "2026-08-22T17:30:00Z",
+  "session_id": "AURA-SP-015-WAKE-EXCLUSION-20260822",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "22c54fefb4c967505bcf3ed052a2edac98602278",
-    "remote_head": "22c54fefb4c967505bcf3ed052a2edac98602278",
+    "verified_head": "389ea344652d3d1d8211e6ce244f909eff42bc6e",
+    "remote_head": "389ea344652d3d1d8211e6ce244f909eff42bc6e",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+      "AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md",
       "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
       "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
       "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+      "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
       "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02.md",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-014-20260821-LIVE-ACCEPTANCE-BLOCKED-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-015-20260822-WAKE-EXCLUSION-01.md",
       "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
       "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
       "AURA_RUNTIME_COMPLETION/state/current-state.json",
-      "Sources/AuraAgent/ClaudeArguments.swift",
-      "Sources/AuraAgent/ClaudeAdapter.swift",
-      "Sources/AuraAgent/WorktreeManager.swift",
-      "Tests/AuraAgentTests/SP014LiveAcceptanceTests.swift",
-      "Tests/AuraAgentTests/ClaudeArgumentsTests.swift"
+      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+      "ledger/PROJECT_LEDGER.md"
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "SP-015",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-015_WAKE_WORD_DECISION_AND_EVALUATION.prompt.md",
+    "id": "SP-016",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-016_BILINGUAL_STT_QUALITY_AND_VOICE_RECOVERY.prompt.md",
     "state": "pending",
-    "step": "SP-014 COMPLETED under EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02: all four live legs pass (P1 read-only claude turn, P2 write-capable with real diff, P3 accurate health, P4 no unauthorized delivery). Claude write-capable now uses acceptEdits; WorktreeManager.diff captures untracked files. AuraAgentTests 235/235. SP-015 (wake-word decision) is next. commit/push/export/release/provider/TCC/telemetry/notarization remain excluded."
+    "step": "SP-015 COMPLETED under EV-SP-015-20260822-WAKE-EXCLUSION-01: wake word EXPLICITLY EXCLUDED from release scope (Procedure step 3). No licensed local candidate provisioned/bundled (inventory AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md); download_models/install_dependencies forbidden, so qualification is not lawfully possible. Production remains Push-to-Talk-only (DisabledWakeWordDetector); truthful UI already states no acoustic model is installed. ADR-042 file absent (Proposed), reconciled as projection gap. Validator PASSED; AuraAudioTests 35/35. SP-016 (bilingual STT quality and voice recovery) is next. commit/push/export/release/provider/TCC/telemetry/notarization/model-download remain excluded."
   },
   "tracks": [
     {

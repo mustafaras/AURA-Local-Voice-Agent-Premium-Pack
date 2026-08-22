@@ -4492,3 +4492,16 @@ Recorded under `EV-SP-011-20260818-OAUTH-RETRY-06` after the user's explicit ret
 - **Commands run:** `AURA_SP014_LIVE_ACCEPTANCE=1 AURA_SP014_REPO=… swift test --filter SP014Live` **4/4**; `swift test --filter AuraAgentTests` **235/235** (full-run timing flakes pass in isolation); `WorktreeManagerTests` 7/7, `ClaudeArgumentsTests` 13/13; `validate_second_pass_program.py` PASSED.
 - **Acceptance verdict:** SP-014 completion gate **MET** — all live coding scenarios pass with direct evidence and no unauthorized delivery. **SP-014 `completed`.** SP-015 is safe to start.
 - **Authority boundary:** no commit, push, merge, release, notarize, TCC mutation, provider action, or telemetry. Working tree adds the SP-014 code + test + evidence changes; no commit made.
+
+### 2026-08-22T17:30:00Z — SP-015 wake-word decision and evaluation — completed (explicit exclusion)
+
+- **Actor:** GitHub Copilot engineering session.
+- **Session ID:** `AURA-SP-015-WAKE-EXCLUSION-20260822`.
+- **Prompt / gap:** `SP-015` / `OPEN-08` (R7 wake word).
+- **Verified start commit:** `389ea344652d3d1d8211e6ce244f909eff42bc6e` (== `origin/main`); clean worktree.
+- **Authority:** `edit:true`; `download_models:false`; `install_dependencies:false`; no commit/push/merge/release/permission/provider action.
+- **Evidence / class:** `EV-SP-015-20260822-WAKE-EXCLUSION-01` — manual review + system test + static inventory audit.
+- **Decision:** **wake word is EXPLICITLY EXCLUDED from the release scope** (SP-015 Procedure step 3). No licensed local candidate is provisioned or bundled (inventory `AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md` records zero candidates; only Chatterbox ONNX library conformance fixtures exist, not wake models). The active authority forbids `download_models`/`install_dependencies`, so qualification is not lawfully possible in this pass. Production remains Push-to-Talk-only (`DisabledWakeWordDetector`); `MarkerWakeWordDetector` is test-only (ADR-003). The truthful UI already states no acoustic model is installed ("Activation: Push to Talk"; onboarding `.wakeWord`; runtime warning). No `ADR-042` file exists anywhere (decision register path absent) — reconciled as a projection gap, ADR-042 stays `Proposed`. Re-evaluation requires the user to grant model-download authority and supply a licensed local candidate with Turkish/FAR-FRR/noise/self-trigger/license-hash/soak evidence.
+- **Verification:** `python3 scripts/validate_second_pass_program.py` **PASSED**; `AuraAudioTests` 35/35 (includes `disabledWakeDetectorNeverClaimsProductionActivation`), 0 failed bundles.
+- **Acceptance verdict:** SP-015 completion gate **MET** — wake word is live-excluded with truthful UI and no wake-word claim. **SP-015 `completed`.** SP-016 (bilingual STT quality and voice recovery) is safe to start.
+- **Residual risks:** `RISK-NO-REAL-WAKE-WORD` Mitigating — explicitly excluded; re-enablement gated on future model-download authority. ADR-042 file absent (projection gap). Bilingual STT quality/recovery forwarded to SP-016. No commit/push/merge performed (authority edit-only for delivery).
