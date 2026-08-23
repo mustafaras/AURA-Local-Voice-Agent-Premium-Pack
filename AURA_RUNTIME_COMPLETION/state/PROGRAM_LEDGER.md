@@ -2177,3 +2177,11 @@ Evidence `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`: Google Cloud project/cli
 - **Blockers / residual risks:** no neural MPS/CPU quality or long soak, human listening, wake-word, passive listening, energy/thermal qualification, or physical speaker-to-microphone echo is claimed. `RISK-MODEL-MEMORY-PRESSURE`, `RISK-NEURAL-TTS-LATENCY`, and `RISK-VOICE-RECOVERY-LIVE` remain future/physical residuals outside this prompt's completion branch.
 - **Authority:** no install/download/TCC/provider/telemetry/beta/sign/release/deploy/commit/push/merge; next-session authority is reset to edit-only.
 - **Exact next safe action:** SP-018 is the first uncompleted prompt and remains pending; read its required control files and prompt in order, then wait for that prompt's authority. Do not perform SP-018 work as part of this closeout.
+
+### 2026-08-23T14:37:07Z — SP-017 delivery reconciliation — committed and pushed; deploy boundary preserved
+
+- **Evidence:** `EV-SP-017-20260823-DELIVERY-04`.
+- **Delivery:** explicit user authority was used to create product commit `4b33dc2365ea45a9c0547805d21190e24265f2c5` and push `main` to `origin/main`. A subsequent fetch confirmed local and remote equality and a clean working tree.
+- **Merge:** no PR exists for `main`; the change was delivered directly to the default branch, so a separate merge operation was not applicable.
+- **Artifact / deploy:** `scripts/build-release-artifact.sh` plus manifest validation passed and produced a `development_unverified` archive. No production deploy occurred: the script and release policy explicitly prohibit treating this artifact as signed, notarized, installed, published, or deployed. CI run `32645953213` is queued and is not deployment evidence.
+- **Boundary:** SP-017/OPEN-08 only. SP-018 remains pending/unopened; broader R7 and R11/R12 release gates remain in progress.

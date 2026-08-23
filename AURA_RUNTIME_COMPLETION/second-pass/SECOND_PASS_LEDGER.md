@@ -2108,3 +2108,13 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - **Why SP-018 is safe to start:** SP-017 has a direct release path, explicit residuals, accepted ADR, evidence IDs, cognitive answers, and synchronized state/ledger/handoff projections. SP-018 is now the first uncompleted prompt, remains `pending`, and must be started only by its own prompt/read order.
 - **Authority:** edit-only for handoff; install/download/TCC/provider/telemetry/beta/sign/release/deploy/commit/push/merge remain false for the next session.
 - **Next action:** read SP-018's required control files and prompt in order; do not execute SP-018 work in this closeout.
+
+### 2026-08-23T14:37:07Z — SP-017 delivery reconciliation — completed delivery boundary
+
+- **Evidence ID / class:** `EV-SP-017-20260823-DELIVERY-04`, direct repository commit/push and development-artifact procedure.
+- **Symptom / missing postcondition:** the SP-017 closeout records still said the tested changes were uncommitted and no delivery had occurred after the user explicitly authorized commit/push/merge/deploy.
+- **Mechanism / layer:** the closeout state was intentionally frozen at edit-only authority and pre-delivery commit `f6518e1`; it therefore became stale after the authorized delivery action, while the repository has no production deploy target.
+- **Direct resolution:** created and pushed `4b33dc2365ea45a9c0547805d21190e24265f2c5` to `origin/main`; no PR existed, so merge was not applicable; built and validated the repository's `development_unverified` artifact without signing, installing, publishing, or deploying.
+- **Falsifier:** `git fetch origin` showing a different remote head, a PR unexpectedly requiring merge, a failed manifest validation, or a signed/public artifact produced by the repository's defined script would falsify this delivery receipt.
+- **Residual / boundary:** CI run `32645953213` remains queued and is not deployment evidence; signing/notarization, public release, and all broader R7/R11/R12 gates remain open. SP-018 remains pending/unopened.
+- **Next safe action:** read SP-018's required control files and prompt in order; do not execute SP-018 work as part of this delivery reconciliation.

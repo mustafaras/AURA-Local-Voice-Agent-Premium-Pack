@@ -1,22 +1,23 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-23T14:28:05Z",
-  "session_id": "AURA-SP-017-SYSTEM-TTS-CLOSEOUT-20260823",
-  "last_verified_commit": "f6518e1333015b31c4783f0a4e8f033555f6e1f1",
+  "updated_at": "2026-08-23T14:37:07Z",
+  "session_id": "AURA-SP-017-DELIVERY-20260823",
+  "last_verified_commit": "4b33dc2365ea45a9c0547805d21190e24265f2c5",
   "active_prompt": {
     "id": "SP-018",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-018_PRODUCTION_MEMORY_REFERENCE_WIRING.prompt.md",
     "state": "pending",
     "step": "SP-018 is pending/unopened after SP-017 completed under the system-TTS-only release branch; read the required control files and prompt in order before any action."
   },
-  "summary": "SP-017 / OPEN-08 completed through a truthful PTT + system-TTS-only release scope. Direct live system TTS passed 14/14 with first chunk 0.733 s and full utterance 1.400 s; the release default is system-only; resource observation found a neural CPU helper sample near 3991 MiB on the 16 GiB host; ADR-042 is accepted with neural/wake/physical acoustic capabilities explicitly excluded. All changes remain uncommitted working-tree edits.",
+  "summary": "SP-017 / OPEN-08 completed through a truthful PTT + system-TTS-only release scope and delivered in product commit 4b33dc2. Direct live system TTS passed 14/14 with first chunk 0.733 s and full utterance 1.400 s; the release default is system-only; resource observation found a neural CPU helper sample near 3991 MiB on the 16 GiB host; ADR-042 is accepted with neural/wake/physical acoustic capabilities explicitly excluded. The development_unverified artifact built and validated; no production deploy occurred.",
   "completed": [
     "Implemented and tested VoiceResourceGovernor idle-unload control and shared Ollama reasoning admission under EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01.",
     "Changed TTSAdapterChain release default to system-only and proved it with releaseTTSDefaultIsSystemOnly.",
     "Ran direct live system-TTS suites: 14/14, first chunk 0.733 s, full utterance 1.400 s, interruption/pause/resume/anti-trigger lifecycle covered.",
     "Recorded 16 GiB host/resource and computer-use AX observations under EV-SP-017-20260823-RESOURCE-SCOPE-02 without retaining raw audio, screenshots, secrets, or private account data.",
-    "Accepted ADR-042 for the bounded system-TTS-only scope and synchronized OPEN-08, risks, decisions, ledgers, and first-pass state projections."
+    "Accepted ADR-042 for the bounded system-TTS-only scope and synchronized OPEN-08, risks, decisions, ledgers, and first-pass state projections.",
+    "Created and pushed product commit 4b33dc2365ea45a9c0547805d21190e24265f2c5; no PR existed for main, so merge was not applicable; recorded the development-only artifact and deployment boundary under EV-SP-017-20260823-DELIVERY-04."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -34,6 +35,7 @@
     "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-LIVE-SYSTEM-TTS-01.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-RESOURCE-SCOPE-02.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-DELIVERY-04.md",
     "Sources/AURA/AuraKernel_ConstructionExtensions.swift",
     "Sources/AuraAgent/OllamaAdapter.swift",
     "Sources/AuraAgent/OllamaAdapter_API.swift",
@@ -50,6 +52,7 @@
     "ledger/PROJECT_LEDGER.md"
   ],
   "evidence_ids": [
+    "EV-SP-017-20260823-DELIVERY-04",
     "EV-SP-017-20260823-CLOSEOUT-03",
     "EV-SP-017-20260823-LIVE-SYSTEM-TTS-01",
     "EV-SP-017-20260823-RESOURCE-SCOPE-02",
@@ -80,5 +83,5 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-018_PRODUCTION_MEMORY_REFERENCE_WIRING.prompt.md"
   ],
-  "notes": "Computer-use skill was used for a read-only live AX observation. The native pipe closed on a tab-selection attempt; no TCC or permission change was made. No commit, push, merge, release, deploy, signing, provider, telemetry, beta, install, or model download action was performed."
+  "notes": "Computer-use skill was used for a read-only live AX observation. The native pipe closed on a tab-selection attempt; no TCC or permission change was made. Product commit 4b33dc2 was pushed directly to main with explicit user authority. No PR existed, so merge was not applicable. The only artifact produced is development_unverified; no signing, notarization, install, publish, or production deploy occurred. CI run 32645953213 is queued and is not deployment evidence."
 }

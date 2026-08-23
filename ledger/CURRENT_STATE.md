@@ -1,14 +1,24 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-22.
+Projection refreshed from live repository and command evidence on 2026-08-23.
+
+## Delivery reconciliation — 2026-08-23T14:37:07Z
+
+SP-017 / OPEN-08 is completed under the truthful PTT + system-TTS-only branch and
+its product changes were committed as `4b33dc2365ea45a9c0547805d21190e24265f2c5`
+and pushed to `origin/main`. No PR exists for `main`, so a separate merge was
+not applicable. The repository's release builder produced and validated only a
+`development_unverified` artifact; no signing, notarization, install, publish,
+or production deploy occurred. CI run `32645953213` is queued and is not deploy
+evidence. SP-018 remains pending/unopened and the broader program remains in
+progress.
 
 ## Authoritative current status — 2026-08-23T14:16:40Z
 
 The active second-pass prompt is **`SP-018` / `pending`**. **SP-017 / OPEN-08
-is `completed`** at `main`, verified `HEAD == origin/main ==
-f6518e1333015b31c4783f0a4e8f033555f6e1f1`, with expected uncommitted working-tree
-edits from this closeout.
+is `completed`** at `main`, with product content delivered in commit
+`4b33dc2365ea45a9c0547805d21190e24265f2c5` and pushed to `origin/main`.
 
 **SP-017 completion (`EV-SP-017-20260823-CLOSEOUT-03`):** direct live system
 TTS passed 14/14, with first chunk latency 0.733 s and full utterance latency

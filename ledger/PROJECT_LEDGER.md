@@ -4569,3 +4569,11 @@ Recorded under `EV-SP-011-20260818-OAUTH-RETRY-06` after the user's explicit ret
 - **Evidence / class:** `EV-SP-017-20260823-LIVE-SYSTEM-TTS-01` direct live system-TTS (14/14; first chunk 0.733 s; full utterance 1.400 s); `EV-SP-017-20260823-RESOURCE-SCOPE-02` direct host/resource + computer-use AX; `EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01` deterministic governor/Ollama; `EV-SP-017-20260823-FULL-SUITE-01` historical deterministic aggregate.
 - **Falsifier / residual:** any neural or wake readiness claim without new live resource/quality evidence, or a release-default test selecting neural TTS, falsifies the scope decision. Neural memory/latency, physical recovery/echo, energy/thermal, human listening, and wake remain outside SP-017 and stay recorded as residual risks.
 - **Acceptance / next:** SP-017 completion gate met through explicit exclusion; ADR-042 accepted for system-only scope; PTT + system TTS remains truthful. SP-018 is safe to start and remains pending/unopened. No commit/push/merge/release/deploy performed.
+
+### 2026-08-23T14:37:07Z — SP-017 delivery reconciliation — completed delivery boundary
+
+- **Evidence:** `EV-SP-017-20260823-DELIVERY-04`.
+- **Commit / push:** with explicit user authority, commit `4b33dc2365ea45a9c0547805d21190e24265f2c5` was created and pushed to `origin/main`; fetch confirmed local and remote equality and a clean worktree.
+- **Merge:** no PR exists for `main`; direct push to the default branch made a separate merge operation inapplicable.
+- **Deploy:** the local release builder and manifest validator passed, producing only `AURA-development-unverified.zip`. No production/public deploy occurred because repository policy and the script require separate signing/notarization and define no deploy target. CI run `32645953213` is queued and is not deployment evidence.
+- **Scope:** SP-017/OPEN-08 delivery only; SP-018 remains pending and the wider program remains in progress.

@@ -3,8 +3,8 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-23T14:28:05Z",
-  "session_id": "AURA-SP-017-SYSTEM-TTS-CLOSEOUT-20260823",
+  "updated_at": "2026-08-23T14:37:07Z",
+  "session_id": "AURA-SP-017-DELIVERY-20260823",
   "active_prompt": "SP-018",
   "active_state": "pending",
   "completed_prompts": [
@@ -29,6 +29,7 @@
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-017-20260823-DELIVERY-04",
     "EV-SP-017-20260823-CLOSEOUT-03",
     "EV-SP-017-20260823-LIVE-SYSTEM-TTS-01",
     "EV-SP-017-20260823-RESOURCE-SCOPE-02",

@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `SP-018` (pending)
 > **Current program state:** In progress; SP-017 completed under the system-TTS-only branch, while R1/R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 and the broader program remain open.
-> **Live repository lineage:** `main` is synchronized at `f6518e1333015b31c4783f0a4e8f033555f6e1f1` with expected uncommitted closeout edits. No repository-defined signed/notarized/public deployment target exists.
+> **Live repository lineage:** SP-017 product content is synchronized on `main` at `4b33dc2365ea45a9c0547805d21190e24265f2c5` and pushed to `origin/main`; the delivery reconciliation is projection-only. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
@@ -22,7 +22,10 @@ Neural TTS/reference voice, wake word/passive listening, neural MPS/CPU soak,
 human listening, and physical speaker-to-microphone echo remain explicitly
 excluded and are not represented as passed. The R7 track remains in progress
 for its broader residual risks; this does not promote the overall program to a
-release state.
+release state. Product commit `4b33dc2` was pushed directly to `main`; no PR
+exists, so merge was not applicable. The release builder produced and
+validated only a `development_unverified` artifact; no production deploy,
+signing, notarization, install, or publish occurred.
 
 **Next safe action:** read SP-018's required control files and prompt in order;
 SP-018 is pending/unopened and no SP-018 implementation may be performed as
