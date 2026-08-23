@@ -13,6 +13,11 @@ final class CapturedPCMBuffer: @unchecked Sendable {
   }
 }
 
+/// A synchronous `NotificationCenter` observer token. `NSObjectProtocol` is
+/// not `Sendable`, so it is wrapped for storage inside the actor. The token is
+/// only ever touched on the actor, so this is isolated in practice.
+typealias ObserverToken = NSObjectProtocol
+
 /// Real-time audio capture service for AURA.
 ///
 /// Responsibilities:
@@ -69,8 +74,18 @@ public actor AuraAudio {
   var sequenceIndex: UInt64 = 0
   var totalFrames: UInt64 = 0
   var lastTapTimestamp: TimeInterval = 0
-  var configurationChangeTask: Task<Void, Never>?
-  var sleepWakeTask: Task<Void, Never>?
+  /// Synchronous `NotificationCenter` observers registered in `start()`.
+  ///
+  /// These replace the earlier `Task { for await ... }` subscription pattern,
+  /// which had an async-registration race: `start()` could return before the
+  /// `for await` loop was actually subscribed, so a notification posted
+  /// immediately afterwards was dropped forever and the recovery path never
+  /// ran. `NotificationCenter.addObserver` is synchronous — once `start()`
+  /// returns, the observers are guaranteed registered, so every posted
+  /// notification deterministically reaches the handler.
+  var configurationChangeObserver: ObserverToken?
+  var sleepObserver: ObserverToken?
+  var wakeObserver: ObserverToken?
   /// Set only when the system put the machine to sleep while capture was
   /// running. It is the sole authority for resuming on wake, so an explicit
   /// user stop can never be undone by a later wake notification.

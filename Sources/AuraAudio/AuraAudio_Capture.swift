@@ -107,10 +107,9 @@ extension AuraAudio {
     await logger.info(
       "Stopping audio capture: \(reason)", correlationID: correlationID, actor: .audio)
 
-    configurationChangeTask?.cancel()
-    configurationChangeTask = nil
-    sleepWakeTask?.cancel()
-    sleepWakeTask = nil
+    // Tear down the synchronous observers first so no configuration-change or
+    // sleep/wake notification can reach a handler after teardown begins.
+    removeObservers()
     // An explicit stop must survive a later wake: clearing this is what stops
     // the microphone reopening on its own after the user closed it.
     shouldResumeAfterWake = false
@@ -248,15 +247,23 @@ extension AuraAudio {
 
   // MARK: - Device change recovery
 
+  /// Register a synchronous `NotificationCenter` observer for device changes.
+  ///
+  /// This is intentionally synchronous: `addObserver` returns only after the
+  /// observer is registered, so once `start()` returns a device-change
+  /// notification posted immediately afterwards is guaranteed to be delivered.
+  /// (The previous `Task { for await }` pattern could return from `start()`
+  /// before its subscription was live, silently dropping notifications and
+  /// wedging the recovery path.)
   private func observeConfigurationChanges() {
-    configurationChangeTask?.cancel()
-    configurationChangeTask = Task { [weak self] in
-      let notification = NotificationCenter.default.notifications(
-        named: .AVAudioEngineConfigurationChange
-      )
-      for await _ in notification {
-        guard let self = self, !Task.isCancelled else { return }
-        await self.handleConfigurationChange()
+    guard configurationChangeObserver == nil else { return }
+    configurationChangeObserver = NotificationCenter.default.addObserver(
+      forName: .AVAudioEngineConfigurationChange,
+      object: nil,
+      queue: nil
+    ) { [weak self] _ in
+      Task { [weak self] in
+        await self?.handleConfigurationChange()
       }
     }
   }
@@ -270,23 +277,43 @@ extension AuraAudio {
   /// Suspend deliberately on sleep and resume on wake, but only when capture
   /// was actually running when sleep began.
   private func observeSleepWake() {
-    sleepWakeTask?.cancel()
-    sleepWakeTask = Task { [weak self] in
-      let center = NSWorkspace.shared.notificationCenter
-      await withTaskGroup(of: Void.self) { group in
-        group.addTask {
-          for await _ in center.notifications(named: NSWorkspace.willSleepNotification) {
-            guard let self, !Task.isCancelled else { return }
-            await self.handleSystemWillSleep()
-          }
-        }
-        group.addTask {
-          for await _ in center.notifications(named: NSWorkspace.didWakeNotification) {
-            guard let self, !Task.isCancelled else { return }
-            await self.handleSystemDidWake()
-          }
-        }
+    guard sleepObserver == nil, wakeObserver == nil else { return }
+    let center = NSWorkspace.shared.notificationCenter
+    sleepObserver = center.addObserver(
+      forName: NSWorkspace.willSleepNotification,
+      object: nil,
+      queue: nil
+    ) { [weak self] _ in
+      Task { [weak self] in
+        await self?.handleSystemWillSleep()
       }
+    }
+    wakeObserver = center.addObserver(
+      forName: NSWorkspace.didWakeNotification,
+      object: nil,
+      queue: nil
+    ) { [weak self] _ in
+      Task { [weak self] in
+        await self?.handleSystemDidWake()
+      }
+    }
+  }
+
+  /// Remove every synchronous observer. Idempotent; safe to call in `stop()`.
+  private func removeObservers() {
+    let center = NotificationCenter.default
+    let workspaceCenter = NSWorkspace.shared.notificationCenter
+    if let configurationChangeObserver {
+      center.removeObserver(configurationChangeObserver)
+      self.configurationChangeObserver = nil
+    }
+    if let sleepObserver {
+      workspaceCenter.removeObserver(sleepObserver)
+      self.sleepObserver = nil
+    }
+    if let wakeObserver {
+      workspaceCenter.removeObserver(wakeObserver)
+      self.wakeObserver = nil
     }
   }
 
