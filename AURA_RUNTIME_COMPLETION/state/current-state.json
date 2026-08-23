@@ -2,7 +2,7 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-23T17:14:04Z",
+  "updated_at": "2026-08-23T17:18:48Z",
   "session_id": "AURA-SP-018-IMPLEMENTATION-20260823",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
@@ -15,10 +15,10 @@
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "SP-019",
+    "id": "R8",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
-    "state": "pending",
-    "step": "SP-018 / OPEN-09 is completed and delivered at 1d3efca. SP-019 is the first pending prompt; its own authority and required read order are required before any action."
+    "state": "in_progress",
+    "step": "SP-018 / OPEN-09 is completed and delivered at 1d3efca. SP-019 is the active pending second-pass prompt for R8; its own authority and required read order are required before any action."
   },
   "tracks": [
     {
