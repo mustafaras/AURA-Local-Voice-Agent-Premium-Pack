@@ -8,6 +8,44 @@
 
 ## Canonical status
 
+## Second-pass synchronized overlay — 2026-08-23 (SP-016 RECOVERY SUITE STABILIZED)
+
+`SP-017` / `pending` — `SP-016` remains **`completed`**, now on stable evidence
+under `EV-SP-016-20260823-FLAKY-RECOVERY-STABILIZATION-05`.
+
+A further operator re-verification ("kusursuz kapanmadı mı") found that the
+recovery suite which `EV-SP-016-20260822-RECOVERY-MATRIX-04` claimed stable
+("run twice with identical results") was **flaky**. Three independent runs:
+run 1 failed `Sleep suspends capture and wake resumes it`, run 2 failed
+`A configuration change after stop never reopens the microphone`, run 3 passed;
+the full suite reported `AuraAudioTests` as the one failing bundle.
+
+Two root causes were fixed:
+
+1. **Async observer registration race.** `AuraAudio` subscribed via
+   `Task { for await ... }` (and `withTaskGroup`). `start()` could return before
+   the loop had subscribed, so a notification posted immediately afterwards was
+   **dropped forever** and the recovery handler never ran. Replaced with
+   **synchronous** `NotificationCenter.addObserver` tokens
+   (`configurationChangeObserver`/`sleepObserver`/`wakeObserver`) and a
+   `removeObservers()` teardown in `stop()`.
+2. **Cross-suite microphone contention.** Swift Testing `.serialized` serializes
+   within one suite only, so `AuraAudioTests` and `SP016DeviceRecoveryTests` both
+   opened the same real `AVAudioEngine` input concurrently. All microphone-opening
+   tests were consolidated into the single `.serialized` suite, and a generous
+   `waitUntil` helper (~15 s + final check) replaced the short fixed poll.
+
+**Verified:** `AuraAudioTests` (39 tests / 6 suites) passed **six consecutive
+independent runs**; full suite `./scripts/aura-test.sh` → **21/21 bundles, 0
+failed**; validator PASSED.
+
+**Residual unchanged:** `RISK-VOICE-RECOVERY-LIVE` stays **Open**, narrowed to
+*physical* verification — product recovery behaviour is unchanged and still
+notification-driven (no headset unplug, no real route change, no real sleep, no
+acoustic barge-in/echo). SP-017 is safe to start.
+
+---
+
 ## Second-pass synchronized overlay — 2026-08-22 (SP-016 RE-VERIFIED; SP-017 next)
 
 `SP-017` / `pending` — `SP-016` is **`completed`**, now on adequate evidence,

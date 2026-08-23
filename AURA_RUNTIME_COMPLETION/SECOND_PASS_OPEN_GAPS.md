@@ -1130,6 +1130,28 @@ or ADR-042 approval.
     Human-speech quality (accent, disfluency, real room acoustics, real
     microphone colouration) also remains unmeasured; the synthetic corpus is an
     optimistic bound.
+  - **SP-016 recovery-suite stabilization (2026-08-23,
+    `EV-SP-016-20260823-FLAKY-RECOVERY-STABILIZATION-05`):** the recovery suite
+    introduced by the correction above was itself **flaky** — 
+    `EV-SP-016-20260822-RECOVERY-MATRIX-04` claimed it "ran twice with identical
+    results", but three independent runs each failed a *different* test (run 1
+    `Sleep suspends capture and wake resumes it`; run 2 `A configuration change
+    after stop never reopens the microphone`; run 3 passed), and the full suite
+    reported `AuraAudioTests` as the single failing bundle. Two root causes were
+    fixed without changing product recovery behaviour: (1) an **async observer
+    registration race** — `AuraAudio` used `Task { for await ... }`/`withTaskGroup`
+    subscriptions, so `start()` could return before the loop subscribed and a
+    posted notification was dropped forever; replaced with **synchronous**
+    `NotificationCenter.addObserver` tokens
+    (`configurationChangeObserver`/`sleepObserver`/`wakeObserver`) and a
+    `removeObservers()` teardown in `stop()`; and (2) **cross-suite microphone
+    contention** — Swift Testing's `.serialized` serializes within one suite
+    only, so `AuraAudioTests` and `SP016DeviceRecoveryTests` both opened the same
+    real `AVAudioEngine` input concurrently; all microphone-opening tests were
+    consolidated into one `.serialized` suite and a generous `waitUntil` helper
+    (~15 s + final check) replaced the short fixed poll. **Verified:**
+    `AuraAudioTests` (39 tests / 6 suites) passed **six consecutive independent
+    runs**, and the full suite is **21/21 bundles, 0 failed**.
 - Bounded incomplete-turn continuation, duplicate-result suppression, and
   TTS interruption/cancellation paths are covered locally, but live barge-in,
   acoustic echo/self-transcription, headset/device switching, sleep/wake,

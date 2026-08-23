@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-22T23:10:00Z",
+  "updated_at": "2026-08-23T15:32:58Z",
   "session_id": "AURA-SP-016-BILINGUAL-QUALITY-20260822",
   "active_prompt": "SP-017",
   "active_state": "pending",
@@ -28,6 +28,7 @@
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-016-20260823-FLAKY-RECOVERY-STABILIZATION-05",
     "EV-SP-016-20260822-RECOVERY-MATRIX-04",
     "EV-SP-016-20260822-BILINGUAL-QUALITY-03",
     "EV-SP-016-20260822-LIVE-STATE-OBSERVATION-02",

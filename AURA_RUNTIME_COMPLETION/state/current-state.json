@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-22T21:40:00Z",
+  "updated_at": "2026-08-23T15:32:58Z",
   "session_id": "AURA-SP-016-BILINGUAL-QUALITY-20260822",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "4048592b84673beca492e22a17207bed78d99567",
-    "remote_head": "4048592b84673beca492e22a17207bed78d99567",
+    "verified_head": "fe09539b4ecb8647ad3849f0354829daa8349e80",
+    "remote_head": "fe09539b4ecb8647ad3849f0354829daa8349e80",
     "working_tree_state": "clean",
     "user_owned_changes": []
   },
@@ -18,7 +18,7 @@
     "id": "R7",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
     "state": "in_progress",
-    "step": "R7 via second pass: SP-016 completed and re-verified (EV-SP-016-20260822-RECOVERY-MATRIX-04). Re-verification found the device-change 'needs Microphone grant' blocker was false and that sleep/wake recovery did not exist; both fixed, with AuraAudio suspending on sleep and resuming on wake only when sleep caused it. All eight recovery legs covered. SP-017 next. RISK-VOICE-RECOVERY-LIVE open for physical verification only."
+    "step": "R7 via second pass: SP-016 completed and re-verified (EV-SP-016-20260823-FLAKY-RECOVERY-STABILIZATION-05). The recovery suite that EV-SP-016-20260822-RECOVERY-MATRIX-04 claimed stable was flaky; fixed by replacing async Task-for-await observer subscriptions with synchronous NotificationCenter.addObserver tokens and consolidating all microphone-opening tests into one .serialized suite. AuraAudioTests passed six consecutive runs; full suite 21/21 bundles, 0 failed. SP-017 next. RISK-VOICE-RECOVERY-LIVE open for physical verification only."
   },
   "tracks": [
     {
