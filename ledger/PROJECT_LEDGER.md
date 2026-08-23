@@ -4615,3 +4615,12 @@ Recorded under `EV-SP-011-20260818-OAUTH-RETRY-06` after the user's explicit ret
 - **Exact next safe action:** SP-019 is now the first pending prompt. Start it
   only under its own authority/read order; no SP-019 work was performed in this
   session. Authority resets to edit-only.
+
+### 2026-08-23T17:14:04Z — SP-018 delivery reconciliation — committed and pushed; no applicable merge or production deploy
+
+- **Actor / authority:** Codex; the current-turn user explicitly requested `push commit merge deploy`, authorizing the in-scope repository delivery action. Authority expired after reconciliation and is not standing for SP-019.
+- **Repository:** branch `main`; commit `1d3efca0944334be19a2d68abbb4c199bba15d87`; `HEAD == origin/main`; worktree clean.
+- **Delivery result:** the exact SP-018 changes were committed with `feat(sp-018): wire production memory references` and pushed successfully. `gh pr list --state open --head main` returned no PR, so a separate merge was not applicable because delivery was already on the default branch.
+- **Artifact / deploy result:** `scripts/build-release-artifact.sh` completed and validated only `AURA-development-unverified.zip` (SHA-256 `e001b28e44e8e7c9096ad47e5f104fe52f978d2ecea83cb7fffd8c281f57174a`) and its manifest (SHA-256 `9a5a092622257e0acb0846eb6d5739087d1e15130d6edef6bfec245275c06211`). No signing, notarization, install, publish, public deploy, or production deploy occurred; the repository defines no such target and R11/R12 remain open.
+- **Evidence:** `EV-SP-018-20260823-DELIVERY-05`; the delivery artifact is local under `/tmp/aura-sp018-delivery.PrUGnw/output/`.
+- **Next safe action:** start only SP-019 under its own authority and required read order. Do not infer release or production acceptance from the development artifact.

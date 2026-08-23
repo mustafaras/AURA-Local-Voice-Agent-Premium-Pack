@@ -2,60 +2,23 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-23T16:47:04Z",
+  "updated_at": "2026-08-23T17:14:04Z",
   "session_id": "AURA-SP-018-IMPLEMENTATION-20260823",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "e5835e983a9a98e3a1a5a955ef60a22a1fd6c932",
-    "remote_head": "e5835e983a9a98e3a1a5a955ef60a22a1fd6c932",
-    "working_tree_state": "dirty_expected",
-    "user_owned_changes": [
-      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
-      "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-      "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-      "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
-      "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-      "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
-      "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-      "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
-      "AURA_RUNTIME_COMPLETION/state/current-state.json",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-FOCUSED-TESTS-02.md",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-FULL-SUITE-03.md",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04.md",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01.md",
-      "Sources/AURA/AuraKernel_Construction.swift",
-      "Sources/AuraAutomation/AuraAutomation.swift",
-      "Sources/AuraContext/ContextBuilder_Pipeline.swift",
-      "Sources/AuraContext/ProductionReferenceCandidateAssembler.swift",
-      "Sources/AuraContext/ReferenceResolver.swift",
-      "Sources/AuraCore/Configuration_ContextConfiguration.swift",
-      "Sources/AuraCore/ContextTypes.swift",
-      "Sources/AuraCore/ReferenceContextSnapshot.swift",
-      "Sources/AuraIntent/IntentEngine_Classify.swift",
-      "Sources/AuraIntent/IntentEngine_IntentEngine.swift",
-      "Sources/AuraIntent/IntentEngine_ReferenceContext.swift",
-      "Sources/AuraIntent/IntentEngine_Resolution.swift",
-      "Sources/AuraIntent/TypedIntent.swift",
-      "docs/subsystems/22_CONTEXT_RECONSTRUCTION.md",
-      "ledger/CURRENT_STATE.md",
-      "ledger/PROJECT_LEDGER.md",
-      "Tests/AuraContextTests/ProductionReferenceCandidateAssemblerTests.swift",
-      "Tests/AuraIntentTests/ProductionReferenceWiringTests.swift",
-      "Sources/AuraContext/ProductionReferenceCandidateAssembler.swift",
-      "Sources/AuraCore/ReferenceContextSnapshot.swift",
-      "Sources/AuraIntent/IntentEngine_ReferenceContext.swift"
-    ]
+    "verified_head": "1d3efca0944334be19a2d68abbb4c199bba15d87",
+    "remote_head": "1d3efca0944334be19a2d68abbb4c199bba15d87",
+    "working_tree_state": "clean",
+    "user_owned_changes": []
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R7",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
-    "state": "completed",
-    "step": "R7 via second pass is completed under the system-TTS-only branch. SP-018 / OPEN-09 is now completed for local production reference wiring under EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01, EV-SP-018-20260823-FOCUSED-TESTS-02, EV-SP-018-20260823-FULL-SUITE-03, and EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04. SP-019 is the first pending prompt; its own authority and read order are required."
+    "id": "SP-019",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
+    "state": "pending",
+    "step": "SP-018 / OPEN-09 is completed and delivered at 1d3efca. SP-019 is the first pending prompt; its own authority and required read order are required before any action."
   },
   "tracks": [
     {
@@ -480,6 +443,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-018-20260823-DELIVERY-05",
     "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04",
     "EV-SP-018-20260823-FULL-SUITE-03",
     "EV-SP-018-20260823-FOCUSED-TESTS-02",
@@ -539,5 +503,5 @@
     "SP-017 residuals are intentionally outside the completed system-only branch: neural co-resident soak/MPS/human listening, energy/thermal qualification, wake word, and physical headset/route/sleep/echo verification remain open for future scope.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "SP-018 is the first uncompleted second-pass prompt and remains pending/unopened. In a new authorized session, read AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md, SECOND_PASS_CONTROL_CONTRACT.md, SECOND_PASS_PROMPT_CONTRACT.md, the SP-018 prompt, and current ledgers before any action; do not execute SP-018 work during this closeout."
+  "next_action": "SP-019 is the first pending second-pass prompt. Start only under SP-019's own authority and required read order; no SP-019 implementation was performed in this session."
 }

@@ -1,9 +1,9 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-23T16:47:04Z",
+  "updated_at": "2026-08-23T17:14:04Z",
   "session_id": "AURA-SP-018-IMPLEMENTATION-20260823",
-  "last_verified_commit": "e5835e983a9a98e3a1a5a955ef60a22a1fd6c932",
+  "last_verified_commit": "1d3efca0944334be19a2d68abbb4c199bba15d87",
   "active_prompt": {
     "id": "SP-019",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
@@ -34,6 +34,7 @@
     "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-FULL-SUITE-03.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-DELIVERY-05.md",
     "Sources/AURA/AuraKernel_Construction.swift",
     "Sources/AuraAutomation/AuraAutomation.swift",
     "Sources/AuraContext/ContextBuilder_Pipeline.swift",
@@ -57,7 +58,8 @@
     "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01",
     "EV-SP-018-20260823-FOCUSED-TESTS-02",
     "EV-SP-018-20260823-FULL-SUITE-03",
-    "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04"
+    "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04",
+    "EV-SP-018-20260823-DELIVERY-05"
   ],
   "tests": [
     {"name": "AuraContextTests (37/37)", "result": "passed", "evidence_id": "EV-SP-018-20260823-FOCUSED-TESTS-02"},
@@ -68,7 +70,7 @@
   ],
   "blockers": [
     "R8 broader live/product controls remain open: user-present restart-safe memory, contradiction/correction, R9 controls, remote/provider evidence, and ADR-043 acceptance.",
-    "No application launch, TCC mutation, provider, signing, commit, push, merge, release, deploy, or beta action was authorized or performed."
+    "No application launch, TCC mutation, provider, signing, merge, release, production deploy, or beta action was performed. The explicitly authorized SP-018 commit and push completed; no PR existed for main, so merge was not applicable."
   ],
   "open_decisions": [
     "SP-019 must be started only under its own authority and required read order."
@@ -90,5 +92,5 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md"
   ],
-  "notes": "SP-018 authority expired at closeout and resets to edit-only. Evidence is local and privacy-safe: no raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written. SP-019 remains pending and no implementation from it was performed."
+  "notes": "SP-018 delivery completed at 1d3efca and authority expired afterward, resetting to edit-only. The development_unverified artifact is not a release or deployment. Evidence is local and privacy-safe: no raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written. SP-019 remains pending and no implementation from it was performed."
 }

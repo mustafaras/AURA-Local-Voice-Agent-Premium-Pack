@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-23T16:47:04Z",
+  "updated_at": "2026-08-23T17:14:04Z",
   "session_id": "AURA-SP-018-IMPLEMENTATION-20260823",
   "active_prompt": "SP-019",
   "active_state": "pending",
@@ -30,6 +30,7 @@
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-018-20260823-DELIVERY-05",
     "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04",
     "EV-SP-018-20260823-FULL-SUITE-03",
     "EV-SP-018-20260823-FOCUSED-TESTS-02",

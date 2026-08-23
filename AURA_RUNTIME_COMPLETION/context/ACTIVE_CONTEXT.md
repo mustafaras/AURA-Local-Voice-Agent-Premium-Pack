@@ -3,7 +3,7 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `SP-019` (pending)
 > **Current program state:** In progress; SP-017 completed under the system-TTS-only branch, while R1/R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 and the broader program remain open.
-> **Live repository lineage:** SP-017 product content is synchronized on `main` at `e5835e983a9a98e3a1a5a955ef60a22a1fd6c932` and pushed to `origin/main`; SP-018 working-tree changes are uncommitted and expected. No repository-defined signed/notarized/public deployment target exists.
+> **Live repository lineage:** SP-018 product and control content is synchronized on `main` at `1d3efca0944334be19a2d68abbb4c199bba15d87` and pushed to `origin/main`; the worktree is clean. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status

@@ -3,7 +3,7 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-08-23.
 
-## SP-018 / OPEN-09 — 2026-08-23T16:47:04Z — completed
+## SP-018 / OPEN-09 — 2026-08-23T17:14:04Z — completed and delivered
 
 SP-018 completed its bounded local production-reference-wiring gate. The real
 `AuraKernel` composition now supplies typed active application/editor/workspace,
@@ -22,8 +22,19 @@ passed 21/21 bundles with exit 0; build, diff, second-pass, and governance
 checks passed. R8 remains in progress: user-present restart/control, R9 UI,
 remote/provider evidence, and ADR-043 remain open. `SP-019` is pending and
 must start only under its own authority/read order; no SP-019 work occurred.
-The worktree is intentionally dirty with declared SP-018 edits; no commit,
-push, merge, release, deploy, launch, install, TCC, or provider action occurred.
+The SP-018 changes were committed as `1d3efca0944334be19a2d68abbb4c199bba15d87`
+and pushed to `origin/main`; local and remote heads match and the worktree is
+clean. No PR exists for `main`, so merge was not applicable. The local builder
+produced only a validated `development_unverified` artifact; no production
+deploy, signing, notarization, install, publish, or release action occurred.
+
+## Delivery reconciliation — 2026-08-23T17:14:04Z
+
+`EV-SP-018-20260823-DELIVERY-05` records the explicit current-turn delivery:
+commit and push passed, `git ls-remote` confirmed `HEAD == origin/main`, and
+`gh pr list --state open --head main` returned no PR. The repository's release
+builder produced and validated the unsigned/unnotarized development artifact
+at `/tmp/aura-sp018-delivery.PrUGnw/output/`; this is not deployment evidence.
 
 ## Delivery reconciliation — 2026-08-23T14:37:07Z
 

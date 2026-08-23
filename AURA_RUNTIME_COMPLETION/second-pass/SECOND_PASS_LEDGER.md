@@ -2181,3 +2181,13 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
   performed in this session and its own authority/read order is required.
 - **Acceptance verdict:** SP-018 `completed` for OPEN-09's production memory
   reference wiring slice; R8 and the overall program remain `in_progress`.
+
+### 2026-08-23T17:14:04Z — SP-018 delivery reconciliation — committed and pushed; deploy boundary preserved
+
+- **Evidence ID / class:** `EV-SP-018-20260823-DELIVERY-05`, direct repository commit/push, remote-pointer, PR-state, and development-artifact procedure evidence.
+- **Symptom / missing postcondition:** the SP-018 completion records correctly described the implementation but still named the pre-delivery commit, expected dirty worktree, and no-delivery boundary after the user explicitly requested `push commit merge deploy`.
+- **Mechanism / layer:** the implementation closeout intentionally froze authority and projections before delivery; those projections became stale after the authorized Git action. The repository has no production deployment target, and its artifact script explicitly stops at an unsigned/unnotarized development artifact.
+- **Direct resolution:** created commit `1d3efca0944334be19a2d68abbb4c199bba15d87` (`feat(sp-018): wire production memory references`) and pushed `main` to `origin/main`; `git ls-remote` confirmed exact equality; `gh pr list --state open --head main` returned no PR, so merge was not applicable. Built and manifest-validated `AURA-development-unverified.zip` with SHA-256 `e001b28e44e8e7c9096ad47e5f104fe52f978d2ecea83cb7fffd8c281f57174a` and manifest SHA-256 `9a5a092622257e0acb0846eb6d5739087d1e15130d6edef6bfec245275c06211`.
+- **Falsifier:** a later remote-pointer mismatch, an open PR requiring merge, failed manifest validation, or a signed/public artifact produced by the repository's defined builder would falsify this delivery receipt.
+- **Residual / boundary:** no production deploy occurred because no authorized target exists and R11/R12 signing, notarization, clean-machine, release-candidate, and beta gates remain open. No install, publish, provider, TCC, telemetry, beta, or external release action occurred.
+- **State reconciliation:** `current-state.json`, `SECOND_PASS_STATE.json`, capability matrix, active context, session handoff, current-state projection, evidence index, and ledgers now point to the pushed commit and clean worktree. SP-019 remains pending and no SP-019 implementation was performed.
