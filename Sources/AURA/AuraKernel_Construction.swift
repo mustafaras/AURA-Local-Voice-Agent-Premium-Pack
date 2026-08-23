@@ -338,6 +338,29 @@ extension AuraKernel {
     await foundation.runtimeHealthRegistry.recordReady(
       "capabilityRegistry",
       detail: "\(InitialCapabilitySet.manifests().count) capabilities registered")
+    let referenceContextProvider: ReferenceContextProvider = {
+      [
+        automation = foundation.automation, taskEngine = foundation.taskEngine,
+        vscodeAdapter = self.vscodeAdapter
+      ] _ in
+      let activeApplication = await automation.activeApplication()
+      let editor = await vscodeAdapter?.editorState()
+      let workspaceFolders = editor?.workspaceFolderPaths ?? []
+      let activeWorkspace: ActiveWorkspaceSnapshot?
+      if activeApplication != nil || editor != nil || !workspaceFolders.isEmpty {
+        activeWorkspace = ActiveWorkspaceSnapshot(
+          appBundleIdentifier: activeApplication?.bundleIdentifier,
+          appDisplayName: activeApplication?.name,
+          workspaceFolderPaths: workspaceFolders,
+          activeFilePath: editor?.activeFilePath,
+          capturedAt: Date())
+      } else {
+        activeWorkspace = nil
+      }
+      return ReferenceContextSnapshot(
+        activeWorkspace: activeWorkspace,
+        durableTasks: await taskEngine.allStatuses())
+    }
     let router = ToolRouter(
       policyEngine: foundation.policyEngine, automation: foundation.automation,
       shell: foundation.shell,
@@ -352,6 +375,8 @@ extension AuraKernel {
       contextBuilder: foundation.contextBuilder, memoryEngine: foundation.memory,
       structuredNLUBackend: extensions.ollamaAdapter, capabilityRegistry: capabilityRegistry,
       configuration: configuration.intent,
+      contextConfiguration: configuration.context,
+      referenceContextProvider: referenceContextProvider,
       eventBus: eventBus, sessionID: sessionID)
     return AuraKernelIntent(intentEngine: intentEngine, toolRouter: router)
   }

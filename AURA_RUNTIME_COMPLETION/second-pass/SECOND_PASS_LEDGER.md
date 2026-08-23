@@ -2118,3 +2118,66 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - **Falsifier:** `git fetch origin` showing a different remote head, a PR unexpectedly requiring merge, a failed manifest validation, or a signed/public artifact produced by the repository's defined script would falsify this delivery receipt.
 - **Residual / boundary:** CI run `32645953213` remains queued and is not deployment evidence; signing/notarization, public release, and all broader R7/R11/R12 gates remain open. SP-018 remains pending/unopened.
 - **Next safe action:** read SP-018's required control files and prompt in order; do not execute SP-018 work as part of this delivery reconciliation.
+
+### 2026-08-23T16:23:18Z — SP-018 — production memory reference wiring — OPEN-09/R8 — in_progress
+
+- **Prompt / gap:** SP-018 / `OPEN-09` (R8). This entry starts the prompt under its own authority after the required repository, control-contract, architecture, and baseline-test reads.
+- **Objective:** populate bounded, provenance-aware reference candidates through the real `AuraKernel` → `IntentDispatchCoordinator` → `IntentEngine` → `ContextBuilder` path, including dialogue salience, recent files/tools, active workspace, durable tasks, and observed backend identity.
+- **Assumptions:** the existing `ContextBuilder`/`ReferenceResolver` contracts remain the authority; the composition root may provide typed live snapshots but `AuraContext` must not reach into `AuraAgent`, `AuraTasks`, `AuraVSCode`, or `AuraAutomation`; candidates remain local and bounded, and raw audio, screenshots, secrets, tokens, private account data, and unredacted model output are not written to evidence or context files.
+- **Risks:** stale or cross-scope candidates could resolve an unsafe implicit target; a resolver result that is merely stored but not consumed would leave production routing unsafe; live provider/remote evidence and ADR-043 remain outside SP-018 and must not be claimed here.
+- **Acceptance criteria:** production composition supplies the typed snapshot; candidate assembly applies scope isolation, authority ranking, expiry, deduplication, and a hard bound; `that repo`, `last file`, `previous test`, and backend/tool references are parsed only with sufficient typed evidence; ambiguous, missing, stale, out-of-scope, or guarded weak-evidence references force a clarification/no-mutation path; focused tests cover scope isolation, authority ranking, expiry, and omission; validators and closeout pass.
+- **Baseline:** `python3 scripts/validate_second_pass_program.py` passed; `./scripts/aura-test.sh /tmp/aura-sp018-baseline-context AuraContextTests` passed 33/33; `./scripts/aura-test.sh /tmp/aura-sp018-baseline-intent AuraIntentTests` passed 129/129; repository was clean at verified head `e5835e983a9a98e3a1a5a955ef60a22a1fd6c932` before this entry.
+- **Acceptance verdict:** not yet assessed. SP-018 remains `in_progress`; no SP-019 work is authorized.
+
+### 2026-08-23T16:47:04Z — SP-018 — production memory reference wiring — OPEN-09/R8 — completed
+
+- **Exact symptom / missing postcondition:** `ContextBuilder` and
+  `ReferenceResolver` already had bounded contracts, but the real composition
+  path supplied no active workspace/editor snapshot, durable-task projection,
+  backend identity, or bounded multi-turn dialogue/recent-file/tool candidate
+  history. Consequently phrases such as “that repo”, “last file”, “previous
+  test”, and “ask Claude” could not be resolved from production evidence, and a
+  resolver result was not consumed by the typed action slots.
+- **Mechanism / root cause / layer:** this was a composition-boundary omission
+  across `AuraKernel` → `IntentEngine` → `ContextBuilder`, not a missing memory
+  storage primitive. `AuraContext` was intentionally kept dependency-neutral,
+  so the composition root needed to supply a typed read-only snapshot and the
+  intent layer needed a bounded local salience buffer. The prior action path
+  also lacked a fail-closed gate for implicit references whose resolution was
+  absent, ambiguous, stale, out of scope, or blocked for weak evidence.
+- **Direct change / acceptance procedure:** added the typed
+  `ReferenceContextSnapshot` provider at the production kernel boundary;
+  assembled bounded dialogue, recent file/tool, active workspace, durable task,
+  and backend candidates; applied scope isolation, freshness, authority
+  ranking, deduplication, and hard bounds; extended the reference phrase/entity
+  parser; bound only safe resolved local targets to closed typed slots; added
+  provenance to dialogue context; and forced clarification before reversible,
+  mutation, or destructive routing when the implicit reference was not safely
+  resolved. Focused tests and the full regression were rerun.
+- **Evidence ID / class:**
+  `EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01` (direct production
+  composition source/build evidence), `EV-SP-018-20260823-FOCUSED-TESTS-02`
+  (deterministic Context/Intent integration, 37/37 and 132/132), and
+  `EV-SP-018-20260823-FULL-SUITE-03` (deterministic 21/21 bundle regression).
+  Governance closure is recorded under
+  `EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04`.
+- **Falsifier:** a real production composition run with a valid in-scope
+  recent file/workspace/backend reference that fails to resolve, or any unsafe
+  implicit action reaching an adapter without clarification/normal policy and
+  postcondition checks, would falsify this conclusion. Removing the provider,
+  assembler, slot-binding, or ambiguity-gate changes also makes the new focused
+  assertions fail.
+- **Residual risk / why outside this prompt:** user-present launched-app
+  restart-safe memory controls, contradiction correction, R9 UI controls,
+  remote/provider transport, ADR-043 acceptance, model quality/latency, and
+  release gates remain open under the other R8/R9 risks. No application launch,
+  TCC mutation, external provider, or remote transport was authorized or
+  performed here; these are outside OPEN-09's bounded wiring objective.
+- **Why SP-019 is now safe to start:** the SP-018 completion gate is met for
+  the local production path: safe references carry typed provenance and every
+  unsafe ambiguity is converted to clarification before routing. All required
+  evidence, cognitive answers, postcondition checks, and validators pass. SP-019
+  is therefore the next pending prompt, but no SP-019 implementation is
+  performed in this session and its own authority/read order is required.
+- **Acceptance verdict:** SP-018 `completed` for OPEN-09's production memory
+  reference wiring slice; R8 and the overall program remain `in_progress`.

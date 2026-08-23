@@ -2,23 +2,60 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-23T14:37:07Z",
-  "session_id": "AURA-SP-017-DELIVERY-20260823",
+  "updated_at": "2026-08-23T16:47:04Z",
+  "session_id": "AURA-SP-018-IMPLEMENTATION-20260823",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "4b33dc2365ea45a9c0547805d21190e24265f2c5",
-    "remote_head": "4b33dc2365ea45a9c0547805d21190e24265f2c5",
-    "working_tree_state": "clean",
-    "user_owned_changes": []
+    "verified_head": "e5835e983a9a98e3a1a5a955ef60a22a1fd6c932",
+    "remote_head": "e5835e983a9a98e3a1a5a955ef60a22a1fd6c932",
+    "working_tree_state": "dirty_expected",
+    "user_owned_changes": [
+      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+      "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+      "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+      "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+      "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+      "AURA_RUNTIME_COMPLETION/state/current-state.json",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-FOCUSED-TESTS-02.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-FULL-SUITE-03.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01.md",
+      "Sources/AURA/AuraKernel_Construction.swift",
+      "Sources/AuraAutomation/AuraAutomation.swift",
+      "Sources/AuraContext/ContextBuilder_Pipeline.swift",
+      "Sources/AuraContext/ProductionReferenceCandidateAssembler.swift",
+      "Sources/AuraContext/ReferenceResolver.swift",
+      "Sources/AuraCore/Configuration_ContextConfiguration.swift",
+      "Sources/AuraCore/ContextTypes.swift",
+      "Sources/AuraCore/ReferenceContextSnapshot.swift",
+      "Sources/AuraIntent/IntentEngine_Classify.swift",
+      "Sources/AuraIntent/IntentEngine_IntentEngine.swift",
+      "Sources/AuraIntent/IntentEngine_ReferenceContext.swift",
+      "Sources/AuraIntent/IntentEngine_Resolution.swift",
+      "Sources/AuraIntent/TypedIntent.swift",
+      "docs/subsystems/22_CONTEXT_RECONSTRUCTION.md",
+      "ledger/CURRENT_STATE.md",
+      "ledger/PROJECT_LEDGER.md",
+      "Tests/AuraContextTests/ProductionReferenceCandidateAssemblerTests.swift",
+      "Tests/AuraIntentTests/ProductionReferenceWiringTests.swift",
+      "Sources/AuraContext/ProductionReferenceCandidateAssembler.swift",
+      "Sources/AuraCore/ReferenceContextSnapshot.swift",
+      "Sources/AuraIntent/IntentEngine_ReferenceContext.swift"
+    ]
   },
   "program_status": "in_progress",
   "active_prompt": {
     "id": "R7",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
     "state": "completed",
-    "step": "R7 via second pass, SP-017 completed under the system-TTS-only branch and delivered in product commit 4b33dc2: live system TTS 14/14 (first chunk 0.733 s; full utterance 1.400 s), resource scope observed, ADR-042 accepted with neural/wake/physical acoustic capabilities explicitly excluded. A development_unverified artifact was built and validated; no production deploy occurred. SP-018 is the first uncompleted prompt and remains pending."
+    "step": "R7 via second pass is completed under the system-TTS-only branch. SP-018 / OPEN-09 is now completed for local production reference wiring under EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01, EV-SP-018-20260823-FOCUSED-TESTS-02, EV-SP-018-20260823-FULL-SUITE-03, and EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04. SP-019 is the first pending prompt; its own authority and read order are required."
   },
   "tracks": [
     {
@@ -241,12 +278,15 @@
       "evidence_ids": [
         "EV-R8-20260808-MEMORY-POLICY-01",
         "EV-R8-20260808-CONTEXT-PRODUCT-02",
-        "EV-R8-20260808-REGRESSION-03"
+        "EV-R8-20260808-REGRESSION-03",
+        "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01",
+        "EV-SP-018-20260823-FOCUSED-TESTS-02",
+        "EV-SP-018-20260823-FULL-SUITE-03",
+        "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04"
       ],
       "open_risk_ids": [
         "RISK-MEMORY-NOT-PRODUCTIZED",
         "RISK-MEMORY-LIVE-ACCEPTANCE",
-        "RISK-MEMORY-REFERENCE-WIRING",
         "RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE",
         "RISK-ADR-043-PENDING"
       ]
@@ -440,6 +480,10 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04",
+    "EV-SP-018-20260823-FULL-SUITE-03",
+    "EV-SP-018-20260823-FOCUSED-TESTS-02",
+    "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01",
     "EV-SP-017-20260823-LIVE-SYSTEM-TTS-01",
     "EV-SP-017-20260823-RESOURCE-SCOPE-02",
     "EV-SP-017-20260823-CLOSEOUT-03",
@@ -484,18 +528,7 @@
     "EV-REPO-HYGIENE-20260809-DELIVERY-02",
     "EV-REPO-HYGIENE-20260809-PROGRAM-01",
     "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
-    "EV-OPEN-GAPS-20260809-FULL-AUDIT-01",
-    "EV-FINAL-20260809-CLOSEOUT-BLOCKED-01",
-    "EV-R12-20260809-READINESS-CONTRACT-01",
-    "EV-R12-20260809-BETA-BOUNDARY-START-01",
-    "EV-R11-20260809-ARTIFACT-MANIFEST-01",
-    "EV-R10-20260809-DELIVERY-02",
-    "EV-R10-20260809-BOUNDARY-SLICE-01",
-    "EV-R9-20260809-DELIVERY-07",
-    "EV-R9-20260808-FAIL-CLOSED-06",
-    "EV-R9-20260808-UI-REGRESSION-05",
-    "EV-R9-20260808-GAPS-04",
-    "EV-R9-20260808-UI-TESTS-03"
+    "EV-OPEN-GAPS-20260809-FULL-AUDIT-01"
   ],
   "blockers": [
     "SP-011 is completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13. Every leg named in its procedure has live evidence and both revocation legs passed; mutation/send is explicitly excluded and asserted by test. OPEN-06 itself stays open for items SP-011 does not own, chiefly Developer ID signing and notarization (R11), which would remove Safari's Allow-unsigned-extensions requirement.",

@@ -23,6 +23,9 @@ public actor IntentEngine {
   let logger: AuraLogger
   let sessionID: UUID
   let now: @Sendable () -> Date
+  let referenceContextProvider: ReferenceContextProvider?
+  let referenceAssembler: ProductionReferenceCandidateAssembler
+  var recentReferenceCandidates: [ReferenceCandidate] = []
   var lastContextResult: DeepContextResult?
   var pendingClarification: PendingClarification?
 
@@ -40,6 +43,8 @@ public actor IntentEngine {
     structuredNLUBackend: (any StructuredNLUBackend)? = nil,
     capabilityRegistry: CapabilityRegistry? = nil,
     configuration: IntentEngineConfiguration = IntentEngineConfiguration(),
+    contextConfiguration: ContextConfiguration = ContextConfiguration(),
+    referenceContextProvider: ReferenceContextProvider? = nil,
     eventBus: AuraEventBus,
     logger: AuraLogger = AuraLogger(subsystem: "AuraIntent", category: "intent-engine"),
     sessionID: UUID = UUID(),
@@ -54,6 +59,9 @@ public actor IntentEngine {
     self.logger = logger
     self.sessionID = sessionID
     self.now = now
+    self.referenceContextProvider = referenceContextProvider
+    self.referenceAssembler = ProductionReferenceCandidateAssembler(
+      configuration: contextConfiguration)
     if let contextBuilder {
       self.contextBuilder = contextBuilder
     } else if let contextEngine, let memoryEngine {

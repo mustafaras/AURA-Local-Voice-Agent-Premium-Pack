@@ -151,6 +151,67 @@ public struct TypedIntent: Sendable, Equatable, Identifiable {
       turnContext: context)
   }
 
+  /// Preserve the typed capability/category while making an unresolved
+  /// implicit target non-routable. `ToolRouter` already treats
+  /// `isAmbiguous` as a clarification outcome, so no action can reach an
+  /// adapter when the context resolver lacks sufficient evidence.
+  public func markedAmbiguous(reason: String) -> TypedIntent {
+    TypedIntent(
+      id: id,
+      turnCorrelationID: turnCorrelationID,
+      kind: kind,
+      semanticCategory: semanticCategory,
+      rawUtterance: rawUtterance,
+      normalizedUtterance: normalizedUtterance,
+      slots: slots,
+      classificationConfidence: classificationConfidence,
+      isAmbiguous: true,
+      language: language,
+      dialogueAct: .clarify,
+      ambiguityReasons: Array((ambiguityReasons + [reason]).prefix(8)),
+      contextRequirements: contextRequirements,
+      turnContext: turnContext)
+  }
+
+  /// Bind a resolver-proven target to the closed slot schema only for the
+  /// reversible local references this v1 router can execute. Explicit slots
+  /// always win; all action handlers still re-run their normal policy and
+  /// adapter postcondition checks against the bound target.
+  public func applyingResolvedReference(_ candidate: ReferenceCandidate) -> TypedIntent {
+    guard kind == .fileOpen || kind == .appActivate || kind == .appTerminate else {
+      return self
+    }
+    var resolvedSlots = slots
+    switch (kind, candidate.sourceID, candidate.entityKind) {
+    case (.fileOpen, .recentFile(let path), .file),
+      (.fileOpen, .workspace(let path), .file):
+      guard slotValue(IntentSlotName.filePath) == nil,
+        slotValue(IntentSlotName.folderPath) == nil
+      else { return self }
+      resolvedSlots.append(IntentSlot(name: IntentSlotName.filePath, value: path))
+    case (.fileOpen, .recentFile(let path), .repository),
+      (.fileOpen, .workspace(let path), .repository):
+      guard slotValue(IntentSlotName.filePath) == nil,
+        slotValue(IntentSlotName.folderPath) == nil
+      else { return self }
+      resolvedSlots.append(IntentSlot(name: IntentSlotName.folderPath, value: path))
+    case (.appActivate, .recentApplication(let bundleIdentifier), .application),
+      (.appTerminate, .recentApplication(let bundleIdentifier), .application):
+      guard slotValue(IntentSlotName.bundleIdentifier) == nil else { return self }
+      resolvedSlots.append(
+        IntentSlot(name: IntentSlotName.bundleIdentifier, value: bundleIdentifier))
+    default:
+      return self
+    }
+    return TypedIntent(
+      id: id, turnCorrelationID: turnCorrelationID, kind: kind,
+      semanticCategory: semanticCategory, rawUtterance: rawUtterance,
+      normalizedUtterance: normalizedUtterance, slots: resolvedSlots,
+      classificationConfidence: classificationConfidence, isAmbiguous: isAmbiguous,
+      language: language, dialogueAct: dialogueAct, ambiguityReasons: ambiguityReasons,
+      contextRequirements: contextRequirements, turnContext: turnContext)
+  }
+
   public func slotValue(_ name: String) -> String? {
     slots.first { $0.name == name }?.value
   }

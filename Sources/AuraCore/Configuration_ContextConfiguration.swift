@@ -11,7 +11,8 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
     case semanticMatchMinimumOverlap, referenceSeparationMargin
     case referenceGuardedMinimumConfidence, referenceGuardedTierThreshold
     case referenceSalienceWeight, maxTokenBudget, maxGraphDepth, maxGraphItems
-    case lookupLatencyBudgetSeconds
+    case lookupLatencyBudgetSeconds, referenceCandidateMaxAgeSeconds
+    case maxReferenceCandidates
   }
 
   /// Ranking weight for scope match (project/task/session). All five
@@ -71,6 +72,11 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
   /// Measured local lookup budget. Exceeding it is reported in the result
   /// and audit event; no claim of meeting the budget is made unless tested.
   public var lookupLatencyBudgetSeconds: Double
+  /// Maximum age of a live reference candidate. Future-dated candidates are
+  /// also rejected; a stale target must not survive into a later turn.
+  public var referenceCandidateMaxAgeSeconds: Double
+  /// Hard bound on candidates supplied by the production composition path.
+  public var maxReferenceCandidates: Int
 
   public init(
     rankingWeightScope: Double = 0.30,
@@ -92,7 +98,9 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
     maxTokenBudget: Int = 1_024,
     maxGraphDepth: Int = 4,
     maxGraphItems: Int = 12,
-    lookupLatencyBudgetSeconds: Double = 0.25
+    lookupLatencyBudgetSeconds: Double = 0.25,
+    referenceCandidateMaxAgeSeconds: Double = 900,
+    maxReferenceCandidates: Int = 24
   ) {
     self.rankingWeightScope = rankingWeightScope
     self.rankingWeightRecency = rankingWeightRecency
@@ -114,6 +122,8 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
     self.maxGraphDepth = maxGraphDepth
     self.maxGraphItems = maxGraphItems
     self.lookupLatencyBudgetSeconds = lookupLatencyBudgetSeconds
+    self.referenceCandidateMaxAgeSeconds = referenceCandidateMaxAgeSeconds
+    self.maxReferenceCandidates = maxReferenceCandidates
   }
 
   private var rankingWeights: [Double] {
@@ -182,6 +192,14 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
       throw AuraError.invalidConfiguration(
         "context lookupLatencyBudgetSeconds must be positive")
     }
+    guard referenceCandidateMaxAgeSeconds > 0 else {
+      throw AuraError.invalidConfiguration(
+        "context referenceCandidateMaxAgeSeconds must be positive")
+    }
+    guard maxReferenceCandidates > 0 else {
+      throw AuraError.invalidConfiguration(
+        "context maxReferenceCandidates must be positive")
+    }
   }
 
   private func validateReferenceBounds() throws(AuraError) {
@@ -238,7 +256,11 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
       maxGraphDepth: maxGraphDepth < 0 ? defaults.maxGraphDepth : maxGraphDepth,
       maxGraphItems: maxGraphItems < 0 ? defaults.maxGraphItems : maxGraphItems,
       lookupLatencyBudgetSeconds: lookupLatencyBudgetSeconds <= 0
-        ? defaults.lookupLatencyBudgetSeconds : lookupLatencyBudgetSeconds
+        ? defaults.lookupLatencyBudgetSeconds : lookupLatencyBudgetSeconds,
+      referenceCandidateMaxAgeSeconds: referenceCandidateMaxAgeSeconds <= 0
+        ? defaults.referenceCandidateMaxAgeSeconds : referenceCandidateMaxAgeSeconds,
+      maxReferenceCandidates: maxReferenceCandidates <= 0
+        ? defaults.maxReferenceCandidates : maxReferenceCandidates
     )
   }
 
@@ -287,6 +309,10 @@ public struct ContextConfiguration: Codable, Sendable, Equatable {
       maxGraphDepth: try Self.decoded(container, .maxGraphDepth, defaults.maxGraphDepth),
       maxGraphItems: try Self.decoded(container, .maxGraphItems, defaults.maxGraphItems),
       lookupLatencyBudgetSeconds: try Self.decoded(
-        container, .lookupLatencyBudgetSeconds, defaults.lookupLatencyBudgetSeconds))
+        container, .lookupLatencyBudgetSeconds, defaults.lookupLatencyBudgetSeconds),
+      referenceCandidateMaxAgeSeconds: try Self.decoded(
+        container, .referenceCandidateMaxAgeSeconds, defaults.referenceCandidateMaxAgeSeconds),
+      maxReferenceCandidates: try Self.decoded(
+        container, .maxReferenceCandidates, defaults.maxReferenceCandidates))
   }
 }

@@ -1215,6 +1215,18 @@ or decision-acceptance gates.
   is not yet wired for multi-turn references such as “that repo”, “last file”,
   “previous test”, “ask Claude”, or “send the draft”. Ambiguous or destructive
   references must still clarify and require the real policy/confirmation path.
+- **SP-018 resolution (2026-08-23, historical wording above retained):** the
+  bounded production composition is now wired through `AuraKernel` →
+  `IntentEngine` → `ContextBuilder` → `ReferenceResolver`. It supplies typed
+  active-application/editor/workspace/task/backend snapshots, retains bounded
+  dialogue and recent-file/tool salience, filters scope/expiry/completed-task
+  candidates, ranks and deduplicates by authority, and binds only safe resolved
+  targets to closed typed slots. Missing, ambiguous, stale, out-of-scope, or
+  weak destructive references clarify before routing. Evidence:
+  `EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01`,
+  `EV-SP-018-20260823-FOCUSED-TESTS-02`, and
+  `EV-SP-018-20260823-FULL-SUITE-03`. User-present restart/control acceptance,
+  R9 controls, remote transport, and ADR-043 remain open for later prompts.
 - Authority-ranked active beliefs and unresolved contradiction surfacing are
   implemented and tested, but all conflict classes, supersession outcomes, and
   user correction behavior lack a user-present product demonstration.

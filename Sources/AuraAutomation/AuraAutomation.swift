@@ -70,6 +70,12 @@ public actor AuraAutomation {
     }
   }
 
+  /// Read-only frontmost-application snapshot for context reconstruction.
+  /// This reports observed AppKit state and performs no lifecycle action.
+  public func activeApplication() -> NativeApplicationDescriptor? {
+    applicationController.runningApplications().first(where: \.isActive)
+  }
+
   /// Launch an application and emit an action event.
   public func launchApplication(bundleIdentifier: String) async throws(AuraError) {
     let descriptor = try await applicationController.launchApplication(

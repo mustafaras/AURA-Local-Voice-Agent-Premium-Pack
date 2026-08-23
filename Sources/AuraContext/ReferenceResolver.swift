@@ -83,7 +83,10 @@ public struct ReferenceResolver: Sendable, Equatable {
     explicitlyConfirmedTargetID: UUID? = nil
   ) -> ReferenceResolutionGraph {
     let requestedKind = entityKind(for: reference)
-    let nodes = candidates.map { candidate -> ReferenceGraphNode in
+    let nodes = candidates.filter { candidate in
+      let age = referenceDate.timeIntervalSince(candidate.observedAt)
+      return age >= 0 && age <= configuration.referenceCandidateMaxAgeSeconds
+    }.map { candidate -> ReferenceGraphNode in
       let lexicalMatch = requestedKind == nil || candidate.entityKind == requestedKind
       let evidenceScore = ContextRanking.score(
         candidate, referenceDate: referenceDate, configuration: configuration)
@@ -108,8 +111,20 @@ public struct ReferenceResolver: Sendable, Equatable {
   private func entityKind(for reference: String) -> ReferenceEntityKind? {
     let normalized = reference.lowercased()
     if normalized.contains("file") || normalized.contains("document") { return .file }
+    if normalized.contains("repo") || normalized.contains("repository")
+      || normalized.contains("workspace")
+    {
+      return .repository
+    }
     if normalized.contains("app") || normalized.contains("application") { return .application }
     if normalized.contains("task") || normalized.contains("job") { return .task }
+    if normalized.contains("test") { return .test }
+    if normalized.contains("draft") { return .draft }
+    if normalized.contains("claude") || normalized.contains("codex")
+      || normalized.contains("copilot")
+    {
+      return .backend
+    }
     if normalized.contains("decision") { return .decision }
     if normalized.contains("preference") || normalized.contains("setting") { return .preference }
     return nil

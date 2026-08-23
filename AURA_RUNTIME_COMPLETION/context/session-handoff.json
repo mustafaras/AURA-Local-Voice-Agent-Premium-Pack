@@ -1,23 +1,22 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-23T14:37:07Z",
-  "session_id": "AURA-SP-017-DELIVERY-20260823",
-  "last_verified_commit": "4b33dc2365ea45a9c0547805d21190e24265f2c5",
+  "updated_at": "2026-08-23T16:47:04Z",
+  "session_id": "AURA-SP-018-IMPLEMENTATION-20260823",
+  "last_verified_commit": "e5835e983a9a98e3a1a5a955ef60a22a1fd6c932",
   "active_prompt": {
-    "id": "SP-018",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-018_PRODUCTION_MEMORY_REFERENCE_WIRING.prompt.md",
+    "id": "SP-019",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
     "state": "pending",
-    "step": "SP-018 is pending/unopened after SP-017 completed under the system-TTS-only release branch; read the required control files and prompt in order before any action."
+    "step": "SP-018 / OPEN-09 is completed for the bounded local production reference-wiring slice. SP-019 has not started; read its own prompt and required control files before any action."
   },
-  "summary": "SP-017 / OPEN-08 completed through a truthful PTT + system-TTS-only release scope and delivered in product commit 4b33dc2. Direct live system TTS passed 14/14 with first chunk 0.733 s and full utterance 1.400 s; the release default is system-only; resource observation found a neural CPU helper sample near 3991 MiB on the 16 GiB host; ADR-042 is accepted with neural/wake/physical acoustic capabilities explicitly excluded. The development_unverified artifact built and validated; no production deploy occurred.",
+  "summary": "SP-018 connected bounded, provenance-aware reference candidates through AuraKernel -> IntentEngine -> ContextBuilder -> ReferenceResolver. Safe references resolve with typed evidence; stale, out-of-scope, weak, missing, or ambiguous action references clarify before routing. R8 and the overall program remain in progress.",
   "completed": [
-    "Implemented and tested VoiceResourceGovernor idle-unload control and shared Ollama reasoning admission under EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01.",
-    "Changed TTSAdapterChain release default to system-only and proved it with releaseTTSDefaultIsSystemOnly.",
-    "Ran direct live system-TTS suites: 14/14, first chunk 0.733 s, full utterance 1.400 s, interruption/pause/resume/anti-trigger lifecycle covered.",
-    "Recorded 16 GiB host/resource and computer-use AX observations under EV-SP-017-20260823-RESOURCE-SCOPE-02 without retaining raw audio, screenshots, secrets, or private account data.",
-    "Accepted ADR-042 for the bounded system-TTS-only scope and synchronized OPEN-08, risks, decisions, ledgers, and first-pass state projections.",
-    "Created and pushed product commit 4b33dc2365ea45a9c0547805d21190e24265f2c5; no PR existed for main, so merge was not applicable; recorded the development-only artifact and deployment boundary under EV-SP-017-20260823-DELIVERY-04."
+    "Added a production ReferenceContextProvider at the AuraKernel composition boundary for active application/editor/workspace, durable task, and backend identity snapshots.",
+    "Added bounded dialogue/recent-file/tool salience and a candidate assembler with scope isolation, expiry, authority ranking, deduplication, omission, and hard bounds.",
+    "Extended reference parsing and bound only safe resolved local targets to closed typed slots; unresolved unsafe implicit references become clarification outcomes before routing.",
+    "Updated OPEN-09, risk/decision/evidence indexes, second-pass/program/project ledgers, current state, capability pointer, active context, documentation, and this handoff without deleting historical wording.",
+    "Focused tests passed: AuraContextTests 37/37 and AuraIntentTests 132/132; final full regression passed 21/21 bundles with exit 0; build, diff check, second-pass validator, and 38 governance tests passed."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -29,50 +28,58 @@
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-CLOSEOUT-03.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-FULL-SUITE-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-LIVE-SYSTEM-TTS-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-RESOURCE-SCOPE-02.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-DELIVERY-04.md",
-    "Sources/AURA/AuraKernel_ConstructionExtensions.swift",
-    "Sources/AuraAgent/OllamaAdapter.swift",
-    "Sources/AuraAgent/OllamaAdapter_API.swift",
-    "Sources/AuraAgent/OllamaAdapter_Preflight.swift",
-    "Sources/AuraCore/TTSEngine.swift",
-    "Sources/AuraCore/VoiceResourceGovernor.swift",
-    "Tests/AuraAgentTests/OllamaAdapterTests.swift",
-    "Tests/AuraCoreTests/AuraCoreTests.swift",
-    "Tests/AuraCoreTests/VoiceResourceGovernorTests.swift",
-    "docs/decisions/ADR-042-voice-routing-resource-governor.md",
-    "docs/testing/38_PERFORMANCE_BUDGETS.md",
-    "docs/subsystems/07_TURN_TAKING_AND_TTS.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-FOCUSED-TESTS-02.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-FULL-SUITE-03.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01.md",
+    "Sources/AURA/AuraKernel_Construction.swift",
+    "Sources/AuraAutomation/AuraAutomation.swift",
+    "Sources/AuraContext/ContextBuilder_Pipeline.swift",
+    "Sources/AuraContext/ProductionReferenceCandidateAssembler.swift",
+    "Sources/AuraContext/ReferenceResolver.swift",
+    "Sources/AuraCore/Configuration_ContextConfiguration.swift",
+    "Sources/AuraCore/ContextTypes.swift",
+    "Sources/AuraCore/ReferenceContextSnapshot.swift",
+    "Sources/AuraIntent/IntentEngine_Classify.swift",
+    "Sources/AuraIntent/IntentEngine_IntentEngine.swift",
+    "Sources/AuraIntent/IntentEngine_ReferenceContext.swift",
+    "Sources/AuraIntent/IntentEngine_Resolution.swift",
+    "Sources/AuraIntent/TypedIntent.swift",
+    "Tests/AuraContextTests/ProductionReferenceCandidateAssemblerTests.swift",
+    "Tests/AuraIntentTests/ProductionReferenceWiringTests.swift",
+    "docs/subsystems/22_CONTEXT_RECONSTRUCTION.md",
     "ledger/CURRENT_STATE.md",
     "ledger/PROJECT_LEDGER.md"
   ],
   "evidence_ids": [
-    "EV-SP-017-20260823-DELIVERY-04",
-    "EV-SP-017-20260823-CLOSEOUT-03",
-    "EV-SP-017-20260823-LIVE-SYSTEM-TTS-01",
-    "EV-SP-017-20260823-RESOURCE-SCOPE-02",
-    "EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01",
-    "EV-SP-017-20260823-FULL-SUITE-01"
+    "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01",
+    "EV-SP-018-20260823-FOCUSED-TESTS-02",
+    "EV-SP-018-20260823-FULL-SUITE-03",
+    "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04"
   ],
   "tests": [
-    {"name": "Live system-TTS suites plus release default", "result": "passed", "evidence_id": "EV-SP-017-20260823-LIVE-SYSTEM-TTS-01"},
-    {"name": "VoiceResourceGovernorTests and OllamaAdapterTests", "result": "passed", "evidence_id": "EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01"},
-    {"name": "AuraAgentTests isolated rerun", "result": "passed", "evidence_id": "EV-SP-017-20260823-CLOSEOUT-03"},
-    {"name": "python3 scripts/validate_second_pass_program.py", "result": "passed", "evidence_id": "EV-SP-017-20260823-CLOSEOUT-03"},
-    {"name": "Full ./scripts/aura-test.sh final run", "result": "passed", "evidence_id": "EV-SP-017-20260823-CLOSEOUT-03"}
+    {"name": "AuraContextTests (37/37)", "result": "passed", "evidence_id": "EV-SP-018-20260823-FOCUSED-TESTS-02"},
+    {"name": "AuraIntentTests (132/132)", "result": "passed", "evidence_id": "EV-SP-018-20260823-FOCUSED-TESTS-02"},
+    {"name": "Full ./scripts/aura-test.sh final rerun (21/21 bundles, exit 0)", "result": "passed", "evidence_id": "EV-SP-018-20260823-FULL-SUITE-03"},
+    {"name": "swift build and git diff --check", "result": "passed", "evidence_id": "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01"},
+    {"name": "Second-pass validator and governance unittest suite (38 tests)", "result": "passed", "evidence_id": "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04"}
   ],
   "blockers": [
-    "The overall AURA program and broader R7 track remain in progress; this closeout only completes SP-017/OPEN-08's system-only branch.",
-    "Neural co-resident soak/MPS/human listening, energy/thermal qualification, wake word, and physical headset/route/sleep/echo evidence remain outside SP-017 and must not be claimed as passed."
+    "R8 broader live/product controls remain open: user-present restart-safe memory, contradiction/correction, R9 controls, remote/provider evidence, and ADR-043 acceptance.",
+    "No application launch, TCC mutation, provider, signing, commit, push, merge, release, deploy, or beta action was authorized or performed."
   ],
-  "open_decisions": [],
-  "risks": ["RISK-MODEL-MEMORY-PRESSURE", "RISK-NEURAL-TTS-LATENCY", "RISK-VOICE-RECOVERY-LIVE"],
-  "next_action": "SP-018 is pending/unopened. In a new authorized session, read AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md, SECOND_PASS_CONTROL_CONTRACT.md, SECOND_PASS_PROMPT_CONTRACT.md, the SP-018 prompt, and current ledgers in order; do not execute SP-018 work during this closeout.",
+  "open_decisions": [
+    "SP-019 must be started only under its own authority and required read order."
+  ],
+  "risks": [
+    "RISK-MEMORY-NOT-PRODUCTIZED",
+    "RISK-MEMORY-LIVE-ACCEPTANCE",
+    "RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE",
+    "RISK-ADR-043-PENDING"
+  ],
+  "next_action": "Start only SP-019 after reading its required control files and prompt; first action is a repository/state/ledger preflight. Do not infer live product acceptance from SP-018's deterministic local evidence.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -81,7 +88,7 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-018_PRODUCTION_MEMORY_REFERENCE_WIRING.prompt.md"
+    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md"
   ],
-  "notes": "Computer-use skill was used for a read-only live AX observation. The native pipe closed on a tab-selection attempt; no TCC or permission change was made. Product commit 4b33dc2 was pushed directly to main with explicit user authority. No PR existed, so merge was not applicable. The only artifact produced is development_unverified; no signing, notarization, install, publish, or production deploy occurred. CI run 32645953213 is queued and is not deployment evidence."
+  "notes": "SP-018 authority expired at closeout and resets to edit-only. Evidence is local and privacy-safe: no raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written. SP-019 remains pending and no implementation from it was performed."
 }

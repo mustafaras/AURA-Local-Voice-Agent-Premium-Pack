@@ -3,6 +3,28 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-08-23.
 
+## SP-018 / OPEN-09 — 2026-08-23T16:47:04Z — completed
+
+SP-018 completed its bounded local production-reference-wiring gate. The real
+`AuraKernel` composition now supplies typed active application/editor/workspace,
+durable-task, and backend snapshots through `IntentEngine` into
+`ContextBuilder`/`ReferenceResolver`; bounded dialogue and recent file/tool
+salience is scope/expiry/authority filtered, deduplicated, and hard-bounded.
+Safe resolved references bind only to closed typed slots, while missing,
+ambiguous, stale, out-of-scope, or weak destructive references clarify before
+routing. Evidence: `EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01`,
+`EV-SP-018-20260823-FOCUSED-TESTS-02`,
+`EV-SP-018-20260823-FULL-SUITE-03`, and
+`EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04`.
+
+Focused Context/Intent suites passed 37/37 and 132/132; the full regression
+passed 21/21 bundles with exit 0; build, diff, second-pass, and governance
+checks passed. R8 remains in progress: user-present restart/control, R9 UI,
+remote/provider evidence, and ADR-043 remain open. `SP-019` is pending and
+must start only under its own authority/read order; no SP-019 work occurred.
+The worktree is intentionally dirty with declared SP-018 edits; no commit,
+push, merge, release, deploy, launch, install, TCC, or provider action occurred.
+
 ## Delivery reconciliation — 2026-08-23T14:37:07Z
 
 SP-017 / OPEN-08 is completed under the truthful PTT + system-TTS-only branch and

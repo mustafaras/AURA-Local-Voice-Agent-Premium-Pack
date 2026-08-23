@@ -120,3 +120,19 @@ authority is edit-only.
 - Do not mark `Accepted` until the ADR contains context, decision, alternatives, consequences, migration, security/privacy analysis, and verification plan.
 - Record supersession rather than rewriting history.
 - Update `current-state.json` when an accepted decision changes dependencies, gates, or program order.
+
+### 2026-08-23T16:47:04Z — DEC-SP-018-PRODUCTION-REFERENCE-WIRING
+
+The bounded local production reference path is **Accepted for SP-018 / OPEN-09
+prompt completion**. The decision is limited to typed, provenance-aware local
+candidate wiring: `AuraKernel` provides a read-only snapshot, `IntentEngine`
+retains bounded salience, `ContextBuilder`/`ReferenceResolver` enforce
+freshness, scope, authority, and evidence, and unsafe implicit references are
+converted to clarification before routing. Evidence:
+`EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01`,
+`EV-SP-018-20260823-FOCUSED-TESTS-02`, and
+`EV-SP-018-20260823-FULL-SUITE-03`.
+
+This does not accept the broader R8 architecture, ADR-043, user-present
+restart/control demonstrations, remote transport, UI controls, or any release
+boundary. SP-019 may be opened only under its own prompt authority.

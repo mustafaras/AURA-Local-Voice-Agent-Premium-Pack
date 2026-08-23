@@ -90,7 +90,8 @@ extension IntentEngine {
       let language = DialogueLanguage(rawValue: result.language)
     else { return nil }
     guard let confidence = normalizedConfidence(from: result.confidence),
-      confidence >= 0, confidence <= 1 else { return nil }
+      confidence >= 0, confidence <= 1
+    else { return nil }
     return StructuredNLUProposal(
       dialogueAct: dialogueAct,
       language: language,
@@ -116,8 +117,10 @@ extension IntentEngine {
       return value
     }
     // Extract the first numeric token (.9, 0.9, 1.0, etc.) from noisy prose.
-    guard let regex = try? NSRegularExpression(
-      pattern: #"[0-9]*\.?[0-9]+"#, options: []) else { return nil }
+    guard
+      let regex = try? NSRegularExpression(
+        pattern: #"[0-9]*\.?[0-9]+"#, options: [])
+    else { return nil }
     let range = NSRange(trimmed.startIndex..., in: trimmed)
     guard let match = regex.firstMatch(in: trimmed, options: [], range: range),
       let swiftRange = Range(match.range, in: trimmed),
@@ -129,25 +132,91 @@ extension IntentEngine {
   func reconstructContext(
     for intent: TypedIntent,
     context: TurnContext
-  ) async {
-    guard let contextBuilder else { return }
+  ) async -> DeepContextResult? {
+    guard let contextBuilder else { return nil }
+    let assembled = await assembledReferenceContext(for: intent, context: context)
+    let pendingTask = context.pendingTaskID.flatMap { taskID in
+      assembled.snapshot.durableTasks.first { $0.id == taskID }
+    }
     let schema = ContextIntentSchema(
       name: intent.semanticCategory.rawValue,
       capability: Capability.forIntent(intent.semanticCategory),
       confidence: intent.classificationConfidence,
       entityHints: intent.slots.map(\.value))
+    lastContextResult = nil
     do {
-      lastContextResult = try await contextBuilder.build(
+      let result = try await contextBuilder.build(
         DeepContextRequest(
           utterance: intent.rawUtterance, sessionID: context.sessionID,
           conversationState: .thinking, intent: schema,
-          scope: MemoryScope(sessionID: context.sessionID)),
+          pendingTask: pendingTask,
+          activeWorkspace: assembled.snapshot.activeWorkspace,
+          scope: MemoryScope(sessionID: context.sessionID),
+          referenceCandidates: assembled.candidates,
+          referenceDate: now()),
         actor: .intent, correlationID: context.correlationID)
+      lastContextResult = result
+      return result
     } catch {
       _ = await emit(
         DeepContextBuildFailedEvent(
           sessionID: context.sessionID, reason: String(describing: error)),
         context: context)
+      return nil
+    }
+  }
+
+  func applyReferenceResolutionGate(
+    to intent: TypedIntent,
+    contextResult: DeepContextResult?
+  ) -> TypedIntent {
+    guard intent.riskTier.rawValue >= PermissionRiskTier.reversible.rawValue else {
+      return intent
+    }
+    guard
+      let reference = contextResult?.parsedUtterance.implicitReference
+        ?? implicitReference(in: intent.normalizedUtterance)
+    else { return intent }
+
+    guard let contextResult else {
+      return intent.markedAmbiguous(
+        reason: "implicit reference '\(reference)' could not be reconstructed")
+    }
+    switch contextResult.referenceResolution {
+    case .resolved:
+      return intent
+    case .ambiguous:
+      return intent.markedAmbiguous(
+        reason: "implicit reference '\(reference)' has multiple plausible targets")
+    case .blockedWeakEvidence:
+      return intent.markedAmbiguous(
+        reason: "implicit reference '\(reference)' lacks sufficient action evidence")
+    case .none:
+      return intent.markedAmbiguous(
+        reason: "implicit reference '\(reference)' has no safe candidate")
+    }
+  }
+
+  func applyResolvedReference(
+    to intent: TypedIntent,
+    contextResult: DeepContextResult?
+  ) -> TypedIntent {
+    guard let contextResult,
+      case .resolved(let candidate) = contextResult.referenceResolution
+    else { return intent }
+    return intent.applyingResolvedReference(candidate)
+  }
+
+  private func implicitReference(in utterance: String) -> String? {
+    let phrases = [
+      "previous test", "last test", "that repo", "that repository", "the repository",
+      "the repo", "the draft", "send the draft", "ask claude", "ask codex", "ask copilot",
+      "last file", "previous file", "the last one", "the file", "the document", "the app",
+      "that", "it",
+    ]
+    return phrases.first { phrase in
+      if phrase.contains(" ") { return utterance.contains(phrase) }
+      return utterance.split { !$0.isLetter && !$0.isNumber }.map(String.init).contains(phrase)
     }
   }
 

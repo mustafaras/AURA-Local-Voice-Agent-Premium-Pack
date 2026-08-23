@@ -61,6 +61,13 @@ public enum ContextSourceID: Codable, Sendable, Equatable, Hashable {
   case pendingConfirmation(requestID: UUID)
   case pendingTask(taskID: UUID)
   case activeWorkspace
+  case dialogueTurn(turnID: UUID)
+  case recentFile(path: String)
+  case recentTool(toolID: String)
+  case recentApplication(bundleIdentifier: String)
+  case workspace(path: String)
+  case backendIdentity(identifier: String)
+  case durableTask(taskID: UUID)
   case projectLedgerEntry(entryID: UUID)
   case decision(entryID: UUID, index: Int)
   case memoryRecord(recordID: UUID)
@@ -347,8 +354,12 @@ public struct ReferenceCandidate: Sendable, Equatable, Identifiable, ContextRank
 
 public enum ReferenceEntityKind: String, Codable, Sendable, Equatable, CaseIterable {
   case file
+  case repository
   case application
   case task
+  case test
+  case draft
+  case backend
   case decision
   case preference
   case conversationItem

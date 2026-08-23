@@ -35,7 +35,7 @@ inspectable order:
 
 1. Parse and normalize the utterance; identify supported implicit-reference
    phrases (`it`, `that`, `the file`, `the document`, `the app`, `the last
-   one`).
+   one`, repository, test, draft, and backend phrases).
 2. Accept the already-typed intent as a dependency-neutral
    `ContextIntentSchema`.
 3. Extract typed entities from active workspace state, reference candidates,
@@ -86,8 +86,20 @@ semantic retrieval remains deterministic keyword containment.
 ## Live integration
 
 `AuraKernel` constructs `ContextBuilder` and injects it into `IntentEngine`.
-Every completed turn performs a best-effort context build before intent memory
-persistence and routing. `IntentEngine.inspectLastContext()` exposes the most
-recent result. A context failure emits `DeepContextBuildFailedEvent` but does
-not block classification; the permission and tool-routing layers remain the
-only action authorities.
+Every completed turn performs a context build before intent memory persistence
+and routing. The composition root supplies a typed, read-only
+`ReferenceContextSnapshot` containing the observed frontmost app/editor
+workspace and durable task statuses. `IntentEngine` adds bounded, in-memory
+salience from prior dialogue, typed recent file/tool targets, and the actual
+turn backend IDs. `ProductionReferenceCandidateAssembler` rejects
+out-of-workspace, stale, future-dated, completed-task, empty-identity, and
+over-bound candidates before ranking and deduplication; no external provider or
+remote transport is involved.
+
+For reversible, mutation, or destructive intents containing an implicit
+reference, `.ambiguous`, `.blockedWeakEvidence`, `.none`, or a failed context
+build marks the typed intent ambiguous before `ToolRouter` can reach an
+adapter. A resolved reference still passes through the existing policy engine
+and confirmation gates. `IntentEngine.inspectLastContext()` exposes the most
+recent result. A context failure remains non-blocking for plain conversation,
+but is fail-closed for an action that depends on an implicit target.

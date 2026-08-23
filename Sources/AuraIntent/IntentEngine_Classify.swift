@@ -60,9 +60,14 @@ extension IntentEngine {
         semanticCategory: intent.semanticCategory, confidence: intent.classificationConfidence,
         isAmbiguous: intent.isAmbiguous, riskTier: intent.riskTier), context: context)
     let contextualIntent = intent.withTurnContext(advancedContext)
-    await reconstructContext(for: contextualIntent, context: advancedContext)
-    await persistIntentAsMemory(contextualIntent, context: advancedContext)
-    return contextualIntent
+    recordReferenceCandidates(for: contextualIntent, context: advancedContext)
+    let contextResult = await reconstructContext(for: contextualIntent, context: advancedContext)
+    let resolvedIntent = applyResolvedReference(
+      to: contextualIntent, contextResult: contextResult)
+    let gatedIntent = applyReferenceResolutionGate(
+      to: resolvedIntent, contextResult: contextResult)
+    await persistIntentAsMemory(gatedIntent, context: advancedContext)
+    return gatedIntent
   }
 
   private func classifyResult(
@@ -157,7 +162,7 @@ extension IntentEngine {
 
   public func dialogueContextItems(maxItems: Int = 6) -> [DialogueContextItem] {
     guard let bundle = lastContextResult?.bundle else { return [] }
-    return bundle.items
+    var items = bundle.items
       .filter { $0.stage <= .activeAppOrWorkspace }
       .prefix(max(0, maxItems))
       .map {
@@ -167,5 +172,15 @@ extension IntentEngine {
           confidence: $0.confidence,
           authority: String(describing: $0.authority))
       }
+    if items.count < max(0, maxItems),
+      let result = lastContextResult,
+      case .resolved(let candidate) = result.referenceResolution
+    {
+      items.append(
+        DialogueContextItem(
+          sourceID: String(describing: candidate.sourceID), summary: candidate.description,
+          confidence: candidate.confidence, authority: String(describing: candidate.authority)))
+    }
+    return items
   }
 }

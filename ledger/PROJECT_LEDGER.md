@@ -4577,3 +4577,41 @@ Recorded under `EV-SP-011-20260818-OAUTH-RETRY-06` after the user's explicit ret
 - **Merge:** no PR exists for `main`; direct push to the default branch made a separate merge operation inapplicable.
 - **Deploy:** the local release builder and manifest validator passed, producing only `AURA-development-unverified.zip`. No production/public deploy occurred because repository policy and the script require separate signing/notarization and define no deploy target. CI run `32645953213` is queued and is not deployment evidence.
 - **Scope:** SP-017/OPEN-08 delivery only; SP-018 remains pending and the wider program remains in progress.
+
+### 2026-08-23T16:47:04Z — SP-018 production memory reference wiring — completed
+
+- **Prompt / gap:** SP-018 / OPEN-09 / R8. Start and end repository commit:
+  `e5835e983a9a98e3a1a5a955ef60a22a1fd6c932`; branch `main`, remote equal,
+  expected dirty worktree. No commit or push was authorized or performed.
+- **Exact symptom:** the production composition did not populate
+  `ContextBuilder` with dialogue, recent-file/tool, workspace, durable-task, or
+  backend identity candidates, and resolved implicit references were not consumed
+  by typed action slots.
+- **Root cause / mechanism:** a missing typed provider/history consumer at the
+  `AuraKernel` → `IntentEngine` → `ContextBuilder` boundary; the memory store
+  itself was not the missing mechanism. Unsafe implicit references lacked a
+  final clarification gate before routing.
+- **Delivered:** typed read-only production snapshot; bounded candidate assembler
+  with scope/expiry/authority/deduplication/omission controls; phrase/entity
+  parsing for repository/file/test/draft/backend references; safe typed-slot
+  binding; provenance in dialogue context; and fail-closed ambiguity before
+  reversible/mutation/destructive routing. Docs, OPEN-09, risk, decision, state,
+  evidence, and handoff projections were synchronized.
+- **Verification:** `swift build --build-path /tmp/aura-sp018-final-build`,
+  `git diff --check`, second-pass validator, 38 governance tests, and the final
+  full regression passed. Full regression: **21/21 bundles, Failed bundles: 0,
+  command exit 0**. Focused suites: Context **37/37**, Intent **132/132**.
+- **Evidence / class:**
+  `EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01` (direct production
+  composition source/build), `EV-SP-018-20260823-FOCUSED-TESTS-02`
+  (deterministic integration), `EV-SP-018-20260823-FULL-SUITE-03`
+  (deterministic regression), and
+  `EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04` (governance closeout).
+- **Acceptance:** SP-018 local production wiring gate **met**. The falsifier,
+  cognitive answers, limitations, and residuals are recorded in the second-pass
+  ledger. R8 broader live/product controls, ADR-043, remote/provider evidence,
+  and release gates remain open; `RISK-MEMORY-REFERENCE-WIRING` is mitigated,
+  not a broader R8 closure.
+- **Exact next safe action:** SP-019 is now the first pending prompt. Start it
+  only under its own authority/read order; no SP-019 work was performed in this
+  session. Authority resets to edit-only.

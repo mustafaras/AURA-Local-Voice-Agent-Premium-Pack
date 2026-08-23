@@ -2185,3 +2185,54 @@ Evidence `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`: Google Cloud project/cli
 - **Merge:** no PR exists for `main`; the change was delivered directly to the default branch, so a separate merge operation was not applicable.
 - **Artifact / deploy:** `scripts/build-release-artifact.sh` plus manifest validation passed and produced a `development_unverified` archive. No production deploy occurred: the script and release policy explicitly prohibit treating this artifact as signed, notarized, installed, published, or deployed. CI run `32645953213` is queued and is not deployment evidence.
 - **Boundary:** SP-017/OPEN-08 only. SP-018 remains pending/unopened; broader R7 and R11/R12 release gates remain in progress.
+
+### 2026-08-23T16:47:04Z — SP-018 — production memory reference wiring — completed
+
+- **Actor / session:** Codex; `AURA-SP-018-IMPLEMENTATION-20260823`.
+- **Active prompt / gap:** SP-018 / OPEN-09 / R8. Verified start and end
+  repository commit are `e5835e983a9a98e3a1a5a955ef60a22a1fd6c932`; branch is
+  `main`, `HEAD == origin/main`, and the SP-018 worktree edits are uncommitted
+  and declared.
+- **Objective:** populate bounded, provenance-aware reference candidates through
+  the real production composition path and clarify every unsafe ambiguity before
+  routing.
+- **Delivered:** `AuraKernel` now provides a typed read-only reference snapshot
+  from active application/editor/workspace and durable task state; `IntentEngine`
+  retains bounded dialogue and recent file/tool/backend salience; the production
+  assembler applies scope, freshness, authority, deduplication, and hard-bound
+  checks; `ContextBuilder`/`ReferenceResolver` recognize the required reference
+  phrases; safe resolved targets bind only to closed typed slots; and the
+  reversible/mutation/destructive path fails closed to clarification when
+  implicit evidence is unsafe or absent. Documentation and the OPEN-09 risk
+  projection were updated without deleting historical wording.
+- **Evidence:**
+  `EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01`,
+  `EV-SP-018-20260823-FOCUSED-TESTS-02`,
+  `EV-SP-018-20260823-FULL-SUITE-03`, and
+  `EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04`.
+- **Acceptance verdict by criterion:** production snapshot supplied — **met**;
+  bounded/scope/authority/expiry/deduplication/omission — **met**;
+  safe reference resolution with provenance — **met**;
+  unsafe ambiguity clarification before mutation — **met**;
+  focused tests — **37/37 Context and 132/132 Intent, met**;
+  full regression — **21/21 bundles, 0 failed, met**; user-present product,
+  restart, remote, R9, ADR-043, and release acceptance — **not part of SP-018**.
+- **Cognitive completion:** root cause was a missing composition-boundary
+  provider/history consumer, not a memory-store defect. Falsifier, residual
+  risks, evidence classes, limitations, and the exact SP-019 handoff are recorded
+  in `SECOND_PASS_LEDGER.md` and the evidence records.
+- **Verification:** final `swift build --build-path /tmp/aura-sp018-final-build`,
+  `git diff --check`, `python3 scripts/validate_second_pass_program.py`, and
+  `python3 -m unittest discover -s scripts/tests` passed; full regression was
+  rerun with command exit 0. The mandatory `15_SESSION_CLOSEOUT.prompt.md` was
+  read and its handoff/state/evidence/risk/decision procedure executed.
+- **Blockers / residual risks:** overall program and R8 remain in progress;
+  `RISK-MEMORY-NOT-PRODUCTIZED`, `RISK-MEMORY-LIVE-ACCEPTANCE`,
+  `RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE`, and `RISK-ADR-043-PENDING` remain
+  open. The local wiring risk is mitigated, not a release or live-product claim.
+- **Authority boundary:** edit-only; no install, launch, TCC mutation, provider,
+  telemetry/beta, signing, commit, push, merge, release, deploy, or external
+  write occurred. Authority resets for the next session.
+- **Exact next safe action:** begin only SP-019 under its own authority and
+  required read order; first action is to read its prompt and current state. No
+  SP-019 implementation was performed here.

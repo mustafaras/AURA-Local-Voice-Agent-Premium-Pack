@@ -1,12 +1,34 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-018` (pending)
+> **Current prompt:** `SP-019` (pending)
 > **Current program state:** In progress; SP-017 completed under the system-TTS-only branch, while R1/R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 and the broader program remain open.
-> **Live repository lineage:** SP-017 product content is synchronized on `main` at `4b33dc2365ea45a9c0547805d21190e24265f2c5` and pushed to `origin/main`; the delivery reconciliation is projection-only. No repository-defined signed/notarized/public deployment target exists.
+> **Live repository lineage:** SP-017 product content is synchronized on `main` at `e5835e983a9a98e3a1a5a955ef60a22a1fd6c932` and pushed to `origin/main`; SP-018 working-tree changes are uncommitted and expected. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
+
+## Second-pass synchronized overlay — 2026-08-23 (SP-018 COMPLETED; SP-019 PENDING)
+
+`SP-019` / `pending` — `SP-018` / `OPEN-09` is completed for the bounded local
+production wiring slice. The production composition now supplies a typed read-only
+reference snapshot from active application/editor workspace and durable task
+state; `IntentEngine` adds bounded in-memory dialogue, recent file/tool, and
+turn-backend salience; `ContextBuilder` resolves only fresh, in-scope,
+deduplicated candidates. Safe reversible references bind only to closed typed
+slots and still pass the normal policy/adapter postconditions. Ambiguous,
+missing, stale, out-of-scope, or guarded weak-evidence action references are
+marked ambiguous before routing.
+
+**Current evidence:** `EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01`,
+`EV-SP-018-20260823-FOCUSED-TESTS-02`,
+`EV-SP-018-20260823-FULL-SUITE-03`, and
+`EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04`; focused context 37/37, focused
+intent 132/132, full regression 21/21 bundles, and governance validation passed.
+No SP-019 work is authorized in this handoff.
+
+**Next safe action:** start only SP-019 under its own authority and required
+read order; no SP-019 implementation was performed here.
 
 ## Second-pass synchronized overlay — 2026-08-23 (SP-017 COMPLETED; SP-018 next)
 

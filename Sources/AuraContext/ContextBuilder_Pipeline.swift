@@ -8,7 +8,12 @@ extension ContextBuilder {
   func parse(_ utterance: String) -> ParsedContextUtterance {
     let normalized = utterance.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
     let tokens = ContextRanking.tokenize(normalized).sorted()
-    let phrases = ["the last one", "the file", "the document", "the app", "that", "it"]
+    let phrases = [
+      "previous test", "last test", "that repo", "that repository", "the repository",
+      "the repo", "the draft", "send the draft", "ask claude", "ask codex", "ask copilot",
+      "last file", "previous file", "the last one", "the file", "the document", "the app",
+      "that", "it",
+    ]
     let reference = phrases.first { containsPhrase(normalized, phrase: $0) }
     return ParsedContextUtterance(
       normalized: normalized, tokens: tokens, implicitReference: reference)
@@ -61,7 +66,15 @@ extension ContextBuilder {
   func entityKind(for label: String) -> ReferenceEntityKind {
     let lower = label.lowercased()
     if lower.contains("file") || lower.contains("/") { return .file }
+    if lower.contains("repo") || lower.contains("repository") || lower.contains("workspace") {
+      return .repository
+    }
     if lower.contains("task") { return .task }
+    if lower.contains("test") { return .test }
+    if lower.contains("draft") { return .draft }
+    if lower.contains("claude") || lower.contains("codex") || lower.contains("copilot") {
+      return .backend
+    }
     if lower.contains("decision") { return .decision }
     if lower.contains("preference") { return .preference }
     return .unknown
