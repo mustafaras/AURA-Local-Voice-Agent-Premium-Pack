@@ -29,6 +29,17 @@ extension OllamaAdapter {
       return .degraded(.budgetExceeded)
     }
 
+    // Reserve the shared R7 governor's reasoning budget before model routing
+    // and admission, so a competing STT/TTS reservation that has already
+    // consumed the resident budget denies this request (fail closed) instead
+    // of silently co-residing. Released in every terminal `*Inference` method.
+    guard await reserveSharedGovernor(capability) else {
+      await emitAudit(
+        OllamaBudgetExceededEvent(kind: .residentMemory, limit: 0, observed: 1),
+        actor: actor, correlationID: correlationID, causationID: causationID)
+      return .degraded(.budgetExceeded)
+    }
+
     if await registry.models().isEmpty {
       _ = try? await registry.refresh(
         actor: actor, correlationID: correlationID, causationID: causationID)

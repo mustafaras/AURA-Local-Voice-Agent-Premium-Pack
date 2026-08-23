@@ -2,23 +2,53 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-23T15:32:58Z",
-  "session_id": "AURA-SP-016-BILINGUAL-QUALITY-20260822",
+  "updated_at": "2026-08-23T14:28:05Z",
+  "session_id": "AURA-SP-017-SYSTEM-TTS-CLOSEOUT-20260823",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "fe09539b4ecb8647ad3849f0354829daa8349e80",
-    "remote_head": "fe09539b4ecb8647ad3849f0354829daa8349e80",
-    "working_tree_state": "clean",
-    "user_owned_changes": []
+    "verified_head": "f6518e1333015b31c4783f0a4e8f033555f6e1f1",
+    "remote_head": "f6518e1333015b31c4783f0a4e8f033555f6e1f1",
+    "working_tree_state": "dirty_expected",
+    "user_owned_changes": [
+      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+      "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+      "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+      "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+      "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/current-state.json",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-LIVE-SYSTEM-TTS-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-RESOURCE-SCOPE-02.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-CLOSEOUT-03.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-FULL-SUITE-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01.md",
+      "Sources/AURA/AuraKernel_ConstructionExtensions.swift",
+      "Sources/AuraAgent/OllamaAdapter.swift",
+      "Sources/AuraAgent/OllamaAdapter_API.swift",
+      "Sources/AuraAgent/OllamaAdapter_Preflight.swift",
+      "Sources/AuraCore/TTSEngine.swift",
+      "Sources/AuraCore/VoiceResourceGovernor.swift",
+      "Tests/AuraAgentTests/OllamaAdapterTests.swift",
+      "Tests/AuraCoreTests/AuraCoreTests.swift",
+      "Tests/AuraCoreTests/VoiceResourceGovernorTests.swift",
+      "docs/decisions/ADR-042-voice-routing-resource-governor.md",
+      "docs/testing/38_PERFORMANCE_BUDGETS.md",
+      "docs/subsystems/07_TURN_TAKING_AND_TTS.md",
+      "ledger/CURRENT_STATE.md",
+      "ledger/PROJECT_LEDGER.md"
+    ]
   },
   "program_status": "in_progress",
   "active_prompt": {
     "id": "R7",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
-    "state": "in_progress",
-    "step": "R7 via second pass: SP-016 completed and re-verified (EV-SP-016-20260823-FLAKY-RECOVERY-STABILIZATION-05). The recovery suite that EV-SP-016-20260822-RECOVERY-MATRIX-04 claimed stable was flaky; fixed by replacing async Task-for-await observer subscriptions with synchronous NotificationCenter.addObserver tokens and consolidating all microphone-opening tests into one .serialized suite. AuraAudioTests passed six consecutive runs; full suite 21/21 bundles, 0 failed. SP-017 next. RISK-VOICE-RECOVERY-LIVE open for physical verification only."
+    "state": "completed",
+    "step": "R7 via second pass, SP-017 completed under the system-TTS-only branch: live system TTS 14/14 (first chunk 0.733 s; full utterance 1.400 s), resource scope observed, ADR-042 accepted with neural/wake/physical acoustic capabilities explicitly excluded. SP-018 is the first uncompleted prompt and remains pending; no commit/push/release performed."
   },
   "tracks": [
     {
@@ -213,7 +243,12 @@
       "evidence_ids": [
         "EV-R7-20260802-SYSTEM-TTS-SERIALIZE-01",
         "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
-        "EV-R7-20260808-LOCAL-APP-DEPLOY-01"
+        "EV-R7-20260808-LOCAL-APP-DEPLOY-01",
+        "EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01",
+        "EV-SP-017-20260823-FULL-SUITE-01",
+        "EV-SP-017-20260823-LIVE-SYSTEM-TTS-01",
+        "EV-SP-017-20260823-RESOURCE-SCOPE-02",
+        "EV-SP-017-20260823-CLOSEOUT-03"
       ],
       "open_risk_ids": [
         "RISK-NO-REAL-WAKE-WORD",
@@ -344,13 +379,13 @@
     "install_dependencies": false,
     "download_models": false,
     "mutate_permissions": false,
-    "launch_or_install_app": true,
+    "launch_or_install_app": false,
     "commit": false,
     "push": false,
     "merge": false,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "User-supplied SP-012 Codex live-acceptance prompt: install/launch/provisioning authority only; no commit, push, merge, release, provider, TCC, telemetry, or notarization."
+    "source": "SP-017 closeout reset: edit-only handoff. No install, download, launch, TCC mutation, provider, telemetry/beta, signing, commit, push, merge, release, or deploy authority is standing."
   },
   "release_gates": [
     {
@@ -420,21 +455,27 @@
     {
       "id": "GATE-REFERENCE-VOICE",
       "name": "Owned and consented neural reference voice with human listening acceptance",
-      "state": "open",
+      "state": "waived",
       "required_for": "release",
-      "evidence_ids": [],
+      "evidence_ids": ["EV-SP-017-20260823-LIVE-SYSTEM-TTS-01", "EV-SP-017-20260823-RESOURCE-SCOPE-02"],
       "waiver_reason": "Optional if the release uses only the local Apple system voice and clearly excludes neural voice cloning."
     },
     {
       "id": "GATE-REAL-WAKE-WORD",
       "name": "Real local acoustic wake-word model",
-      "state": "open",
+      "state": "waived",
       "required_for": "release",
-      "evidence_ids": [],
+      "evidence_ids": ["EV-SP-015-20260822-WAKE-EXCLUSION-01", "EV-SP-017-20260823-RESOURCE-SCOPE-02"],
       "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-017-20260823-LIVE-SYSTEM-TTS-01",
+    "EV-SP-017-20260823-RESOURCE-SCOPE-02",
+    "EV-SP-017-20260823-CLOSEOUT-03",
+    "EV-SP-017-20260823-FULL-SUITE-01",
+    "EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01",
+    "EV-SP-016-20260823-FLAKY-RECOVERY-STABILIZATION-05",
     "EV-SP-016-20260822-RECOVERY-MATRIX-04",
     "EV-SP-016-20260822-BILINGUAL-QUALITY-03",
     "EV-SP-013-20260821-COORDINATOR-ROUTING-01",
@@ -492,7 +533,8 @@
     "R11 has only a local development_unverified artifact/manifest slice; full Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed CI evidence remain open.",
     "R12 has no authorized beta cohort, telemetry/SLO evidence, scenario results, incident review, independent sign-offs, or approved release-candidate package.",
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
+    "SP-017 residuals are intentionally outside the completed system-only branch: neural co-resident soak/MPS/human listening, energy/thermal qualification, wake word, and physical headset/route/sleep/echo verification remain open for future scope.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
   ],
-  "next_action": "SP-013 completed under EV-SP-013-20260821-COORDINATOR-ROUTING-01: coordinator routes resolved workspace/worktree + mode sandbox tier into per-backend runner context; write-capable diff-evidence postcondition fails closed on false-backend-success; live CLI probes confirm version/interface with auth/model unverified. SP-014 (coding-assistant live acceptance) is next."
+  "next_action": "SP-018 is the first uncompleted second-pass prompt and remains pending/unopened. In a new authorized session, read AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md, SECOND_PASS_CONTROL_CONTRACT.md, SECOND_PASS_PROMPT_CONTRACT.md, the SP-018 prompt, and current ledgers before any action; do not execute SP-018 work during this closeout."
 }

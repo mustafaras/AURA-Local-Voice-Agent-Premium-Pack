@@ -56,4 +56,62 @@ struct VoiceResourceGovernorTests {
     #expect(VoiceResourceGovernor.map(.serious) == .serious)
     #expect(VoiceResourceGovernor.map(.critical) == .critical)
   }
+
+  @Test func idleReservationsAreUnloadedAfterTheIdleWindow() async {
+    let clock = Clock()
+    let governor = VoiceResourceGovernor(
+      configuration: VoiceResourceGovernorConfiguration(
+        idleUnloadAfterSeconds: 10),
+      now: { clock.value })
+
+    _ = await governor.reserve(.ttsNeural, estimatedMemoryMB: 256, priority: .speech)
+    #expect(await governor.snapshot().reservedMemoryMB == 256)
+
+    // Advance the clock past the idle window and unload.
+    clock.value = clock.value.addingTimeInterval(11)
+    let unloaded = await governor.unloadIdleReservations()
+
+    #expect(unloaded == [.ttsNeural])
+    #expect(await governor.snapshot().reservedMemoryMB == 0)
+  }
+
+  @Test func recentReservationSurvivesIdleUnload() async {
+    let clock = Clock()
+    let governor = VoiceResourceGovernor(
+      configuration: VoiceResourceGovernorConfiguration(
+        idleUnloadAfterSeconds: 10),
+      now: { clock.value })
+
+    _ = await governor.reserve(.stt, estimatedMemoryMB: 256, priority: .speech)
+    // Only 5 seconds have elapsed — inside the 10 s window.
+    clock.value = clock.value.addingTimeInterval(5)
+    let unloaded = await governor.unloadIdleReservations()
+
+    #expect(unloaded.isEmpty)
+    #expect(await governor.snapshot().reservedMemoryMB == 256)
+  }
+
+  @Test func reserveTouchesActivityClockSoLongRunningReservationIsNotUnloaded() async {
+    let clock = Clock()
+    let governor = VoiceResourceGovernor(
+      configuration: VoiceResourceGovernorConfiguration(
+        idleUnloadAfterSeconds: 10),
+      now: { clock.value })
+
+    _ = await governor.reserve(.reasoning, estimatedMemoryMB: 64, priority: .interactive)
+    // Advance but re-reserve the same workload, which should refresh activity.
+    clock.value = clock.value.addingTimeInterval(6)
+    _ = await governor.reserve(.reasoning, estimatedMemoryMB: 64, priority: .interactive)
+    clock.value = clock.value.addingTimeInterval(6)
+    let unloaded = await governor.unloadIdleReservations()
+
+    // 12s of wall time but only 6s since the last activity — survives.
+    // The reservation is additive, so the total is 128 MB, still reserved.
+    #expect(unloaded.isEmpty)
+    #expect(await governor.snapshot().reservedMemoryMB == 128)
+  }
+
+  private final class Clock: @unchecked Sendable {
+    var value = Date(timeIntervalSince1970: 1_700_000_000)
+  }
 }

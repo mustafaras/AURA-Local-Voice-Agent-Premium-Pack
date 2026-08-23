@@ -94,7 +94,10 @@ public protocol TTSEngine: Sendable {
 public struct TTSAdapterChain: Sendable, Equatable, Codable {
   public var adapterIDs: [String]
 
-  public init(adapterIDs: [String] = ["chatterbox", "dia", "system"]) {
+  /// The release-safe default is the always-available on-device system voice.
+  /// Neural adapters remain explicit opt-in until their live resource and
+  /// human-listening gates are qualified on the target 16 GB profile.
+  public init(adapterIDs: [String] = ["system"]) {
     self.adapterIDs = adapterIDs
   }
 

@@ -1,12 +1,75 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-017`
-> **Current program state:** In progress; R1 completed, R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open, R7/SP-015 and R7/SP-016 completed, SP-017 pending
-> **Live repository lineage:** `main` is clean and synchronized at `94ee2be355046cab97189764e2a9dfb4f7efd57a`. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-018` (pending)
+> **Current program state:** In progress; SP-017 completed under the system-TTS-only branch, while R1/R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 and the broader program remain open.
+> **Live repository lineage:** `main` is synchronized at `f6518e1333015b31c4783f0a4e8f033555f6e1f1` with expected uncommitted closeout edits. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
+
+## Second-pass synchronized overlay — 2026-08-23 (SP-017 COMPLETED; SP-018 next)
+
+`SP-018` / `pending` — `SP-017` is **`completed`** under
+`EV-SP-017-20260823-LIVE-SYSTEM-TTS-01`,
+`EV-SP-017-20260823-RESOURCE-SCOPE-02`, and
+`EV-SP-017-20260823-CLOSEOUT-03`.
+
+SP-017 closes OPEN-08 through the truthful system-TTS-only branch. Direct live
+system TTS passed 14/14 (first chunk 0.733 s; full utterance 1.400 s), the
+release default is `system`, and ADR-042 is accepted for PTT + system TTS.
+Neural TTS/reference voice, wake word/passive listening, neural MPS/CPU soak,
+human listening, and physical speaker-to-microphone echo remain explicitly
+excluded and are not represented as passed. The R7 track remains in progress
+for its broader residual risks; this does not promote the overall program to a
+release state.
+
+**Next safe action:** read SP-018's required control files and prompt in order;
+SP-018 is pending/unopened and no SP-018 implementation may be performed as
+part of this closeout.
+
+## Second-pass synchronized overlay — 2026-08-23 (SP-017 GOVERNOR IDLE UNLOAD + REASONING ADMISSION + ADR-042)
+
+`SP-017` / `in_progress` — `SP-016` remains **`completed`** under
+`EV-SP-016-20260823-FLAKY-RECOVERY-STABILIZATION-05`.
+
+SP-017 closed two concrete R7 resource-governor gaps deterministically
+(`EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01`):
+
+1. **Idle unload now real.** `VoiceResourceGovernor` declared
+   `idleUnloadAfterSeconds` (R7-G idle unload) but never implemented it. Now it
+   tracks per-workload `lastActiveAt`, exposes
+   `@discardableResult unloadIdleReservations()`, runs an `idleUnloadTask`
+   polling every half-window in `start()`, and cancels/clears in `stop()`;
+   `reserve`/`release` record activity so a still-in-use reservation is never
+   dropped.
+2. **NLU/reasoning admitted through the shared governor.** `OllamaAdapter`
+   accepts an optional shared `resourceGovernor`; `classify`/`structuredNLU`/
+   `summarize`/`reason` reserve `.reasoning` (2 GB) in `preflight` before
+   admission and release on every terminal path; shared-governor denial
+   degrades `.budgetExceeded` (fail closed) and opens a circuit. The production
+   `OllamaAdapter` is wired to the kernel's shared governor.
+
+`ADR-042` was **authored** at
+`docs/decisions/ADR-042-voice-routing-resource-governor.md` (scope,
+alternatives, consequences, expiry/revisit, evidence) but **stays `Proposed`**
+pending explicit user acceptance. Chatterbox latest runtime verified at
+`ResembleAI/chatterbox` rev `5bb1f6ee` variant `multilingual-v3` (matches repo
+pin).
+
+**Verified:** `VoiceResourceGovernorTests` 7/7, `OllamaAdapterTests` 18/18,
+`swift build` clean, full suite `./scripts/aura-test.sh` → **21/21 bundles,
+Failed bundles: 0** (`EV-SP-017-20260823-FULL-SUITE-01`).
+
+**SP-017 remains `in_progress`:** commit/push are **NOT granted** for this
+prompt (all changes are working-tree edits). Open and carried forward:
+measured 16 GB co-resident soak (`RISK-MODEL-MEMORY-PRESSURE`), neural-TTS live
+first-audio/MPS qualification (`RISK-NEURAL-TTS-LATENCY`), human listening,
+physical barge-in/echo (`RISK-VOICE-RECOVERY-LIVE`). `screenVision`/`codingAgent`
+are explicitly **not** admitted through the shared governor (documented
+exclusions in ADR-042). **SP-018 (R8) must NOT start.**
+
+---
 
 ## Second-pass synchronized overlay — 2026-08-23 (SP-016 RECOVERY SUITE STABILIZED)
 

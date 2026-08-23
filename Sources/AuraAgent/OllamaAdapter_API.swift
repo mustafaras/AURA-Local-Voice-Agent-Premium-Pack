@@ -43,6 +43,7 @@ extension OllamaAdapter {
       await emitDegraded(
         capability: capability, reason: reason, actor: actor,
         correlationID: correlationID, causationID: causationID)
+      await releaseSharedGovernor(capability)
       guard let deterministicFallback else {
         throw AuraError.ollamaError(
           "ollama unavailable for classification and no deterministic fallback "
@@ -66,6 +67,7 @@ extension OllamaAdapter {
         await emitAudit(
           OllamaInferenceCompletedEvent(runID: runID, model: model.name),
           actor: actor, correlationID: correlationID, causationID: causationID)
+        await releaseSharedGovernor(capability)
         return OllamaCapabilityResult(
           text: result.classification, model: model.name, degraded: false)
       } catch {
@@ -73,6 +75,7 @@ extension OllamaAdapter {
           OllamaErrorEvent(
             runID: runID, category: .structuredValidationFailed, message: "\(error)"),
           actor: actor, correlationID: correlationID, causationID: causationID)
+        await releaseSharedGovernor(capability)
         if let deterministicFallback {
           return OllamaCapabilityResult(
             text: deterministicFallback(prompt, labels), model: model.name, degraded: true)
@@ -103,6 +106,7 @@ extension OllamaAdapter {
         actor: actor,
         correlationID: correlationID,
         causationID: causationID)
+      await releaseSharedGovernor(.classification)
       throw AuraError.ollamaError(
         "ollama unavailable for structured NLU (reason: \(reason.rawValue))")
     case .ready(let model):
@@ -132,6 +136,7 @@ extension OllamaAdapter {
       await emitAudit(
         OllamaInferenceCompletedEvent(runID: correlationID, model: model.name),
         actor: actor, correlationID: correlationID, causationID: causationID)
+      await releaseSharedGovernor(.classification)
       return result
     } catch {
       await emitAudit(
@@ -139,6 +144,7 @@ extension OllamaAdapter {
           runID: correlationID, category: .structuredValidationFailed,
           message: "structured NLU response rejected"),
         actor: actor, correlationID: correlationID, causationID: causationID)
+      await releaseSharedGovernor(.classification)
       throw error
     }
   }
@@ -161,6 +167,7 @@ extension OllamaAdapter {
       await emitDegraded(
         capability: capability, reason: reason, actor: actor,
         correlationID: correlationID, causationID: causationID)
+      await releaseSharedGovernor(capability)
       guard let deterministicFallback else {
         throw AuraError.ollamaError(
           "ollama unavailable for summarization and no deterministic fallback "
@@ -183,12 +190,14 @@ extension OllamaAdapter {
         await emitAudit(
           OllamaInferenceCompletedEvent(runID: runID, model: model.name),
           actor: actor, correlationID: correlationID, causationID: causationID)
+        await releaseSharedGovernor(capability)
         return OllamaCapabilityResult(text: result.summary, model: model.name, degraded: false)
       } catch {
         await emitAudit(
           OllamaErrorEvent(
             runID: runID, category: .structuredValidationFailed, message: "\(error)"),
           actor: actor, correlationID: correlationID, causationID: causationID)
+        await releaseSharedGovernor(capability)
         if let deterministicFallback {
           return OllamaCapabilityResult(
             text: deterministicFallback(prompt), model: model.name, degraded: true)
@@ -218,6 +227,7 @@ extension OllamaAdapter {
       await emitDegraded(
         capability: capability, reason: reason, actor: actor,
         correlationID: correlationID, causationID: causationID)
+      await releaseSharedGovernor(capability)
       throw AuraError.ollamaError(
         "ollama unavailable for reasoning; no deterministic fallback exists for "
           + "open-ended reasoning (reason: \(reason.rawValue))"
@@ -240,12 +250,14 @@ extension OllamaAdapter {
             totalDurationMilliseconds: response.totalDuration.map { Double($0) / 1_000_000.0 },
             doneReason: response.doneReason),
           actor: actor, correlationID: correlationID, causationID: causationID)
+        await releaseSharedGovernor(capability)
         return OllamaCapabilityResult(text: response.response, model: model.name, degraded: false)
       } catch {
         let auraError = error as? AuraError ?? AuraError.ollamaError("\(error)")
         await emitAudit(
           OllamaErrorEvent(runID: runID, category: .networkError, message: "\(auraError)"),
           actor: actor, correlationID: correlationID, causationID: causationID)
+        await releaseSharedGovernor(capability)
         throw auraError
       }
     }

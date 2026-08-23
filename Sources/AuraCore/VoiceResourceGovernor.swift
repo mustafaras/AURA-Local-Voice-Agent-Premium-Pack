@@ -139,10 +139,12 @@ public actor VoiceResourceGovernor {
   private var pressure: VoiceResourcePressure = .normal
   private var thermalState: VoiceThermalState
   private var reservations: [VoiceWorkload: UInt64] = [:]
+  private var lastActiveAt: [VoiceWorkload: Date] = [:]
   private var failureCounts: [VoiceWorkload: UInt32] = [:]
   private var openCircuits: Set<VoiceWorkload> = []
   private var memoryPressureSource: (any DispatchSourceMemoryPressure)?
   private var thermalObservationTask: Task<Void, Never>?
+  private var idleUnloadTask: Task<Void, Never>?
 
   public init(
     configuration: VoiceResourceGovernorConfiguration = VoiceResourceGovernorConfiguration(),
@@ -182,6 +184,26 @@ public actor VoiceResourceGovernor {
         await self.refreshThermalState()
       }
     }
+
+    // R7 resource-governor control: an idle workload's reservation is
+    // released after `idleUnloadAfterSeconds` of inactivity. The caller
+    // must re-reserve before the next use; this unload only drops the
+    // reservation, it never touches the underlying model process, so it is
+    // a signal to callers to unload rather than a force-kill. STT and
+    // neural-TTS are the speech-priority workloads and may still be dropped
+    // so the 16 GB profile does not hold a stale reservation indefinitely.
+    idleUnloadTask = Task { [weak self] in
+      guard let self else { return }
+      // Poll at half the configured idle interval so an unload is not late
+      // by more than half a window, bounded to a sane minimum cadence.
+      let window = max(1, configuration.idleUnloadAfterSeconds)
+      let cadence = max(0.5, window / 2)
+      while !Task.isCancelled {
+        try? await Task.sleep(for: .seconds(cadence))
+        guard !Task.isCancelled else { return }
+        await self.unloadIdleReservations()
+      }
+    }
   }
 
   public func stop() {
@@ -189,7 +211,28 @@ public actor VoiceResourceGovernor {
     memoryPressureSource = nil
     thermalObservationTask?.cancel()
     thermalObservationTask = nil
+    idleUnloadTask?.cancel()
+    idleUnloadTask = nil
     reservations.removeAll()
+    lastActiveAt.removeAll()
+  }
+
+  /// Drop every reservation that has been idle for at least
+  /// `idleUnloadAfterSeconds`. Returns the workloads that were unloaded so
+  /// callers can react (e.g. mark the model not-ready).
+  @discardableResult
+  public func unloadIdleReservations() -> [VoiceWorkload] {
+    let threshold = configuration.idleUnloadAfterSeconds
+    guard threshold > 0 else { return [] }
+    let cutoff = now().addingTimeInterval(-threshold)
+    var unloaded: [VoiceWorkload] = []
+    for (workload, activeAt) in lastActiveAt where activeAt < cutoff {
+      if reservations.removeValue(forKey: workload) != nil {
+        lastActiveAt.removeValue(forKey: workload)
+        unloaded.append(workload)
+      }
+    }
+    return unloaded
   }
 
   public func reserve(
@@ -230,6 +273,7 @@ public actor VoiceResourceGovernor {
     }
 
     reservations[workload, default: 0] += amount
+    lastActiveAt[workload] = now()
     return decision(
       granted: true, workload: workload, amount: amount, reason: "reservation admitted")
   }
@@ -239,8 +283,10 @@ public actor VoiceResourceGovernor {
     let amount = estimatedMemoryMB ?? current
     if amount >= current {
       reservations.removeValue(forKey: workload)
+      lastActiveAt.removeValue(forKey: workload)
     } else {
       reservations[workload] = current - amount
+      lastActiveAt[workload] = now()
     }
   }
 

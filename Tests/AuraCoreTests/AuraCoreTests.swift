@@ -83,6 +83,12 @@ struct AuraCoreTests {
     #expect(config.privacy.ambientAudioRetentionSeconds == 0)
   }
 
+  @Test func releaseTTSDefaultIsSystemOnly() {
+    #expect(TTSAdapterChain().adapterIDs == ["system"])
+    #expect(TTSAdapterChain(adapterIDs: ["chatterbox", "system"]).adapterIDs
+      == ["chatterbox", "system"])
+  }
+
   @Test func configurationLoadingMergesDefaults() async throws {
     let json = Data(
       """

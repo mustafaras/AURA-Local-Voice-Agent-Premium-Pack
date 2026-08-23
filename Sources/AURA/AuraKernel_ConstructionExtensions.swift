@@ -19,7 +19,8 @@ extension AuraKernel {
     do {
       ollama = try OllamaAdapter(
         configuration: configuration.ollama, policyEngine: foundation.policyEngine,
-        approvalPresenter: confirmationPresenter, eventBus: eventBus)
+        approvalPresenter: confirmationPresenter, eventBus: eventBus,
+        resourceGovernor: foundation.voiceResourceGovernor)
       ollamaHealth = (.ready, "adapter constructed")
     } catch {
       ollama = nil

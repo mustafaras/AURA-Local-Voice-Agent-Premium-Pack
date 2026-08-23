@@ -30,11 +30,13 @@ private func makeAdapter(
   approvalPresenter: any OllamaApprovalPresenting = OllamaAlwaysDenyApprovalPresenter(),
   apiClient: any OllamaAPIClient,
   eventBus: AuraEventBus,
-  thermalStateProvider: @escaping @Sendable () -> ProcessInfo.ThermalState = { .nominal }
+  thermalStateProvider: @escaping @Sendable () -> ProcessInfo.ThermalState = { .nominal },
+  resourceGovernor: VoiceResourceGovernor? = nil
 ) throws -> OllamaAdapter {
   try OllamaAdapter(
     configuration: configuration, policyEngine: policyEngine, approvalPresenter: approvalPresenter,
-    apiClient: apiClient, eventBus: eventBus, thermalStateProvider: thermalStateProvider)
+    apiClient: apiClient, eventBus: eventBus, thermalStateProvider: thermalStateProvider,
+    resourceGovernor: resourceGovernor)
 }
 
 private func succeedingClassifyClient(
@@ -396,4 +398,66 @@ func ollamaAdapterHealthCheckReturnsTrueOnSuccess() async throws {
   let healthy = await adapter.healthCheck(
     actor: .agentOllama, correlationID: UUID(), causationID: UUID())
   #expect(healthy)
+}
+
+// MARK: - Shared R7 resource-governor routing for reasoning
+
+@Test
+func ollamaReasoningReservesAndReleasesSharedGovernor() async throws {
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaGovReserve"))
+  let policyEngine = try await makeOllamaPolicyEngine(eventBus: bus)
+  let client = succeedingClassifyClient()
+  await client.setGenerateHandler { model, _, _, _ in
+    OllamaGenerateResponse(model: model, response: "answer", done: true, evalCount: 3)
+  }
+  let governor = VoiceResourceGovernor(
+    configuration: VoiceResourceGovernorConfiguration(residentMemoryBudgetMB: 6_144))
+  let adapter = try makeAdapter(
+    policyEngine: policyEngine, apiClient: client, eventBus: bus,
+    resourceGovernor: governor)
+
+  // Before the call, no reasoning reservation exists.
+  let before = await governor.snapshot()
+  #expect(before.activeWorkloads[VoiceWorkload.reasoning.rawValue] == nil)
+
+  let result = try await adapter.reason(
+    prompt: "tell me", actor: .agentOllama, sessionID: UUID(), correlationID: UUID(),
+    causationID: UUID())
+  #expect(result.degraded == false)
+
+  // After the call completes, the reasoning reservation is released.
+  let after = await governor.snapshot()
+  #expect(after.activeWorkloads[VoiceWorkload.reasoning.rawValue] == nil)
+  #expect(after.reservedMemoryMB == 0)
+}
+
+@Test
+func ollamaReasoningDeniedWhenSharedGovernorRejects() async throws {
+  let bus = AuraEventBus(
+    logger: AuraLogger(subsystem: "AuraAgentTests", category: "ollamaGovDeny"))
+  let policyEngine = try await makeOllamaPolicyEngine(eventBus: bus)
+  let client = succeedingClassifyClient()
+  await client.setGenerateHandler { model, _, _, _ in
+    return OllamaGenerateResponse(model: model, response: "should not run", done: true)
+  }
+  // Budget so small that the 2048 MB reasoning reservation cannot fit, and
+  // a single failure opens the circuit immediately.
+  let governor = VoiceResourceGovernor(
+    configuration: VoiceResourceGovernorConfiguration(
+      residentMemoryBudgetMB: 64, circuitFailureLimit: 1))
+  let adapter = try makeAdapter(
+    policyEngine: policyEngine, apiClient: client, eventBus: bus,
+    resourceGovernor: governor)
+
+  await #expect(throws: AuraError.self) {
+    try await adapter.reason(
+      prompt: "x", actor: .agentOllama, sessionID: UUID(), correlationID: UUID(),
+      causationID: UUID())
+  }
+  // The client must never have been reached (fail closed before inference).
+  #expect(await client.generateCallCount == 0)
+  // The denial opened a circuit for the reasoning workload.
+  let snapshot = await governor.snapshot()
+  #expect(snapshot.openCircuits.contains(.reasoning))
 }

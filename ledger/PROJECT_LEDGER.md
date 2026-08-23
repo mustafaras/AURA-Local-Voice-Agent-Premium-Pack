@@ -4542,3 +4542,30 @@ Recorded under `EV-SP-011-20260818-OAUTH-RETRY-06` after the user's explicit ret
 - **Acceptance verdict:** SP-016 completion gate **MET on adequate evidence**. All eight legs named by Procedure step 2 are implemented and covered; self-trigger protection is N/A in the Push-to-Talk-only shipped scope.
 - **Residual risks:** `RISK-VOICE-RECOVERY-LIVE` **Open**, narrowed to physical verification — coverage is notification-driven, so no headset is unplugged, no real CoreAudio route change occurs, the machine is never actually slept, and acoustic barge-in/echo over a real speaker-to-mic path is unexercised. The sleep/wake code is new and has never run a real sleep cycle.
 - **Authority boundary:** unchanged from the SP-016 closeout — edit, launch, scoped Speech grant (not re-exercised here; no TCC action was taken), commit and push. Merge, release, signing, provider, and telemetry remained forbidden.
+
+### 2026-08-23 — SP-017 — TTS/resource-governor slice: idle unload + NLU/reasoning admission + ADR-042 authored — in_progress
+
+- **Actor:** Copilot (SP-017 / OPEN-08 / R7).
+- **Objective result:** Closed two concrete R7 resource-governor gaps deterministically and authored ADR-042, without committing/pushing (SP-017 hard boundary forbids commit/push; all changes are working-tree edits).
+- **Chatterbox latest verified:** installed runtime = `ResembleAI/chatterbox` rev `5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18` variant `multilingual-v3`, matching the repo helper/install pin; venv Python 3.11, torch 2.13.0, MPS available, reference WAV + model snapshot present.
+- **Implementation:**
+  - `Sources/AuraCore/VoiceResourceGovernor.swift` — added `lastActiveAt`, `@discardableResult unloadIdleReservations()`, an `idleUnloadTask` polling every half-window in `start()`, `stop()` cancellation/clear, and activity recording in `reserve`/`release`. This finally implements the R7-G **idle unload** control that was declared but never active.
+  - `Sources/AuraAgent/OllamaAdapter.swift` — optional shared `resourceGovernor` + `voiceWorkload(for:)`, `reserveSharedGovernor`, `releaseSharedGovernor`.
+  - `Sources/AuraAgent/OllamaAdapter_Preflight.swift` — reserves `.reasoning` (2 GB) before admission; denial → `.degraded(.budgetExceeded)` (fail closed).
+  - `Sources/AuraAgent/OllamaAdapter_API.swift` — `classify`/`structuredNLU`/`summarize`/`reason` release on every terminal path.
+  - `Sources/AURA/AuraKernel_ConstructionExtensions.swift` — production `OllamaAdapter` wired to the kernel's shared governor.
+  - `docs/decisions/ADR-042-voice-routing-resource-governor.md` — authored (scope/alternatives/consequences/expiry/evidence); stays **Proposed** pending explicit user acceptance.
+  - Tests: `VoiceResourceGovernorTests` 7/7 (3 new), `OllamaAdapterTests` 18/18 (2 new).
+- **Verification evidence:** focused governor/TTS/STT/Ollama suites pass; `swift build` clean; full-suite aggregate recorded under `EV-SP-017-20260823-FULL-SUITE-01`.
+- **Acceptance verdict:** SP-017 **in_progress** — deterministic slice delivered; not complete (no commit/push granted; live soak/measurement and full-suite aggregate to finalize). SP-018 must NOT start.
+- **Open gates / residual:** measured 16 GB co-resident soak, neural-TTS live first-audio/MPS qualification, human listening, physical barge-in/echo; `screenVision`/`codingAgent` documented as not admitted through the shared governor (ADR-042). R7 not complete; ADR-042 not accepted by the user.
+- **Authority boundary:** SP-017 forbids install, launch, TCC, provider, sign, release, deploy, commit, push, merge. All changes are uncommitted working-tree edits.
+
+### 2026-08-23T14:16:40Z — SP-017 / OPEN-08 — system-TTS-only closeout — completed
+
+- **Objective / symptom:** the TTS/resource prompt had deterministic governor changes but no truthful release decision: neural adapters were still the default and live neural co-residency/quality/thermal/echo gates were unproven.
+- **Root cause / mechanism:** neural readiness was overstated at the adapter-chain default layer; a live CPU helper sample reached approximately 3991 MiB on the 16 GiB host, and non-privileged thermal/energy sampling supplied no usable result. Computer-use confirmed the running UI's PTT/system-TTS state but could not provide full manual acceptance after its native pipe closed on tab selection.
+- **Direct resolution:** defaulted `TTSAdapterChain()` to `system`, added a release-default regression test, accepted ADR-042 for a bounded PTT + system-TTS-only release, and recorded explicit neural/wake/physical-acoustic exclusions with expiry/revisit conditions.
+- **Evidence / class:** `EV-SP-017-20260823-LIVE-SYSTEM-TTS-01` direct live system-TTS (14/14; first chunk 0.733 s; full utterance 1.400 s); `EV-SP-017-20260823-RESOURCE-SCOPE-02` direct host/resource + computer-use AX; `EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01` deterministic governor/Ollama; `EV-SP-017-20260823-FULL-SUITE-01` historical deterministic aggregate.
+- **Falsifier / residual:** any neural or wake readiness claim without new live resource/quality evidence, or a release-default test selecting neural TTS, falsifies the scope decision. Neural memory/latency, physical recovery/echo, energy/thermal, human listening, and wake remain outside SP-017 and stay recorded as residual risks.
+- **Acceptance / next:** SP-017 completion gate met through explicit exclusion; ADR-042 accepted for system-only scope; PTT + system TTS remains truthful. SP-018 is safe to start and remains pending/unopened. No commit/push/merge/release/deploy performed.

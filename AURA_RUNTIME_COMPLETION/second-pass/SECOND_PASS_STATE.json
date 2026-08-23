@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-23T15:32:58Z",
-  "session_id": "AURA-SP-016-BILINGUAL-QUALITY-20260822",
-  "active_prompt": "SP-017",
+  "updated_at": "2026-08-23T14:28:05Z",
+  "session_id": "AURA-SP-017-SYSTEM-TTS-CLOSEOUT-20260823",
+  "active_prompt": "SP-018",
   "active_state": "pending",
   "completed_prompts": [
     "SP-000",
@@ -24,10 +24,16 @@
     "SP-013",
     "SP-014",
     "SP-015",
-    "SP-016"
+    "SP-016",
+    "SP-017"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-017-20260823-CLOSEOUT-03",
+    "EV-SP-017-20260823-LIVE-SYSTEM-TTS-01",
+    "EV-SP-017-20260823-RESOURCE-SCOPE-02",
+    "EV-SP-017-20260823-FULL-SUITE-01",
+    "EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01",
     "EV-SP-016-20260823-FLAKY-RECOVERY-STABILIZATION-05",
     "EV-SP-016-20260822-RECOVERY-MATRIX-04",
     "EV-SP-016-20260822-BILINGUAL-QUALITY-03",
@@ -86,18 +92,17 @@
   ],
   "authority": {
     "edit": true,
-    "launch_or_install_app": true,
-    "mutate_permissions": true,
+    "launch_or_install_app": false,
+    "mutate_permissions": false,
     "install_dependencies": false,
     "download_models": false,
     "provider_accounts": false,
     "telemetry_or_beta": false,
     "sign_or_notarize": false,
-    "commit": true,
-    "push": true,
+    "commit": false,
+    "push": false,
     "merge": false,
-    "release_or_deploy": false,
-    "source": "User-granted in-session SP-016 authority: mutate_permissions scoped to a single Speech Recognition grant for a local diagnostic bundle (no microphone grant, no tccutil, no model download, no dependency install, no /Applications install); commit and push granted. Merge, release/deploy, signing, provider accounts, and telemetry remain forbidden."
+    "release_or_deploy": false
   },
   "control_files": {
     "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -110,5 +115,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-016 completed and re-verified (EV-SP-016-20260822-RECOVERY-MATRIX-04). Operator re-verification found two real defects in the first closure and both are fixed: the claim that device-change recovery needed a Microphone grant was wrong (AuraAudio.start() reaches .running in the SwiftPM test host), and sleep/wake recovery did not exist at all despite Procedure step 2 naming it. AuraAudio now suspends capture on sleep and resumes on wake only when sleep caused it, so an explicit user stop is never undone; SP016DeviceRecoveryTests (4 tests) locks device-change recovery, sleep/wake, and the privacy invariant. All eight Procedure-step-2 legs are implemented and covered (self-trigger protection is N/A in the Push-to-Talk-only scope). Full suite 21/21 bundles, 0 failed, run twice. SP-017 is safe to start. RISK-VOICE-RECOVERY-LIVE stays Open, narrowed to physical verification only: no headset unplug, no real CoreAudio route change, no real sleep cycle, no acoustic barge-in/echo."
+  "next_action": "SP-018 is now the first uncompleted prompt and remains pending/unopened. In a new authorized session, read AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md, SECOND_PASS_CONTROL_CONTRACT.md, SECOND_PASS_PROMPT_CONTRACT.md, the SP-018 prompt, and current ledgers in the required order; do not execute SP-018 work in this closeout."
 }

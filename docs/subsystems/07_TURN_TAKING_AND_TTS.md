@@ -84,6 +84,11 @@ helper timeout, memory reservation, private WAV validation/cleanup, and
 system-Yelda fallback on timeout, failure, or resource denial. CPU is the safe
 default; MPS remains opt-in until live thermal/latency qualification.
 
-Live barge-in/echo behavior, consented neural reference and human listening
-acceptance, first-audio latency, cache/soak evidence, and release-quality
-neural-vs-system voice selection remain open.
+The SP-017 release decision is system-TTS-only: direct live system-TTS first
+chunk/full-utterance evidence is recorded in
+`EV-SP-017-20260823-LIVE-SYSTEM-TTS-01`, and `TTSAdapterChain()` defaults to
+`system`. Neural reference/human listening, neural CPU/MPS first-audio and
+soak qualification, wake word, and physical speaker-to-microphone
+barge-in/echo are explicitly excluded from this release scope and must not be
+presented as ready. Future neural opt-in requires a new evidence-backed scope
+decision.

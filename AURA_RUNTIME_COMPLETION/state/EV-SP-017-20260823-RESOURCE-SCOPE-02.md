@@ -1,0 +1,13 @@
+# EV-SP-017-20260823-RESOURCE-SCOPE-02
+
+- **Timestamp:** 2026-08-23T14:16:40Z
+- **Branch / commit:** `main` / `f6518e1333015b31c4783f0a4e8f033555f6e1f1` (working-tree edits were present; no commit or push)
+- **Evidence class:** direct host/resource observation plus computer-use live AX observation
+- **Commands / procedures:** `uname -a`; `sw_vers`; `sysctl -n hw.memsize hw.ncpu hw.model`; `memory_pressure -Q`; process inspection for the running AURA and Chatterbox helper; `pmset -g thermlog`; `ollama ps`; computer-use `get_app_state` on the installed AURA app.
+- **Environment:** macOS 27.0 build `26A5416b`, Apple Silicon `arm64`, Apple M5 (`Mac17,4`), 16 GiB unified memory, 10 CPUs.
+- **Observed result:** host memory is `17179869184` bytes and the latest free-memory sample was **42%**. AURA was observed in the live AX tree as **Idle — use Push to Talk**, with local processing and system voice readiness. The running AURA process was observed at approximately **27 MiB RSS** in the final sample. During the earlier live Chatterbox helper sample in this same SP-017 attempt, the helper reached approximately **3991 MiB resident** on the 16 GiB profile while using CPU mode; that is not an acceptable release qualification for neural co-residency without a longer controlled soak. No Ollama model was resident in `ollama ps`.
+- **Thermal / energy result:** `pmset -g thermlog` returned no usable thermal sample. `powermetrics --samplers tasks,thermal -n 1` was attempted and rejected because it requires superuser authority; no `sudo`, TCC mutation, or privilege escalation was used.
+- **Computer-use result / limitation:** the initial AX read succeeded and showed the truthful PTT/system-TTS state. Selecting a tab closed the native computer-use pipe; no permission was changed, no provider was contacted, and no screenshot/raw audio was retained. This is a read-only UI observation, not a full manual product acceptance.
+- **Decision supported:** neural TTS, wake word, passive listening, and physical speaker-to-microphone echo are explicitly outside SP-017's release scope. `TTSAdapterChain()` now defaults to `system` only; neural adapters remain explicit opt-in and fail closed behind the governor. PTT + system TTS remains the truthful release path.
+- **Artifact path / hash:** this evidence record; command output was inspected in-session and no private/raw audio artifact was retained. No thermal or energy artifact exists because the available non-privileged sampler returned no data.
+- **Limitations:** this is a bounded resource observation, not a measured 16 GB 8-hour co-resident neural soak. The residual neural-memory, thermal, and physical recovery risks remain tracked for future scope.

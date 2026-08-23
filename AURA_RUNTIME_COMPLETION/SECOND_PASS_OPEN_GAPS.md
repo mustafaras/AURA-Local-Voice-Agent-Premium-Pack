@@ -1152,15 +1152,36 @@ or ADR-042 approval.
     (~15 s + final check) replaced the short fixed poll. **Verified:**
     `AuraAudioTests` (39 tests / 6 suites) passed **six consecutive independent
     runs**, and the full suite is **21/21 bundles, 0 failed**.
+  - **SP-017 resource-governor idle unload + reasoning admission
+    (2026-08-23, `EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01`):** the R7
+    resource-governor requirement for **idle unload** (G) was a concrete gap —
+    `VoiceResourceGovernor` declared `idleUnloadAfterSeconds` but never
+    implemented it. Now implemented: `lastActiveAt` per workload, a new
+    `@discardableResult unloadIdleReservations()` that drops any reservation
+    idle past the window, an `idleUnloadTask` polling every half-window in
+    `start()`, and `stop()` cancelling it and clearing activity. Also, the
+    NLU/reasoning workload is now **routed through the shared governor**:
+    `OllamaAdapter` accepts an optional shared `resourceGovernor` and every
+    inference path (`classify`, `structuredNLU`, `summarize`, `reason`)
+    reserves `.reasoning` (2 GB) in `preflight` before admission and releases
+    it on every terminal path; on shared-governor denial it degrades
+    `.budgetExceeded` (fail closed) and opens a circuit. The production
+    `OllamaAdapter` is wired to the kernel's shared governor. New deterministic
+    tests: `VoiceResourceGovernorTests` 7/7 (idle-window unload, recent
+    survives, reserve-refreshes-activity), `OllamaAdapterTests` 18/18
+    (reasoning reserves-and-releases; reasoning fails closed on shared denial).
 - Bounded incomplete-turn continuation, duplicate-result suppression, and
   TTS interruption/cancellation paths are covered locally, but live barge-in,
   acoustic echo/self-transcription, headset/device switching, sleep/wake,
   interruption, permission revocation, and helper-crash recovery remain
   unverified on release hardware.
-- Resource admission is integrated for STT and neural TTS with memory-pressure,
-  thermal, budget, reservation, and circuit-breaker controls. NLU/reasoning,
-  screen, and coding workloads are not yet admitted through the governor, and
-  measured 16 GB resident-memory/thermal/energy/long-soak evidence is open.
+- Resource admission is integrated for STT, neural TTS, and now the local
+  Ollama reasoning path with memory-pressure, thermal, budget, reservation,
+  circuit-breaker, and idle-unload controls. `screenVision` and `codingAgent`
+  workloads remain explicitly **not** admitted through the shared governor
+  (bounded per-capture screen and spawned CLI subprocesses; documented as
+  exclusions in `ADR-042`), and measured 16 GB resident-memory/thermal/
+  energy/long-soak evidence is still open.
 - Neural TTS has a bounded helper timeout and system-Yelda fallback; CPU is
   the safe default and MPS is opt-in pending qualification. Consented
   reference-voice provenance, model/hash/license verification, first-audio
@@ -1169,9 +1190,11 @@ or ADR-042 approval.
 - The required Turkish/English/mixed technical/noisy/far-field evaluation
   datasets and protocols, latency/WER/entity/turn-end/TTS/barge-in/resource
   measurements, and extended soak package are not yet recorded.
-- ADR-042 remains `Proposed`; its full context/alternatives/consequences and
-  explicit user acceptance are not recorded. Do not mark R7 complete or move
-  to R8 based on simulated tests alone.
+- ADR-042 is now **authored** at
+  `docs/decisions/ADR-042-voice-routing-resource-governor.md` (SP-017) with
+  scope, alternatives, consequences, expiry/revisit, and evidence, but remains
+  **`Proposed`** (no explicit user acceptance in this pass). R7 is **not** to be
+  marked complete or move to R8 based on simulated tests alone.
 
 ## OPEN-09 — R8: Memory, Personalization, and Explainability
 
@@ -1544,3 +1567,32 @@ mutation-class. No non-empty contacts read is recorded, by choice, because only
 the user's own address book exists on this machine and this prompt forbids
 recording real private account data. **SP-011 remains `blocked`; SP-012 is not
 safe to start.**
+
+## SP-017 OPEN-08 closure — system-TTS-only release scope (2026-08-23)
+
+`EV-SP-017-20260823-LIVE-SYSTEM-TTS-01` and
+`EV-SP-017-20260823-RESOURCE-SCOPE-02` close SP-017's completion gate through
+the prompt's explicit exclusion branch. Direct live system TTS passed 14/14:
+first chunk 0.733 s, full test utterance 1.400 s, interruption/barge-in,
+pause/resume, stop, and anti-trigger lifecycle covered. The 16 GiB host was
+observed with AURA at approximately 27 MiB RSS in the final sample; a live
+Chatterbox CPU helper sample reached approximately 3991 MiB, so neural
+co-residency is not claimed. Thermal/energy samplers did not provide a usable
+non-privileged result, and no 8-hour neural soak was asserted.
+
+The release decision is therefore bounded and truthful: Push to Talk plus
+system TTS is the only qualified voice path. Neural TTS/reference voice,
+MPS/CPU neural first-audio and soak qualification, wake word/passive listening,
+and physical speaker-to-microphone echo are explicitly excluded from this
+release scope. `TTSAdapterChain()` defaults to `system`; explicit neural
+adapters remain opt-in and resource-guarded. `screenVision` and `codingAgent`
+remain documented exclusions from the shared governor. Historical OPEN-08
+wording above is preserved; the broader physical recovery and future neural
+qualification risks remain outside SP-017 and are not misrepresented as
+passed.
+
+**SP-017 acceptance verdict: `completed`.** ADR-042 is accepted for this
+system-TTS-only scope with alternatives, scope, expiry/revisit conditions, and
+evidence. SP-018 is safe to start because SP-017's direct evidence,
+cognitive-gate answers, state projections, and validator closeout are now
+complete; SP-018 itself remains pending/unopened.

@@ -3,6 +3,30 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-08-22.
 
+## Authoritative current status — 2026-08-23T14:16:40Z
+
+The active second-pass prompt is **`SP-018` / `pending`**. **SP-017 / OPEN-08
+is `completed`** at `main`, verified `HEAD == origin/main ==
+f6518e1333015b31c4783f0a4e8f033555f6e1f1`, with expected uncommitted working-tree
+edits from this closeout.
+
+**SP-017 completion (`EV-SP-017-20260823-CLOSEOUT-03`):** direct live system
+TTS passed 14/14, with first chunk latency 0.733 s and full utterance latency
+1.400 s; interruption/barge-in, pause/resume, stop, and anti-trigger lifecycle
+tests passed. The release default is now `TTSAdapterChain() == ["system"]`.
+The 16 GiB resource observation recorded an AURA final sample near 27 MiB RSS
+and an earlier CPU Chatterbox helper sample near 3991 MiB; neural co-residency,
+MPS/CPU neural quality, human listening, wake word, passive listening, energy /
+thermal qualification, and physical speaker-to-microphone echo are therefore
+explicitly outside this release scope rather than claimed as passed.
+
+ADR-042 is **Accepted for the bounded PTT + system-TTS-only release** with
+alternatives, scope, consequences, expiry/revisit, and evidence. The R7 track
+and overall program remain `in_progress` because their broader residual risks
+and other tracks are not closed. No commit, push, merge, release, deploy,
+signing, install, download, provider, telemetry, beta, or TCC action was
+performed. **SP-018 is safe to start but remains pending/unopened.**
+
 ## Authoritative current status — 2026-08-22T18:20:00Z
 
 The active second-pass prompt is **`SP-016` / `in_progress`** at `main`, `HEAD ==
