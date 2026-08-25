@@ -38,11 +38,16 @@ enum AuraDesign {
 
   enum Typography {
     /// Product wordmark in the header.
-    static let wordmark = Font.system(size: 15, weight: .semibold, design: .rounded)
-    static let sectionTitle = Font.system(size: 13, weight: .semibold)
-    static let body = Font.system(size: 13)
-    static let meta = Font.system(size: 11)
-    static let mono = Font.system(size: 10, design: .monospaced)
+    ///
+    /// Relative text styles (not fixed `Font.system(size:)`) so the whole
+    /// surface scales with the user's Dynamic Type / accessibility text size
+    /// setting. Fixed point sizes would leave the UI unreadable at large
+    /// accessibility sizes and are a WCAG 1.4.4 (resize text) failure.
+    static let wordmark = Font.headline.weight(.semibold)
+    static let sectionTitle = Font.subheadline.weight(.semibold)
+    static let body = Font.body
+    static let meta = Font.caption
+    static let mono = Font.caption.monospaced()
   }
 
   // MARK: - Surfaces

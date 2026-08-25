@@ -42,4 +42,19 @@ enum AuraAccessibilityID {
   static func integrationRevoke(_ capabilityID: String) -> String {
     "\(integrationRow(capabilityID)).revoke"
   }
+
+  // Onboarding is a clean-profile gate: a fresh install must reach every
+  // control from the keyboard and be discoverable by VoiceOver without a
+  // mouse. Stable identifiers let the acceptance driver and a screen reader
+  // address the step progression and skip controls position-independently.
+  static let onboardingPrimary = "aura.onboarding.primary"
+  static let onboardingSkip = "aura.onboarding.skip"
+  static let onboardingClose = "aura.onboarding.close"
+
+  // Conversation composer + language switch. The language switch is the one
+  // control that must stay reachable regardless of which tab is selected, so
+  // it gets a stable identifier too.
+  static let languageSwitch = "aura.header.language"
+  static let settingsButton = "aura.header.settings"
+  static let onboardingButton = "aura.header.onboarding"
 }

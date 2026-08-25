@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-25T07:05:00Z",
-  "repository_commit": "ed7900e3db8403df2ee7a1a5e6d65754b58e8091",
+  "updated_at": "2026-08-25T12:40:00Z",
+  "repository_commit": "1d9f42c16ced7def33b29917ee0df67a984d1476",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -190,7 +190,7 @@
         "Release-hardware latency and human quality evidence."
       ],
       "evidence_ids": [],
-      "notes": "Yelda is the safe local fallback."
+      "notes": "Premium neural Kaan is the safe local fallback."
     },
     {
       "id": "voice.tts_chatterbox",
@@ -220,7 +220,7 @@
         "EV-R7-20260730-CHATTERBOX-CPU-01",
         "EV-R7-20260808-VOICE-LOCAL-SAFETY-01"
       ],
-      "notes": "CPU is the safe default; helper timeout, resource admission, cleanup, and Yelda fallback must fail closed to system TTS when neural gates are unmet."
+      "notes": "CPU is the safe default; helper timeout, resource admission, cleanup, and Kaan fallback must fail closed to system TTS when neural gates are unmet."
     },
     {
       "id": "dialogue.conversation",

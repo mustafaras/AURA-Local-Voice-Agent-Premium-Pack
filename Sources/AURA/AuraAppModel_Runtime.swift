@@ -216,7 +216,7 @@ extension AuraAppModel {
     case .timeout: status = .restricted
     case .error: status = .error
     }
-    statusDetail = event.reason.isEmpty ? status.title : event.reason
+    statusDetail = event.reason.isEmpty ? status.title(for: .english) : event.reason
   }
 
   func recordTask(_ event: TaskEnqueuedEvent) {

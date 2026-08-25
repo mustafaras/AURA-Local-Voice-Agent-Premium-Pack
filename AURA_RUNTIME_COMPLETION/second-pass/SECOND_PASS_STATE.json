@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-25T07:20:00Z",
-  "session_id": "AURA-SP-020-ATTEMPT-20260825",
-  "active_prompt": "SP-021",
+  "updated_at": "2026-08-25T16:20:00Z",
+  "session_id": "AURA-SP-021-ATTEMPT-20260825",
+  "active_prompt": "SP-022",
   "active_state": "pending",
   "completed_prompts": [
     "SP-000",
@@ -28,10 +28,15 @@
     "SP-017",
     "SP-018",
     "SP-019",
-    "SP-020"
+    "SP-020",
+    "SP-021"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-021-20260825-LIVE-ACCESSIBILITY-04",
+    "EV-SP-021-20260825-DYNAMIC-TYPE-LIVE-03",
+    "EV-SP-021-20260825-FOLLOWUP-02",
+    "EV-SP-021-20260825-ACCESSIBILITY-LOCALIZATION-01",
     "EV-SP-020-20260825-CLOSEOUT-02",
     "EV-SP-020-20260825-REMOTE-BOUNDARY-01",
     "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
@@ -126,5 +131,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-019 completed, merged (PR #6), and pushed as e6706157178d. Start SP-020."
+  "next_action": "SP-021 completed (accessibility/localization acceptance) under EV-SP-021-20260825-LIVE-ACCESSIBILITY-04. SP-022 is next eligible and pending; open it only under its own authority."
 }

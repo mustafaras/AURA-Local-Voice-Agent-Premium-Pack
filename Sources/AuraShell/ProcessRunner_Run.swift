@@ -84,6 +84,16 @@ extension ProcessRunner {
     let stderrPipe = Pipe()
     process.standardOutput = stdoutPipe
     process.standardError = stderrPipe
+    // Always give the child a closed stdin pipe. Without this, the child
+    // inherits the parent's stdin (a pipe held open by the test runner or
+    // app), so a CLI that waits for stdin EOF (e.g. `claude --help`) never
+    // sees EOF and hangs. When `standardInputText` is set, write it first.
+    let inputPipe = Pipe()
+    process.standardInput = inputPipe
+    if let text = command.standardInputText, let data = text.data(using: .utf8) {
+      inputPipe.fileHandleForWriting.write(data)
+    }
+    inputPipe.fileHandleForWriting.closeFile()
     await AuraEventBus.shared.emit(
       EventEnvelope(
         correlationID: executionID, causationID: executionID, actor: .automation,

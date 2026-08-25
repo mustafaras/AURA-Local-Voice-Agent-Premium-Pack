@@ -16,12 +16,13 @@
 Adopt a **local-first, fallback-preserving voice routing and resource
 governor** for the 16 GB Apple Silicon primary profile:
 
-1. **TTS chain:** `system` (Yelda) is the release-safe default and the only
-   release-qualified voice. `chatterbox` remains an explicit opt-in adapter
-   outside the release scope until its live resource, latency, and human-
-   listening gates are qualified. The neural adapter remains bounded by a
-   private helper, timeout, output-size cap, private WAV output, and immediate
-   fallback, but its presence on disk is not a readiness or release claim.
+1. **TTS chain:** `system` (premium neural Kaan) is the release-safe default
+   and the only release-qualified voice. `chatterbox` remains an explicit
+   opt-in adapter outside the release scope until its live resource, latency,
+   and human-listening gates are qualified. The neural adapter remains bounded
+   by a private helper, timeout, output-size cap, private WAV output, and
+   immediate fallback, but its presence on disk is not a readiness or release
+   claim.
 2. **STT routing:** Apple on-device Speech (Turkish/English general +
    command) via `STTRouter`, which reserves through the governor and fails
    closed on resource denial or engine-start failure. Code-switched English
@@ -73,7 +74,7 @@ Explicitly excluded (each documented above and in OPEN-08):
 
 ## Consequences
 
-- **Positive:** Push to Talk + system Yelda remains a truthful, always-
+- **Positive:** Push to Talk + system Kaan remains a truthful, always-
   available fallback; resource failure degrades to system voice rather than
   breaking conversation; no simultaneous large-model residency is silently
   assumed.
@@ -104,6 +105,6 @@ if a measured co-resident soak shows the budgets need re-tuning.
 
 The user explicitly requested completion of all SP-017/OPEN-08 gates in the
 current session. That instruction accepts this bounded system-TTS-only
-decision: PTT + system Yelda is the truthful release path; neural TTS and wake
+decision: PTT + system Kaan is the truthful release path; neural TTS and wake
 word remain deferred and must not be displayed as ready. Revisit requires new
 live evidence and an explicit scope change.

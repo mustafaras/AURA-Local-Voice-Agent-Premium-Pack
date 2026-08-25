@@ -146,6 +146,41 @@ func runnerTimesOut() async {
   }
 }
 
+/// Regression: a child that inherits the stdout/stderr pipe write ends keeps
+/// the pipe open after the parent exits, so `readDataToEndOfFile()` would
+/// block forever and hang the whole bundle past the test watchdog. The
+/// buffered runner must drain with a bounded EOF wait and return promptly.
+@Test
+func runnerDoesNotHangWhenChildInheritsPipe() async throws {
+  // A script that prints a line, spawns a background child that sleeps while
+  // holding the inherited stdout/stderr FDs open, then exits immediately.
+  let script = FileManager.default.temporaryDirectory
+    .appendingPathComponent("aura-pipe-child-\(UUID().uuidString).sh")
+  let scriptText = """
+    #!/bin/zsh
+    echo "parent output"
+    ( sleep 30 ) &
+    exit 0
+    """
+  try scriptText.write(toFile: script.path, atomically: true, encoding: .utf8)
+  defer { try? FileManager.default.removeItem(at: script) }
+  try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: script.path)
+
+  var config = ShellConfiguration()
+  config.defaultTimeoutSeconds = 30
+  config.allowedExecutablePaths = [script.path]
+  let runner = ProcessRunner(configuration: config)
+  let command = Command(
+    executable: script.path,
+    arguments: [],
+    timeoutSeconds: 5,
+    riskTier: .observation)
+  let result = await runner.run(command, executionID: UUID())
+  let value = try result.get()
+  #expect(value.exitCode == 0)
+  #expect(value.stdout.contains("parent output"))
+}
+
 @Test
 func runnerCancelsInFlightCommand() async {
   var config = ShellConfiguration()

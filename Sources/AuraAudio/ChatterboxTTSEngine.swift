@@ -123,7 +123,7 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
     self.fallback =
       fallback
       ?? SystemTTSEngine(
-        preferredVoiceIdentifier: "com.apple.voice.compact.tr-TR.Yelda")
+        preferredVoiceIdentifier: "com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium")
     self.allowInjectedHelper = false
   }
 

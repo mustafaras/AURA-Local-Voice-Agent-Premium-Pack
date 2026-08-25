@@ -1,6 +1,15 @@
 import AuraCore
 import Foundation
 
+/// Lock-protected accumulator for `drainPipeBounded`. A reference type so the
+/// `@Sendable` `readabilityHandler` closure can mutate it without capturing
+/// mutable value state.
+private final class PipeDrainBox: @unchecked Sendable {
+  let lock = NSLock()
+  var data = Data()
+  var reachedEOF = false
+}
+
 struct ProcessOutputEventInput {
   let executionID: UUID
   let stdout: String
@@ -34,12 +43,50 @@ extension ProcessRunner {
     return merged
   }
 
+  /// Drain a pipe's buffered output with a bounded EOF wait.
+  ///
+  /// `readDataToEndOfFile()` blocks until the pipe reaches EOF. A child that
+  /// inherits the write end of the pipe (e.g. `claude --help` spawning a
+  /// helper) keeps the write end open after the parent exits, so EOF never
+  /// arrives and the read hangs the whole bundle past the test watchdog.
+  /// This mirrors the streaming path: a `readabilityHandler` drains whatever
+  /// is available and marks EOF, and we wait a bounded grace window for it
+  /// before returning what we have rather than blocking forever.
+  func drainPipeBounded(_ pipe: Pipe, maxWaitSeconds: Double = 0.5) -> Data {
+    let handle = pipe.fileHandleForReading
+    let box = PipeDrainBox()
+    handle.readabilityHandler = { h in
+      let chunk = h.availableData
+      box.lock.lock()
+      if chunk.isEmpty {
+        box.reachedEOF = true
+        h.readabilityHandler = nil
+      } else {
+        box.data.append(chunk)
+      }
+      box.lock.unlock()
+    }
+    let deadline = Date().addingTimeInterval(maxWaitSeconds)
+    while Date() < deadline {
+      box.lock.lock()
+      let done = box.reachedEOF
+      box.lock.unlock()
+      if done { break }
+      Thread.sleep(forTimeInterval: 0.005)
+    }
+    handle.readabilityHandler = nil
+    box.lock.lock()
+    let result = box.data
+    box.lock.unlock()
+    return result
+  }
+
   func collectAndBound(
     pipe: Pipe,
     maxBytes: Int,
     maxLines: Int
   ) -> (text: String, truncated: Bool) {
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    let data = drainPipeBounded(pipe)
     var text = String(data: data, encoding: .utf8) ?? ""
     var truncated = false
 

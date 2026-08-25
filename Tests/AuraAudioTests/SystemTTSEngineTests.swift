@@ -111,17 +111,18 @@ struct SystemTTSEngineTests {
     #expect(selected?.quality.rawValue == voices.map(\.quality.rawValue).max())
   }
 
-  @Test func explicitFemaleYeldaPreferenceOverridesQualityRanking() {
+  @Test func explicitPreferredVoiceOverridesQualityRanking() {
     let voices = AVSpeechSynthesisVoice.speechVoices()
-    let yeldaID = "com.apple.voice.compact.tr-TR.Yelda"
-    guard voices.contains(where: { $0.identifier == yeldaID }) else { return }
+    // The premium neural Kaan voice is the product's configured fallback.
+    let kaanID = "com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium"
+    guard voices.contains(where: { $0.identifier == kaanID }) else { return }
 
     let selected = SystemTTSEngine.bestVoice(
       for: "tr-TR",
-      preferredIdentifier: yeldaID,
+      preferredIdentifier: kaanID,
       voices: voices)
 
-    #expect(selected?.identifier == yeldaID)
+    #expect(selected?.identifier == kaanID)
   }
 }
 

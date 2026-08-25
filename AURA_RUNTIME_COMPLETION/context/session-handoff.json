@@ -1,29 +1,54 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-25T07:20:00Z",
-  "session_id": "AURA-SP-020-ATTEMPT-20260825",
-  "last_verified_commit": "ed7900e3db8403df2ee7a1a5e6d65754b58e8091",
+  "updated_at": "2026-08-25T16:20:00Z",
+  "session_id": "AURA-SP-021-ATTEMPT-20260825",
+  "last_verified_commit": "1d9f42c16ced7def33b29917ee0df67a984d1476",
   "active_prompt": {
-    "id": "SP-021",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-021_ACCESSIBILITY_AND_LOCALIZATION_ACCEPTANCE.prompt.md",
+    "id": "SP-022",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-022_UI_CONTROLS_ONBOARDING_AND_RECOVERY.prompt.md",
     "state": "pending",
-    "step": "SP-020 is completed: local-only is the explicit product boundary under EV-SP-020-20260825-REMOTE-BOUNDARY-01, and ADR-043 is accepted under the explicit local-only remote-boundary scope (2026-08-25, review 2026-09-07). SP-021 (accessibility and localization acceptance) is next and unopened."
+    "step": "SP-021 completed under EV-SP-021-20260825-LIVE-ACCESSIBILITY-04 (user present, computer use authorized). SP-022 is next eligible and pending; open it only under its own authority."
   },
-  "summary": "SP-020 completed (exclusion branch). Static inventory proved no production remote-context transport/caller; ContextBuilder fails closed for remote delivery; PreferencePolicyBounds makes local-only non-weakening. Deterministic evidence: AuraContextTests 37/37 and AuraMemoryTests 30/30. Live socket traces from EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14 show zero non-loopback peers. RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE mitigated. The user then directed SP-020 completion; ADR-043 is Accepted under the explicit local-only remote-boundary scope (review 2026-09-07). RISK-ADR-043-PENDING closed. SP-020 completed; SP-021 (accessibility/localization, R9) is next and unopened.",
+  "summary": "SP-021 accessibility & localization COMPLETED. Added stable non-localized onboarding/header accessibility identifiers (onboardingPrimary/Skip/Close, languageSwitch, settingsButton, onboardingButton). Fixed live Turkish localization defects: status pill (AuraAppStatus.title(for:) + AuraAppModel.displayStatusDetail), capability ready/no-evidence detail (capabilities.noEvidence), and disabled/degraded capability reason prose (AuraAppModel.localizedReason(_:)). Fixed the AuraAgentTests exit-142 flake: the buffered ProcessRunner now always sets a closed stdin pipe, so claude --help no longer blocks on inherited stdin EOF. Fixed Dynamic Type scaling: AuraDesign.Typography now uses relative text styles. Live accessibility verification with the user present: AX reading order logical and complete (header -> status -> language -> actions -> tabs -> content -> composer); keyboard-only focus reaches every primary control; TR/EN copy renders correctly; non-color status, keyboard shortcuts, confirmation expiry/focus containment, reduced motion (no animations) verified. AURAIntegrationTests 88/88, AuraAgentTests 237/237, full suite 21/21 bundles 0 failed, validator PASSED. SP-021 completed; SP-022 is next eligible and pending.",
   "completed": [
-    "Inventory every remote context path and prove local-only mode sends no unapproved memory, secrets, raw audio, screenshots, or prompts (no production remote transport/caller).",
-    "Chose the exclusion branch (keep local-only as explicit product boundary) rather than implementing a redacted remote path.",
-    "Confirmed context budget is bounded deterministically and remote delivery fails closed before any transmission.",
-    "Accepted ADR-043 under the explicit local-only remote-boundary scope (2026-08-25, review 2026-09-07) at the user's direction, closing RISK-ADR-043-PENDING."
+    "Added stable non-localized accessibility identifiers for onboarding and header controls.",
+    "Localized the status pill, capability ready/no-evidence detail, and disabled/degraded reason prose to Turkish.",
+    "Fixed the AuraAgentTests exit-142 flake (ProcessRunner stdin EOF).",
+    "Fixed Dynamic Type scaling (AuraDesign.Typography now uses relative text styles).",
+    "Verified live (user present) the AX reading order, keyboard-only focus, and TR/EN copy.",
+    "Added deterministic localization and Dynamic Type tests (AURAIntegrationTests 88/88)."
   ],
   "files_changed": [
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-020-20260825-REMOTE-BOUNDARY-01.md",
+    "Sources/AURA/AURA.swift",
+    "Sources/AURA/AuraAccessibilityIdentifiers.swift",
+    "Sources/AURA/AuraAppModel.swift",
+    "Sources/AURA/AuraAppModel_ProductState.swift",
+    "Sources/AURA/AuraAppModel_Runtime.swift",
+    "Sources/AURA/AuraDesign.swift",
+    "Sources/AURA/AuraMenuBarPanel.swift",
+    "Sources/AURA/AuraMenuView.swift",
+    "Sources/AURA/AuraMenuView_Content.swift",
+    "Sources/AURA/ProductUIState.swift",
+    "Sources/AuraShell/ProcessRunner_Run.swift",
+    "Sources/AuraShell/ProcessRunner_Events.swift",
+    "Tests/AURAIntegrationTests/R9ProductUIStateTests.swift",
+    "Tests/AuraShellTests/AuraShellTests.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-021-20260825-ACCESSIBILITY-LOCALIZATION-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-021-20260825-FOLLOWUP-02.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-021-20260825-DYNAMIC-TYPE-LIVE-03.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-021-20260825-LIVE-ACCESSIBILITY-04.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
   ],
   "evidence_ids": [
+    "EV-SP-021-20260825-LIVE-ACCESSIBILITY-04",
+    "EV-SP-021-20260825-DYNAMIC-TYPE-LIVE-03",
+    "EV-SP-021-20260825-FOLLOWUP-02",
+    "EV-SP-021-20260825-ACCESSIBILITY-LOCALIZATION-01",
+    "EV-SP-020-20260825-CLOSEOUT-02",
     "EV-SP-020-20260825-REMOTE-BOUNDARY-01",
     "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
     "EV-SP-019-20260824-LIVE-REFERENCE-13",
@@ -133,16 +158,16 @@
     "Release and deployment remain blocked: the app is unsigned for distribution and unnotarized. SP-026 (reproducible toolchain/CI) and SP-027 (signing, notarization, clean-machine Gatekeeper) own those gates; only a development_unverified artifact can be produced today."
   ],
   "open_decisions": [
-    "SP-019 remains in_progress until direct user-present evidence closes all eight R8 scenarios; SP-020 must not start."
+    "SP-021 is completed. SP-022 (UI controls, onboarding, and recovery) is next eligible and pending; open it only under its own authority and read order."
   ],
   "risks": [
-    "RISK-MEMORY-NOT-PRODUCTIZED",
-    "RISK-MEMORY-LIVE-ACCEPTANCE",
+    "RISK-R9-LIVE-ACCESSIBILITY",
+    "RISK-R9-LOCALIZATION",
+    "RISK-R9-ONBOARDING-RECOVERY",
     "RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE",
-    "RISK-ADR-043-PENDING",
     "RISK-SP-019-LIVE-MEMORY-CONTROLS"
   ],
-  "next_action": "SP-019 completed and merged to main as e6706157178d. Start SP-020 (remote context boundary and ADR-043).",
+  "next_action": "SP-020 completed and merged to main as 1d9f42c. SP-021 (accessibility/localization acceptance) COMPLETED under EV-SP-021-20260825-LIVE-ACCESSIBILITY-04 (user present, computer use authorized): accessibility identifiers added; TR localization of status/capability/disabled-reason prose; AuraAgentTests exit-142 flake fixed; Dynamic Type scaling fixed; AX reading order, keyboard focus, and TR/EN copy verified live. SP-022 is next eligible and pending; open it only under its own authority.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -152,7 +177,7 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-020_REMOTE_CONTEXT_BOUNDARY_AND_ADR_043.prompt.md"
+    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-022_UI_CONTROLS_ONBOARDING_AND_RECOVERY.prompt.md"
   ],
-  "notes": "SP-018 delivery remains at 1d3efca; current main/origin is ed55a0c with declared dirty changes. SP-019 direct evidence is partial and privacy-safe: no raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written. The app artifact is unsigned/unnotarized and not a release or deployment. Delete is paused for action-time confirmation; SP-020 remains unopened."
+  "notes": "SP-019 completed/merged (e6706157); SP-020 completed/merged (1d9f42c). Current HEAD == origin/main == 1d9f42c with declared SP-021 dirty changes. SP-021 accessibility & localization COMPLETED with the user present: the status pill, capability ready/no-evidence detail, and disabled/degraded reason prose are localized to Turkish; all six tabs/header/composer controls are reachable by identifier; the AuraAgentTests exit-142 flake is fixed (ProcessRunner stdin EOF); Dynamic Type scaling is fixed (relative text styles); the AX reading order is logical and keyboard-only focus reaches every primary control. SP-022 is next eligible and pending. All SP-021 evidence is privacy-safe: no raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written. The app artifact is unsigned/unnotarized and not a release or deployment."
 }

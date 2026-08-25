@@ -48,6 +48,52 @@ struct R9ProductUIStateTests {
     }
   }
 
+  @Test("status pill title and detail localize to Turkish")
+  @MainActor
+  func statusPillLocalizesToTurkish() {
+    let model = AuraAppModel(startRuntime: false)
+    // Status title differs by language and is never empty.
+    for status in [AuraAppStatus.idle, .listening, .thinking, .restricted, .error] {
+      #expect(status.title(for: .english) != status.title(for: .turkish))
+      #expect(!status.title(for: .turkish).isEmpty)
+    }
+    // A known English internal statusDetail renders as Turkish.
+    model.productUIState.language = .turkish
+    model.statusDetail = "Ready — use Push to Talk"
+    #expect(model.displayStatusDetail == "Hazır — Bas Konuş'u kullanın")
+    // In English the internal detail is shown unchanged.
+    model.productUIState.language = .english
+    #expect(model.displayStatusDetail == "Ready — use Push to Talk")
+    // Unknown detail falls through unchanged.
+    model.productUIState.language = .turkish
+    model.statusDetail = "custom runtime note"
+    #expect(model.displayStatusDetail == "custom runtime note")
+    model.bootTask?.cancel()
+  }
+
+  @Test("capability disabled/degraded reason prose localizes to Turkish")
+  @MainActor
+  func disabledReasonLocalizesToTurkish() {
+    let model = AuraAppModel(startRuntime: false)
+    model.productUIState.language = .turkish
+    // A known disabled reason renders as Turkish.
+    #expect(
+      model.localizedReason("VS Code bridge not authenticated: no extension")
+        == "VS Code köprüsü kimliği doğrulanmadı: no extension")
+    #expect(
+      model.localizedReason("Contacts reading is turned off in configuration.")
+        == "Contacts okuma yapılandırmada kapatıldı.")
+    // In English the reason is shown unchanged.
+    model.productUIState.language = .english
+    #expect(
+      model.localizedReason("VS Code bridge not authenticated: no extension")
+        == "VS Code bridge not authenticated: no extension")
+    // Unknown reason falls through unchanged in Turkish too.
+    model.productUIState.language = .turkish
+    #expect(model.localizedReason("custom reason") == "custom reason")
+    model.bootTask?.cancel()
+  }
+
   @Test("non-audit memory export document remains Codable")
   func memoryExportDocumentRoundTrips() throws {
     let record = MemoryRecord(
@@ -364,5 +410,22 @@ struct R9ProductUIStateTests {
       _ = AuraOnboardingView(model: model).body
     }
     _ = AuraSettingsView(model: model).body
+  }
+
+  @Test("design typography uses scalable relative text styles for Dynamic Type")
+  func designTypographyScalesWithDynamicType() {
+    // WCAG 1.4.4 (resize text): the product surface must scale with the
+    // user's Dynamic Type / accessibility text size. Fixed `Font.system(size:)`
+    // point sizes would leave the UI unreadable at large accessibility sizes.
+    // The design tokens must resolve to relative text styles, not fixed sizes.
+    // (SF Symbol icon sizes are exempt — icons do not carry text.)
+    //
+    // `Font` has no public `size` accessor, so we assert the tokens equal the
+    // relative text styles they are defined as. A fixed `Font.system(size:)`
+    // would not equal any of these.
+    #expect(AuraDesign.Typography.body == Font.body)
+    #expect(AuraDesign.Typography.sectionTitle == Font.subheadline.weight(.semibold))
+    #expect(AuraDesign.Typography.meta == Font.caption)
+    #expect(AuraDesign.Typography.wordmark == Font.headline.weight(.semibold))
   }
 }

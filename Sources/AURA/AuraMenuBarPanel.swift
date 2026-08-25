@@ -19,8 +19,8 @@ struct AuraMenuBarPanel: View {
     VStack(alignment: .leading, spacing: AuraDesign.Spacing.m) {
       AuraStatusPill(
         status: model.status,
-        title: model.status.title,
-        detail: model.statusDetail)
+        title: model.status.title(for: language),
+        detail: model.displayStatusDetail)
 
       GlassEffectContainer(spacing: AuraDesign.Spacing.s) {
         VStack(spacing: AuraDesign.Spacing.s) {

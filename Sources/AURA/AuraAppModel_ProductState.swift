@@ -8,6 +8,48 @@ import AuraStore
 import Foundation
 
 extension AuraAppModel {
+  /// Localize a capability/integration disabled/degraded reason for the
+  /// current UI language.
+  ///
+  /// The reason strings are produced by subsystem availability enums in
+  /// English so they stay stable internal keys. This maps the known set to
+  /// the selected language so the capability and integration panels are
+  /// understandable in Turkish too, matching `displayStatusDetail`. Unknown
+  /// reasons fall through unchanged rather than being guessed.
+  func localizedReason(_ reason: String) -> String {
+    guard productUIState.language == .turkish else { return reason }
+    let map: [(String, String)] = [
+      ("VS Code bridge degraded: ", "VS Code köprüsü kısıtlı: "),
+      ("VS Code bridge disconnected: ", "VS Code köprüsü bağlantısı kesildi: "),
+      ("VS Code bridge not authenticated: ", "VS Code köprüsü kimliği doğrulanmadı: "),
+      ("VS Code bridge version mismatch: ", "VS Code köprüsü sürüm uyuşmazlığı: "),
+      ("The Safari read bridge is not configured.", "Safari okuma köprüsü yapılandırılmadı."),
+      ("Mail is not composed: ", "Posta oluşturulmadı: "),
+      ("No mail account is approved yet.", "Henüz onaylanmış posta hesabı yok."),
+      ("The mail adapter is not composed in this build.", "Bu sürümde posta bağdaştırıcısı yok."),
+      (" is approved but not connected.", " onaylandı ancak bağlı değil."),
+      ("The stored credential for ", "İçin saklanan kimlik bilgisi "),
+      (" is no longer valid.", " artık geçerli değil."),
+      ("Mail is unavailable: ", "Posta kullanılamıyor: "),
+      (" reading is turned off in configuration.", " okuma yapılandırmada kapatıldı."),
+      (" access has not been granted yet.", " erişimi henüz verilmedi."),
+      (" access is denied for AURA.", " erişimi AURA için reddedildi."),
+      (" reported an unrecognized authorization state.", " tanınmayan bir yetkilendirme durumu bildirdi."),
+      ("Safari bridge key store is unavailable", "Safari köprüsü anahtar deposu kullanılamıyor"),
+      ("Safari bridge is not provisioned for this profile", "Safari köprüsü bu profil için sağlanmadı"),
+      ("Safari extension or shared container is unavailable", "Safari uzantısı veya paylaşılan kapsayıcı kullanılamıyor"),
+      ("Safari bridge observation is stale", "Safari köprüsü gözlemi güncel değil"),
+      ("Safari bridge profile does not match the approved profile", "Safari köprüsü profili onaylanan profille eşleşmiyor"),
+      ("Safari bridge authentication failed", "Safari köprüsü kimlik doğrulaması başarısız"),
+      ("Safari extension sent a malformed observation", "Safari uzantısı bozuk bir gözlem gönderdi"),
+      ("Safari bridge is unavailable", "Safari köprüsü kullanılamıyor"),
+    ]
+    for (english, turkish) in map where reason.contains(english) {
+      return reason.replacingOccurrences(of: english, with: turkish)
+    }
+    return reason
+  }
+
   private func capabilityRow(
     manifest: CapabilityManifest,
     availability: CapabilityAvailability?
@@ -19,19 +61,20 @@ extension AuraAppModel {
     switch availability {
     case .ready:
       state = AuraCopy.text("capabilities.ready", language: productUIState.language)
-      detail = "Ready"
+      detail = AuraCopy.text("capabilities.ready", language: productUIState.language)
       isEnabled = true
     case .degraded(let reason):
       state = AuraCopy.text("capabilities.degraded", language: productUIState.language)
-      detail = reason
+      detail = localizedReason(reason)
       isEnabled = false
     case .disabled(let reason):
       state = AuraCopy.text("capabilities.disabled", language: productUIState.language)
-      detail = reason
+      detail = localizedReason(reason)
       isEnabled = false
     case nil:
       state = AuraCopy.text("capabilities.disabled", language: productUIState.language)
-      detail = "No availability evidence is registered"
+      detail = AuraCopy.text(
+        "capabilities.noEvidence", language: productUIState.language)
       isEnabled = false
     }
     return AuraCapabilityRow(
@@ -65,10 +108,10 @@ extension AuraAppModel {
       detail = AuraCopy.text("capabilities.ready", language: productUIState.language)
     case .degraded(let reason):
       state = AuraCopy.text("capabilities.degraded", language: productUIState.language)
-      detail = reason
+      detail = localizedReason(reason)
     case .disabled(let reason):
       state = AuraCopy.text("integrations.notConnected", language: productUIState.language)
-      detail = reason
+      detail = localizedReason(reason)
     }
     return AuraIntegrationRow(
       id: snapshot.capabilityID,

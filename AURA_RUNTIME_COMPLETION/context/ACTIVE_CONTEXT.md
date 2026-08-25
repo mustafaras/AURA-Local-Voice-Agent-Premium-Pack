@@ -1,27 +1,51 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-021` (pending; unopened)
-> **Current program state:** In progress; SP-020 completed, SP-021 pending, while R1/R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 and the broader program remain open.
-> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); the state projection commit `ed7900e3db8403df2ee7a1a5e6d65754b58e8091` realigns governance pointers. Current `main` and `origin/main` are synchronized at `ed7900e` with a clean worktree. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-022` (pending; UI controls, onboarding, and recovery)
+> **Current program state:** In progress; SP-020 and SP-021 completed, SP-022 pending, while R1-R12 and the broader program remain open.
+> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021 source/test/record edits are uncommitted. `HEAD == origin/main == 1d9f42c`; working tree `dirty_expected`. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
 
-## Second-pass synchronized overlay — 2026-08-25 (`SP-021` / `pending`)
+## Second-pass synchronized overlay — 2026-08-25 (`SP-022` / `pending`)
 
-SP-020 is **completed**: the exclusion branch closed the remote/provider
-residual — local-only is the explicit product boundary
-(`EV-SP-020-20260825-REMOTE-BOUNDARY-01`). ADR-043 is **Accepted** under the
-explicit local-only remote-boundary scope (2026-08-25, review 2026-09-07);
-`RISK-ADR-043-PENDING` is closed. SP-021 (accessibility and localization
-acceptance, R9) is next and unopened.
+`SP-021` / `completed` under `EV-SP-021-20260825-LIVE-ACCESSIBILITY-04` (with
+the user present and computer use authorized):
+- Added stable, non-localized accessibility identifiers for onboarding and
+  header controls (`onboardingPrimary/Skip/Close`, `languageSwitch`,
+  `settingsButton`, `onboardingButton`).
+- Fixed live Turkish localization defects: the status pill
+  (`AuraAppStatus.title(for:)`, `AuraAppModel.displayStatusDetail`), the
+  capability ready/no-evidence detail (`capabilities.noEvidence`), and the
+  disabled/degraded capability reason prose (`AuraAppModel.localizedReason(_:)`).
+- Fixed the `AuraAgentTests` `exit 142` flake: the buffered `ProcessRunner`
+  now always sets a closed stdin pipe, so `claude --help` no longer blocks on
+  inherited stdin EOF (it ignores SIGTERM, so the old code hung the bundle
+  past the watchdog).
+- Fixed Dynamic Type scaling: `AuraDesign.Typography` now uses relative text
+  styles (`Font.headline/subheadline/body/caption`), so the surface scales
+  with the user's accessibility text size (WCAG 1.4.4).
+- Live accessibility verification with the user present: the AX reading order
+  (header → status → language → actions → tabs → content → composer) is
+  logical and complete; keyboard-only focus reaches every primary control;
+  Turkish/English copy renders correctly (menu bar `AURA status: Boşta`,
+  subtitle `Yerel sesli asistan`); non-color status, keyboard shortcuts
+  (confirmation Deny/Allow, emergency stop Cmd+Shift+Escape, Push-to-Talk
+  Cmd+Shift+Space), confirmation expiry and `.isModal` focus containment, and
+  reduced motion (no animations) all verified. `AURAIntegrationTests` 88/88,
+  `AuraAgentTests` 237/237, full suite 21/21 bundles 0 failed, validator PASSED.
+
+**SP-021 is `completed`. SP-022 (UI controls, onboarding, and recovery) is
+`pending`; open it only under its own authority and read order.**
 
 Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
 only a `development_unverified` artifact is producible today.
 
-**Next safe action:** read SP-021's required control files and prompt in order
-under its own authority; no SP-021 implementation was performed here.
+
+**Next safe action:** run a user-present VoiceOver/keyboard/Dynamic Type/
+reduced-motion/contrast pass, then mark SP-021 completed and open SP-022 under
+its own authority.
 
 ## Verification correction overlay — 2026-08-24
 

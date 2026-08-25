@@ -39,7 +39,7 @@ struct BilingualSpeechRecognitionQualityTests {
   @Test("Turkish synthesized speech is recognized by the real recognizer")
   func turkishSpeechIsRecognized() async throws {
     let expected = "bugün hava nasıl"
-    let result = try await recognize(text: expected, voice: "Yelda", localeID: "tr-TR")
+    let result = try await recognize(text: expected, voice: "Kaan", localeID: "tr-TR")
     let overlap = tokenOverlap(recognized: result, expected: expected)
     #expect(result.isEmpty == false, "recognizer produced no transcript for Turkish audio")
     #expect(
@@ -65,8 +65,8 @@ struct BilingualSpeechRecognitionQualityTests {
   @Test("Engine locale selects the recognition language")
   func localeSelectsRecognitionLanguage() async throws {
     let turkish = "bugün hava nasıl"
-    let matched = try await recognize(text: turkish, voice: "Yelda", localeID: "tr-TR")
-    let mismatched = try await recognize(text: turkish, voice: "Yelda", localeID: "en-US")
+    let matched = try await recognize(text: turkish, voice: "Kaan", localeID: "tr-TR")
+    let mismatched = try await recognize(text: turkish, voice: "Kaan", localeID: "en-US")
 
     let matchedOverlap = tokenOverlap(recognized: matched, expected: turkish)
     let mismatchedOverlap = tokenOverlap(recognized: mismatched, expected: turkish)

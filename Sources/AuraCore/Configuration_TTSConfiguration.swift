@@ -24,7 +24,8 @@ public struct TTSConfiguration: Codable, Sendable, Equatable {
     adapterChain: TTSAdapterChain = TTSAdapterChain(),
     defaultLocale: String = "tr-TR",
     defaultRate: Double = 0.92,
-    preferredSystemVoiceIdentifier: String = "com.apple.voice.compact.tr-TR.Yelda",
+    preferredSystemVoiceIdentifier: String =
+      "com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium",
     enableBargeIn: Bool = true,
     enableAntiTrigger: Bool = true
   ) {
@@ -55,7 +56,7 @@ public struct TTSConfiguration: Codable, Sendable, Equatable {
     defaultRate = try container.decodeIfPresent(Double.self, forKey: .defaultRate) ?? 0.92
     preferredSystemVoiceIdentifier =
       try container.decodeIfPresent(String.self, forKey: .preferredSystemVoiceIdentifier)
-      ?? "com.apple.voice.compact.tr-TR.Yelda"
+      ?? "com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium"
     enableBargeIn = try container.decodeIfPresent(Bool.self, forKey: .enableBargeIn) ?? true
     enableAntiTrigger = try container.decodeIfPresent(Bool.self, forKey: .enableAntiTrigger) ?? true
   }

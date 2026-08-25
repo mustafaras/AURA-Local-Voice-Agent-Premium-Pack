@@ -8,7 +8,7 @@ extension ChatterboxTTSEngine {
     guard fallbackHealth.ready else {
       let health = TTSHealth(
         ready: false, status: "not-ready",
-        detail: "Chatterbox and female system fallback unavailable")
+        detail: "Chatterbox and system fallback unavailable")
       healthBox.set(health, neuralReady: false)
       return health
     }
@@ -16,14 +16,14 @@ extension ChatterboxTTSEngine {
     if !allowInjectedHelper, let issue = configuration.validationIssue() {
       let health = TTSHealth(
         ready: true, status: "fallback",
-        detail: "Female Yelda fallback active; \(issue)")
+        detail: "Kaan fallback active; \(issue)")
       healthBox.set(health, neuralReady: false)
       return health
     }
 
     let warming = TTSHealth(
       ready: true, status: "warming",
-      detail: "Female Yelda active while Chatterbox V3 warms locally")
+      detail: "Kaan active while Chatterbox V3 warms locally")
     healthBox.set(warming, neuralReady: false)
     Task { [weak self] in
       await self?.warmHelper()
@@ -67,7 +67,7 @@ extension ChatterboxTTSEngine {
       healthBox.set(
         TTSHealth(
           ready: true, status: "fallback",
-          detail: "Chatterbox failed; female Yelda fallback active"),
+          detail: "Chatterbox failed; Kaan fallback active"),
         neuralReady: false)
       await streamFallback(prompt, box: box)
     }
@@ -80,7 +80,7 @@ extension ChatterboxTTSEngine {
       healthBox.set(
         TTSHealth(
           ready: true, status: "fallback",
-          detail: "Neural TTS deferred by resource governor; female Yelda fallback active"),
+          detail: "Neural TTS deferred by resource governor; Kaan fallback active"),
         neuralReady: false)
       return false
     }
@@ -117,7 +117,7 @@ extension ChatterboxTTSEngine {
       healthBox.set(
         TTSHealth(
           ready: true, status: "stopped",
-          detail: "Chatterbox stopped; female Yelda fallback remains available"),
+          detail: "Chatterbox stopped; Kaan fallback remains available"),
         neuralReady: false)
       Task { [weak self] in
         await self?.warmHelper()
@@ -154,7 +154,7 @@ extension ChatterboxTTSEngine {
       healthBox.set(
         TTSHealth(
           ready: true, status: "fallback",
-          detail: "Chatterbox warm-up failed; female Yelda fallback active"),
+          detail: "Chatterbox warm-up failed; Kaan fallback active"),
         neuralReady: false)
     }
   }

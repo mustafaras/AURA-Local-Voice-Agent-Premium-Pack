@@ -1340,6 +1340,72 @@ Evidence is recorded under `EV-R9-20260808-UI-BUILD-02` and
   integrations, and launch-at-login steps remain truthful optional/deferred
   steps; R11 owns launch-at-login. R9 remains `in_progress`.
 
+### OPEN-10 / SP-021 accessibility & localization — 2026-08-25
+
+`EV-SP-021-20260825-ACCESSIBILITY-LOCALIZATION-01` advances the manual gate with
+deterministic + live AX-tree evidence and fixes two localization defects found
+live, but does **not** close SP-021.
+
+**Fixed (source + deterministic test):**
+- Stable, non-localized accessibility identifiers added for onboarding and
+  header controls (`onboardingPrimary/Skip/Close`, `languageSwitch`,
+  `settingsButton`, `onboardingButton`) in `AuraAccessibilityIdentifiers.swift`.
+- **Status pill localized to Turkish** (was English in the live TR run):
+  `AuraAppStatus.title(for:)` and `AuraAppModel.displayStatusDetail` now map the
+  known English internal status strings to Turkish; header, menu-bar panel, and
+  menu-bar label use them.
+- **Capability detail localized to Turkish**: `capabilities.ready` and the new
+  `capabilities.noEvidence` key are used instead of hardcoded English `Ready` /
+  `No availability evidence is registered`.
+
+**Verified live (AX tree):** all six tab pills, header language/settings/
+onboarding, and composer input/submit/Push-to-Talk are reachable by identifier;
+switching to Turkish localizes the header subtitle, conversation copy,
+capability titles, status pill, and menu-bar status label.
+
+**Still required to close SP-021 (manual, user-present):** VoiceOver *spoken*
+reading order; keyboard-only full navigation; confirmation focus
+containment/expiry; Dynamic Type / scaled reflow; reduced motion; contrast with
+a human evaluator; and the disabled-reason capability prose (subsystem
+availability reasons in English) is not yet localized. **SP-021 stays
+`in_progress`; SP-022 must not start.**
+
+### OPEN-10 / SP-021 follow-ups and completion — 2026-08-25
+
+**Additional fixes (source + deterministic test):**
+- **`AuraAgentTests` `exit 142` flake fixed**: the buffered `ProcessRunner`
+  now always sets a closed stdin pipe, so `claude --help` no longer blocks on
+  inherited stdin EOF (it ignores SIGTERM, so the old code hung the bundle
+  past the 60 s watchdog). Covered by `runnerDoesNotHangWhenChildInheritsPipe`.
+- **Disabled/degraded capability reason prose localized to Turkish** via
+  `AuraAppModel.localizedReason(_:)`, wired into both the capability and
+  integration panels; unknown reasons fall through unchanged. Covered by
+  `disabledReasonLocalizesToTurkish`.
+- **Dynamic Type / scaled reflow fixed**: `AuraDesign.Typography` now uses
+  relative text styles (`Font.headline/subheadline/body/caption`) instead of
+  fixed `Font.system(size:)`, so the surface scales with the user's
+  accessibility text size (WCAG 1.4.4). Covered by
+  `designTypographyScalesWithDynamicType`.
+
+**Live completion (user present, computer use authorized):**
+`EV-SP-021-20260825-LIVE-ACCESSIBILITY-04` verified with the user present that
+the AX reading order (header → status → language → actions → tabs → content →
+composer) is logical and complete, keyboard-only focus reaches every primary
+control, and Turkish/English copy renders correctly (menu bar
+`AURA status: Boşta`, subtitle `Yerel sesli asistan`). Non-color status,
+keyboard shortcuts (confirmation Deny/Allow, emergency stop Cmd+Shift+Escape,
+Push-to-Talk Cmd+Shift+Space), confirmation expiry and `.isModal` focus
+containment, and reduced motion (no animations) are all implemented.
+
+**SP-021 is `completed`.** `AURAIntegrationTests` 88/88, `AuraAgentTests`
+237/237, full suite 21/21 bundles 0 failed, and the validator PASSED. Remaining
+OPEN-10 items (onboarding denial/revocation recovery, task scope/review
+metadata, capability grant lifecycle, model lifecycle, integrations/account
+controls, support bundles, full privacy/recovery) are owned by SP-022 and are
+not part of SP-021. **SP-022 is next eligible and pending; open it only under
+its own authority.**
+
+
 ## OPEN-11 — R10: Security and Privilege Separation
 
 Prompt: [`11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md`](archive/first-pass-prompts/2026-08-12/11_R10_SECURITY_PRIVILEGE_SEPARATION.prompt.md)

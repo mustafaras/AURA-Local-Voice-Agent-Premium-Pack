@@ -158,6 +158,7 @@ struct AuraOnboardingView: View {
           .font(.title2.bold())
         Spacer()
         Button(copy("onboarding.close")) { model.closeOnboarding() }
+          .accessibilityIdentifier(AuraAccessibilityID.onboardingClose)
       }
       ProgressView(value: Double(model.productUIState.onboarding.stage.rawValue), total: 12)
         .accessibilityLabel(
@@ -169,10 +170,12 @@ struct AuraOnboardingView: View {
       HStack {
         if model.productUIState.onboarding.stage.isOptional {
           Button(copy("onboarding.skip")) { model.skipOptionalOnboardingStep() }
+            .accessibilityIdentifier(AuraAccessibilityID.onboardingSkip)
         }
         Spacer()
         Button(primaryLabel) { model.onboardingPrimaryAction() }
           .buttonStyle(.borderedProminent)
+          .accessibilityIdentifier(AuraAccessibilityID.onboardingPrimary)
       }
     }
     .padding(24)

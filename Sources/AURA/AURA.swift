@@ -30,8 +30,11 @@ struct AURAApp: App {
     MenuBarExtra {
       AuraMenuBarPanel(model: model, mainWindowID: Self.mainWindowID)
     } label: {
-      Label("AURA — \(model.status.title)", systemImage: model.status.symbolName)
-        .accessibilityLabel("AURA status: \(model.status.title)")
+      Label(
+        "AURA — \(model.status.title(for: model.productUIState.language))",
+        systemImage: model.status.symbolName)
+        .accessibilityLabel(
+          "AURA status: \(model.status.title(for: model.productUIState.language))")
     }
     .menuBarExtraStyle(.window)
 

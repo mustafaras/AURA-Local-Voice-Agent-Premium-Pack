@@ -95,7 +95,7 @@ func r8PreferenceProfileRoundTripsThroughASeparateStoreHandle() async throws {
   let firstProfiles = UserPreferenceProfileStore(memory: firstEngine)
   let profile = UserPreferenceProfile(
     preferredLanguage: "en-US", responseLength: .detailed,
-    voicePreference: "Yelda", activationPreference: "push-to-talk")
+    voicePreference: "Kaan", activationPreference: "push-to-talk")
   try await firstProfiles.save(profile)
 
   let secondStore = try await AuraStore(path: path)

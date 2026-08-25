@@ -70,8 +70,8 @@ extension AuraMenuView {
 
       AuraStatusPill(
         status: model.status,
-        title: model.status.title,
-        detail: model.statusDetail)
+        title: model.status.title(for: language),
+        detail: model.displayStatusDetail)
 
       Picker(
         "Language",
@@ -86,6 +86,7 @@ extension AuraMenuView {
       .labelsHidden()
       .frame(width: 84)
       .accessibilityLabel(language == .turkish ? "Arayüz dili" : "Interface language")
+      .accessibilityIdentifier(AuraAccessibilityID.languageSwitch)
 
       Button {
         model.beginOnboarding()
@@ -97,6 +98,7 @@ extension AuraMenuView {
       .help(copy("onboarding.title"))
       .accessibilityLabel(copy("onboarding.title"))
       .accessibilityHint(language == .turkish ? "Kurulum adımlarını açar" : "Opens guided setup")
+      .accessibilityIdentifier(AuraAccessibilityID.onboardingButton)
 
       Button {
         openSettings()
@@ -109,6 +111,7 @@ extension AuraMenuView {
       .accessibilityLabel(language == .turkish ? "Ayarlar" : "Settings")
       .accessibilityHint(
         language == .turkish ? "AURA ayarlarını açar" : "Opens AURA settings")
+      .accessibilityIdentifier(AuraAccessibilityID.settingsButton)
     }
     .accessibilityElement(children: .contain)
   }

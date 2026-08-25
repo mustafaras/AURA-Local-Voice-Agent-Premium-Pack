@@ -3,35 +3,50 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-08-25.
 
-## Authoritative current status — 2026-08-25T07:40:00Z (SP-020 completed)
+## Authoritative current status — 2026-08-25T16:20:00Z (SP-021 completed; SP-022 pending)
 
-The active second-pass prompt is **`SP-021` / `pending`** (accessibility and
-localization acceptance, R9). **`SP-020` is `completed`** under
-`EV-SP-020-20260825-REMOTE-BOUNDARY-01`: local-only is the explicit product
-boundary — a static inventory found no production remote-context transport or
-caller of `remotePublicOnly` / `ContextDeliveryPolicy(destination: .remoteModel)`;
-`ContextBuilder_Build.swift` rejects remote delivery without a separately
-redacted, user-approved turn summary; `PreferencePolicyBounds`
-(`cloudContextAllowed=false`) makes local-only non-weakening. `AuraContextTests`
-37/37 and `AuraMemoryTests` 30/30 pass; live socket traces in `EV-SP-019-…-14`
-show zero non-loopback peers. `RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE` is
-mitigated.
+The active second-pass prompt is **`SP-022` / `pending`** (UI controls,
+onboarding, and recovery, R9). **`SP-021` is `completed`** and **`SP-020` is
+`completed`** under `EV-SP-020-20260825-REMOTE-BOUNDARY-01`: local-only is the
+explicit product boundary — a static inventory found no production
+remote-context transport or caller of `remotePublicOnly` /
+`ContextDeliveryPolicy(destination: .remoteModel)`; `ContextBuilder_Build.swift`
+rejects remote delivery without a separately redacted, user-approved turn
+summary; `PreferencePolicyBounds` (`cloudContextAllowed=false`) makes local-only
+non-weakening. `AuraContextTests` 37/37 and `AuraMemoryTests` 30/30 pass; live
+socket traces in `EV-SP-019-…-14` show zero non-loopback peers.
+`RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE` is mitigated.
 
 At the user's direction, **ADR-043 is Accepted** under the explicit local-only
 remote-boundary scope (2026-08-25, review 2026-09-07); `RISK-ADR-043-PENDING`
 is closed. SP-019's eight live R8 scenarios passed on one build
-(`EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`). SP-021 is next and unopened.
+(`EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`).
 
-SP-019 product content was merged to `main` at
-`e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); the state projection
-commit `ed7900e3db8403df2ee7a1a5e6d65754b58e8091` realigns governance pointers.
-`HEAD == origin/main == ed7900e`; the worktree is clean.
+**SP-021 is `completed`** under `EV-SP-021-20260825-LIVE-ACCESSIBILITY-04`
+(with the user present and computer use authorized), building on
+`EV-SP-021-20260825-ACCESSIBILITY-LOCALIZATION-01`,
+`EV-SP-021-20260825-FOLLOWUP-02`, and `EV-SP-021-20260825-DYNAMIC-TYPE-LIVE-03`:
+stable non-localized onboarding/header accessibility identifiers were added;
+live Turkish localization defects were fixed (status pill, capability
+ready/no-evidence detail, disabled/degraded reason prose); the `AuraAgentTests`
+`exit 142` flake was fixed (ProcessRunner stdin EOF); Dynamic Type scaling was
+fixed (relative text styles). Live verification with the user present confirmed
+the AX reading order is logical and complete, keyboard-only focus reaches every
+primary control, and Turkish/English copy renders correctly. `AURAIntegrationTests`
+88/88, `AuraAgentTests` 237/237, full suite 21/21 bundles 0 failed, and the
+validator passed. **SP-022 is next eligible and pending; open it only under its
+own authority.**
+
+SP-020 product/state content is at `HEAD == origin/main ==
+1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021 source/test/record edits
+remain uncommitted and the worktree is `dirty_expected`.
 
 Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
 only a `development_unverified` artifact is producible today.
 
-**Next safe action:** read SP-021's required control files and prompt in order
-under its own authority; SP-021 remains unopened.
+**Next safe action:** run a user-present VoiceOver/keyboard/Dynamic Type/
+reduced-motion/contrast pass and localize the disabled-reason capability prose,
+then mark SP-021 completed and open SP-022 under its own authority.
 
 ## Verification correction — 2026-08-24T08:01:03Z
 

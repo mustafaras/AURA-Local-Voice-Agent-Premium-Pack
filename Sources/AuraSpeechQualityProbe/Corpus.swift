@@ -68,14 +68,14 @@ enum Corpus {
     CorpusUtterance(
       id: "tr-01-weather",
       localeID: "tr-TR",
-      voice: "Yelda",
+      voice: "Kaan",
       reference: "bugün hava nasıl",
       entities: [CorpusEntity("bugün"), CorpusEntity("hava")],
       band: "turkish-general"),
     CorpusUtterance(
       id: "tr-02-meeting",
       localeID: "tr-TR",
-      voice: "Yelda",
+      voice: "Kaan",
       reference: "yarın saat on beşte toplantı oluştur",
       entities: [
         CorpusEntity("yarın"),
@@ -86,7 +86,7 @@ enum Corpus {
     CorpusUtterance(
       id: "tr-03-mail",
       localeID: "tr-TR",
-      voice: "Yelda",
+      voice: "Kaan",
       reference: "okunmamış mesajları özetle",
       entities: [
         CorpusEntity("okunmamış"),
@@ -128,7 +128,7 @@ enum Corpus {
     CorpusUtterance(
       id: "mx-01-npm",
       localeID: "tr-TR",
-      voice: "Yelda",
+      voice: "Kaan",
       reference: "terminalde npm install çalıştır",
       entities: [
         CorpusEntity("npm install"),
@@ -138,7 +138,7 @@ enum Corpus {
     CorpusUtterance(
       id: "mx-02-pr",
       localeID: "tr-TR",
-      voice: "Yelda",
+      voice: "Kaan",
       reference: "pull request açıklamasını özetle",
       entities: [
         CorpusEntity("pull request"),

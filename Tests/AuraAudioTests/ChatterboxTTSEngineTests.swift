@@ -6,14 +6,14 @@ import Testing
 
 @Suite("Chatterbox TTS Engine")
 struct ChatterboxTTSEngineTests {
-  @Test func unconfiguredRuntimeUsesFemaleSystemFallbackContract() async throws {
+  @Test func unconfiguredRuntimeUsesSystemFallbackContract() async throws {
     let fallback = MockTTSEngine()
     let engine = ChatterboxTTSEngine(fallback: fallback)
 
     let health = try await engine.start()
     #expect(health.ready)
     #expect(health.status == "fallback")
-    #expect(health.detail.contains("Yelda"))
+    #expect(health.detail.contains("Kaan"))
 
     let chunks = await engine.speak(
       TTSPrompt(text: "Merhaba dünya", locale: "tr-TR")

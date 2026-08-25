@@ -319,6 +319,10 @@ enum AuraCopy {
     "capabilities.disabled": [.english: "Disabled", .turkish: "Devre dışı"],
     "capabilities.ready": [.english: "Ready", .turkish: "Hazır"],
     "capabilities.degraded": [.english: "Degraded", .turkish: "Kısıtlı"],
+    "capabilities.noEvidence": [
+      .english: "No availability evidence is registered",
+      .turkish: "Kayıtlı kullanılabilirlik kanıtı yok",
+    ],
     "models.title": [.english: "Model & Voice Center", .turkish: "Model ve Ses Merkezi"],
     "models.refresh": [.english: "Refresh model health", .turkish: "Model sağlığını yenile"],
     "models.local": [.english: "Local", .turkish: "Yerel"],

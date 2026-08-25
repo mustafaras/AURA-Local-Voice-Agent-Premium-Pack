@@ -17,8 +17,19 @@ enum AuraAppStatus: String, Sendable {
   case stopped
   case error
 
-  var title: String {
-    rawValue.capitalized
+  /// Localized short title for the status pill, so the live state is
+  /// understandable in the selected UI language, not only English.
+  func title(for language: AuraUILanguage) -> String {
+    switch self {
+    case .starting: return language == .turkish ? "Başlatılıyor" : "Starting"
+    case .restricted: return language == .turkish ? "Kısıtlı" : "Restricted"
+    case .idle: return language == .turkish ? "Boşta" : "Idle"
+    case .listening: return language == .turkish ? "Dinleniyor" : "Listening"
+    case .thinking: return language == .turkish ? "Düşünülüyor" : "Thinking"
+    case .speaking: return language == .turkish ? "Konuşuluyor" : "Speaking"
+    case .stopped: return language == .turkish ? "Durduruldu" : "Stopped"
+    case .error: return language == .turkish ? "Hata" : "Error"
+    }
   }
 
   var symbolName: String {
@@ -86,6 +97,38 @@ final class AuraAppModel: ObservableObject {
   var kernel: AuraKernel?
   var eventBus: AuraEventBus?
   var bootTask: Task<Void, Never>?
+
+  /// Localized rendering of `statusDetail` for the current UI language.
+  ///
+  /// The status detail is produced by runtime code in English so it stays a
+  /// stable internal key. This maps the known set to the selected language so
+  /// the live state pill is understandable in Turkish too, matching
+  /// `AuraAppStatus.title(for:)`.
+  var displayStatusDetail: String {
+    let detail = statusDetail
+    guard productUIState.language == .turkish else { return detail }
+    switch detail {
+    case "Starting local services": return "Yerel hizmetler başlatılıyor"
+    case "Waiting for voice permissions": return "Ses izinleri bekleniyor"
+    case "Ready — use Push to Talk": return "Hazır — Bas Konuş'u kullanın"
+    case "Voice permissions are required for speech input":
+      return "Sesli giriş için ses izinleri gerekli"
+    case "Grant microphone and Speech Recognition access first":
+      return "Önce mikrofon ve Konuşma Tanıma erişimi verin"
+    case "Listening on device": return "Cihazda dinleniyor"
+    case "Processing typed request": return "Yazılı istek işleniyor"
+    case "Generated input is disabled until explicitly re-armed":
+      return "Üretilen giriş açıkça yeniden etkinleştirilene dek devre dışı"
+    case "Voice permissions required": return "Ses izinleri gerekli"
+    case "Voice permissions are required before continuing":
+      return "Devam etmeden önce ses izinleri gerekli"
+    case "Complete voice permission onboarding":
+      return "Ses izni kurulumunu tamamlayın"
+    case "Emergency stop active": return "Acil durdurma etkin"
+    case "Waiting for speech permissions": return "Ses izinleri bekleniyor"
+    default: return detail
+    }
+  }
 
   init(startRuntime: Bool = true) {
     if let rawLanguage = UserDefaults.standard.string(forKey: "aura.ui.language"),

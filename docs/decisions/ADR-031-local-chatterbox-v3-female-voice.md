@@ -26,9 +26,9 @@ and model revisions instead of silently labeling a V2 wheel as V3.
    for every downloaded model artifact.
 3. Communicate through bounded newline-delimited JSON over stdin/stdout.
    Transcript text is never placed in argv or sent to a network endpoint.
-4. Start the configured female `tr-TR` Yelda system voice immediately. Neural
+4. Start the configured premium neural `tr-TR` Kaan system voice immediately. Neural
    warm-up happens asynchronously; any validation, startup, synthesis, path, or
-   playback failure returns to Yelda without exposing helper error internals.
+   playback failure returns to Kaan without exposing helper error internals.
 5. Enable neural production speech only when
    `Voices/aura-female-reference.wav` is readable. That file must be owned by
    the user or accompanied by explicit speaker consent. It is never bundled,
@@ -62,6 +62,6 @@ and model revisions instead of silently labeling a V2 wheel as V3.
   WAV metadata, and device fallback without remote transcript or audio transfer. **Met**.
 - Final product acceptance remains open until an owned/consented female WAV and
   one human-listened Turkish turn are available. The user has deferred this
-  gate; until it is supplied, AURA remains on the local female `tr-TR` Yelda
-  system voice and never represents the generic model output as the accepted
-  female persona.
+  gate; until it is supplied, AURA remains on the local premium neural `tr-TR`
+  Kaan system voice and never represents the generic model output as the
+  accepted female persona.
