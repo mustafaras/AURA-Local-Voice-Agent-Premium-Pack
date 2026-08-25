@@ -201,7 +201,7 @@ func expiredFlagAndKillSwitchOverrideEveryOtherDecision() async throws {
     purpose: "Bounded experiment",
     expiresAt: clock.now().addingTimeInterval(60),
     defaultEnabled: true,
-    rollbackPlan: "Disable and use Yelda")
+    rollbackPlan: "Disable and use Kaan")
   #expect(try await subject.registerFeatureFlag(flag).accepted)
   try await subject.setFeatureFlagOverride(
     key: flag.key, enabled: true, userID: "local-user")

@@ -132,7 +132,7 @@ struct ChatterboxTTSEngineTests {
     try await waitUntilReady(engine)
 
     let chunks = await engine.speak(
-      TTSPrompt(text: "Zaman aşımı sonrası Yelda.", locale: "tr-TR")
+      TTSPrompt(text: "Zaman aşımı sonrası Kaan.", locale: "tr-TR")
     ).reduce(into: [TTSChunk]()) { $0.append($1) }
 
     #expect(chunks.last == .complete)
