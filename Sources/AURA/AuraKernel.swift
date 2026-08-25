@@ -36,6 +36,7 @@ actor AuraKernel {
   var policyEngine: PolicyEngine?
   var taskEngine: AuraTaskEngine?
   var memoryEngine: MemoryEngine?
+  var preferenceProfileStore: UserPreferenceProfileStore?
   var automation: AuraAutomation?
   /// SP-004's typed adapter behind `filesystem.open_file`,
   /// `filesystem.open_folder`, `filesystem.reveal`, and `url.open`. Reachable

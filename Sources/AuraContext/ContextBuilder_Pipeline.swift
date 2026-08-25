@@ -8,21 +8,13 @@ extension ContextBuilder {
   func parse(_ utterance: String) -> ParsedContextUtterance {
     let normalized = utterance.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
     let tokens = ContextRanking.tokenize(normalized).sorted()
-    let phrases = [
-      "previous test", "last test", "that repo", "that repository", "the repository",
-      "the repo", "the draft", "send the draft", "ask claude", "ask codex", "ask copilot",
-      "last file", "previous file", "the last one", "the file", "the document", "the app",
-      "that", "it",
-    ]
-    let reference = phrases.first { containsPhrase(normalized, phrase: $0) }
+    let reference = ImplicitReferencePhrases.firstMatch(in: normalized)
     return ParsedContextUtterance(
       normalized: normalized, tokens: tokens, implicitReference: reference)
   }
 
   func containsPhrase(_ text: String, phrase: String) -> Bool {
-    if phrase.contains(" ") { return text.contains(phrase) }
-    let words = text.split { !$0.isLetter && !$0.isNumber }.map(String.init)
-    return words.contains(phrase)
+    ImplicitReferencePhrases.contains(text, phrase: phrase)
   }
 
   func applyingIntentCapability(

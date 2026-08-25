@@ -143,6 +143,10 @@ extension IntentEngine {
       capability: Capability.forIntent(intent.semanticCategory),
       confidence: intent.classificationConfidence,
       entityHints: intent.slots.map(\.value))
+    // If the previous turn ended in an ambiguous reference, this turn may be
+    // the user's answer. Consuming it here is what gives
+    // `ReferenceResolver.explicitlyConfirmedTargetID` a production producer.
+    let confirmedTargetID = confirmedReferenceTargetID(forAnswer: intent.rawUtterance)
     lastContextResult = nil
     do {
       let result = try await contextBuilder.build(
@@ -153,9 +157,11 @@ extension IntentEngine {
           activeWorkspace: assembled.snapshot.activeWorkspace,
           scope: MemoryScope(sessionID: context.sessionID),
           referenceCandidates: assembled.candidates,
+          explicitlyConfirmedTargetID: confirmedTargetID,
           referenceDate: now()),
         actor: .intent, correlationID: context.correlationID)
       lastContextResult = result
+      recordReferenceClarification(from: result)
       return result
     } catch {
       _ = await emit(
@@ -208,16 +214,7 @@ extension IntentEngine {
   }
 
   private func implicitReference(in utterance: String) -> String? {
-    let phrases = [
-      "previous test", "last test", "that repo", "that repository", "the repository",
-      "the repo", "the draft", "send the draft", "ask claude", "ask codex", "ask copilot",
-      "last file", "previous file", "the last one", "the file", "the document", "the app",
-      "that", "it",
-    ]
-    return phrases.first { phrase in
-      if phrase.contains(" ") { return utterance.contains(phrase) }
-      return utterance.split { !$0.isLetter && !$0.isNumber }.map(String.init).contains(phrase)
-    }
+    ImplicitReferencePhrases.firstMatch(in: utterance)
   }
 
   /// Persist the classified intent as a working-conversation memory record,

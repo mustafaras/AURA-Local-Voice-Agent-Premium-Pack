@@ -2191,3 +2191,328 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - **Falsifier:** a later remote-pointer mismatch, an open PR requiring merge, failed manifest validation, or a signed/public artifact produced by the repository's defined builder would falsify this delivery receipt.
 - **Residual / boundary:** no production deploy occurred because no authorized target exists and R11/R12 signing, notarization, clean-machine, release-candidate, and beta gates remain open. No install, publish, provider, TCC, telemetry, beta, or external release action occurred.
 - **State reconciliation:** `current-state.json`, `SECOND_PASS_STATE.json`, capability matrix, active context, session handoff, current-state projection, evidence index, and ledgers now point to the pushed commit and clean worktree. SP-019 remains pending and no SP-019 implementation was performed.
+
+### 2026-08-24T07:57:49Z — SP-018 verification correction — AuraAgentTests runner isolation
+
+- **Exact symptom / missing postcondition:** a fresh default full-matrix run
+  exposed a scheduling-dependent failure in
+  `orchestratorSpecialistSwarmIsolatesOneTaskFailureFromOthers()`: two failed
+  and one approved result were observed instead of one failed and two
+  approved results. The test passed in isolation, so the prior full-run
+  acceptance was not reproducibly stable at the runner boundary.
+- **Mechanism / root cause / layer:** Swift Testing's unrestricted parallel
+  executor allowed live CLI probes, real git worktree operations, and
+  actor-backed bounded fixtures in the `AuraAgentTests` bundle to contend with
+  the full 21-bundle schedule. The involved layer was the repository test
+  runner and Swift Testing toolchain boundary, not `MemoryEngine`,
+  `ContextBuilder`, `ReferenceResolver`, or the production composition path.
+- **Direct change / acceptance procedure:** `scripts/aura-test.sh` now supplies
+  `SWT_EXPERIMENTAL_MAXIMUM_PARALLELIZATION_WIDTH=1` only to `AuraAgentTests`,
+  defaulting through `AURA_AGENT_TEST_PARALLELIZATION_WIDTH`; the behavior is
+  asserted by `scripts/tests/test_aura_test_runner.py` and documented in
+  `README.md`. The regression test, corrected 237-test bundle, and default
+  21-bundle matrix were rerun.
+- **Evidence ID / class:**
+  `EV-SP-018-20260824-TEST-RUNNER-FIX-06`, direct runner execution plus a
+  source-level regression test. The evidence records timestamp, branch/commit,
+  environment, commands, results, log paths and hashes, scope, and limits.
+- **Falsifier:** a fresh default run with the bounded width that reproduces the
+  same specialist-swarm count mismatch, or a focused production-composition
+  test showing safe in-scope references still fail to resolve or unsafe
+  ambiguity reaches routing, would falsify the correction.
+- **Residual risk / why outside this prompt:** the environment variable is an
+  experimental Swift Testing toolchain control and needs revalidation if the
+  toolchain changes. It does not establish launched-app restart, user-present
+  memory controls, remote/provider, R9, signing, release, or deployment
+  acceptance; those remain outside this runner correction and the bounded
+  OPEN-09 gate.
+- **Why SP-019 is now safe to start:** the correction restores a deterministic
+  local verification boundary without changing SP-018's product behavior,
+  state, or authority. The SP-018 production gate remains met, all required
+  correction evidence and validators pass, and no SP-019 implementation was
+  performed. SP-019 remains the first pending prompt under its own authority.
+- **Acceptance verdict:** SP-018 remains `completed` for OPEN-09's bounded
+  local production reference-wiring slice; this correction is uncommitted and
+  R8/the overall program remain `in_progress`.
+
+### 2026-08-24T08:45:49Z — SP-019 local controls attempt and live gate reconciliation
+
+- **Session / actor:** `AURA-SP-019-ATTEMPT-20260824`; Codex.
+- **Prompt / authority:** SP-019 / OPEN-09 / R8 only. The prompt authorized
+  bounded app launch for this attempt. Edit and that launch procedure were
+  used; install, TCC mutation, provider contact, remote transport, model or
+  dependency installation, telemetry/beta, signing, commit, push, merge,
+  release, and deployment remained unauthorized and were not performed.
+- **Verified repository state:** branch `main`; start and end `HEAD ==
+  origin/main == ed55a0c8db9c63059c7639f9160efebaf44816ac`; worktree dirty with
+  existing SP-018 verification changes preserved and SP-019 changes added.
+- **Objective / assumptions / risks / acceptance criteria:** make the bounded
+  memory preference and R9 controls reachable through production composition;
+  preserve append-only provenance, audit exclusion, policy non-weakening, and
+  no hidden authority transfer; then prove the eight R8 scenarios through the
+  launched product. The implementation assumed the existing `MemoryEngine`,
+  `UserPreferenceProfileStore`, `AuraKernel`, and Privacy surface were the
+  authorized seams. The acceptance criteria were the eight user-visible
+  scenarios named by R8 plus validator, test, evidence, ledger, and cognitive
+  gates in SP-019.
+- **Exact symptom / missing postcondition:** the profile store existed but was
+  not wired into the production kernel's runtime lifecycle, and the Privacy
+  surface did not expose the full memory control set. User correction also
+  reached `MemoryEngine.correct` without an evidence reference, so the typed
+  correction path could reject a user-stated correction. A launched-process
+  restart and all eight product postconditions had no current direct evidence.
+- **Mechanism / root cause / layer:** the missing production composition
+  reference and AppModel/runtime projection were product integration defects;
+  the empty correction evidence was an API-boundary defect. The absent live
+  proof is an operator/evidence-layer limitation, not a deterministic test
+  failure. `MemoryEngine` already enforced the bounded, append-only and
+  fail-closed policy mechanisms.
+- **Direct change / acceptance procedure:** `AuraKernel` now retains a bounded
+  `UserPreferenceProfileStore`; runtime APIs expose profile load/save/clear,
+  conflict inspection/resolution, superseded-record inspection, and retention
+  enforcement; AppModel/runtime restores the profile on launch; Privacy exposes
+  purpose/scope/retention text, search, conflict triage, correction/deletion,
+  export, and cleanup; user correction supplies an evidence reference. The
+  final source/build/test procedure passed. A LaunchServices smoke started and
+  stopped the final app, but no UI control was operated; temporary HOME did not
+  isolate Application Support.
+- **Evidence IDs / classes:**
+  `EV-SP-019-20260824-LOCAL-CONTROLS-01` — direct production source/build plus
+  deterministic integration/regression and governance evidence;
+  `EV-SP-019-20260824-LAUNCH-SMOKE-02` — direct process startup/stop evidence,
+  explicitly not user-present product evidence.
+- **Acceptance by criterion:** production composition and bounded profile
+  wiring — **met deterministically**; inspect/search and scope/purpose/
+  retention projection — **met deterministically**; conflict/correction/
+  deletion/export/retention/audit exclusion — **met by local tests and product
+  wiring, not live demonstrated**; preference across a launched-app restart —
+  **not met**; verified tool fact — **not met live**; multi-turn reference —
+  **not met live**; destructive ambiguity clarification — **not met live**;
+  contradiction surfaced/resolved — **not met live**; provenance display —
+  **not met live**; local-only remote exclusion — **not met as a direct live
+  transport observation**. Overall SP-019 completion gate: **not met**.
+- **Cognitive completion — falsifier:** a fresh full matrix or focused test
+  failure, a production launch that cannot restore a saved profile, a user
+  correction rejected for missing evidence, audit content appearing in the
+  inspect/export projection, a retention purge deleting an active record, or a
+  risky action receiving authority from a memory record would falsify the
+  bounded local conclusion. A direct user-present run that passes all eight
+  scenarios would falsify only the current live-acceptance blocker.
+- **Residual risk / why outside this prompt's completed branch:** no user was
+  present to operate the controls and no safe isolated Application Support
+  sandbox was available through the LaunchServices smoke. Remote/provider
+  transport, ADR-043 acceptance, R9 accessibility/manual acceptance, model
+  quality/latency, signing, release, and deployment remain outside this
+  deterministic slice. These are recorded under
+  `RISK-SP-019-LIVE-MEMORY-CONTROLS` and the existing R8/R9 risks.
+- **Why SP-020 is not safe to start:** SP-019's required evidence class and
+  all eight live/product scenarios are incomplete; the stop condition requires
+  `in_progress` or `blocked` and forbids advancing. SP-020 must not start.
+- **Exact next safe action:** with the user present, launch
+  `/tmp/aura-sp019-final-app/AURA.app`, save an explicit bounded preference,
+  quit and relaunch through LaunchServices, verify the saved profile and
+  purpose/scope/retention, then run the eight R8 scenarios with redacted
+  evidence only. Reconcile the observed state in a new `EV-SP-019` record,
+  rerun the validator and closeout prompt, and only then decide whether SP-019
+  can complete. Do not start SP-020.
+
+### 2026-08-24T09:42:05Z — SP-019 closeout reconciliation
+
+- **Closeout evidence:** `EV-SP-019-20260824-CLOSEOUT-03`.
+- **Final checks:** second-pass, runtime-completion, repo-hygiene,
+  supply-chain, JSON/schema, governance-test, and diff checks passed after the
+  state projections were updated.
+- **Final state:** SP-019 remains `in_progress` because the live evidence stop
+  condition is still active; authority resets to edit-only and SP-020 remains
+  unopened.
+
+### 2026-08-24T10:50:50Z — SP-019 user-present controls reconciliation
+
+- **Exact symptom / missing postcondition:** the previous record had no direct
+  user-present proof for restart persistence or Privacy control operation. This
+  attempt proved the bounded `Concise` profile across a real quit/relaunch and
+  exposed live inspect/correct/retention/audit/local-only controls, but the
+  eight-scenario gate still lacks a verified tool fact, resolved reference,
+  destructive clarification, contradiction resolution, export artifact, and
+  deletion receipt.
+- **Mechanism / root cause / layer:** the product controls and persistence path
+  are now reachable; the remaining failures are evidence/provider/operator
+  boundaries. The local app had no verified tool result for the project-fact
+  request, the follow-up reference surfaced `ambiguous`, no conflict was
+  created in the disposable profile, and the native Save panel did not yield a
+  located artifact. The irreversible Delete action was held at the
+  Computer-Use confirmation boundary.
+- **Direct change / acceptance procedure:** launched the final app with
+  `CFFIXED_USER_HOME`, saved `Concise`, used the AURA menu's `Quit AURA`,
+  relaunched through LaunchServices with the same profile, inspected the
+  resulting rows, corrected the live working-conversation row, invoked
+  retention cleanup, attempted the remote-context toggle (policy rejected it),
+  restored local-only, and opened the native export panel. No permanent delete
+  was performed.
+- **Evidence ID / class:**
+  `EV-SP-019-20260824-LIVE-CONTROLS-04`, direct user-present structured UI
+  evidence with redacted observations and hashed local artifacts. It is
+  partial evidence, not a completion record.
+- **Falsifier:** failure to restore `Concise` on a fresh isolated relaunch,
+  any saved profile with `localOnly: false` under the current machine policy,
+  audit/security content appearing in inspection/export, or a correction that
+  loses user-stated provenance would falsify the direct conclusions. A
+  located export artifact, visible conflict plus resolution, verified tool
+  result, and deletion receipt are still required to falsify the incomplete
+  verdict.
+- **Residual risk / outside this prompt:** live provider/tool execution,
+  conflict-generation coverage, export path completion, irreversible deletion,
+  direct remote-transport trace, ADR-043 acceptance, R9 manual accessibility,
+  signing, release, and deployment remain outside the proven subset. They are
+  not promoted from deterministic tests or UI labels.
+- **Why SP-020 is not safe to start:** SP-019's completion gate requires all
+  eight R8 live/product scenarios and the evidence/cognitive gates. Multiple
+  required evidence classes remain missing, and the prompt's stop condition
+  forbids advancing. SP-019 stays `in_progress`; SP-020 remains unopened.
+
+## SP-019 — Live memory controls, conflicts, and restart — 2026-08-24 (tool-evidence wiring attempt)
+
+- **Symptom / missing postcondition:** five R8 scenarios stood unproven after
+  the export evidence — verified tool fact, resolved multi-turn reference,
+  contradiction plus resolution, deletion receipt, and direct transport trace.
+  The recorded reading was that a live attempt had failed.
+- **Mechanism and root cause:** for four of them the reading was wrong. The
+  behaviour did not exist in the product, so no procedure could have produced
+  it. The intent/memory layer was involved: `IntentEngine.persistIntentAsMemory`
+  was the *only* live memory write, emitting `.workingConversation` with
+  `.systemDerived(source: .intent)` provenance under the globally unique subject
+  `intent:<uuid>`. Consequently `MemoryClass.projectFact`,
+  `MemoryProvenance.observed`, and `MemoryWriteSource.verifiedToolEvidence` had
+  no production producer at all, and `ContradictionDetector` — which keys on
+  `(memoryClass, subject, scope)` — could never fire. In the context layer,
+  `ReferenceResolver.explicitlyConfirmedTargetID` likewise had no producer, so
+  a clarifying question's answer had no path back into resolution. In the
+  product layer, `AuraKernel.deleteMemoryRecord` discarded the engine's
+  `MemoryDeletionReceipt`. The transport item was different in kind: the prior
+  evidence was a policy refusal, which proves the policy layer refuses, not that
+  the transport layer stayed silent.
+- **Direct change / acceptance procedure:** a bounded `ToolObservation` seam now
+  carries a successful tool result from `ToolRouter` through
+  `IntentDispatchCoordinator` into memory as a globally scoped `.projectFact`
+  with `.observed` provenance and a **stable fact key** — which is precisely what
+  makes a second, differing observation collide and raise a contradiction. A
+  reference-clarification round trip retains the offered candidates and populates
+  `explicitlyConfirmedTargetID` only when the answer names exactly one of them.
+  The deletion receipt is returned, retained, and rendered. Acceptance was then
+  run in the launched app under an isolated `CFFIXED_USER_HOME`, driving the real
+  composer and Privacy controls, with a new read-only socket-table probe
+  observing the live process.
+- **Evidence ID / class:** `EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08`
+  (root-cause plus deterministic regression, 21/21 bundles, 1,160 tests);
+  `EV-SP-019-20260824-LIVE-PROJECT-FACT-09` (direct user-present acceptance —
+  verified tool fact, contradiction, user resolution, restart persistence);
+  `EV-SP-019-20260824-LIVE-DELETION-RECEIPT-10` (direct user-present irreversible
+  deletion under explicit action-time authorization, with its receipt);
+  `EV-SP-019-20260824-TRANSPORT-TRACE-11` (direct transport observation);
+  `EV-SP-019-20260824-MEMORY-AUTHORITY-12` (live refusal plus adversarial
+  authority proof).
+- **Falsifier:** a `projectFact` recorded with `.systemDerived` or `.inferred`
+  provenance; a second differing observation that raised no conflict; a conflict
+  resolution that did not persist across restart; a deleted record still present
+  in `memory_records`; any sampled socket with a non-loopback peer; or a
+  destructive command executing on the strength of dialogue-context content.
+- **Residual risk / outside this prompt:** the multi-turn reference scenario is
+  proven only deterministically. A newly identified limitation —
+  `RISK-SP-019-REFERENCE-UNREACHABLE` — is that the production rule-based
+  classifier cannot emit an intent carrying an unresolved implicit reference
+  (`classifyFileCommand` requires a path shape, `classifyAppCommand` a known app
+  name, and `applyingResolvedReference` covers only `.fileOpen`/`.appActivate`/
+  `.appTerminate`). Reaching the resolver in production needs the structured-NLU
+  backend, which is a separate capability and outside SP-019's boundary. Also
+  outside: ADR-043 acceptance, R9 manual accessibility, signing, release, and
+  deployment.
+- **Why SP-020 is not safe to start:** SP-019's completion gate requires all
+  eight R8 live/product scenarios with user-visible controls. Seven now carry
+  direct live evidence; the multi-turn reference scenario does not, and the
+  reason is a real product limitation rather than a procedural miss. The stop
+  condition therefore applies: SP-019 stays `in_progress` and SP-020 remains
+  unopened.
+
+## SP-019 — multi-turn reference reachability — 2026-08-24
+
+- **Symptom / missing postcondition:** the multi-turn reference scenario was the
+  last of the eight without live evidence. Recorded as blocked by
+  `RISK-SP-019-REFERENCE-UNREACHABLE`.
+- **Mechanism and root cause:** one guard in the intent layer.
+  `classifyFileCommand` accepted an open-prefixed target only when
+  `looksLikePath(target)` held and otherwise returned `nil`, handing the
+  utterance to `classifyAppCommand`, which matched no application and produced
+  `.unknown`. `TypedIntent.applyingResolvedReference` binds only `.fileOpen`,
+  `.appActivate`, and `.appTerminate`, so a resolved reference could never
+  attach and the assembler/resolver/gate chain was dead in the shipped app.
+  `ProductionReferenceWiringTests` masked it by driving a fixture classifier
+  that already returned `.fileOpen` with no slot for exactly that utterance —
+  the fixture encoded behaviour production did not have.
+- **Direct change / acceptance procedure:** an open-prefixed target that is a
+  known reference phrase now yields the intent with its target slot empty
+  (`.fileOpen`, or `.appActivate` for `the app`) at confidence 0.7 — above the
+  0.6 gate, below an explicit path's 0.85. The reference phrase list, previously
+  three diverging literals, moved to one definition in `AuraCore`. Acceptance
+  ran four utterances through the production `submitText()` path in a launched,
+  isolated-profile app.
+- **Evidence ID / class:** `EV-SP-019-20260824-LIVE-REFERENCE-13` — root-cause
+  fix plus direct user-present acceptance. `open the file` returned
+  `Blocked: ambiguous` with a clarifying question while two candidates were
+  plausible; `open the file alpha` resolved to alpha, bound `filePath`, and
+  opened the real file. Memory records carry the distinction durably (turn 3
+  `classified intent: fileOpen` with no slot; turn 4 the same kind
+  `; slots: filePath`). Full matrix 21/21 bundles, 1,164 tests, 0 failed, with a
+  new suite that uses the real classifier rather than a fixture.
+- **Falsifier:** a reference resolving while several candidates remain
+  plausible, an answer binding beta when the user named alpha, `open safari`
+  regressing to `.fileOpen`, or a reference intent emitted below the confidence
+  gate.
+- **Residual risk / outside this prompt:** `revealPrefixes` still requires a
+  path-shaped target, so "show the file" remains unreachable; that is a
+  follow-up, not one of SP-019's scenarios.
+- **Why SP-019 is not yet `completed`:** all eight scenarios now carry direct
+  live evidence, but across three builds — preference restart, correction, and
+  export on `e7409130…`; tool fact, contradiction, deletion, authority, and
+  transport on `efe42a2c…`; reference on `ee4d9735…`. The intervening changes
+  are additive and do not touch the preference, correction, or export paths, but
+  a completion claim should rest on one consolidated acceptance run. SP-019
+  stays `in_progress` for that bounded step; SP-020 remains unopened.
+
+## SP-019 — completion: consolidated acceptance on one build — 2026-08-25
+
+- **Symptom / missing postcondition:** the eight R8 scenarios each had live
+  evidence, but spread across three builds. A completion claim resting on three
+  binaries is not a completion claim.
+- **Mechanism and root cause:** not a defect — an evidence-hygiene gap created
+  by fixing product wiring between acceptance attempts. Each fix produced a new
+  binary, and earlier scenarios were never re-run against the later ones.
+- **Direct change / acceptance procedure:** one build
+  (`fccf15204202b7c3f71815a2ff547e5706907dfe2caa1d30dea29d0157989f00`) was
+  driven through all eight scenarios in a single isolated `CFFIXED_USER_HOME`
+  profile: preference save and quit/relaunch; a confirmed `run /bin/date`; the
+  reference ambiguity-then-answer pair; a second `/bin/date` and its conflict
+  resolution; a row correction; retention cleanup, export, and an authorized
+  permanent deletion; the machine-policy refusal of remote context; an
+  unconfirmed mutation-tier command left to expire; and two transport traces.
+- **Evidence ID / class:** `EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14` —
+  consolidated user-present acceptance. Supporting records
+  `EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08` through `-13` retain the
+  root-cause analysis and the per-scenario first observations.
+- **Falsifier:** any one of the eight scenarios failing on a single-build
+  re-run; specifically a preference lost across relaunch, a `projectFact` with
+  non-`observed` provenance, a reference resolving while two candidates remain
+  plausible, a contradiction that overwrote rather than retained, a correction
+  without its supersession link, a deleted record still present,
+  `auditSecurity` inside an export, a preference save widening machine policy,
+  or any non-loopback peer.
+- **Residual risk / outside this prompt:** reveal-by-reference and
+  expiry-driven retention purging are covered only deterministically.
+  Remote/provider acceptance, ADR-043, manual accessibility, signing,
+  notarization, release, and deployment remain owned by SP-020 and the R11/R12
+  prompts.
+- **Why SP-020 is now safe to start:** SP-019's completion gate — all eight R8
+  live/product scenarios with user-visible controls and no hidden authority
+  transfer — is met on one build, with the two authority scenarios observed as
+  explicit refusals rather than inferred. The evidence, risk, decision, and
+  state records are synchronized and the validators are green, so SP-020's
+  remote-context boundary work starts from a truthful projection.

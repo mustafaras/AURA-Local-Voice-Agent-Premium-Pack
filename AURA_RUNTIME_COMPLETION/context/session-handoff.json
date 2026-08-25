@@ -1,22 +1,24 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-23T17:14:04Z",
-  "session_id": "AURA-SP-018-IMPLEMENTATION-20260823",
-  "last_verified_commit": "1d3efca0944334be19a2d68abbb4c199bba15d87",
+  "updated_at": "2026-08-25T06:43:51Z",
+  "session_id": "AURA-SP-019-ATTEMPT-20260824",
+  "last_verified_commit": "ed55a0c8db9c63059c7639f9160efebaf44816ac",
   "active_prompt": {
-    "id": "SP-019",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
+    "id": "SP-020",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-020_REMOTE_CONTEXT_BOUNDARY_AND_ADR_043.prompt.md",
     "state": "pending",
-    "step": "SP-018 / OPEN-09 is completed for the bounded local production reference-wiring slice. SP-019 has not started; read its own prompt and required control files before any action."
+    "step": "SP-019 is completed: all eight R8 live/product scenarios passed on the single build fccf1520 under EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14. SP-020 (remote context boundary and ADR-043) is next and unopened."
   },
-  "summary": "SP-018 connected bounded, provenance-aware reference candidates through AuraKernel -> IntentEngine -> ContextBuilder -> ReferenceResolver. Safe references resolve with typed evidence; stale, out-of-scope, weak, missing, or ambiguous action references clarify before routing. R8 and the overall program remain in progress.",
+  "summary": "SP-019 second attempt. Four of the five scenarios still open were traced to missing product paths rather than failed procedures: no production site wrote MemoryClass.projectFact, produced MemoryProvenance.observed, or used MemoryWriteSource.verifiedToolEvidence; ContradictionDetector was unreachable because the only live subject was the globally unique intent:<uuid>; ReferenceResolver.explicitlyConfirmedTargetID had no producer; and AuraKernel.deleteMemoryRecord discarded the engine's MemoryDeletionReceipt. A bounded ToolObservation seam, a stable fact key with global scope, a reference-clarification round trip, and a surfaced deletion receipt were wired and covered by 19 new tests (full matrix 21/21 bundles, 1,160 tests, 0 failed). Live acceptance in an isolated CFFIXED_USER_HOME profile then produced a verified tool fact with observed provenance, a real contradiction plus its user-selected resolution, restart persistence, an authorized permanent deletion with a user-visible receipt, a live refusal of a risky action, and two socket-table transport traces with zero non-loopback peers. The final open scenario, multi-turn reference, was then traced to one guard: the rule-based classifier accepted an open-prefixed target only when it looked like a path, so 'open the file' became .unknown and the resolver was unreachable. A known reference phrase now yields the intent with its target slot empty, and the phrase list moved to a single AuraCore definition. Live: 'open the file' refused to guess between two candidates and asked; 'open the file alpha' resolved to alpha, bound filePath, and opened the real file. Full matrix 21/21 bundles, 1,164 tests, 0 failed.",
   "completed": [
-    "Added a production ReferenceContextProvider at the AuraKernel composition boundary for active application/editor/workspace, durable task, and backend identity snapshots.",
-    "Added bounded dialogue/recent-file/tool salience and a candidate assembler with scope isolation, expiry, authority ranking, deduplication, omission, and hard bounds.",
-    "Extended reference parsing and bound only safe resolved local targets to closed typed slots; unresolved unsafe implicit references become clarification outcomes before routing.",
-    "Updated OPEN-09, risk/decision/evidence indexes, second-pass/program/project ledgers, current state, capability pointer, active context, documentation, and this handoff without deleting historical wording.",
-    "Focused tests passed: AuraContextTests 37/37 and AuraIntentTests 132/132; final full regression passed 21/21 bundles with exit 0; build, diff check, second-pass validator, and 38 governance tests passed."
+    "Re-ran all eight R8 live/product scenarios against one build (fccf1520) in a single isolated profile, closing SP-019's completion gate.",
+    "Made reference resolution reachable in production: an open-prefixed reference phrase now yields .fileOpen/.appActivate with its target slot empty, and the implicit-reference phrase list is defined once in AuraCore.",
+    "Wired a bounded ToolObservation seam from ToolRouter through IntentDispatchCoordinator into memory as a globally scoped projectFact with .observed provenance and a stable fact key.",
+    "Added the multi-turn reference clarification round trip so an ambiguous reference's answer populates explicitlyConfirmedTargetID only when it names exactly one offered candidate.",
+    "Returned and surfaced the MemoryDeletionReceipt through the kernel, app model, and Privacy tab, and fixed the VoiceOver label that had hidden its content.",
+    "Added scripts/run-sp019-transport-probe.sh, a read-only socket-table probe for the live process.",
+    "Captured live acceptance for verified tool fact, contradiction and resolution, restart persistence, authorized deletion with receipt, risky-action refusal, and transport silence."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -25,36 +27,76 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260824-TEST-RUNNER-FIX-06.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-CLOSEOUT-03.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-CLOSEOUT-05.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-CLOSEOUT-07.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LAUNCH-SMOKE-02.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LIVE-CONTROLS-04.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LIVE-CONTROLS-06.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LIVE-DELETION-RECEIPT-10.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LIVE-PROJECT-FACT-09.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LIVE-REFERENCE-13.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LOCAL-CONTROLS-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-MEMORY-AUTHORITY-12.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-TRANSPORT-TRACE-11.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-FOCUSED-TESTS-02.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-FULL-SUITE-03.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260823-DELIVERY-05.md",
+    "README.md",
+    "Sources/AURA/AuraAppModel.swift",
+    "Sources/AURA/AuraAppModel_ProductState.swift",
+    "Sources/AURA/AuraAppModel_Runtime.swift",
+    "Sources/AURA/AuraKernel.swift",
     "Sources/AURA/AuraKernel_Construction.swift",
-    "Sources/AuraAutomation/AuraAutomation.swift",
+    "Sources/AURA/AuraKernel_RuntimeAPI.swift",
+    "Sources/AURA/AuraMenuView.swift",
+    "Sources/AURA/AuraMenuView_Tabs.swift",
+    "Sources/AURA/ProductUIState.swift",
     "Sources/AuraContext/ContextBuilder_Pipeline.swift",
-    "Sources/AuraContext/ProductionReferenceCandidateAssembler.swift",
-    "Sources/AuraContext/ReferenceResolver.swift",
-    "Sources/AuraCore/Configuration_ContextConfiguration.swift",
-    "Sources/AuraCore/ContextTypes.swift",
-    "Sources/AuraCore/ReferenceContextSnapshot.swift",
-    "Sources/AuraIntent/IntentEngine_Classify.swift",
+    "Sources/AuraCore/ImplicitReferencePhrases.swift",
+    "Sources/AuraIntent/IntentDispatchCoordinator.swift",
     "Sources/AuraIntent/IntentEngine_IntentEngine.swift",
-    "Sources/AuraIntent/IntentEngine_ReferenceContext.swift",
+    "Sources/AuraIntent/IntentEngine_ReferenceClarification.swift",
     "Sources/AuraIntent/IntentEngine_Resolution.swift",
-    "Sources/AuraIntent/TypedIntent.swift",
-    "Tests/AuraContextTests/ProductionReferenceCandidateAssemblerTests.swift",
-    "Tests/AuraIntentTests/ProductionReferenceWiringTests.swift",
-    "docs/subsystems/22_CONTEXT_RECONSTRUCTION.md",
+    "Sources/AuraIntent/IntentEngine_RuleBasedUtteranceClassifier.swift",
+    "Sources/AuraIntent/IntentEngine_RuleBasedUtteranceClassifier_ImplicitReference.swift",
+    "Sources/AuraIntent/IntentEngine_ToolEvidenceMemory.swift",
+    "Sources/AuraIntent/ToolObservation.swift",
+    "Sources/AuraIntent/ToolRouter_Handlers.swift",
+    "Sources/AuraIntent/ToolRouter_ToolObservations.swift",
+    "Sources/AuraIntent/ToolRouter_ToolRouter.swift",
+    "Tests/AURAIntegrationTests/R9ProductUIStateTests.swift",
+    "Tests/AURAIntegrationTests/SP019MemoryUIStateTests.swift",
+    "Tests/AuraIntentTests/SP019ReferenceClarificationTests.swift",
+    "Tests/AuraIntentTests/SP019ToolEvidenceMemoryTests.swift",
+    "Tests/AuraIntentTests/ToolRouterTests.swift",
+    "docs/decisions/ADR-043-memory-personalization-controls.md",
     "ledger/CURRENT_STATE.md",
-    "ledger/PROJECT_LEDGER.md"
+    "ledger/PROJECT_LEDGER.md",
+    "scripts/aura-test.sh",
+    "scripts/run-sp019-transport-probe.sh",
+    "scripts/tests/test_aura_test_runner.py"
   ],
   "evidence_ids": [
+    "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
+    "EV-SP-019-20260824-LIVE-REFERENCE-13",
+    "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08",
+    "EV-SP-019-20260824-LIVE-PROJECT-FACT-09",
+    "EV-SP-019-20260824-LIVE-DELETION-RECEIPT-10",
+    "EV-SP-019-20260824-TRANSPORT-TRACE-11",
+    "EV-SP-019-20260824-MEMORY-AUTHORITY-12",
+    "EV-SP-019-20260824-CLOSEOUT-07",
+    "EV-SP-019-20260824-LIVE-CONTROLS-06",
+    "EV-SP-019-20260824-CLOSEOUT-05",
+    "EV-SP-019-20260824-CLOSEOUT-03",
+    "EV-SP-019-20260824-LOCAL-CONTROLS-01",
+    "EV-SP-019-20260824-LAUNCH-SMOKE-02",
+    "EV-SP-019-20260824-LIVE-CONTROLS-04",
+    "EV-SP-018-20260824-TEST-RUNNER-FIX-06",
     "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01",
     "EV-SP-018-20260823-FOCUSED-TESTS-02",
     "EV-SP-018-20260823-FULL-SUITE-03",
@@ -62,26 +104,92 @@
     "EV-SP-018-20260823-DELIVERY-05"
   ],
   "tests": [
-    {"name": "AuraContextTests (37/37)", "result": "passed", "evidence_id": "EV-SP-018-20260823-FOCUSED-TESTS-02"},
-    {"name": "AuraIntentTests (132/132)", "result": "passed", "evidence_id": "EV-SP-018-20260823-FOCUSED-TESTS-02"},
-    {"name": "Full ./scripts/aura-test.sh final rerun (21/21 bundles, exit 0)", "result": "passed", "evidence_id": "EV-SP-018-20260823-FULL-SUITE-03"},
-    {"name": "swift build and git diff --check", "result": "passed", "evidence_id": "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01"},
-    {"name": "Second-pass validator and governance unittest suite (38 tests)", "result": "passed", "evidence_id": "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04"}
+    {
+      "name": "Full matrix (21/21 bundles, 1,160 tests)",
+      "result": "passed",
+      "evidence_id": "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08"
+    },
+    {
+      "name": "AuraIntentTests (149/149)",
+      "result": "passed",
+      "evidence_id": "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08"
+    },
+    {
+      "name": "AURAIntegrationTests (85/85)",
+      "result": "passed",
+      "evidence_id": "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08"
+    },
+    {
+      "name": "AuraContextTests (37/37)",
+      "result": "passed",
+      "evidence_id": "EV-SP-018-20260823-FOCUSED-TESTS-02"
+    },
+    {
+      "name": "AuraIntentTests (132/132)",
+      "result": "passed",
+      "evidence_id": "EV-SP-018-20260823-FOCUSED-TESTS-02"
+    },
+    {
+      "name": "Full ./scripts/aura-test.sh final rerun (21/21 bundles, exit 0)",
+      "result": "passed",
+      "evidence_id": "EV-SP-018-20260823-FULL-SUITE-03"
+    },
+    {
+      "name": "swift build and git diff --check",
+      "result": "passed",
+      "evidence_id": "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01"
+    },
+    {
+      "name": "Second-pass validator and governance unittest suite (38 tests)",
+      "result": "passed",
+      "evidence_id": "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04"
+    },
+    {
+      "name": "AuraAgentTests through the corrected default runner (237/237)",
+      "result": "passed",
+      "evidence_id": "EV-SP-018-20260824-TEST-RUNNER-FIX-06"
+    },
+    {
+      "name": "Default full ./scripts/aura-test.sh matrix after runner correction (21/21 bundles, 0 failed)",
+      "result": "passed",
+      "evidence_id": "EV-SP-018-20260824-TEST-RUNNER-FIX-06"
+    },
+    {
+      "name": "Runtime, second-pass, and repository hygiene validators plus governance suite (39 tests)",
+      "result": "passed",
+      "evidence_id": "EV-SP-018-20260824-TEST-RUNNER-FIX-06"
+    },
+    {
+      "name": "Focused AURAIntegrationTests (83/83) with SP-019 memory projection",
+      "result": "passed",
+      "evidence_id": "EV-SP-019-20260824-LOCAL-CONTROLS-01"
+    },
+    {
+      "name": "Full ./scripts/aura-test.sh matrix (21/21 bundles, 1,141 tests, 0 failed)",
+      "result": "passed",
+      "evidence_id": "EV-SP-019-20260824-LOCAL-CONTROLS-01"
+    },
+    {
+      "name": "SP-019 LaunchServices startup/stop smoke",
+      "result": "blocked",
+      "evidence_id": "EV-SP-019-20260824-LAUNCH-SMOKE-02"
+    }
   ],
   "blockers": [
-    "R8 broader live/product controls remain open: user-present restart-safe memory, contradiction/correction, R9 controls, remote/provider evidence, and ADR-043 acceptance.",
-    "No application launch, TCC mutation, provider, signing, merge, release, production deploy, or beta action was performed. The explicitly authorized SP-018 commit and push completed; no PR existed for main, so merge was not applicable."
+    "Reveal-by-reference (revealPrefixes requires a path-shaped target) and expiry-driven retention purging are covered only by the deterministic suite. Follow-ups, not SP-019 scenarios.",
+    "Release and deployment remain blocked: the app is unsigned for distribution and unnotarized. SP-026 (reproducible toolchain/CI) and SP-027 (signing, notarization, clean-machine Gatekeeper) own those gates; only a development_unverified artifact can be produced today."
   ],
   "open_decisions": [
-    "SP-019 must be started only under its own authority and required read order."
+    "SP-019 remains in_progress until direct user-present evidence closes all eight R8 scenarios; SP-020 must not start."
   ],
   "risks": [
     "RISK-MEMORY-NOT-PRODUCTIZED",
     "RISK-MEMORY-LIVE-ACCEPTANCE",
     "RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE",
-    "RISK-ADR-043-PENDING"
+    "RISK-ADR-043-PENDING",
+    "RISK-SP-019-LIVE-MEMORY-CONTROLS"
   ],
-  "next_action": "Start only SP-019 after reading its required control files and prompt; first action is a repository/state/ledger preflight. Do not infer live product acceptance from SP-018's deterministic local evidence.",
+  "next_action": "SP-019 is completed and merged. Start SP-020 (remote context boundary and ADR-043).",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -92,5 +200,5 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md"
   ],
-  "notes": "SP-018 delivery completed at 1d3efca and authority expired afterward, resetting to edit-only. The development_unverified artifact is not a release or deployment. Evidence is local and privacy-safe: no raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written. SP-019 remains pending and no implementation from it was performed."
+  "notes": "SP-018 delivery remains at 1d3efca; current main/origin is ed55a0c with declared dirty changes. SP-019 direct evidence is partial and privacy-safe: no raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written. The app artifact is unsigned/unnotarized and not a release or deployment. Delete is paused for action-time confirmation; SP-020 remains unopened."
 }

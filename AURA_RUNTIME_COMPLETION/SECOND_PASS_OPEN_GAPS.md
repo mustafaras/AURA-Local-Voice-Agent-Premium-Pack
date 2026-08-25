@@ -1227,6 +1227,15 @@ or decision-acceptance gates.
   `EV-SP-018-20260823-FOCUSED-TESTS-02`, and
   `EV-SP-018-20260823-FULL-SUITE-03`. User-present restart/control acceptance,
   R9 controls, remote transport, and ADR-043 remain open for later prompts.
+- **Verification correction (2026-08-24; historical wording retained):** an
+  independent default-runner recheck exposed a scheduling-dependent
+  `AuraAgentTests` failure when its live CLI, real-worktree, and actor-backed
+  fixtures ran at unrestricted Swift Testing parallelism. This was a test
+  runner boundary defect, not a production reference-wiring failure. The
+  runner now bounds only `AuraAgentTests` to one worker by default; the
+  regression test, isolated bundle (237 tests), and default 21-bundle matrix
+  pass with `EV-SP-018-20260824-TEST-RUNNER-FIX-06`. SP-018 product scope and
+  the separate live/release gates are unchanged.
 - Authority-ranked active beliefs and unresolved contradiction surfacing are
   implemented and tested, but all conflict classes, supersession outcomes, and
   user correction behavior lack a user-present product demonstration.
@@ -1243,6 +1252,52 @@ or decision-acceptance gates.
 - ADR-043 remains `Proposed`; explicit user acceptance and the R8 completion
   gate are still required. R9 was started by explicit user continuation; this
   R8 entry remains historical and does not close R8's deferred gates.
+
+### SP-019 attempt — local control slice delivered; live product gate remains open (2026-08-24)
+
+The production composition now wires the bounded `UserPreferenceProfileStore`
+through `AuraKernel`, and the product Privacy surface exposes preference
+save/clear, purpose/scope/retention text, inspect/search, conflict triage,
+correction/deletion/export, and retention cleanup. The runtime API exposes
+conflict and superseded-record snapshots without including audit/security
+records; user correction writes an evidence reference. This is a local product
+slice, not a completion claim. Deterministic evidence is recorded under
+`EV-SP-019-20260824-LOCAL-CONTROLS-01`: production build, focused integration
+83/83, full 21/21-bundle matrix with 1,141 tests and zero failures, second-pass
+validator, 39 governance tests, formatter, lint, syntax, and diff checks pass.
+
+A LaunchServices startup smoke under
+`EV-SP-019-20260824-LAUNCH-SMOKE-02` proved process start and bounded stop only.
+The temporary HOME did not isolate Foundation Application Support, so no
+restart/data persistence claim is made from that procedure. No user-present
+operation of the eight R8 scenarios was completed: preference save/relaunch,
+verified project fact, multi-turn reference, destructive ambiguity
+clarification, contradiction resolution, inspect/correct/delete/export,
+provenance display, and local-only remote exclusion remain unproven. ADR-043
+remains `Proposed`; SP-019 stays `in_progress`, and SP-020 is not safe to start.
+
+### SP-019 user-present controls attempt — partial direct evidence (2026-08-24)
+
+`EV-SP-019-20260824-LIVE-CONTROLS-04` records a user-present run against the
+final local app in a `CFFIXED_USER_HOME`-isolated profile. The run directly
+proved bounded `Concise` preference save, real menu quit/relaunch restoration,
+purpose/scope/retention display, inspectable rows, user correction with
+`userStated` provenance, retention-cleanup invocation, audit/security exclusion,
+and fail-closed rejection of `Allow remote context` under the local-only
+machine policy. The attempted read-only project-fact request did not produce a
+verified tool result; the follow-up reference surfaced `Diagnostic: ambiguous`,
+which is not a resolved reference or destructive-action clarification proof.
+
+The live export control opened the native Save panel, but no exported artifact
+was located after the save attempt. No conflict section appeared in the
+disposable profile, and the live Delete control was intentionally not activated
+because immediate confirmation is required before an irreversible deletion.
+Therefore preference restart and bounded controls are now direct live evidence,
+but the eight-scenario gate remains incomplete: verified tool fact, resolved
+multi-turn reference, destructive ambiguity clarification, contradiction
+resolution, export artifact, deletion receipt, and direct remote-transport
+observation remain open. SP-019 remains `in_progress`; SP-020 is not safe to
+start.
 
 ## OPEN-10 — R9: Product UI, Accessibility, and Onboarding
 
@@ -1608,3 +1663,149 @@ system-TTS-only scope with alternatives, scope, expiry/revisit conditions, and
 evidence. SP-018 is safe to start because SP-017's direct evidence,
 cognitive-gate answers, state projections, and validator closeout are now
 complete; SP-018 itself remains pending/unopened.
+### OPEN-09 / SP-019 live export reconciliation — 2026-08-24
+
+`EV-SP-019-20260824-LIVE-CONTROLS-06` closes the previously missing export
+artifact postcondition: the user-present Privacy export produced
+`/tmp/aura-memory-sp019-export.json`, 203 records, with no audit key and no
+raw audio/screenshot/token/secret marker in the structural scan. The artifact
+hash is recorded in the evidence file and the raw export remains outside the
+repository.
+
+The historical gap wording remains unchanged. SP-019 is still open for the
+verified tool fact, resolved multi-turn reference, contradiction resolution,
+deletion receipt, and direct transport trace. Permanent Delete remains paused
+until action-time confirmation.
+
+### OPEN-09 / SP-019 tool-evidence wiring and live acceptance — 2026-08-24 (second attempt)
+
+The five scenarios still open after `EV-SP-019-20260824-LIVE-CONTROLS-06` were
+re-examined and four of them turned out to be **missing product paths, not
+failed procedures** (`EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08`):
+
+- No production site ever wrote `MemoryClass.projectFact`, produced
+  `MemoryProvenance.observed`, or used `MemoryWriteSource.verifiedToolEvidence`.
+  A verified tool fact was therefore unreachable in the shipped app.
+- `ContradictionDetector` keys on `(memoryClass, subject, scope)` while the only
+  live write used the globally unique subject `intent:<uuid>`, so no live
+  conflict could ever be raised.
+- `ReferenceResolver.explicitlyConfirmedTargetID` had no production producer, so
+  an ambiguous reference's clarifying question had no path back into resolution.
+- `AuraKernel.deleteMemoryRecord` discarded the engine's `MemoryDeletionReceipt`,
+  so no receipt could reach the user.
+
+Direct changes wired a bounded `ToolObservation` seam from the tool router into
+memory as a globally scoped `projectFact` keyed by a stable fact key, added the
+reference-clarification round trip, and surfaced the deletion receipt. Full
+matrix **21/21 bundles, 1,160 tests, 0 failed**, with 19 new tests and no new
+formatter or lint findings.
+
+Live acceptance then closed five of the six previously open items:
+
+- **Verified tool fact** — `EV-SP-019-20260824-LIVE-PROJECT-FACT-09`: a
+  user-confirmed `run /bin/date` produced `projectFact` `shell.execute:/bin/date`
+  with provenance `observed(source: user)`, `Retention: indefinite · Scope: global`,
+  visible in the Privacy tab. A confirmed `git` command that exited 128 produced
+  no record — the failure-is-not-evidence guard held live.
+- **Contradiction and its resolution** — same evidence: a second observation of
+  the same fact key raised `MemoryConflict 35046B6F-…`, the Privacy tab rendered
+  `Unresolved contradiction; neither statement is silently discarded.`, and
+  activating `Keep new` recorded `{"supersededExisting":{}}`. Records survived a
+  full app restart (`5 visible of 5 records`).
+- **Deletion receipt** — `EV-SP-019-20260824-LIVE-DELETION-RECEIPT-10`: with the
+  user's explicit action-time authorization, one disposable
+  `workingConversation` record was permanently deleted after the driver verified
+  the search filter had isolated exactly one row. The record is gone, the count
+  fell to 4, the filter that found it now returns `0 visible of 4 records`, and a
+  persistent `Memory deletion receipt` rendered in the Privacy tab.
+- **Memory carries no authority** — `EV-SP-019-20260824-MEMORY-AUTHORITY-12`: a
+  live mutation-tier shell command was refused with `Blocked: confirmationDenied`
+  and produced no memory record, plus two new adversarial tests proving poisoned
+  dialogue context cannot authorize a destructive command or widen a denied tier.
+- **Direct transport trace** — `EV-SP-019-20260824-TRANSPORT-TRACE-11`: two
+  socket-table observations of the live process (150 samples/300 s and
+  210 samples/420 s, the latter spanning actual memory writes) found **zero** IP
+  sockets and zero non-loopback peers. This replaces the earlier policy-refusal
+  evidence, which proved only that the policy layer refuses.
+
+**Still open — the multi-turn reference scenario.** The clarification round trip
+is wired and deterministically proven (5 tests), but it could not be
+demonstrated live for a newly identified, separate product reason: the
+production rule-based classifier cannot emit an intent carrying an unresolved
+implicit reference. `classifyFileCommand` requires a path-shaped target and
+`classifyAppCommand` requires a known application name, so `open the file`
+classifies as `.unknown` with an `unresolvedAppName` slot, and
+`TypedIntent.applyingResolvedReference` only applies to `.fileOpen`,
+`.appActivate`, and `.appTerminate`. Reaching the resolver in production
+requires the structured-NLU backend. This is recorded as a new gap rather than
+absorbed into SP-019.
+
+SP-019 therefore remains `in_progress` and SP-020 remains unopened. The
+historical wording above is retained unchanged.
+
+### OPEN-09 / SP-019 multi-turn reference closed — 2026-08-24
+
+The one scenario left open above is now closed
+(`EV-SP-019-20260824-LIVE-REFERENCE-13`). The blocker was a single guard: the
+rule-based classifier accepted an open-prefixed target only when it looked like
+a path, so `open the file` fell through to application matching and became
+`.unknown`. Since `applyingResolvedReference` binds only `.fileOpen`,
+`.appActivate`, and `.appTerminate`, the whole resolver path was dead in the
+shipped app — and `ProductionReferenceWiringTests`' fixture classifier, which
+*does* return `.fileOpen` with no slot for that utterance, had encoded the
+intended behaviour production lacked.
+
+An open-prefixed target that is a known reference phrase now yields the intent
+with its target slot deliberately empty, and the phrase list itself moved to a
+single definition in `AuraCore` (it had been three diverging literals). Live:
+`open the file` returned `Blocked: ambiguous` and a clarifying question with two
+plausible candidates; `open the file alpha` then resolved to **alpha**, bound
+`filePath`, and opened the real file. Memory records show the difference
+durably — turn 3 `classified intent: fileOpen` with no slot, turn 4 the same
+kind `; slots: filePath`. Full matrix **21/21 bundles, 1,164 tests, 0 failed**.
+
+`RISK-SP-019-REFERENCE-UNREACHABLE` is closed.
+
+All eight R8 live/product scenarios now carry direct live evidence. One
+reconciliation step remains before SP-019 can be moved to `completed`: the
+preference-restart, correction, and export scenarios were captured on the
+earlier build `e7409130…`, while the tool-fact, contradiction, deletion,
+reference, authority, and transport scenarios were captured on `efe42a2c…` and
+`ee4d9735…`. The intervening changes are additive and do not touch the
+preference store, correction, or export paths, but a completion claim should
+rest on a single consolidated acceptance run rather than on three builds.
+SP-019 therefore stays `in_progress` for that bounded step, and SP-020 remains
+unopened.
+
+### OPEN-09 / SP-019 consolidated acceptance — 2026-08-25 (closed)
+
+All eight R8 live/product scenarios were re-run against a **single** build,
+`fccf15204202b7c3f71815a2ff547e5706907dfe2caa1d30dea29d0157989f00`, in one
+isolated `CFFIXED_USER_HOME` profile, so the completion claim no longer spans
+three binaries (`EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`):
+
+- Preference `Concise` survived a full quit/relaunch with
+  `Saved with purpose: ...; scope: global; retention: indefinite.` and
+  `allowRemoteContext=0`.
+- `run /bin/date` produced `projectFact shell.execute:/bin/date` with
+  provenance `observed(source: user)`.
+- `open the file` returned `Blocked: ambiguous` and asked; `open the file alpha`
+  resolved to alpha and bound `filePath`.
+- A second `/bin/date` raised conflict `ED0B40DD-…`, both records retained;
+  `Keep new` recorded `{"supersededExisting":{}}`.
+- A row correction was saved as a new record carrying `supersedes=80544B5D…`.
+- Retention cleanup was invoked; export wrote a 12-record bundle with **no**
+  `auditSecurity` and no secret markers; one disposable record was permanently
+  deleted and the Privacy tab rendered a receipt naming the record, class,
+  reason, and time.
+- Enabling `Allow remote context` was refused by machine policy and local-only
+  was restored; an unconfirmed mutation-tier shell command ended
+  `Blocked: confirmationDenied` and wrote no memory.
+- Two socket-table traces of the acceptance processes observed zero IP sockets
+  and zero non-loopback peers.
+
+`OPEN-09`'s SP-019 slice is therefore closed, `RISK-SP-019-LIVE-MEMORY-CONTROLS`
+is closed, and SP-020 is safe to start. Broader R8/R9 gates named in the
+historical wording above (remote/provider acceptance, ADR-043, manual
+accessibility, signing, release, deployment) remain open and are owned by their
+own prompts.

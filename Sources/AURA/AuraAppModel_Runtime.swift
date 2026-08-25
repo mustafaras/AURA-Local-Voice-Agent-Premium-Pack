@@ -39,6 +39,17 @@ extension AuraAppModel {
         confirmationPresenter: confirmationPresenter)
       self.kernel = kernel
       try await kernel.start()
+      if let profile = try await kernel.preferenceProfileSnapshot() {
+        memoryPreferenceProfile = profile
+        hasSavedMemoryPreference = true
+        if profile.preferredLanguage.lowercased().hasPrefix("tr") {
+          productUIState.language = .turkish
+        } else if profile.preferredLanguage.lowercased().hasPrefix("en") {
+          productUIState.language = .english
+        }
+        UserDefaults.standard.set(productUIState.language.rawValue, forKey: "aura.ui.language")
+        persistProductUIState()
+      }
       refreshVSCodeBridgeProvisioning()
       await refreshRuntimeHealth()
       refreshProductSnapshots()

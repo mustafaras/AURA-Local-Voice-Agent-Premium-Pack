@@ -111,6 +111,10 @@ extension AuraKernel {
 
     let memory = MemoryEngine(store: store, eventBus: eventBus)
     self.memoryEngine = memory
+    self.preferenceProfileStore = UserPreferenceProfileStore(
+      memory: memory,
+      policyBounds: PreferencePolicyBounds(
+        cloudContextAllowed: configuration.ollama.allowCloudModels))
     let context = ContextEngine(
       store: store, memory: memory, eventBus: eventBus, configuration: configuration.context)
     let contextBuilder = ContextBuilder(

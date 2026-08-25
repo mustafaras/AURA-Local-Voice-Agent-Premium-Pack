@@ -89,3 +89,12 @@ R8 product demonstrations pass: restart preference, verified project fact,
 multi-turn reference, ambiguous destructive clarification, contradiction
 resolution, inspect/correct/delete/export, provenance display, and proof that
 local-only mode produces no remote transmission.
+
+## SP-019 implementation note — 2026-08-24
+
+The bounded profile store is now wired through the production `AuraKernel`
+composition, and the Privacy surface exposes the local inspection, correction,
+deletion, export, conflict, retention, and preference controls described by
+this ADR. The implementation is source/build/test verified under
+`EV-SP-019-20260824-LOCAL-CONTROLS-01`; the live product demonstrations above
+remain outstanding, so the ADR status is unchanged.

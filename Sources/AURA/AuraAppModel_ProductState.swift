@@ -94,7 +94,40 @@ extension AuraAppModel {
       confidence: record.confidence,
       sensitivity: record.sensitivity.rawValue,
       createdAt: record.createdAt,
-      canMutate: record.memoryClass != .auditSecurity)
+      canMutate: record.memoryClass != .auditSecurity,
+      retention: record.retention,
+      scope: record.scope,
+      supersedes: record.supersedes)
+  }
+
+  private func memoryConflictRow(
+    _ conflict: MemoryConflict, recordsByID: [UUID: MemoryRecord]
+  ) -> AuraMemoryConflictRow? {
+    guard
+      let existing = recordsByID[conflict.existingRecordID],
+      let new = recordsByID[conflict.newRecordID],
+      existing.memoryClass != .auditSecurity,
+      new.memoryClass != .auditSecurity
+    else { return nil }
+    return AuraMemoryConflictRow(
+      id: conflict.id,
+      subject: conflict.subject,
+      existingRecordID: conflict.existingRecordID,
+      newRecordID: conflict.newRecordID,
+      existingStatement: existing.statement,
+      newStatement: new.statement,
+      detectedAt: conflict.detectedAt,
+      resolution: conflict.resolution)
+  }
+
+  var visibleMemoryRows: [AuraMemoryRow] {
+    let query = memorySearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+      .lowercased()
+    guard !query.isEmpty else { return memoryRows }
+    return memoryRows.filter { row in
+      [row.memoryClass, row.subject, row.statement, row.purpose, row.provenance]
+        .joined(separator: " ").lowercased().contains(query)
+    }
   }
 
   func refreshProductSnapshots() {
@@ -118,8 +151,19 @@ extension AuraAppModel {
           .sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
         backendHealth = await kernel.refreshAgentBackendHealth()
         integrationRows = try await kernel.productivityIntegrationSnapshots().map(integrationRow)
+        let allRecords = try await kernel.memoryRecordsSnapshot(includeSuperseded: true)
         let records = try await kernel.memoryRecordsSnapshot()
         memoryRows = records.map(memoryRow)
+        let recordsByID = Dictionary(uniqueKeysWithValues: allRecords.map { ($0.id, $0) })
+        memoryConflicts = try await kernel.memoryConflictsSnapshot().compactMap {
+          memoryConflictRow($0, recordsByID: recordsByID)
+        }
+        if let profile = try await kernel.preferenceProfileSnapshot() {
+          memoryPreferenceProfile = profile
+          hasSavedMemoryPreference = true
+        } else {
+          hasSavedMemoryPreference = false
+        }
       } catch {
         setError("Product status refresh failed: \(error.localizedDescription)")
       }
@@ -256,12 +300,81 @@ extension AuraAppModel {
         guard let kernel else {
           throw AuraError.invalidConfiguration("AURA runtime is not started")
         }
-        try await kernel.deleteMemoryRecord(
+        let receipt = try await kernel.deleteMemoryRecord(
           id: id, reason: "user requested from R9 Memory Center")
+        lastMemoryDeletionReceipt = AuraMemoryDeletionReceiptRow(receipt: receipt)
         lastOperationMessage = "Memory record deleted; the deletion itself remains audited."
         refreshProductSnapshots()
       } catch {
         setError("Memory deletion failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func saveMemoryPreferences() {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        var profile = memoryPreferenceProfile
+        profile.preferredLanguage = productUIState.language == .turkish ? "tr-TR" : "en-US"
+        let saved = try await kernel.savePreferenceProfile(profile)
+        memoryPreferenceProfile = saved
+        hasSavedMemoryPreference = true
+        lastOperationMessage =
+          "Memory preference saved with user purpose and bounded local-only policy."
+        refreshProductSnapshots()
+      } catch {
+        setError("Memory preference save failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func clearMemoryPreferences() {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        _ = try await kernel.clearPreferenceProfile()
+        memoryPreferenceProfile = UserPreferenceProfile(
+          preferredLanguage: productUIState.language == .turkish ? "tr-TR" : "en-US")
+        hasSavedMemoryPreference = false
+        lastOperationMessage = "Saved memory preference cleared."
+        refreshProductSnapshots()
+      } catch {
+        setError("Memory preference clear failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func resolveMemoryConflict(_ id: UUID, resolution: MemoryConflictResolution) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        try await kernel.resolveMemoryConflict(id: id, resolution: resolution)
+        lastOperationMessage = "Conflict resolution recorded; memory history remains inspectable."
+        refreshProductSnapshots()
+      } catch {
+        setError("Memory conflict resolution failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func enforceMemoryRetention() {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        let purged = try await kernel.enforceMemoryRetention()
+        lastOperationMessage = "Retention cleanup purged \(purged.count) expired record(s)."
+        refreshProductSnapshots()
+      } catch {
+        setError("Retention cleanup failed: \(error.localizedDescription)")
       }
     }
   }

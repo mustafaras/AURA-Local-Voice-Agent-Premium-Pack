@@ -82,6 +82,15 @@ public actor IntentDispatchCoordinator {
       intent,
       context: intent.turnContext ?? context,
       dialogueContext: dialogueContext)
+    // A tool that actually ran may have observed a verifiable project fact.
+    // This is the only production path that writes memory from real tool
+    // evidence rather than from a classifier summary, so it is also the only
+    // path that can produce a contradiction between two observations of the
+    // same fact.
+    if let observation = await toolRouter.takeToolObservation(intentID: intent.id) {
+      await intentEngine.persistToolObservationAsProjectFact(
+        observation, context: intent.turnContext ?? context)
+    }
     let isSimpleCommand = isSimpleLocalCommand(intent: intent, outcome: outcome)
     let responseContext = (intent.turnContext ?? context).withBackendIDs(
       TurnBackendIDs(

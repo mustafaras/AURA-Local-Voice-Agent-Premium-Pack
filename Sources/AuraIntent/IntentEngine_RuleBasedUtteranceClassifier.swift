@@ -349,7 +349,17 @@ public struct RuleBasedUtteranceClassifier: UtteranceClassifying, Sendable {
     for prefix in Self.fileOpenPrefixes + Self.fileOpenPrefixesTR
     where normalized.lowercased().hasPrefix(prefix) {
       let target = String(normalized.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
-      guard !target.isEmpty, looksLikePath(target) else { return nil }
+      guard !target.isEmpty else { return nil }
+      // "open the file" is neither a path nor an application name — it names
+      // whatever the user just referred to. Emitting the intent with its target
+      // slot deliberately empty is what lets the reference resolver bind a real
+      // target, or force a clarifying question when several are plausible.
+      // Returning nil here (the previous behaviour) handed it to
+      // `classifyAppCommand`, which matched no application and produced
+      // `.unknown` — which is why the whole reference-resolution path,
+      // including its guarded-tier evidence checks, was unreachable in
+      // production even though every layer beneath it was implemented.
+      guard looksLikePath(target) else { return implicitReferenceIntent(in: target) }
       // Distinguish folder from file by trailing slash or "folder" prefix
       let isFolder =
         target.hasSuffix("/") || normalized.lowercased().hasPrefix("open folder ")

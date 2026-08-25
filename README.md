@@ -109,6 +109,13 @@ matrix:
 AURA_ENABLE_COVERAGE=1 ./scripts/aura-test.sh /tmp/aurabuild
 ```
 
+The runner bounds Swift Testing parallelism to one worker for the
+`AuraAgentTests` bundle by default. That bundle combines live CLI probes, real
+git worktree operations, and actor-backed fixtures; unrestricted parallel
+execution can otherwise produce scheduling-dependent false failures in the
+full matrix. For controlled experiments only, set
+`AURA_AGENT_TEST_PARALLELIZATION_WIDTH` to an explicit width.
+
 For a local installed smoke test, build and sign first, replace any prior
 development copy at `/Applications/AURA.app`, then open the app and select
 **Enable Voice Permissions**. Microphone and Speech Recognition consent are
