@@ -37,12 +37,24 @@ primary control, and Turkish/English copy renders correctly. `AURAIntegrationTes
 validator passed. **SP-022 is next eligible and pending; open it only under its
 own authority.**
 
-SP-020 product/state content is at `HEAD == origin/main ==
-1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021 source/test/record edits
-remain uncommitted and the worktree is `dirty_expected`.
+SP-021 source/test/record edits are committed and pushed. **`HEAD ==
+origin/main == 78cc29ff60871dc0b189ae3fa3757923e684d06c`** (working tree
+clean), following `1e35dc1` (SP-021 accessibility/localization + Kaan voice
+switch) and `78cc29f` (final Yelda reference removal from test prose).
+
+**Voice: the Yelda fallback is permanently removed.** The default and fallback
+system voice is now the premium neural male **Kaan**
+(`com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium`, quality 2). No Yelda
+reference remains in `Sources/` or `Tests/`; all remaining ledger mentions are
+historical narrative and are intentionally not rewritten. Verified live: Kaan
+is the configured default in `Configuration_TTSConfiguration` and
+`ChatterboxTTSEngine`, and no Yelda is present in the built app bundle.
 
 Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
-only a `development_unverified` artifact is producible today.
+only a `development_unverified` artifact is producible today. The current
+development artifact was rebuilt from the final commit `78cc29f`:
+`/tmp/aura-kaan-deploy/output/AURA-development-unverified.zip`
+(SHA-256 `7ff40dd77cbd0c7da1ee722dfc0e828a2c2efe6b975b84f7d10c94accb54c24f`).
 
 **Next safe action:** run a user-present VoiceOver/keyboard/Dynamic Type/
 reduced-motion/contrast pass and localize the disabled-reason capability prose,
