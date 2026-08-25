@@ -112,13 +112,15 @@ struct R9ProductUIStateTests {
     let traceCorrelationID = UUID()
     let traceCausationID = UUID()
     model.applyToolResult(
-      ToolResultEvent(intentID: UUID(), toolID: "app.terminate", succeeded: true,
-                      summary: "verified"),
+      ToolResultEvent(
+        intentID: UUID(), toolID: "app.terminate", succeeded: true, summary: "verified"),
       eventID: UUID(), correlationID: traceCorrelationID, causationID: traceCausationID)
-    #expect(model.conversationMessages.contains {
-      $0.traceSummary == AuraTraceDisplay.summary(
-        correlationID: traceCorrelationID, causationID: traceCausationID)
-    })
+    #expect(
+      model.conversationMessages.contains { message in
+        message.traceSummary
+          == AuraTraceDisplay.summary(
+            correlationID: traceCorrelationID, causationID: traceCausationID)
+      })
   }
 
   @Test("confirmation lifecycle persists redacted terminal outcomes")
@@ -163,7 +165,9 @@ struct R9ProductUIStateTests {
         sql: "SELECT * FROM redacted_trace_records ORDER BY rowid;", arguments: [])
     }
     #expect(rows.count == 4)
-    #expect(rows.map { $0["outcome"]?.textValue } == ["requested", "denied", "requested", "expired"])
+    #expect(
+      rows.map { $0["outcome"]?.textValue }
+        == ["requested", "denied", "requested", "expired"])
     #expect(rows.allSatisfy { $0["payload_json"] == nil })
   }
 

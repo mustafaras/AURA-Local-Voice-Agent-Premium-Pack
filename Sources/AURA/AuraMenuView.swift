@@ -36,9 +36,9 @@ struct AuraConfirmationCard: View {
           let traceText = AuraTraceDisplay.summary(
             correlationID: turnContext.correlationID, causationID: turnContext.causationID)
           Text(traceText)
-          .font(.caption2.monospaced())
-          .foregroundStyle(.secondary)
-          .accessibilityLabel("Trace: \(traceText)")
+            .font(.caption2.monospaced())
+            .foregroundStyle(.secondary)
+            .accessibilityLabel("Trace: \(traceText)")
         }
         HStack {
           Button("Deny", role: .cancel) {
@@ -74,6 +74,9 @@ struct MemoryRowView: View {
           .fixedSize(horizontal: false, vertical: true)
         Text("Confidence: \(Int(record.confidence * 100))% · Sensitivity: \(record.sensitivity)")
           .font(.caption2).foregroundStyle(.secondary)
+        Text("Retention: \(String(describing: record.retention)) · Scope: \(scopeSummary)")
+          .font(.caption2).foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
         if record.canMutate {
           HStack {
             Button("Correct") { model.beginMemoryCorrection(record) }
@@ -87,6 +90,15 @@ struct MemoryRowView: View {
       .frame(maxWidth: .infinity, alignment: .leading)
     }
     .accessibilityElement(children: .contain)
+  }
+
+  private var scopeSummary: String {
+    let values = [
+      record.scope.projectID.map { "project=\($0)" },
+      record.scope.taskID.map { "task=\($0.uuidString.prefix(8))" },
+      record.scope.sessionID.map { "session=\($0.uuidString.prefix(8))" },
+    ].compactMap { $0 }
+    return values.isEmpty ? "global" : values.joined(separator: ", ")
   }
 }
 
@@ -282,8 +294,11 @@ struct AuraSettingsView: View {
       }
       Section("VS Code Bridge") {
         if model.isVSCodeBridgeAcceptanceEnabled {
-          Text("Local authenticated bridge; the shared secret stays in AURA Keychain and VS Code SecretStorage.")
-            .foregroundStyle(.secondary)
+          Text(
+            "Local authenticated bridge; the shared secret stays in AURA Keychain "
+              + "and VS Code SecretStorage."
+          )
+          .foregroundStyle(.secondary)
           LabeledContent("Extension ID", value: model.vscodeBridgeExtensionID)
           SecureField("Shared secret (16+ characters)", text: $model.vscodeBridgeSecret)
             .textContentType(.password)

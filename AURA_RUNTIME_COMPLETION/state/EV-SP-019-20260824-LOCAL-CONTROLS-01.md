@@ -1,0 +1,30 @@
+# EV-SP-019-20260824-LOCAL-CONTROLS-01
+
+- **Evidence ID:** `EV-SP-019-20260824-LOCAL-CONTROLS-01`
+- **Prompt / gap:** SP-019 / OPEN-09 / R8
+- **Timestamp:** 2026-08-24T08:45:49Z
+- **Branch / commit:** `main`; `HEAD == origin/main == ed55a0c8db9c63059c7639f9160efebaf44816ac`; working tree intentionally dirty
+- **Environment:** macOS 27 target; Apple Silicon; Swift 6.4.0.30.4; Xcode `27.0.0-beta.5`; developer path `/Applications/Xcode-27.0.0-beta.5.app/Contents/Developer`
+- **Class:** Direct production-source/build evidence plus deterministic integration/regression evidence
+- **Commands / procedures:**
+  - `swift build --build-path /tmp/aura-sp019-final-build`
+  - `./scripts/aura-test.sh /tmp/aura-sp019-integration-final AURAIntegrationTests`
+  - `./scripts/aura-test.sh /tmp/aura-sp019-final-full-green`
+  - `BUILD_DIR=/tmp/aura-sp019-final-app ./scripts/build-app-bundle.sh`
+  - `python3 scripts/validate_second_pass_program.py`
+  - `python3 -m unittest discover -s scripts/tests -p 'test_*.py'`
+  - `python3 -m compileall -q scripts`; `git diff --check`; shell syntax checks; strict `swift-format lint`; `swiftlint lint`
+- **Result:**
+  - Production build completed.
+  - Focused `AURAIntegrationTests`: **83/83**, including the SP-019 memory search projection test.
+  - Full matrix: **21/21 bundles, 1,141 tests, 0 failed, exit 0**. Relevant bundles: `AuraMemoryTests` 30/30, `AuraContextTests` 37/37, `AuraIntentTests` 132/132, `AURAIntegrationTests` 83/83.
+  - Second-pass validator passed; Python governance tests **39/39** passed; compile, diff, syntax, formatter, and lint commands exited 0. SwiftLint emitted only existing non-error size/complexity warnings.
+  - App bundle built at `/tmp/aura-sp019-final-app/AURA.app`; main executable SHA-256 `e7409130cc44654cb015691240d9c7d2621b1acdc8ab0209eaad7fcd55952413`.
+- **Artifacts / hashes:**
+  - Full `AURAIntegrationTests.log`: `/tmp/aura-sp019-final-full-green/out/Products/Debug/AURAIntegrationTests.log`, SHA-256 `3e89867320957a8050578cb837970e521484a5568b3117c2814dfed75e207966`
+  - Full `AuraMemoryTests.log`: `/tmp/aura-sp019-final-full-green/out/Products/Debug/AuraMemoryTests.log`, SHA-256 `01a922847355150b405c946917dcc4a9b2f378689383a98630d8910bf237003b`
+  - Full `AuraContextTests.log`: `/tmp/aura-sp019-final-full-green/out/Products/Debug/AuraContextTests.log`, SHA-256 `6e5466995719e793d52aa7109bc470ee29032c7e9d89a5137a408a40fcb73df0`
+  - Full `AuraIntentTests.log`: `/tmp/aura-sp019-final-full-green/out/Products/Debug/AuraIntentTests.log`, SHA-256 `e699d8dac718cc6749a7d23cb850f101bf6260f3234dfa5af81ebbb97dfaf28e`
+- **Direct change covered:** production `AuraKernel` wiring now owns a bounded `UserPreferenceProfileStore`; runtime APIs expose preference load/save/clear, conflict inspection/resolution, retention enforcement, and superseded-record inspection; the AppModel and Privacy UI expose preference purpose/scope/retention, inspect/search, conflict triage, correction/deletion/export, and retention controls; user corrections carry an evidence reference.
+- **Scope / privacy:** local source and deterministic tests only. No raw audio, screenshots, secrets, tokens, provider payloads, or unredacted model output were recorded.
+- **Limitations:** this evidence does not prove a user-present launched-app restart, all eight R8 product scenarios, actual model/tool evidence generation, remote transport absence in a live session, or ADR-043 acceptance. SP-019 remains `in_progress`.

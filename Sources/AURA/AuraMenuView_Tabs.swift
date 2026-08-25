@@ -208,7 +208,8 @@ extension AuraMenuView {
                 Label(copy("integrations.grantAccess"), systemImage: "lock.open")
               }
               .accessibilityLabel(
-                "\(copy("integrations.grantAccess")): \(integration.title)")
+                "\(copy("integrations.grantAccess")): \(integration.title)"
+              )
               .accessibilityIdentifier(
                 AuraAccessibilityID.integrationGrant(integration.id))
             }
@@ -251,24 +252,134 @@ extension AuraMenuView {
         .frame(maxWidth: .infinity, alignment: .leading)
       }
       integrationsSection
-      HStack {
-        Button {
-          model.exportMemory()
-        } label: {
-          Label(copy("privacy.export"), systemImage: "square.and.arrow.up")
+      GroupBox("Memory preference profile") {
+        VStack(alignment: .leading, spacing: 8) {
+          Text("This is a bounded user preference, not an execution grant.")
+            .font(.caption).foregroundStyle(.secondary)
+          Picker(
+            "Response length",
+            selection: $model.memoryPreferenceProfile.responseLength
+          ) {
+            ForEach(PreferenceResponseLength.allCases, id: \.self) { length in
+              Text(length.rawValue.capitalized).tag(length)
+            }
+          }
+          Toggle(
+            "Allow remote context",
+            isOn: Binding(
+              get: { !model.memoryPreferenceProfile.localOnly },
+              set: { model.memoryPreferenceProfile.localOnly = !$0 })
+          )
+          .help("The machine policy can reject this preference; it cannot widen policy authority.")
+          HStack {
+            Button("Save preference") { model.saveMemoryPreferences() }
+              .buttonStyle(.borderedProminent)
+            Button("Clear saved preference", role: .destructive) {
+              model.clearMemoryPreferences()
+            }
+            .disabled(!model.hasSavedMemoryPreference)
+          }
+          Text(
+            model.hasSavedMemoryPreference
+              ? "Saved with purpose: user-controlled personalization profile; "
+                + "scope: global; retention: indefinite."
+              : "No saved profile."
+          )
+          .font(.caption2).foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
         }
-        .accessibilityHint(
-          language == .turkish
-            ? "Denetim ve güvenlik kayıtları dışarı aktarılmaz"
-            : "Audit and security records are excluded")
-        Spacer()
-        Text("\(model.memoryRows.count) records")
-          .font(.caption).foregroundStyle(.secondary)
       }
-      if model.memoryRows.isEmpty {
+      GroupBox("Memory controls") {
+        VStack(alignment: .leading, spacing: 8) {
+          HStack {
+            TextField("Search memory", text: $model.memorySearchText)
+              .textFieldStyle(.roundedBorder)
+              .accessibilityLabel("Search inspectable memory")
+            Button {
+              model.exportMemory()
+            } label: {
+              Label(copy("privacy.export"), systemImage: "square.and.arrow.up")
+            }
+            .accessibilityHint(
+              language == .turkish
+                ? "Denetim ve güvenlik kayıtları dışarı aktarılmaz"
+                : "Audit and security records are excluded")
+          }
+          HStack {
+            Text("\(model.visibleMemoryRows.count) visible of \(model.memoryRows.count) records")
+              .font(.caption).foregroundStyle(.secondary)
+            Spacer()
+            Button("Run retention cleanup") { model.enforceMemoryRetention() }
+          }
+          Text(
+            "Audit/security memory is excluded from inspection and export "
+              + "and cannot be corrected or deleted here."
+          )
+          .font(.caption2).foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+          if let receipt = model.lastMemoryDeletionReceipt {
+            Divider()
+            VStack(alignment: .leading, spacing: 3) {
+              Label("Deletion receipt", systemImage: "trash.slash")
+                .font(.caption).bold()
+              Text("Record \(receipt.id.uuidString) (\(receipt.memoryClass))")
+              Text("Reason: \(receipt.reason)")
+              Text("Deleted at \(receipt.deletedAt.formatted(.iso8601))")
+              Text("The record content is gone; only this receipt and the audit event remain.")
+                .foregroundStyle(.secondary)
+            }
+            .font(.caption2)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityElement(children: .combine)
+            // `.combine` merges the child labels, but an `.accessibilityLabel`
+            // then *replaces* that merged text — a bare "Memory deletion
+            // receipt" would leave the record, reason, and time unreachable to
+            // VoiceOver, which is exactly the proof the receipt exists to give.
+            .accessibilityLabel(
+              "Memory deletion receipt. Record \(receipt.id.uuidString), "
+                + "class \(receipt.memoryClass), reason \(receipt.reason), "
+                + "deleted at \(receipt.deletedAt.formatted(.iso8601)). "
+                + "The record content is gone; only this receipt and the audit event remain.")
+          }
+        }
+      }
+      if !model.memoryConflicts.isEmpty {
+        GroupBox("Unresolved and resolved conflicts") {
+          VStack(alignment: .leading, spacing: 8) {
+            ForEach(model.memoryConflicts) { conflict in
+              VStack(alignment: .leading, spacing: 5) {
+                Text(conflict.subject).bold()
+                Text("Previous: \(conflict.existingStatement)")
+                Text("New: \(conflict.newStatement)")
+                Text(
+                  conflict.resolution == nil
+                    ? "Unresolved contradiction; neither statement is silently discarded."
+                    : "Resolution recorded: \(conflict.resolutionSummary)"
+                )
+                .font(.caption2).foregroundStyle(.secondary)
+                HStack {
+                  Button("Keep previous") {
+                    model.resolveMemoryConflict(
+                      conflict.id,
+                      resolution: .keptExisting(reason: "user selected previous belief")
+                    )
+                  }
+                  Button("Keep new") {
+                    model.resolveMemoryConflict(
+                      conflict.id, resolution: .supersededExisting)
+                  }
+                }
+              }
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .padding(.vertical, 4)
+            }
+          }
+        }
+      }
+      if model.visibleMemoryRows.isEmpty {
         Text(copy("privacy.noMemory")).foregroundStyle(.secondary)
       }
-      ForEach(model.memoryRows) { record in
+      ForEach(model.visibleMemoryRows) { record in
         MemoryRowView(model: model, record: record)
       }
     }

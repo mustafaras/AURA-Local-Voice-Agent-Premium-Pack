@@ -66,12 +66,19 @@ final class AuraAppModel: ObservableObject {
   @Published var isVSCodeBridgeProvisioned = false
   @Published var vscodeBridgeRoundTripStatus = ""
   @Published var memoryRows: [AuraMemoryRow] = []
+  @Published var memoryConflicts: [AuraMemoryConflictRow] = []
+  @Published var memorySearchText = ""
+  @Published var memoryPreferenceProfile = UserPreferenceProfile()
+  @Published var hasSavedMemoryPreference = false
   @Published var conversationMessages: [AuraConversationMessage] = []
   @Published var partialTranscript = ""
   @Published var lastPlanSummary: String?
   @Published var lastOperationMessage = ""
   @Published var productUIState = AuraProductUIState()
   @Published var memoryCorrectionTarget: AuraMemoryRow?
+  /// Receipt for the most recent permanent memory deletion, retained so the
+  /// user can verify the deletion after the transient status line is gone.
+  @Published var lastMemoryDeletionReceipt: AuraMemoryDeletionReceiptRow?
 
   let confirmationPresenter = UIConfirmationPresenter()
   let emergencyShortcutMonitor = EmergencyShortcutMonitor()

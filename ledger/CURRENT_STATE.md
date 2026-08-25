@@ -1,7 +1,21 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-23.
+Projection refreshed from live repository and command evidence on 2026-08-24.
+
+## Verification correction — 2026-08-24T08:01:03Z
+
+The SP-018 product commit remains `1d3efca0944334be19a2d68abbb4c199bba15d87`;
+current `HEAD == origin/main == ed55a0c8db9c63059c7639f9160efebaf44816ac`.
+An independent default-runner recheck exposed
+a scheduling-dependent `AuraAgentTests` failure under unrestricted Swift
+Testing parallelism; the defect was in the test-runner boundary, not in the
+SP-018 production reference-wiring path. `scripts/aura-test.sh` now bounds only
+that bundle to one worker by default, with regression evidence under
+`EV-SP-018-20260824-TEST-RUNNER-FIX-06`. The corrected 237-test bundle and
+default 21-bundle matrix pass. The worktree intentionally contains uncommitted
+verification/docs/ledger changes; no SP-019 implementation or delivery action
+was performed.
 
 ## SP-018 / OPEN-09 — 2026-08-23T17:14:04Z — completed and delivered
 
@@ -741,3 +755,122 @@ SP-011 remains `blocked`: the free-window non-empty read is owed, because this
 attempt destroyed the calendar authorization by running `tccutil reset Calendar`
 against a working grant and could not restore it. Evidence:
 `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`. SP-012 is not safe to start.
+
+### 2026-08-24T08:45:49Z — SP-019 local control attempt
+
+SP-019 remains **in_progress**. The production kernel now wires the bounded
+preference profile store, and the Privacy surface exposes purpose/scope/
+retention, search, conflict, correction/deletion/export, and retention
+controls. `EV-SP-019-20260824-LOCAL-CONTROLS-01` records a clean production
+build, focused 83/83, full 21/21 bundles with 1,141 tests and zero failures,
+the second-pass validator, and 39 governance tests.
+
+`EV-SP-019-20260824-LAUNCH-SMOKE-02` proves only LaunchServices startup and
+exact-process stop. Temporary HOME did not isolate Application Support; no UI
+operation or explicit memory mutation was performed. All eight user-present
+R8 scenarios remain open, ADR-043 remains Proposed, and SP-020 is not safe to
+start. The next safe action is a user-present save/quit/relaunch plus the eight
+redacted scenario checks. No commit, push, merge, release, or deploy occurred.
+
+### 2026-08-24T10:50:50Z — SP-019 direct user-present controls attempt
+
+`EV-SP-019-20260824-LIVE-CONTROLS-04` adds partial direct evidence from the
+final app in a `CFFIXED_USER_HOME`-isolated profile: `Concise` survived a real
+menu quit/relaunch; purpose, scope, retention, inspect/correct controls,
+audit exclusion, retention cleanup, and local-only rejection were observed.
+The verified tool fact, resolved reference, destructive clarification,
+contradiction resolution, export artifact, deletion receipt, and direct
+transport trace remain open. SP-019 stays `in_progress`; the Delete action is
+paused for action-time confirmation and SP-020 remains unopened.
+### 2026-08-24T10:58:37Z — SP-019 closeout validation reconciliation
+
+`EV-SP-019-20260824-CLOSEOUT-05` records a successful rerun of the required
+runtime-completion validator, second-pass validator, 39 governance tests, JSON
+checks, and `git diff --check` after correcting the bounded evidence-ID
+projection. SP-019 remains `in_progress`; live verified-tool, reference,
+contradiction, export, deletion, and transport evidence remain open. Delete is
+paused for action-time confirmation and SP-020 remains unopened.
+### 2026-08-24T11:15:56Z — SP-019 live export reconciliation
+
+The Privacy export control passed its live postcondition under
+`EV-SP-019-20260824-LIVE-CONTROLS-06`: `/tmp/aura-memory-sp019-export.json`
+exists, contains 203 records, excludes audit data, and has the recorded SHA-256
+`b00a4e3958adb932e2772def68bea59970fd29fd9ba237f56271c4aae87f2857`.
+SP-019 remains `in_progress`; Delete is paused for action-time confirmation and
+the verified tool fact, reference, contradiction, and transport scenarios are
+still open. SP-020 remains unopened.
+### 2026-08-24T11:19:13Z — SP-019 closeout after export evidence
+
+`EV-SP-019-20260824-CLOSEOUT-07` records a green rerun of the required runtime,
+second-pass, governance, JSON, and diff checks after export evidence was
+reconciled. SP-019 remains `in_progress`; Delete is paused for action-time
+confirmation and SP-020 remains unopened.
+
+### 2026-08-24T15:07:21Z — SP-019 tool-evidence wiring and live acceptance
+
+Four of the five scenarios still open were traced to **missing product paths,
+not failed procedures**: nothing in production wrote `MemoryClass.projectFact`,
+produced `MemoryProvenance.observed`, or used
+`MemoryWriteSource.verifiedToolEvidence`; `ContradictionDetector` was
+unreachable because the only live subject was the globally unique
+`intent:<uuid>`; `ReferenceResolver.explicitlyConfirmedTargetID` had no
+producer; and `AuraKernel.deleteMemoryRecord` discarded the engine's
+`MemoryDeletionReceipt`.
+
+A bounded `ToolObservation` seam, a stable fact key with global scope, the
+reference-clarification round trip, and a surfaced deletion receipt were wired
+and covered by 19 new tests — full matrix **21/21 bundles, 1,160 tests, 0
+failed**, no new formatter or lint findings.
+
+Live acceptance in an isolated `CFFIXED_USER_HOME` profile then produced a
+verified tool fact (`projectFact shell.execute:/bin/date`, provenance
+`observed`), a real contradiction and its user-selected resolution
+(`{"supersededExisting":{}}`), restart persistence, an authorized permanent
+deletion with a user-visible receipt, a live `Blocked: confirmationDenied`
+refusal of a risky action, and two socket-table traces of the live process with
+**zero** non-loopback peers.
+
+Evidence: `EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08`,
+`-LIVE-PROJECT-FACT-09`, `-LIVE-DELETION-RECEIPT-10`, `-TRANSPORT-TRACE-11`,
+`-MEMORY-AUTHORITY-12`.
+
+SP-019 remains `in_progress`: the multi-turn reference scenario is proven only
+deterministically because the production rule-based classifier cannot emit an
+intent carrying an unresolved implicit reference
+(`RISK-SP-019-REFERENCE-UNREACHABLE`). SP-020 remains unopened.
+
+### 2026-08-24T16:19:20Z — SP-019 multi-turn reference closed
+
+The last open scenario was traced to one guard: `classifyFileCommand` accepted
+an open-prefixed target only when `looksLikePath` held, so `open the file` fell
+through to application matching and became `.unknown`, leaving the entire
+reference resolver unreachable in the shipped app. `ProductionReferenceWiringTests`
+had masked it with a fixture classifier that already behaved correctly.
+
+A known reference phrase now yields the intent with its target slot empty
+(`.fileOpen`, `.appActivate` for `the app`) at confidence 0.7, and the phrase
+list — previously three diverging literals — is defined once in `AuraCore`.
+
+Live: `open the file` returned `Blocked: ambiguous` with a clarifying question
+while two candidates were plausible; `open the file alpha` resolved to **alpha**,
+bound `filePath`, and opened the real file. Full matrix **21/21 bundles, 1,164
+tests, 0 failed**, including a new suite driven by the real classifier.
+
+Evidence: `EV-SP-019-20260824-LIVE-REFERENCE-13`.
+`RISK-SP-019-REFERENCE-UNREACHABLE` is closed.
+
+All eight R8 scenarios now carry direct live evidence. SP-019 stays
+`in_progress` pending one consolidated acceptance pass on a single build, since
+the evidence currently spans three. SP-020 remains unopened.
+
+### 2026-08-25T06:43:51Z — SP-019 completed
+
+All eight R8 live/product scenarios re-run and passed against one build
+(`fccf15204202b7c3f71815a2ff547e5706907dfe2caa1d30dea29d0157989f00`) in a single
+isolated profile, so the completion claim no longer spans three binaries.
+Evidence: `EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`.
+
+`RISK-SP-019-LIVE-MEMORY-CONTROLS` and `RISK-SP-019-REFERENCE-UNREACHABLE` are
+closed. SP-020 is next. Release/deploy remains blocked on signing and
+notarization (SP-026/SP-027); only a `development_unverified` artifact is
+producible today.

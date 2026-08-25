@@ -669,3 +669,167 @@ system-TTS interruption evidence does not substitute for that physical test.
 - **Assessment:** both were fixed at their cause — the unified-contacts query in place of enumerating a name predicate, and the formatter's own key descriptor in place of a hand-written key list. The general hazard is not closed: any Cocoa API that raises rather than returning an error can still take the process down, and Swift offers no seam to contain it.
 - **Closure criterion:** an audit of the remaining Contacts and EventKit call sites for raise-rather-than-return APIs, owned by R10.
 - **Evidence:** `EV-SP-011-20260819-LIVE-BROWSER-AND-CONTACTS-12`
+
+### 2026-08-24 — SP-018 verification correction risk disposition
+
+- **Risk ID:** `RISK-SP-018-AURAGENT-TEST-RUNNER-PARALLELISM`
+- **Status:** **Mitigated for the repository's default runner; toolchain residual remains**
+- **Owner:** SP-018 verification / test infrastructure
+- **Risk:** unrestricted Swift Testing parallelism can make the mixed
+  `AuraAgentTests` bundle produce scheduling-dependent false failures when
+  live CLI, real-worktree, and actor-backed fixtures contend under the full
+  matrix.
+- **Assessment / mitigation:** the failure was reproduced in the default
+  matrix and passed in isolation. `scripts/aura-test.sh` now bounds only this
+  bundle to one worker by default, with an explicit environment override for
+  controlled experiments; a regression test protects the runner contract.
+- **Evidence:** `EV-SP-018-20260824-TEST-RUNNER-FIX-06` — regression test passed,
+  corrected AuraAgentTests passed 237/237, and the default matrix passed 21/21
+  bundles with zero failed.
+- **Residual / closure criterion:** the control uses an experimental
+  Swift-Testing toolchain variable and must be rechecked if the Xcode/Testing
+  toolchain changes. A later independent default run reproducing the same
+  width-one failure would reopen this risk. This risk does not represent a
+  production memory-wiring, live-app, provider, release, or deployment claim.
+
+### 2026-08-24 — SP-019 live memory controls attempt
+
+- **Risk ID:** `RISK-SP-019-LIVE-MEMORY-CONTROLS`
+- **Status:** **Open — deterministic local slice delivered; user-present acceptance missing**
+- **Owner:** R8 memory/personalization and R9 product surfaces
+- **Risk:** source and deterministic tests can pass while the launched product
+  still fails to persist a preference across restart, expose all controls, or
+  keep remembered content from becoming hidden execution authority.
+- **Assessment / mitigation:** production composition now wires the bounded
+  profile store, runtime APIs, and Privacy controls; local policy rejects a
+  preference that would widen remote context, and the memory tests cover
+  provenance, conflicts, supersession, deletion, export, retention, audit
+  exclusion, and policy non-weakening. A LaunchServices smoke proved only
+  startup and stop. The temporary HOME did not isolate Application Support,
+  and no user-present control sequence was completed.
+- **Evidence:** `EV-SP-019-20260824-LOCAL-CONTROLS-01` and
+  `EV-SP-019-20260824-LAUNCH-SMOKE-02`.
+- **Closure criterion:** a direct user-present run must complete all eight R8
+  scenarios, capture redacted scope/purpose/provenance/control evidence, prove
+  preference persistence after a real quit/relaunch, and verify that memory
+  cannot authorize a risky action. ADR-043 must then be explicitly accepted
+  or remain Proposed by decision.
+
+### 2026-08-24 — SP-019 live controls evidence reconciliation
+
+- **Risk ID:** `RISK-SP-019-LIVE-MEMORY-CONTROLS`
+- **Status:** **Open — partial direct live evidence; deletion/export and several R8 scenarios remain unproven**
+- **Assessment:** `EV-SP-019-20260824-LIVE-CONTROLS-04` directly reduces the
+  restart/control portion of the risk: a bounded `Concise` preference survived
+  a real menu quit/relaunch in an isolated Foundation home; purpose, scope,
+  retention, provenance, correction, audit exclusion, retention cleanup, and
+  local-only policy rejection were visible in the product. The run did not
+  produce a verified local tool fact, resolved reference, conflict resolution,
+  export artifact, deletion receipt, or direct transport trace. The Delete
+  control remains pending action-time confirmation.
+- **Falsifier:** a fresh final-app run that fails to restore `Concise`, permits
+  remote-context widening, exposes audit/security memory, or loses the user
+  correction would falsify the reduced conclusion; a located export artifact,
+  conflict resolution, and deletion receipt would close the corresponding
+  residuals.
+- **Evidence:** `EV-SP-019-20260824-LIVE-CONTROLS-04` plus the deterministic
+  `EV-SP-019-20260824-LOCAL-CONTROLS-01`.
+- **Next safe action:** obtain immediate confirmation before deleting one
+  disposable `workingConversation` record; then rerun the export and remaining
+  R8 scenarios. Keep SP-019 `in_progress` and do not start SP-020.
+### 2026-08-24 — SP-019 export artifact observed
+
+- **Risk ID:** `RISK-SP-019-LIVE-MEMORY-CONTROLS`
+- **Status:** **Open — export now directly observed; deletion and remaining live scenarios remain unproven**
+- **Assessment / mitigation:** The live Privacy export control created and
+  saved a native JSON artifact in the isolated `/tmp` profile. Structural
+  inspection confirmed `conflicts`, `generatedAt`, and `records`, 203 records,
+  no audit field, and no raw audio/screenshot/token/secret marker. Evidence:
+  `EV-SP-019-20260824-LIVE-CONTROLS-06`.
+- **Residual / falsifier:** A missing file, changed hash, audit record in the
+  export, or a raw-content marker would falsify this export conclusion. The
+  verified tool fact, resolved reference, contradiction resolution, deletion
+  receipt, and direct transport trace remain open. Delete requires immediate
+  user confirmation.
+
+### RISK-SP-019-LIVE-MEMORY-CONTROLS — 2026-08-24 update (post tool-evidence wiring)
+
+- **Risk ID:** `RISK-SP-019-LIVE-MEMORY-CONTROLS`
+- **Status:** **Substantially reduced — five of six open scenarios now carry direct live evidence; one remains open on a newly identified classifier limitation**
+- **Assessment:** the earlier "live attempt failed" readings were mis-attributed.
+  Four of the scenarios could not have passed because the product had no such
+  path: no site wrote `projectFact`, produced `.observed` provenance, or used
+  `.verifiedToolEvidence`; the only live subject was globally unique so
+  `ContradictionDetector` was unreachable; `explicitlyConfirmedTargetID` had no
+  producer; and the deletion receipt was discarded by the kernel
+  (`EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08`). After wiring, live acceptance
+  produced a verified tool fact with `observed` provenance, a real contradiction
+  and its user-selected resolution, restart persistence, a permanent deletion
+  with a user-visible receipt, a live refusal of a risky action, and two
+  socket-table transport traces showing zero non-loopback peers
+  (`-09`, `-10`, `-11`, `-12`).
+- **Residual risk:** the multi-turn reference clarification is proven only
+  deterministically. The production rule-based classifier cannot emit an intent
+  carrying an unresolved implicit reference, so the resolver is reachable in
+  production only through the structured-NLU backend. Until that is exercised,
+  a regression in the clarification path would not be caught by live acceptance.
+- **Mitigation:** 19 new deterministic tests, including safety negatives that
+  pin that a loose or shared-token answer never manufactures a confirmation and
+  that secret-looking tool output is refused rather than retained.
+- **Falsifier:** a live turn in which a stored statement changed a policy
+  decision, a deleted record still readable, or a non-loopback peer observed on
+  the live process.
+
+### RISK-SP-019-REFERENCE-UNREACHABLE — new, 2026-08-24
+
+- **Risk ID:** `RISK-SP-019-REFERENCE-UNREACHABLE`
+- **Status:** **Open — reference resolution is unreachable through the production rule-based classifier**
+- **Owner:** R8 context/reference and intent classification
+- **Risk:** the reference resolver, its guarded-tier evidence checks, and the new
+  clarification round trip are fully implemented and tested, yet no live
+  utterance can reach them without the structured-NLU backend. A user asking
+  "open the file" gets `.unknown`, not a clarifying question about a real target.
+- **Assessment / mitigation:** `classifyFileCommand` guards on `looksLikePath`
+  and `classifyAppCommand` on a known application name; `applyingResolvedReference`
+  applies only to `.fileOpen`, `.appActivate`, and `.appTerminate`. Deterministic
+  coverage is in place; production reachability is not.
+- **Next step:** exercise the path through the structured-NLU backend, or widen
+  the rule-based classifier to emit a reference-carrying intent. Out of scope
+  for SP-019.
+
+### RISK-SP-019-REFERENCE-UNREACHABLE — 2026-08-24 closure
+
+- **Risk ID:** `RISK-SP-019-REFERENCE-UNREACHABLE`
+- **Status:** **Closed — the resolver is reachable through the production classifier and proven live**
+- **Assessment:** the single guard responsible was `classifyFileCommand`'s
+  `looksLikePath` requirement, which sent every reference-carrying utterance to
+  application matching and thence to `.unknown`. An open-prefixed target that is
+  a known reference phrase now yields `.fileOpen` (or `.appActivate` for
+  `the app`) with its target slot empty, at confidence 0.7 — above the 0.6 gate,
+  below an explicit path's 0.85. Live acceptance showed `open the file` refusing
+  to guess between two candidates and `open the file alpha` resolving to alpha
+  and opening the real file (`EV-SP-019-20260824-LIVE-REFERENCE-13`).
+- **Residual:** `revealPrefixes` ("show the file") still requires a path-shaped
+  target, so reveal-by-reference remains unreachable. Tracked as a follow-up,
+  not a blocker for SP-019's scenarios.
+- **Falsifier:** a reference resolving while several candidates remain
+  plausible, or `open safari` regressing away from `.appActivate`.
+
+### RISK-SP-019-LIVE-MEMORY-CONTROLS — 2026-08-25 closure
+
+- **Risk ID:** `RISK-SP-019-LIVE-MEMORY-CONTROLS`
+- **Status:** **Closed — all eight R8 live/product scenarios pass on one build**
+- **Assessment:** the risk was that source and deterministic tests could pass
+  while the launched product failed to persist a preference, expose its
+  controls, or keep remembered content from becoming hidden execution
+  authority. `EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14` re-ran every
+  scenario against build `fccf1520…` in one isolated profile: preference
+  restart, verified tool fact, reference resolution, contradiction and its
+  resolution, correction with supersession, inspection/retention/export/
+  deletion-with-receipt/audit exclusion, machine-policy refusal of remote
+  context, refusal of an unconfirmed mutation-tier command, and two transport
+  traces with zero non-loopback peers.
+- **Residual:** reveal-by-reference (`revealPrefixes` requires a path-shaped
+  target) and expiry-driven retention purging are covered only by the
+  deterministic suite. Both are follow-ups outside SP-019's scenarios.
+- **Falsifier:** any of the eight scenarios failing on a single-build re-run.

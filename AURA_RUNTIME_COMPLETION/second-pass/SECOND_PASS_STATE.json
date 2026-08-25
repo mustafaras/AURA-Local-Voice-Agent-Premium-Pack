@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-23T17:14:04Z",
-  "session_id": "AURA-SP-018-IMPLEMENTATION-20260823",
-  "active_prompt": "SP-019",
+  "updated_at": "2026-08-25T06:43:51Z",
+  "session_id": "AURA-SP-019-ATTEMPT-20260824",
+  "active_prompt": "SP-020",
   "active_state": "pending",
   "completed_prompts": [
     "SP-000",
@@ -26,10 +26,26 @@
     "SP-015",
     "SP-016",
     "SP-017",
-    "SP-018"
+    "SP-018",
+    "SP-019"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
+    "EV-SP-019-20260824-LIVE-REFERENCE-13",
+    "EV-SP-019-20260824-MEMORY-AUTHORITY-12",
+    "EV-SP-019-20260824-TRANSPORT-TRACE-11",
+    "EV-SP-019-20260824-LIVE-DELETION-RECEIPT-10",
+    "EV-SP-019-20260824-LIVE-PROJECT-FACT-09",
+    "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08",
+    "EV-SP-019-20260824-CLOSEOUT-07",
+    "EV-SP-019-20260824-LIVE-CONTROLS-06",
+    "EV-SP-019-20260824-CLOSEOUT-05",
+    "EV-SP-019-20260824-CLOSEOUT-03",
+    "EV-SP-019-20260824-LIVE-CONTROLS-04",
+    "EV-SP-019-20260824-LAUNCH-SMOKE-02",
+    "EV-SP-019-20260824-LOCAL-CONTROLS-01",
+    "EV-SP-018-20260824-TEST-RUNNER-FIX-06",
     "EV-SP-018-20260823-DELIVERY-05",
     "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04",
     "EV-SP-018-20260823-FULL-SUITE-03",
@@ -84,16 +100,16 @@
   ],
   "authority": {
     "edit": true,
-    "launch_or_install_app": false,
+    "launch_or_install_app": true,
     "mutate_permissions": false,
     "install_dependencies": false,
     "download_models": false,
     "provider_accounts": false,
     "telemetry_or_beta": false,
     "sign_or_notarize": false,
-    "commit": false,
-    "push": false,
-    "merge": false,
+    "commit": true,
+    "push": true,
+    "merge": true,
     "release_or_deploy": false
   },
   "control_files": {
@@ -107,5 +123,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-019 is the first pending prompt. Start only under SP-019's own authority and required read order; no SP-019 implementation was performed in this session."
+  "next_action": "SP-019 is completed and evidenced on one build. Start SP-020 (remote context boundary and ADR-043) from its prompt; do not re-open SP-019."
 }

@@ -340,6 +340,17 @@ extension ToolRouter {
           intentID: intent.id, toolID: "shell.execute",
           succeeded: processResult.exitCode == 0, summary: summary),
         correlationID: executionContext.correlationID, causationID: executionContext.causationID)
+      // A command that actually ran and succeeded is verified evidence about
+      // the project, so it is recorded as an observation the memory engine
+      // may keep as a `projectFact`. Only exit code 0 qualifies: a failed
+      // command's output describes the failure, not the project. The spoken
+      // summary deliberately stays exit-code-only — stdout reaches bounded
+      // memory, never speech.
+      if processResult.exitCode == 0 {
+        recordToolObservation(
+          shellObservation(command: command, result: processResult, context: executionContext),
+          intentID: intent.id)
+      }
       return .executed(summary: summary, hasSpokenResponse: true)
     case .failure(let error):
       let summary = "Command failed: \(error.localizedDescription)"
@@ -349,6 +360,34 @@ extension ToolRouter {
         correlationID: executionContext.correlationID, causationID: executionContext.causationID)
       return .failed(reason: summary)
     }
+  }
+
+  /// Build the bounded `projectFact` observation for one successful command.
+  ///
+  /// `factKey` is the command itself, so re-running the same command is an
+  /// observation of the *same* fact: if the answer changed, the memory engine
+  /// raises a contradiction instead of silently keeping both.
+  private func shellObservation(
+    command: Command,
+    result: ProcessResult,
+    context: ToolExecutionContext
+  ) -> ToolObservation {
+    let commandText = ([command.executable] + command.arguments).joined(separator: " ")
+    let output = ToolObservation.boundedOutput(result.stdout)
+    let statement =
+      output.isEmpty
+      ? "`\(commandText)` completed with exit code 0 and produced no output."
+      : "`\(commandText)` reported: \(output)"
+    return ToolObservation(
+      toolID: "shell.execute",
+      factKey: "shell.execute:\(commandText)",
+      statement: statement,
+      evidenceReferences: [
+        "tool:shell.execute",
+        "execution:\(result.executionID.uuidString)",
+        "correlation:\(context.correlationID.uuidString)",
+      ],
+      sourceActor: context.actor)
   }
 
   /// A `.codingAgentRun` intent is delegated asynchronously. In production,

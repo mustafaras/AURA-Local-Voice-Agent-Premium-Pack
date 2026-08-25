@@ -1,12 +1,46 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-019` (pending)
+> **Current prompt:** `SP-019` (in_progress; live evidence blocker)
 > **Current program state:** In progress; SP-017 completed under the system-TTS-only branch, while R1/R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 and the broader program remain open.
-> **Live repository lineage:** SP-018 product and control content is synchronized on `main` at `1d3efca0944334be19a2d68abbb4c199bba15d87` and pushed to `origin/main`; the worktree is clean. No repository-defined signed/notarized/public deployment target exists.
+> **Live repository lineage:** SP-018 product content was delivered at `1d3efca0944334be19a2d68abbb4c199bba15d87`; current `main` and `origin/main` are synchronized at `ed55a0c8db9c63059c7639f9160efebaf44816ac`, with declared dirty SP-018 verification and SP-019 local-control edits. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
+
+## Second-pass synchronized overlay — 2026-08-24T11:15:56Z (`SP-019` / `in_progress`)
+
+The bounded local implementation is source/build/test verified under
+`EV-SP-019-20260824-LOCAL-CONTROLS-01`: focused `AURAIntegrationTests` 83/83,
+full matrix 21/21 bundles with 1,141 tests and zero failures, second-pass
+validator and 39 governance tests passed. The final local app was built at
+`/tmp/aura-sp019-final-app/AURA.app`.
+
+The LaunchServices smoke under `EV-SP-019-20260824-LAUNCH-SMOKE-02` proves only
+startup and exact-process stop. The direct user-present follow-up is recorded
+under `EV-SP-019-20260824-LIVE-CONTROLS-04`: `Concise` survived a real menu
+quit/relaunch in an isolated Foundation home; purpose/scope/retention,
+inspection, correction, retention cleanup, audit exclusion, local-only policy
+rejection, and export artifact creation were observed. The export is recorded
+under `EV-SP-019-20260824-LIVE-CONTROLS-06`. Verified tool fact, resolved
+reference, destructive clarification, contradiction resolution, deletion
+receipt, and direct transport trace remain open. SP-019 is `in_progress`,
+ADR-043 remains Proposed, and SP-020 is not safe to start.
+
+**Next safe action:** obtain action-time confirmation before deleting only the
+disposable test memory row; then capture the deletion receipt and continue the
+remaining SP-019 scenarios with redacted evidence. Do not start SP-020.
+
+## Verification correction overlay — 2026-08-24
+
+The default full test matrix exposed a scheduling-dependent failure in
+`AuraAgentTests`: live CLI probes, real git worktree operations, and
+actor-backed fixtures were being run at unrestricted Swift Testing
+parallelism. The production runner now bounds only that bundle to one worker
+by default, with an explicit environment override for controlled experiments.
+The regression test, 237-test bundle, and default 21-bundle matrix pass under
+`EV-SP-018-20260824-TEST-RUNNER-FIX-06`. This is a runner/toolchain correction;
+SP-018 product scope and SP-019 state are unchanged.
 
 ## Second-pass synchronized overlay — 2026-08-23 (SP-018 COMPLETED; SP-019 PENDING)
 
@@ -1491,3 +1525,77 @@ Three details worth carrying forward:
 Evidence: `EV-SP-009-20260817-CORRECTION-02`, `EV-SP-009-20260817-CLOSEOUT-03`.
 Regression 21/21 bundles, **954/954 tests**, 0 failed; four validators exit 0.
 SP-010 remains **pending and unopened**.
+
+### 2026-08-24T15:07:21Z — SP-019 tool-evidence wiring and live acceptance
+
+Four of the five scenarios still open were traced to **missing product paths,
+not failed procedures**: nothing in production wrote `MemoryClass.projectFact`,
+produced `MemoryProvenance.observed`, or used
+`MemoryWriteSource.verifiedToolEvidence`; `ContradictionDetector` was
+unreachable because the only live subject was the globally unique
+`intent:<uuid>`; `ReferenceResolver.explicitlyConfirmedTargetID` had no
+producer; and `AuraKernel.deleteMemoryRecord` discarded the engine's
+`MemoryDeletionReceipt`.
+
+A bounded `ToolObservation` seam, a stable fact key with global scope, the
+reference-clarification round trip, and a surfaced deletion receipt were wired
+and covered by 19 new tests — full matrix **21/21 bundles, 1,160 tests, 0
+failed**, no new formatter or lint findings.
+
+Live acceptance in an isolated `CFFIXED_USER_HOME` profile then produced a
+verified tool fact (`projectFact shell.execute:/bin/date`, provenance
+`observed`), a real contradiction and its user-selected resolution
+(`{"supersededExisting":{}}`), restart persistence, an authorized permanent
+deletion with a user-visible receipt, a live `Blocked: confirmationDenied`
+refusal of a risky action, and two socket-table traces of the live process with
+**zero** non-loopback peers.
+
+Evidence: `EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08`,
+`-LIVE-PROJECT-FACT-09`, `-LIVE-DELETION-RECEIPT-10`, `-TRANSPORT-TRACE-11`,
+`-MEMORY-AUTHORITY-12`.
+
+SP-019 remains `in_progress`: the multi-turn reference scenario is proven only
+deterministically because the production rule-based classifier cannot emit an
+intent carrying an unresolved implicit reference
+(`RISK-SP-019-REFERENCE-UNREACHABLE`). SP-020 remains unopened.
+
+### 2026-08-24T16:19:20Z — SP-019 multi-turn reference closed
+
+The last open scenario was traced to one guard: `classifyFileCommand` accepted
+an open-prefixed target only when `looksLikePath` held, so `open the file` fell
+through to application matching and became `.unknown`, leaving the entire
+reference resolver unreachable in the shipped app. `ProductionReferenceWiringTests`
+had masked it with a fixture classifier that already behaved correctly.
+
+A known reference phrase now yields the intent with its target slot empty
+(`.fileOpen`, `.appActivate` for `the app`) at confidence 0.7, and the phrase
+list — previously three diverging literals — is defined once in `AuraCore`.
+
+Live: `open the file` returned `Blocked: ambiguous` with a clarifying question
+while two candidates were plausible; `open the file alpha` resolved to **alpha**,
+bound `filePath`, and opened the real file. Full matrix **21/21 bundles, 1,164
+tests, 0 failed**, including a new suite driven by the real classifier.
+
+Evidence: `EV-SP-019-20260824-LIVE-REFERENCE-13`.
+`RISK-SP-019-REFERENCE-UNREACHABLE` is closed.
+
+All eight R8 scenarios now carry direct live evidence. SP-019 stays
+`in_progress` pending one consolidated acceptance pass on a single build, since
+the evidence currently spans three. SP-020 remains unopened.
+
+## Second-pass synchronized overlay — 2026-08-25T06:43:51Z (`SP-020` / `pending`)
+
+SP-019 is **completed**. All eight R8 live/product scenarios passed against a
+single build (`fccf1520…`) in one isolated profile — preference restart with
+purpose/scope/retention, a verified tool fact with `observed` provenance, the
+multi-turn reference ambiguity-then-answer pair, a contradiction and its
+user-selected resolution, a correction carrying its supersession link,
+inspection/retention/export/deletion-with-receipt/audit exclusion, machine-policy
+refusal of remote context, refusal of an unconfirmed mutation-tier command, and
+two transport traces with zero non-loopback peers
+(`EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`).
+
+`RISK-SP-019-LIVE-MEMORY-CONTROLS` and `RISK-SP-019-REFERENCE-UNREACHABLE` are
+closed. SP-020 (remote context boundary and ADR-043) is next and unopened.
+Release and deployment stay blocked on signing and notarization, owned by
+SP-026 and SP-027.

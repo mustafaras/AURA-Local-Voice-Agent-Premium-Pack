@@ -416,11 +416,62 @@ extension AuraKernel {
 
   /// R9's user-inspectable memory projection. Audit/security records remain
   /// excluded by `MemoryEngine.inspect` and are never copied into the UI.
-  func memoryRecordsSnapshot() async throws(AuraError) -> [MemoryRecord] {
+  func memoryRecordsSnapshot(
+    includeSuperseded: Bool = false
+  ) async throws(AuraError) -> [MemoryRecord] {
     guard started, let memoryEngine else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
     }
-    return try await memoryEngine.inspect(includeSuperseded: false)
+    return try await memoryEngine.inspect(includeSuperseded: includeSuperseded)
+  }
+
+  func memoryConflictsSnapshot() async throws(AuraError) -> [MemoryConflict] {
+    guard started, let memoryEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    return try await memoryEngine.conflicts()
+  }
+
+  func resolveMemoryConflict(
+    id: UUID, resolution: MemoryConflictResolution
+  ) async throws(AuraError) {
+    guard started, let memoryEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await memoryEngine.resolveConflict(id: id, resolution: resolution, actor: .user)
+  }
+
+  @discardableResult
+  func enforceMemoryRetention() async throws(AuraError) -> [UUID] {
+    guard started, let memoryEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    return try await memoryEngine.enforceRetention()
+  }
+
+  func preferenceProfileSnapshot() async throws(AuraError) -> UserPreferenceProfile? {
+    guard started, let preferenceProfileStore else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    return try await preferenceProfileStore.load()
+  }
+
+  @discardableResult
+  func savePreferenceProfile(
+    _ profile: UserPreferenceProfile
+  ) async throws(AuraError) -> UserPreferenceProfile {
+    guard started, let preferenceProfileStore else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    return try await preferenceProfileStore.save(profile, actor: .user, sessionID: sessionID)
+  }
+
+  @discardableResult
+  func clearPreferenceProfile() async throws(AuraError) -> MemoryDeletionReceipt? {
+    guard started, let preferenceProfileStore else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    return try await preferenceProfileStore.clear(actor: .user)
   }
 
   func correctMemoryRecord(
@@ -434,15 +485,23 @@ extension AuraKernel {
       throw AuraError.memoryError("memory correction cannot be empty")
     }
     return try await memoryEngine.correct(
-      recordID: id, newStatement: statement, reason: reason, actor: .user,
+      recordID: id, newStatement: statement, reason: reason,
+      evidenceReferences: ["user-correction:\(id.uuidString)"], actor: .user,
       sessionID: sessionID)
   }
 
-  func deleteMemoryRecord(id: UUID, reason: String) async throws(AuraError) {
+  /// Permanently delete one non-audit memory record and return the engine's
+  /// receipt. The receipt is the user's only proof the deletion happened —
+  /// the audit event deliberately does not carry the deleted content — so it
+  /// is returned rather than discarded.
+  @discardableResult
+  func deleteMemoryRecord(
+    id: UUID, reason: String
+  ) async throws(AuraError) -> MemoryDeletionReceipt {
     guard started, let memoryEngine else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
     }
-    _ = try await memoryEngine.deleteRecord(id: id, reason: reason, actor: .user)
+    return try await memoryEngine.deleteRecord(id: id, reason: reason, actor: .user)
   }
 
   func memoryExportData() async throws(AuraError) -> Data {

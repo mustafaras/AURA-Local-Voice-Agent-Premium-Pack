@@ -136,3 +136,48 @@ converted to clarification before routing. Evidence:
 This does not accept the broader R8 architecture, ADR-043, user-present
 restart/control demonstrations, remote transport, UI controls, or any release
 boundary. SP-019 may be opened only under its own prompt authority.
+
+### 2026-08-24T08:01:03Z — DEC-SP-018-PRODUCTION-REFERENCE-WIRING verification correction
+
+The decision remains **Accepted for SP-018 / OPEN-09 prompt completion**. The
+independent recheck found only a scheduling-dependent failure at the
+`AuraAgentTests` runner boundary; it did not falsify the production
+reference-wiring decision. The default runner now bounds that mixed bundle to
+one Swift Testing worker, with regression and full-matrix evidence under
+`EV-SP-018-20260824-TEST-RUNNER-FIX-06`. This operational test-boundary change
+does not accept broader R8/live/restart, ADR-043, provider, release, or deploy
+gates. SP-019 remains pending and unopened.
+
+### 2026-08-24T08:45:49Z — DEC-SP-019-MEMORY-CONTROLS
+
+The bounded local implementation slice is **accepted for deterministic
+verification only**, not for SP-019 prompt completion. The production kernel
+now owns the preference profile store and the Privacy surface exposes the
+bounded preference, inspection/search, conflict, correction/deletion/export,
+and retention controls. Evidence: `EV-SP-019-20260824-LOCAL-CONTROLS-01`.
+
+The decision is explicitly **Deferred** for live product acceptance because
+`EV-SP-019-20260824-LAUNCH-SMOKE-02` proves startup/stop only; it does not prove
+user-present restart persistence, the eight R8 scenarios, isolated local-only
+transport, or ADR-043 acceptance. SP-019 remains `in_progress`; SP-020 must not
+start.
+
+### 2026-08-24T10:50:50Z — DEC-SP-019-LIVE-CONTROLS-RECONCILIATION
+
+The earlier SP-019 decision remains **Deferred** for prompt completion. Direct
+user-present evidence now confirms bounded preference restart and several
+Privacy controls under `EV-SP-019-20260824-LIVE-CONTROLS-04`, but it does not
+close the full R8 gate: the verified tool fact, resolved reference, destructive
+clarification, contradiction resolution, export artifact, deletion receipt,
+and direct transport observation remain absent. ADR-043 remains Proposed and
+SP-020 remains unopened. A permanent deletion requires action-time user
+confirmation before the UI Delete control is pressed.
+### 2026-08-24T11:15:56Z — DEC-SP-019-EXPORT-OBSERVATION
+
+The SP-019 decision remains **Deferred** for full prompt completion. Direct
+user-present export now passes: the Privacy control produced a located JSON
+artifact with 203 records, no audit field, and no raw-content marker under
+`EV-SP-019-20260824-LIVE-CONTROLS-06`. This does not close the verified tool
+fact, resolved reference, contradiction, deletion, or direct transport
+scenarios. ADR-043 remains Proposed; SP-020 remains unopened. Permanent Delete
+is still gated by action-time user confirmation.

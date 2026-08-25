@@ -50,6 +50,12 @@ public actor ToolRouter {
   /// the mailbox, calendar, or address book were empty.
   let productivityReader: (any ProductivityReading)?
 
+  /// Verified observations from tools that actually ran, keyed by the intent
+  /// that produced them and consumed exactly once by the dispatch
+  /// coordinator. Keyed rather than kept as a single "last" value so two
+  /// interleaved routes can never hand a turn another turn's evidence.
+  var recentToolObservations: [UUID: ToolObservation] = [:]
+
   public init(
     policyEngine: PolicyEngine,
     automation: AuraAutomation,

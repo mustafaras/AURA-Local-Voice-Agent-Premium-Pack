@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-23T17:14:04Z",
-  "repository_commit": "1d3efca0944334be19a2d68abbb4c199bba15d87",
+  "updated_at": "2026-08-24T09:42:05Z",
+  "repository_commit": "ed55a0c8db9c63059c7639f9160efebaf44816ac",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -279,8 +279,8 @@
       "name": "Local Ollama model routing",
       "domain": "model",
       "implementation_state": "implemented",
-      "runtime_state": "constructed_inactive",
-      "user_path_state": "developer_only",
+      "runtime_state": "registered_ready",
+      "user_path_state": "ui_reachable",
       "verification_state": "integration_simulated",
       "risk_tier": "observation",
       "owning_track": "R2",
@@ -715,13 +715,17 @@
         "dialogue.conversation"
       ],
       "open_gaps": [
-        "Production reference-candidate population is incomplete; no launched-app user inspection/correction/export/deletion UI, user-present cross-session demonstration, or remote transport evidence."
+        "Verified tool fact, resolved multi-turn reference, destructive clarification, contradiction resolution, deletion receipt, and direct remote transport evidence remain open; the user-present UI control path is only partially live-verified."
       ],
       "evidence_ids": [
         "EV-R8-20260808-MEMORY-POLICY-01",
-        "EV-R8-20260808-CONTEXT-PRODUCT-02"
+        "EV-R8-20260808-CONTEXT-PRODUCT-02",
+        "EV-SP-019-20260824-LOCAL-CONTROLS-01",
+        "EV-SP-019-20260824-LIVE-CONTROLS-04",
+        "EV-SP-019-20260824-LIVE-CONTROLS-06",
+        "EV-SP-019-20260824-CLOSEOUT-07"
       ],
-      "notes": "Bounded local memory/context policy and explainability metadata are implemented and integration-tested; product activation and live acceptance remain open."
+      "notes": "Bounded local memory/context policy and explainability metadata are implemented; direct evidence proves preference restart, inspect/correct, retention invocation, audit exclusion, local-only rejection, and export artifact creation, but the full R8 live gate remains open."
     },
     {
       "id": "intent.capability_registry",

@@ -84,6 +84,82 @@ struct AuraMemoryRow: Identifiable, Equatable, Sendable {
   let sensitivity: String
   let createdAt: Date
   let canMutate: Bool
+  let retention: MemoryRetentionPolicy
+  let scope: MemoryScope
+  let supersedes: UUID?
+
+  init(
+    id: UUID,
+    memoryClass: String,
+    subject: String,
+    statement: String,
+    purpose: String,
+    provenance: String,
+    confidence: Double,
+    sensitivity: String,
+    createdAt: Date,
+    canMutate: Bool,
+    retention: MemoryRetentionPolicy = .indefinite,
+    scope: MemoryScope = .global,
+    supersedes: UUID? = nil
+  ) {
+    self.id = id
+    self.memoryClass = memoryClass
+    self.subject = subject
+    self.statement = statement
+    self.purpose = purpose
+    self.provenance = provenance
+    self.confidence = confidence
+    self.sensitivity = sensitivity
+    self.createdAt = createdAt
+    self.canMutate = canMutate
+    self.retention = retention
+    self.scope = scope
+    self.supersedes = supersedes
+  }
+}
+
+struct AuraMemoryConflictRow: Identifiable, Equatable, Sendable {
+  let id: UUID
+  let subject: String
+  let existingRecordID: UUID
+  let newRecordID: UUID
+  let existingStatement: String
+  let newStatement: String
+  let detectedAt: Date
+  let resolution: MemoryConflictResolution?
+
+  var resolutionSummary: String {
+    switch resolution {
+    case nil: return "Unresolved"
+    case .supersededExisting: return "New statement marked as superseding the previous one"
+    case .keptExisting: return "Previous statement retained"
+    case .bothRetained: return "Both statements retained"
+    }
+  }
+}
+
+/// User-visible proof that a memory record was permanently deleted.
+///
+/// `MemoryEngine.deleteRecord` already returns a `MemoryDeletionReceipt`, but
+/// before SP-019 the kernel discarded it and the Privacy tab showed only a
+/// transient sentence. A deletion the user cannot verify afterwards is not an
+/// inspectable control, so the receipt is projected here and held until the
+/// next deletion replaces it. It deliberately carries no deleted content —
+/// only the record identity, class, reason, and time — because a receipt that
+/// preserved the statement would relocate the data instead of removing it.
+struct AuraMemoryDeletionReceiptRow: Identifiable, Equatable, Sendable {
+  let id: UUID
+  let memoryClass: String
+  let reason: String
+  let deletedAt: Date
+
+  init(receipt: MemoryDeletionReceipt) {
+    self.id = receipt.recordID
+    self.memoryClass = receipt.memoryClass.rawValue
+    self.reason = receipt.reason
+    self.deletedAt = receipt.deletedAt
+  }
 }
 
 /// The product surfaces are deliberately finite so keyboard navigation,

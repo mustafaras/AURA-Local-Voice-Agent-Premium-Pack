@@ -2,23 +2,60 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-23T17:18:48Z",
-  "session_id": "AURA-SP-018-IMPLEMENTATION-20260823",
+  "updated_at": "2026-08-25T06:43:51Z",
+  "session_id": "AURA-SP-019-ATTEMPT-20260824",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "1d3efca0944334be19a2d68abbb4c199bba15d87",
-    "remote_head": "1d3efca0944334be19a2d68abbb4c199bba15d87",
-    "working_tree_state": "clean",
-    "user_owned_changes": []
+    "verified_head": "ed55a0c8db9c63059c7639f9160efebaf44816ac",
+    "remote_head": "ed55a0c8db9c63059c7639f9160efebaf44816ac",
+    "working_tree_state": "dirty_expected",
+    "user_owned_changes": [
+      "README.md",
+      "scripts/aura-test.sh",
+      "scripts/tests/test_aura_test_runner.py",
+      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+      "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-018-20260824-TEST-RUNNER-FIX-06.md",
+      "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+      "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/state/current-state.json",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+      "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+      "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+      "ledger/CURRENT_STATE.md",
+      "ledger/PROJECT_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LOCAL-CONTROLS-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LAUNCH-SMOKE-02.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-CLOSEOUT-03.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LIVE-CONTROLS-04.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-CLOSEOUT-05.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-LIVE-CONTROLS-06.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-019-20260824-CLOSEOUT-07.md",
+      "docs/decisions/ADR-043-memory-personalization-controls.md",
+      "Sources/AURA/AuraAppModel.swift",
+      "Sources/AURA/AuraAppModel_ProductState.swift",
+      "Sources/AURA/AuraAppModel_Runtime.swift",
+      "Sources/AURA/AuraKernel.swift",
+      "Sources/AURA/AuraKernel_Construction.swift",
+      "Sources/AURA/AuraKernel_RuntimeAPI.swift",
+      "Sources/AURA/AuraMenuView.swift",
+      "Sources/AURA/AuraMenuView_Tabs.swift",
+      "Sources/AURA/ProductUIState.swift",
+      "Tests/AURAIntegrationTests/R9ProductUIStateTests.swift",
+      "Tests/AURAIntegrationTests/SP019MemoryUIStateTests.swift"
+    ]
   },
   "program_status": "in_progress",
   "active_prompt": {
     "id": "R8",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
-    "state": "in_progress",
-    "step": "SP-018 / OPEN-09 is completed and delivered at 1d3efca. SP-019 is the active pending second-pass prompt for R8; its own authority and required read order are required before any action."
+    "state": "completed",
+    "step": "SP-019 is completed: all eight R8 live/product scenarios passed on the single build fccf1520 under EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14. SP-020 (remote context boundary and ADR-043) is next and unopened."
   },
   "tracks": [
     {
@@ -245,13 +282,20 @@
         "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01",
         "EV-SP-018-20260823-FOCUSED-TESTS-02",
         "EV-SP-018-20260823-FULL-SUITE-03",
-        "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04"
+        "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04",
+        "EV-SP-018-20260824-TEST-RUNNER-FIX-06",
+        "EV-SP-019-20260824-LOCAL-CONTROLS-01",
+        "EV-SP-019-20260824-LAUNCH-SMOKE-02",
+        "EV-SP-019-20260824-LIVE-CONTROLS-04",
+        "EV-SP-019-20260824-LIVE-CONTROLS-06",
+        "EV-SP-019-20260824-CLOSEOUT-07"
       ],
       "open_risk_ids": [
         "RISK-MEMORY-NOT-PRODUCTIZED",
         "RISK-MEMORY-LIVE-ACCEPTANCE",
         "RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE",
-        "RISK-ADR-043-PENDING"
+        "RISK-ADR-043-PENDING",
+        "RISK-SP-019-LIVE-MEMORY-CONTROLS"
       ]
     },
     {
@@ -352,13 +396,13 @@
     "install_dependencies": false,
     "download_models": false,
     "mutate_permissions": false,
-    "launch_or_install_app": false,
-    "commit": false,
-    "push": false,
-    "merge": false,
+    "launch_or_install_app": true,
+    "commit": true,
+    "push": true,
+    "merge": true,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "SP-017 closeout reset: edit-only handoff. No install, download, launch, TCC mutation, provider, telemetry/beta, signing, commit, push, merge, release, or deploy authority is standing."
+    "source": "User granted explicit current-turn authority on 2026-08-25 to commit, push, and merge the SP-019 delivery. Release/deploy remains false: the app is unsigned for distribution and unnotarized, and SP-026/SP-027 own the reproducible-toolchain and signing gates, so only a development_unverified artifact may be produced."
   },
   "release_gates": [
     {
@@ -430,7 +474,10 @@
       "name": "Owned and consented neural reference voice with human listening acceptance",
       "state": "waived",
       "required_for": "release",
-      "evidence_ids": ["EV-SP-017-20260823-LIVE-SYSTEM-TTS-01", "EV-SP-017-20260823-RESOURCE-SCOPE-02"],
+      "evidence_ids": [
+        "EV-SP-017-20260823-LIVE-SYSTEM-TTS-01",
+        "EV-SP-017-20260823-RESOURCE-SCOPE-02"
+      ],
       "waiver_reason": "Optional if the release uses only the local Apple system voice and clearly excludes neural voice cloning."
     },
     {
@@ -438,11 +485,29 @@
       "name": "Real local acoustic wake-word model",
       "state": "waived",
       "required_for": "release",
-      "evidence_ids": ["EV-SP-015-20260822-WAKE-EXCLUSION-01", "EV-SP-017-20260823-RESOURCE-SCOPE-02"],
+      "evidence_ids": [
+        "EV-SP-015-20260822-WAKE-EXCLUSION-01",
+        "EV-SP-017-20260823-RESOURCE-SCOPE-02"
+      ],
       "waiver_reason": "May be explicitly excluded from a Push-to-Talk-only release; the product must not claim always-on wake activation."
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
+    "EV-SP-019-20260824-LIVE-REFERENCE-13",
+    "EV-SP-019-20260824-MEMORY-AUTHORITY-12",
+    "EV-SP-019-20260824-TRANSPORT-TRACE-11",
+    "EV-SP-019-20260824-LIVE-DELETION-RECEIPT-10",
+    "EV-SP-019-20260824-LIVE-PROJECT-FACT-09",
+    "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08",
+    "EV-SP-019-20260824-CLOSEOUT-07",
+    "EV-SP-019-20260824-LIVE-CONTROLS-06",
+    "EV-SP-019-20260824-CLOSEOUT-05",
+    "EV-SP-019-20260824-CLOSEOUT-03",
+    "EV-SP-019-20260824-LIVE-CONTROLS-04",
+    "EV-SP-019-20260824-LAUNCH-SMOKE-02",
+    "EV-SP-019-20260824-LOCAL-CONTROLS-01",
+    "EV-SP-018-20260824-TEST-RUNNER-FIX-06",
     "EV-SP-018-20260823-DELIVERY-05",
     "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04",
     "EV-SP-018-20260823-FULL-SUITE-03",
@@ -477,22 +542,7 @@
     "EV-REPO-HYGIENE-HOSTED-CI-20260811-01",
     "EV-REPO-HYGIENE-GIT-ADOPTION-20260811-01",
     "EV-REPO-HYGIENE-TOOLCHAIN-20260811-01",
-    "EV-REPO-HYGIENE-REMEDIATION-VERIFY-20260811-01",
-    "EV-REPO-HYGIENE-DEPENDENCY-REMEDIATION-20260811-01",
-    "EV-REPO-HYGIENE-REMEDIATION-CLOSEOUT-20260810-01",
-    "EV-REPO-HYGIENE-REMEDIATION-20260810-01",
-    "EV-REPO-HYGIENE-H-003-CLOSEOUT-20260809-01",
-    "EV-REPO-HYGIENE-H-003-20260809-01",
-    "EV-REPO-HYGIENE-H-002-CLOSEOUT-20260809-01",
-    "EV-REPO-HYGIENE-H-002-20260809-01",
-    "EV-REPO-HYGIENE-H-001-CLOSEOUT-20260809-02",
-    "EV-REPO-HYGIENE-H-001-20260809-02",
-    "EV-REPO-HYGIENE-H-001-CLOSEOUT-20260809-01",
-    "EV-REPO-HYGIENE-H-001-20260809-01",
-    "EV-REPO-HYGIENE-20260809-DELIVERY-02",
-    "EV-REPO-HYGIENE-20260809-PROGRAM-01",
-    "EV-SECOND-PASS-20260809-CONTROL-PLANE-02",
-    "EV-OPEN-GAPS-20260809-FULL-AUDIT-01"
+    "EV-REPO-HYGIENE-REMEDIATION-VERIFY-20260811-01"
   ],
   "blockers": [
     "SP-011 is completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13. Every leg named in its procedure has live evidence and both revocation legs passed; mutation/send is explicitly excluded and asserted by test. OPEN-06 itself stays open for items SP-011 does not own, chiefly Developer ID signing and notarization (R11), which would remove Safari's Allow-unsigned-extensions requirement.",
@@ -501,7 +551,8 @@
     "R12 has no authorized beta cohort, telemetry/SLO evidence, scenario results, incident review, independent sign-offs, or approved release-candidate package.",
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "SP-017 residuals are intentionally outside the completed system-only branch: neural co-resident soak/MPS/human listening, energy/thermal qualification, wake word, and physical headset/route/sleep/echo verification remain open for future scope.",
-    "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists."
+    "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists.",
+    "SP-019 direct user-present controls now partially pass under an isolated Foundation home; export is directly evidenced, but verified tool fact, resolved reference, destructive clarification, contradiction resolution, deletion receipt, and direct transport trace remain unproven. SP-020 is not safe to start."
   ],
-  "next_action": "SP-019 is the first pending second-pass prompt. Start only under SP-019's own authority and required read order; no SP-019 implementation was performed in this session."
+  "next_action": "SP-019 is completed. Commit, push, and merge the delivery, then start SP-020. Release/deploy stays blocked on signing and notarization (SP-026/SP-027)."
 }

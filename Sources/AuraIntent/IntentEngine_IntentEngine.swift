@@ -28,10 +28,25 @@ public actor IntentEngine {
   var recentReferenceCandidates: [ReferenceCandidate] = []
   var lastContextResult: DeepContextResult?
   var pendingClarification: PendingClarification?
+  /// Candidates offered after an ambiguous reference, held so the user's
+  /// answer to "which one?" can be applied to the next turn.
+  var pendingReferenceClarification: PendingReferenceClarification?
 
   struct PendingClarification: Sendable {
     let kind: IntentKind
     let slotName: String
+    let expiresAt: Date
+  }
+
+  /// An unresolved reference AURA already asked the user about.
+  ///
+  /// Without this, `ReferenceResolver.explicitlyConfirmedTargetID` had no
+  /// production producer: an ambiguous reference asked a clarifying question
+  /// whose answer had no path back into resolution, so the follow-up turn
+  /// re-derived the same ambiguity forever.
+  struct PendingReferenceClarification: Sendable {
+    let reference: String
+    let candidates: [ReferenceCandidate]
     let expiresAt: Date
   }
 

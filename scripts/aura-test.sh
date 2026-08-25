@@ -134,11 +134,28 @@ run_bundle() {
     local log="$BUILD_PATH/out/Products/Debug/$name.log"
     local binary="$bundle/Contents/MacOS/$name"
     local timeout_seconds="${AURA_TEST_TIMEOUT_SECONDS:-60}"
+    local helper_environment=(
+        "DYLD_FRAMEWORK_PATH=$TESTING_FRAMEWORK"
+        "DYLD_LIBRARY_PATH=$TESTING_LIB"
+        "DYLD_INSERT_LIBRARIES=$TESTING_LIB/lib_TestingInterop.dylib"
+        "LLVM_PROFILE_FILE=$BUILD_PATH/coverage/$name-%p.profraw"
+    )
     if [[ "$name" == "AuraAudioTests" ]]; then
         # AVAudioEngine teardown can block briefly on a headless CI host after
         # the Swift Testing suite has finished. Keep the hard timeout, but
         # give this hardware-bound bundle a bounded, explicit allowance.
         timeout_seconds="${AURA_AUDIO_TEST_TIMEOUT_SECONDS:-240}"
+    fi
+    if [[ "$name" == "AuraAgentTests" ]]; then
+        # This bundle combines live CLI probes, real git worktree operations,
+        # and actor-backed task-engine fixtures. Swift Testing's default
+        # parallel executor can starve those bounded fixtures under the full
+        # 21-bundle runner, producing nondeterministic false failures. Keep
+        # the production runner deterministic while allowing an explicit
+        # override for controlled experiments.
+        helper_environment+=(
+            "SWT_EXPERIMENTAL_MAXIMUM_PARALLELIZATION_WIDTH=${AURA_AGENT_TEST_PARALLELIZATION_WIDTH:-1}"
+        )
     fi
 
     echo "=== $name ==="
@@ -148,10 +165,7 @@ run_bundle() {
     fi
     set +e
     perl -e 'alarm shift; exec @ARGV' "$timeout_seconds" \
-    env DYLD_FRAMEWORK_PATH="$TESTING_FRAMEWORK" \
-        DYLD_LIBRARY_PATH="$TESTING_LIB" \
-        DYLD_INSERT_LIBRARIES="$TESTING_LIB/lib_TestingInterop.dylib" \
-        LLVM_PROFILE_FILE="$BUILD_PATH/coverage/$name-%p.profraw" \
+    env "${helper_environment[@]}" \
     "$HELPER" \
         --test-bundle-path "$bundle/Contents/MacOS/$name" \
         --build-path "$BUILD_PATH" \
