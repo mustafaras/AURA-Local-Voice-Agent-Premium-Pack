@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-25T07:05:00Z",
-  "session_id": "AURA-SP-019-ATTEMPT-20260824",
-  "active_prompt": "SP-020",
+  "updated_at": "2026-08-25T07:20:00Z",
+  "session_id": "AURA-SP-020-ATTEMPT-20260825",
+  "active_prompt": "SP-021",
   "active_state": "pending",
   "completed_prompts": [
     "SP-000",
@@ -27,10 +27,13 @@
     "SP-016",
     "SP-017",
     "SP-018",
-    "SP-019"
+    "SP-019",
+    "SP-020"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-020-20260825-CLOSEOUT-02",
+    "EV-SP-020-20260825-REMOTE-BOUNDARY-01",
     "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
     "EV-SP-019-20260824-LIVE-REFERENCE-13",
     "EV-SP-019-20260824-MEMORY-AUTHORITY-12",

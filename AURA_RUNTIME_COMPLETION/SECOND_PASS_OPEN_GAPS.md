@@ -1809,3 +1809,27 @@ is closed, and SP-020 is safe to start. Broader R8/R9 gates named in the
 historical wording above (remote/provider acceptance, ADR-043, manual
 accessibility, signing, release, deployment) remain open and are owned by their
 own prompts.
+
+### OPEN-09 / SP-020 remote context boundary — 2026-08-25 (closed)
+
+`EV-SP-020-20260825-REMOTE-BOUNDARY-01` closes the **remote/provider acceptance**
+residual named in the historical wording above through SP-020's **exclusion
+branch**: local-only is the explicit product boundary. The static inventory and
+deterministic tests prove no production remote-context transport or caller of
+`remotePublicOnly` / `ContextDeliveryPolicy(destination: .remoteModel)` exists;
+`ContextBuilder_Build.swift` rejects remote delivery without a separately
+redacted, user-approved turn summary; `PreferencePolicyBounds`
+(`cloudContextAllowed=false`) makes the local-only preference non-weakening.
+`AuraContextTests` 37/37 (incl. `r8RemoteContextFailsClosedBeforeAnyTransmission`)
+and `AuraMemoryTests` 30/30 (incl.
+`r8PreferenceProfilePersistsAndCannotWeakenLocalOnlyPolicy`) pass; live socket
+traces in `EV-SP-019-…-14` show zero non-loopback peers.
+`RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE` is mitigated.
+
+**ADR-043 is Accepted** under the explicit local-only remote-boundary scope
+(2026-08-25, review 2026-09-07) at the user's direction;
+`RISK-ADR-043-PENDING` is closed. **SP-020 is `completed`**; the remote/
+provider acceptance residual named in the historical wording above is closed
+through the exclusion branch. The historical wording above is retained
+unchanged. The other R8/R9 gates (manual accessibility, signing, release,
+deployment) remain open and owned by their own prompts.

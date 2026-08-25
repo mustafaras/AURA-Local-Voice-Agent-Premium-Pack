@@ -1,35 +1,27 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-019` (in_progress; live evidence blocker)
-> **Current program state:** In progress; SP-017 completed under the system-TTS-only branch, while R1/R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 and the broader program remain open.
-> **Live repository lineage:** SP-018 product content was delivered at `1d3efca0944334be19a2d68abbb4c199bba15d87`; current `main` and `origin/main` are synchronized at `ed55a0c8db9c63059c7639f9160efebaf44816ac`, with declared dirty SP-018 verification and SP-019 local-control edits. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-021` (pending; unopened)
+> **Current program state:** In progress; SP-020 completed, SP-021 pending, while R1/R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 and the broader program remain open.
+> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); the state projection commit `ed7900e3db8403df2ee7a1a5e6d65754b58e8091` realigns governance pointers. Current `main` and `origin/main` are synchronized at `ed7900e` with a clean worktree. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
 
-## Second-pass synchronized overlay — 2026-08-24T11:15:56Z (`SP-019` / `in_progress`)
+## Second-pass synchronized overlay — 2026-08-25 (`SP-021` / `pending`)
 
-The bounded local implementation is source/build/test verified under
-`EV-SP-019-20260824-LOCAL-CONTROLS-01`: focused `AURAIntegrationTests` 83/83,
-full matrix 21/21 bundles with 1,141 tests and zero failures, second-pass
-validator and 39 governance tests passed. The final local app was built at
-`/tmp/aura-sp019-final-app/AURA.app`.
+SP-020 is **completed**: the exclusion branch closed the remote/provider
+residual — local-only is the explicit product boundary
+(`EV-SP-020-20260825-REMOTE-BOUNDARY-01`). ADR-043 is **Accepted** under the
+explicit local-only remote-boundary scope (2026-08-25, review 2026-09-07);
+`RISK-ADR-043-PENDING` is closed. SP-021 (accessibility and localization
+acceptance, R9) is next and unopened.
 
-The LaunchServices smoke under `EV-SP-019-20260824-LAUNCH-SMOKE-02` proves only
-startup and exact-process stop. The direct user-present follow-up is recorded
-under `EV-SP-019-20260824-LIVE-CONTROLS-04`: `Concise` survived a real menu
-quit/relaunch in an isolated Foundation home; purpose/scope/retention,
-inspection, correction, retention cleanup, audit exclusion, local-only policy
-rejection, and export artifact creation were observed. The export is recorded
-under `EV-SP-019-20260824-LIVE-CONTROLS-06`. Verified tool fact, resolved
-reference, destructive clarification, contradiction resolution, deletion
-receipt, and direct transport trace remain open. SP-019 is `in_progress`,
-ADR-043 remains Proposed, and SP-020 is not safe to start.
+Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
+only a `development_unverified` artifact is producible today.
 
-**Next safe action:** obtain action-time confirmation before deleting only the
-disposable test memory row; then capture the deletion receipt and continue the
-remaining SP-019 scenarios with redacted evidence. Do not start SP-020.
+**Next safe action:** read SP-021's required control files and prompt in order
+under its own authority; no SP-021 implementation was performed here.
 
 ## Verification correction overlay — 2026-08-24
 

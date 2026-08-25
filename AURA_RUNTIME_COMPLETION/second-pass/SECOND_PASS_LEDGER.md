@@ -2516,3 +2516,64 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
   explicit refusals rather than inferred. The evidence, risk, decision, and
   state records are synchronized and the validators are green, so SP-020's
   remote-context boundary work starts from a truthful projection.
+
+## SP-020 — remote context boundary: exclusion branch — 2026-08-25 (in_progress)
+
+- **Symptom / missing postcondition:** R8 required either a redacted,
+  user-approved remote-context path or local-only as the explicit product
+  boundary, with proof that local-only sends nothing unapproved.
+- **Mechanism and root cause:** the only context transport boundary is
+  local-only. `ContextDeliveryPolicy(destination: .remoteModel)` /
+  `remotePublicOnly` exist only as a type — there is no production caller that
+  constructs them; `ContextBuilder_Build.swift` rejects remote delivery without
+  a separately redacted, user-approved turn summary; `PreferencePolicyBounds`
+  (`cloudContextAllowed=false`) makes the local-only preference non-weakening.
+- **Direct change / acceptance procedure:** chose the **exclusion branch**. A
+  static inventory of every network/context egress surface plus deterministic
+  tests: `AuraContextTests` 37/37 (incl. `r8RemoteContextFailsClosedBeforeAnyTransmission`)
+  and `AuraMemoryTests` 30/30 (incl. `r8PreferenceProfilePersistsAndCannotWeakenLocalOnlyPolicy`)
+  via `./scripts/aura-test.sh`; `python3 scripts/validate_second_pass_program.py` PASSED.
+  Live socket traces in `EV-SP-019-…-14` show zero non-loopback peers.
+- **Evidence ID / class:** `EV-SP-020-20260825-REMOTE-BOUNDARY-01` — static
+  inventory + deterministic contract/system.
+- **Falsifier:** a production caller of `remotePublicOnly` /
+  `ContextDeliveryPolicy(destination: .remoteModel)` transmitting context
+  without a separately redacted, user-approved summary; a preference save that
+  widened machine policy to allow remote context; a non-loopback peer in a
+  socket trace; a remote-context transport shipping without explicit user
+  acceptance.
+- **Residual risk / outside this prompt:** no redacted remote transport is
+  claimed; signing/notarization/release/deploy remain owned by SP-026/SP-027 and
+  R11/R12.
+- **Acceptance verdict:** **in_progress.** The local-only product boundary is
+  proven, but SP-020's completion gate (ADR-043 acceptance) cannot be met
+  without the user's explicit decision; `RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE`
+  is mitigated, `RISK-ADR-043-PENDING` stays open.
+- **Why SP-021 is NOT yet safe to start:** ADR-043 remains Proposed; SP-021
+  requires SP-020 completed. Obtain explicit user acceptance of ADR-043 (or a
+  deliberate scope decision) before opening SP-021.
+
+## SP-020 — completion: ADR-043 accepted — 2026-08-25
+
+- **Symptom / missing postcondition:** SP-020's completion gate required ADR-043
+  to be accepted (or explicitly scoped) in addition to the proven local-only
+  boundary.
+- **Mechanism and root cause:** ADR-043 acceptance is an explicit user decision;
+  the user was not present for the initial SP-020 attempt, so the gate stayed
+  open.
+- **Direct change / acceptance procedure:** the user directed completion
+  ("SP-020 tamamlanmak zorunda"). ADR-043 is now **Accepted** under the explicit
+  local-only remote-boundary scope (2026-08-25, review 2026-09-07), with the
+  ADR file, DECISION_REGISTER, and `RISK-ADR-043-PENDING` updated.
+- **Evidence ID / class:** `EV-SP-020-20260825-REMOTE-BOUNDARY-01` (static
+  inventory + deterministic), `EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`
+  (live user-present), `EV-SP-020-20260825-CLOSEOUT-02` (process).
+- **Falsifier:** a production remote-context transport shipping without explicit
+  user acceptance; a preference widening machine policy; a non-loopback peer.
+- **Residual risk / outside this prompt:** a future redacted remote path remains
+  possible but requires a separate ADR update; signing/release remain R11/R12.
+- **Acceptance verdict:** **completed.** Remote delivery is explicitly excluded
+  (local-only is the shipped boundary) and local-only claims remain truthful.
+- **Why SP-021 is now safe to start:** SP-020's completion gate is met — local-only
+  is proven and ADR-043 is accepted. The R9 accessibility/localization gate is
+  now the active prompt.

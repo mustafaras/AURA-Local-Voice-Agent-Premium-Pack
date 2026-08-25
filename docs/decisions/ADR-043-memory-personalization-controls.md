@@ -1,10 +1,12 @@
 # ADR-043 — Memory, Personalization, and Explainability Controls
 
-- Status: Proposed
+- Status: **Accepted** (explicit local-only remote boundary scope)
 - Date: 2026-08-08
 - Owners: AURA runtime completion
 - Supersedes: —
 - Superseded by: —
+- Acceptance scope: 2026-08-25, `EV-SP-020-20260825-REMOTE-BOUNDARY-01`
+- Review date: 2026-09-07 (30-day revisit of the remote-boundary decision)
 
 ## Context
 
@@ -84,11 +86,21 @@ classified from their typed provenance; new product callers should use
 
 ## Acceptance status
 
-This ADR remains **Proposed** until the user explicitly accepts it and the live
-R8 product demonstrations pass: restart preference, verified project fact,
-multi-turn reference, ambiguous destructive clarification, contradiction
-resolution, inspect/correct/delete/export, provenance display, and proof that
-local-only mode produces no remote transmission.
+**Accepted 2026-08-25** for the explicit local-only remote-boundary scope:
+- All eight live R8 product demonstrations passed on one build under
+  `EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14` (restart preference, verified
+  project fact, multi-turn reference, ambiguous destructive clarification,
+  contradiction resolution, inspect/correct/delete/export, provenance display,
+  and local-only remote exclusion).
+- SP-020 proved the remote boundary under
+  `EV-SP-020-20260825-REMOTE-BOUNDARY-01`: local-only is the explicit product
+  boundary; there is no production remote-context transport or caller; remote
+  delivery fails closed unless a separately redacted, user-approved turn summary
+  is supplied; `PreferencePolicyBounds` (cloudContextAllowed=false) makes
+  local-only non-weakening.
+- The accepted scope is **local-only as the shipped default**. A future
+  redacted/user-approved remote path remains possible but requires a separate
+  ADR update and explicit user decision before any transport is built.
 
 ## SP-019 implementation note — 2026-08-24
 
@@ -96,5 +108,14 @@ The bounded profile store is now wired through the production `AuraKernel`
 composition, and the Privacy surface exposes the local inspection, correction,
 deletion, export, conflict, retention, and preference controls described by
 this ADR. The implementation is source/build/test verified under
-`EV-SP-019-20260824-LOCAL-CONTROLS-01`; the live product demonstrations above
-remain outstanding, so the ADR status is unchanged.
+`EV-SP-019-20260824-LOCAL-CONTROLS-01`.
+
+## SP-020 acceptance note — 2026-08-25
+
+ADR-043 is **Accepted** under the explicit local-only remote-boundary scope.
+SP-020's exclusion branch was proven (`EV-SP-020-20260825-REMOTE-BOUNDARY-01`):
+no production remote-context transport/caller; `ContextBuilder_Build.swift`
+rejects remote delivery without a separately redacted, user-approved turn
+summary; `PreferencePolicyBounds` makes the local-only preference non-weakening.
+`RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE` is mitigated. Acceptance scope,
+alternatives, retention, and review date (2026-09-07) are recorded above.

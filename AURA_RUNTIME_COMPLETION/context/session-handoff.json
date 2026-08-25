@@ -1,27 +1,30 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-25T07:05:00Z",
-  "session_id": "AURA-SP-019-ATTEMPT-20260824",
-  "last_verified_commit": "e6706157178d3d3c41b8d6cab8572ca5102b8f76",
+  "updated_at": "2026-08-25T07:20:00Z",
+  "session_id": "AURA-SP-020-ATTEMPT-20260825",
+  "last_verified_commit": "ed7900e3db8403df2ee7a1a5e6d65754b58e8091",
   "active_prompt": {
-    "id": "SP-020",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-020_REMOTE_CONTEXT_BOUNDARY_AND_ADR_043.prompt.md",
+    "id": "SP-021",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-021_ACCESSIBILITY_AND_LOCALIZATION_ACCEPTANCE.prompt.md",
     "state": "pending",
-    "step": "SP-019 is completed: all eight R8 live/product scenarios passed on the single build fccf1520 under EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14. SP-020 (remote context boundary and ADR-043) is next and unopened."
+    "step": "SP-020 is completed: local-only is the explicit product boundary under EV-SP-020-20260825-REMOTE-BOUNDARY-01, and ADR-043 is accepted under the explicit local-only remote-boundary scope (2026-08-25, review 2026-09-07). SP-021 (accessibility and localization acceptance) is next and unopened."
   },
-  "summary": "SP-019 second attempt. Four of the five scenarios still open were traced to missing product paths rather than failed procedures: no production site wrote MemoryClass.projectFact, produced MemoryProvenance.observed, or used MemoryWriteSource.verifiedToolEvidence; ContradictionDetector was unreachable because the only live subject was the globally unique intent:<uuid>; ReferenceResolver.explicitlyConfirmedTargetID had no producer; and AuraKernel.deleteMemoryRecord discarded the engine's MemoryDeletionReceipt. A bounded ToolObservation seam, a stable fact key with global scope, a reference-clarification round trip, and a surfaced deletion receipt were wired and covered by 19 new tests (full matrix 21/21 bundles, 1,160 tests, 0 failed). Live acceptance in an isolated CFFIXED_USER_HOME profile then produced a verified tool fact with observed provenance, a real contradiction plus its user-selected resolution, restart persistence, an authorized permanent deletion with a user-visible receipt, a live refusal of a risky action, and two socket-table transport traces with zero non-loopback peers. The final open scenario, multi-turn reference, was then traced to one guard: the rule-based classifier accepted an open-prefixed target only when it looked like a path, so 'open the file' became .unknown and the resolver was unreachable. A known reference phrase now yields the intent with its target slot empty, and the phrase list moved to a single AuraCore definition. Live: 'open the file' refused to guess between two candidates and asked; 'open the file alpha' resolved to alpha, bound filePath, and opened the real file. Full matrix 21/21 bundles, 1,164 tests, 0 failed.",
+  "summary": "SP-020 completed (exclusion branch). Static inventory proved no production remote-context transport/caller; ContextBuilder fails closed for remote delivery; PreferencePolicyBounds makes local-only non-weakening. Deterministic evidence: AuraContextTests 37/37 and AuraMemoryTests 30/30. Live socket traces from EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14 show zero non-loopback peers. RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE mitigated. The user then directed SP-020 completion; ADR-043 is Accepted under the explicit local-only remote-boundary scope (review 2026-09-07). RISK-ADR-043-PENDING closed. SP-020 completed; SP-021 (accessibility/localization, R9) is next and unopened.",
   "completed": [
-    "Re-ran all eight R8 live/product scenarios against one build (fccf1520) in a single isolated profile, closing SP-019's completion gate.",
-    "Made reference resolution reachable in production: an open-prefixed reference phrase now yields .fileOpen/.appActivate with its target slot empty, and the implicit-reference phrase list is defined once in AuraCore.",
-    "Wired a bounded ToolObservation seam from ToolRouter through IntentDispatchCoordinator into memory as a globally scoped projectFact with .observed provenance and a stable fact key.",
-    "Added the multi-turn reference clarification round trip so an ambiguous reference's answer populates explicitlyConfirmedTargetID only when it names exactly one offered candidate.",
-    "Returned and surfaced the MemoryDeletionReceipt through the kernel, app model, and Privacy tab, and fixed the VoiceOver label that had hidden its content.",
-    "Added scripts/run-sp019-transport-probe.sh, a read-only socket-table probe for the live process.",
-    "Captured live acceptance for verified tool fact, contradiction and resolution, restart persistence, authorized deletion with receipt, risky-action refusal, and transport silence."
+    "Inventory every remote context path and prove local-only mode sends no unapproved memory, secrets, raw audio, screenshots, or prompts (no production remote transport/caller).",
+    "Chose the exclusion branch (keep local-only as explicit product boundary) rather than implementing a redacted remote path.",
+    "Confirmed context budget is bounded deterministically and remote delivery fails closed before any transmission.",
+    "Accepted ADR-043 under the explicit local-only remote-boundary scope (2026-08-25, review 2026-09-07) at the user's direction, closing RISK-ADR-043-PENDING."
   ],
-  "files_changed": [],
+  "files_changed": [
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-020-20260825-REMOTE-BOUNDARY-01.md",
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/current-state.json",
+    "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
+  ],
   "evidence_ids": [
+    "EV-SP-020-20260825-REMOTE-BOUNDARY-01",
     "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
     "EV-SP-019-20260824-LIVE-REFERENCE-13",
     "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08",
@@ -44,6 +47,16 @@
     "EV-SP-018-20260823-DELIVERY-05"
   ],
   "tests": [
+    {
+      "name": "AuraContextTests (37/37)",
+      "result": "passed",
+      "evidence_id": "EV-SP-020-20260825-REMOTE-BOUNDARY-01"
+    },
+    {
+      "name": "AuraMemoryTests (30/30)",
+      "result": "passed",
+      "evidence_id": "EV-SP-020-20260825-REMOTE-BOUNDARY-01"
+    },
     {
       "name": "Full matrix (21/21 bundles, 1,160 tests)",
       "result": "passed",

@@ -2600,3 +2600,41 @@ Evidence `EV-SP-011-20260818-COMPUTER-UI-PREFLIGHT-04`: Google Cloud project/cli
   explicit refusals rather than inferred. The evidence, risk, decision, and
   state records are synchronized and the validators are green, so SP-020's
   remote-context boundary work starts from a truthful projection.
+
+## SP-020 — remote context boundary — 2026-08-25 (in_progress; exclusion branch proven)
+
+- **Symptom / missing postcondition:** R8 requires either a redacted,
+  user-approved remote-context path or local-only as the explicit product
+  boundary, with proof local-only sends nothing unapproved.
+- **Mechanism and root cause:** the only context transport boundary is
+  local-only. `remotePublicOnly` /
+  `ContextDeliveryPolicy(destination: .remoteModel)` exist only as a type — no
+  production caller constructs them; `ContextBuilder_Build.swift` rejects remote
+  delivery without a separately redacted, user-approved turn summary;
+  `PreferencePolicyBounds` (`cloudContextAllowed=false`) makes local-only
+  non-weakening.
+- **Direct change / acceptance procedure:** chose the **exclusion branch**. A
+  static inventory of every network/context egress surface plus deterministic
+  tests: `AuraContextTests` 37/37 (incl. `r8RemoteContextFailsClosedBeforeAnyTransmission`),
+  `AuraMemoryTests` 30/30 (incl. `r8PreferenceProfilePersistsAndCannotWeakenLocalOnlyPolicy`),
+  `validate_second_pass_program.py` PASSED. Live socket traces in
+  `EV-SP-019-…-14` show zero non-loopback peers.
+- **Evidence ID / class:** `EV-SP-020-20260825-REMOTE-BOUNDARY-01` — static
+  inventory + deterministic contract/system.
+- **Acceptance verdict:** **in_progress.** Local-only product boundary proven;
+  `RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE` mitigated. ADR-043 remains Proposed
+  pending explicit user acceptance (`RISK-ADR-043-PENDING` open).
+- **Residual risk / outside this prompt:** no redacted remote transport is
+  claimed; signing/notarization/release/deploy owned by SP-026/SP-027 and
+  R11/R12. SP-021 is not safe to start until ADR-043 is accepted or SP-020 is
+  otherwise closed.
+
+## SP-020 — completion: ADR-043 accepted — 2026-08-25
+
+The user directed SP-020 completion. ADR-043 is **Accepted** under the explicit
+local-only remote-boundary scope (2026-08-25, review 2026-09-07). The exclusion
+branch is proven (`EV-SP-020-20260825-REMOTE-BOUNDARY-01`) and all eight live R8
+scenarios passed on one build (`EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`).
+`RISK-ADR-043-PENDING` is closed. SP-020 is **completed**; SP-021
+(accessibility/localization acceptance, R9) is pending and unopened. Remote
+delivery is explicitly excluded; local-only claims remain truthful.

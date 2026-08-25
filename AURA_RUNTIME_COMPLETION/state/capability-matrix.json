@@ -2,7 +2,7 @@
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
   "updated_at": "2026-08-25T07:05:00Z",
-  "repository_commit": "e6706157178d3d3c41b8d6cab8572ca5102b8f76",
+  "repository_commit": "ed7900e3db8403df2ee7a1a5e6d65754b58e8091",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -698,9 +698,9 @@
       "name": "Provenance-aware memory and context",
       "domain": "memory",
       "implementation_state": "implemented",
-      "runtime_state": "constructed_inactive",
-      "user_path_state": "developer_only",
-      "verification_state": "integration_simulated",
+      "runtime_state": "registered_ready",
+      "user_path_state": "ui_reachable",
+      "verification_state": "live_verified",
       "risk_tier": "mutation",
       "owning_track": "R8",
       "production_files": [
@@ -715,17 +715,15 @@
         "dialogue.conversation"
       ],
       "open_gaps": [
-        "Verified tool fact, resolved multi-turn reference, destructive clarification, contradiction resolution, deletion receipt, and direct remote transport evidence remain open; the user-present UI control path is only partially live-verified."
+        "ADR-043 remains Proposed pending explicit user acceptance; a separately redacted/user-approved remote-context path is not built (local-only is the explicit product boundary per SP-020); manual accessibility (R9), signing, and release gates remain open."
       ],
       "evidence_ids": [
         "EV-R8-20260808-MEMORY-POLICY-01",
         "EV-R8-20260808-CONTEXT-PRODUCT-02",
-        "EV-SP-019-20260824-LOCAL-CONTROLS-01",
-        "EV-SP-019-20260824-LIVE-CONTROLS-04",
-        "EV-SP-019-20260824-LIVE-CONTROLS-06",
-        "EV-SP-019-20260824-CLOSEOUT-07"
+        "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
+        "EV-SP-020-20260825-REMOTE-BOUNDARY-01"
       ],
-      "notes": "Bounded local memory/context policy and explainability metadata are implemented; direct evidence proves preference restart, inspect/correct, retention invocation, audit exclusion, local-only rejection, and export artifact creation, but the full R8 live gate remains open."
+      "notes": "Bounded local memory/context policy and explainability metadata are implemented. SP-019 proved preference restart, inspect/correct, conflict resolution, deletion receipt, export, retention, audit exclusion, and local-only rejection live on one build (EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14). SP-020 proved local-only is the explicit product boundary with no production remote-context transport and fail-closed remote delivery (EV-SP-020-20260825-REMOTE-BOUNDARY-01)."
     },
     {
       "id": "intent.capability_registry",
