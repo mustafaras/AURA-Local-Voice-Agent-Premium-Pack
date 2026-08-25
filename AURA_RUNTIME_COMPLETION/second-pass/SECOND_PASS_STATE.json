@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-25T06:43:51Z",
+  "updated_at": "2026-08-25T07:05:00Z",
   "session_id": "AURA-SP-019-ATTEMPT-20260824",
   "active_prompt": "SP-020",
   "active_state": "pending",
@@ -123,5 +123,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-019 is completed and evidenced on one build. Start SP-020 (remote context boundary and ADR-043) from its prompt; do not re-open SP-019."
+  "next_action": "SP-019 completed, merged (PR #6), and pushed as e6706157178d. Start SP-020."
 }
