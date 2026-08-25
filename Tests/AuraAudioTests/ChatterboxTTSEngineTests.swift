@@ -13,7 +13,7 @@ struct ChatterboxTTSEngineTests {
     let health = try await engine.start()
     #expect(health.ready)
     #expect(health.status == "fallback")
-    #expect(health.detail.contains("Kaan"))
+    #expect(health.detail.contains("System fallback"))
 
     let chunks = await engine.speak(
       TTSPrompt(text: "Merhaba dünya", locale: "tr-TR")

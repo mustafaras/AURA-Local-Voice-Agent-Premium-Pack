@@ -26,9 +26,13 @@ and model revisions instead of silently labeling a V2 wheel as V3.
    for every downloaded model artifact.
 3. Communicate through bounded newline-delimited JSON over stdin/stdout.
    Transcript text is never placed in argv or sent to a network endpoint.
-4. Start the configured premium neural `tr-TR` Kaan system voice immediately. Neural
+4. Make Chatterbox the primary voice. Use the always-available on-device system
+   synthesizer as a fail-closed fallback only; it auto-selects the best installed
+   voice for the locale by platform quality and does not favor or require any
+   specific system voice (no Kaan or Yelda is hardcoded or preferred). Neural
    warm-up happens asynchronously; any validation, startup, synthesis, path, or
-   playback failure returns to Kaan without exposing helper error internals.
+   playback failure returns to the system fallback without exposing helper
+   error internals.
 5. Enable neural production speech only when
    `Voices/aura-female-reference.wav` is readable. That file must be owned by
    the user or accompanied by explicit speaker consent. It is never bundled,
@@ -62,6 +66,7 @@ and model revisions instead of silently labeling a V2 wheel as V3.
   WAV metadata, and device fallback without remote transcript or audio transfer. **Met**.
 - Final product acceptance remains open until an owned/consented female WAV and
   one human-listened Turkish turn are available. The user has deferred this
-  gate; until it is supplied, AURA remains on the local premium neural `tr-TR`
-  Kaan system voice and never represents the generic model output as the
-  accepted female persona.
+  gate; until it is supplied, AURA keeps Chatterbox as the primary voice and
+  never represents the generic model output as the accepted female persona.
+  The system fallback remains available on-device but is not presented as the
+  approved voice.

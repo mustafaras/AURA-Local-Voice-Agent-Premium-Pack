@@ -70,12 +70,10 @@ The turn closes after detected speech followed by configured silence, with a
 bounded fallback before the conversation deadline. Command-Shift-Escape is the
 global emergency-stop shortcut.
 
-### Optional local Chatterbox V3 voice
+### Local Chatterbox V3 voice (primary)
 
-AURA speaks immediately with the local premium Turkish Kaan neural system
-voice (the compact Yelda voice is no longer used). For higher-quality local
-neural speech, install the exact pinned Chatterbox Multilingual V3 runtime and
-model snapshot:
+AURA's primary voice is the local Chatterbox Multilingual V3 neural adapter.
+Install the exact pinned runtime and model snapshot:
 
 ```sh
 ./scripts/install-chatterbox-runtime.sh
@@ -94,10 +92,13 @@ consented female Turkish WAV at:
 ```
 
 Do not use another person's recording without explicit consent. AURA does not
-upload this file and will remain on the Kaan system voice if the file, runtime,
-model manifest, or helper is unavailable. The reference must be 3–30 seconds
-of clean PCM WAV, mono or stereo, at 16–48 kHz. A human-listened Turkish turn
-is still required before accepting a reference recording for regular use.
+upload this file. If the file, runtime, model manifest, or helper is
+unavailable, AURA fails closed to the on-device system synthesizer, which
+auto-selects the best installed voice for the locale by platform quality — no
+specific system voice is hardcoded or preferred. The reference must be 3–30
+seconds of clean PCM WAV, mono or stereo, at 16–48 kHz. A human-listened
+Turkish turn is still required before accepting a reference recording for
+regular use.
 
 Run all 21 test bundles with coverage. The repository source and
 `scripts/aura-test.sh` currently enumerate 21 Swift test bundles. The enforced

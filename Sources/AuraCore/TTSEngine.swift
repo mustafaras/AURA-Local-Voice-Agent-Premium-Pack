@@ -94,10 +94,12 @@ public protocol TTSEngine: Sendable {
 public struct TTSAdapterChain: Sendable, Equatable, Codable {
   public var adapterIDs: [String]
 
-  /// The release-safe default is the always-available on-device system voice.
-  /// Neural adapters remain explicit opt-in until their live resource and
-  /// human-listening gates are qualified on the target 16 GB profile.
-  public init(adapterIDs: [String] = ["system"]) {
+  /// The primary voice is the local Chatterbox Multilingual V3 adapter.
+  /// The always-available on-device system voice remains a fail-closed last
+  /// resort when the neural helper, model, or reference recording is absent,
+  /// warming, or failed. The system fallback selects the best installed voice
+  /// by locale and platform quality; no specific system voice is favored.
+  public init(adapterIDs: [String] = ["chatterbox", "system"]) {
     self.adapterIDs = adapterIDs
   }
 

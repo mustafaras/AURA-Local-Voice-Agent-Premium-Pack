@@ -42,13 +42,14 @@ origin/main == 78cc29ff60871dc0b189ae3fa3757923e684d06c`** (working tree
 clean), following `1e35dc1` (SP-021 accessibility/localization + Kaan voice
 switch) and `78cc29f` (final Yelda reference removal from test prose).
 
-**Voice: the Yelda fallback is permanently removed.** The default and fallback
-system voice is now the premium neural male **Kaan**
-(`com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium`, quality 2). No Yelda
-reference remains in `Sources/` or `Tests/`; all remaining ledger mentions are
-historical narrative and are intentionally not rewritten. Verified live: Kaan
-is the configured default in `Configuration_TTSConfiguration` and
-`ChatterboxTTSEngine`, and no Yelda is present in the built app bundle.
+**Voice: Chatterbox is the primary voice; the system synthesizer is a
+fail-closed last resort only.** `TTSAdapterChain()` defaults to
+`["chatterbox", "system"]`. The system fallback auto-selects the best installed
+voice for the locale by platform quality; **no specific system voice (Kaan or
+Yelda) is hardcoded or preferred.** The `preferredSystemVoiceIdentifier`
+default is empty, and Chatterbox diagnostics name only the "system fallback",
+never a specific voice. This aligns with ADR-031/ADR-042 and the user's
+explicit instruction that no system voice be used as AURA's voice.
 
 Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
 only a `development_unverified` artifact is producible today. The current

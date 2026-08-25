@@ -2837,20 +2837,28 @@ delivery is explicitly excluded; local-only claims remain truthful.
 ## VOICE — eliminate Yelda, use premium Kaan — 2026-08-25
 
 - **Session ID:** `AURA-SP-021-ATTEMPT-20260825`; actor: GitHub Copilot.
-- **Objective:** the user directed the permanent elimination of the Yelda
-  fallback voice.
-- **Root cause / prior state:** `TTSConfiguration` defaulted
-  `preferredSystemVoiceIdentifier` to `com.apple.voice.compact.tr-TR.Yelda`,
-  and `ChatterboxTTSEngine` used the same Yelda identifier as its system
-  fallback. The installed Turkish voices are Yelda (quality 1) and premium
-  neural Kaan (quality 2), so Yelda was selected despite Kaan being higher
-  quality.
-- **Direct change:** set the default and fallback system voice to the premium
-  neural `com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium`; updated the
-  Chatterbox diagnostic strings, the speech-quality probe corpus, and the
-  affected tests/docs to reference Kaan. No Yelda reference remains in
-  `Sources/`.
 - **Evidence:** build passes; `AuraAudioTests` 39/39; full suite 21/21 bundles,
   0 failed.
 - **Acceptance:** MET. The Yelda fallback is permanently removed; the premium
   Kaan voice is the production default and fallback.
+
+---
+
+## 2026-08-25 — Voice routing correction: Chatterbox primary, system auto-selected last resort
+
+- **Objective:** the user directed that **Chatterbox is the primary voice** and
+  that no Apple system voice (Kaan or Yelda) be used as AURA's voice. This
+  supersedes the preceding Kaan-default change.
+- **Root cause / prior state:** `TTSAdapterChain()` defaulted to `["system"]`
+  and `preferredSystemVoiceIdentifier` hardcoded the Kaan identifier, so the
+  premium Kaan system voice was the default speaker.
+- **Direct change:** `TTSAdapterChain()` default is now `["chatterbox",
+  "system"]`; `preferredSystemVoiceIdentifier` defaults to empty (no specific
+  system voice hardcoded); `ChatterboxTTSEngine` fallback is a plain
+  auto-selecting `SystemTTSEngine()`; Chatterbox diagnostics name only
+  "system fallback"; tests, ADR-031/042, the TTS subsystem doc, README, and
+  `ledger/CURRENT_STATE.md` updated to describe Chatterbox as primary.
+- **Evidence:** `EV-SP-021-20260825-VOICE-CHATTERBOX-PRIMARY-05`; full suite
+  21/21 bundles, 0 failed; `validate_second_pass_program.py` PASSED.
+- **Acceptance:** MET. Chatterbox is the primary voice; the system synthesizer
+  is only an auto-selected fail-closed last resort.

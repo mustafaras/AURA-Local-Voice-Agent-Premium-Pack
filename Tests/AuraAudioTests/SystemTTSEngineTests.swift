@@ -113,7 +113,8 @@ struct SystemTTSEngineTests {
 
   @Test func explicitPreferredVoiceOverridesQualityRanking() {
     let voices = AVSpeechSynthesisVoice.speechVoices()
-    // The premium neural Kaan voice is the product's configured fallback.
+    // Any installed voice works for this mechanism test; explicit identifier
+    // selection must override the quality-based ranking.
     let kaanID = "com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium"
     guard voices.contains(where: { $0.identifier == kaanID }) else { return }
 

@@ -122,8 +122,7 @@ public final class ChatterboxTTSEngine: TTSEngine, @unchecked Sendable {
     self.resourceGovernor = resourceGovernor
     self.fallback =
       fallback
-      ?? SystemTTSEngine(
-        preferredVoiceIdentifier: "com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium")
+      ?? SystemTTSEngine()  // auto-selects best installed voice by locale/quality
     self.allowInjectedHelper = false
   }
 

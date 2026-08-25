@@ -36,13 +36,13 @@ after playback. See ADR-031.
 Neural voice identity is consent-bound. AURA activates Chatterbox speech only
 when the user provides an owned or explicitly consented female WAV at
 `~/Library/Application Support/AURA/Voices/aura-female-reference.wav`.
-Otherwise it remains on the configured premium Turkish Kaan neural system
-voice. Warm-up and inference failures also fail closed to Kaan, so the
-assistant is responsive while the neural model loads.
+Chatterbox is the primary voice. If the helper, model, or reference recording
+is absent, warming, or failed, AURA fails closed to the on-device system
+synthesizer so the assistant is responsive while the neural model loads.
 
 The system fallback ranks installed voices by exact locale match and platform
-voice quality, and AURA's configured default explicitly selects premium
-neural `tr-TR` Kaan (the compact Yelda voice is no longer used). A configured
+voice quality and selects the best match; it does not favor or require any
+specific system voice (no Kaan or Yelda is hardcoded or preferred). A configured
 rate of `1.0` maps to `AVSpeechUtteranceDefaultSpeechRate`, rather than the
 framework's absolute maximum rate. Small local pre/post delays and a bounded
 emphasis-to-pitch mapping improve phrasing without sending text or audio
@@ -82,14 +82,16 @@ the text is never rewritten. System TTS retains its active synthesizer so
 `stopSpeaking`, `pauseSpeaking`, and `resumeSpeaking` are real AVFoundation
 operations on the serial synthesis queue. Chatterbox synthesis is bounded by a
 helper timeout, memory reservation, private WAV validation/cleanup, and
-system-Yelda fallback on timeout, failure, or resource denial. CPU is the safe
+system fallback on timeout, failure, or resource denial. CPU is the safe
 default; MPS remains opt-in until live thermal/latency qualification.
 
-The SP-017 release decision is system-TTS-only: direct live system-TTS first
-chunk/full-utterance evidence is recorded in
-`EV-SP-017-20260823-LIVE-SYSTEM-TTS-01`, and `TTSAdapterChain()` defaults to
-`system`. Neural reference/human listening, neural CPU/MPS first-audio and
+The SP-017 release decision established a system-TTS-only fallback baseline:
+direct live system-TTS first chunk/full-utterance evidence is recorded in
+`EV-SP-017-20260823-LIVE-SYSTEM-TTS-01`. The current `TTSAdapterChain()` order
+is `["chatterbox", "system"]`: the local Chatterbox adapter is the primary
+voice and the always-available on-device system synthesizer is the fail-closed
+last resort. Neural reference/human listening, neural CPU/MPS first-audio and
 soak qualification, wake word, and physical speaker-to-microphone
-barge-in/echo are explicitly excluded from this release scope and must not be
-presented as ready. Future neural opt-in requires a new evidence-backed scope
+barge-in/echo remain explicitly excluded from this release scope and must not
+be presented as ready. Future neural opt-in requires a new evidence-backed scope
 decision.

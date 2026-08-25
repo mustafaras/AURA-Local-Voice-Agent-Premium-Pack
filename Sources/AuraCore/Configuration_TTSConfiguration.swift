@@ -12,6 +12,8 @@ public struct TTSConfiguration: Codable, Sendable, Equatable {
   public var defaultRate: Double
 
   /// Explicit local system voice used when the neural adapter is unavailable.
+  /// Empty means the system fallback auto-selects the best installed voice for
+  /// the locale by platform quality; no specific system voice is favored.
   public var preferredSystemVoiceIdentifier: String
 
   /// Whether user speech detected during assistant speech stops the assistant.
@@ -24,8 +26,7 @@ public struct TTSConfiguration: Codable, Sendable, Equatable {
     adapterChain: TTSAdapterChain = TTSAdapterChain(),
     defaultLocale: String = "tr-TR",
     defaultRate: Double = 0.92,
-    preferredSystemVoiceIdentifier: String =
-      "com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium",
+    preferredSystemVoiceIdentifier: String = "",
     enableBargeIn: Bool = true,
     enableAntiTrigger: Bool = true
   ) {
@@ -56,7 +57,7 @@ public struct TTSConfiguration: Codable, Sendable, Equatable {
     defaultRate = try container.decodeIfPresent(Double.self, forKey: .defaultRate) ?? 0.92
     preferredSystemVoiceIdentifier =
       try container.decodeIfPresent(String.self, forKey: .preferredSystemVoiceIdentifier)
-      ?? "com.apple.ttsbundle.gryphon-neural_Kaan_tr-TR_premium"
+      ?? ""
     enableBargeIn = try container.decodeIfPresent(Bool.self, forKey: .enableBargeIn) ?? true
     enableAntiTrigger = try container.decodeIfPresent(Bool.self, forKey: .enableAntiTrigger) ?? true
   }

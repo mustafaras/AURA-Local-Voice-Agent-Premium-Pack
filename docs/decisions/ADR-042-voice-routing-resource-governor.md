@@ -1,6 +1,6 @@
 # ADR-042 — Voice Routing and Local-Model Resource Governor
 
-- **Status:** Accepted (system-TTS-only release scope; neural/wake deferred)
+- **Status:** Accepted (system-TTS fallback scope; neural/wake deferred)
 - **Owner:** R7 (second-pass)
 - **Supersedes:** n/a
 - **Related:** ADR-003 (test-only wake detector), ADR-045 (audit baseline)
@@ -16,13 +16,15 @@
 Adopt a **local-first, fallback-preserving voice routing and resource
 governor** for the 16 GB Apple Silicon primary profile:
 
-1. **TTS chain:** `system` (premium neural Kaan) is the release-safe default
-   and the only release-qualified voice. `chatterbox` remains an explicit
-   opt-in adapter outside the release scope until its live resource, latency,
-   and human-listening gates are qualified. The neural adapter remains bounded
-   by a private helper, timeout, output-size cap, private WAV output, and
-   immediate fallback, but its presence on disk is not a readiness or release
-   claim.
+1. **TTS chain:** `["chatterbox", "system"]`. The local Chatterbox Multilingual
+   V3 adapter is the **primary voice**. The on-device system synthesizer is the
+   fail-closed last resort when the Chatterbox helper, model, or reference
+   recording is absent, warming, or failed. The system fallback auto-selects
+   the best installed voice for the locale by platform quality; **no specific
+   system voice (Kaan or Yelda) is hardcoded or preferred.** The neural adapter
+   remains bounded by a private helper, timeout, output-size cap, private WAV
+   output, and immediate fallback; its presence on disk is not by itself a
+   readiness or release claim.
 2. **STT routing:** Apple on-device Speech (Turkish/English general +
    command) via `STTRouter`, which reserves through the governor and fails
    closed on resource denial or engine-start failure. Code-switched English
@@ -74,15 +76,15 @@ Explicitly excluded (each documented above and in OPEN-08):
 
 ## Consequences
 
-- **Positive:** Push to Talk + system Kaan remains a truthful, always-
-  available fallback; resource failure degrades to system voice rather than
-  breaking conversation; no simultaneous large-model residency is silently
-  assumed.
+- **Positive:** Chatterbox is the primary voice; the always-available on-device
+  system synthesizer is a truthful, auto-selected fail-closed fallback when the
+  neural adapter is absent, warming, or failed; resource failure degrades to
+  system voice rather than breaking conversation; no simultaneous large-model
+  residency is silently assumed.
 - **Negative:** wake word and code-switched technical tokens are not
   available; user-visible degraded health is required for each exclusion.
-- **Risk disposition:** the neural co-residency and neural-latency risks are
-  outside this release scope. The release default keeps neural TTS out of the
-  active path; the shared governor still fails closed if an explicit future
+- **Risk disposition:** the neural co-residency and neural-latency risks remain
+  governed; the shared governor still fails closed if an explicit future
   opt-in attempts admission.
 
 ## Expiry / revisit
@@ -104,7 +106,9 @@ if a measured co-resident soak shows the budgets need re-tuning.
 ## Acceptance record
 
 The user explicitly requested completion of all SP-017/OPEN-08 gates in the
-current session. That instruction accepts this bounded system-TTS-only
-decision: PTT + system Kaan is the truthful release path; neural TTS and wake
-word remain deferred and must not be displayed as ready. Revisit requires new
+current session, and later directed that Chatterbox be the primary voice with
+the system synthesizer only as a fail-closed last resort. That instruction
+accepts this bounded routing decision: `["chatterbox", "system"]`, with no
+specific system voice hardcoded or preferred; neural TTS quality and wake word
+remain deferred and must not be displayed as ready. Revisit requires new
 live evidence and an explicit scope change.
