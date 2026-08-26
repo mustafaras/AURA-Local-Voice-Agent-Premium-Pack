@@ -302,9 +302,10 @@ func calendarConflictAndContactTieRequireExplicitResolution() throws {
 func initialCapabilitySetRegistersR5TruthfullyButDoesNotPretendReachability() async {
   let registry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: registry)
-  // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters.
+  // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters,
+  // plus SP-022's three `.ready` Task Center controls (pause/resume/retry).
   // R5's four read adapters remain disabled, which is what this test guards.
-  #expect(await registry.reachableManifests().count == 14)
+  #expect(await registry.reachableManifests().count == 17)
   for id in ["browser.read", "mail.read", "calendar.read", "contacts.lookup"] {
     guard case .disabled(let reason)? = await registry.availability(id: id, version: "1.0.0") else {
       Issue.record("expected \(id) to be disabled until composition/live wiring")

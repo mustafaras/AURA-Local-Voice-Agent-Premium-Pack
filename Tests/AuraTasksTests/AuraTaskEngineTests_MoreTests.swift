@@ -4,6 +4,33 @@ import AuraTasks
 import Foundation
 import Testing
 
+/// Thread-safe counter for asserting how many times a `@Sendable` runner body
+/// executed under strict concurrency (a mutable captured `var` would race).
+actor Counter {
+  private var count = 0
+  func increment() { count += 1 }
+  var value: Int { count }
+}
+
+/// A runner that always fails, counting each execution thread-safely, so a
+/// retry test can prove the runner re-ran exactly once more.
+struct FailingCountedRunner: TaskRunner {
+  var counter: Counter
+  var plan: TaskPlan = TaskPlan(totalSteps: 1)
+
+  func plan(for task: TaskRequest) async throws(AuraError) -> TaskPlan { plan }
+
+  func execute(
+    taskID: UUID,
+    request: TaskRequest,
+    plan: TaskPlan,
+    context: TaskExecutionContext
+  ) async throws(AuraError) {
+    await counter.increment()
+    throw AuraError.taskError("always fails")
+  }
+}
+
 @Test
 func cancellationMovesTaskToCancelled() async throws {
   let fixture = try await makeEngine(
@@ -161,6 +188,88 @@ func retryExhaustionFailsTask() async throws {
   let finalStatus = await engine.status(id: status.id)
   #expect(finalStatus?.state == .failed)
   #expect(finalStatus?.errorMessage?.contains("boom") == true)
+}
+
+// MARK: - Manual retry (SP-022 Task Center retry control)
+
+@Test
+func manualRetryReRunsFailedTaskWithoutReArmedBudget() async throws {
+  let fixture = try await makeEngine(
+    config: TaskConfiguration(maxConcurrentTasks: 1, queueCapacity: 10)
+  )
+  let engine = fixture.engine
+  let capture = fixture.capture
+  let counter = Counter()
+  let runner = FailingCountedRunner(counter: counter)
+  let status = try await engine.enqueue(
+    request: TaskRequest(objective: "manual retry", maxRetries: 0),
+    runner: runner
+  )
+  try? await Task.sleep(nanoseconds: 300_000_000)
+  #expect(await engine.status(id: status.id)?.state == .failed)
+  #expect(await counter.value == 1)
+
+  // Manual retry resets the failed task to pending and re-runs it once.
+  try await engine.retry(id: status.id, runner: runner)
+  _ = await capture.waitForEvent(TaskStateChangedEvent.self, timeoutNanoseconds: 200_000_000)
+  try? await Task.sleep(nanoseconds: 300_000_000)
+  #expect(await engine.status(id: status.id)?.state == .failed)
+  #expect(await counter.value == 2)
+}
+
+@Test
+func manualRetryOnNonFailedStateThrows() async throws {
+  let engine = try await makeEngine().engine
+  let runner = CountingRunner(plan: TaskPlan(totalSteps: 1)) { _, _, _, _ in
+    try? await Task.sleep(nanoseconds: 10_000_000)
+  }
+  let status = try await engine.enqueue(
+    request: TaskRequest(objective: "not failed"),
+    runner: runner
+  )
+  try? await Task.sleep(nanoseconds: 50_000_000)
+  #expect(await engine.status(id: status.id)?.state != .failed)
+  await #expect(throws: AuraError.self) {
+    try await engine.retry(id: status.id, runner: runner)
+  }
+}
+
+// MARK: - Task scope metadata (SP-022 Task Center scope projection)
+
+@Test
+func taskStatusCarriesScopeDerivedFromLaunchContext() async throws {
+  let engine = try await makeEngine().engine
+  let runner = CountingRunner(plan: TaskPlan(totalSteps: 1)) { _, _, _, _ in
+    try? await Task.sleep(nanoseconds: 10_000_000)
+  }
+  let context: [String: String] = [
+    "agent.backend": "claude",
+    "coding.mode": "writeCapable",
+    "coding.workspace": "/tmp/aura-work",
+    "coding.backendHealth": "ready",
+  ]
+  let status = try await engine.enqueue(
+    request: TaskRequest(objective: "scoped task", context: context),
+    runner: runner
+  )
+  let projected = await engine.status(id: status.id)
+  #expect(projected?.scope?.backend == "claude")
+  #expect(projected?.scope?.mode == "writeCapable")
+  #expect(projected?.scope?.workspace == "/tmp/aura-work")
+  #expect(projected?.scope?.backendHealth == "ready")
+}
+
+@Test func taskStatusHasNilScopeWhenContextLacksCodingKeys() async throws {
+  let engine = try await makeEngine().engine
+  let runner = CountingRunner(plan: TaskPlan(totalSteps: 1)) { _, _, _, _ in
+    try? await Task.sleep(nanoseconds: 10_000_000)
+  }
+  let status = try await engine.enqueue(
+    request: TaskRequest(objective: "plain task"),
+    runner: runner
+  )
+  let snapshot = await engine.status(id: status.id)
+  #expect(snapshot?.scope == nil)
 }
 
 // MARK: - Delete

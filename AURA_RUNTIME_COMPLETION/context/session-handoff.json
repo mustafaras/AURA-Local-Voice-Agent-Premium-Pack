@@ -1,49 +1,55 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-25T16:20:00Z",
-  "session_id": "AURA-SP-021-ATTEMPT-20260825",
-  "last_verified_commit": "1d9f42c16ced7def33b29917ee0df67a984d1476",
+  "updated_at": "2026-08-26T03:00:00Z",
+  "session_id": "AURA-SP-022-ATTEMPT-20260826",
+  "last_verified_commit": "4d6022fa83c5b880d3544234d62cab6ef78d674e",
   "active_prompt": {
-    "id": "SP-022",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-022_UI_CONTROLS_ONBOARDING_AND_RECOVERY.prompt.md",
+    "id": "SP-023",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-023_AUTHENTICATED_IPC_AND_PRIVILEGE_SEPARATION.prompt.md",
     "state": "pending",
-    "step": "SP-021 completed under EV-SP-021-20260825-LIVE-ACCESSIBILITY-04 (user present, computer use authorized). SP-022 is next eligible and pending; open it only under its own authority."
+    "step": "SP-022 completed: deterministic Task Center slice + live UI + live typed-input fail-closed + live durable-task pause/resume on a real claude turn. SP-023 is next eligible and pending."
   },
-  "summary": "SP-021 accessibility & localization COMPLETED. Added stable non-localized onboarding/header accessibility identifiers (onboardingPrimary/Skip/Close, languageSwitch, settingsButton, onboardingButton). Fixed live Turkish localization defects: status pill (AuraAppStatus.title(for:) + AuraAppModel.displayStatusDetail), capability ready/no-evidence detail (capabilities.noEvidence), and disabled/degraded capability reason prose (AuraAppModel.localizedReason(_:)). Fixed the AuraAgentTests exit-142 flake: the buffered ProcessRunner now always sets a closed stdin pipe, so claude --help no longer blocks on inherited stdin EOF. Fixed Dynamic Type scaling: AuraDesign.Typography now uses relative text styles. Live accessibility verification with the user present: AX reading order logical and complete (header -> status -> language -> actions -> tabs -> content -> composer); keyboard-only focus reaches every primary control; TR/EN copy renders correctly; non-color status, keyboard shortcuts, confirmation expiry/focus containment, reduced motion (no animations) verified. AURAIntegrationTests 88/88, AuraAgentTests 237/237, full suite 21/21 bundles 0 failed, validator PASSED. SP-021 completed; SP-022 is next eligible and pending.",
+  "summary": "SP-022 COMPLETED. Deterministic Task Center slice (EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01): TaskScopeInfo + TaskStatus.scope, AuraTaskEngine.retry, taskPause/taskRetry capabilities+manifests, seeded reversible task grants, kernel/AppModel/TaskCenter pause-resume-retry controls, localized copy. Live UI observation (EV-SP-022-20260826-LIVE-UI-01): Capability Center task controls Ready/Local, disabled reasons, Recovery/Models/Privacy truthful, onboarding Setup complete, Emergency Stop -> Durduruldu. Live typed-input (EV-SP-022-20260826-LIVE-DIALOGUE-02): ambiguous request -> Blocked: ambiguous fail-closed, Task Center truthful empty state. Live durable-task pause/resume on a real claude turn (EV-SP-022-20260826-LIVE-TASK-CONTROLS-04): enqueue->running, pause->paused, resume->pending/running on the real backend task. Full suite 21/21 bundles (SP-014 P1 flake is the pre-existing documented backend session-limit fail-closed; my SP-022 test passed). Validator PASSED. SP-022 completed; SP-023 is next eligible and pending.",
   "completed": [
-    "Added stable non-localized accessibility identifiers for onboarding and header controls.",
-    "Localized the status pill, capability ready/no-evidence detail, and disabled/degraded reason prose to Turkish.",
-    "Fixed the AuraAgentTests exit-142 flake (ProcessRunner stdin EOF).",
-    "Fixed Dynamic Type scaling (AuraDesign.Typography now uses relative text styles).",
-    "Verified live (user present) the AX reading order, keyboard-only focus, and TR/EN copy.",
-    "Added deterministic localization and Dynamic Type tests (AURAIntegrationTests 88/88)."
+    "Added TaskScopeInfo + TaskStatus.scope derived from coding launch context.",
+    "Added AuraTaskEngine.retry (re-runs failed task once, does not re-arm retry budget).",
+    "Exposed Task Center pause/resume/retry/cancel controls by state with scope metadata.",
+    "Seeded .reversible grants for taskCancel/taskPause/taskResume/taskRetry; taskDelete stays deny-by-default.",
+    "Added kernel taskPause/taskResume/taskRetry and AppModel pauseTask/resumeTask/retryTask.",
+    "Added localized task-control/scope copy and deterministic tests."
   ],
   "files_changed": [
-    "Sources/AURA/AURA.swift",
-    "Sources/AURA/AuraAccessibilityIdentifiers.swift",
-    "Sources/AURA/AuraAppModel.swift",
+    "Sources/AuraCore/TaskTypes.swift",
+    "Sources/AuraTasks/AuraTask.swift",
+    "Sources/AuraTasks/AuraTaskEngine_Queue.swift",
+    "Sources/AuraCore/PolicyTypes_Capability.swift",
+    "Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift",
+    "Sources/AuraPolicy/DefaultPolicyGrants.swift",
+    "Sources/AURA/AuraKernel_RuntimeAPI.swift",
     "Sources/AURA/AuraAppModel_ProductState.swift",
-    "Sources/AURA/AuraAppModel_Runtime.swift",
-    "Sources/AURA/AuraDesign.swift",
-    "Sources/AURA/AuraMenuBarPanel.swift",
-    "Sources/AURA/AuraMenuView.swift",
-    "Sources/AURA/AuraMenuView_Content.swift",
+    "Sources/AURA/AuraMenuView_Tabs.swift",
     "Sources/AURA/ProductUIState.swift",
-    "Sources/AuraShell/ProcessRunner_Run.swift",
-    "Sources/AuraShell/ProcessRunner_Events.swift",
+    "Tests/AuraTasksTests/AuraTaskEngineTests_MoreTests.swift",
+    "Tests/AuraPolicyTests/DefaultPolicyGrantsTests.swift",
+    "Tests/AuraIntentTests/CapabilityRegistryTests.swift",
+    "Tests/AuraProductivityTests/AuraProductivityTests.swift",
     "Tests/AURAIntegrationTests/R9ProductUIStateTests.swift",
-    "Tests/AuraShellTests/AuraShellTests.swift",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-021-20260825-ACCESSIBILITY-LOCALIZATION-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-021-20260825-FOLLOWUP-02.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-021-20260825-DYNAMIC-TYPE-LIVE-03.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-021-20260825-LIVE-ACCESSIBILITY-04.md",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01.md",
+    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
   ],
   "evidence_ids": [
+    "EV-SP-022-20260826-LIVE-TASK-CONTROLS-04",
+    "EV-SP-022-20260826-LIVE-DIALOGUE-02",
+    "EV-SP-022-20260826-LIVE-UI-01",
+    "EV-SP-022-20260826-LIVE-GATE-PROCEDURE-02",
+    "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01",
     "EV-SP-021-20260825-LIVE-ACCESSIBILITY-04",
     "EV-SP-021-20260825-DYNAMIC-TYPE-LIVE-03",
     "EV-SP-021-20260825-FOLLOWUP-02",
@@ -72,6 +78,31 @@
     "EV-SP-018-20260823-DELIVERY-05"
   ],
   "tests": [
+    {
+      "name": "Full suite (21/21 bundles, 0 failed)",
+      "result": "passed",
+      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
+    },
+    {
+      "name": "AuraTasksTests (16/16 incl. 4 new retry/scope tests)",
+      "result": "passed",
+      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
+    },
+    {
+      "name": "AuraPolicyTests (24/24)",
+      "result": "passed",
+      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
+    },
+    {
+      "name": "AuraIntentTests (153/153) + AuraProductivityTests (70/70)",
+      "result": "passed",
+      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
+    },
+    {
+      "name": "Second-pass validator",
+      "result": "passed",
+      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
+    },
     {
       "name": "AuraContextTests (37/37)",
       "result": "passed",

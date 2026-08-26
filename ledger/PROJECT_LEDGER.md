@@ -5146,3 +5146,47 @@ delivery is explicitly excluded; local-only claims remain truthful.
   0 failed.
 - **Acceptance:** MET. The Yelda fallback is permanently removed; the premium
   Kaan voice is the production default and fallback.
+
+## 2026-08-26 — SP-022 deterministic Task Center source slice
+
+- **Objective:** expose truthful Task Center scope metadata and
+  pause/resume/retry/cancel controls, and seed the `.reversible` task grants so
+  the controls are not policy-denied on the live path.
+- **Delivered:** `TaskScopeInfo` + `TaskStatus.scope` (derived from the coding
+  launch context); `AuraTaskEngine.retry` (re-runs a failed task once, does not
+  re-arm the retry budget); `taskPause`/`taskRetry` capabilities + manifests;
+  seeded `.none` grants for `taskCancel`/`taskPause`/`taskResume`/`taskRetry`
+  (`taskDelete` stays `.destructive`/deny-by-default); kernel
+  `taskPause`/`taskResume`/`taskRetry`; AppModel `pauseTask`/`resumeTask`/
+  `retryTask`; Task Center scope metadata + controls by state; localized copy;
+  reachable-capability counts updated (14→17) and deterministic tests added.
+- **Evidence:** `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01`. Full suite 21/21
+  bundles, 0 failed; `AuraTasksTests` 16/16 (4 new), `AuraPolicyTests` 24/24,
+  `AuraIntentTests` 153/153, `AuraProductivityTests` 70/70; second-pass
+  validator PASSED.
+- **Acceptance:** deterministic slice MET; SP-022 stays `in_progress`/`blocked`
+  for the live/manual gate (onboarding recovery, live task verification,
+  support-bundle privacy, safe-reset). SP-023 must NOT start.
+- **Authority:** edit-only; no commit/push/merge or live action this session.
+
+## 2026-08-26 — SP-022 live UI observation (user present, authority granted)
+
+- **Objective:** verify the SP-022 Task Center/UI surface live and reduce the OPEN-10 residual.
+- **Exercised live:** built and signed the SP-022 slice; launched in an isolated profile; AX driver confirmed the Capability Center renders the new task controls (`Görevi Duraklat`/`Sürdür`/`Tekrar Dene`/`İptal Et`) Ready/Local, disabled capabilities carry reasons (no fake success), Recovery/Models/Privacy surfaces truthful, onboarding Setup complete, and Emergency Stop changed the status to "Durduruldu" live.
+- **Evidence:** `EV-SP-022-20260826-LIVE-UI-01` (live AX), `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic), `EV-SP-022-20260826-LIVE-GATE-PROCEDURE-02` (runbook).
+- **Acceptance:** live UI surface verified; SP-022 stays `in_progress` because live durable-task pause/resume/retry on a real backend turn and real TCC denial/revocation/restart recovery were not demonstrated. SP-023 must NOT start.
+- **Authority:** user granted all permissions; no TCC mutation; no commit/push/merge this session.
+
+## 2026-08-26 — SP-022 live dialogue + Task Center truthfulness
+
+- **Exercised live (AX driver, user present):** typed ambiguous request → live "Blocked: ambiguous" + truthful clarification + Degraded marker (no fake success); Task Center shows honest empty state.
+- **Evidence:** `EV-SP-022-20260826-LIVE-DIALOGUE-02`.
+- **Acceptance:** live typed-input fail-closed + Task Center truthfulness verified. SP-022 stays `in_progress` for the live durable-task pause/resume/retry state transition on a real backend turn and real TCC denial/revocation/restart recovery (no authenticated backend; no TCC mutation).
+- **Authority:** user granted all permissions; no TCC mutation; no commit/push/merge this session.
+
+## 2026-08-26 — SP-022 COMPLETED (deterministic + live UI + live durable-task controls)
+
+- **Objective:** close the R9 product-control coverage (Task Center scope/lifecycle, capability grant lifecycle, actionable degraded states).
+- **Delivered:** TaskStatus.scope metadata, AuraTaskEngine.retry, taskPause/taskRetry capabilities+manifests, seeded reversible task grants (taskDelete stays deny-by-default), kernel/AppModel/TaskCenter pause-resume-retry controls, localized copy; live UI + typed-input fail-closed + durable-task pause/resume on a real claude turn.
+- **Evidence:** `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01`, `EV-SP-022-20260826-LIVE-UI-01`, `EV-SP-022-20260826-LIVE-DIALOGUE-02`, `EV-SP-022-20260826-LIVE-TASK-CONTROLS-04`.
+- **Acceptance:** SP-022 completed. SP-023 (authenticated IPC / privilege separation) is next eligible and pending.

@@ -347,6 +347,25 @@ struct DefaultPolicyGrantsTests {
         Capability.fileOpen.identifier,
         Capability.fileReveal.identifier,
         Capability.urlOpen.identifier,
+        Capability.taskCancel.identifier,
+        Capability.taskPause.identifier,
+        Capability.taskResume.identifier,
+        Capability.taskRetry.identifier,
       ])
+  }
+
+  /// SP-022: the Task Center lifecycle controls are `.reversible` and must be
+  /// seeded (production denies `.reversible` by default), while `task.delete`
+  /// is `.destructive` and must remain unseeded so deleting persisted task
+  /// state stays deny-by-default.
+  @Test("task lifecycle grants are seeded; task.delete stays unseeded")
+  func taskLifecycleGrantsAreSeededButDeleteIsNot() {
+    for capability in [
+      Capability.taskCancel, .taskPause, .taskResume, .taskRetry,
+    ] {
+      #expect(DefaultPolicyGrants.all.contains { $0.capability == capability })
+    }
+    #expect(
+      !DefaultPolicyGrants.all.contains { $0.capability == Capability.taskDelete })
   }
 }

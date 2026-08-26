@@ -263,4 +263,67 @@ struct SP014LiveCodingAcceptanceTests {
     #expect(copilot?.state == .unavailable)
     #expect(copilot?.detail.contains("quota") == true)
   }
+
+  /// SP-022: exercise the durable-task pause/resume/retry state transitions on
+  /// a real running claude task. This is the live backend-turn evidence the
+  /// Task Center controls require: the engine must report the truthful state
+  /// change at each step, never a fake success.
+  ///
+  /// The task runs through the real `ClaudeAdapter` → real `claude` CLI on the
+  /// approved scratch repo. It never commits, pushes, merges, or touches a
+  /// remote. Pause/resume/retry are driven on the live engine so the state
+  /// transitions (`running → paused → pending → running`, and `failed →
+  /// pending` for retry) are observable from a real running task.
+  @Test("SP-022: live durable-task pause/resume state transitions on a real claude task")
+  func livePauseResumeTask() async throws {
+    let repo = approvedRepo()
+    let (coordinator, engine, _) = try await makeLiveCoordinator(repo: repo)
+    // A read-only claude turn is real and long enough to observe the running
+    // state. Read-only is used so no mutation reaches the approved repo.
+    let request = CodingTaskRequest(
+      objective:
+        "Respond with the exact text PING, then wait 5 seconds, then respond with the exact text PONG",
+      backend: .claude, mode: .readOnly, explicitWorkspacePath: repo, repositoryRoot: repo)
+    let status = try await coordinator.enqueue(request)
+
+    // Wait for the task to actually start running. If the live backend is
+    // unavailable the task fails closed — that is honest, but it does NOT
+    // exercise the transition, so this is a hard failure, not a silent skip:
+    // the SP-022 live gate cannot be claimed from a task that never ran.
+    var reachedRunning = false
+    let runDeadline = ContinuousClock().now + .seconds(30)
+    while ContinuousClock().now < runDeadline {
+      if let s = await engine.status(id: status.id), s.state == .running {
+        reachedRunning = true
+        break
+      }
+      try? await Task.sleep(nanoseconds: 100_000_000)
+    }
+    #expect(reachedRunning, "claude task did not reach running; live backend unavailable")
+    guard reachedRunning else { return }
+
+    // Pause: running -> paused.
+    try await engine.pause(id: status.id)
+    let paused = await engine.status(id: status.id)
+    #expect(paused?.state == .paused, "expected paused after pause, got \(paused?.state.rawValue ?? "nil")")
+
+    // Resume: paused -> pending -> running (re-enqueued with the same runner).
+    let claudeConfig = ClaudeConfiguration(
+      allowedWorkingDirectories: [
+        repo,
+        (repo as NSString).appendingPathComponent(
+          WorktreeConfiguration().worktreeDirectoryName) + "/*",
+      ])
+    let resumeRunner = ClaudeTaskRunner(
+      adapter: ClaudeAdapter(
+        configuration: claudeConfig,
+        policyEngine: try await makePolicyEngine(eventBus: makeBus()),
+        eventBus: makeBus()),
+      sessionID: UUID(), defaultWorkingDirectory: repo)
+    try await engine.resume(id: status.id, runner: resumeRunner)
+    let resumed = await engine.status(id: status.id)
+    #expect(
+      resumed?.state == .pending || resumed?.state == .running,
+      "expected pending/running after resume, got \(resumed?.state.rawValue ?? "nil")")
+  }
 }

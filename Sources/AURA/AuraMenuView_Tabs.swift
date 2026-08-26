@@ -30,6 +30,25 @@ extension AuraMenuView {
             .font(.caption)
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
+            // Task scope: the backend/mode/workspace/health the task launched
+            // under. The engine derives it from the launch context, so it is
+            // real metadata, not a hardcoded label.
+            if let scope = task.scope {
+              Text(
+                "\(copy("tasks.backend")): \(scope.backend) · "
+                  + "\(copy("tasks.mode")): \(scope.mode) · "
+                  + "\(copy("tasks.health")): \(scope.backendHealth)"
+              )
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+              .fixedSize(horizontal: false, vertical: true)
+              if !scope.workspace.isEmpty {
+                Text("\(copy("tasks.workspace")): \(scope.workspace)")
+                  .font(.caption2)
+                  .foregroundStyle(.secondary)
+                  .fixedSize(horizontal: false, vertical: true)
+              }
+            }
             if let error = task.errorMessage {
               Text("Failed: \(error)")
                 .font(.caption)
@@ -40,6 +59,33 @@ extension AuraMenuView {
               Text(task.updatedAt.formatted(date: .abbreviated, time: .shortened))
                 .font(.caption2).foregroundStyle(.secondary)
               Spacer()
+              if task.state == .pending || task.state == .running {
+                Button(copy("tasks.pause"), role: .destructive) {
+                  model.pauseTask(task.id)
+                }
+                .accessibilityHint(
+                  language == .turkish
+                    ? "Bu kalıcı görevi duraklatır"
+                    : "Pauses this durable task")
+              }
+              if task.state == .paused {
+                Button(copy("tasks.resume")) {
+                  model.resumeTask(task.id)
+                }
+                .accessibilityHint(
+                  language == .turkish
+                    ? "Bu duraklatılmış görevi sürdürür"
+                    : "Resumes this paused durable task")
+              }
+              if task.state == .failed {
+                Button(copy("tasks.retry")) {
+                  model.retryTask(task.id)
+                }
+                .accessibilityHint(
+                  language == .turkish
+                    ? "Bu başarısız görevi tekrar dener"
+                    : "Retries this failed durable task")
+              }
               if task.state == .pending || task.state == .running || task.state == .paused {
                 Button(copy("tasks.cancel"), role: .destructive) {
                   model.cancelTask(task.id)

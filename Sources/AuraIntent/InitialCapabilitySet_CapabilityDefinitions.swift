@@ -22,6 +22,9 @@ extension InitialCapabilitySet {
     (appHide, .ready),
     (taskStatus, .ready),
     (taskCancel, .ready),
+    (taskPause, .ready),
+    (taskResume, .ready),
+    (taskRetry, .ready),
     (capabilityHealth, .ready),
     (vscodeEditorState, .disabled(reason: vscodeDisabledReason)),
     (vscodeWorkspaceStatus, .disabled(reason: vscodeDisabledReason)),
@@ -262,6 +265,63 @@ extension InitialCapabilitySet {
     confirmationRule: "reversible tier default (no mandatory confirmation)",
     verificationMethod: "AuraTaskEngine reports the task's post-cancel state",
     rollbackStrategy: "none — a cancelled task is not automatically resumed")
+
+  public static let taskPause = CapabilityManifest(
+    id: "task.pause", version: "1.0.0",
+    presentation: CapabilityPresentation(
+      titleByLocale: [.english: "Pause Task", .turkish: "Görevi Duraklat"],
+      descriptionByLocale: [
+        .english: "Pause a queued or running durable task.",
+        .turkish: "Sırada bekleyen veya çalışan kalıcı bir görevi duraklatır.",
+      ]),
+    inputSchemaDescription: "taskID: UUID",
+    outputSchemaDescription: "pause acknowledgement",
+    owningAdapter: "AuraTaskEngine.pause",
+    requiredCapability: .taskPause,
+    isIdempotent: true,
+    executionBudget: CapabilityExecutionBudget(
+      timeoutSeconds: 5, supportsCancellation: false, isRetryable: false),
+    confirmationRule: "reversible tier default (no mandatory confirmation)",
+    verificationMethod: "AuraTaskEngine reports the task's post-pause state",
+    rollbackStrategy: "reversible via task.resume")
+
+  public static let taskResume = CapabilityManifest(
+    id: "task.resume", version: "1.0.0",
+    presentation: CapabilityPresentation(
+      titleByLocale: [.english: "Resume Task", .turkish: "Görevi Sürdür"],
+      descriptionByLocale: [
+        .english: "Resume a paused durable task.",
+        .turkish: "Duraklatılmış kalıcı bir görevi sürdürür.",
+      ]),
+    inputSchemaDescription: "taskID: UUID",
+    outputSchemaDescription: "resume acknowledgement",
+    owningAdapter: "AuraTaskEngine.resume",
+    requiredCapability: .taskResume,
+    isIdempotent: true,
+    executionBudget: CapabilityExecutionBudget(
+      timeoutSeconds: 5, supportsCancellation: false, isRetryable: false),
+    confirmationRule: "reversible tier default (no mandatory confirmation)",
+    verificationMethod: "AuraTaskEngine reports the task's post-resume state",
+    rollbackStrategy: "reversible via task.pause")
+
+  public static let taskRetry = CapabilityManifest(
+    id: "task.retry", version: "1.0.0",
+    presentation: CapabilityPresentation(
+      titleByLocale: [.english: "Retry Task", .turkish: "Görevi Tekrar Dene"],
+      descriptionByLocale: [
+        .english: "Re-run a failed durable task once without re-arming its retry budget.",
+        .turkish: "Başarısız kalıcı bir görevi, yeniden deneme bütçesini sıfırlamadan tekrar çalıştırır.",
+      ]),
+    inputSchemaDescription: "taskID: UUID",
+    outputSchemaDescription: "retry acknowledgement; task re-enters pending",
+    owningAdapter: "AuraTaskEngine.retry",
+    requiredCapability: .taskRetry,
+    isIdempotent: true,
+    executionBudget: CapabilityExecutionBudget(
+      timeoutSeconds: 5, supportsCancellation: false, isRetryable: false),
+    confirmationRule: "reversible tier capped (no mandatory confirmation)",
+    verificationMethod: "AuraTaskEngine reports the task re-entered pending",
+    rollbackStrategy: "a retried task can be cancelled again")
 
   public static let capabilityHealth = CapabilityManifest(
     id: "capability.health", version: "1.0.0",

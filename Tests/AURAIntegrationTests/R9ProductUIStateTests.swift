@@ -48,6 +48,26 @@ struct R9ProductUIStateTests {
     }
   }
 
+  @Test("task center copy localizes and TaskStatus scope round-trips")
+  func taskCenterCopyAndScopeRoundTrip() throws {
+    // Every new SP-022 task-control key has both languages.
+    for key in ["tasks.pause", "tasks.resume", "tasks.retry", "tasks.backend", "tasks.mode",
+      "tasks.health", "tasks.workspace"] {
+      #expect(AuraCopy.text(key, language: .english) != key)
+      #expect(AuraCopy.text(key, language: .turkish) != key)
+      #expect(!AuraCopy.text(key, language: .turkish).isEmpty)
+    }
+    // The scope metadata stays Codable so the Task Center can decode it.
+    let scope = TaskScopeInfo(
+      backend: "claude", mode: "writeCapable", workspace: "/tmp/aura", backendHealth: "ready")
+    let task = TaskStatus(
+      id: UUID(), state: .running, objective: "obj", priority: .normal,
+      createdAt: Date(), updatedAt: Date(), scope: scope)
+    let data = try! JSONEncoder().encode(task)
+    let decoded = try! JSONDecoder().decode(TaskStatus.self, from: data)
+    #expect(decoded.scope == scope)
+  }
+
   @Test("status pill title and detail localize to Turkish")
   @MainActor
   func statusPillLocalizesToTurkish() {

@@ -3,9 +3,9 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-25T16:20:00Z",
-  "session_id": "AURA-SP-021-ATTEMPT-20260825",
-  "active_prompt": "SP-022",
+  "updated_at": "2026-08-26T03:00:00Z",
+  "session_id": "AURA-SP-022-ATTEMPT-20260826",
+  "active_prompt": "SP-023",
   "active_state": "pending",
   "completed_prompts": [
     "SP-000",
@@ -29,10 +29,16 @@
     "SP-018",
     "SP-019",
     "SP-020",
-    "SP-021"
+    "SP-021",
+    "SP-022"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-022-20260826-LIVE-TASK-CONTROLS-04",
+    "EV-SP-022-20260826-LIVE-DIALOGUE-02",
+    "EV-SP-022-20260826-LIVE-UI-01",
+    "EV-SP-022-20260826-LIVE-GATE-PROCEDURE-02",
+    "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01",
     "EV-SP-021-20260825-LIVE-ACCESSIBILITY-04",
     "EV-SP-021-20260825-DYNAMIC-TYPE-LIVE-03",
     "EV-SP-021-20260825-FOLLOWUP-02",
@@ -119,8 +125,7 @@
     "push": true,
     "merge": true,
     "release_or_deploy": false
-  },
-  "control_files": {
+  },  "control_files": {
     "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "prompt_manifest": "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
     "prompt_contract": "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
@@ -131,5 +136,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-021 completed (accessibility/localization acceptance) under EV-SP-021-20260825-LIVE-ACCESSIBILITY-04. SP-022 is next eligible and pending; open it only under its own authority."
+  "next_action": "SP-022 completed: deterministic slice (EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01) + live UI (EV-SP-022-20260826-LIVE-UI-01) + live typed-input fail-closed (EV-SP-022-20260826-LIVE-DIALOGUE-02) + live durable-task pause/resume on a real claude turn (EV-SP-022-20260826-LIVE-TASK-CONTROLS-04). SP-023 is next eligible and pending."
 }

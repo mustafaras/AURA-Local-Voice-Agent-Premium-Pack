@@ -128,8 +128,42 @@ final class AuraTask: @unchecked Sendable {
       completedSteps: _completedSteps,
       totalSteps: _totalSteps,
       currentStepDescription: _currentStepDescription,
-      errorMessage: _errorMessage
+      errorMessage: _errorMessage,
+      scope: scopeInfo
     )
+  }
+
+  /// Derive the typed scope snapshot from the task's launch context.
+  ///
+  /// The coding-agent coordinator stamps `agent.backend`, `coding.mode`,
+  /// `coding.workspace`, and `coding.backendHealth` into the task context at
+  /// enqueue time. A task carrying all four is a coding task and gets a typed
+  /// scope projection; anything else returns `nil` (no scope, truthfully).
+  var scopeInfo: TaskScopeInfo? {
+    guard
+      let backend = context["agent.backend"],
+      let mode = context["coding.mode"],
+      let workspace = context["coding.workspace"],
+      let health = context["coding.backendHealth"]
+    else { return nil }
+    return TaskScopeInfo(
+      backend: backend, mode: mode, workspace: workspace, backendHealth: health)
+  }
+
+  /// Reset the task to a clean, retryable pending state without re-arming the
+  /// retry budget. This is the durable-engine retry control: a failed task
+  /// becomes `pending` again and a fresh pump attempt re-runs it. It is
+  /// deliberately a different operation from automatic `retryOrFail`, which
+  /// consumes the retry budget.
+  func resetForManualRetry() {
+    lock.lock()
+    _state = .pending
+    _errorMessage = nil
+    _completedSteps = 0
+    _totalSteps = 0
+    _currentStepDescription = ""
+    _updatedAt = Date()
+    lock.unlock()
   }
 
   /// Returns true if the deadline has passed.

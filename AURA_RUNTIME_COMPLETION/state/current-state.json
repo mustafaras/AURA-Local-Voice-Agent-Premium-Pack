@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-25T16:20:00Z",
-  "session_id": "AURA-SP-021-ATTEMPT-20260825",
+  "updated_at": "2026-08-26T00:00:00Z",
+  "session_id": "AURA-SP-022-ATTEMPT-20260826",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "1d9f42c16ced7def33b29917ee0df67a984d1476",
-    "remote_head": "1d9f42c16ced7def33b29917ee0df67a984d1476",
+    "verified_head": "4d6022fa83c5b880d3544234d62cab6ef78d674e",
+    "remote_head": "4d6022fa83c5b880d3544234d62cab6ef78d674e",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "Sources/AURA/AURA.swift",
@@ -45,10 +45,10 @@
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "R9",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-022_UI_CONTROLS_ONBOARDING_AND_RECOVERY.prompt.md",
+    "id": "SP-023",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-023_AUTHENTICATED_IPC_AND_PRIVILEGE_SEPARATION.prompt.md",
     "state": "pending",
-    "step": "SP-021 completed under EV-SP-021-20260825-LIVE-ACCESSIBILITY-04 (user present, computer use authorized). Track R9 advances to SP-022 (UI controls, onboarding, and recovery), which is pending; open it only under its own authority and read order."
+    "step": "SP-022 completed: deterministic Task Center slice + live UI + live typed-input fail-closed + live durable-task pause/resume on a real claude turn. SP-023 is next eligible and pending."
   },
   "tracks": [
     {
@@ -491,6 +491,11 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-022-20260826-LIVE-TASK-CONTROLS-04",
+    "EV-SP-022-20260826-LIVE-DIALOGUE-02",
+    "EV-SP-022-20260826-LIVE-UI-01",
+    "EV-SP-022-20260826-LIVE-GATE-PROCEDURE-02",
+    "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01",
     "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
     "EV-SP-019-20260824-LIVE-REFERENCE-13",
     "EV-SP-019-20260824-MEMORY-AUTHORITY-12",

@@ -309,6 +309,13 @@ enum AuraCopy {
       .turkish: "Şu anda izlenen kalıcı görev yok.",
     ],
     "tasks.cancel": [.english: "Cancel task", .turkish: "Görevi iptal et"],
+    "tasks.pause": [.english: "Pause", .turkish: "Duraklat"],
+    "tasks.resume": [.english: "Resume", .turkish: "Sürdür"],
+    "tasks.retry": [.english: "Retry", .turkish: "Tekrar dene"],
+    "tasks.backend": [.english: "Backend", .turkish: "Arka uç"],
+    "tasks.mode": [.english: "Mode", .turkish: "Mod"],
+    "tasks.health": [.english: "Health", .turkish: "Sağlık"],
+    "tasks.workspace": [.english: "Workspace", .turkish: "Çalışma alanı"],
     "tasks.progress": [.english: "Progress", .turkish: "İlerleme"],
     "capabilities.title": [
       .english: "Capability & Permission Center", .turkish: "Yetenek ve İzin Merkezi",

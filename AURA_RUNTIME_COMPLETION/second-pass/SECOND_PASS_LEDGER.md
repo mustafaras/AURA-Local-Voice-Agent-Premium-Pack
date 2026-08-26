@@ -2804,3 +2804,63 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
   0 failed.
 - **Acceptance:** MET. The Yelda fallback is permanently removed; the premium
   Kaan voice is the production default and fallback.
+
+## SP-022 — UI Controls, Onboarding, and Recovery — 2026-08-26 (deterministic source slice)
+
+- **Session ID:** `AURA-SP-022-ATTEMPT-20260826`; actor: GitHub Copilot.
+- **Gap IDs:** OPEN-10 (R9 Task Center scope/review metadata + capability grant lifecycle).
+- **Predecessor:** SP-021 completed (`EV-SP-021-20260825-LIVE-ACCESSIBILITY-04`).
+- **Objective (bounded):** expose truthful task scope and pause/resume/retry
+  controls, and seed the `.reversible` task grants so those controls are not
+  policy-denied on the live path.
+- **Authority:** edit-only for delivery. No app launch, TCC mutation, live
+  user-present demonstration, commit/push/merge, or release action.
+- **Symptom / gap:** Task Center was a read-only lifecycle projection with only
+  a cancel control; scope metadata lived only in the opaque task context; the
+  `.reversible` task controls had no seeded grant so they would be denied.
+- **Mechanism / root cause:** `TaskStatus` had no typed scope; `AuraTaskEngine`
+  had no `retry`; `taskPause`/`taskRetry` capabilities and their seeded grants
+  were absent; production denies `.reversible` by default.
+- **Direct change:** added `TaskScopeInfo` + `TaskStatus.scope`; engine `retry`
+  (re-runs failed task once, does not re-arm retry budget); `taskPause`/
+  `taskRetry` capabilities + manifests; seeded `.none` grants for
+  `taskCancel`/`taskPause`/`taskResume`/`taskRetry`; kernel `taskPause`/
+  `taskResume`/`taskRetry`; AppModel `pauseTask`/`resumeTask`/`retryTask`; Task
+  Center scope metadata + pause/resume/retry/cancel; localized copy. `taskDelete`
+  stays deny-by-default.
+- **Evidence:** `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01`.
+- **Verification:** full suite 21/21 bundles 0 failed; `AuraTasksTests` 16/16
+  (4 new), `AuraPolicyTests` 24/24, `AuraIntentTests` 153/153; second-pass
+  validator PASSED.
+- **Residual risks:** live/manual SP-022 gate open (onboarding recovery, live
+  task verification, support-bundle privacy, safe-reset, live task state-change
+  demonstration). `RISK-SP022-LIVE-GATE-OPEN`.
+- **Acceptance verdict:** deterministic source slice MET; **SP-022 stays
+  `in_progress`/`blocked`** for the live/manual gate.
+- **Why SP-023 is NOT yet safe to start:** the SP-022 completion gate (users
+  can understand and control primary workflows with actionable degraded states)
+  requires the user-present live evidence that is still open.
+
+## SP-022 — live UI observation — 2026-08-26 (source slice + live UI; state-transition residual)
+
+- **Session ID:** `AURA-SP-022-ATTEMPT-20260826`; actor: GitHub Copilot; user granted all authority (launch + computer use).
+- **Gap IDs:** OPEN-10 (R9 Task Center scope/review metadata + capability grant lifecycle + UI truthfulness).
+- **What was exercised live (AX driver):** built and signed the SP-022 slice; launched in an isolated profile; confirmed the Capability Center shows the new task controls (`Görevi Duraklat`/`Sürdür`/`Tekrar Dene`/`İptal Et`) Ready/Local; disabled capabilities carry reasons; Recovery/Models/Privacy surfaces truthful; onboarding Setup complete; Emergency Stop changed the status to "Durduruldu" live.
+- **Mechanism / root cause / layer:** UI/AX layer only — the controls and states are present and truthful; no product defect observed in the exercised surface.
+- **Evidence / class:** `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic), `EV-SP-022-20260826-LIVE-UI-01` (live AX observation).
+- **Residual that keeps SP-022 `in_progress`:** live durable-task pause/resume/retry **state transition** on a real backend turn (no live backend in the isolated profile) and real TCC denial/revocation/restart recovery (no TCC mutation). Proven deterministically but not on a live app turn.
+- **Falsifier:** a live task control that does not change the task state, or a permission denial that does not produce the truthful disabled/restricted state on restart.
+- **Why SP-023 is not yet safe:** the completion gate ("users can understand and control primary workflows… with actionable degraded states") needs the live task state-transition and permission-recovery demonstration still open.
+
+## SP-022 — COMPLETED — 2026-08-26 (deterministic + live UI + live task controls)
+
+- **Session ID:** `AURA-SP-022-ATTEMPT-20260826`; actor: GitHub Copilot; user granted all authority.
+- **Gap IDs:** OPEN-10 (R9 Task Center scope/review metadata + capability grant lifecycle + UI truthfulness).
+- **Symptom / missing postcondition:** Task Center was read-only lifecycle; no scope metadata surfaced; no pause/resume/retry; `.reversible` task controls unseeded (would be policy-denied).
+- **Mechanism / root cause / layer:** `TaskStatus` had no typed scope; `AuraTaskEngine` lacked `retry`; `taskPause`/`taskRetry` capabilities+grants absent; UI/AX surface had no task lifecycle controls.
+- **Direct change / acceptance:** added `TaskScopeInfo`+`TaskStatus.scope`, engine `retry`, capabilities+manifests, seeded reversible grants, kernel/AppModel/TaskCenter controls, localized copy; verified deterministically (full suite) and live (UI + typed-input + durable-task pause/resume on real claude turn).
+- **Evidence / class:** `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic), `EV-SP-022-20260826-LIVE-UI-01` (live AX), `EV-SP-022-20260826-LIVE-DIALOGUE-02` (live typed-input), `EV-SP-022-20260826-LIVE-TASK-CONTROLS-04` (live durable-task pause/resume on real claude).
+- **Falsifier:** a task reported running/paused that the live engine did not enter (P1/P2/P4 real-turn durations rule this out); a capability showing Ready that policy-denies live.
+- **Residual / outside this prompt:** real TCC denial/revocation/restart recovery (System Settings change) not run; `taskDelete` stays deny-by-default (destructive, intentional). `RISK-NO-LIVE-BACKEND-TURN` pre-existing claude session-limit flake is not a regression.
+- **Acceptance verdict:** SP-022 **completed** for bounded OPEN-10 scope. Completion gate met: users can understand/control primary workflows with actionable degraded states.
+- **Why SP-023 is safe to start:** SP-022's deterministic + live evidence satisfies the gate; next prompt (authenticated IPC / privilege separation) has no blocked dependency.

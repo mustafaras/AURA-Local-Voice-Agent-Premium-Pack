@@ -75,6 +75,29 @@ public enum DefaultPolicyGrants {
     Grant(
       capability: .agentOllamaLocalInference, patterns: [.any],
       confirmationRequirement: .none, purpose: seedPurpose),
+    // SP-022: the Task Center lifecycle controls. Each is `.reversible` tier,
+    // and production `PolicyConfiguration` denies `.reversible` by default, so
+    // without these grants the Task Center's cancel/pause/resume/retry buttons
+    // would be policy-denied before ever reaching `AuraTaskEngine` — the same
+    // silent-gap the SP-006 filesystem/URL grants fixed. `task.status` and
+    // `task.list` are `.observation` and allow by default already.
+    //
+    // `task.delete` is intentionally NOT granted: it is `.destructive` tier
+    // and must stay deny-by-default. Deleting a durable task's persisted state
+    // is a destructive, irreversible action that belongs behind an explicit
+    // user-controlled grant, not the seed set.
+    Grant(
+      capability: .taskCancel, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    Grant(
+      capability: .taskPause, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    Grant(
+      capability: .taskResume, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    Grant(
+      capability: .taskRetry, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
   ]
 
   /// The filesystem capabilities SP-004/SP-005 delivered, confined to the

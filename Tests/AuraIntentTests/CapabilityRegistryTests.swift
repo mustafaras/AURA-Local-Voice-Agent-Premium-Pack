@@ -79,8 +79,9 @@ func initialCapabilitySetRegistersEveryTargetManifest() async {
   let registry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: registry)
   #expect(await registry.allManifests().count == InitialCapabilitySet.manifests().count)
-  // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters.
-  #expect(await registry.reachableManifests().count == 14)
+  // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters,
+  // plus SP-022's three `.ready` Task Center controls (pause/resume/retry).
+  #expect(await registry.reachableManifests().count == 17)
 }
 
 @Test
@@ -173,6 +174,7 @@ func computerUseRunRegisteredDisabledUntilApproved() async {
   #expect(!reason.isEmpty)
   #expect(!reason.lowercased().contains("todo"))
   // Adding a disabled manifest must not change the reachable count.
-  // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters.
-  #expect(await registry.reachableManifests().count == 14)
+  // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters,
+  // plus SP-022's three `.ready` Task Center controls (pause/resume/retry).
+  #expect(await registry.reachableManifests().count == 17)
 }

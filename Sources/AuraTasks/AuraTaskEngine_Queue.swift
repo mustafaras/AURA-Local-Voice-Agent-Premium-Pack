@@ -156,6 +156,31 @@ extension AuraTaskEngine {
     try await storeBackend.removeTaskSnapshot(id: id)
   }
 
+  /// Re-run a failed task once under manual control, without consuming the
+  /// automatic retry budget.
+  ///
+  /// A failed task is reset to a clean `pending` state and re-enqueued with
+  /// the same runner, so the next pump runs it again. This is the Task Center
+  /// "retry" control. It fails closed on any non-failed state and does not
+  /// change `maxRetries` or `attempt`, so an automatic retry loop cannot be
+  /// silently re-armed with a fresh budget by repeatedly tapping retry.
+  public func retry(id: UUID, runner: TaskRunner) async throws(AuraError) {
+    guard let task = tasksByID[id] else {
+      throw .taskNotFound(id)
+    }
+    guard task.state == .failed else {
+      throw .taskInvalidState("retry requires failed state, got \(task.state)")
+    }
+    task.resetForManualRetry()
+    let enqueued = queue.enqueue(task)
+    if enqueued {
+      pumpQueue(runner: runner)
+    }
+    try await persistState(task: task)
+    try await emit(
+      TaskStateChangedEvent(taskID: id, previousState: .failed, newState: .pending))
+  }
+
   /// Gracefully stop accepting new work and cancel active runners.
   public func shutdown() async {
     shutdown = true

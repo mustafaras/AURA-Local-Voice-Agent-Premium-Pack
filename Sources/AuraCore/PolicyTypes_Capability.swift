@@ -47,8 +47,12 @@ extension Capability {
     domain: "task", action: "enqueue", riskTier: .reversible)
   public static let taskCancel = Capability(
     domain: "task", action: "cancel", riskTier: .reversible)
+  public static let taskPause = Capability(
+    domain: "task", action: "pause", riskTier: .reversible)
   public static let taskResume = Capability(
     domain: "task", action: "resume", riskTier: .reversible)
+  public static let taskRetry = Capability(
+    domain: "task", action: "retry", riskTier: .reversible)
   public static let taskDelete = Capability(
     domain: "task", action: "delete", riskTier: .destructive)
   public static let taskList = Capability(

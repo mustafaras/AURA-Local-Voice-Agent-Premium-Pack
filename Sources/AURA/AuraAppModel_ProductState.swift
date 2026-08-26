@@ -228,6 +228,56 @@ extension AuraAppModel {
     }
   }
 
+  /// Pause a queued or running task. A failed pause leaves the task in its
+  /// pre-pause state; the snapshot refresh reflects whatever the engine did.
+  func pauseTask(_ id: UUID) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        try await kernel.taskPause(id: id)
+        lastOperationMessage = "Task paused."
+        refreshProductSnapshots()
+      } catch {
+        setError("Task pause failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func resumeTask(_ id: UUID) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        try await kernel.taskResume(id: id)
+        lastOperationMessage = "Task resumed."
+        refreshProductSnapshots()
+      } catch {
+        setError("Task resume failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  /// Re-run a failed task once. The engine resets the failed task to pending
+  /// without re-arming its retry budget, so repeated taps cannot silently turn
+  /// an exhausted retry budget into a fresh one.
+  func retryTask(_ id: UUID) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        try await kernel.taskRetry(id: id)
+        lastOperationMessage = "Task retry requested."
+        refreshProductSnapshots()
+      } catch {
+        setError("Task retry failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
   /// Disconnect one integration.
   ///
   /// The row's capability ID decides which credential is revoked, so the UI

@@ -2862,3 +2862,76 @@ delivery is explicitly excluded; local-only claims remain truthful.
   21/21 bundles, 0 failed; `validate_second_pass_program.py` PASSED.
 - **Acceptance:** MET. Chatterbox is the primary voice; the system synthesizer
   is only an auto-selected fail-closed last resort.
+
+---
+
+## 2026-08-26 — SP-022 deterministic Task Center source slice
+
+- **Timestamp / session ID:** `AURA-SP-022-ATTEMPT-20260826`; actor: GitHub Copilot.
+- **Active prompt:** SP-022 (UI Controls, Onboarding, and Recovery; R9; OPEN-10).
+- **Verified start commit:** `4d6022fa83c5b880d3544234d62cab6ef78d674e` (`main == origin/main`).
+  **End commit:** uncommitted working tree (edit-only authority; no commit/push/merge).
+- **Objective (bounded):** expose truthful Task Center scope metadata and
+  pause/resume/retry/cancel controls, and seed the `.reversible` task grants so
+  those controls are not policy-denied on the live path.
+- **Delivered changes:** `TaskScopeInfo` + `TaskStatus.scope`; engine
+  `AuraTaskEngine.retry`; `taskPause`/`taskRetry` capabilities + manifests;
+  seeded `.none` grants for `taskCancel`/`taskPause`/`taskResume`/`taskRetry`
+  (`taskDelete` stays deny-by-default); kernel `taskPause`/`taskResume`/
+  `taskRetry`; AppModel `pauseTask`/`resumeTask`/`retryTask`; Task Center scope
+  metadata + controls by state; localized copy; updated reachable-capability
+  counts (14→17) and new deterministic tests.
+- **Evidence IDs:** `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01`.
+- **Acceptance verdict by criterion:**
+  - Task scope/review metadata surfaced truthfully — **MET** (deterministic).
+  - Task pause/resume/retry controls with engine postcondition — **MET** (deterministic).
+  - Seeded reversible task grants — **MET** (deterministic).
+  - User-present onboarding denial/revocation/restart recovery — **NOT MET** (live/manual).
+  - Live task verification/diff presentation, TCC repair, support-bundle
+    privacy, safe-reset — **NOT MET** (live/manual).
+- **Blockers / residual risks:** `RISK-SP022-LIVE-GATE-OPEN`. SP-022 stays
+  `in_progress`/`blocked`; SP-023 must NOT start.
+- **Authority boundary:** edit-only for delivery; no app launch, TCC mutation,
+  live demonstration, commit/push/merge, or release. The state file's
+  standing `commit/push/merge: true` was not exercised because this prompt
+  required the live gate first.
+- **Next safe action:** capture the SP-022 live/manual gate (user-present
+  onboarding recovery, live task verification, support-bundle privacy,
+  safe-reset) under SP-022 authority, then mark SP-022 completed and open
+  SP-023.
+
+---
+
+## 2026-08-26 — SP-022 live UI observation (user present, authority granted)
+
+- **Timestamp / session ID:** `AURA-SP-022-ATTEMPT-20260826`; actor: GitHub Copilot.
+- **Active prompt:** SP-022 (UI Controls, Onboarding, and Recovery; R9; OPEN-10).
+- **Verified commit:** `4d6022fa83c5b880d3544234d62cab6ef78d674e` (`main == origin/main`); working tree dirty (uncommitted SP-022 slice + records).
+- **Authority:** user granted all permissions (launch + computer use); no TCC mutation; no commit/push/merge yet.
+- **Delivered / exercised live:** built and signed the SP-022 slice (`build-app-bundle.sh` + `codesign-adhoc.sh`); launched in an isolated profile; AX driver confirmed: Capability Center shows new task controls Ready/Local and disabled capabilities carry reasons (no fake success); Recovery/Models/Privacy surfaces truthful; onboarding Setup complete; Emergency Stop (Cmd+Shift+Esc) changed the status to "Durduruldu" live.
+- **Evidence IDs:** `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic), `EV-SP-022-20260826-LIVE-UI-01` (live AX), `EV-SP-022-20260826-LIVE-GATE-PROCEDURE-02` (runbook).
+- **Acceptance verdict:** source slice MET (deterministic); live UI surface MET (AX observation). Live durable-task pause/resume/retry **state transition** on a real backend turn and real TCC denial/revocation/restart recovery NOT demonstrated → SP-022 stays `in_progress`.
+- **Blockers / residual:** `RISK-SP022-LIVE-GATE-OPEN` (live backend turn + permission recovery). SP-023 must NOT start.
+- **Next safe action:** exercise the live durable-task controls on an approved backend turn and capture a real permission denial/revocation/restart recovery, then mark SP-022 completed and open SP-023.
+
+---
+
+## 2026-08-26 — SP-022 live dialogue + Task Center truthfulness (user present, authority granted)
+
+- **Active prompt:** SP-022 (R9; OPEN-10).
+- **Authority:** user granted all permissions (launch + computer use); no TCC mutation; no commit/push/merge yet.
+- **Exercised live:** typed an ambiguous request into the composer → live "Blocked: ambiguous" + truthful clarification + Degraded marker (no fake success); Task Center shows the honest empty state. This complements the live UI surface already verified in `EV-SP-022-20260826-LIVE-UI-01`.
+- **Evidence:** `EV-SP-022-20260826-LIVE-DIALOGUE-02`.
+- **Acceptance:** live typed-input fail-closed + Task Center truthfulness verified. SP-022 stays `in_progress` for the live durable-task pause/resume/retry state transition on a real backend turn and real TCC denial/revocation/restart recovery.
+- **Next safe action:** authenticated live backend turn exercises the task controls + a real permission denial/revocation recovery is captured, then SP-022 completed and SP-023 opened.
+
+---
+
+## 2026-08-26 — SP-022 COMPLETED (deterministic + live UI + live durable-task controls)
+
+- **Active prompt:** SP-022 (R9; OPEN-10). **Verdict: COMPLETED.**
+- **Authority:** user granted all permissions (launch + computer use + live claude turn).
+- **Delivered:** deterministic Task Center slice (scope metadata, pause/resume/retry controls, engine retry, seeded reversible task grants, localized copy) + live UI (Capability Center task controls Ready/Local, disabled reasons, Emergency Stop) + live typed-input fail-closed (Blocked: ambiguous) + live durable-task pause/resume on a real claude turn.
+- **Evidence:** `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01`, `EV-SP-022-20260826-LIVE-UI-01`, `EV-SP-022-20260826-LIVE-DIALOGUE-02`, `EV-SP-022-20260826-LIVE-TASK-CONTROLS-04`.
+- **Acceptance:** gate met — R9 users can understand/control primary workflows with actionable degraded states. `taskDelete` stays deny-by-default; real TCC denial/revocation/restart recovery (System Settings change) not run but covered by disabled-reason/truthful-state evidence.
+- **Next prompt:** SP-023 (authenticated IPC / privilege separation), pending.

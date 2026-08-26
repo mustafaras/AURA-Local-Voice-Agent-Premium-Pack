@@ -1,46 +1,35 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-25.
+Projection refreshed from live repository and command evidence on 2026-08-26.
 
-## Authoritative current status — 2026-08-25T16:20:00Z (SP-021 completed; SP-022 pending)
+## Authoritative current status — 2026-08-26T03:00:00Z (SP-022 completed; SP-023 pending)
 
-The active second-pass prompt is **`SP-022` / `pending`** (UI controls,
-onboarding, and recovery, R9). **`SP-021` is `completed`** and **`SP-020` is
-`completed`** under `EV-SP-020-20260825-REMOTE-BOUNDARY-01`: local-only is the
-explicit product boundary — a static inventory found no production
-remote-context transport or caller of `remotePublicOnly` /
-`ContextDeliveryPolicy(destination: .remoteModel)`; `ContextBuilder_Build.swift`
-rejects remote delivery without a separately redacted, user-approved turn
-summary; `PreferencePolicyBounds` (`cloudContextAllowed=false`) makes local-only
-non-weakening. `AuraContextTests` 37/37 and `AuraMemoryTests` 30/30 pass; live
-socket traces in `EV-SP-019-…-14` show zero non-loopback peers.
-`RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE` is mitigated.
+The active second-pass prompt is **`SP-023` / `pending`** (authenticated IPC and
+privilege separation, R10). **`SP-022` is `completed`** under the combination
+of `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic Task Center
+slice: `TaskStatus.scope`, `AuraTaskEngine.retry`, `taskPause`/`taskRetry`
+capabilities+manifests, seeded reversible task grants, kernel/AppModel/
+TaskCenter pause-resume-retry controls, localized copy),
+`EV-SP-022-20260826-LIVE-UI-01` (live UI: Capability Center task controls
+Ready/Local, disabled reasons, Recovery/Models/Privacy truthful, Emergency Stop
+→ Durduruldu), `EV-SP-022-20260826-LIVE-DIALOGUE-02` (live typed-input
+fail-closed "Blocked: ambiguous" + truthful Task Center empty state), and
+`EV-SP-022-20260826-LIVE-TASK-CONTROLS-04` (live durable-task pause/resume on a
+real claude turn: enqueue→running, pause→paused, resume→pending/running). The
+R9 completion gate — users can understand and control primary workflows with
+actionable degraded states — is met. `taskDelete` stays `.destructive`/
+deny-by-default. `AuraAgentTests` 238/238 (the SP-014 P1 flake is the
+pre-existing documented backend session-limit fail-closed, `RISK-NO-LIVE-BACKEND-TURN`,
+not a regression). **SP-023 is next eligible and pending; open it only under
+its own authority.**
 
-At the user's direction, **ADR-043 is Accepted** under the explicit local-only
-remote-boundary scope (2026-08-25, review 2026-09-07); `RISK-ADR-043-PENDING`
-is closed. SP-019's eight live R8 scenarios passed on one build
-(`EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`).
-
-**SP-021 is `completed`** under `EV-SP-021-20260825-LIVE-ACCESSIBILITY-04`
-(with the user present and computer use authorized), building on
-`EV-SP-021-20260825-ACCESSIBILITY-LOCALIZATION-01`,
-`EV-SP-021-20260825-FOLLOWUP-02`, and `EV-SP-021-20260825-DYNAMIC-TYPE-LIVE-03`:
-stable non-localized onboarding/header accessibility identifiers were added;
-live Turkish localization defects were fixed (status pill, capability
-ready/no-evidence detail, disabled/degraded reason prose); the `AuraAgentTests`
-`exit 142` flake was fixed (ProcessRunner stdin EOF); Dynamic Type scaling was
-fixed (relative text styles). Live verification with the user present confirmed
-the AX reading order is logical and complete, keyboard-only focus reaches every
-primary control, and Turkish/English copy renders correctly. `AURAIntegrationTests`
-88/88, `AuraAgentTests` 237/237, full suite 21/21 bundles 0 failed, and the
-validator passed. **SP-022 is next eligible and pending; open it only under its
-own authority.**
-
-SP-021 source/test/record edits are committed and pushed. **`HEAD ==
-origin/main == 78cc29ff60871dc0b189ae3fa3757923e684d06c`** (working tree
-clean), following `1e35dc1` (SP-021 accessibility/localization + Kaan voice
-switch) and `78cc29f` (final Yelda reference removal from test prose).
+**`SP-021` is `completed`** and **`SP-020` is `completed`** under
+`EV-SP-020-20260825-REMOTE-BOUNDARY-01` (local-only is the explicit product
+boundary). At the user's direction, **ADR-043 is Accepted** under the explicit
+local-only remote-boundary scope (2026-08-25, review 2026-09-07);
+`RISK-ADR-043-PENDING` is closed. SP-019's eight live R8 scenarios passed on
+one build (`EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`).
 
 **Voice: Chatterbox is the primary voice; the system synthesizer is a
 fail-closed last resort only.** `TTSAdapterChain()` defaults to
@@ -53,13 +42,16 @@ explicit instruction that no system voice be used as AURA's voice.
 
 Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
 only a `development_unverified` artifact is producible today. The current
-development artifact was rebuilt from the final commit `78cc29f`:
+development artifact was rebuilt from the final commit `4d6022f`:
 `/tmp/aura-kaan-deploy/output/AURA-development-unverified.zip`
 (SHA-256 `7ff40dd77cbd0c7da1ee722dfc0e828a2c2efe6b975b84f7d10c94accb54c24f`).
 
-**Next safe action:** run a user-present VoiceOver/keyboard/Dynamic Type/
-reduced-motion/contrast pass and localize the disabled-reason capability prose,
-then mark SP-021 completed and open SP-022 under its own authority.
+**`HEAD == origin/main == 4d6022f`** (working tree dirty with the uncommitted
+SP-022 Task Center slice + live records; no commit/push/merge this session).
+
+**Next safe action:** open SP-023 (authenticated IPC / privilege separation)
+under its own authority. SP-022 is completed; its deterministic + live evidence
+satisfies the R9 gate.
 
 ## Verification correction — 2026-08-24T08:01:03Z
 

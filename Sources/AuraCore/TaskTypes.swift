@@ -30,6 +30,31 @@ public enum TaskState: String, Codable, Sendable, Equatable, CaseIterable {
 
 // MARK: - Task status snapshot
 
+/// Immutable scope snapshot of a durable task: which coding backend, mode,
+/// workspace, and backend-health state the task was launched under.
+///
+/// This is the OPEN-10 "task scope metadata" projection. Before it existed,
+/// the Task Center could only show a `TaskStatus` whose fields were the
+/// durable `TaskState` lifecycle fields — the backend/model/workspace/account
+/// scope that R9's Task Center requires was encoded only inside the opaque
+/// `TaskRequest.context` dictionary (`agent.backend`, `coding.mode`,
+/// `coding.workspace`, `coding.backendHealth`), invisible to the UI. The
+/// engine now derives this typed snapshot from that context so the Task
+/// Center can present it truthfully without leaking every internal key.
+public struct TaskScopeInfo: Codable, Sendable, Equatable {
+  public let backend: String
+  public let mode: String
+  public let workspace: String
+  public let backendHealth: String
+
+  public init(backend: String, mode: String, workspace: String, backendHealth: String) {
+    self.backend = backend
+    self.mode = mode
+    self.workspace = workspace
+    self.backendHealth = backendHealth
+  }
+}
+
 /// Immutable summary of a task suitable for UI listings and progress reports.
 public struct TaskStatus: Codable, Sendable, Equatable, Identifiable {
   public let id: UUID
@@ -43,6 +68,10 @@ public struct TaskStatus: Codable, Sendable, Equatable, Identifiable {
   public let totalSteps: Int
   public let currentStepDescription: String
   public let errorMessage: String?
+  /// Scope the task was enqueued under (backend/mode/workspace/health), or
+  /// `nil` when the task did not carry coding-agent scope context. A plain
+  /// task shows no scope, which is itself truthful.
+  public let scope: TaskScopeInfo?
 
   public var percentComplete: Double {
     totalSteps > 0 ? Double(completedSteps) / Double(totalSteps) : 0
@@ -59,7 +88,8 @@ public struct TaskStatus: Codable, Sendable, Equatable, Identifiable {
     completedSteps: Int = 0,
     totalSteps: Int = 0,
     currentStepDescription: String = "",
-    errorMessage: String? = nil
+    errorMessage: String? = nil,
+    scope: TaskScopeInfo? = nil
   ) {
     self.id = id
     self.state = state
@@ -72,6 +102,7 @@ public struct TaskStatus: Codable, Sendable, Equatable, Identifiable {
     self.totalSteps = totalSteps
     self.currentStepDescription = currentStepDescription
     self.errorMessage = errorMessage
+    self.scope = scope
   }
 }
 

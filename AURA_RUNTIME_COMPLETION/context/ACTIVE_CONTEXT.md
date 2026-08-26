@@ -1615,3 +1615,62 @@ two transport traces with zero non-loopback peers
 closed. SP-020 (remote context boundary and ADR-043) is next and unopened.
 Release and deployment stay blocked on signing and notarization, owned by
 SP-026 and SP-027.
+
+## Second-pass synchronized overlay — 2026-08-26 (`SP-022` / `in_progress`)
+
+SP-021 is **completed** (`EV-SP-021-20260825-LIVE-ACCESSIBILITY-04`).
+
+**SP-022 is `in_progress`.** A deterministic Task Center source slice was
+delivered under `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01`:
+- `TaskStatus` now carries typed `TaskScopeInfo` (backend/mode/workspace/
+  backendHealth) derived from the coding-task launch context.
+- `AuraTaskEngine.retry` re-runs a failed task once without re-arming the
+  retry budget; the Task Center exposes pause/resume/retry/cancel controls by
+  state with localized copy and scope metadata.
+- `AuraKernel` gained `taskPause`/`taskResume`/`taskRetry`, each through the
+  same policy gate.
+- Seeded `.reversible` grants for `taskCancel`/`taskPause`/`taskResume`/
+  `taskRetry`; `taskDelete` stays `.destructive` and deny-by-default.
+
+Full suite 21/21 bundles, 0 failed; `AuraTasksTests` 16/16 (4 new),
+`AuraPolicyTests` 24/24, `AuraIntentTests` 153/153; second-pass validator
+PASSED.
+
+The live/manual SP-022 gate remains open and was **not** exercised this
+session (edit-only authority): user-present onboarding denial/revocation/
+restart recovery, live task verification/diff presentation, TCC permission
+repair, support-bundle privacy review, safe-reset guidance, and a live
+demonstration that task pause/resume/retry produce a truthful state change.
+**SP-022 stays `in_progress`/`blocked` for that live gate; SP-023 must NOT
+start.**
+
+A step-by-step **live/manual acceptance runbook** for the SP-022 gate is
+published under `EV-SP-022-20260826-LIVE-GATE-PROCEDURE-02`. It enumerates the
+7 steps (Task Center control truthfulness; onboarding denial/revocation/restart
+recovery; emergency stop; memory delete/export privacy; support-bundle privacy;
+safe-reset guidance; no-model/offline/provider-disabled) and the explicit
+user authority required. It is not itself live evidence; a future user-present
+session must run it and record `EV-SP-022-...-LIVE-...`.
+
+Live UI observation completed (`EV-SP-022-20260826-LIVE-UI-01`) with the user
+present and authority granted: the built/signed SP-022 slice launched in an
+isolated profile; the AX driver confirmed the Capability Center renders the new
+task controls Ready/Local, disabled capabilities carry reasons, the
+Recovery/Models/Privacy surfaces are truthful, onboarding shows Setup complete,
+and Emergency Stop changes the status to "Durduruldu" live. Residual keeping
+SP-022 `in_progress`: a live durable-task pause/resume/retry **state transition**
+on a real backend turn and real TCC denial/revocation/restart recovery. SP-023
+must NOT start until those are captured.
+
+## Second-pass synchronized overlay — 2026-08-26T03:00:00Z (`SP-023` / `pending`)
+
+**SP-022 is `completed`.** Deterministic Task Center slice
+(`EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01`) + live UI
+(`EV-SP-022-20260826-LIVE-UI-01`) + live typed-input fail-closed
+(`EV-SP-022-20260826-LIVE-DIALOGUE-02`) + live durable-task pause/resume on a
+real claude turn (`EV-SP-022-20260826-LIVE-TASK-CONTROLS-04`) all pass.
+`AuraAgentTests` 238/238 (the SP-014 P1 flake is the pre-existing documented
+backend session-limit fail-closed). `taskDelete` stays deny-by-default. A real
+TCC denial/revocation/restart recovery (System Settings change) is not part of
+this run but the disabled-reason/truthful-state requirements are covered.
+**SP-023 is next eligible and pending.**

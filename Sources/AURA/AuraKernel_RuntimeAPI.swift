@@ -324,6 +324,36 @@ extension AuraKernel {
     try await taskEngine.cancel(id: id)
   }
 
+  func taskPause(id: UUID) async throws(AuraError) {
+    guard started, let taskEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.taskPause)
+    try await taskEngine.pause(id: id)
+  }
+
+  /// Resume a paused task. The runner is the same `AgentBackendTaskRunner`
+  /// the engine started with, so a resumed task re-runs through the same
+  /// backend multiplexing that enqueued it.
+  func taskResume(id: UUID) async throws(AuraError) {
+    guard started, let taskEngine, let agentTaskRunner else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.taskResume)
+    try await taskEngine.resume(id: id, runner: agentTaskRunner)
+  }
+
+  /// Manually re-run a failed task once. The runner is again the shared
+  /// `AgentBackendTaskRunner`, and `AuraTaskEngine.retry` resets only the
+  /// failed task to pending without re-arming its retry budget.
+  func taskRetry(id: UUID) async throws(AuraError) {
+    guard started, let taskEngine, let agentTaskRunner else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.taskRetry)
+    try await taskEngine.retry(id: id, runner: agentTaskRunner)
+  }
+
   /// SP-004's `filesystem.open_file`, `filesystem.open_folder`,
   /// `filesystem.reveal`, and `url.open`. Each evaluates policy through the
   /// same `PolicyEngine` as every routed capability, then delegates to

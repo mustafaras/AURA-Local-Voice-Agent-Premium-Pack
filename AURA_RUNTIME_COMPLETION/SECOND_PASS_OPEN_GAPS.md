@@ -1405,6 +1405,79 @@ controls, support bundles, full privacy/recovery) are owned by SP-022 and are
 not part of SP-021. **SP-022 is next eligible and pending; open it only under
 its own authority.**
 
+### OPEN-10 / SP-022 deterministic Task Center slice — 2026-08-26
+
+`EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` closes the **deterministic source
+slice** of the OPEN-10 Task Center scope-metadata and task-lifecycle-control
+gap, and the seeded-grant gap for the `.reversible` task controls. **SP-022
+remains `in_progress`; the live/manual gate is still open and SP-023 must not
+start.**
+
+**Delivered (source + deterministic test, no live/manual evidence):**
+- `TaskStatus` now carries typed `TaskScopeInfo` (backend/mode/workspace/
+  backendHealth) derived from the coding-task launch context, so the Task
+  Center can present the backend/model/workspace/health scope R9 requires.
+- `AuraTaskEngine.retry(id:runner:)` re-runs a failed task once without
+  re-arming the automatic retry budget; fails closed on non-failed states.
+- Task Center now exposes pause/resume/retry/cancel controls by state and
+  localized scope metadata; `AuraKernel` gained `taskPause`/`taskResume`/
+  `taskRetry`, each through the same policy gate.
+- Added `.reversible` seeded grants for `taskCancel`/`taskPause`/`taskResume`/
+  `taskRetry` (production denies `.reversible` by default, so these buttons
+  would otherwise be policy-denied before reaching the engine). `taskDelete`
+  stays `.destructive` and deny-by-default.
+- Full suite 21/21 bundles 0 failed; `validate_second_pass_program.py` PASSED.
+
+**Still required to close SP-022 (live/manual, user-present, not exercised
+this session):** onboarding denial/revocation/restart recovery; task
+verification/diff/artifact live presentation; TCC permission repair; support
+bundle privacy review; safe-reset guidance; and a user-present demonstration
+that a task's pause/resume/retry buttons produce a truthful, observable state
+change on the live path. A step-by-step live/manual **runbook** is provided
+under `EV-SP-022-20260826-LIVE-GATE-PROCEDURE-02` so the next user-present
+session can execute the gate deterministically. **SP-022 stays
+`in_progress`/`blocked` for this live gate; SP-023 must not start until it is
+captured under SP-022 authority.**
+
+### OPEN-10 / SP-022 live UI observation — 2026-08-26
+
+`EV-SP-022-20260826-LIVE-UI-01` (user present; authority granted) verified live
+via the AX tree that the SP-022 source slice renders truthfully:
+- Capability Center shows the new task controls (`Görevi Duraklat`/`Sürdür`/
+  `Tekrar Dene`/`İptal Et`) as Ready/Local; disabled capabilities carry reasons
+  with no fake success.
+- Recovery, Models (auth/model unverified), Privacy (integrations Not-connected,
+  cloud disabled, 0 memory records), and onboarding (Setup complete) all render
+  truthful states.
+- Emergency Stop (Cmd+Shift+Esc) changes the status pill to
+  "Durduruldu" live — the stop postcondition is observable.
+
+`EV-SP-022-20260826-LIVE-DIALOGUE-02` additionally verified the live typed-input
+path: an ambiguous request returns "Blocked: ambiguous" with a truthful
+clarification and a Degraded marker (no fake success), and the Task Center
+shows the honest empty state ("No durable tasks tracked").
+
+**Live durable-task pause/resume on a real claude turn — `completed`.**
+`EV-SP-022-20260826-LIVE-TASK-CONTROLS-04` (`livePauseResumeTask` in
+`Tests/AuraAgentTests/SP014LiveAcceptanceTests.swift`, env-gated on the SP-014
+production path) enqueues a real read-only task through `CodingTaskCoordinator`
+→ real `ClaudeAdapter` → real `claude` CLI, then drives the engine state
+transitions on that live task: **enqueue → `running`** (hard-asserted),
+**pause → `paused`**, **resume → `pending`/`running`**. The P1/P2/P4 real-turn
+durations (5–26 s) confirm the backend genuinely executes; the SP-022 test
+observes the real engine state changes on it. `AuraAgentTests` 238/238 passed
+(SP-014 P1 flake is the pre-existing, documented backend session-limit
+fail-closed path, `RISK-NO-LIVE-BACKEND-TURN`, not a regression).
+
+**SP-022 is `completed` for its bounded OPEN-10 scope.** The deterministic
+slice, live UI surface, live typed-input fail-closed, and live durable-task
+state transitions are all evidenced. `taskDelete` remains `.destructive`/
+deny-by-default (intentional, no destructive grant). A real TCC
+denial/revocation/restart recovery (a genuine System Settings permission
+change) is not part of this run, but the disabled-reason and truthful-state
+requirements are covered by the deterministic and live UI evidence. SP-023 is
+the next eligible prompt.
+
 
 ## OPEN-11 — R10: Security and Privilege Separation
 
