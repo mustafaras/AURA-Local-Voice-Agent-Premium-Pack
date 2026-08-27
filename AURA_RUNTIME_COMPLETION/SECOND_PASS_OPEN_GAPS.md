@@ -1518,6 +1518,74 @@ confinement, live provider, independent-review, injection-corpus, plugin trust,
 or incident-response gates. These residuals must remain until independently
 verified or explicitly accepted by the authorized release owner.
 
+### SP-023 closure note — 2026-08-27
+
+SP-023 closed the **bounded authenticated-IPC and privilege-separation slice**
+of OPEN-11 under `EV-SP-023-20260827-AUTHENTICATED-IPC-01`:
+
+- **Authenticated peer identity (reviewed equivalent to XPC):** added
+  `HelperIPCAuthenticator` (HMAC-SHA256 tag over the exact transmitted bytes),
+  `HelperIPCAuthenticatedRequest`/`HelperIPCAuthenticatedResponse`, and
+  `HelperIPCPeerVerifying` + `SecCodeHelperIPCPeerVerifier` (designated-
+  requirement process verification). `HelperIPCClient` verifies the helper
+  executable SHA-256 digest, verifies the launched process's code-signature
+  identity, signs every request, enforces replay/freshness/capability
+  allowlist, and bounds output and time (helper crash containment).
+- **Real helper execution:** `AuraShellHelper` now executes real typed
+  `Command`s and returns a typed `ProcessResult`; `AuraAutomationHelper` now
+  executes real app-lifecycle operations (launch/activate/hide/quit) and
+  returns a typed `AutomationHelperResult`. Both verify the request HMAC tag
+  and sign the response. Accessibility/generated-input execution is
+  intentionally absent (requires a per-executable TCC grant outside this
+  prompt's authority).
+- **Adversarial tests:** missing executable, invalid digest, replay, protocol
+  downgrade, peer identity mismatch, helper crash containment, capability
+  escalation, and forged/misbound responses all fail closed.
+- **Verification:** full suite 21/21 bundles 0 failed; `AuraCoreTests` 48/48,
+  `AuraAutomationTests` and `AuraShellTests` pass; second-pass validator
+  PASSED; helper executables fail closed without the App Sandbox entitlement.
+
+This closes the authenticated-peer-identity and real-helper-execution slice
+only. It does **not** close OS confinement of a live signed helper, a live
+Keychain-provisioned round trip, or full privilege separation of every
+privileged path. The remaining OPEN-11 residuals — network enforcement
+(`RISK-NETWORK-ALLOWLIST-INCOMPLETE`), OAuth lifecycle, plugin trust, injection
+corpus, incident response, independent review, and ADR-044 acceptance — remain
+open and are owned by SP-024 and later R10 work. SP-024 is next eligible and
+pending.
+
+### SP-024 closure note — 2026-08-27
+
+SP-024 closed the **bounded network/OAuth/injection-enforcement slice** of
+OPEN-11 under `EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01`:
+
+- **Mandatory URLSession factory:** added `URLSessionFactory` in `AuraSecurity`
+  (deny-by-default cookies/cache/redirect) and routed both production
+  `URLSession` call sites (`URLSessionProviderFetcher`,
+  `URLSessionOllamaAPIClient`) through it, so no production network client
+  constructs an ungoverned session.
+- **Resolved-IP pinning primitive:** added `ResolvedIPValidator` (resolved-IP
+  allowlist; a single unexpected candidate IP fails the whole set, defending
+  against DNS rebinding). DNS answers are not treated as trusted authority.
+- **OAuth leakage corpus:** added `googleOAuthAccessToken` (`ya29.`) and
+  `googleOAuthRefreshToken` (`1//`) to the canonical `SecretPatternLibrary`,
+  and a leakage corpus proving token material never reaches a reference, a
+  diagnostic, a redacted summary, or a Keychain key, and that revocation
+  deletes the material.
+- **Injection corpus:** added model tool-spoof (system-message and fake-tool-call)
+  and indirect-injection (mail body, repository file, terminal output) cases,
+  plus `PromptInjectionScreen` withhold/pass-through cases.
+- **Verification:** full suite 21/21 bundles 0 failed; `AuraSecurityTests`
+  44/44, `AuraProductivityTests` 75/75, `AuraAdversarialTests` 68/68; second-pass
+  validator PASSED.
+
+This closes the network-factory, resolved-IP, OAuth-leakage, and
+injection-corpus slice only. It does **not** close a live provider round trip,
+live revocation, OS confinement of a live signed helper, or full privilege
+separation. The remaining OPEN-11 residuals — plugin trust, incident response,
+independent review, and ADR-044 acceptance — remain open and are owned by SP-025
+and later R10 work. SP-025 is next eligible and pending.
+
 ## OPEN-12 — R11: Release Engineering and Continuous Operations
 
 Prompt: [`12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md`](archive/first-pass-prompts/2026-08-12/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md)

@@ -15,17 +15,17 @@ public protocol HTTPProviderFetching: Sendable {
 /// Production fetcher. Redirects are refused rather than followed: a provider
 /// redirect is exactly how an allowlisted host becomes an unallowlisted one,
 /// and `ProductivityNetworkPolicy` can only validate a URL it is handed.
+///
+/// The `URLSession` is built by the mandatory `URLSessionFactory`, so cookies
+/// and cache are disabled and redirects are refused by construction — a
+/// provider transport can never construct an ungoverned session.
 public final class URLSessionProviderFetcher: NSObject, HTTPProviderFetching, URLSessionTaskDelegate,
   @unchecked Sendable
 {
   private let session: URLSession
 
-  public init(configuration: URLSessionConfiguration = .ephemeral) {
-    configuration.httpShouldSetCookies = false
-    configuration.httpCookieAcceptPolicy = .never
-    configuration.urlCache = nil
-    configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
-    self.session = URLSession(configuration: configuration)
+  public override init() {
+    self.session = URLSessionFactory.makeSession()
     super.init()
   }
 

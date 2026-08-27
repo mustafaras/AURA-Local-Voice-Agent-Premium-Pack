@@ -1,13 +1,29 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-26.
+Projection refreshed from live repository and command evidence on 2026-08-27.
 
-## Authoritative current status — 2026-08-26T03:00:00Z (SP-022 completed; SP-023 pending)
+## Authoritative current status — 2026-08-27T00:00:00Z (SP-024 completed; SP-025 pending)
 
-The active second-pass prompt is **`SP-023` / `pending`** (authenticated IPC and
-privilege separation, R10). **`SP-022` is `completed`** under the combination
-of `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic Task Center
+The active second-pass prompt is **`SP-025` / `pending`** (plugin trust,
+incident response, ADR-044, R10). **`SP-024` is `completed`** for the bounded
+network/OAuth/injection-enforcement slice of OPEN-11 under
+`EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01`: added `URLSessionFactory`
+(deny-by-default cookies/cache/redirect) and `ResolvedIPValidator` (resolved-IP
+allowlist, DNS-rebinding defense); routed both production `URLSession` clients
+(`URLSessionProviderFetcher`, `URLSessionOllamaAPIClient`) through the factory;
+added `googleOAuthAccessToken`/`googleOAuthRefreshToken` to the canonical
+`SecretPatternLibrary`; added the OAuth leakage corpus and the model tool-spoof
+/ indirect-injection (mail/file/terminal) adversarial cases. Full suite 21/21
+bundles 0 failed; `AuraSecurityTests` 44/44, `AuraProductivityTests` 75/75,
+`AuraAdversarialTests` 68/68; second-pass validator PASSED. Live provider round
+trip, live revocation, and OS-confinement of a live signed helper remain open;
+the remaining OPEN-11 residuals (plugin trust, incident response, independent
+review, ADR-044 acceptance) are owned by SP-025 and later R10 work. **SP-025 is
+next eligible and pending; open it only under its own authority.**
+
+**`SP-022` is `completed`** under the combination of
+`EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic Task Center
 slice: `TaskStatus.scope`, `AuraTaskEngine.retry`, `taskPause`/`taskRetry`
 capabilities+manifests, seeded reversible task grants, kernel/AppModel/
 TaskCenter pause-resume-retry controls, localized copy),
@@ -21,8 +37,7 @@ R9 completion gate — users can understand and control primary workflows with
 actionable degraded states — is met. `taskDelete` stays `.destructive`/
 deny-by-default. `AuraAgentTests` 238/238 (the SP-014 P1 flake is the
 pre-existing documented backend session-limit fail-closed, `RISK-NO-LIVE-BACKEND-TURN`,
-not a regression). **SP-023 is next eligible and pending; open it only under
-its own authority.**
+not a regression).
 
 **`SP-021` is `completed`** and **`SP-020` is `completed`** under
 `EV-SP-020-20260825-REMOTE-BOUNDARY-01` (local-only is the explicit product
@@ -49,9 +64,10 @@ development artifact was rebuilt from the final commit `4d6022f`:
 **`HEAD == origin/main == 4d6022f`** (working tree dirty with the uncommitted
 SP-022 Task Center slice + live records; no commit/push/merge this session).
 
-**Next safe action:** open SP-023 (authenticated IPC / privilege separation)
-under its own authority. SP-022 is completed; its deterministic + live evidence
-satisfies the R9 gate.
+**Next safe action:** open SP-025 (plugin trust, incident response, ADR-044)
+under its own authority. SP-024 is completed; its deterministic + adversarial
+evidence satisfies the network/OAuth/injection-enforcement slice of the R10
+gate.
 
 ## Verification correction — 2026-08-24T08:01:03Z
 

@@ -43,6 +43,14 @@ public enum SecretPatternLibrary {
     SecretPatternDefinition(name: "googleAPIKey", pattern: "AIza[0-9A-Za-z_-]{35}"),
     SecretPatternDefinition(name: "stripeKey", pattern: "(sk|rk)_(live|test)_[0-9a-zA-Z]{20,}"),
     SecretPatternDefinition(name: "npmToken", pattern: "npm_[A-Za-z0-9]{36}"),
+    // Google OAuth access tokens (the `ya29.` prefix) and refresh tokens
+    // (the `1//` prefix). These are the shapes AURA's own Gmail OAuth flow
+    // stores in the Keychain, so they must be recognized by the same
+    // canonical redaction boundary as every other secret: a token pasted
+    // into a mail body, a command's stdout, or a support bundle must be
+    // redacted or flagged, never relayed.
+    SecretPatternDefinition(name: "googleOAuthAccessToken", pattern: "ya29\\.[A-Za-z0-9_-]{10,}"),
+    SecretPatternDefinition(name: "googleOAuthRefreshToken", pattern: "1//[A-Za-z0-9_-]{10,}"),
   ]
 
   // A generic "key=value"-shaped heuristic was deliberately considered and

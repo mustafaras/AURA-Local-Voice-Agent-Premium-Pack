@@ -1,50 +1,45 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-26T03:00:00Z",
-  "session_id": "AURA-SP-022-ATTEMPT-20260826",
-  "last_verified_commit": "4d6022fa83c5b880d3544234d62cab6ef78d674e",
+  "updated_at": "2026-08-27T00:00:00Z",
+  "session_id": "AURA-SP-024-ATTEMPT-20260827",
+  "last_verified_commit": "ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40",
   "active_prompt": {
-    "id": "SP-023",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-023_AUTHENTICATED_IPC_AND_PRIVILEGE_SEPARATION.prompt.md",
+    "id": "SP-025",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-025_PLUGIN_TRUST_INCIDENT_RESPONSE_AND_ADR_044.prompt.md",
     "state": "pending",
-    "step": "SP-022 completed: deterministic Task Center slice + live UI + live typed-input fail-closed + live durable-task pause/resume on a real claude turn. SP-023 is next eligible and pending."
+    "step": "SP-024 completed: mandatory URLSessionFactory (deny-by-default cookies/cache/redirect) + ResolvedIPValidator (DNS-rebinding defense) + OAuth leakage corpus + tool-spoof/indirect-injection adversarial cases. SP-025 is next eligible and pending."
   },
-  "summary": "SP-022 COMPLETED. Deterministic Task Center slice (EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01): TaskScopeInfo + TaskStatus.scope, AuraTaskEngine.retry, taskPause/taskRetry capabilities+manifests, seeded reversible task grants, kernel/AppModel/TaskCenter pause-resume-retry controls, localized copy. Live UI observation (EV-SP-022-20260826-LIVE-UI-01): Capability Center task controls Ready/Local, disabled reasons, Recovery/Models/Privacy truthful, onboarding Setup complete, Emergency Stop -> Durduruldu. Live typed-input (EV-SP-022-20260826-LIVE-DIALOGUE-02): ambiguous request -> Blocked: ambiguous fail-closed, Task Center truthful empty state. Live durable-task pause/resume on a real claude turn (EV-SP-022-20260826-LIVE-TASK-CONTROLS-04): enqueue->running, pause->paused, resume->pending/running on the real backend task. Full suite 21/21 bundles (SP-014 P1 flake is the pre-existing documented backend session-limit fail-closed; my SP-022 test passed). Validator PASSED. SP-022 completed; SP-023 is next eligible and pending.",
+  "summary": "SP-024 COMPLETED (bounded network/OAuth/injection-enforcement slice of OPEN-11). Added URLSessionFactory (deny-by-default cookies/cache/redirect) and ResolvedIPValidator (resolved-IP allowlist, DNS-rebinding defense); routed both production URLSession clients (URLSessionProviderFetcher, URLSessionOllamaAPIClient) through the factory; added googleOAuthAccessToken/googleOAuthRefreshToken to the canonical SecretPatternLibrary; added the OAuth leakage corpus and the model tool-spoof / indirect-injection (mail/file/terminal) adversarial cases. Full suite 21/21 bundles 0 failed; AuraSecurityTests 44/44, AuraProductivityTests 75/75, AuraAdversarialTests 68/68; second-pass validator PASSED. SP-024 completed; SP-025 is next eligible and pending.",
   "completed": [
-    "Added TaskScopeInfo + TaskStatus.scope derived from coding launch context.",
-    "Added AuraTaskEngine.retry (re-runs failed task once, does not re-arm retry budget).",
-    "Exposed Task Center pause/resume/retry/cancel controls by state with scope metadata.",
-    "Seeded .reversible grants for taskCancel/taskPause/taskResume/taskRetry; taskDelete stays deny-by-default.",
-    "Added kernel taskPause/taskResume/taskRetry and AppModel pauseTask/resumeTask/retryTask.",
-    "Added localized task-control/scope copy and deterministic tests."
+    "Added URLSessionFactory (deny-by-default cookies/cache/redirect) and ResolvedIPValidator (resolved-IP allowlist, DNS-rebinding defense) in AuraSecurity.",
+    "Routed both production URLSession clients (URLSessionProviderFetcher, URLSessionOllamaAPIClient) through the mandatory factory; removed the now-unused private redirect-rejecting delegate.",
+    "Added googleOAuthAccessToken (ya29.) and googleOAuthRefreshToken (1//) to the canonical SecretPatternLibrary so a Google OAuth token pasted into a mail body, command output, or support bundle is redacted/flagged.",
+    "Added the OAuth leakage corpus (token reference/Keychain key carry no secret; diagnostics never echo token material; bounded text redacts embedded token; SecretScanner flags OAuth tokens; Keychain store keeps material behind the boundary and revocation deletes it).",
+    "Added model tool-spoof (system-message and fake-tool-call) and indirect-injection (mail body, repository file, terminal output) adversarial cases plus PromptInjectionScreen withhold/pass-through cases."
   ],
   "files_changed": [
-    "Sources/AuraCore/TaskTypes.swift",
-    "Sources/AuraTasks/AuraTask.swift",
-    "Sources/AuraTasks/AuraTaskEngine_Queue.swift",
-    "Sources/AuraCore/PolicyTypes_Capability.swift",
-    "Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift",
-    "Sources/AuraPolicy/DefaultPolicyGrants.swift",
-    "Sources/AURA/AuraKernel_RuntimeAPI.swift",
-    "Sources/AURA/AuraAppModel_ProductState.swift",
-    "Sources/AURA/AuraMenuView_Tabs.swift",
-    "Sources/AURA/ProductUIState.swift",
-    "Tests/AuraTasksTests/AuraTaskEngineTests_MoreTests.swift",
-    "Tests/AuraPolicyTests/DefaultPolicyGrantsTests.swift",
-    "Tests/AuraIntentTests/CapabilityRegistryTests.swift",
-    "Tests/AuraProductivityTests/AuraProductivityTests.swift",
-    "Tests/AURAIntegrationTests/R9ProductUIStateTests.swift",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01.md",
+    "Sources/AuraSecurity/URLSessionFactory.swift",
+    "Sources/AuraSecurity/ResolvedIPValidator.swift",
+    "Sources/AuraProductivity/ProductivityAdapters_HTTPProviderTransport.swift",
+    "Sources/AuraAgent/OllamaAPIClient.swift",
+    "Sources/AuraCore/SecretPatternLibrary.swift",
+    "Tests/AuraSecurityTests/URLSessionFactoryTests.swift",
+    "Tests/AuraProductivityTests/OAuthLeakageCorpusTests.swift",
+    "Tests/AuraAdversarialTests/PromptInjectionAdversarialTests.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01.md",
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
+    "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+    "ledger/PROJECT_LEDGER.md"
   ],
   "evidence_ids": [
+    "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01",
+    "EV-SP-023-20260827-AUTHENTICATED-IPC-01",
     "EV-SP-022-20260826-LIVE-TASK-CONTROLS-04",
     "EV-SP-022-20260826-LIVE-DIALOGUE-02",
     "EV-SP-022-20260826-LIVE-UI-01",
@@ -66,7 +61,6 @@
     "EV-SP-019-20260824-CLOSEOUT-07",
     "EV-SP-019-20260824-LIVE-CONTROLS-06",
     "EV-SP-019-20260824-CLOSEOUT-05",
-    "EV-SP-019-20260824-CLOSEOUT-03",
     "EV-SP-019-20260824-LOCAL-CONTROLS-01",
     "EV-SP-019-20260824-LAUNCH-SMOKE-02",
     "EV-SP-019-20260824-LIVE-CONTROLS-04",
@@ -81,124 +75,47 @@
     {
       "name": "Full suite (21/21 bundles, 0 failed)",
       "result": "passed",
-      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
+      "evidence_id": "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01"
     },
     {
-      "name": "AuraTasksTests (16/16 incl. 4 new retry/scope tests)",
+      "name": "AuraSecurityTests (44/44 incl. new URLSessionFactory + ResolvedIPValidator tests)",
       "result": "passed",
-      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
+      "evidence_id": "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01"
     },
     {
-      "name": "AuraPolicyTests (24/24)",
+      "name": "AuraProductivityTests (75/75 incl. new OAuth leakage corpus)",
       "result": "passed",
-      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
+      "evidence_id": "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01"
     },
     {
-      "name": "AuraIntentTests (153/153) + AuraProductivityTests (70/70)",
+      "name": "AuraAdversarialTests (68/68 incl. new tool-spoof + indirect-injection cases)",
       "result": "passed",
-      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
+      "evidence_id": "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01"
     },
     {
       "name": "Second-pass validator",
       "result": "passed",
-      "evidence_id": "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01"
-    },
-    {
-      "name": "AuraContextTests (37/37)",
-      "result": "passed",
-      "evidence_id": "EV-SP-020-20260825-REMOTE-BOUNDARY-01"
-    },
-    {
-      "name": "AuraMemoryTests (30/30)",
-      "result": "passed",
-      "evidence_id": "EV-SP-020-20260825-REMOTE-BOUNDARY-01"
-    },
-    {
-      "name": "Full matrix (21/21 bundles, 1,160 tests)",
-      "result": "passed",
-      "evidence_id": "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08"
-    },
-    {
-      "name": "AuraIntentTests (149/149)",
-      "result": "passed",
-      "evidence_id": "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08"
-    },
-    {
-      "name": "AURAIntegrationTests (85/85)",
-      "result": "passed",
-      "evidence_id": "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08"
-    },
-    {
-      "name": "AuraContextTests (37/37)",
-      "result": "passed",
-      "evidence_id": "EV-SP-018-20260823-FOCUSED-TESTS-02"
-    },
-    {
-      "name": "AuraIntentTests (132/132)",
-      "result": "passed",
-      "evidence_id": "EV-SP-018-20260823-FOCUSED-TESTS-02"
-    },
-    {
-      "name": "Full ./scripts/aura-test.sh final rerun (21/21 bundles, exit 0)",
-      "result": "passed",
-      "evidence_id": "EV-SP-018-20260823-FULL-SUITE-03"
-    },
-    {
-      "name": "swift build and git diff --check",
-      "result": "passed",
-      "evidence_id": "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01"
-    },
-    {
-      "name": "Second-pass validator and governance unittest suite (38 tests)",
-      "result": "passed",
-      "evidence_id": "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04"
-    },
-    {
-      "name": "AuraAgentTests through the corrected default runner (237/237)",
-      "result": "passed",
-      "evidence_id": "EV-SP-018-20260824-TEST-RUNNER-FIX-06"
-    },
-    {
-      "name": "Default full ./scripts/aura-test.sh matrix after runner correction (21/21 bundles, 0 failed)",
-      "result": "passed",
-      "evidence_id": "EV-SP-018-20260824-TEST-RUNNER-FIX-06"
-    },
-    {
-      "name": "Runtime, second-pass, and repository hygiene validators plus governance suite (39 tests)",
-      "result": "passed",
-      "evidence_id": "EV-SP-018-20260824-TEST-RUNNER-FIX-06"
-    },
-    {
-      "name": "Focused AURAIntegrationTests (83/83) with SP-019 memory projection",
-      "result": "passed",
-      "evidence_id": "EV-SP-019-20260824-LOCAL-CONTROLS-01"
-    },
-    {
-      "name": "Full ./scripts/aura-test.sh matrix (21/21 bundles, 1,141 tests, 0 failed)",
-      "result": "passed",
-      "evidence_id": "EV-SP-019-20260824-LOCAL-CONTROLS-01"
-    },
-    {
-      "name": "SP-019 LaunchServices startup/stop smoke",
-      "result": "blocked",
-      "evidence_id": "EV-SP-019-20260824-LAUNCH-SMOKE-02"
+      "evidence_id": "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01"
     }
   ],
   "blockers": [
-    "Reveal-by-reference (revealPrefixes requires a path-shaped target) and expiry-driven retention purging are covered only by the deterministic suite. Follow-ups, not SP-019 scenarios.",
-    "Release and deployment remain blocked: the app is unsigned for distribution and unnotarized. SP-026 (reproducible toolchain/CI) and SP-027 (signing, notarization, clean-machine Gatekeeper) own those gates; only a development_unverified artifact can be produced today."
+    "No live provider round trip or live revocation (no provider-contact authority).",
+    "No live signed-helper launch with a provisioned Keychain secret; no OS-confinement attestation of a real signed bundle (no signing/install authority).",
+    "ResolvedIPValidator is the deterministic primitive; a live resolver seam for any non-loopback capability remains to be wired.",
+    "Remaining OPEN-11 residuals (plugin trust, incident response, independent review, ADR-044 acceptance) are owned by SP-025 and later R10 work."
   ],
   "open_decisions": [
-    "SP-021 is completed. SP-022 (UI controls, onboarding, and recovery) is next eligible and pending; open it only under its own authority and read order."
+    "SP-024 is completed for the bounded network/OAuth/injection-enforcement slice. SP-025 (plugin trust, incident response, ADR-044) is next eligible and pending; open it only under its own authority and read order."
   ],
   "risks": [
-    "RISK-R9-LIVE-ACCESSIBILITY",
-    "RISK-R9-LOCALIZATION",
-    "RISK-R9-ONBOARDING-RECOVERY",
-    "RISK-MEMORY-REMOTE-TRANSPORT-EVIDENCE",
-    "RISK-SP-019-LIVE-MEMORY-CONTROLS"
+    "RISK-IPC-PEER-AUTH-ABSENT",
+    "RISK-MAIN-PROCESS-PRIVILEGE-CONCENTRATION",
+    "RISK-NETWORK-ALLOWLIST-INCOMPLETE",
+    "RISK-OAUTH-LIFECYCLE-INCOMPLETE",
+    "RISK-INDIRECT-PROMPT-INJECTION",
+    "RISK-PLUGIN-TRUST-EVIDENCE-ABSENT"
   ],
-  "next_action": "SP-020 completed and merged to main as 1d9f42c. SP-021 (accessibility/localization acceptance) COMPLETED under EV-SP-021-20260825-LIVE-ACCESSIBILITY-04 (user present, computer use authorized): accessibility identifiers added; TR localization of status/capability/disabled-reason prose; AuraAgentTests exit-142 flake fixed; Dynamic Type scaling fixed; AX reading order, keyboard focus, and TR/EN copy verified live. SP-022 is next eligible and pending; open it only under its own authority.",
+  "next_action": "SP-024 completed (mandatory URLSessionFactory + ResolvedIPValidator + OAuth leakage corpus + tool-spoof/indirect-injection adversarial cases). SP-025 (plugin trust, incident response, ADR-044) is next eligible and pending; open it only under its own authority and read order.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -208,7 +125,7 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-022_UI_CONTROLS_ONBOARDING_AND_RECOVERY.prompt.md"
+    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-025_PLUGIN_TRUST_INCIDENT_RESPONSE_AND_ADR_044.prompt.md"
   ],
-  "notes": "SP-019 completed/merged (e6706157); SP-020 completed/merged (1d9f42c). Current HEAD == origin/main == 1d9f42c with declared SP-021 dirty changes. SP-021 accessibility & localization COMPLETED with the user present: the status pill, capability ready/no-evidence detail, and disabled/degraded reason prose are localized to Turkish; all six tabs/header/composer controls are reachable by identifier; the AuraAgentTests exit-142 flake is fixed (ProcessRunner stdin EOF); Dynamic Type scaling is fixed (relative text styles); the AX reading order is logical and keyboard-only focus reaches every primary control. SP-022 is next eligible and pending. All SP-021 evidence is privacy-safe: no raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written. The app artifact is unsigned/unnotarized and not a release or deployment."
+  "notes": "SP-024 completed for the bounded network/OAuth/injection-enforcement slice of OPEN-11. The mandatory URLSessionFactory now governs both production URLSession call sites; ResolvedIPValidator provides the deterministic DNS-rebinding defense; the canonical SecretPatternLibrary recognizes Google OAuth token shapes; the OAuth leakage corpus and tool-spoof/indirect-injection adversarial cases pass. The app artifact is unsigned/unnotarized and not a release or deployment. No raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written to any ledger or context file."
 }

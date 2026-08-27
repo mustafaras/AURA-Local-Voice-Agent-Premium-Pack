@@ -2,18 +2,6 @@ import AuraCore
 import AuraSecurity
 import Foundation
 
-private final class OllamaRedirectRejectingDelegate: NSObject, URLSessionTaskDelegate {
-  func urlSession(
-    _ session: URLSession,
-    task: URLSessionTask,
-    willPerformHTTPRedirection response: HTTPURLResponse,
-    newRequest request: URLRequest,
-    completionHandler: @escaping (URLRequest?) -> Void
-  ) {
-    completionHandler(nil)
-  }
-}
-
 private struct OllamaGenerateRequestBody: Encodable {
   let model: String
   let prompt: String
@@ -65,14 +53,9 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
     self.requestTimeoutSeconds = configuration.requestTimeoutSeconds
     self.healthCheckTimeoutSeconds = configuration.healthCheckTimeoutSeconds
     self.endpointPolicy = policy
-    let sessionConfiguration = URLSessionConfiguration.ephemeral
-    sessionConfiguration.httpShouldSetCookies = false
-    sessionConfiguration.httpCookieStorage = nil
-    sessionConfiguration.requestCachePolicy = .reloadIgnoringLocalCacheData
-    self.session = URLSession(
-      configuration: sessionConfiguration,
-      delegate: OllamaRedirectRejectingDelegate(),
-      delegateQueue: nil)
+    // The mandatory factory disables cookies/cache and refuses redirects, so
+    // the Ollama client can never construct an ungoverned session.
+    self.session = URLSessionFactory.makeSession()
   }
 
   public func health() async throws -> OllamaVersionResponse {
