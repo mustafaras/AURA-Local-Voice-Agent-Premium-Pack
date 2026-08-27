@@ -280,7 +280,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "AuraAutomationHelper",
-            dependencies: ["AuraCore"],
+            dependencies: ["AuraCore", "AuraAutomation", "AuraSecurity"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ],
@@ -290,7 +290,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "AuraShellHelper",
-            dependencies: ["AuraCore"],
+            dependencies: ["AuraCore", "AuraShell", "AuraSecurity"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ],

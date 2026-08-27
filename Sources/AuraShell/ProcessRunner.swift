@@ -2,7 +2,7 @@ import AuraCore
 import Foundation
 
 /// Typed result of a process invocation.
-public struct ProcessResult: Sendable, Equatable {
+public struct ProcessResult: Sendable, Equatable, Codable {
   public let executionID: UUID
   public let exitCode: Int
   public let stdout: String
