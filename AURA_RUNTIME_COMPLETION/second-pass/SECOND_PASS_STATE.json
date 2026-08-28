@@ -3,10 +3,10 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-27T00:00:00Z",
-  "session_id": "AURA-SP-025-ATTEMPT-20260828",
+  "updated_at": "2026-08-28T00:00:00Z",
+  "session_id": "AURA-SP-026-ATTEMPT-20260828",
   "active_prompt": "SP-026",
-  "active_state": "pending",
+  "active_state": "blocked",
   "completed_prompts": [
     "SP-000",
     "SP-001",
@@ -35,8 +35,11 @@
     "SP-024",
     "SP-025"
   ],
-  "blocked_prompts": [],
+  "blocked_prompts": [
+    "SP-026"
+  ],
   "last_evidence_ids": [
+    "EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01",
     "EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01",
     "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01",
     "EV-SP-023-20260827-AUTHENTICATED-IPC-01",
@@ -142,5 +145,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-025 completed: plugin trust supply-chain adversarial matrix + incident/review docs + full eight-area independent review (EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01). ADR-044 stays Proposed (release owner). SP-026 is next eligible and pending."
+  "next_action": "SP-026 BLOCKED: reproducible development_unverified build+manifest delivered at canonical commit 3e81582 (artifact SHA-256 202bb5cd...) with provenance fix (clean working tree correctly reported; regression test added); observed-CI slice blocked because the workflow requires a self-hosted macOS/swift-6.4 runner and the runner inventory is empty (no install authority). SP-027 must NOT start."
 }

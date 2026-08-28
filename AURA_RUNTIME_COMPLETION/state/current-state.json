@@ -2,38 +2,36 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-27T00:00:00Z",
-  "session_id": "AURA-SP-025-ATTEMPT-20260828",
+  "updated_at": "2026-08-28T00:00:00Z",
+  "session_id": "AURA-SP-026-ATTEMPT-20260828",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "bdcc810e4a2fca66da380044d6b062dab11e245e",
-    "remote_head": "bdcc810e4a2fca66da380044d6b062dab11e245e",
+    "verified_head": "3e81582c5fccdd4f82eca831dd10a8ee49241ceb",
+    "remote_head": "3e81582c5fccdd4f82eca831dd10a8ee49241ceb",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
-      "Tests/AuraPluginsTests/PluginSupplyChainAdversarialTests.swift",
-      "docs/operations/PLUGIN_SUPPLY_CHAIN.md",
-      "docs/operations/INDEPENDENT_SECURITY_REVIEW.md",
-      "docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01.md",
+      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
       "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
       "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
       "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
       "AURA_RUNTIME_COMPLETION/state/current-state.json",
       "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
       "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
       "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-      "ledger/PROJECT_LEDGER.md"
+      "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+      "ledger/PROJECT_LEDGER.md",
+      "ledger/CURRENT_STATE.md"
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
     "id": "SP-026",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-026_RELEASE_TOOLCHAIN_REPRODUCIBILITY_AND_CI.prompt.md",
-    "state": "pending",
-    "step": "SP-025 completed: plugin trust supply-chain adversarial matrix + incident/review docs + full eight-area independent review. ADR-044 stays Proposed (release owner). SP-026 is next eligible and pending."
+    "state": "blocked",
+    "step": "SP-026 BLOCKED: reproducible development_unverified build+manifest delivered at canonical commit 3e81582 (artifact SHA-256 202bb5cd...) with provenance fix + regression test; observed-CI slice blocked because the workflow requires a self-hosted macOS/swift-6.4 runner and the runner inventory is empty (no install authority). SP-027 must NOT start."
   },
   "tracks": [
     {

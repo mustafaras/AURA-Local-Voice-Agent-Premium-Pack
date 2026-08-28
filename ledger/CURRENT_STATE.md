@@ -1,13 +1,26 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-27.
+Projection refreshed from live repository and command evidence on 2026-08-28.
 
-## Authoritative current status — 2026-08-28T00:00:00Z (SP-025 completed; SP-026 pending)
+## Authoritative current status — 2026-08-28T00:00:00Z (SP-026 blocked)
 
-The active second-pass prompt is **`SP-026` / `pending`** (release toolchain,
-reproducibility, CI, R11). **`SP-025` is `completed`** for the plugin-trust,
-incident, and independent-review slice of OPEN-11 under
+The active second-pass prompt is **`SP-026` / `blocked`** (release toolchain,
+reproducibility, CI, R11). The reproducible-build slice of OPEN-12 is delivered
+under `EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01`: exact toolchain
+pinned (Xcode 27.0 beta 5 `27A5237l`, Swift 6.4, SDK 27.0); SP-025 delivered to
+`main` at `5a664a0`; the reproducible `development_unverified` artifact+manifest
+built at canonical commit `3e81582` with clean provenance (artifact SHA-256
+`202bb5cd07386e119fc360a0469acf72e7f1c3347b5d613506b326180a07a1bc`);
+deterministic-archive reproduction confirmed given identical commit+build root;
+a provenance defect was fixed (`run_optional` collapsed empty status → added
+`run_optional_keep_empty`) with a regression test. **Observed-CI slice blocked:**
+the workflow requires a self-hosted `macOS, swift-6.4` runner, the runner
+inventory is empty, and SP-026 has no install/configure authority; pushed runs
+`33152188166`/`33152568023` remain queued with zero completed steps. SP-027 must
+NOT start until observed CI evidence is available.
+
+**`SP-025` is `completed`** for the plugin-trust, incident, and independent-review slice of OPEN-11 under
 `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`: added a 7-test plugin
 supply-chain adversarial matrix (compromised helper digest, tampered installed
 artifact, tampered update bundle, untrusted vendor root, tampered retained
@@ -19,7 +32,7 @@ source/unknown vendor never install) with real Ed25519 cryptography, plus
 independent adversarial review across the ADR-044 scope found no Critical/High
 unresolved finding. Full suite 21/21 bundles 0 failed; `AuraPluginsTests`
 44/44 (37 + 7 new); second-pass validator PASSED. **ADR-044 stays Proposed
-(release-owner acceptance remains). SP-026 is next eligible and pending.**
+(release-owner acceptance remains).**
 
 **`SP-022` is `completed`** under the combination of
 `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic Task Center

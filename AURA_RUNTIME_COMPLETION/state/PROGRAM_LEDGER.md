@@ -2964,3 +2964,12 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Evidence:** `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`. Full suite 21/21 bundles 0 failed; `AuraPluginsTests` 44/44 (37 + 7 new); second-pass validator PASSED.
 - **Acceptance:** the SP-025 completion gate ("supply-chain, incident, and independent-review evidence exists; no critical unaccepted security risk remains") is met for the deterministic/contract boundary. ADR-044 stays Proposed (release-owner acceptance remains).
 - **Residual / next prompt:** public marketplace/vendor PKI and a signed/notarized update transport (R11/ADR-046) are not implemented; live signed-helper/third-party-payload OS-confinement runs remain open under later R10/R11/R12 work. SP-026 is next eligible and pending.
+
+### 2026-08-28 — SP-026 — BLOCKED on observed-CI slice; reproducible-build slice delivered
+
+- **Active prompt:** SP-026 (R11; OPEN-12). **Verdict: BLOCKED** on the observed-CI slice; the reproducible-build slice is delivered.
+- **Authority:** user granted edit/commit/push/merge. No signing, install, runner-provisioning, TCC, provider-contact, or release authority.
+- **Delivered (build slice):** pinned toolchain confirmed (Xcode 27.0 beta 5 `27A5237l`, Swift 6.4, SDK 27.0); SP-025 predecessor delivered to `main` at `5a664a0`; reproducible `development_unverified` artifact+manifest built at canonical commit `3e81582` with clean provenance (artifact SHA-256 `202bb5cd07386e119fc360a0469acf72e7f1c3347b5d613506b326180a07a1bc`); deterministic-archive reproduction confirmed given identical commit+build root; provenance defect fixed (`run_optional` collapsed empty status → added `run_optional_keep_empty`) with a regression test.
+- **Evidence:** `EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01`. Release-manifest tests 5/5; `validate_release_manifest.py` PASSED; second-pass validator PASSED.
+- **Blocker:** observed-CI slice blocked — `.github/workflows/ci.yml` requires a self-hosted `macOS, swift-6.4` runner; the runner inventory is empty and SP-026 has no install/configure authority; pushed runs `33152188166`/`33152568023` remain queued with zero completed steps.
+- **Residual / next action:** obtain an available self-hosted macOS/swift-6.4 runner under authority, run the workflow, inspect retained artifacts/signatures/manifests/provenance. SP-027 must NOT start.

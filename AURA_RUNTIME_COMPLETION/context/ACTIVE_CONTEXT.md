@@ -1,9 +1,9 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-026` (pending; release toolchain, reproducibility, CI)
-> **Current program state:** In progress; SP-020 through SP-025 completed, SP-026 pending, while R1-R12 and the broader program remain open.
-> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021/SP-022 product content merged at `ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40`; SP-023/SP-024 delivered at `7b425e8` and `bdcc810`; SP-025 source/test/record edits are uncommitted. `HEAD == origin/main == bdcc810`; working tree `dirty_expected`. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-026` (blocked; release toolchain, reproducibility, CI)
+> **Current program state:** In progress; SP-020 through SP-025 completed, SP-026 blocked on its observed-CI slice, while R1-R12 and the broader program remain open.
+> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021/SP-022 product content merged at `ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40`; SP-023/SP-024 delivered at `7b425e8` and `bdcc810`; SP-025 delivered at `5a664a0`; SP-026 generator fix at `3e81582`; SP-026 control-plane edits uncommitted. `HEAD == origin/main == 3e81582`; working tree `dirty_expected`. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
@@ -30,15 +30,40 @@ slice of OPEN-11 under `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`
 
 **SP-025 is `completed` for the plugin-trust, incident, and
 independent-review slice. ADR-044 stays Proposed (release-owner acceptance).
-SP-026 (release toolchain, reproducibility, CI) is `pending`; open it only
-under its own authority and read order.**
+SP-026 (release toolchain, reproducibility, CI) is `blocked` on its
+observed-CI slice.**
 
 Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
 only a `development_unverified` artifact is producible today.
 
-**Next safe action:** read SP-026's required control files and prompt in order;
-SP-026 is pending/unopened and no SP-026 implementation may be performed as
-part of this closeout.
+## Second-pass synchronized overlay — 2026-08-28 (`SP-026` / `blocked`)
+
+`SP-026` / `blocked` on the observed-CI slice of OPEN-12 under
+`EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01`:
+- Pinned and recorded exact toolchain versions (Xcode 27.0 beta 5 `27A5237l`,
+  Swift 6.4, macOS SDK 27.0, Git 2.54.0, Python 3.14.6).
+- Delivered the SP-025 predecessor to `main` at `5a664a0` and the generator
+  provenance fix at `3e81582` (pushed; origin/main equal).
+- Built the reproducible `development_unverified` artifact + manifest at
+  canonical commit `3e81582` with clean provenance (artifact SHA-256
+  `202bb5cd07386e119fc360a0469acf72e7f1c3347b5d613506b326180a07a1bc`);
+  deterministic-archive reproduction confirmed given identical commit+build root.
+- Fixed a provenance defect (`run_optional` collapsed empty `git status
+  --porcelain`, mislabeling clean trees as `dirty_or_unavailable`) by adding
+  `run_optional_keep_empty`; added a regression test.
+- Observed-CI slice blocked: `.github/workflows/ci.yml` requires a self-hosted
+  `macOS, swift-6.4` runner; the runner inventory is empty and SP-026 has no
+  install/configure authority. Pushed runs `33152188166`/`33152568023` remain
+  queued with zero completed steps.
+- Release-manifest tests 5/5; `validate_release_manifest.py` PASSED; second-pass
+  validator PASSED.
+
+**SP-026 is `blocked`. SP-027 must NOT start.** Obtain an available self-hosted
+macOS/swift-6.4 runner under authority, run the workflow, and inspect retained
+artifacts/signatures/manifests/provenance.
+
+**Next safe action:** reopen SP-026 only with an available self-hosted
+macOS/swift-6.4 runner under authority; do not start SP-027.
 
 ## Second-pass synchronized overlay — 2026-08-25 (`SP-022` / `pending`)
 

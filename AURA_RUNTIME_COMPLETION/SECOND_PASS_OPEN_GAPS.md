@@ -1680,6 +1680,33 @@ validated, but no post-change CI run has been observed; retention, provenance,
 runner compatibility, and artifact inspection therefore remain open evidence
 gates.
 
+### SP-026 progress (2026-08-28) — reproducible-build slice delivered; observed-CI slice blocked
+
+The bounded SP-026 reproducible-build slice of OPEN-12 is delivered under
+`EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01` at canonical commit
+`3e81582`:
+
+- Exact toolchain pinned and recorded (Xcode 27.0 beta 5 `27A5237l`, Swift 6.4,
+  macOS SDK 27.0, Git 2.54.0, Python 3.14.6).
+- Reproducible `development_unverified` AURA.app bundle + ZIP + manifest built
+  with clean provenance (artifact SHA-256
+  `202bb5cd07386e119fc360a0469acf72e7f1c3347b5d613506b326180a07a1bc`, 56,472,706
+  bytes); `validate_release_manifest.py` PASSED.
+- Deterministic-archive reproduction confirmed **given identical canonical
+  commit and identical build root**; a different build root changes only the 5
+  compiled Mach-O executables that embed the absolute SwiftPM path.
+- Provenance defect fixed: `run_optional` collapsed empty `git status
+  --porcelain` to `None`, so a clean working tree was mislabeled
+  `dirty_or_unavailable`; added `run_optional_keep_empty` and a regression test.
+
+**Observed-CI slice remains open/blocked:** the workflow requires a self-hosted
+`macOS, swift-6.4` runner, the runner inventory is empty, and SP-026 has no
+install/configure runner authority. Pushed runs `33152188166`/`33152568023`
+remain `queued` with zero completed steps. No post-change CI run, retained
+artifact, signature/manifest, or provenance-of-run evidence is observed; the
+completion gate is not met and SP-027 must not start.
+
+
 ## OPEN-13 — R12: Beta Validation and Release Candidate
 
 Prompt: [`13_R12_BETA_VALIDATION_AND_RC.prompt.md`](archive/first-pass-prompts/2026-08-12/13_R12_BETA_VALIDATION_AND_RC.prompt.md)
