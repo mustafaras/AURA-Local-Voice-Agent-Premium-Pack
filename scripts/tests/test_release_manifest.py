@@ -99,6 +99,25 @@ class ReleaseManifestTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "unsafe manifest path"):
                 validator.verify_manifest(manifest, bundle, root / "artifact.zip")
 
+    def test_source_provenance_distinguishes_clean_from_unavailable(self):
+        # A git repo with a clean working tree must report "clean", not
+        # "dirty_or_unavailable" (regression: empty status output was
+        # collapsed to None by run_optional).
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            subprocess = __import__("subprocess")
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            subprocess.run(
+                ["git", "-C", str(root), "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "base"],
+                check=True,
+            )
+            clean = generator.source_provenance(root)
+            self.assertEqual(clean["working_tree"], "clean")
+            self.assertNotEqual(clean["commit"], "unknown")
+            # A non-existent path must report dirty_or_unavailable, not crash.
+            missing = generator.source_provenance(root / "does-not-exist")
+            self.assertEqual(missing["working_tree"], "dirty_or_unavailable")
+
 
 if __name__ == "__main__":
     unittest.main()

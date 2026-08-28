@@ -50,12 +50,41 @@ def run_optional(command: list[str]) -> str | None:
     return value or None
 
 
+def run_optional_keep_empty(command: list[str]) -> str | None:
+    """Run a command and return the stripped output, or None on failure.
+
+    Unlike ``run_optional``, an empty (but successful) stdout is preserved as
+    an empty string so callers can distinguish "command succeeded with no
+    output" (e.g. a clean ``git status --porcelain``) from "command unavailable".
+    """
+    try:
+        result = subprocess.run(
+            command,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip()
+
+
 def source_provenance(source_root: Path) -> dict[str, Any]:
     commit = run_optional(["git", "-C", str(source_root), "rev-parse", "HEAD"])
-    status = run_optional(["git", "-C", str(source_root), "status", "--porcelain"])
+    status = run_optional_keep_empty(
+        ["git", "-C", str(source_root), "status", "--porcelain"]
+    )
+    if status is None:
+        return {
+            "commit": commit or "unknown",
+            "working_tree": "dirty_or_unavailable",
+        }
     return {
         "commit": commit or "unknown",
-        "working_tree": "clean" if status == "" else "dirty_or_unavailable",
+        "working_tree": "clean" if status == "" else "dirty",
     }
 
 
