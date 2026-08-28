@@ -44,7 +44,7 @@ public actor IntentDispatchCoordinator {
     steps: [PlanStepRequest],
     context: TurnContext
   ) async throws(AuraError) -> PlanExecutionReport {
-    let planner = CapabilityPlanner(registry: await toolRouter.capabilityRegistry)
+    let planner = CapabilityPlanner(registry: toolRouter.capabilityRegistry)
     switch await planner.buildPlan(steps: steps) {
     case .failure(let failure):
       throw AuraError.invalidConfiguration("plan rejected: \(failure.blockedReason)")

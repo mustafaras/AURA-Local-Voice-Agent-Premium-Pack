@@ -194,10 +194,8 @@ public actor IntegrationOnboardingService {
         return .notProvisioned
       }
       return .connected(fingerprint: ProductivityRedaction.fingerprint(profileID))
-    } catch let error as ProductivityError {
+    } catch let error {
       return .unavailable(reason: ProductivityRedaction.diagnostic(for: error))
-    } catch {
-      return .unavailable(reason: "the bridge key store is unavailable")
     }
   }
 
