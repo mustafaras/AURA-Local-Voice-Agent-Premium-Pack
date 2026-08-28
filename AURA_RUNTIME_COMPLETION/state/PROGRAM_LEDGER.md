@@ -2976,9 +2976,13 @@ delivery is explicitly excluded; local-only claims remain truthful.
 
 ### 2026-08-28 — SP-026 — COMPLETED (observed CI and reproducibility evidence)
 
+- **Session ID:** `AURA-SP-026-ATTEMPT-20260828`; **actor:** GitHub Copilot.
+- **Verified start commit:** `bdcc810e4a2fca66da380044d6b062dab11e245e` (SP-025 base); **verified end commit:** `f6896d9533ecbf2e29b4f843f96c5bc98a0dcd40` (`HEAD == origin/main`, working tree clean).
 - **Active prompt:** SP-026 (R11; OPEN-12). **Verdict: COMPLETED**.
+- **Objective:** establish a reproducible, observed release pipeline before any signing/distribution action — pin the toolchain, build the app/helpers/entitlements/plists/resources/SBOM/checksums/provenance reproducibly, run the actual CI workflow and inspect retained artifacts/signatures/manifests/provenance, and keep `development_unverified` artifacts clearly non-release.
 - **Authority:** user granted full authority to resolve SP-026 (all issues), including temporary-runner provisioning and commit/push. No signing/notarization/release authority; no release/deploy occurred.
 - **Delivered:** pinned toolchain (Xcode 27.0 beta 5 `27A5237l`, Swift 6.4, SDK 27.0); SP-025 predecessor to `main`; reproducible `development_unverified` artifact+manifest at canonical commit `3e81582` (artifact SHA-256 `202bb5cd...`) with deterministic-archive reproduction given identical commit+build root and a fixed provenance defect; registered a temporary self-hosted macOS/swift-6.4 runner and ran the actual CI workflow on canonical commit `348bb6a`.
 - **Evidence:** `EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01` (observed CI run `33157842324` success for governance + build-and-test; line coverage 70.69%; development artifact `9680431386` with provenance matching `348bb6a`). Full suite 0 failed bundles; governance 41/41; all validators pass.
 - **CI blockers resolved:** first-pass schema/manifest acceptance of SP-* active prompts; stale `current-state`/`capability-matrix` projections; coverage regression restored 69.57% → 70.69% (unchanged 70% ratchet); two Swift `warnings-as-errors` build failures.
+- **Acceptance verdict by criterion:** (1) toolchain pinning — met (exact versions recorded); (2) reproducible build — met (deterministic archive given identical commit+build root, provenance defect fixed); (3) observed CI run — met (run `33157842324` success, artifact `9680431386` retained with provenance matching canonical commit `348bb6a`); (4) development_unverified kept non-release — met (no signing/notarization; `release_status: development_unverified`).
 - **Residual / next action:** the artifact is `development_unverified` (no signing/notarization/clean-machine). SP-027 is next eligible and pending. Temporary runner will be deregistered.
