@@ -1,50 +1,44 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-025` (pending; plugin trust, incident response, ADR-044)
-> **Current program state:** In progress; SP-020 through SP-024 completed, SP-025 pending, while R1-R12 and the broader program remain open.
-> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021/SP-022 product content merged at `ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40`; SP-023/SP-024 source/test/record edits are uncommitted. `HEAD == origin/main == ec41e78`; working tree `dirty_expected`. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-026` (pending; release toolchain, reproducibility, CI)
+> **Current program state:** In progress; SP-020 through SP-025 completed, SP-026 pending, while R1-R12 and the broader program remain open.
+> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021/SP-022 product content merged at `ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40`; SP-023/SP-024 delivered at `7b425e8` and `bdcc810`; SP-025 source/test/record edits are uncommitted. `HEAD == origin/main == bdcc810`; working tree `dirty_expected`. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
 
-## Second-pass synchronized overlay — 2026-08-27 (`SP-025` / `pending`)
+## Second-pass synchronized overlay — 2026-08-28 (`SP-026` / `pending`)
 
-`SP-024` / `completed` for the bounded network/OAuth/injection-enforcement slice
-of OPEN-11 under `EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01`:
-- Added `URLSessionFactory` (deny-by-default cookies/cache/redirect) and
-  `ResolvedIPValidator` (resolved-IP allowlist, DNS-rebinding defense) in
-  `AuraSecurity`; routed both production `URLSession` clients
-  (`URLSessionProviderFetcher`, `URLSessionOllamaAPIClient`) through the
-  factory.
-- Added `googleOAuthAccessToken` (`ya29.`) and `googleOAuthRefreshToken`
-  (`1//`) to the canonical `SecretPatternLibrary`, so a Google OAuth token
-  pasted into a mail body, command output, or support bundle is redacted or
-  flagged by the same boundary as every other secret.
-- Added the OAuth leakage corpus (token reference/Keychain key carry no secret;
-  diagnostics never echo token material; bounded text redacts an embedded
-  token; `SecretScanner` flags OAuth tokens; Keychain store keeps material
-  behind the boundary and revocation deletes it).
-- Added model tool-spoof (system-message and fake-tool-call) and
-  indirect-injection (mail body, repository file, terminal output) adversarial
-  cases plus `PromptInjectionScreen` withhold/pass-through cases.
-- Full suite 21/21 bundles 0 failed; `AuraSecurityTests` 44/44,
-  `AuraProductivityTests` 75/75, `AuraAdversarialTests` 68/68; second-pass
+`SP-025` / `completed` for the plugin-trust, incident, and independent-review
+slice of OPEN-11 under `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`
+(extended):
+- Added a 7-test plugin supply-chain adversarial matrix (compromised helper
+  digest, tampered installed artifact, tampered update bundle, untrusted
+  vendor root, tampered retained artifact blocking rollback, quarantine
+  revoking grants, unapproved source/unknown vendor never install) with real
+  Ed25519 cryptography.
+- Added `docs/operations/PLUGIN_SUPPLY_CHAIN.md`,
+  `docs/operations/INDEPENDENT_SECURITY_REVIEW.md`, and
+  `docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md`.
+- Completed a full eight-area independent adversarial review (process
+  topology, IPC/helper auth, policy/confirmation, OAuth/Keychain, network
+  enforcement, computer use, updater trust, plugin trust) with no Critical/High
+  unresolved finding.
+- Full suite 21/21 bundles 0 failed; `AuraPluginsTests` 44/44; second-pass
   validator PASSED.
 
-**SP-024 is `completed` for the bounded network/OAuth/injection-enforcement
-slice. SP-025 (plugin trust, incident response, ADR-044) is `pending`; open it
-only under its own authority and read order.** Live provider round trip, live
-revocation, and OS-confinement of a live signed helper remain open; the
-remaining OPEN-11 residuals (plugin trust, incident response, independent
-review, ADR-044 acceptance) are owned by SP-025 and later R10 work.
+**SP-025 is `completed` for the plugin-trust, incident, and
+independent-review slice. ADR-044 stays Proposed (release-owner acceptance).
+SP-026 (release toolchain, reproducibility, CI) is `pending`; open it only
+under its own authority and read order.**
 
 Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
 only a `development_unverified` artifact is producible today.
 
-**Next safe action:** read SP-025's required control files and prompt in order;
-SP-025 is pending/unopened and no SP-025 implementation may be performed as part
-of this closeout.
+**Next safe action:** read SP-026's required control files and prompt in order;
+SP-026 is pending/unopened and no SP-026 implementation may be performed as
+part of this closeout.
 
 ## Second-pass synchronized overlay — 2026-08-25 (`SP-022` / `pending`)
 

@@ -4,8 +4,8 @@
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
   "updated_at": "2026-08-27T00:00:00Z",
-  "session_id": "AURA-SP-024-ATTEMPT-20260827",
-  "active_prompt": "SP-025",
+  "session_id": "AURA-SP-025-ATTEMPT-20260828",
+  "active_prompt": "SP-026",
   "active_state": "pending",
   "completed_prompts": [
     "SP-000",
@@ -32,10 +32,12 @@
     "SP-021",
     "SP-022",
     "SP-023",
-    "SP-024"
+    "SP-024",
+    "SP-025"
   ],
   "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01",
     "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01",
     "EV-SP-023-20260827-AUTHENTICATED-IPC-01",
     "EV-SP-022-20260826-LIVE-TASK-CONTROLS-04",
@@ -140,5 +142,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-024 completed: mandatory URLSessionFactory (deny-by-default cookies/cache/redirect) + ResolvedIPValidator (DNS-rebinding defense) + OAuth leakage corpus + tool-spoof/indirect-injection adversarial cases (EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01). SP-025 is next eligible and pending."
+  "next_action": "SP-025 completed: plugin trust supply-chain adversarial matrix + incident/review docs + full eight-area independent review (EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01). ADR-044 stays Proposed (release owner). SP-026 is next eligible and pending."
 }

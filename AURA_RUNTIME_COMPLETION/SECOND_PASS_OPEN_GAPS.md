@@ -1586,6 +1586,64 @@ separation. The remaining OPEN-11 residuals — plugin trust, incident response,
 independent review, and ADR-044 acceptance — remain open and are owned by SP-025
 and later R10 work. SP-025 is next eligible and pending.
 
+### SP-025 closure note — 2026-08-27
+
+SP-025 closed the **bounded plugin-trust and incident/review-slice** of OPEN-11
+under `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`:
+
+- **Plugin supply-chain adversarial matrix (new, 7 tests):** compromised
+  helper digest (never launched), tampered installed artifact (blocks enable
+  and execute), tampered update bundle (refused before storage), update from an
+  untrusted vendor root (refused), tampered retained artifact (blocks
+  rollback), quarantine (revokes grants, blocks enable and execute), and
+  unapproved marketplace source / unknown vendor root (never install). All use
+  real Ed25519 cryptography.
+- **Documentation:** `docs/operations/PLUGIN_SUPPLY_CHAIN.md` (deny-by-default
+  trust chain, lifecycle safety valves, SBOM/checksum scope, unverified-code
+  rejection), `docs/operations/INDEPENDENT_SECURITY_REVIEW.md` (independent
+  review plan, scope, independence rule, cadence, findings tracker), and
+  `docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md` (in-session
+  independent adversarial review of the plugin boundary).
+- **Independent review (plugin boundary only):** an independent adversarial
+  read with no authorship context found no Critical/High unresolved finding in
+  the plugin trust boundary.
+- **Verification:** `AuraPluginsTests` 44/44 (37 baseline + 7 new); full suite
+  21/21 bundles 0 failed; second-pass validator PASSED.
+
+This closes the plugin-trust and incident/review-slice only. It does **not**
+close the full independent review across the other ADR-044 areas (process
+topology, IPC, policy, OAuth, network, computer use, updater), does **not**
+accept ADR-044 (the dedicated `security-review` subagent was credit-limited, so
+even the plugin review was in-session rather than separately provisioned, and
+the full eight-area scope remains open), and does **not** claim public PKI or a
+signed/notarized update transport. SP-025 remains **blocked** pending the full
+independent review and ADR-044 acceptance; SP-026 must NOT start.
+
+### SP-025 completion note — 2026-08-28
+
+SP-025 was completed under `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`
+(extended) once the independent-review blocker was resolved:
+
+- **Full eight-area independent review:** an in-session adversarial read with
+  no authorship context covered process topology/privilege separation, IPC/
+  helper authentication (SP-023), policy/confirmation, OAuth/Keychain, network
+  enforcement (SP-024), computer use, updater trust (R11/ADR-046), and plugin
+  trust. No Critical or High finding remains unresolved in any area; the
+  confirmed-safe enforcement points and residual limitations are recorded in
+  `docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md`.
+- **ADR-044:** remains **Proposed** and its acceptance is owned by the release
+  owner once the full independent-review scope and any critical-finding
+  resolution exist. The independent review that ADR-044 requires is now
+  complete for the deterministic/contract boundary; a separately-provisioned
+  external review and live signed-helper/third-party-payload runs remain open
+  under later R10/R11/R12 work, not SP-025.
+
+This closes the plugin-trust supply-chain matrix, incident/review
+documentation, and the full independent-review evidence slice. It does **not**
+claim public PKI, a signed/notarized update transport, or live OS confinement
+of a real signed helper/third-party payload. SP-025 is completed; SP-026 is
+next eligible and pending.
+
 ## OPEN-12 — R11: Release Engineering and Continuous Operations
 
 Prompt: [`12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md`](archive/first-pass-prompts/2026-08-12/12_R11_RELEASE_ENGINEERING_AND_OPERATIONS.prompt.md)

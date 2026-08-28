@@ -2955,3 +2955,12 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Evidence:** `EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01`. Full suite 21/21 bundles 0 failed; `AuraSecurityTests` 44/44, `AuraProductivityTests` 75/75, `AuraAdversarialTests` 68/68; second-pass validator PASSED.
 - **Acceptance:** the completion gate (no covered network or content path bypasses policy; OAuth and injection evidence passes with no secret leakage) is met for the deterministic/contract scope. Live provider round trip, live revocation, and OS-confinement of a live signed helper remain open and are not claimed.
 - **Residual / next prompt:** remaining OPEN-11 residuals (plugin trust, incident response, independent review, ADR-044 acceptance) are owned by SP-025 and later R10 work. SP-025 is next eligible and pending.
+
+## 2026-08-28 — SP-025 COMPLETED (plugin trust and independent review resolved)
+
+- **Active prompt:** SP-025 (R10; OPEN-11). **Verdict: COMPLETED** for the plugin-trust, incident, and independent-review slice.
+- **Authority:** user granted full computer-use authority to resolve the SP-025 gaps. No TCC mutation, signing, install, provider-contact, or release authority.
+- **Delivered:** 7-test plugin supply-chain adversarial matrix (compromised helper digest, tampered installed artifact, tampered update bundle, untrusted vendor root, tampered retained artifact blocking rollback, quarantine revoking grants, unapproved source/unknown vendor never install) with real Ed25519; `docs/operations/PLUGIN_SUPPLY_CHAIN.md`, `INDEPENDENT_SECURITY_REVIEW.md`, and `INDEPENDENT_SECURITY_REVIEW_FINDINGS.md`; a full eight-area independent adversarial review across the ADR-044 scope with no Critical/High unresolved finding.
+- **Evidence:** `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`. Full suite 21/21 bundles 0 failed; `AuraPluginsTests` 44/44 (37 + 7 new); second-pass validator PASSED.
+- **Acceptance:** the SP-025 completion gate ("supply-chain, incident, and independent-review evidence exists; no critical unaccepted security risk remains") is met for the deterministic/contract boundary. ADR-044 stays Proposed (release-owner acceptance remains).
+- **Residual / next prompt:** public marketplace/vendor PKI and a signed/notarized update transport (R11/ADR-046) are not implemented; live signed-helper/third-party-payload OS-confinement runs remain open under later R10/R11/R12 work. SP-026 is next eligible and pending.

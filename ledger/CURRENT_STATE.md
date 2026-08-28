@@ -3,24 +3,23 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-08-27.
 
-## Authoritative current status — 2026-08-27T00:00:00Z (SP-024 completed; SP-025 pending)
+## Authoritative current status — 2026-08-28T00:00:00Z (SP-025 completed; SP-026 pending)
 
-The active second-pass prompt is **`SP-025` / `pending`** (plugin trust,
-incident response, ADR-044, R10). **`SP-024` is `completed`** for the bounded
-network/OAuth/injection-enforcement slice of OPEN-11 under
-`EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01`: added `URLSessionFactory`
-(deny-by-default cookies/cache/redirect) and `ResolvedIPValidator` (resolved-IP
-allowlist, DNS-rebinding defense); routed both production `URLSession` clients
-(`URLSessionProviderFetcher`, `URLSessionOllamaAPIClient`) through the factory;
-added `googleOAuthAccessToken`/`googleOAuthRefreshToken` to the canonical
-`SecretPatternLibrary`; added the OAuth leakage corpus and the model tool-spoof
-/ indirect-injection (mail/file/terminal) adversarial cases. Full suite 21/21
-bundles 0 failed; `AuraSecurityTests` 44/44, `AuraProductivityTests` 75/75,
-`AuraAdversarialTests` 68/68; second-pass validator PASSED. Live provider round
-trip, live revocation, and OS-confinement of a live signed helper remain open;
-the remaining OPEN-11 residuals (plugin trust, incident response, independent
-review, ADR-044 acceptance) are owned by SP-025 and later R10 work. **SP-025 is
-next eligible and pending; open it only under its own authority.**
+The active second-pass prompt is **`SP-026` / `pending`** (release toolchain,
+reproducibility, CI, R11). **`SP-025` is `completed`** for the plugin-trust,
+incident, and independent-review slice of OPEN-11 under
+`EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`: added a 7-test plugin
+supply-chain adversarial matrix (compromised helper digest, tampered installed
+artifact, tampered update bundle, untrusted vendor root, tampered retained
+artifact blocking rollback, quarantine revoking grants, unapproved
+source/unknown vendor never install) with real Ed25519 cryptography, plus
+`docs/operations/PLUGIN_SUPPLY_CHAIN.md`,
+`docs/operations/INDEPENDENT_SECURITY_REVIEW.md`, and
+`docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md`. A full eight-area
+independent adversarial review across the ADR-044 scope found no Critical/High
+unresolved finding. Full suite 21/21 bundles 0 failed; `AuraPluginsTests`
+44/44 (37 + 7 new); second-pass validator PASSED. **ADR-044 stays Proposed
+(release-owner acceptance remains). SP-026 is next eligible and pending.**
 
 **`SP-022` is `completed`** under the combination of
 `EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic Task Center
@@ -61,13 +60,14 @@ development artifact was rebuilt from the final commit `4d6022f`:
 `/tmp/aura-kaan-deploy/output/AURA-development-unverified.zip`
 (SHA-256 `7ff40dd77cbd0c7da1ee722dfc0e828a2c2efe6b975b84f7d10c94accb54c24f`).
 
-**`HEAD == origin/main == 4d6022f`** (working tree dirty with the uncommitted
-SP-022 Task Center slice + live records; no commit/push/merge this session).
+**`HEAD == origin/main == bdcc810`** (working tree dirty with the uncommitted
+SP-025 plugin-trust slice + records; no commit/push/merge this session).
 
-**Next safe action:** open SP-025 (plugin trust, incident response, ADR-044)
-under its own authority. SP-024 is completed; its deterministic + adversarial
-evidence satisfies the network/OAuth/injection-enforcement slice of the R10
-gate.
+**Next safe action:** open SP-026 (release toolchain, reproducibility, CI)
+under its own authority and read order. SP-025 is completed; its plugin trust
+supply-chain matrix and full eight-area independent review satisfy the R10
+plugin-trust and independent-review slice. ADR-044 stays Proposed pending
+release-owner acceptance.
 
 ## Verification correction — 2026-08-24T08:01:03Z
 

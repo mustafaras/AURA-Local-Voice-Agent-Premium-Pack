@@ -3,24 +3,20 @@
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
   "updated_at": "2026-08-27T00:00:00Z",
-  "session_id": "AURA-SP-024-ATTEMPT-20260827",
+  "session_id": "AURA-SP-025-ATTEMPT-20260828",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40",
-    "remote_head": "ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40",
+    "verified_head": "bdcc810e4a2fca66da380044d6b062dab11e245e",
+    "remote_head": "bdcc810e4a2fca66da380044d6b062dab11e245e",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
-      "Sources/AuraSecurity/URLSessionFactory.swift",
-      "Sources/AuraSecurity/ResolvedIPValidator.swift",
-      "Sources/AuraProductivity/ProductivityAdapters_HTTPProviderTransport.swift",
-      "Sources/AuraAgent/OllamaAPIClient.swift",
-      "Sources/AuraCore/SecretPatternLibrary.swift",
-      "Tests/AuraSecurityTests/URLSessionFactoryTests.swift",
-      "Tests/AuraProductivityTests/OAuthLeakageCorpusTests.swift",
-      "Tests/AuraAdversarialTests/PromptInjectionAdversarialTests.swift",
-      "AURA_RUNTIME_COMPLETION/state/EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01.md",
+      "Tests/AuraPluginsTests/PluginSupplyChainAdversarialTests.swift",
+      "docs/operations/PLUGIN_SUPPLY_CHAIN.md",
+      "docs/operations/INDEPENDENT_SECURITY_REVIEW.md",
+      "docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01.md",
       "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
       "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
       "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
@@ -34,10 +30,10 @@
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "SP-025",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-025_PLUGIN_TRUST_INCIDENT_RESPONSE_AND_ADR_044.prompt.md",
+    "id": "SP-026",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-026_RELEASE_TOOLCHAIN_REPRODUCIBILITY_AND_CI.prompt.md",
     "state": "pending",
-    "step": "SP-024 completed: mandatory URLSessionFactory (deny-by-default cookies/cache/redirect) + ResolvedIPValidator (DNS-rebinding defense) + OAuth leakage corpus + tool-spoof/indirect-injection adversarial cases. SP-025 is next eligible and pending."
+    "step": "SP-025 completed: plugin trust supply-chain adversarial matrix + incident/review docs + full eight-area independent review. ADR-044 stays Proposed (release owner). SP-026 is next eligible and pending."
   },
   "tracks": [
     {
