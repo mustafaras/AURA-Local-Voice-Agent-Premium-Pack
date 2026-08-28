@@ -17,6 +17,24 @@ class RuntimeCompletionValidatorTests(unittest.TestCase):
     def test_current_repository_state_is_valid(self):
         VALIDATOR.validate_repository(ROOT)
 
+    def test_second_pass_active_prompt_id_is_accepted(self):
+        # The second-pass program advances first-pass state so current-state.json
+        # carries an active_prompt.id like SP-026. The first-pass schema must
+        # accept SP-<NNN> ids (regression: previously only BOOTSTRAP|R[0-9]+|FINAL).
+        schema = json.loads(
+            (ROOT / "AURA_RUNTIME_COMPLETION/schemas/program-state.schema.json").read_text()
+        )
+        active_prompt_schema = schema["properties"]["active_prompt"]["properties"]
+        pattern = active_prompt_schema["id"]["pattern"]
+        for valid in ("SP-026", "BOOTSTRAP", "R0", "FINAL"):
+            self.assertIsNotNone(
+                __import__("re").search(pattern, valid), f"{valid} must match {pattern}"
+            )
+        for invalid in ("SP-26", "SP-0260", "sp-026", "X1", ""):
+            self.assertIsNone(
+                __import__("re").search(pattern, invalid), f"{invalid} must NOT match {pattern}"
+            )
+
     def test_malformed_json_is_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "broken.json"

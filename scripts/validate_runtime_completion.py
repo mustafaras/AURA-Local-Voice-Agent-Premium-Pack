@@ -281,17 +281,21 @@ def validate_prompt_contract(
     validate_manifest_prompt_files(repo_root, manifest)
     active_state = state["active_prompt"]
     active_handoff = handoff["active_prompt"]
-    if active_handoff["id"].startswith("SP-"):
+    is_second_pass = active_state["id"].startswith("SP-")
+    if active_state["id"] != active_handoff["id"] or active_state["file"] != active_handoff["file"]:
+        raise ValidationFailure("active prompt differs between current-state and handoff")
+    if is_second_pass:
         overlay_path = repo_root / active_handoff["file"]
         if not overlay_path.is_file():
             raise ValidationFailure(
                 f"second-pass handoff prompt file is missing: {active_handoff['file']}"
             )
-    elif active_state["id"] != active_handoff["id"] or active_state["file"] != active_handoff["file"]:
-        raise ValidationFailure("active prompt differs between current-state and handoff")
     entries = manifest["prompts"]
     by_id = {entry["id"]: entry for entry in entries}
-    if active_state["id"] not in by_id:
+    # Second-pass SP-* prompts are governed by SECOND_PASS_PROMPT_MANIFEST.json,
+    # which the second-pass validator checks; they are not entries in the
+    # first-pass manifest. Only first-pass prompts must appear in this manifest.
+    if not is_second_pass and active_state["id"] not in by_id:
         raise ValidationFailure(f"active prompt is not in manifest: {active_state['id']}")
     for required_path in handoff["required_first_reads"]:
         if not (repo_root / required_path).exists():
