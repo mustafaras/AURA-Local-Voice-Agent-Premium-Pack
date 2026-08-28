@@ -1,14 +1,19 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-026` (blocked; release toolchain, reproducibility, CI)
-> **Current program state:** In progress; SP-020 through SP-025 completed, SP-026 blocked on its observed-CI slice, while R1-R12 and the broader program remain open.
-> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021/SP-022 product content merged at `ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40`; SP-023/SP-024 delivered at `7b425e8` and `bdcc810`; SP-025 delivered at `5a664a0`; SP-026 generator fix at `3e81582`; SP-026 control-plane edits uncommitted. `HEAD == origin/main == 3e81582`; working tree `dirty_expected`. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-027` (pending; signing, notarization, clean-machine Gatekeeper)
+> **Current program state:** In progress; SP-020 through SP-026 completed, SP-027 pending, while R1-R12 and the broader program remain open.
+> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021/SP-022 product content merged at `ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40`; SP-023/SP-024 delivered at `7b425e8` and `bdcc810`; SP-025 delivered at `5a664a0`; SP-026 delivered at `348bb6a` (observed CI run `33157842324` success). `HEAD == origin/main == 348bb6a`; working tree clean. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
 
-## Second-pass synchronized overlay — 2026-08-28 (`SP-026` / `pending`)
+## Second-pass synchronized overlay — 2026-08-28 (`SP-027` / `pending`)
+
+`SP-026` / `completed` for the reproducible-build and observed-CI slices of
+OPEN-12 under `EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01` (see below). `SP-027`
+(signing, notarization, clean-machine Gatekeeper) is next eligible and pending;
+open it only under its own authority and read order.
 
 `SP-025` / `completed` for the plugin-trust, incident, and independent-review
 slice of OPEN-11 under `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`
@@ -30,16 +35,15 @@ slice of OPEN-11 under `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`
 
 **SP-025 is `completed` for the plugin-trust, incident, and
 independent-review slice. ADR-044 stays Proposed (release-owner acceptance).
-SP-026 (release toolchain, reproducibility, CI) is `blocked` on its
-observed-CI slice.**
+SP-026 (release toolchain, reproducibility, CI) is `completed`.**
 
-Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
+Release/deploy remains blocked on signing and notarization (SP-027+);
 only a `development_unverified` artifact is producible today.
 
-## Second-pass synchronized overlay — 2026-08-28 (`SP-026` / `blocked`)
+## Second-pass synchronized overlay — 2026-08-28 (`SP-026` / `completed`)
 
-`SP-026` / `blocked` on the observed-CI slice of OPEN-12 under
-`EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01`:
+`SP-026` / `completed` for the reproducible-build and observed-CI slices of
+OPEN-12 under `EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01`:
 - Pinned and recorded exact toolchain versions (Xcode 27.0 beta 5 `27A5237l`,
   Swift 6.4, macOS SDK 27.0, Git 2.54.0, Python 3.14.6).
 - Delivered the SP-025 predecessor to `main` at `5a664a0` and the generator
@@ -51,19 +55,22 @@ only a `development_unverified` artifact is producible today.
 - Fixed a provenance defect (`run_optional` collapsed empty `git status
   --porcelain`, mislabeling clean trees as `dirty_or_unavailable`) by adding
   `run_optional_keep_empty`; added a regression test.
-- Observed-CI slice blocked: `.github/workflows/ci.yml` requires a self-hosted
-  `macOS, swift-6.4` runner; the runner inventory is empty and SP-026 has no
-  install/configure authority. Pushed runs `33152188166`/`33152568023` remain
-  queued with zero completed steps.
-- Release-manifest tests 5/5; `validate_release_manifest.py` PASSED; second-pass
-  validator PASSED.
+- Registered a temporary self-hosted macOS/swift-6.4 runner and ran the actual
+  CI workflow on canonical commit `348bb6a`.
+- Observed CI run `33157842324` completed **success** for `governance` and
+  `build-and-test`; line coverage **70.69%** meets the unchanged 70% ratchet;
+  development artifact `9680431386` retained with provenance matching the
+  canonical commit; `validate_release_manifest.py` PASSED.
+- Resolved CI-surfaced blockers: SP-* active-prompt schema/manifest acceptance,
+  stale projections, coverage regression, and two Swift `warnings-as-errors`
+  build failures.
+- Full suite 0 failed bundles; governance 41/41; runtime-completion,
+  second-pass, and supply-chain validators PASSED.
 
-**SP-026 is `blocked`. SP-027 must NOT start.** Obtain an available self-hosted
-macOS/swift-6.4 runner under authority, run the workflow, and inspect retained
-artifacts/signatures/manifests/provenance.
+**SP-026 is `completed`. SP-027 is next eligible and pending.**
 
-**Next safe action:** reopen SP-026 only with an available self-hosted
-macOS/swift-6.4 runner under authority; do not start SP-027.
+**Next safe action:** open SP-027 (signed updates, recovery, ADR-046) under its
+own authority and read order.
 
 ## Second-pass synchronized overlay — 2026-08-25 (`SP-022` / `pending`)
 

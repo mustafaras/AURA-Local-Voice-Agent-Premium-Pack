@@ -3,22 +3,21 @@
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-08-28.
 
-## Authoritative current status — 2026-08-28T00:00:00Z (SP-026 blocked)
+## Authoritative current status — 2026-08-28T00:00:00Z (SP-026 completed)
 
-The active second-pass prompt is **`SP-026` / `blocked`** (release toolchain,
-reproducibility, CI, R11). The reproducible-build slice of OPEN-12 is delivered
-under `EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01`: exact toolchain
-pinned (Xcode 27.0 beta 5 `27A5237l`, Swift 6.4, SDK 27.0); SP-025 delivered to
-`main` at `5a664a0`; the reproducible `development_unverified` artifact+manifest
-built at canonical commit `3e81582` with clean provenance (artifact SHA-256
-`202bb5cd07386e119fc360a0469acf72e7f1c3347b5d613506b326180a07a1bc`);
-deterministic-archive reproduction confirmed given identical commit+build root;
-a provenance defect was fixed (`run_optional` collapsed empty status → added
-`run_optional_keep_empty`) with a regression test. **Observed-CI slice blocked:**
-the workflow requires a self-hosted `macOS, swift-6.4` runner, the runner
-inventory is empty, and SP-026 has no install/configure authority; pushed runs
-`33152188166`/`33152568023` remain queued with zero completed steps. SP-027 must
-NOT start until observed CI evidence is available.
+The active second-pass prompt is **`SP-026` / `completed`** (release toolchain,
+reproducibility, CI, R11). The reproducible-build slice and the observed-CI
+slice of OPEN-12 are delivered under `EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01`:
+exact toolchain pinned (Xcode 27.0 beta 5 `27A5237l`, Swift 6.4, SDK 27.0); the
+reproducible `development_unverified` artifact+manifest built at canonical
+commit `3e81582` (artifact SHA-256 `202bb5cd07386e119fc360a0469acf72e7f1c3347b5d613506b326180a07a1bc`); a provenance defect fixed; a temporary self-hosted
+macOS/swift-6.4 runner registered and the actual CI workflow run on canonical
+commit `348bb6a` — run `33157842324` succeeded for `governance` and
+`build-and-test`, line coverage **70.69%** meets the unchanged 70% ratchet, and
+development artifact `9680431386` was retained with provenance matching the
+canonical commit. CI-surfaced blockers (SP-* active-prompt schema/manifest,
+stale projections, coverage regression, Swift `warnings-as-errors`) were
+resolved. **SP-026 is `completed`. SP-027 is next eligible and pending.**
 
 **`SP-025` is `completed`** for the plugin-trust, incident, and independent-review slice of OPEN-11 under
 `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`: added a 7-test plugin

@@ -5231,3 +5231,13 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Blocker:** observed-CI slice blocked — `.github/workflows/ci.yml` requires a self-hosted `macOS, swift-6.4` runner; the runner inventory is empty and SP-026 has no install/configure authority; pushed runs `33152188166`/`33152568023` remain queued with zero completed steps.
 - **Acceptance:** SP-026 stays **blocked**; the completion gate ("reproducibility and observed CI evidence are independently inspectable and match the canonical commit") is not met because observed CI evidence is absent.
 - **Residual / next action:** obtain an available self-hosted macOS/swift-6.4 runner under authority, run the workflow, and inspect retained artifacts/signatures/manifests/provenance. SP-027 must NOT start.
+
+## 2026-08-28 — SP-026 COMPLETED (release toolchain; observed CI)
+
+- **Objective:** close the bounded OPEN-12 slice — establish a reproducible release pipeline and observe CI artifact/provenance evidence before any signing/distribution action.
+- **Delivered:** pinned toolchain (Xcode 27.0 beta 5 `27A5237l`, Swift 6.4, SDK 27.0); reproducible `development_unverified` artifact+manifest at canonical commit `3e81582` (artifact SHA-256 `202bb5cd07386e119fc360a0469acf72e7f1c3347b5d613506b326180a07a1bc`) with deterministic-archive reproduction given identical commit+build root and a fixed provenance defect (`run_optional_keep_empty` + regression test). Registered a temporary self-hosted macOS/swift-6.4 runner and ran the actual CI workflow on canonical commit `348bb6a`.
+- **Observed CI evidence:** run `33157842324` completed **success** for `governance` and `build-and-test`; line coverage **70.69%** meets the unchanged 70% ratchet; development artifact `9680431386` retained (provenance `source.commit: 348bb6a`, `working_tree: clean`, `release_status: development_unverified`, 17 SBOM components); `validate_release_manifest.py` PASSED.
+- **CI blockers resolved:** first-pass schema/manifest acceptance of SP-* active prompts; stale `current-state`/`capability-matrix` projections; coverage regression restored with deterministic `ConfigurationValidationTests`; two Swift `warnings-as-errors` build failures.
+- **Evidence:** `EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01`, `EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01`. Full suite 0 failed bundles; governance 41/41; all validators pass.
+- **Acceptance:** SP-026 **completed**; the completion gate ("reproducibility and observed CI evidence are independently inspectable and match the canonical commit") is met.
+- **Residual / next action:** the artifact is `development_unverified` (no signing/notarization/clean-machine); release/distribution remains blocked. SP-027 is next eligible and pending.

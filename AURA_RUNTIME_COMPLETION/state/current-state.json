@@ -15,10 +15,10 @@
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "SP-026",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-026_RELEASE_TOOLCHAIN_REPRODUCIBILITY_AND_CI.prompt.md",
-    "state": "blocked",
-    "step": "SP-026 BLOCKED: reproducible development_unverified build+manifest delivered at canonical commit 3e81582 (artifact SHA-256 202bb5cd...) with provenance fix + regression test; observed-CI slice blocked because the workflow requires a self-hosted macOS/swift-6.4 runner and the runner inventory is empty (no install authority). SP-027 must NOT start."
+    "id": "SP-027",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-027_SIGNING_NOTARIZATION_AND_CLEAN_MACHINE_GATEKEEPER.prompt.md",
+    "state": "pending",
+    "step": "SP-026 COMPLETED: observed CI run 33157842324 on canonical commit 348bb6a succeeded (governance + build-and-test; line coverage 70.69%; development_unverified artifact 9680431386 with provenance matching the canonical commit). SP-027 is next eligible and pending."
   },
   "tracks": [
     {
@@ -461,6 +461,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01",
     "EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01",
     "EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01",
     "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01",
@@ -509,8 +510,7 @@
     "EV-SP-012-20260820-DETERMINISTIC-BRIDGE-01",
     "EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13",
     "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10",
-    "EV-SP-011-20260819-SAFARI-TRUST-PATH-09",
-    "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08"
+    "EV-SP-011-20260819-SAFARI-TRUST-PATH-09"
   ],
   "blockers": [
     "SP-011 is completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13. Every leg named in its procedure has live evidence and both revocation legs passed; mutation/send is explicitly excluded and asserted by test. OPEN-06 itself stays open for items SP-011 does not own, chiefly Developer ID signing and notarization (R11), which would remove Safari's Allow-unsigned-extensions requirement.",

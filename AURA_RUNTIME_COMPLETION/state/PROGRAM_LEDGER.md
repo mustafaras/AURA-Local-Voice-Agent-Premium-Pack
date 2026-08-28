@@ -2973,3 +2973,12 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Evidence:** `EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01`. Release-manifest tests 5/5; `validate_release_manifest.py` PASSED; second-pass validator PASSED.
 - **Blocker:** observed-CI slice blocked — `.github/workflows/ci.yml` requires a self-hosted `macOS, swift-6.4` runner; the runner inventory is empty and SP-026 has no install/configure authority; pushed runs `33152188166`/`33152568023` remain queued with zero completed steps.
 - **Residual / next action:** obtain an available self-hosted macOS/swift-6.4 runner under authority, run the workflow, inspect retained artifacts/signatures/manifests/provenance. SP-027 must NOT start.
+
+### 2026-08-28 — SP-026 — COMPLETED (observed CI and reproducibility evidence)
+
+- **Active prompt:** SP-026 (R11; OPEN-12). **Verdict: COMPLETED**.
+- **Authority:** user granted full authority to resolve SP-026 (all issues), including temporary-runner provisioning and commit/push. No signing/notarization/release authority; no release/deploy occurred.
+- **Delivered:** pinned toolchain (Xcode 27.0 beta 5 `27A5237l`, Swift 6.4, SDK 27.0); SP-025 predecessor to `main`; reproducible `development_unverified` artifact+manifest at canonical commit `3e81582` (artifact SHA-256 `202bb5cd...`) with deterministic-archive reproduction given identical commit+build root and a fixed provenance defect; registered a temporary self-hosted macOS/swift-6.4 runner and ran the actual CI workflow on canonical commit `348bb6a`.
+- **Evidence:** `EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01` (observed CI run `33157842324` success for governance + build-and-test; line coverage 70.69%; development artifact `9680431386` with provenance matching `348bb6a`). Full suite 0 failed bundles; governance 41/41; all validators pass.
+- **CI blockers resolved:** first-pass schema/manifest acceptance of SP-* active prompts; stale `current-state`/`capability-matrix` projections; coverage regression restored 69.57% → 70.69% (unchanged 70% ratchet); two Swift `warnings-as-errors` build failures.
+- **Residual / next action:** the artifact is `development_unverified` (no signing/notarization/clean-machine). SP-027 is next eligible and pending. Temporary runner will be deregistered.

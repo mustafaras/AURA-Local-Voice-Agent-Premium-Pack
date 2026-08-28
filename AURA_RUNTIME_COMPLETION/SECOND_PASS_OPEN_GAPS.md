@@ -1706,6 +1706,42 @@ remain `queued` with zero completed steps. No post-change CI run, retained
 artifact, signature/manifest, or provenance-of-run evidence is observed; the
 completion gate is not met and SP-027 must not start.
 
+### SP-026 completion (2026-08-28) — observed CI and reproducibility evidence
+
+The bounded SP-026 slice of OPEN-12 is **completed** under
+`EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01` at canonical commit `348bb6a`:
+
+- The observed-CI slice was closed by registering a temporary self-hosted
+  GitHub Actions runner 2.337.0 (labels `macOS, swift-6.4`) after a
+  SHA-256-verified download and running the actual CI workflow on the
+  canonical commit.
+- Observed run `33157842324` completed **success** for `governance` and
+  `build-and-test`; line coverage **70.69%** meets the unchanged 70% ratchet;
+  full suite 0 failed bundles; governance 41/41; all validators pass.
+- Retained development artifact `9680431386` (`aura-development-unverified-
+  348bb6a...`) was downloaded and inspected: `release_status:
+  development_unverified`, `source.commit: 348bb6a` (matches canonical),
+  `working_tree: clean`, 17 bundle files, 17 SBOM components,
+  `signature: {developer_id: false, notarization: not_submitted}`;
+  `validate_release_manifest.py` PASSED.
+- CI-surfaced blockers were resolved: first-pass schema/manifest acceptance
+  of SP-* active prompts; stale `current-state`/`capability-matrix`
+  projections; coverage regression restored with deterministic
+  `ConfigurationValidationTests`; two Swift `warnings-as-errors` build
+  failures.
+
+**Remaining OPEN-12 gates (unchanged, outside this slice):** Developer ID
+signing, secure timestamp, notarization, stapling, Gatekeeper, clean-machine,
+quarantine, nested-helper, and TCC identity evidence; launch-at-login,
+sleep/wake/crash/update behavior, safe mode, diagnostics/support-bundle,
+reset/recovery, uninstall, and factory-reset semantics; signed update
+manifest/package, transport, version/channel policy, downgrade/replay
+protection, atomic install, migration backup, staged rollout, kill switch,
+rollback, and compatibility checks; and configuration/database/memory/plugin/
+model migration and recovery tests. ADR-046 remains `Proposed` until its
+operational and security alternatives are directly reviewed and accepted.
+SP-027 is next eligible and pending.
+
 
 ## OPEN-13 — R12: Beta Validation and Release Candidate
 

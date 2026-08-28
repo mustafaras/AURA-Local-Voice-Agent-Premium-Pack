@@ -5,8 +5,8 @@
   "program_status": "in_progress",
   "updated_at": "2026-08-28T00:00:00Z",
   "session_id": "AURA-SP-026-ATTEMPT-20260828",
-  "active_prompt": "SP-026",
-  "active_state": "blocked",
+  "active_prompt": "SP-027",
+  "active_state": "pending",
   "completed_prompts": [
     "SP-000",
     "SP-001",
@@ -33,12 +33,12 @@
     "SP-022",
     "SP-023",
     "SP-024",
-    "SP-025"
-  ],
-  "blocked_prompts": [
+    "SP-025",
     "SP-026"
   ],
+  "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01",
     "EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01",
     "EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01",
     "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01",
@@ -145,5 +145,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-026 BLOCKED: reproducible development_unverified build+manifest delivered at canonical commit 3e81582 (artifact SHA-256 202bb5cd...) with provenance fix (clean working tree correctly reported; regression test added); observed-CI slice blocked because the workflow requires a self-hosted macOS/swift-6.4 runner and the runner inventory is empty (no install authority). SP-027 must NOT start."
+  "next_action": "SP-026 COMPLETED: observed CI run 33157842324 on canonical commit 348bb6a succeeded (governance + build-and-test; line coverage 70.69%; development_unverified artifact 9680431386 with provenance matching the canonical commit). Temporary runner will be deregistered. SP-027 is next eligible and pending."
 }
