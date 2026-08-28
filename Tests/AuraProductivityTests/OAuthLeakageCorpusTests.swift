@@ -13,6 +13,7 @@ import Testing
 @Suite("OAuth secret-leakage corpus")
 struct OAuthLeakageCorpusTests {
 
+  // REPO_HYGIENE_SECRET_FIXTURE: generic_credential_assignment
   private static let accessToken = "ya29.access-secret-value"
   private static let refreshToken = "1//refresh-secret-value"
 

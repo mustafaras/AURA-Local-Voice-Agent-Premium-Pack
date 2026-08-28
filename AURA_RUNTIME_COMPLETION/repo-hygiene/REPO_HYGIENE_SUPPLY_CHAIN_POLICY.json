@@ -54,6 +54,11 @@
         "marker": "REPO_HYGIENE_SECRET_FIXTURE: generic_credential_assignment"
       },
       {
+        "path": "Tests/AuraProductivityTests/OAuthLeakageCorpusTests.swift",
+        "pattern": "generic_credential_assignment",
+        "marker": "REPO_HYGIENE_SECRET_FIXTURE: generic_credential_assignment"
+      },
+      {
         "path": "Tests/AuraSecurityTests/NetworkAllowlistTests.swift",
         "pattern": "basic_auth_url",
         "marker": "REPO_HYGIENE_SECRET_FIXTURE: basic_auth_url"
