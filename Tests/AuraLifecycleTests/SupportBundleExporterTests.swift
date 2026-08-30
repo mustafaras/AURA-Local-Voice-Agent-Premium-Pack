@@ -35,6 +35,7 @@ struct SupportBundleExporterTests {
     let scanner = SecretScanner()
     let exporter = SupportBundleExporter(store: store, secretScanner: scanner)
     let dir = destination()
+    // REPO_HYGIENE_SECRET_FIXTURE: github_token (intentional secret-shaped fixture for redaction test)
     let health = [RuntimeHealth(componentID: "x", status: .ready, detail: "token=ghp_12345678901234567890123456789012345678")]
     let result = try await exporter.export(
       health: health,

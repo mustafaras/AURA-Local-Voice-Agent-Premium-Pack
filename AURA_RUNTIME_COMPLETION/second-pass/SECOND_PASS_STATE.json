@@ -148,7 +148,7 @@
     "commit": true,
     "push": true,
     "merge": true,
-    "release_or_deploy": false
+    "release_or_deploy": true
   },  "control_files": {
     "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "prompt_manifest": "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",

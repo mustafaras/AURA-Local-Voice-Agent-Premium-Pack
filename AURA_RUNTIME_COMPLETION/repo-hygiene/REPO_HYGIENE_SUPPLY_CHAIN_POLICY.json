@@ -82,6 +82,11 @@
         "path": "Tests/AuraProductivityTests/SP010ProviderAccountTests.swift",
         "pattern": "github_token",
         "marker": "REPO_HYGIENE_SECRET_FIXTURE: github_token"
+      },
+      {
+        "path": "Tests/AuraLifecycleTests/SupportBundleExporterTests.swift",
+        "pattern": "github_token",
+        "marker": "REPO_HYGIENE_SECRET_FIXTURE: github_token"
       }
     ],
     "artifact_suffixes_forbidden_when_tracked": [
