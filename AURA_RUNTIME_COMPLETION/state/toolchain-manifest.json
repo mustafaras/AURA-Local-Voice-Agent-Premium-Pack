@@ -20,7 +20,7 @@
       "sdk": "macOS SDK 27.0+",
       "deployment_target": "macOS 27",
       "xcode_required": true,
-      "strategy": "Use full Xcode, Developer ID signing, notarization, Gatekeeper validation, and the exact packaged artifact."
+      "strategy": "Use full Xcode, the local nested-signing procedure (ADR-049 local-only), and the exact packaged artifact. Developer ID signing, notarization, and external clean-machine validation are permanently out of scope (ADR-049)."
     }
   },
   "observed": {
@@ -71,12 +71,12 @@
   },
   "compatibility_policy": {
     "development": "Swift 6.4, arm64, and macOS SDK 27.0 are the observed supported baseline; lower versions fail validation until separately audited.",
-    "release": "Full Xcode, Developer ID, notarization, and clean-machine Gatekeeper evidence are mandatory; local/ad-hoc signing is not release evidence.",
+    "release": "Full Xcode, the local nested-signing procedure, and artifact/launch evidence are the local-only release baseline (ADR-049). Developer ID signing, notarization, and external clean-machine Gatekeeper evidence are permanently out of scope; local/ad-hoc signing is not presented as external release evidence.",
     "projection_commits": "verified_head identifies the audited code/evidence baseline. A later HEAD is allowed only when the descendant diff contains projection-only files; state-only commits must not change product claims without a new audit.",
     "deprecation": "When Swift, SDK, Python, model, or CLI baselines change, update this manifest and ADR-045, rerun the validator, and append evidence before changing CI."
   },
   "limitations": [
-    "The observed host has Apple Xcode 27.0 beta 5 selected; release signing, notarization, and clean-machine validation remain separate gates.",
+    "The observed host has Apple Xcode 27.0 beta 5 selected; local-only release verification uses the nested-signing procedure, artifact hashes, and launch evidence. Developer ID/notarization/external clean-machine remain out of scope by ADR-049.",
     "swift-format is available only through the active xcrun toolchain; its observed --version output is main rather than an independent semantic version.",
     "SwiftLint 0.65.0 loads SourceKit under the selected Xcode toolchain; the strict policy run exits 0 with 0 violations in 1066 files after bounded formatter-compatible remediation. The exact default-policy falsification remains documented separately and is not used as the configured gate.",
     "No CI workflow run was observed during this local validation; workflow configuration is not CI execution evidence.",

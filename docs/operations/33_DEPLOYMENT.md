@@ -13,12 +13,13 @@ Reproducible builds, pinned dependencies, generated lockfiles, static analysis, 
 ## macOS
 Use supported signing, hardened runtime, notarization, entitlements, privacy usage descriptions, and launch-at-login mechanisms.
 
-The local development bundle is ad-hoc signed. `AuraPluginHost` is separately
+The local development bundle is signed with the local stable identity +
+hardened runtime (ADR-049). `AuraPluginHost` is separately
 App Sandbox confined and self-attests its sandbox at runtime. The main
 application is intentionally unsandboxed until Accessibility and CLI execution
 move into least-privilege helpers; therefore its network allowlist is an AURA
 policy boundary, not an OS sandbox boundary. Developer ID signing and
-notarization remain release gates.
+notarization are permanently out of scope for the local-only product (ADR-049).
 
 ## Updates
 Signed updates, staged rollout, rollback, migration backup, and release notes.

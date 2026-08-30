@@ -17,7 +17,7 @@ The codebase currently ships only deterministic/mock speech engines:
 - `DeterministicMockSTTEngine` emits scripted transcripts after a fixed frame delay.
 - `MockTTSEngine` emits progress markers with 1 ms per word.
 
-Real on-device wake-word, STT, and TTS models are not yet integrated. Real Accessibility and Screen Recording permission behavior cannot be validated in the sandboxed/CommandLineTools environment. App-bundle codesign and `notarytool` notarization require a Developer ID that is not available here.
+Real on-device wake-word, STT, and TTS models are not yet integrated. Real Accessibility and Screen Recording permission behavior cannot be validated in the sandboxed/CommandLineTools environment. App-bundle codesign uses the local stable identity + hardened runtime; Developer ID signing and `notarytool` notarization are permanently out of scope for the local-only product (ADR-049).
 
 Therefore Phase 20 must be split into **instrumentation + deterministic budget** work that can be verified now, and **packaging/signing/release** work that remains design-only until the real engines and signing credentials are available.
 

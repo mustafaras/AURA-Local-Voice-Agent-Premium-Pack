@@ -129,7 +129,8 @@ development Mac, the signing script reuses the locally trusted
 `AURA Stable Local Signing` Keychain identity so the app's designated
 requirement stays stable across rebuilds and TCC grants can persist. Other
 machines fall back to ad-hoc signing. This local identity is not Developer ID
-or notarization. The signature uses Hardened Runtime with the audio-input
+or notarization, and AURA is a local-only product that does not use Developer ID
+or notarization (ADR-049). The signature uses Hardened Runtime with the audio-input
 entitlement; Accessibility and Screen Recording are TCC services, not
 code-signing entitlements.
 

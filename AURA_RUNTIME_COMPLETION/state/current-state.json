@@ -382,7 +382,7 @@
     "merge": true,
     "sign_or_notarize": false,
     "release_or_deploy": true,
-    "source": "Reconciled 2026-08-30: the release owner (user) explicitly granted deploy authority (\"deploya da yetki veriyorum\") in addition to the prior program grants (\"go apply be perfect\", \"ben tüm ama tüm yetkileri veriyorum\", \"ONLARI DA ONAYLIYORUM YAP ARTIK\", \"a go be perfect and premium\"). Program boundary now: edit/test/state, launch-or-install-app, commit/push/merge, and release/deploy are enabled for the LOCAL-ONLY scope. Security-sensitive items remain FALSE: install_dependencies, download_models, mutate_permissions (TCC), sign_or_notarize. External distribution (Developer ID signing, notarization, public release) remains impossible (no Apple credentials) and out-of-scope by the SP-027 local-only decision; 'deploy' here means building and launching the local AURA.app bundle. Telemetry/beta activation and provider accounts are separately gated (telemetry_or_beta)."
+    "source": "Reconciled 2026-08-30: the release owner (user) explicitly granted deploy authority (\"deploya da yetki veriyorum\") in addition to the prior program grants (\"go apply be perfect\", \"ben tüm ama tüm yetkileri veriyorum\", \"ONLARI DA ONAYLIYORUM YAP ARTIK\", \"a go be perfect and premium\"), and decided AURA will never acquire or use Developer ID/notarization (ADR-049). Program boundary now: edit/test/state, launch-or-install-app, commit/push/merge, and release/deploy are enabled for the LOCAL-ONLY scope. Security-sensitive items remain FALSE: install_dependencies, download_models, mutate_permissions (TCC), sign_or_notarize. External distribution (Developer ID signing, notarization, public release) is permanently out of scope by ADR-049; 'deploy' here means building and launching the local AURA.app bundle. Telemetry/beta activation and provider accounts are separately gated (telemetry_or_beta)."
   },
   "release_gates": [
     {
@@ -428,10 +428,13 @@
     {
       "id": "GATE-DEVELOPER-ID-NOTARIZATION",
       "name": "Developer ID signing, notarization, and clean-machine Gatekeeper validation",
-      "state": "open",
+      "state": "waived",
       "required_for": "external_beta",
-      "evidence_ids": [],
-      "waiver_reason": null
+      "evidence_ids": [
+        "EV-SP-027-20260828-SIGNING-PROCEDURE-02",
+        "EV-SP-030-20260830-LOCAL-DEPLOY-01"
+      ],
+      "waiver_reason": "ADR-049 (2026-08-30): AURA is a permanent local-only product; the release owner will not acquire or use Developer ID or notarization. External distribution is permanently out of scope. The local nested-signing procedure + hardened runtime (EV-SP-027-20260828-SIGNING-PROCEDURE-02) and the local deploy launch evidence (EV-SP-030-20260830-LOCAL-DEPLOY-01) cover the applicable local-only scope."
     },
     {
       "id": "GATE-SIGNED-UPDATES-RECOVERY",
@@ -473,6 +476,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-ADR-049-20260830-LOCAL-ONLY-NO-DEVELOPER-ID-01",
     "EV-SP-030-20260830-LOCAL-DEPLOY-01",
     "EV-SP-030-20260830-OPENING-01",
     "EV-SP-029-20260830-R11-CLOSURE-PLAN-01",

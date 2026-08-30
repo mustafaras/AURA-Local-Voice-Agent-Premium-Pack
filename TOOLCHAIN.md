@@ -6,7 +6,12 @@ Status: accepted development baseline; release verification remains open.
 
 Development targets Apple Silicon (`arm64`) on macOS 27 or newer with Swift 6.4 and macOS SDK 27.0 or newer. The repository's active local profile supports Apple CommandLineTools and full Xcode through the project test wrapper at `scripts/aura-test.sh`.
 
-Release builds require full Xcode, a supported macOS SDK, Developer ID signing, notarization, and clean-machine Gatekeeper validation. Local or ad-hoc signing is development evidence only. The package deployment target is macOS 27 and must not be lowered without an availability audit.
+AURA is a **local-only product** and does not use Developer ID or
+notarization (ADR-049). Release verification for the local-only scope uses the
+local nested-signing procedure, hardened runtime, artifact hashes, and launch
+evidence; external Developer ID signing, notarization, and clean external
+machine validation are permanently out of scope. The package deployment target
+is macOS 27 and must not be lowered without an availability audit.
 
 ## Observed baseline
 

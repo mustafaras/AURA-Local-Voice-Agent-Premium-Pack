@@ -47,10 +47,9 @@ This document describes the planned software-update design for AURA. R11 now pro
 
 ## Trust model
 
-1. Release artifacts are signed with a Developer ID certificate and notarized by Apple.
+1. Release artifacts are signed with the local stable identity + hardened runtime and verified locally; the product is local-only and does not use Developer ID or notarization (ADR-049).
 2. The helper verifies:
-   - Code signature of the downloaded bundle matches the hardcoded team identifier.
-   - Notarization staple is present (for offline installs).
+   - Code signature of the downloaded bundle matches the expected local signing identity / pinned requirement.
    - Bundle identifier is `ai.aura.local.agent`.
    - Version string is strictly newer than the running version (semantic-version compare).
 3. If any check fails, the artifact is discarded and the event is recorded in the ledger.

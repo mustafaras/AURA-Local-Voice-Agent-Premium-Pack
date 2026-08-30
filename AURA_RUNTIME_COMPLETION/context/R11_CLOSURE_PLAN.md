@@ -33,7 +33,7 @@
 | External clean-machine (no developer tools) | No such Mac is available; this development Mac has Xcode 27.0 beta 5 + developer tools. |
 | Signed update transport (network distribution) | No signed/notarized update host exists; SP-028's default production manifest source returns `.noUpdateAvailable`. |
 
-> **Local-only scope decision (SP-027, `EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03`):** the release owner already decided external distribution is **out of scope** for AURA. Developer ID signing, notarization, stapling, and external clean-machine Gatekeeper are **not required**. `RISK-NOT-NOTARIZED` is accepted. Therefore gates in box B that are distribution-only are NOT R11 blockers for the local-only product — they only re-open if external distribution is ever required.
+> **Permanent local-only scope (ADR-049, 2026-08-30):** the release owner decided AURA is local-only and will **never** acquire or use Developer ID/notarization. Developer ID signing, notarization, stapling, and external clean-machine Gatekeeper are **permanently out of scope** and are NOT R11 blockers for the local-only product; they will not be re-opened by a future distribution decision unless a new ADR authorizes it. `RISK-NOT-NOTARIZED` is accepted (permanent). Box B is recorded purely as honesty about why external distribution is not attempted — it does not block R11 local completion.
 
 ### C. Owner-decision gates
 

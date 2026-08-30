@@ -77,8 +77,10 @@ and outside evidence logs.
 - Structural manifest/checksum/SBOM tests pass with path-traversal, missing-file,
   hash, version, compatibility, and unsigned-release negative fixtures.
 - The selected updater's official signature, channel, and rollback tests pass.
-- A Developer ID signed, notarized, stapled artifact passes `codesign`, `spctl`,
-  and clean-machine Gatekeeper checks.
+- A local-identity signed, hardened-runtime artifact passes `codesign --verify
+  --deep --strict` and local launch checks. Developer ID signing, notarization,
+  stapling, and external clean-machine Gatekeeper checks are permanently out of
+  scope for the local-only product (ADR-049).
 - Update, rollback, migration, safe mode, launch-at-login, support-bundle,
   uninstall, and recovery evidence is indexed with exact artifacts and logs.
 
@@ -86,5 +88,6 @@ and outside evidence logs.
 
 R11 may produce a local, untrusted development artifact and deterministic
 manifest evidence, but it must not label that artifact a release candidate.
-ADR-046 remains Proposed until the updater, clean-machine release, and recovery
-evidence exist and receive independent review.
+ADR-046 remains Proposed until the local updater/rollback/recovery/safe-mode/
+reset contract evidence exists and receives independent review; a real
+externally signed update is out of the local-only scope (ADR-049).

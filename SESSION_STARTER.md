@@ -82,11 +82,12 @@ The historical phase and push claims below are not current state.
 - **R11** `in_progress` — deterministic `development_unverified` artifact,
   reproducible ZIP, bundle inventory/SBOM, checksum-bound manifest, and
   fail-closed release-status validation are implemented under
-  `EV-R11-20260809-ARTIFACT-MANIFEST-01`. Developer ID/notarization,
-  clean-machine Gatekeeper, signed updater, launch-at-login, recovery,
-  migration, uninstall, and observed post-change release CI remain open. The
-  CI workflow now requests bounded retention of the same development artifact;
-  its configuration is not run evidence.
+  `EV-R11-20260809-ARTIFACT-MANIFEST-01`. The product is local-only (ADR-049):
+  Developer ID/notarization and external clean-machine Gatekeeper are
+  permanently out of scope. Signed updater, launch-at-login, recovery,
+  migration, uninstall, and observed post-change release CI remain open for the
+  local-only scope. The CI workflow now requests bounded retention of the same
+  development artifact; its configuration is not run evidence.
 - **R12** `in_progress` by explicit user transition request, but blocked by the
   incomplete R11 release gates. No beta cohort, telemetry, SLO, incident,
   independent sign-off, or release-candidate evidence exists; no beta or
