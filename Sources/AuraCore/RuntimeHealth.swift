@@ -12,6 +12,9 @@ public enum RuntimeHealthStatus: String, Codable, Sendable, Equatable, CaseItera
   case circuitOpen
   case unsupported
   case failed
+  case recovering
+  case requiresUserAction
+  case safeMode
 }
 
 /// A bounded, inspectable health record for one constructed subsystem.

@@ -1,85 +1,79 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-28.
+Projection refreshed from live repository and command evidence on 2026-08-29.
 
-## Authoritative current status — 2026-08-28T00:00:00Z (SP-026 completed)
+## Authoritative current status — 2026-08-30T00:00:00Z (SP-029 completed)
 
-The active second-pass prompt is **`SP-026` / `completed`** (release toolchain,
-reproducibility, CI, R11). The reproducible-build slice and the observed-CI
-slice of OPEN-12 are delivered under `EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01`:
-exact toolchain pinned (Xcode 27.0 beta 5 `27A5237l`, Swift 6.4, SDK 27.0); the
-reproducible `development_unverified` artifact+manifest built at canonical
-commit `3e81582` (artifact SHA-256 `202bb5cd07386e119fc360a0469acf72e7f1c3347b5d613506b326180a07a1bc`); a provenance defect fixed; a temporary self-hosted
-macOS/swift-6.4 runner registered and the actual CI workflow run on canonical
-commit `348bb6a` — run `33157842324` succeeded for `governance` and
-`build-and-test`, line coverage **70.69%** meets the unchanged 70% ratchet, and
-development artifact `9680431386` was retained with provenance matching the
-canonical commit. CI-surfaced blockers (SP-* active-prompt schema/manifest,
-stale projections, coverage regression, Swift `warnings-as-errors`) were
-resolved. **SP-026 is `completed`. SP-027 is next eligible and pending.**
+The active second-pass prompt is **`SP-030` / `pending`** (beta SLOs, scenarios,
+incidents, sign-offs, R12). SP-029 is `completed` for its beta scope/consent/
+privacy/telemetry/kill-switch contract scope. SP-028 is `completed` for the
+updater, lifecycle, recovery, migration slice of OPEN-12 under
+`EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01`,
+`EV-SP-028-20260829-RUNTIME-API-02`, and `EV-SP-028-20260829-CLOSEOUT-03`.
 
-**`SP-025` is `completed`** for the plugin-trust, incident, and independent-review slice of OPEN-11 under
-`EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`: added a 7-test plugin
-supply-chain adversarial matrix (compromised helper digest, tampered installed
-artifact, tampered update bundle, untrusted vendor root, tampered retained
-artifact blocking rollback, quarantine revoking grants, unapproved
-source/unknown vendor never install) with real Ed25519 cryptography, plus
-`docs/operations/PLUGIN_SUPPLY_CHAIN.md`,
-`docs/operations/INDEPENDENT_SECURITY_REVIEW.md`, and
-`docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md`. A full eight-area
-independent adversarial review across the ADR-044 scope found no Critical/High
-unresolved finding. Full suite 21/21 bundles 0 failed; `AuraPluginsTests`
-44/44 (37 + 7 new); second-pass validator PASSED. **ADR-044 stays Proposed
-(release-owner acceptance remains).**
+**`SP-029` is `completed` for OPEN-13 (R12):** The beta scope/consent/privacy/
+telemetry/kill-switch contract is defined in `EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01`
+for an internal local-machine-only closed beta: supported macOS/Swift/Xcode
+profiles, capability inclusion/exclusion, privacy notice, explicit opt-in, consent
+withdrawal, retention/access/deletion rights, content-free aggregate telemetry
+schema (event-class counts, latency histograms, error-code tallies — no transcript,
+audio, screenshot, or content), kill switch, telemetry-off mode, rollback, and
+incident containment. The release owner approved the contract
+(`EV-SP-029-20260830-OWNER-APPROVAL-01`). The in-scope content-free aggregate
+engine with no transport was implemented (`EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01`)
+and is dormant by default. Closeout recorded at `EV-SP-029-20260830-CLOSEOUT-01`.
+The fail-closed `AURA_RUNTIME_COMPLETION/state/beta-readiness.json` contract was
+validated and remains `blocked` (`authority.beta_enrollment: false`,
+`telemetry.enabled: false`, `cohort.status: not_enrolled`, all signoffs
+`not_obtained`, release_candidate `blocked`/`approved: false`). No telemetry was
+transmitted, no cohort enrolled, no participant consent collected, no SLO measured,
+no RC approved. The R12 direct-evidence gates still open (live SLO/scenario/incident
+results, independent sign-offs) are owned by **SP-030**; the signed RC artifact +
+ADR-047 are owned by **SP-031**. All control-plane projections were synchronized to
+reflect SP-029 completed and SP-030 pending.
 
-**`SP-022` is `completed`** under the combination of
-`EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01` (deterministic Task Center
-slice: `TaskStatus.scope`, `AuraTaskEngine.retry`, `taskPause`/`taskRetry`
-capabilities+manifests, seeded reversible task grants, kernel/AppModel/
-TaskCenter pause-resume-retry controls, localized copy),
-`EV-SP-022-20260826-LIVE-UI-01` (live UI: Capability Center task controls
-Ready/Local, disabled reasons, Recovery/Models/Privacy truthful, Emergency Stop
-→ Durduruldu), `EV-SP-022-20260826-LIVE-DIALOGUE-02` (live typed-input
-fail-closed "Blocked: ambiguous" + truthful Task Center empty state), and
-`EV-SP-022-20260826-LIVE-TASK-CONTROLS-04` (live durable-task pause/resume on a
-real claude turn: enqueue→running, pause→paused, resume→pending/running). The
-R9 completion gate — users can understand and control primary workflows with
-actionable degraded states — is met. `taskDelete` stays `.destructive`/
-deny-by-default. `AuraAgentTests` 238/238 (the SP-014 P1 flake is the
-pre-existing documented backend session-limit fail-closed, `RISK-NO-LIVE-BACKEND-TURN`,
-not a regression).
+**`SP-028` is `completed`** for the local source/build/test/contract scope:
+new `AuraLifecycle` library target with `ServiceManagement` linker dependency;
+12 `Sources/AuraLifecycle/` files; 39 deterministic tests; full suite 89 tests in
+16 suites pass; second-pass, runtime-completion, beta-readiness, repo-hygiene,
+and supply-chain validators PASSED.
 
-**`SP-021` is `completed`** and **`SP-020` is `completed`** under
-`EV-SP-020-20260825-REMOTE-BOUNDARY-01` (local-only is the explicit product
-boundary). At the user's direction, **ADR-043 is Accepted** under the explicit
-local-only remote-boundary scope (2026-08-25, review 2026-09-07);
-`RISK-ADR-043-PENDING` is closed. SP-019's eight live R8 scenarios passed on
-one build (`EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`).
+**`SP-027` is `completed`** for the local-only scope under
+`EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03`,
+`EV-SP-027-20260828-SIGNING-PROCEDURE-02`, and
+`EV-SP-027-20260828-LOCAL-LAUNCH-04` at `main` `37805cb0`: release owner decided
+external distribution is out of scope; local nested signing + hardened runtime
+passed; local launch smoke alive after 12s in an isolated `CFFIXED_USER_HOME`;
+artifact hashes recorded. `RISK-NOT-NOTARIZED` accepted for the local-only scope.
+No Developer ID, notarization, or clean-machine claim is made.
 
-**Voice: Chatterbox is the primary voice; the system synthesizer is a
-fail-closed last resort only.** `TTSAdapterChain()` defaults to
-`["chatterbox", "system"]`. The system fallback auto-selects the best installed
-voice for the locale by platform quality; **no specific system voice (Kaan or
-Yelda) is hardcoded or preferred.** The `preferredSystemVoiceIdentifier`
-default is empty, and Chatterbox diagnostics name only the "system fallback",
-never a specific voice. This aligns with ADR-031/ADR-042 and the user's
-explicit instruction that no system voice be used as AURA's voice.
+Release/deploy remains blocked on external distribution (local-only scope
+accepted under SP-027). OPEN-12 R11 live slices (ServiceManagement login-item
+enablement, real update download, clean-machine recovery, actual reset/uninstall/
+factory-reset execution, ADR-046 operational acceptance) remain `in_progress` and
+are not claimed by SP-028. OPEN-13 R12 RC gates (SLOs, scenarios, incidents,
+independent sign-offs, signed RC artifact, ADR-047) remain open and are owned by
+SP-030 and SP-031.
 
-Release/deploy remains blocked on signing and notarization (SP-026/SP-027);
-only a `development_unverified` artifact is producible today. The current
-development artifact was rebuilt from the final commit `4d6022f`:
-`/tmp/aura-kaan-deploy/output/AURA-development-unverified.zip`
-(SHA-256 `7ff40dd77cbd0c7da1ee722dfc0e828a2c2efe6b975b84f7d10c94accb54c24f`).
+**R11 dependency planning (2026-08-30):** Under the owner option-A grant
+("a go be perfect and premium"), a decision-ready R11 closure plan
+(`AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md`;
+`EV-SP-029-20260830-R11-CLOSURE-PLAN-01`) maps the remaining R11 gates into
+locally-closable / external-Apple-prerequisite-and-local-only-out-of-scope /
+owner-decision buckets and reconciles the stale authority drift in
+`current-state.json` (edit/test/state + launch + commit/push/merge true;
+TCC/signing/release/telemetry/model/dependency/provider false). R11 remains
+`in_progress`; the artifact stays `development_unverified`; `beta-readiness.json`
+stays `blocked`; ADR-046 local-only acceptance is recommended but not formalized.
 
-**`HEAD == origin/main == bdcc810`** (working tree dirty with the uncommitted
-SP-025 plugin-trust slice + records; no commit/push/merge this session).
+**`HEAD == origin/main == 37805cb0`** (working tree dirty with uncommitted
+SP-028/SP-029 lifecycle/beta-contract evidence + control-plane projections).
 
-**Next safe action:** open SP-026 (release toolchain, reproducibility, CI)
-under its own authority and read order. SP-025 is completed; its plugin trust
-supply-chain matrix and full eight-area independent review satisfy the R10
-plugin-trust and independent-review slice. ADR-044 stays Proposed pending
-release-owner acceptance.
+**Next safe action:** SP-029 is completed. Open SP-030 (beta SLOs/scenarios/
+incidents/sign-offs) under its own authority and read order; do not auto-execute it.
+Fail-closed `beta-readiness.json` stays blocked until SP-030/SP-031 close the R12
+direct-evidence gates.
 
 ## Verification correction — 2026-08-24T08:01:03Z
 

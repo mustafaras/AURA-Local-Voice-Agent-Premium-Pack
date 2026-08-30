@@ -93,6 +93,61 @@ extension AuraDatabase {
     """,
     "CREATE INDEX IF NOT EXISTS idx_redacted_trace_correlation "
       + "ON redacted_trace_records(correlation_id, timestamp);",
+    """
+    CREATE TABLE IF NOT EXISTS lifecycle_heartbeats (
+      id TEXT PRIMARY KEY, session_id TEXT NOT NULL,
+      timestamp DATETIME NOT NULL, kind TEXT NOT NULL,
+      clean_shutdown INTEGER NOT NULL DEFAULT 0
+    );
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_lifecycle_heartbeats_session "
+      + "ON lifecycle_heartbeats(session_id, timestamp);",
+    """
+    CREATE TABLE IF NOT EXISTS staged_updates (
+      id TEXT PRIMARY KEY, correlation_id TEXT NOT NULL,
+      created_at DATETIME NOT NULL, version TEXT NOT NULL,
+      bundle_id TEXT NOT NULL, package_path TEXT,
+      previous_bundle_path TEXT, status TEXT NOT NULL,
+      manifest_json TEXT NOT NULL
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS recovery_checkpoints (
+      id TEXT PRIMARY KEY, timestamp DATETIME NOT NULL,
+      correlation_id TEXT NOT NULL, kind TEXT NOT NULL,
+      description TEXT NOT NULL, reference_id TEXT,
+      verified INTEGER NOT NULL DEFAULT 0
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS migration_audits (
+      id TEXT PRIMARY KEY, timestamp DATETIME NOT NULL,
+      correlation_id TEXT NOT NULL, kind TEXT NOT NULL,
+      from_version TEXT NOT NULL, to_version TEXT NOT NULL,
+      result TEXT NOT NULL, detail TEXT NOT NULL DEFAULT ''
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS support_bundles (
+      id TEXT PRIMARY KEY, timestamp DATETIME NOT NULL,
+      correlation_id TEXT NOT NULL, path TEXT,
+      redacted INTEGER NOT NULL DEFAULT 1,
+      secret_scan_hits INTEGER NOT NULL DEFAULT 0,
+      detail TEXT NOT NULL DEFAULT ''
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS telemetry_aggregates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      day TEXT NOT NULL,
+      field TEXT NOT NULL,
+      bucket TEXT NOT NULL,
+      count INTEGER NOT NULL,
+      UNIQUE(day, field, bucket)
+    );
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_telemetry_aggregates_day "
+      + "ON telemetry_aggregates(day, field);",
   ]
 
   public func migrate() throws(AuraError) {
@@ -111,6 +166,8 @@ extension AuraDatabase {
     }
     try recordMigration(version: "v1_5_0_memory_purpose")
     try recordMigration(version: "v1_6_0_redacted_trace_records")
+    try recordMigration(version: "v1_7_0_lifecycle_recovery")
+    try recordMigration(version: "v1_8_0_lifecycle_telemetry")
     try enableForeignKeys()
   }
 

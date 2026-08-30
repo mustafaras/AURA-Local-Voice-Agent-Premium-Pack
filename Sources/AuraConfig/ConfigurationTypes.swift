@@ -197,6 +197,63 @@ public struct ConfigurationSchema: Codable, Sendable, Equatable {
         defaultValue: .number(6),
         minimumNumber: 1,
         maximumNumber: 20),
+      ConfigurationKeyDefinition(
+        key: "lifecycle.launchAtLoginEnabled",
+        purpose: "User-controlled launch-at-login preference",
+        defaultValue: .boolean(false),
+        allowedLayers: [.userSettings, .sessionOverrides]),
+      ConfigurationKeyDefinition(
+        key: "lifecycle.automaticUpdateChecksEnabled",
+        purpose: "Whether the app may periodically check for updates",
+        defaultValue: .boolean(false),
+        projectConstraint: .immutable,
+        machinePolicyEnforced: true),
+      ConfigurationKeyDefinition(
+        key: "lifecycle.updateChannel",
+        purpose: "Selected update channel",
+        defaultValue: .string("none"),
+        allowedLayers: [.userSettings, .sessionOverrides]),
+      ConfigurationKeyDefinition(
+        key: "lifecycle.safeModeRequested",
+        purpose: "User or system request to start in safe mode on next launch",
+        defaultValue: .boolean(false),
+        allowedLayers: [.userSettings, .sessionOverrides]),
+      ConfigurationKeyDefinition(
+        key: "lifecycle.factoryResetRequested",
+        purpose: "User or system request to perform factory reset on next launch",
+        defaultValue: .boolean(false),
+        allowedLayers: [.userSettings, .sessionOverrides]),
+      ConfigurationKeyDefinition(
+        key: "lifecycle.killSwitchUpdateVersion",
+        purpose: "Version blocked by kill switch; empty means none",
+        defaultValue: .string(""),
+        projectConstraint: .immutable,
+        machinePolicyEnforced: true),
+      ConfigurationKeyDefinition(
+        key: "lifecycle.minimumFreeStagingBytes",
+        purpose: "Minimum free disk bytes required before staging an update",
+        defaultValue: .integer(1_000_000_000),
+        projectConstraint: .mayNotDecrease,
+        machinePolicyEnforced: true,
+        minimumNumber: 100_000_000),
+      ConfigurationKeyDefinition(
+        key: "telemetry.aggregateOptInEnabled",
+        purpose:
+          "User opt-in for content-free aggregate telemetry (counts, latency "
+            + "percentile inputs, error-code tallies). Default off; no raw "
+            + "audio, screenshots, prompts, model outputs, secrets, tokens, "
+            + "mail/document contents, or personal memory contents are ever "
+            + "collected. Opt-in is user-scoped and reversible.",
+        defaultValue: .boolean(false),
+        allowedLayers: [.userSettings, .sessionOverrides]),
+      ConfigurationKeyDefinition(
+        key: "telemetry.aggregateRetentionDays",
+        purpose: "Retention window for content-free aggregate telemetry rows",
+        defaultValue: .integer(90),
+        projectConstraint: .mayNotDecrease,
+        machinePolicyEnforced: true,
+        minimumNumber: 1,
+        maximumNumber: 365),
     ])
 }
 

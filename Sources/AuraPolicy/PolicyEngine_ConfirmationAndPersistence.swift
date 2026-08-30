@@ -283,6 +283,7 @@ extension PolicyEngine {
     case .reversible: return .sensitive
     case .mutation: return .sensitive
     case .destructive: return .secret
+    case .network: return .sensitive
     }
   }
 }

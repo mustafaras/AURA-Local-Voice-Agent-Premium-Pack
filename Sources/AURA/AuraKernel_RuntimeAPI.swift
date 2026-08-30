@@ -6,6 +6,7 @@ import AuraConfig
 import AuraContext
 import AuraCore
 import AuraIntent
+import AuraLifecycle
 import AuraMemory
 import AuraPlugins
 import AuraPolicy
@@ -613,4 +614,295 @@ extension AuraKernel {
       throw AuraError.invalidConfiguration(result.warnings.joined(separator: "; "))
     }
   }
+
+  // MARK: - SP-028 lifecycle / updater / recovery RuntimeAPI
+
+  /// Enable or disable launch-at-login. User-controlled mutation gated by
+  /// `Capability.lifecycleLaunchAtLogin` and delegated to the lifecycle
+  /// controller's injected `LaunchAtLoginService`.
+  func setLaunchAtLoginEnabled(_ enabled: Bool) async throws(AuraError)
+    -> LaunchAtLoginResult
+  {
+    guard started, let lifecycleController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleLaunchAtLogin)
+    return try await lifecycleController.setEnabled(enabled, actor: .user)
+  }
+
+  /// Current launch-at-login state from the controller's service adapter.
+  func isLaunchAtLoginEnabled() async throws(AuraError) -> Bool {
+    guard started, let lifecycleController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleLaunchAtLogin)
+    let status = await lifecycleController.serviceStatus()
+    let preference = await lifecycleController.userPreferenceEnabled()
+    return status == .enabled && preference
+  }
+
+  /// Request safe mode for the next launch.
+  func requestSafeMode(reason: String) async throws(AuraError) {
+    guard started, let safeModeController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleSafeMode)
+    _ = try await safeModeController.setSafeModeRequested(
+      true, reason: reason, actor: .user)
+  }
+
+  /// Clear a previously requested safe mode flag.
+  func clearSafeMode() async throws(AuraError) {
+    guard started, let safeModeController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleSafeMode)
+    _ = try await safeModeController.setSafeModeRequested(
+      false, reason: "user cleared safe mode", actor: .user)
+  }
+
+  /// Whether safe mode has been requested for the next launch.
+  func isSafeModeRequested() async throws(AuraError) -> Bool {
+    guard started, let safeModeController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleSafeMode)
+    return await safeModeController.isSafeModeRequested()
+  }
+
+  /// Build a reset plan for the requested scopes. Returns the plan without
+  /// executing removal.
+  func planReset(
+    kind: ResetKind,
+    scopes: [ResetScope],
+    reason: String
+  ) async throws(AuraError) -> ResetPlan {
+    guard started, let resetController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleReset)
+    return try await resetController.planReset(
+      kind: kind, scopes: scopes, reason: reason, actor: .user)
+  }
+
+  /// Export a redacted support bundle with health and configuration context.
+  func exportSupportBundle(
+    destination: URL? = nil,
+    maxTraceRows: Int = 0,
+    maxLedgerRows: Int = 0
+  ) async throws(AuraError) -> SupportBundleResult {
+    guard started, let supportBundleExporter else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleSupportBundle)
+    let health = await runtimeHealthSnapshot()
+    let configuration = await configurationInspection()
+    return try await supportBundleExporter.export(
+      health: health,
+      configuration: configuration,
+      maxTraceRows: maxTraceRows,
+      maxLedgerRows: maxLedgerRows,
+      destination: destination,
+      correlationID: UUID())
+  }
+
+  /// Run migration preflight for the selected kinds.
+  func runMigrationPreflight(
+    kinds: [MigrationKind] = MigrationKind.allCases
+  ) async throws(AuraError) -> MigrationPreflightReport {
+    guard started else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleMigrationPreflight)
+    let dbRows = try await store.database.query(
+      sql: "SELECT version FROM schema_migrations ORDER BY datetime(applied_at) DESC LIMIT 1;",
+      arguments: [])
+    let dbVersion = dbRows.first?["version"]?.textValue ?? "unknown"
+    let currentVersions: [MigrationKind: String] = [
+      .configuration: await configurationEngine?.inspect().schemaVersion ?? "unknown",
+      .database: dbVersion,
+      .memory: "record-managed",
+      .plugin: "audit-verified",
+      .model: "manual",
+    ]
+    let preflight = MigrationPreflight(store: store)
+    return try await preflight.run(kinds: kinds, currentVersions: currentVersions)
+  }
+
+  /// Check for an available update using the configured manifest source.
+  func checkForUpdate() async throws(AuraError) -> UpdateCheckResult {
+    guard started, let updateEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleCheckUpdate)
+    return await updateEngine.checkForUpdate(actor: .user)
+  }
+
+  /// Stage a validated update package locally. Requires explicit user approval.
+  func stageUpdate(
+    manifest: UpdateManifest,
+    package: UpdatePackage,
+    approved: Bool
+  ) async throws(AuraError) -> UpdateStageResult {
+    guard started, let updateEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleStageUpdate)
+    let result = await updateEngine.stageUpdate(
+      manifest: manifest, approved: approved, actor: .user)
+    guard case .staged = result else {
+      if case .blocked(let reason) = result {
+        throw AuraError.permissionDenied(reason)
+      }
+      if case .error(let detail) = result {
+        throw AuraError.lifecycleError(detail)
+      }
+      throw AuraError.lifecycleError("update staging did not complete")
+    }
+    return result
+  }
+
+  /// Approve a staged update for later application.
+  func approveUpdate(stagedUpdateID: UUID) async throws(AuraError) {
+    guard started else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleApproveUpdate)
+    let rows = try await store.database.query(
+      sql: "SELECT id FROM staged_updates WHERE id = ? AND status = ?;",
+      arguments: [.text(stagedUpdateID.uuidString), .text("staged")])
+    guard rows.first != nil else {
+      throw AuraError.invalidConfiguration("staged update not found or not staged")
+    }
+    try await store.database.run(
+      sql: "UPDATE staged_updates SET status = ? WHERE id = ?;",
+      arguments: [.text("approved"), .text(stagedUpdateID.uuidString)])
+    await eventBus.emit(
+      EventEnvelope(
+        correlationID: UUID(),
+        causationID: UUID(),
+        actor: .lifecycle,
+        sensitivity: .internalLevel,
+        payload: UpdateStagedEvent(stagedUpdateID: stagedUpdateID, version: "approved", actor: .user)))
+  }
+
+  /// Roll back a staged update.
+  func rollbackUpdate(stagedUpdateID: UUID, reason: String) async throws(AuraError)
+    -> UpdateStageResult
+  {
+    guard started, let updateEngine else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleRollback)
+    let result = await updateEngine.rollbackStagedUpdate(
+      stagedUpdateID: stagedUpdateID, reason: reason, actor: .user)
+    guard case .staged = result else {
+      if case .blocked(let reason) = result {
+        throw AuraError.permissionDenied(reason)
+      }
+      if case .error(let detail) = result {
+        throw AuraError.lifecycleError(detail)
+      }
+      throw AuraError.lifecycleError("rollback did not complete")
+    }
+    return result
+  }
+
+  /// Mark factory reset as requested for the next launch.
+  func requestFactoryReset(reason: String) async throws(AuraError) {
+    guard started, let resetController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleFactoryReset)
+    _ = try await resetController.setFactoryResetRequested(
+      true, reason: reason, actor: .user)
+  }
+
+  /// Build an uninstall plan enumerating files to remove.
+  func uninstallPlan(mode: UninstallPlanMode) async throws(AuraError) -> ResetPlan {
+    guard started, let resetController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleUninstall)
+    let kind: ResetKind
+    let scopes: [ResetScope]
+    switch mode {
+    case .uninstall:
+      kind = .uninstall
+      scopes = ResetScope.allCases
+    case .reinstall:
+      kind = .safeMode
+      scopes = [.database, .memory, .plugins, .models]
+    }
+    return try await resetController.planReset(
+      kind: kind, scopes: scopes, reason: "user requested \(mode.rawValue)", actor: .user)
+  }
+
+  /// Execute a reset plan. Returns the removal outcome.
+  func executeResetPlan(_ plan: ResetPlan) async throws(AuraError) -> ResetExecutionResult {
+    guard started else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    switch plan.kind {
+    case .uninstall:
+      try await evaluateDirectCapability(.lifecycleUninstall)
+    case .factoryReset:
+      try await evaluateDirectCapability(.lifecycleFactoryReset)
+    default:
+      try await evaluateDirectCapability(.lifecycleReset)
+    }
+    let assistant = UninstallAssistant(fileManager: .default, store: store, eventBus: eventBus)
+    return try await assistant.executeReset(plan: plan, actor: .user)
+  }
+
+  /// Record lifecycle heartbeats and recover crash/sleep/wake state.
+  func lifecycleRecordLaunch() async throws(AuraError) {
+    guard started, let lifecycleObserver else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await lifecycleObserver.recordLaunch()
+  }
+
+  func lifecycleRecordSleep() async throws(AuraError) {
+    guard started, let lifecycleObserver else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await lifecycleObserver.recordSleep()
+  }
+
+  func lifecycleRecordWake() async throws(AuraError) {
+    guard started, let lifecycleObserver else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await lifecycleObserver.recordWake()
+  }
+
+  func lifecycleRecordCleanShutdown() async throws(AuraError) {
+    guard started, let lifecycleObserver else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await lifecycleObserver.recordCleanShutdown()
+  }
+
+  func isInCrashRecovery() async throws(AuraError) -> Bool {
+    guard started, let lifecycleObserver else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    return try await lifecycleObserver.isInCrashRecovery()
+  }
+
+  /// Reconcile launch-at-login preference with the actual system registration.
+  func reconcileLaunchAtLogin() async throws(AuraError) {
+    guard started, let lifecycleController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleLaunchAtLogin)
+    try await lifecycleController.reconcile()
+  }
+}
+
+/// Mode for the uninstall plan helper.
+public enum UninstallPlanMode: String, Codable, Sendable, Equatable, CaseIterable {
+  case uninstall
+  case reinstall
 }

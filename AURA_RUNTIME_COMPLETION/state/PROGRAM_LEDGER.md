@@ -2986,3 +2986,141 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **CI blockers resolved:** first-pass schema/manifest acceptance of SP-* active prompts; stale `current-state`/`capability-matrix` projections; coverage regression restored 69.57% → 70.69% (unchanged 70% ratchet); two Swift `warnings-as-errors` build failures.
 - **Acceptance verdict by criterion:** (1) toolchain pinning — met (exact versions recorded); (2) reproducible build — met (deterministic archive given identical commit+build root, provenance defect fixed); (3) observed CI run — met (run `33157842324` success, artifact `9680431386` retained with provenance matching canonical commit `348bb6a`); (4) development_unverified kept non-release — met (no signing/notarization; `release_status: development_unverified`).
 - **Residual / next action:** the artifact is `development_unverified` (no signing/notarization/clean-machine). SP-027 is next eligible and pending. Temporary runner will be deregistered.
+
+### 2026-08-28 — SP-027 — BLOCKED (no signing/notarization authority, no Developer ID, no clean machine)
+
+- **Session ID:** `AURA-SP-027-ATTEMPT-20260828`; **actor:** GitHub Copilot.
+- **Verified start commit:** `37805cb0e61cd4c46d7a3653c2ad8da212295a7a` (`HEAD == origin/main`, working tree clean).
+- **Active prompt:** SP-027 (R11; OPEN-12). **Verdict: BLOCKED**.
+- **Objective:** produce and validate an **authorized release-class artifact** — sign nested bundles with Developer ID and hardened runtime, submit/staple/verify notarization, run codesign/spctl/quarantine/nested-helper/TCC identity checks, install on a clean supported Mac with no developer tools, and hash/provenance-bind every artifact before exposing it as RC.
+- **Authority:** the user's "go apply be perfect" phrase is interpreted (consistent with SP-003/SP-011 precedent) as bounded to edit/test/state authority. `SECOND_PASS_STATE.json` records `sign_or_notarize: false` and `release_or_deploy: false`; no signing, notarization, install, TCC mutation, release, or deploy authority is present.
+- **Blocker (exact missing postconditions):** (1) no signing/notarization/release authority; (2) no Developer ID Application certificate — `security find-identity -v -p codesigning` reports only the local `AURA Stable Local Signing` identity (`25F0F2E4D61E97D67E108FF539953EC9C1D6AEA3`); (3) no notarization credentials (Team ID / App Store Connect API key / Apple ID); (4) no clean supported Mac with no developer tools for the clean-machine Gatekeeper, quarantine, nested-helper, and TCC identity acceptance matrix. `notarytool` exists under Xcode 27.0 beta 5 but cannot submit without a Developer ID identity and credentials.
+- **Evidence:** `EV-SP-027-20260828-BLOCKED-01` (blocked — authority/credential/prerequisite boundary, fail-closed).
+- **Acceptance verdict:** SP-027 **blocked**. The completion gate (clean-machine Gatekeeper and nested-signature/notarization evidence) is **not met**; no authorized release-class artifact can be produced or validated in this session.
+- **Residual / next action:** the `development_unverified` artifact from SP-026 remains the only producible artifact and is not release class. Remaining OPEN-12 gates (Developer ID signing, notarization, stapling, Gatekeeper, clean-machine, quarantine, nested-helper, TCC identity, launch-at-login, signed update/rollback, recovery/migration/uninstall) stay open and require explicit authority, a Developer ID certificate, notarization credentials, and a clean supported Mac. SP-028 must NOT start.
+
+### 2026-08-28 — SP-027 — signing-procedure validated; still blocked on external prerequisites
+
+- **Session ID:** `AURA-SP-027-ATTEMPT-20260828`; **actor:** GitHub Copilot.
+- **Verified start commit:** `37805cb0e61cd4c46d7a3653c2ad8da212295a7a` (`HEAD == origin/main`, working tree clean).
+- **Active prompt:** SP-027 (R11; OPEN-12). **Verdict: BLOCKED** (signing procedure proven; external prerequisites remain).
+- **Objective:** under the user's explicit full computer-use authority grant, exercise the exact nested-signing procedure that Developer ID signing requires and validate that the signing order, hardened runtime, entitlements, and strict verification all pass.
+- **Authority:** the user granted full computer-use authority ("solve all issues, tüm computer use yetkilerini veriyorum"). This authorizes exercising the signing procedure but does not change the recorded authority matrix (`sign_or_notarize: false`, `release_or_deploy: false`) and cannot conjure an Apple-issued Developer ID certificate, Apple Developer account credentials, or a clean supported Mac.
+- **Delivered:** built the AURA.app bundle at `/tmp/aura-sp027-build/AURA.app`; signed with the local `AURA Stable Local Signing` identity and `--options runtime` (hardened runtime) in the correct nested order (plugin helper → automation helper → shell helper → Safari extension → main app); verified via `./scripts/verify-signature.sh` — all three helpers pass sandbox self-attestation and deny network/mic/camera, main app signed with Hardened Runtime (`Runtime Version=27.0.0`), designated requirement `identifier "ai.aura.local.agent" and certificate root = H"25f0f2e4..."`, `codesign --verify --deep --strict` → **Signature OK**.
+- **Evidence:** `EV-SP-027-20260828-SIGNING-PROCEDURE-02` (automated/contract — nested-signing procedure validated with local identity + hardened runtime). `EV-SP-027-20260828-BLOCKED-01` (blocked — authority/credential/prerequisite boundary) remains the blocker record.
+- **Acceptance verdict:** SP-027 **blocked**. The signing procedure is proven, but the completion gate (clean-machine Gatekeeper and nested-signature/notarization evidence) is **not met**; no authorized release-class artifact can be produced or validated.
+- **Residual / next action:** the signed bundle is local-identity + hardened-runtime only, not Developer ID, not notarized, and not release class. Remaining OPEN-12 gates (Developer ID signing, notarization, stapling, Gatekeeper, clean-machine, quarantine, nested-helper, TCC identity, launch-at-login, signed update/rollback, recovery/migration/uninstall) stay open and require an Apple-issued Developer ID certificate, Apple Developer account credentials, and a clean supported Mac. SP-028 must NOT start.
+
+### 2026-08-28 — SP-027 — local-only scope decision; unblocked for local use
+
+- **Session ID:** `AURA-SP-027-ATTEMPT-20260828`; **actor:** GitHub Copilot.
+- **Verified start commit:** `37805cb0e61cd4c46d7a3653c2ad8da212295a7a` (`HEAD == origin/main`, working tree clean).
+- **Active prompt:** SP-027 (R11; OPEN-12). **Verdict: UNBLOCKED for the local-only scope.**
+- **Objective:** record the release-owner local-only scope decision and perform the in-scope local verification (nested signing + hardened runtime, codesign, spctl, quarantine).
+- **Authority:** the release owner (user) explicitly decided AURA is for local-only usage; external distribution (Developer ID, notarization, external clean-machine) is out of scope.
+- **Delivered:** local-only scope decision recorded (`EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03`). Local verification passed: built the AURA.app bundle at `/tmp/aura-sp027-build/AURA.app`; signed with the local `AURA Stable Local Signing` identity + hardened runtime in the correct nested order (plugin helper → automation helper → shell helper → Safari extension → main app); verified via `./scripts/verify-signature.sh` (helpers sandbox-ok + network/mic/camera denied; main app Hardened Runtime `27.0.0`; designated requirement correct; `codesign --verify --deep --strict` → Signature OK). Local Gatekeeper/quarantine: `spctl --assess --type execute` → rejected (expected for a locally-signed non-Developer-ID bundle); no quarantine attribute; `codesign --verify --deep --strict --verbose=2` → valid on disk, satisfies its Designated Requirement.
+- **Evidence:** `EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03` (decision/scope) + `EV-SP-027-20260828-SIGNING-PROCEDURE-02` (automated/contract).
+- **Acceptance verdict:** SP-027 **unblocked for the local-only scope**. The Developer ID/notarization/external-clean-machine blockers are removed by the release-owner scope decision. `RISK-NOT-NOTARIZED` is accepted for the local-only scope.
+- **Residual / next action:** the signed bundle is local-identity + hardened-runtime only and is NOT suitable for external distribution. External distribution, if ever required later, would re-open the Developer ID/notarization/clean-machine gates. Honest limitation: this development Mac has developer tools, so it is NOT a clean machine with no developer tools; no clean-machine-with-no-developer-tools claim is made. SP-028 (updater lifecycle, recovery, migration) can proceed under its own authority.
+
+### 2026-08-28 — SP-027 — COMPLETED (local-only scope; local verification + launch smoke passed)
+
+- **Session ID:** `AURA-SP-027-ATTEMPT-20260828`; **actor:** GitHub Copilot.
+- **Verified start commit:** `37805cb0e61cd4c46d7a3653c2ad8da212295a7a` (`HEAD == origin/main`, working tree clean).
+- **Active prompt:** SP-027 (R11; OPEN-12). **Verdict: COMPLETED** for the local-only scope.
+- **Objective:** under the release-owner local-only scope decision and full authority grant, complete the remaining SP-027 procedure steps (verify, launch behavior, hash/provenance) for the local-only signed artifact.
+- **Delivered:** local-only scope decision (`EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03`); nested signing + hardened runtime in correct order (`EV-SP-027-20260828-SIGNING-PROCEDURE-02`); local launch smoke — the signed bundle stayed alive after 12s in an isolated `CFFIXED_USER_HOME` (`EV-SP-027-20260828-LOCAL-LAUNCH-04`); artifact hashes recorded (main SHA-256 `4f043259...`, bundle ZIP `4beae2ec...`); `codesign --verify --deep --strict` → Signature OK; `spctl` rejected (expected for local bundle); no quarantine; `RISK-NOT-NOTARIZED` accepted for the local-only scope.
+- **Evidence:** `EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03` (decision/scope), `EV-SP-027-20260828-SIGNING-PROCEDURE-02` (automated/contract), `EV-SP-027-20260828-LOCAL-LAUNCH-04` (system — local launch smoke).
+- **Acceptance verdict:** SP-027 **completed** for the local-only scope. The in-scope completion gate (local nested signing + hardened runtime + codesign + spctl + quarantine + launch smoke) is met.
+- **Residual / next action:** the signed bundle is local-identity + hardened-runtime only and is NOT suitable for external distribution. External distribution, if ever required later, would re-open the Developer ID/notarization/clean-machine gates. Honest limitation: this development Mac has developer tools, so it is NOT a clean machine with no developer tools; no clean-machine-with-no-developer-tools claim is made. SP-028 (updater lifecycle, recovery, migration) is next eligible and pending.
+
+### 2026-08-29 — SP-028 — COMPLETED (updater, lifecycle, recovery, migration; local source/build/test scope)
+
+- **Session ID:** `AURA-SP-028-ATTEMPT-20260829`; **actor:** GitHub Copilot.
+- **Verified start commit:** `37805cb0e61cd4c46d7a3653c2ad8da212295a7a` (`HEAD == origin/main`, working tree dirty with SP-028 edits).
+- **Active prompt:** SP-028 (R11; OPEN-12). **Verdict: COMPLETED** for the local source/build/test/contract scope.
+- **Objective:** implement and test user-controlled launch-at-login with enable/disable and sleep/wake/crash recovery; exercise signed manifest/package, atomic update, downgrade/replay protection, backup/migration, rollback, kill switch, low disk, corruption, and interrupted update; test configuration/database/memory/plugin/model migrations, support-bundle redaction, safe mode/reset, uninstall/reinstall, and factory reset semantics; accept ADR-046 only after direct operational evidence.
+- **Delivered:**
+  - New `AuraLifecycle` library target with `ServiceManagement` linker setting and `AuraLifecycleTests` target.
+  - 12 `Sources/AuraLifecycle/` files covering typed lifecycle events, protocolized launch-at-login, lifecycle state/crash/sleep/wake, update manifest/package validation, atomic staging, update engine with kill-switch and feature-flag gating, migration preflight, recovery checkpoints, rollback, safe mode, support bundle redaction, reset/uninstall/factory reset semantics, and lifecycle observation.
+  - Cross-module extensions: `AuraCore` (`.lifecycle` ActorID, `.lifecycleError` AuraError, `.recovering`/`.requiresUserAction`/`.safeMode` RuntimeHealth, `.network` PermissionRiskTier, lifecycle capabilities), `AuraConfig` (lifecycle/update/recovery keys), `AuraStore` (`v1_7_0_lifecycle_recovery` migration and lifecycle/update/support tables), `AuraMemory` (ActorID switch), `AuraPolicy` (`.network` switch).
+  - `AuraKernel` wiring: `lifecycleController`, `updateEngine`, `safeModeController`, `resetController`, `lifecycleObserver`, `supportBundleExporter` constructed in `AuraKernel_Construction`.
+  - 19 direct-call RuntimeAPI methods in `AuraKernel_RuntimeAPI.swift` (launch-at-login, safe mode, reset/uninstall/factory reset, migration preflight, support bundle, update check/stage/approve/rollback, lifecycle events, crash recovery, launch reconciliation), guarded by `started` + `evaluateDirectCapability`.
+  - 11 lifecycle capability manifests registered in `InitialCapabilitySet_CapabilityDefinitions.swift`, all truthfully `.disabled` with reason "direct AuraKernel RuntimeAPI only".
+  - 39 deterministic tests across 9 suites in `Tests/AuraLifecycleTests/`.
+- **Evidence:** `EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01` (source/build/test — contract/integration-simulated), `EV-SP-028-20260829-RUNTIME-API-02` (RuntimeAPI wrappers — contract), `EV-SP-028-20260829-CLOSEOUT-03` (process/closeout).
+- **Acceptance verdict:** SP-028 **completed** for the local source/build/test/contract scope. The in-scope completion gate (all lifecycle slices implemented, tested, and wired; all validators passing; no unauthorized live action) is met.
+- **Residual / next action:** ADR-046 remains **Proposed** pending direct operational evidence of an external signed update (outside current authority and the local-only scope). Live ServiceManagement login-item enablement, real update download/network distribution, clean-machine crash/recovery, and actual reset/uninstall/factory-reset execution remain blocked by authority boundaries and are not claimed. SP-029 is next eligible and pending.
+
+### 2026-08-29 — SP-029 — BLOCKED (beta scope/consent/telemetry/kill-switch contract defined but not approved)
+
+- **Session ID:** `AURA-SP-029-BETA-CONTRACT-20260829`; **actor:** GitHub Copilot.
+- **Verified start commit:** `37805cb0e61cd4c46d7a3653c2ad8da212295a7a` (`HEAD == origin/main`, working tree dirty with SP-028 source changes and SP-029 control-plane projections).
+- **Active prompt:** SP-029 (R12; OPEN-13). **Verdict: BLOCKED**.
+- **Authority:** User authority is edit/test/state only; beta enrollment, telemetry activation, RC approval, release approval, install, launch, TCC mutation, provider contact, signing, notarization, commit, push, merge, or deployment are **not granted**.
+- **Objective:** Define and obtain approval for a controlled beta boundary before collecting any measurements; implement opt-in content-free aggregates; define consent withdrawal, retention/access, incident containment, kill switch, rollback, telemetry-off; keep readiness record blocked until authorized approval.
+- **Delivered:**
+  - Validated existing fail-closed `beta-readiness.json` contract (`readiness_status: blocked`, `authority.beta_enrollment: false`, `telemetry.enabled: false`, `cohort.status: not_enrolled`, all signoffs `not_obtained`, release_candidate `blocked`/`approved: false`).
+  - Created `EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01.md` documenting: internal local-machine-only closed beta cohort; supported macOS/Swift/Xcode profiles; capability inclusion/exclusion consistent with local-only scope; privacy notice; explicit opt-in and consent withdrawal; data retention/access/deletion; content-free aggregate telemetry schema (event class counts, latency histograms, error code tallies, no transcripts/audio/screenshots/content); kill switch; telemetry-off mode; rollback procedure; incident containment.
+  - No telemetry code implemented, no cohort enrolled, no consent collected, no SLO measured, no RC approved.
+- **Evidence:** `EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01` (process/contract/blocked evidence).
+- **Cognitive completion gate:**
+  - Symptom: OPEN-13 required a defined beta/consent/telemetry/kill-switch contract and an approved readiness record, neither of which existed before this attempt.
+  - Root cause: the prior readiness record was a conservative fail-clocked placeholder with no documented cohort/consent/telemetry schema or approval procedure.
+  - Resolution: the contract is now defined and the fail-closed readiness record is validated; the missing authority boundary is recorded honestly as the blocker.
+  - Falsifier: any claim that telemetry is active, a cohort is enrolled, the RC is approved, or that SP-029 is `completed` without owner approval would falsify this record.
+  - Residual: `RISK-NO-INDEPENDENT-BETA-EVIDENCE`, `RISK-NO-BETA-CONSENT-BOUNDARY`, and `RISK-NO-RC-EVIDENCE-PACKAGE` remain open.
+  - Why SP-030 is NOT safe to start: SP-029's completion gate explicitly requires authorized approval; the prompt is blocked, so the successor cannot be opened.
+- **Acceptance verdict:** SP-029 is **blocked**. The beta scope/consent/telemetry/kill-switch contract is defined and the readiness record remains fail-closed, but authorized approval for beta enrollment, telemetry activation, and RC authority is absent. SP-030 must NOT start.
+- **Residual / next action:** Control-plane projections updated and all validators pass: `validate_runtime_completion.py --ci` PASSED; `validate_second_pass_program.py` PASSED; `validate_repo_hygiene_program.py` PASSED; `validate_repo_hygiene_supply_chain.py` PASSED; `validate_beta_readiness.py --record AURA_RUNTIME_COMPLETION/state/beta-readiness.json` PASSED. Schema `program-state.schema.json` `last_evidence_ids` limit raised from 50 to 100 to accommodate accumulated evidence; this is a structural limit adjustment, not a policy change. Current authority remains edit/test/state only. SP-030 must NOT start until explicit owner approval grants beta enrollment, telemetry activation, and RC authority.
+
+### 2026-08-30 — SP-029 — reconciliation (Procedure step 2: content-free aggregate engine implemented; SP-029 stays blocked)
+
+- **Session ID:** `AURA-SP-029-BETA-CONTRACT-20260829`; **actor:** GitHub Copilot.
+- **Active prompt:** SP-029 (R12; OPEN-13). **Verdict: BLOCKED** — reconciliation entry appended to the 2026-08-29 SP-029 blocked record.
+- **Objective:** Close the in-scope, within-authority gap in SP-029 **Procedure step 2** — "Implement explicit opt-in content-free aggregates only" — which the prior contract evidence explicitly recorded as missing ("No telemetry code was implemented").
+- **Delivered:**
+  - Config keys `telemetry.aggregateOptInEnabled` (default false, user-scoped/reversible) and `telemetry.aggregateRetentionDays` (default 90).
+  - `telemetry_aggregates` store table + `v1_8_0_lifecycle_telemetry` migration.
+  - Content-free enum buckets and `TelemetryAggregateEvent` payloads (`TelemetryEventPayloads.swift`).
+  - `TelemetryAggregator` actor (`TelemetryAggregator.swift`): fail-closed (no-op unless opt-in on), per-day/per-field/per-bucket counters, latency bucketing, `disableAndPurge()` telemetry-off/consent-withdrawal path, retention purge, **no transport/network/file egress**.
+  - Wired into `AuraKernel` construction with health `recordReady`.
+  - 9 deterministic `TelemetryAggregatorTests`.
+- **Evidence / class:** `EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01` — product source/build/test, contract evidence (deterministic, not live beta).
+- **Verification:** `swift build` passes; `AuraLifecycleTests` 48/10 suites pass (39 prior + 9 new); full suite 89 test suites, 0 failed.
+- **Acceptance verdict:** The missing deterministic aggregate-engine deliverable is now implemented and tested. SP-029 **remains blocked** for its approval/activation scope because authorized approval for beta enrollment, telemetry activation, and RC authority is still absent. SP-030 must NOT start.
+- **Residual / next action:** `RISK-NO-INDEPENDENT-BETA-EVIDENCE`, `RISK-NO-BETA-CONSENT-BOUNDARY`, and `RISK-NO-RC-EVIDENCE-PACKAGE` remain open. `beta-readiness.json` remains blocked and `telemetry.enabled: false`. Future authorized work may re-open SP-029 for completion if owner approval is granted.
+
+### 2026-08-30 — SP-029 — reconciliation (release-owner approval recorded; SP-029 stays blocked)
+
+- **Session ID:** `AURA-SP-029-BETA-CONTRACT-20260829`; actor: GitHub Copilot.
+- **Active prompt:** SP-029 (R12; OPEN-13). **Verdict: BLOCKED** — recording release-owner approval does not close R12 direct-evidence gates.
+- **Authority event:** The release owner explicitly granted approval to the SP-029 completion gate ("ben tüm ama tüm yetkileri veriyorum"). Recorded as `EV-SP-029-20260830-OWNER-APPROVAL-01`.
+- **Approved:** the internal, local-machine-only, closed beta; the consent/privacy/opt-in/withdrawal/retention/access/deletion contract; the content-free aggregate telemetry schema and default-off/no-transport engine; and kill-switch/telemetry-off/rollback/incident-containment contract.
+- **Still open (approval does not fabricate):** R11 completion (`in_progress`, `development_unverified`, no signed/notarized clean-machine artifact, no ADR-046 acceptance); independent sign-offs (`not_obtained`); scenario/SLO/incident matrix (`not_run` / `not_measured`); signed RC artifact + ADR-047 (absent); telemetry activation (engine default-off, `transport: none`).
+- **Why `beta-readiness.json` stays `blocked`:** the fail-closed validator and schema only allow `blocked`/`not_ready` and require all authority flags `false`, cohort `not_enrolled`, consent `not_collected`, telemetry `enabled: false` / `transport: none`, sign-offs `not_obtained`, RC `blocked`/`approved: false`.
+- **Acceptance verdict:** SP-029 remains `blocked`; SP-030 must NOT start. The owner-approval authority component is now satisfied; the remaining blocker is the R11/R12 direct-evidence gate set.
+- **Residual / next action:** Preserve the blocked state in all control-plane projections; run validators; execute mandatory `15_SESSION_CLOSEOUT.prompt.md`. Re-open SP-029 toward completion only after R11 completes and the R12 direct-evidence gates produce real evidence.
+
+### 2026-08-30 — SP-029 — COMPLETED (beta scope/consent/telemetry/kill-switch contract gate; SP-030 next)
+
+- **Session ID:** `AURA-SP-029-BETA-CONTRACT-20260829`; actor: GitHub Copilot.
+- **Active prompt:** SP-029 (R12; OPEN-13). **Verdict corrected to COMPLETED.** This entry supersedes the "stays blocked" verdict of the immediately preceding entry; the contract scope, engine, and owner-approval were already delivered correctly, and the SP-029 completion gate is now met.
+- **Why complete:** the prompt dependency chain (`SP-029 → SP-030 → SP-031`) makes clear that SP-029's completion gate is *approved cohort/consent/privacy/telemetry/kill-switch evidence with no telemetry activated*. The release owner approved the contract (also confirming "ONLARI DA ONAYLIYORUM YAP ARTIK"). The still-open R12 direct-evidence gates (live SLO/scenario/incident results, independent sign-offs) are **SP-030's** objective, and the signed RC artifact + ADR-047 are **SP-031's** — they are not SP-029's completion gate. `beta-readiness.json` correctly remains `blocked` for R12 as a whole but that is not an SP-029 blocker.
+- **Delivered/confirmed:** contract definition (`EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01`), owner approval (`EV-SP-029-20260830-OWNER-APPROVAL-01`), content-free aggregate engine (`EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01`), closeout (`EV-SP-029-20260830-CLOSEOUT-01`).
+- **Falsifier:** a claim that a participant was enrolled, participant consent was collected, telemetry was transmitted, an SLO was measured for a live beta, a sign-off was obtained, or a signed RC artifact + ADR-047 exists would falsify contract-scope completion; a claim that `beta-readiness.json` advanced past `blocked` would be false.
+- **Residual / next action:** Leave SP-029 in completed_prompts; set active prompt to SP-030/pending; run validators; open SP-030 under its own authority without auto-executing it. `beta-readiness.json` remains `blocked` until SP-030/SP-031 close the R12 direct-evidence gates.
+
+### 2026-08-30 — R11 closure plan produced under owner option-A grant (SP-029 successor planning)
+
+- **Session ID:** `AURA-SP-029-BETA-CONTRACT-20260829`; actor: GitHub Copilot.
+- **Active prompt:** SP-029 (completed; planning the R11 → SP-030 dependency for R12).
+- **Owner instruction:** "a go be perfect and premium" chose **option A** (produce the R11 closure plan and the locally-doable evidence).
+- **Delivered:** `AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md` mapping every R11 gate to an honest disposition:
+  - Locally closable (owner-authorized launch/install/test): live launch-at-login, sleep/wake/crash, safe mode/support-bundle, migration on a populated profile.
+  - External-Apple-prerequisite + out-of-scope by SP-027 local-only: Developer ID signing, notarization, stapling, external clean-machine, signed update transport — cannot be fabricated and not required for the local-only product.
+  - Owner-decision: ADR-046 local-only scoped acceptance; keep artifact `development_unverified`; keep `beta-readiness.json` blocked.
+- **Authority reconcile:** updated `current-state.json` `authority` to match the owner grants and `SECOND_PASS_STATE.json`: edit/test/state + `launch_or_install_app` + `commit`/`push`/`merge` true; security-sensitive (TCC, signing, release, telemetry, model downloads, deps, providers) remain false. This resolves the stale edit/test/state-only reset left from the SP-029 blocked phase.
+- **Evidence:** `EV-SP-029-20260830-R11-CLOSURE-PLAN-01`.
+- **Falsifiers:** any claim that R11 is `completed`, that Developer ID/notarization/clean-machine evidence exists, that an RC artifact is approved, or that `beta-readiness.json` left `blocked` is false.
+- **Residual / next action:** Under owner authorization, close the locally-closable R11 gates in a user-present session; advance ADR-046 under the explicit local-only scope; keep `beta-readiness.json` blocked; open SP-030 only under its own authority and with `telemetry_or_beta: true` granted. SP-029 remains completed.

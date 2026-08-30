@@ -28,7 +28,7 @@ public struct PolicyConfiguration: Codable, Sendable, Equatable {
     defaultConfirmationTier: PermissionRiskTier = .mutation,
     confirmationExpirySeconds: Double = 60.0,
     allowByDefaultTiers: Set<PermissionRiskTier> = [],
-    denyByDefaultTiers: Set<PermissionRiskTier> = [.reversible, .mutation, .destructive],
+    denyByDefaultTiers: Set<PermissionRiskTier> = [.reversible, .mutation, .destructive, .network],
     grantStoreKey: String = "aura.policy.grants",
     denyRuleStoreKey: String = "aura.policy.denyRules"
   ) {
@@ -71,7 +71,7 @@ public struct PolicyConfiguration: Codable, Sendable, Equatable {
       ?? []
     denyByDefaultTiers =
       try container.decodeIfPresent(Set<PermissionRiskTier>.self, forKey: .denyByDefaultTiers) ?? [
-        .reversible, .mutation, .destructive,
+        .reversible, .mutation, .destructive, .network,
       ]
     grantStoreKey =
       try container.decodeIfPresent(String.self, forKey: .grantStoreKey) ?? "aura.policy.grants"

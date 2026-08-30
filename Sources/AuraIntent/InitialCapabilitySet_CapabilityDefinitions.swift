@@ -86,6 +86,22 @@ extension InitialCapabilitySet {
           + "root wiring are user-controlled and not configured in this pass."
       )
     ),
+    // SP-028 lifecycle capabilities. They are wired into the composition root
+    // and reachable through direct `AuraKernel` RuntimeAPI methods, but they
+    // are deliberately not routed through the natural-language intent engine in
+    // this pass because they require explicit user-controlled settings or
+    // high-stakes confirmation flows.
+    (lifecycleLaunchAtLogin, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleUpdateCheck, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleApproveUpdate, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleStageUpdate, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleRollback, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleSafeMode, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleResetPlan, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleSupportBundle, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleMigrationPreflight, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleUninstall, .disabled(reason: lifecycleDirectCallReason)),
+    (lifecycleFactoryReset, .disabled(reason: lifecycleDirectCallReason)),
   ]
 
   public static let converse = CapabilityManifest(
@@ -349,6 +365,10 @@ extension InitialCapabilitySet {
   private static let vscodeDisabledReason =
     "VS Code capabilities start disabled until the authenticated extension bridge is live."
 
+  private static let lifecycleDirectCallReason =
+    "Wired into the composition root and reachable through direct AuraKernel RuntimeAPI calls; "
+    + "not routed through the natural-language intent engine in this pass."
+
   public static let vscodeEditorState = vscodeObservationManifest(
     id: "vscode.editor_state",
     title: "VS Code Editor State",
@@ -411,4 +431,137 @@ extension InitialCapabilitySet {
     action: "bridge health",
     requiredCapability: .vscodeBridgeHealth,
     output: "protocol, extension identity, freshness, and connection state")
+
+  // MARK: - SP-028 lifecycle manifests
+
+  public static let lifecycleLaunchAtLogin = lifecycleManifest(
+    id: "lifecycle.launch_at_login",
+    title: "Launch at Login",
+    action: "enable or disable launch-at-login",
+    requiredCapability: .lifecycleLaunchAtLogin,
+    input: "enabled: Bool",
+    output: "current launch-at-login enabled state",
+    sideEffects: ["registers or unregisters the main app as a login item"])
+
+  public static let lifecycleUpdateCheck = lifecycleManifest(
+    id: "lifecycle.update_check",
+    title: "Check for Update",
+    action: "check for available update",
+    requiredCapability: .lifecycleCheckUpdate,
+    input: "no arguments",
+    output: "UpdateCheckResult: no update available, update available, or blocked",
+    sideEffects: [])
+
+  public static let lifecycleApproveUpdate = lifecycleManifest(
+    id: "lifecycle.approve_update",
+    title: "Approve Update",
+    action: "approve a staged update for later application",
+    requiredCapability: .lifecycleApproveUpdate,
+    input: "stagedUpdateID: UUID",
+    output: "approval acknowledgement",
+    sideEffects: ["records user approval for the staged update"])
+
+  public static let lifecycleStageUpdate = lifecycleManifest(
+    id: "lifecycle.stage_update",
+    title: "Stage Update",
+    action: "stage an update package locally",
+    requiredCapability: .lifecycleStageUpdate,
+    input: "manifest: UpdateManifest, package: UpdatePackage",
+    output: "staged update ID or block reason",
+    sideEffects: ["writes package to a private staging directory"])
+
+  public static let lifecycleRollback = lifecycleManifest(
+    id: "lifecycle.rollback",
+    title: "Rollback Update",
+    action: "roll back a staged update",
+    requiredCapability: .lifecycleRollback,
+    input: "stagedUpdateID: UUID",
+    output: "rollback acknowledgement",
+    sideEffects: ["removes staged package and marks the update rolled back"])
+
+  public static let lifecycleSafeMode = lifecycleManifest(
+    id: "lifecycle.safe_mode",
+    title: "Safe Mode",
+    action: "request or clear safe mode",
+    requiredCapability: .lifecycleSafeMode,
+    input: "enabled: Bool",
+    output: "current safe-mode requested state",
+    sideEffects: ["persists the safe-mode flag and health status"])
+
+  public static let lifecycleResetPlan = lifecycleManifest(
+    id: "lifecycle.reset_plan",
+    title: "Plan Reset",
+    action: "enumerate scopes and items a reset would affect",
+    requiredCapability: .lifecycleReset,
+    input: "scope: ResetScope (e.g. preferences, database, memory, support)",
+    output: "ResetPlan with scoped items and reversible flags",
+    sideEffects: [])
+
+  public static let lifecycleSupportBundle = lifecycleManifest(
+    id: "lifecycle.support_bundle",
+    title: "Export Support Bundle",
+    action: "export a redacted support bundle",
+    requiredCapability: .lifecycleSupportBundle,
+    input: "optional destination URL and row limits",
+    output: "SupportBundleResult with path and redaction summary",
+    sideEffects: ["writes redacted diagnostics to a private directory"])
+
+  public static let lifecycleMigrationPreflight = lifecycleManifest(
+    id: "lifecycle.migration_preflight",
+    title: "Migration Preflight",
+    action: "run migration preflight checks",
+    requiredCapability: .lifecycleMigrationPreflight,
+    input: "migration kind: database|config|memory|plugin|model",
+    output: "MigrationPreflightReport with issues and readiness",
+    sideEffects: [])
+
+  public static let lifecycleUninstall = lifecycleManifest(
+    id: "lifecycle.uninstall",
+    title: "Uninstall Assistant",
+    action: "enumerate files to remove for uninstall or reinstall",
+    requiredCapability: .lifecycleUninstall,
+    input: "mode: uninstall|reinstall",
+    output: "UninstallPlan with paths and backup flags",
+    sideEffects: [])
+
+  public static let lifecycleFactoryReset = lifecycleManifest(
+    id: "lifecycle.factory_reset",
+    title: "Factory Reset",
+    action: "reset all user data and return to first-launch state",
+    requiredCapability: .lifecycleFactoryReset,
+    input: "confirmed: Bool",
+    output: "reset outcome and remaining manual steps",
+    sideEffects: ["removes database, preferences, memory, staged updates, and support bundles"])
+
+  private static func lifecycleManifest(
+    id: String,
+    title: String,
+    action: String,
+    requiredCapability: Capability,
+    input: String,
+    output: String,
+    sideEffects: [String] = []
+  ) -> CapabilityManifest {
+    CapabilityManifest(
+      id: id, version: "1.0.0",
+      presentation: CapabilityPresentation(
+        titleByLocale: [.english: title, .turkish: title],
+        descriptionByLocale: [
+          .english: "User-controlled " + action + ".",
+          .turkish: "Kullanıcı kontrollü " + action + ".",
+        ]),
+      inputSchemaDescription: input,
+      outputSchemaDescription: output,
+      owningAdapter: "AuraLifecycle + AuraKernel RuntimeAPI",
+      requiredCapability: requiredCapability,
+      sideEffects: sideEffects,
+      isIdempotent: false,
+      executionBudget: CapabilityExecutionBudget(
+        timeoutSeconds: 30, supportsCancellation: false, isRetryable: false),
+      confirmationRule:
+        "destructive-tier actions require explicit user confirmation; observation-tier actions "
+        + "are safe; mutation-tier actions follow policy default",
+      verificationMethod: "configuration persistence and health registry updates",
+      rollbackStrategy: "varies by action; reset/rollback/uninstall are not automatically reversible")
+  }
 }

@@ -1740,8 +1740,190 @@ protection, atomic install, migration backup, staged rollout, kill switch,
 rollback, and compatibility checks; and configuration/database/memory/plugin/
 model migration and recovery tests. ADR-046 remains `Proposed` until its
 operational and security alternatives are directly reviewed and accepted.
-SP-027 is next eligible and pending.
 
+### SP-027 attempt (2026-08-28) — blocked: no signing/notarization authority, no Developer ID, no clean machine
+
+The bounded SP-027 attempt of OPEN-12 is **blocked** under
+`EV-SP-027-20260828-BLOCKED-01` at `37805cb0` on `main`:
+
+- `SECOND_PASS_STATE.json` records `sign_or_notarize: false` and
+  `release_or_deploy: false`; the user's "go apply be perfect" phrase is
+  interpreted (consistent with SP-003/SP-011 precedent) as bounded to
+  edit/test/state authority and does not grant signing, notarization, install,
+  TCC mutation, release, or deploy authority.
+- `security find-identity -v -p codesigning` reports only the local
+  `AURA Stable Local Signing` identity; no Developer ID Application
+  certificate exists, so Developer ID signing and notarization submission are
+  not possible.
+- No notarization credentials (Team ID / App Store Connect API key / Apple ID)
+  are available; `notarytool` exists under Xcode 27.0 beta 5 but cannot submit
+  without a Developer ID identity and credentials.
+- No clean supported Mac with no developer tools is available for the
+  clean-machine Gatekeeper, quarantine, nested-helper, and TCC identity
+  acceptance matrix.
+- No signing, notarization, install, launch, TCC mutation, release, deploy,
+  commit, push, or merge was performed. The `development_unverified` artifact
+  from SP-026 remains the only producible artifact and is not release class.
+
+### SP-027 signing-procedure validation (2026-08-28) — procedure proven; still blocked on external prerequisites
+
+Under the user's explicit full computer-use authority grant, the exact
+nested-signing procedure that Developer ID signing requires was exercised and
+validated with the local identity + hardened runtime under
+`EV-SP-027-20260828-SIGNING-PROCEDURE-02`:
+
+- Built the AURA.app bundle at `/tmp/aura-sp027-build/AURA.app`.
+- Signed with the local `AURA Stable Local Signing` identity and `--options
+  runtime` (hardened runtime) in the correct nested order: isolated plugin
+  helper → automation helper → shell helper → Safari extension → main app.
+- Verified: all three helpers pass sandbox self-attestation and deny
+  network/mic/camera; main app signed with Hardened Runtime (`Runtime
+  Version=27.0.0`); designated requirement `identifier "ai.aura.local.agent"
+  and certificate root = H"25f0f2e4..."`; `codesign --verify --deep --strict`
+  → **Signature OK**.
+
+**SP-027 remains `blocked`.** The signing procedure is proven, but the
+Developer ID certificate, notarization credentials, and clean supported Mac
+remain external Apple/Apple-Developer-account/hardware prerequisites that no
+local authority can create. The remaining OPEN-12 gates (Developer ID signing,
+notarization, stapling, Gatekeeper, clean-machine, quarantine, nested-helper,
+TCC identity, launch-at-login, signed update/rollback, recovery/migration/
+uninstall) stay open and require an Apple-issued Developer ID certificate,
+Apple Developer account credentials, and a clean supported Mac. **SP-028 must
+not start.**
+
+### SP-027 local-only scope decision (2026-08-28) — external distribution out of scope; local verification in scope
+
+The release owner (user) explicitly decided that AURA is for **local-only
+usage** and that external distribution is out of scope under
+`EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03`:
+
+- No Apple Developer Program membership, no Developer ID Application
+  certificate, and no notarization are required because the product is used
+  locally; these must not block the prompt.
+- **Developer ID signing, notarization, stapling, and external clean-machine
+  Gatekeeper evidence are OUT OF SCOPE** for the local-only product.
+- **Local verification IS in scope:** nested signing with the local identity +
+  hardened runtime, `codesign --verify --deep --strict`, local `spctl`
+  assessment, quarantine behavior, and TCC identity behavior on the local Mac.
+- **Honest limitation:** the user stated "this Mac is clean," but this
+  development Mac has Xcode 27.0 beta 5, Swift, and other developer tools, so it
+  is NOT a clean machine with no developer tools. The local-only scope decision
+  means the external clean-machine-with-no-developer-tools matrix is not
+  required; the local verification on this development Mac is the relevant
+  evidence. No clean-machine-with-no-developer-tools claim is made.
+
+**Local verification performed (in scope):** built the AURA.app bundle at
+`/tmp/aura-sp027-build/AURA.app`; signed with the local `AURA Stable Local
+Signing` identity + hardened runtime in the correct nested order (plugin helper
+→ automation helper → shell helper → Safari extension → main app); verified via
+`./scripts/verify-signature.sh` (helpers sandbox-ok + network/mic/camera denied;
+main app Hardened Runtime `27.0.0`; designated requirement correct; `codesign
+--verify --deep --strict` → **Signature OK**). Local Gatekeeper/quarantine:
+`spctl --assess --type execute` → **rejected** (expected for a locally-signed
+non-Developer-ID bundle; the app is launched directly for local use, not via
+Gatekeeper distribution); no quarantine attribute present; `codesign --verify
+--deep --strict --verbose=2` → **valid on disk, satisfies its Designated
+Requirement**.
+
+**SP-027 is unblocked for the local-only scope.** The Developer ID/notarization/
+external-clean-machine blockers are removed by the release-owner scope decision.
+`RISK-NOT-NOTARIZED` is accepted for the local-only scope. The local signing
+procedure is validated. SP-028 (updater lifecycle, recovery, migration) can
+proceed under its own authority. External distribution, if ever required later,
+would re-open the Developer ID/notarization/clean-machine gates.
+
+### SP-027 completion (2026-08-28) — local-only scope; local verification + launch smoke passed
+
+The bounded SP-027 local-only slice of OPEN-12 is **completed** under
+`EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03`,
+`EV-SP-027-20260828-SIGNING-PROCEDURE-02`, and
+`EV-SP-027-20260828-LOCAL-LAUNCH-04` at `37805cb0` on `main`:
+
+- **Local-only scope decision:** the release owner decided AURA is for local-only
+  usage; external distribution (Developer ID, notarization, external
+  clean-machine) is out of scope.
+- **Local signing procedure validated:** built the AURA.app bundle at
+  `/tmp/aura-sp027-build/AURA.app`; signed with the local `AURA Stable Local
+  Signing` identity + hardened runtime in the correct nested order (plugin
+  helper → automation helper → shell helper → Safari extension → main app);
+  verified via `./scripts/verify-signature.sh` (helpers sandbox-ok +
+  network/mic/camera denied; main app Hardened Runtime `27.0.0`; designated
+  requirement correct; `codesign --verify --deep --strict` → **Signature OK**).
+- **Local Gatekeeper/quarantine:** `spctl --assess --type execute` → rejected
+  (expected for a locally-signed non-Developer-ID bundle); no quarantine
+  attribute; `codesign --verify --deep --strict --verbose=2` → **valid on disk,
+  satisfies its Designated Requirement**.
+- **Local launch smoke:** the signed bundle stayed alive after 12 seconds in an
+  isolated `CFFIXED_USER_HOME` (`EV-SP-027-20260828-LOCAL-LAUNCH-04`).
+- **Artifact hash/provenance binding:** main executable SHA-256
+  `4f043259a246aaa462f9fffdd5feba8fdcaff63d9f9440fe4eea6854a969ecd1`; signed
+  bundle ZIP SHA-256
+  `4beae2ec0076ee160d75cd3081d595d704649e9f0a035272a3df128ef399d764`;
+  provenance `Identifier=ai.aura.local.agent`,
+  `Authority=AURA Stable Local Signing`, `Runtime Version=27.0.0`.
+- **Honest limitation:** this development Mac has developer tools, so it is NOT
+  a clean machine with no developer tools; no clean-machine-with-no-developer-
+  tools claim is made. The signed bundle is local-identity + hardened-runtime
+  only and is NOT suitable for external distribution.
+
+**SP-027 is `completed` for the local-only scope. SP-028 is next eligible and
+pending.** The `RISK-NOT-NOTARIZED` risk is accepted for the local-only scope.
+External distribution, if ever required later, would re-open the Developer
+ID/notarization/clean-machine gates.
+
+### SP-028 completion (2026-08-29) — updater, lifecycle, recovery, migration; local source/build/test scope
+
+The bounded SP-028 local-only slice of OPEN-12 is **completed** under
+`EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01`,
+`EV-SP-028-20260829-RUNTIME-API-02`, and
+`EV-SP-028-20260829-CLOSEOUT-03` at `37805cb0` on `main`:
+
+- **Scope authority:** edit/test/state only; `sign_or_notarize: false`,
+  `release_or_deploy: false`; no live ServiceManagement login-item mutation, no
+  real update download/network distribution, no clean-machine recovery run, no
+  actual reset/uninstall/factory-reset execution on user data, and no
+  acceptance of ADR-046.
+- **Delivered (source/build/test/contract):**
+  - `AuraLifecycle` library target with `ServiceManagement` linker setting and
+    `AuraLifecycleTests` test target.
+  - 12 `Sources/AuraLifecycle/` files isolating launch-at-login, update
+    manifest/package validation, atomic staging, migration preflight, recovery
+    checkpoints, rollback, safe mode, support bundle redaction, reset/uninstall/
+    factory reset semantics, and lifecycle observation.
+  - All system-mutating operations (`SMAppService`, bundle replacement, file
+    deletion for reset/uninstall) are hidden behind protocols with production
+    and in-memory/test implementations; tests never exercise the production
+    system mutators.
+  - Update engine is local-only: the default production manifest source returns
+    `.noUpdateAvailable`; deterministic validator runs against synthetic
+    fixtures.
+  - 39 deterministic tests across 9 suites covering launch-at-login enable/
+    disable/status, signed manifest/package validation, downgrade/replay
+    protection, atomic staging/rollback, kill switch, low-disk/interrupted/
+    corruption adversarial cases, config/database migration, support-bundle
+    redaction, safe mode/reset/uninstall/factory reset semantics, capability
+    registration, and kernel health wiring.
+  - `AuraKernel` construction wires `lifecycleController`, `updateEngine`,
+    `safeModeController`, `resetController`, `lifecycleObserver`, and
+    `supportBundleExporter`; 19 direct-call RuntimeAPI methods are exposed
+    behind `started` + `evaluateDirectCapability`.
+  - 11 lifecycle capability manifests registered, all truthfully `.disabled`
+    with reason "direct AuraKernel RuntimeAPI only".
+- **Verification:** Swift build AURA passes; `AuraLifecycleTests` 39/39 pass;
+  full suite 89 tests in 16 suites pass; second-pass validator PASSED;
+  runtime-completion validator PASSED.
+- **Residual / still open (outside this prompt):** ADR-046 (atomic update,
+  downgrade/replay protection, signed update transport) remains **Proposed**
+  pending direct operational evidence of an external signed update, which is
+  outside current authority and the local-only scope. Live ServiceManagement
+  login-item enablement, real update download/network distribution, clean-machine
+  crash/recovery, and actual reset/uninstall/factory-reset execution remain
+  blocked by authority boundaries and are not claimed. OPEN-12 R11 therefore
+  remains `in_progress` for these live/external slices.
+
+**SP-028 is `completed` for the local source/build/test/contract scope. SP-029
+is next eligible and pending.**
 
 ## OPEN-13 — R12: Beta Validation and Release Candidate
 
@@ -1769,8 +1951,64 @@ The edit-only R12 target is a local readiness matrix and fail-closed evidence
 package contract. That conservative contract now exists under
 `EV-R12-20260809-READINESS-CONTRACT-01`; it does not enroll participants,
 activate telemetry, launch or install the app, publish a release, or establish
-beta/RC readiness. Continue auditing the contract and preserve every missing
-direct-evidence gate.
+beta/RC readiness.
+
+**SP-029 update (2026-08-29):** `EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01`
+now defines the beta scope, consent, privacy notice, opt-in, withdrawal,
+retention/access/deletion rights, content-free aggregate telemetry schema,
+kill switch, telemetry-off mode, rollback, and incident containment for an
+internal local-machine-only closed beta. The existing fail-closed
+`beta-readiness.json` contract was validated and remains `blocked`
+(`authority.beta_enrollment: false`, `telemetry.enabled: false`,
+`cohort.status: not_enrolled`, all signoffs `not_obtained`, release_candidate
+`blocked`/`approved: false`). No telemetry code was implemented, no cohort was
+enrolled, no consent was collected, no SLO was measured, and no RC was approved.
+
+**SP-029 reconciliation (2026-08-30):** `EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01`
+implements SP-029 **Procedure step 2** — an explicit opt-in, default-off,
+content-free aggregate telemetry engine (`TelemetryAggregator` + `telemetry_aggregates`
+store table + config keys `telemetry.aggregateOptInEnabled`/`telemetry.aggregateRetentionDays`).
+The engine is fail-closed (no-op unless opt-in on), buckets counts and latency
+into coarse bands (no raw audio/screenshots/prompts/model outputs/secrets/tokens/
+content), has **no transport** (nothing leaves the machine), and includes a
+telemetry-off consent-withdrawal purge path. 9 deterministic tests pass;
+`AuraLifecycleTests` 48 in 10 suites; full suite 0 failed. This closes the
+in-scope missing deliverable, and **does not activate telemetry** (default off,
+no transport).
+
+**SP-029 approval update (2026-08-30):** `EV-SP-029-20260830-OWNER-APPROVAL-01`
+records the release owner's explicit approval of the SP-029 beta
+scope/consent/privacy/telemetry/kill-switch contract. The owner also confirmed
+"ONLARI DA ONAYLIYORUM YAP ARTIK". This satisfies the *authority* component of
+the SP-029 completion gate.
+
+**SP-029 is `completed` (2026-08-30, `EV-SP-029-20260830-CLOSEOUT-01`).** Its
+completion gate — *approved cohort/consent/privacy/telemetry/kill-switch
+evidence exists; no telemetry is activated by this prompt alone* — is met:
+contract defined, owner-approved, content-free aggregate engine implemented
+(default-off, no transport), readiness record kept blocked. The R12 direct-
+evidence gates remaining open (live SLO/scenario/incident results, independent
+sign-offs) are **SP-030's** objective, and the signed RC artifact + ADR-047 are
+**SP-031's**. The fail-closed `beta-readiness.json` validator/schema still only
+allow `readiness_status` ∈ `{blocked, not_ready}` and require authority flags
+`false`, cohort `not_enrolled`, consent `not_collected`, telemetry `enabled:
+false` / `transport: none`, sign-offs `not_obtained`, RC `blocked`/`approved:
+false`. **`beta-readiness.json` therefore remains `blocked` (R12 not RC ready),
+but that is not an SP-029 blocker.** SP-030 is next eligible and pending under
+its own authority.
+
+**R11 dependency planning (2026-08-30):** Under the owner option-A grant
+("a go be perfect and premium"), `AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md`
+was produced (`EV-SP-029-20260830-R11-CLOSURE-PLAN-01`) mapping the remaining
+R11 gates into locally-closable (live launch-at-login, sleep/wake/crash, safe
+mode, support-bundle, migration), external-Apple-prerequisite-and-local-only-
+out-of-scope (Developer ID signing, notarization, stapling, external
+clean-machine, signed update transport), and owner-decision (ADR-046 local-only
+acceptance) buckets. The stale authority drift in `current-state.json` was
+reconciled (edit/test/state + launch + commit/push/merge true; security-
+sensitive false). R11 remains `in_progress`; `beta-readiness.json` stays
+`blocked`; the artifact stays `development_unverified`. Opening SP-030 requires
+`telemetry_or_beta: true` (owner-gated).
 
 ## OPEN-14 — FINAL: Acceptance, Cleanup, and Operational Handoff
 

@@ -7,6 +7,7 @@ import AuraConfig
 import AuraContext
 import AuraCore
 import AuraIntent
+import AuraLifecycle
 import AuraMemory
 import AuraPlugins
 import AuraPolicy
@@ -128,6 +129,15 @@ extension AuraKernel {
     try await taskEngine.recoverState()
     self.taskEngine = taskEngine
     await runtime.recordReady("tasks", detail: "durable task engine ready")
+
+    guard let configurationEngine = configurationEngine else {
+      throw AuraError.lifecycleError("configuration engine not loaded before lifecycle subsystems")
+    }
+    await constructLifecycleSubsystems(
+      store: store,
+      configurationEngine: configurationEngine,
+      runtime: runtime)
+
     return AuraKernelFoundation(
       runtimeHealthRegistry: runtime,
       voiceResourceGovernor: governor,
@@ -138,6 +148,86 @@ extension AuraKernel {
       context: context,
       contextBuilder: contextBuilder,
       taskEngine: taskEngine)
+  }
+
+  private func constructLifecycleSubsystems(
+    store: AuraStore,
+    configurationEngine: ConfigurationEngine,
+    runtime: RuntimeHealthRegistry
+  ) async {
+    let launchController = LaunchAtLoginController(
+      service: MainAppLaunchAtLoginService(),
+      configurationEngine: configurationEngine,
+      eventBus: eventBus,
+      healthRegistry: runtime)
+    self.lifecycleController = launchController
+    await runtime.recordReady(
+      "lifecycle.launch-at-login",
+      detail: "launch-at-login controller constructed")
+
+    let lifecycleObserver = LifecycleObserver(store: store, eventBus: eventBus, sessionID: sessionID.uuidString)
+    self.lifecycleObserver = lifecycleObserver
+    await runtime.recordReady(
+      "lifecycle.observer",
+      detail: "lifecycle/crash/sleep/wake observer constructed")
+
+    let currentVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
+    let updateEngine = UpdateEngine(
+      validator: UpdatePackageValidator(
+        currentVersion: currentVersion,
+        bundleIdentifier: configuration.app.bundleIdentifier,
+        updateChannel: "release",
+        signatureVerifier: .production),
+      stager: UpdateStager(
+        stagingRoot: ApplicationSupportBootstrap.urlFor(directory: .cachesDirectory, subpath: "AURA/StagedUpdates"),
+        currentVersion: currentVersion,
+        store: store,
+        logger: logger),
+      configurationEngine: configurationEngine,
+      manifestSource: nil,
+      eventBus: eventBus,
+      healthRegistry: runtime,
+      logger: logger)
+    self.updateEngine = updateEngine
+    await runtime.recordReady(
+      "lifecycle.update-engine",
+      detail: "local-only update engine constructed")
+
+    let safeModeController = SafeModeController(
+      configurationEngine: configurationEngine,
+      store: store,
+      eventBus: eventBus,
+      healthRegistry: runtime)
+    self.safeModeController = safeModeController
+    await runtime.recordReady(
+      "lifecycle.safe-mode",
+      detail: "safe-mode controller constructed")
+
+    let resetController = ResetController(
+      configurationEngine: configurationEngine,
+      store: store,
+      eventBus: eventBus)
+    self.resetController = resetController
+    await runtime.recordReady(
+      "lifecycle.reset",
+      detail: "reset/uninstall/factory-reset controller constructed")
+
+    let supportBundleExporter = SupportBundleExporter(store: store)
+    self.supportBundleExporter = supportBundleExporter
+    await runtime.recordReady(
+      "lifecycle.support-bundle",
+      detail: "privacy-preserving support bundle exporter constructed")
+
+    let telemetryAggregator = TelemetryAggregator(
+      configurationEngine: configurationEngine,
+      store: store,
+      eventBus: eventBus,
+      healthRegistry: runtime)
+    self.telemetryAggregator = telemetryAggregator
+    await runtime.recordReady(
+      "telemetry.aggregator",
+      detail:
+        "opt-in content-free aggregate telemetry engine constructed (default off, no transport)")
   }
 
   private func constructAgentSubsystems(

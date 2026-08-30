@@ -3,10 +3,10 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-28T00:00:00Z",
-  "session_id": "AURA-SP-026-ATTEMPT-20260828",
-  "active_prompt": "SP-027",
-  "active_state": "pending",
+  "updated_at": "2026-08-29T00:00:00Z",
+  "session_id": "AURA-SP-029-BETA-CONTRACT-20260829",
+  "active_prompt": "SP-030",
+  "active_state": "in_progress",
   "completed_prompts": [
     "SP-000",
     "SP-001",
@@ -34,10 +34,25 @@
     "SP-023",
     "SP-024",
     "SP-025",
-    "SP-026"
+    "SP-026",
+    "SP-027",
+    "SP-028",
+    "SP-029"
   ],
-  "blocked_prompts": [],
+  "blocked_prompts": [
+  ],
   "last_evidence_ids": [
+    "EV-SP-029-20260830-CLOSEOUT-01",
+    "EV-SP-029-20260830-OWNER-APPROVAL-01",
+    "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01",
+    "EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01",
+    "EV-SP-028-20260829-CLOSEOUT-03",
+    "EV-SP-028-20260829-RUNTIME-API-02",
+    "EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01",
+    "EV-SP-027-20260828-LOCAL-LAUNCH-04",
+    "EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03",
+    "EV-SP-027-20260828-SIGNING-PROCEDURE-02",
+    "EV-SP-027-20260828-BLOCKED-01",
     "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01",
     "EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01",
     "EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01",
@@ -128,7 +143,7 @@
     "install_dependencies": false,
     "download_models": false,
     "provider_accounts": false,
-    "telemetry_or_beta": false,
+    "telemetry_or_beta": true,
     "sign_or_notarize": false,
     "commit": true,
     "push": true,
@@ -145,5 +160,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-026 COMPLETED: observed CI run 33157842324 on canonical commit 348bb6a succeeded (governance + build-and-test; line coverage 70.69%; development_unverified artifact 9680431386 with provenance matching the canonical commit). Temporary runner will be deregistered. SP-027 is next eligible and pending."
+  "next_action": "SP-030 IN_PROGRESS: owner approved the continuation-path authority (R11 local gates, ADR-046 local-only formalization, SP-030 opening, telemetry_or_beta). SP-029 remains completed. Define the beta SLO/scenario/incident/sign-off evidence program; collect content-free aggregates via the default-off engine only under explicit opt-in; run live SLOs/scenarios in a user-present session; record incidents/remediation; obtain independent sign-offs. Keep beta-readiness.json blocked until SP-030/SP-031 evidence closes R12 direct-evidence gates. Do not fabricate measurements, telemetry transmission, or sign-offs."
 }

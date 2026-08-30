@@ -17,6 +17,10 @@ public enum PermissionRiskTier: Int, Codable, Sendable, Equatable, CaseIterable 
   /// External communication, push, deployment, purchase, deletion,
   /// privilege change, or sensitive-data access.
   case destructive = 3
+  /// Network request: separated out so update, provider, telemetry, and
+  /// cloud-model checks can be controlled independently of general
+  /// destructive-tier actions.
+  case network = 4
 }
 
 // MARK: - Capabilities

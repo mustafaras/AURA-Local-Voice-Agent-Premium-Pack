@@ -2,23 +2,84 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-28T00:00:00Z",
-  "session_id": "AURA-SP-026-ATTEMPT-20260828",
+  "updated_at": "2026-08-29T00:00:00Z",
+  "session_id": "AURA-SP-029-BETA-CONTRACT-20260829",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "0e5900bb33d0ac464080702adcfd59a773c863bc",
-    "remote_head": "0e5900bb33d0ac464080702adcfd59a773c863bc",
-    "working_tree_state": "clean",
-    "user_owned_changes": []
+    "verified_head": "37805cb0e61cd4c46d7a3653c2ad8da212295a7a",
+    "remote_head": "37805cb0e61cd4c46d7a3653c2ad8da212295a7a",
+    "working_tree_state": "dirty_expected",
+    "user_owned_changes": [
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-028-20260829-RUNTIME-API-02.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-028-20260829-CLOSEOUT-03.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-027-20260828-LOCAL-LAUNCH-04.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-027-20260828-SIGNING-PROCEDURE-02.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-027-20260828-BLOCKED-01.md",
+      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+      "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+      "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+      "ledger/PROJECT_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+      "AURA_RUNTIME_COMPLETION/state/current-state.json",
+      "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+      "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+      "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+      "Sources/AuraCore/ActorID.swift",
+      "Sources/AuraCore/AuraError.swift",
+      "Sources/AuraCore/PolicyTypes_Capability.swift",
+      "Sources/AuraCore/RuntimeHealth.swift",
+      "Sources/AuraConfig/ConfigurationTypes.swift",
+      "Sources/AuraStore/AuraDatabase_MigrationsAndBinding.swift",
+      "Sources/AuraPolicy/PolicyEngine_ConfirmationAndPersistence.swift",
+      "Sources/AuraMemory/MemoryActorIDExtensions.swift",
+      "Sources/AuraMemory/ActorHealthReporter.swift",
+      "Sources/AuraLifecycle/LifecycleEventPayloads.swift",
+      "Sources/AuraLifecycle/LaunchAtLoginController.swift",
+      "Sources/AuraLifecycle/LaunchAtLoginService.swift",
+      "Sources/AuraLifecycle/LifecycleState.swift",
+      "Sources/AuraLifecycle/LifecycleObserver.swift",
+      "Sources/AuraLifecycle/UpdateTypes.swift",
+      "Sources/AuraLifecycle/UpdatePackageValidator.swift",
+      "Sources/AuraLifecycle/UpdateStager.swift",
+      "Sources/AuraLifecycle/UpdateEngine.swift",
+      "Sources/AuraLifecycle/MigrationPreflight.swift",
+      "Sources/AuraLifecycle/RecoveryCheckpoint.swift",
+      "Sources/AuraLifecycle/RollbackController.swift",
+      "Sources/AuraLifecycle/SafeModeController.swift",
+      "Sources/AuraLifecycle/SupportBundleExporter.swift",
+      "Sources/AuraLifecycle/ResetController.swift",
+      "Sources/AuraLifecycle/UninstallAssistant.swift",
+      "Sources/AuraLifecycle/FactoryResetSemantics.swift",
+      "Sources/AURA/AuraKernel.swift",
+      "Sources/AURA/AuraKernel_Construction.swift",
+      "Sources/AURA/AuraKernel_RuntimeAPI.swift",
+      "Sources/AURA/ApplicationSupportBootstrap.swift",
+      "Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift",
+      "Tests/AuraLifecycleTests/LaunchAtLoginTests.swift",
+      "Tests/AuraLifecycleTests/UpdatePackageValidatorTests.swift",
+      "Tests/AuraLifecycleTests/UpdateStagerTests.swift",
+      "Tests/AuraLifecycleTests/UpdateEngineTests.swift",
+      "Tests/AuraLifecycleTests/MigrationPreflightTests.swift",
+      "Tests/AuraLifecycleTests/SupportBundleExporterTests.swift",
+      "Tests/AuraLifecycleTests/ResetAndFactoryResetTests.swift",
+      "Tests/AuraLifecycleTests/SafeModeTests.swift",
+      "Package.swift",
+      "ledger/CURRENT_STATE.md"
+    ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "SP-027",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-027_SIGNING_NOTARIZATION_AND_CLEAN_MACHINE_GATEKEEPER.prompt.md",
-    "state": "pending",
-    "step": "SP-026 COMPLETED: observed CI run 33157842324 on canonical commit 348bb6a succeeded (governance + build-and-test; line coverage 70.69%; development_unverified artifact 9680431386 with provenance matching the canonical commit). SP-027 is next eligible and pending."
+    "id": "SP-030",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
+    "state": "in_progress",
+    "step": "SP-030 IN_PROGRESS: owner approved continuation path (R11 local gates, ADR-046 local-only formalization, SP-030, telemetry_or_beta true). Run R12 SLO/scenario/incident/sign-off evidence program; content-free aggregates only under explicit opt-in; user-present live measurement. Keep beta-readiness.json blocked until SP-030/SP-031 evidence closes R12 gates. No fabricated measurements/telemetry/sign-offs."
   },
   "tracks": [
     {
@@ -350,7 +411,13 @@
       "completed_at": null,
       "evidence_ids": [
         "EV-R12-20260809-BETA-BOUNDARY-START-01",
-        "EV-R12-20260809-READINESS-CONTRACT-01"
+        "EV-R12-20260809-READINESS-CONTRACT-01",
+        "EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01",
+        "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01",
+        "EV-SP-029-20260830-OWNER-APPROVAL-01",
+        "EV-SP-029-20260830-CLOSEOUT-01",
+        "EV-SP-029-20260830-R11-CLOSURE-PLAN-01",
+        "EV-SP-030-20260830-OPENING-01"
       ],
       "open_risk_ids": [
         "RISK-NO-INDEPENDENT-BETA-EVIDENCE",
@@ -370,7 +437,7 @@
     "merge": true,
     "sign_or_notarize": false,
     "release_or_deploy": false,
-    "source": "User granted explicit current-turn authority on 2026-08-25 to commit, push, and merge the SP-019 delivery. Release/deploy remains false: the app is unsigned for distribution and unnotarized, and SP-026/SP-027 own the reproducible-toolchain and signing gates, so only a development_unverified artifact may be produced."
+    "source": "Reconciled 2026-08-30: the release owner repeatedly granted authority for the second-pass program (\"go apply be perfect\", \"ben tüm ama tüm yetkileri veriyorum\", \"ONLARI DA ONAYLIYORUM YAP ARTIK\", \"a go be perfect and premium\"). Program-appropriate boundary: edit/test/state, launch-or-install-app, and commit/push/merge are enabled. Security-sensitive items remain FALSE: install_dependencies, download_models, mutate_permissions (TCC), sign_or_notarize, release_or_deploy. Telemetry/beta activation and provider accounts are separately gated (telemetry_or_beta) and are NOT enabled by this block."
   },
   "release_gates": [
     {
@@ -461,6 +528,19 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-030-20260830-OPENING-01",
+    "EV-SP-029-20260830-R11-CLOSURE-PLAN-01",
+    "EV-SP-029-20260830-CLOSEOUT-01",
+    "EV-SP-029-20260830-OWNER-APPROVAL-01",
+    "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01",
+    "EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01",
+    "EV-SP-028-20260829-CLOSEOUT-03",
+    "EV-SP-028-20260829-RUNTIME-API-02",
+    "EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01",
+    "EV-SP-027-20260828-LOCAL-LAUNCH-04",
+    "EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03",
+    "EV-SP-027-20260828-SIGNING-PROCEDURE-02",
+    "EV-SP-027-20260828-BLOCKED-01",
     "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01",
     "EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01",
     "EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01",
@@ -502,7 +582,6 @@
     "EV-SP-017-20260823-CLOSEOUT-03",
     "EV-SP-017-20260823-FULL-SUITE-01",
     "EV-SP-017-20260823-GOVERNOR-IDLE-UNLOAD-01",
-    "EV-SP-016-20260823-FLAKY-RECOVERY-STABILIZATION-05",
     "EV-SP-016-20260822-RECOVERY-MATRIX-04",
     "EV-SP-016-20260822-BILINGUAL-QUALITY-03",
     "EV-SP-013-20260821-COORDINATOR-ROUTING-01",
@@ -520,7 +599,8 @@
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "SP-017 residuals are intentionally outside the completed system-only branch: neural co-resident soak/MPS/human listening, energy/thermal qualification, wake word, and physical headset/route/sleep/echo verification remain open for future scope.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists.",
-    "SP-019 direct user-present controls now partially pass under an isolated Foundation home; export is directly evidenced, but verified tool fact, resolved reference, destructive clarification, contradiction resolution, deletion receipt, and direct transport trace remain unproven. SP-020 is not safe to start."
+    "SP-019 direct user-present controls now partially pass under an isolated Foundation home; export is directly evidenced, but verified tool fact, resolved reference, destructive clarification, contradiction resolution, deletion receipt, and direct transport trace remain unproven. SP-020 is not safe to start.",
+    "SP-029 is completed for the beta scope/consent/telemetry/kill-switch contract scope (EV-SP-029-20260829-01, EV-SP-029-20260830-OWNER-APPROVAL-01, EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01, EV-SP-029-20260830-CLOSEOUT-01). R11 incompleteness (development_unverified, no signed/notarized clean-machine artifact, no ADR-046 acceptance) plus the R12 direct-evidence gates (SP-030 SLOs/scenarios/incidents/sign-offs and SP-031 RC/ADR-047) remain open and block R12 completion, but they are owned by SP-030/SP-031, not SP-029. Fail-closed beta-readiness.json stays blocked."
   ],
-  "next_action": "SP-019 is completed, merged to main, and pushed. Start SP-020 (remote context boundary and ADR-043). Release/deploy stays blocked on signing and notarization (SP-026/SP-027); only a development_unverified artifact is producible."
+  "next_action": "SP-029 COMPLETED for the beta scope/consent/telemetry/kill-switch contract scope (EV-SP-029-20260829-01, EV-SP-029-20260830-OWNER-APPROVAL-01, EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01, EV-SP-029-20260830-CLOSEOUT-01). SP-030 (R12 SLOs/scenarios/incidents/sign-offs) is next eligible and pending under its own authority. Fail-closed beta-readiness.json remains blocked (SP-031 RC/ADR-047)."
 }

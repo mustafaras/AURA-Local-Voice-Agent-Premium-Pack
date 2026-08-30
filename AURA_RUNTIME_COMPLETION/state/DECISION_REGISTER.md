@@ -16,7 +16,7 @@ Use this file as a compact index. Full rationale belongs in ADR files. Status va
 | ADR-043 | User memory, preference scope, context budget, and explainability UI | R8 | **Accepted** (explicit local-only remote boundary) | R8 completion | `docs/decisions/ADR-043-memory-personalization-controls.md` | Draft authored with explicit persistence, provenance, correction, export, deletion, bounded context, and remote-boundary controls. **2026-08-25 (SP-020):** **Accepted** under the explicit local-only remote-boundary scope with alternatives, retention, and a 2026-09-07 review date. SP-019's eight live R8 scenarios passed on one build (`EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`); SP-020 proved local-only is the explicit product boundary (`EV-SP-020-20260825-REMOTE-BOUNDARY-01`). `RISK-ADR-043-PENDING` is closed. |
 | ADR-044 | Privileged XPC/helper topology, network enforcement, and secret boundaries | R10 | Proposed | External beta | `docs/decisions/ADR-044-privileged-helper-topology.md` | Separate local control powers from model/network process. |
 | ADR-045 | Stable toolchain, state projection, deployment target, build/archive, Developer ID, and notarization | R0/R11 | Accepted | External beta | `docs/decisions/ADR-045-toolchain-release-pipeline.md` | Development CommandLineTools compatibility is distinct from full-Xcode release validation; projection-only descendants are explicitly bounded. |
-| ADR-046 | Signed update, rollback, downgrade protection, safe mode, and recovery | R11 | Proposed | Release candidate | `docs/decisions/ADR-046-signed-update-recovery.md` | Prefer mature auditable mechanism over custom cryptography. |
+| ADR-046 | Signed update, rollback, downgrade protection, safe mode, and recovery | R11 | Proposed | Release candidate | `docs/decisions/ADR-046-signed-update-recovery.md` | Prefer mature auditable mechanism over custom cryptography. **SP-028 (2026-08-29):** implemented local contract/validator/stager/rollback/recovery/safe-mode/reset source + tests; no real signed update operation performed. Remains Proposed pending direct operational evidence of an external signed update. Evidence: `EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01`, `EV-SP-028-20260829-RUNTIME-API-02`. **R11 closure plan (2026-08-30, `EV-SP-029-20260830-R11-CLOSURE-PLAN-01`):** recommends advancing ADR-046 to `Accepted` under an explicit local-only scope limitation (local updater/rollback/recovery/safe-mode/reset contract is implemented + adversarially tested for local operation; real external signed update/transport is out of scope by the SP-027 local-only decision). Owner decision required; ADR-046 stays `Proposed` until the owner formalizes it. |
 | ADR-047 | Beta evidence, SLOs, release-candidate authority, and final completion declaration | R12 | Proposed | Final acceptance | `docs/decisions/ADR-047-beta-slos-release-authority.md` | Define objective release-candidate evidence and false-success threshold. |
 | ADR-048 | Bounded unsafe constructs and privacy-safe diagnostics | H-006 | Accepted | H-006 completion | `docs/decisions/ADR-048-unsafe-constructs-and-diagnostics.md` | Replace proven fail-open/fail-unclear sites; retain lock/actor boundaries only with explicit invariants and focused evidence. |
 | DEC-REPO-HYGIENE-H-007-COVERAGE | Coverage scope/ratchet disposition | H-007 | Accepted | H-007 readiness | `scripts/aura-coverage-scope.regex` | The 70% line-coverage ratchet is unchanged. Evidence supports excluding only four host-boundary files requiring app launch, SwiftUI rendering, TCC mutation, or a global AppKit event tap; AuraAppModel and AuraKernel remain in scope. Raw all-source coverage remains visible at 65.15%; scoped effective coverage is 70.02%. |
@@ -181,3 +181,21 @@ artifact with 203 records, no audit field, and no raw-content marker under
 fact, resolved reference, contradiction, deletion, or direct transport
 scenarios. ADR-043 remains Proposed; SP-020 remains unopened. Permanent Delete
 is still gated by action-time user confirmation.
+
+### 2026-08-28T00:00:00Z — DEC-SP-027-LOCAL-ONLY-SCOPE
+
+The release owner (user) explicitly decided AURA is for **local-only usage** and
+external distribution is out of scope. No Apple Developer Program membership, no
+Developer ID Application certificate, and no notarization are required because
+the product is used locally; these must not block the prompt. Developer ID
+signing, notarization, stapling, and external clean-machine Gatekeeper evidence
+are **out of scope** for the local-only product. Local verification is in scope
+and passed (nested signing + hardened runtime, `codesign --verify --deep
+--strict` → Signature OK, `spctl` rejected expected, no quarantine). Honest
+limitation: this development Mac has developer tools, so it is NOT a clean
+machine with no developer tools; no clean-machine-with-no-developer-tools claim
+is made. `RISK-NOT-NOTARIZED` is accepted for the local-only scope. External
+distribution, if ever required later, would re-open the Developer
+ID/notarization/clean-machine gates. Evidence: `EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03`,
+`EV-SP-027-20260828-SIGNING-PROCEDURE-02`. SP-027 is unblocked for the local-only
+scope; SP-028 can proceed under its own authority.

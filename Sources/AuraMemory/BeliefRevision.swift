@@ -94,6 +94,7 @@ public actor BeliefRevision {
     switch source {
     case .policy: return .derivedPolicy
     case .user: return .userConfirmed
+    case .lifecycle: return .derivedTool
     case .system, .audio, .screen, .automation, .memory,
       .agentCodex, .agentClaude, .agentCopilot, .agentOllama,
       .orchestrator, .task, .context, .computerUse, .security,

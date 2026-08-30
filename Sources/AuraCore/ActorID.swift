@@ -20,6 +20,7 @@ public enum ActorID: String, Codable, Sendable, Equatable, CaseIterable {
   case security
   case plugin
   case intent
+  case lifecycle
   case unknown
 }
 
@@ -62,6 +63,7 @@ public enum AuraError: Error, Sendable, Equatable {
   case securityError(String)
   case pluginError(String)
   case intentError(String)
+  case lifecycleError(String)
   case permissionDenied(String)
 }
 
@@ -126,6 +128,8 @@ extension AuraError: LocalizedError {
       return "Plugin error: \(detail)"
     case .intentError(let detail):
       return "Intent error: \(detail)"
+    case .lifecycleError(let detail):
+      return "Lifecycle error: \(detail)"
     case .permissionDenied(let detail):
       return "Permission denied: \(detail)"
     }

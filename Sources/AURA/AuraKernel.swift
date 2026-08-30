@@ -6,6 +6,7 @@ import AuraConfig
 import AuraContext
 import AuraCore
 import AuraIntent
+import AuraLifecycle
 import AuraMemory
 import AuraPlugins
 import AuraPolicy
@@ -86,6 +87,13 @@ actor AuraKernel {
   /// declared, so the health surface cannot claim a state the composition
   /// does not actually have.
   var productivityRuntime: ProductivityRuntime?
+  var lifecycleController: LaunchAtLoginController?
+  var updateEngine: UpdateEngine?
+  var safeModeController: SafeModeController?
+  var resetController: ResetController?
+  var lifecycleObserver: LifecycleObserver?
+  var supportBundleExporter: SupportBundleExporter?
+  var telemetryAggregator: TelemetryAggregator?
   var started = false
   var sttStarted = false
   var audioStarted = false

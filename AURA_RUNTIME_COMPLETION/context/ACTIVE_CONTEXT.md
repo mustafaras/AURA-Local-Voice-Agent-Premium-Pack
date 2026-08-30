@@ -1,19 +1,99 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-027` (pending; signing, notarization, clean-machine Gatekeeper)
-> **Current program state:** In progress; SP-020 through SP-026 completed, SP-027 pending, while R1-R12 and the broader program remain open.
-> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021/SP-022 product content merged at `ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40`; SP-023/SP-024 delivered at `7b425e8` and `bdcc810`; SP-025 delivered at `5a664a0`; SP-026 delivered at `348bb6a` (observed CI run `33157842324` success). `HEAD == origin/main == 348bb6a`; working tree clean. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-030` (in_progress)
+> **Current program state:** In progress; SP-000 through SP-029 completed, SP-030 in_progress, while R1-R12 and the broader program remain open.
+> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021/SP-022 product content merged at `ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40`; SP-023/SP-024 delivered at `7b425e8` and `bdcc810`; SP-025 delivered at `5a664a0`; SP-026 delivered at `348bb6a` (observed CI run `33157842324` success); SP-027 local-only scope completed at `37805cb0`; SP-028 local lifecycle/update/recovery source and test scope completed at pending commit (work in this session not yet merged). `HEAD` carries unmerged SP-028 changes; `origin/main` remains `37805cb0` until the next authorized merge. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
 
-## Second-pass synchronized overlay — 2026-08-28 (`SP-027` / `pending`)
+## Second-pass synchronized overlay — 2026-08-30 (`SP-030` / `in_progress`)
+
+`SP-029` / `completed` for the beta scope, consent, and telemetry slice of
+OPEN-13 (R12) under `EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01`,
+`EV-SP-029-20260830-OWNER-APPROVAL-01`, `EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01`,
+and `EV-SP-029-20260830-CLOSEOUT-01`:
+
+- The beta/cohort/consent/privacy/telemetry/kill-switch contract is defined and
+  the release owner approved it; the in-scope content-free aggregate telemetry
+  engine (default-off, no transport) is implemented and dormant by default.
+- SP-029 is `completed`; the open R12 direct-evidence gates (SLOs/scenarios/
+  incidents, independent sign-offs) are owned by **SP-030**, and the signed RC
+  artifact + ADR-047 are owned by **SP-031**.
+- `beta-readiness.json` correctly remains `blocked` (fail-closed; R12 not RC-ready).
+- **`SP-030` is `in_progress`**: the release owner approved the continuation-path
+  authority (R11 local gates, ADR-046 local-only formalization, SP-030 opening,
+  `telemetry_or_beta: true`). SP-030 defines/runs the R12 SLO/scenario/incident/
+  sign-off evidence program; content-free aggregates are collectable only under
+  explicit opt-in via the default-off engine; live measurement happens in a
+  user-present session.
+- **R11 dependency planning:** under the owner option-A grant, `context/R11_CLOSURE_PLAN.md`
+  (`EV-SP-029-20260830-R11-CLOSURE-PLAN-01`) maps the remaining R11 gates
+  (locally-closable / external-Apple-prerequisite-and-local-only-out-of-scope /
+  owner-decision) and reconciles the stale authority drift in `current-state.json`
+  (edit/test/state + launch + commit/push/merge true; TCC/signing/release/telemetry
+  /model/dependency/provider false). Opening SP-030 requires `telemetry_or_beta: true`.
+
+## Second-pass synchronized overlay — 2026-08-29 (`SP-028` / `completed`; `SP-029` / `blocked`)
+
+`SP-028` / `completed` for the updater, lifecycle, recovery, and migration slice of OPEN-12 under `EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01`, `EV-SP-028-20260829-RUNTIME-API-02`, and `EV-SP-028-20260829-CLOSEOUT-03`:
+
+- Added `AuraLifecycle` SwiftPM library target and `AuraLifecycleTests` test target, linked with `ServiceManagement`. Created 12 source files covering launch-at-login, update manifest/package validation, atomic staging, rollback, migration preflight, recovery checkpoints, safe mode, support bundle redaction, reset/uninstall/factory reset semantics, and lifecycle observation.
+- Extended `AuraCore` with `.lifecycle` ActorID, `.lifecycleError`, recovery health states, `.network` PermissionRiskTier, and lifecycle capabilities.
+- Extended `AuraConfig`, `AuraStore` (v1.7.0 lifecycle recovery schema migration), `AuraPolicy`, and `AuraMemory` with lifecycle support.
+- Wired lifecycle subsystems into `AuraKernel` and added 19 direct-call RuntimeAPI methods plus the `UninstallPlanMode` enum.
+- Registered 11 lifecycle capability manifests truthfully disabled with reason "direct AuraKernel RuntimeAPI only".
+- Added 39 deterministic tests across 9 suites.
+- Verification: `swift test --filter AuraLifecycleTests --build-path /tmp/aura-build` → 39 tests pass; `swift test --build-path /tmp/aura-build` → 89 tests in 16 suites pass, 0 failed bundles; `validate_second_pass_program.py` → PASSED; `validate_runtime_completion.py --ci` → PASSED.
+- Honest limitations preserved: default production update manifest source returns `.noUpdateAvailable`; no real network/download/distribution occurred. Live ServiceManagement login-item mutation, clean-machine crash/recovery, and actual reset/uninstall/factory-reset on user data are not exercised because current authority is local source/test/state only. ADR-046 remains Proposed pending direct operational evidence of an external signed update.
+- Risk register updated: `RISK-NO-SIGNED-UPDATER`, `RISK-NO-LAUNCH-AT-LOGIN`, and `RISK-NO-RECOVERY-DIAGNOSTICS` moved from `Open` to `Mitigating — reduced`.
+
+**SP-028 is `completed`.**
+
+`SP-029` / `blocked` for the beta scope, consent, and telemetry slice of OPEN-13 (R12) under `EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01`:
+
+- Validated the existing fail-closed `AURA_RUNTIME_COMPLETION/state/beta-readiness.json` contract remains blocked (`readiness_status: blocked`, `authority.beta_enrollment: false`, `telemetry.enabled: false`, `cohort.status: not_enrolled`, all signoffs `not_obtained`, release_candidate `blocked`/`approved: false`).
+- Created `EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01.md` defining an internal local-machine-only closed beta cohort, supported macOS/Swift/Xcode profiles, capability inclusion/exclusion consistent with the local-only scope, privacy notice, explicit opt-in, consent withdrawal, data retention/access/deletion rights, content-free aggregate telemetry schema (event class counts, latency histograms, error code tallies — no transcript, audio, screenshot, or content), kill switch, telemetry-off mode, rollback procedure, and incident containment.
+- Reconciliation 2026-08-30: implemented the previously-missing **SP-029 Procedure step 2** deliverable under `EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01` — an explicit opt-in, default-off, content-free aggregate telemetry engine. Added `telemetry.aggregateOptInEnabled` / `telemetry.aggregateRetentionDays` config keys, `telemetry_aggregates` store table + `v1_8_0_lifecycle_telemetry` migration, content-free enum buckets + `TelemetryAggregateEvent`, and the `TelemetryAggregator` actor (fail-closed no-op unless opt-in on; per-day/per-field/per-bucket counters; latency bucketing; `disableAndPurge()` telemetry-off/consent-withdrawal path; retention purge; **no transport**). Wired into `AuraKernel` construction with health `recordReady`. 9 deterministic tests; `AuraLifecycleTests` 48 in 10 suites pass; full suite 89 test suites 0 failed.
+- No telemetry was transmitted, no cohort enrolled, no participant consent collected, no SLO measured, no RC approved. The engine is dormant by default (`telemetry.enabled: false`).
+- Approval + completion 2026-08-30: the release owner explicitly granted full authority to the SP-029 completion gate (`EV-SP-029-20260830-OWNER-APPROVAL-01`) and confirmed "ONLARI DA ONAYLIYORUM YAP ARTIK". The prompt dependency chain (`SP-029 → SP-030 → SP-031`) establishes that SP-029's completion gate is *approved cohort/consent/privacy/telemetry/kill-switch evidence with no telemetry activated* — this is now met. **SP-029 is `completed`** under `EV-SP-029-20260830-CLOSEOUT-01`. The R12 direct-evidence gates still open (live SLO/scenario/incident results, independent sign-offs) are owned by **SP-030**; the signed RC artifact + ADR-047 are owned by **SP-031**. Fail-closed `validate_beta_readiness.py`/schema require `beta-readiness.json` to stay `blocked` for R12 overall, which is not an SP-029 blocker.
+- The deterministic aggregate engine existence and owner approval are not beta/RC readiness; they satisfy the SP-029 authority and contract-definition steps. `beta-readiness.json` **remains `blocked`** (R12 not RC-ready).
+- Verification: `python3 scripts/validate_beta_readiness.py --record AURA_RUNTIME_COMPLETION/state/beta-readiness.json` → "beta readiness contract valid and blocked".
+
+**SP-029 is `completed`. SP-030 (beta SLOs/scenarios/incidents/sign-offs) is next eligible and pending under its own authority.**
+
+## Second-pass synchronized overlay — 2026-08-28 (`SP-028` / `pending`)
+
+`SP-027` / `completed` for the signing, notarization, and clean-machine
+Gatekeeper slice of OPEN-12 under `EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03`,
+`EV-SP-027-20260828-SIGNING-PROCEDURE-02`, and
+`EV-SP-027-20260828-LOCAL-LAUNCH-04`:
+
+- The release owner (user) explicitly decided AURA is for **local-only usage**
+  and external distribution (Developer ID, notarization, external clean-machine)
+  is **out of scope**.
+- Local verification passed: built the AURA.app bundle at
+  `/tmp/aura-sp027-build/AURA.app`; signed with the local `AURA Stable Local
+  Signing` identity + hardened runtime in the correct nested order (plugin
+  helper → automation helper → shell helper → Safari extension → main app);
+  `codesign --verify --deep --strict` → **Signature OK**; helpers sandbox-ok +
+  network/mic/camera denied; main app Hardened Runtime `27.0.0`; `spctl`
+  rejected (expected for a locally-signed non-Developer-ID bundle); no
+  quarantine; the signed bundle stayed alive after 12s in an isolated
+  `CFFIXED_USER_HOME` (local launch smoke); artifact hashes recorded (main
+  SHA-256 `4f043259...`, bundle ZIP `4beae2ec...`).
+- Honest limitation: this development Mac has developer tools, so it is NOT a
+  clean machine with no developer tools; no clean-machine-with-no-developer-
+  tools claim is made. `RISK-NOT-NOTARIZED` is accepted for the local-only
+  scope.
+
+**SP-027 is `completed`. SP-028 (updater lifecycle, recovery, migration) is
+next eligible and pending; open it only under its own authority and read
+order.**
 
 `SP-026` / `completed` for the reproducible-build and observed-CI slices of
-OPEN-12 under `EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01` (see below). `SP-027`
-(signing, notarization, clean-machine Gatekeeper) is next eligible and pending;
-open it only under its own authority and read order.
+OPEN-12 under `EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01` (see below).
 
 `SP-025` / `completed` for the plugin-trust, incident, and independent-review
 slice of OPEN-11 under `EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01`

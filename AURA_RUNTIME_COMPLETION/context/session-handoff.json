@@ -1,130 +1,100 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-28T00:00:00Z",
-  "session_id": "AURA-SP-026-ATTEMPT-20260828",
-  "last_verified_commit": "348bb6aceb60bb387214ab5f35ad955fbad77dd7",
+  "updated_at": "2026-08-29T00:00:00Z",
+  "session_id": "AURA-SP-029-BETA-CONTRACT-20260829",
+  "last_verified_commit": "37805cb0e61cd4c46d7a3653c2ad8da212295a7a",
   "active_prompt": {
-    "id": "SP-027",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-027_SIGNING_NOTARIZATION_AND_CLEAN_MACHINE_GATEKEEPER.prompt.md",
-    "state": "pending",
-    "step": "SP-026 COMPLETED: observed CI run 33157842324 on canonical commit 348bb6a succeeded (governance + build-and-test; line coverage 70.69%; development_unverified artifact 9680431386 with provenance matching the canonical commit). SP-027 is next eligible and pending."
+    "id": "SP-030",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
+    "state": "in_progress",
+    "step": "SP-030 IN_PROGRESS: owner approved continuation path (R11 local gates, ADR-046 local-only formalization, SP-030, telemetry_or_beta true). Run R12 SLO/scenario/incident/sign-off evidence program; content-free aggregates only under explicit opt-in; user-present live measurement. Keep beta-readiness.json blocked until SP-030/SP-031 evidence closes R12 gates. No fabricated measurements/telemetry/sign-offs."
   },
-  "summary": "SP-026 COMPLETED (release toolchain, reproducibility, CI; OPEN-12). Delivered the reproducible-build slice: pinned toolchain (Xcode 27.0 beta 5, Swift 6.4, SDK 27.0); built the development_unverified artifact+manifest at canonical commit 3e81582 (SHA-256 202bb5cd...) with deterministic-archive reproduction given identical commit+build root; fixed a provenance defect in generate_release_manifest.py. Closed the observed-CI slice by registering a temporary self-hosted macOS/swift-6.4 runner and running the actual CI workflow on canonical commit 348bb6a: run 33157842324 completed success for governance + build-and-test, line coverage 70.69% (restored above the 70% ratchet), development_unverified artifact 9680431386 retained with provenance matching the canonical commit. Resolved CI-surfaced blockers (SP-* active prompt schema/manifest, stale projections, coverage regression, Swift warnings-as-errors). Full suite 0 failed bundles; governance 41/41; all validators pass. SP-027 is next eligible and pending.",
+  "summary": "SP-029 is COMPLETED for its beta scope/consent/privacy/telemetry/kill-switch contract scope. SP-030 (beta SLOs/scenarios/incidents/sign-offs) is IN_PROGRESS: the owner approved the continuation-path authority (R11 local gates, ADR-046 local-only formalization, SP-030 opening, telemetry_or_beta: true). The release owner approved the SP-029 contract (EV-SP-029-20260830-OWNER-APPROVAL-01) and confirmed 'ONLARI DA ONAYLIYORUM YAP ARTIK'. The in-scope content-free aggregate engine (EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01) is implemented default-off/no-transport. SP-030 defines/runs the R12 SLO/scenario/incident/sign-off evidence program; content-free aggregates are collectable only under explicit opt-in; beta-readiness.json stays blocked until SP-030/SP-031 evidence closes the R12 direct-evidence gates. SP-031 owns signed RC + ADR-047.",
   "completed": [
-    "Pinned and recorded exact toolchain versions (Xcode 27.0 beta 5, Swift 6.4, SDK 27.0, Git 2.54.0, Python 3.14.6, gh 2.95.0).",
-    "Delivered the SP-025 predecessor to main at 5a664a0 and committed the generator provenance fix at 3e81582 (pushed; origin/main equal).",
-    "Built reproducible development_unverified AURA.app bundle + ZIP + manifest at canonical commit 3e81582 with clean provenance; deterministic-archive reproduction confirmed given identical commit+build root.",
-    "Fixed generate_release_manifest.py to report clean working trees correctly (added run_optional_keep_empty) and added a regression test.",
-    "Registered a temporary self-hosted macOS/swift-6.4 runner (SHA-verified download) and ran the actual CI workflow on canonical commit 348bb6a.",
-    "Observed CI run 33157842324 succeeded (governance + build-and-test; line coverage 70.69%; development_unverified artifact 9680431386).",
-    "Resolved CI-surfaced blockers: SP-* active-prompt schema/manifest acceptance, stale projections, coverage regression (added ConfigurationValidationTests), and Swift warnings-as-errors build failures.",
-    "Recorded EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01 and marked SP-026 completed."
+    "SP-029 COMPLETED for its beta scope/consent/privacy/telemetry/kill-switch contract scope (EV-SP-029-20260830-CLOSEOUT-01).",
+    "Recorded release-owner approval of the SP-029 beta/consent/privacy/telemetry/kill-switch contract (EV-SP-029-20260830-OWNER-APPROVAL-01); the release owner explicitly granted full authority to the completion gate.",
+    "Implemented SP-029 Procedure step 2 (previously missing): explicit opt-in content-free aggregate telemetry engine.",
+    "Added config keys telemetry.aggregateOptInEnabled (default false, user-scoped/reversible) and telemetry.aggregateRetentionDays (default 90); privacy.rawTelemetryEnabled stays immutable false.",
+    "Added telemetry_aggregates store table + v1_8_0_lifecycle_telemetry migration.",
+    "Added content-free enum buckets and TelemetryAggregateEvent payloads (TelemetryEventPayloads.swift).",
+    "Added TelemetryAggregator actor: fail-closed (no-op unless opt-in on), per-day/per-field/per-bucket counters, latency bucketing, disableAndPurge() telemetry-off/consent-withdrawal path, retention purge, no transport.",
+    "Wired telemetryAggregator into AuraKernel construction with health recordReady.",
+    "Added 9 deterministic TelemetryAggregatorTests; swift build passes; AuraLifecycleTests 48 in 10 suites pass; full suite 89 test suites 0 failed.",
+    "Created EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01 and EV-SP-029-20260830-OWNER-APPROVAL-01 and updated EVIDENCE_INDEX, SECOND_PASS_LEDGER, PROGRAM_LEDGER, PROJECT_LEDGER, SECOND_PASS_OPEN_GAPS, SECOND_PASS_STATE.json, current-state.json, ACTIVE_CONTEXT, RISK_REGISTER."
   ],
   "files_changed": [
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01.md",
-    "AURA_RUNTIME_COMPLETION/schemas/program-state.schema.json",
-    "scripts/validate_runtime_completion.py",
-    "scripts/tests/test_validate_runtime_completion.py",
-    "scripts/generate_release_manifest.py",
-    "scripts/tests/test_release_manifest.py",
-    "Tests/AuraCoreTests/ConfigurationValidationTests.swift",
-    "Sources/AuraProductivity/ProductivityAdapters_IntegrationOnboardingService.swift",
-    "Sources/AuraIntent/IntentDispatchCoordinator.swift",
-    "Tests/AuraProductivityTests/OAuthLeakageCorpusTests.swift",
-    "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json",
-    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
-    "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+    "Sources/AuraConfig/ConfigurationTypes.swift",
+    "Sources/AuraStore/AuraDatabase_MigrationsAndBinding.swift",
+    "Sources/AuraLifecycle/TelemetryEventPayloads.swift",
+    "Sources/AuraLifecycle/TelemetryAggregator.swift",
+    "Sources/AURA/AuraKernel.swift",
+    "Sources/AURA/AuraKernel_Construction.swift",
+    "Tests/AuraLifecycleTests/TelemetryAggregatorTests.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+    "ledger/PROJECT_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+    "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "ledger/PROJECT_LEDGER.md",
-    "ledger/CURRENT_STATE.md"
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md"
   ],
   "evidence_ids": [
-    "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01",
-    "EV-SP-026-20260828-REPRODUCIBLE-ARTIFACT-BLOCKED-01",
-    "EV-SP-025-20260827-PLUGIN-TRUST-INCIDENT-ADR044-01",
-    "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01",
-    "EV-SP-023-20260827-AUTHENTICATED-IPC-01",
-    "EV-SP-022-20260826-LIVE-TASK-CONTROLS-04",
-    "EV-SP-022-20260826-LIVE-DIALOGUE-02",
-    "EV-SP-022-20260826-LIVE-UI-01",
-    "EV-SP-022-20260826-LIVE-GATE-PROCEDURE-02",
-    "EV-SP-022-20260826-TASK-CONTROLS-SOURCE-01",
-    "EV-SP-021-20260825-LIVE-ACCESSIBILITY-04",
-    "EV-SP-021-20260825-DYNAMIC-TYPE-LIVE-03",
-    "EV-SP-021-20260825-FOLLOWUP-02",
-    "EV-SP-021-20260825-ACCESSIBILITY-LOCALIZATION-01",
-    "EV-SP-020-20260825-CLOSEOUT-02",
-    "EV-SP-020-20260825-REMOTE-BOUNDARY-01",
-    "EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14",
-    "EV-SP-019-20260824-LIVE-REFERENCE-13",
-    "EV-SP-019-20260824-TOOL-EVIDENCE-WIRING-08",
-    "EV-SP-019-20260824-LIVE-PROJECT-FACT-09",
-    "EV-SP-019-20260824-LIVE-DELETION-RECEIPT-10",
-    "EV-SP-019-20260824-TRANSPORT-TRACE-11",
-    "EV-SP-019-20260824-MEMORY-AUTHORITY-12",
-    "EV-SP-019-20260824-CLOSEOUT-07",
-    "EV-SP-019-20260824-LIVE-CONTROLS-06",
-    "EV-SP-019-20260824-CLOSEOUT-05",
-    "EV-SP-019-20260824-LOCAL-CONTROLS-01",
-    "EV-SP-019-20260824-LAUNCH-SMOKE-02",
-    "EV-SP-019-20260824-LIVE-CONTROLS-04",
-    "EV-SP-018-20260824-TEST-RUNNER-FIX-06",
-    "EV-SP-018-20260823-PRODUCTION-REFERENCE-WIRING-01",
-    "EV-SP-018-20260823-FOCUSED-TESTS-02",
-    "EV-SP-018-20260823-FULL-SUITE-03",
-    "EV-SP-018-20260823-GOVERNANCE-CLOSEOUT-04",
-    "EV-SP-018-20260823-DELIVERY-05"
+    "EV-SP-029-20260830-CLOSEOUT-01",
+    "EV-SP-029-20260830-OWNER-APPROVAL-01",
+    "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01",
+    "EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01",
+    "EV-SP-028-20260829-CLOSEOUT-03",
+    "EV-SP-028-20260829-RUNTIME-API-02",
+    "EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01"
   ],
   "tests": [
     {
-      "name": "Observed CI run (governance + build-and-test)",
+      "name": "swift build --build-path /tmp/aura-build",
       "result": "passed",
-      "evidence_id": "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01"
+      "evidence_id": "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01"
     },
     {
-      "name": "Line coverage (70.69% meets 70% ratchet)",
+      "name": "AuraLifecycleTests: 48 tests in 10 suites pass (includes 9 new TelemetryAggregatorTests)",
       "result": "passed",
-      "evidence_id": "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01"
+      "evidence_id": "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01"
     },
     {
-      "name": "Full suite (21/21 bundles, 0 failed)",
+      "name": "Full suite: 89 test suites, 0 failed",
       "result": "passed",
-      "evidence_id": "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01"
+      "evidence_id": "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01"
     },
     {
-      "name": "Governance tests (41/41)",
+      "name": "validate_beta_readiness.py --record beta-readiness.json PASSED (blocked)",
       "result": "passed",
-      "evidence_id": "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01"
+      "evidence_id": "EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01"
     },
     {
-      "name": "Second-pass / runtime-completion / supply-chain validators",
+      "name": "No telemetry/cohort/consent/SLO/RC transmission action performed (approval covers contract scope only)",
       "result": "passed",
-      "evidence_id": "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01"
-    },
-    {
-      "name": "validate_release_manifest.py on CI-retained development artifact",
-      "result": "passed",
-      "evidence_id": "EV-SP-026-20260828-OBSERVED-CI-COMPLETED-01"
+      "evidence_id": "EV-SP-029-20260830-OWNER-APPROVAL-01"
     }
   ],
   "blockers": [
-    "Full release signing, notarization, clean-machine Gatekeeper, nested-helper/TCC identity, and signed update/rollback evidence remain separate R11/ADR-046 gates.",
-    "No release or deployment action is authorized."
+    "SP-030 (beta SLOs/scenarios/incidents/sign-offs) is pending and must be opened under its own authority.",
+    "R12 as a whole is not RC-ready: fail-closed beta-readiness.json stays blocked (authority flags false, cohort not_enrolled, consent not_collected, telemetry enabled:false/transport:none, sign-offs not_obtained, RC blocked/approved:false).",
+    "R11 is incomplete (development_unverified; no signed/notarized clean-machine artifact; no ADR-046 acceptance).",
+    "R12 direct-evidence gates for the SP-030/SP-031 scope remain open: live scenario/SLO/incident results, independent sign-offs, signed RC artifact (SP-031), and ADR-047 (SP-031).",
+    "No controlled beta cohort is enrolled; no participant consent is collected; no telemetry is transmitted; no SLO is measured; no RC is approved."
   ],
   "open_decisions": [
-    "SP-026 is completed for the reproducible-build and observed-CI slices. SP-027 is next eligible and pending."
+    "SP-029 is completed. SP-030 (SLOs/scenarios/incidents/sign-offs) is next eligible and pending; SP-031 (RC package + ADR-047) follows."
   ],
   "risks": [
-    "RISK-NO-REPRODUCIBLE-ARCHIVE",
+    "RISK-NO-INDEPENDENT-BETA-EVIDENCE",
+    "RISK-NO-BETA-CONSENT-BOUNDARY",
+    "RISK-NO-RC-EVIDENCE-PACKAGE",
+    "RISK-NOT-NOTARIZED",
+    "RISK-NO-SIGNED-UPDATER",
     "RISK-TOOLCHAIN-PREVIEW",
     "RISK-IPC-PEER-AUTH-ABSENT",
     "RISK-MAIN-PROCESS-PRIVILEGE-CONCENTRATION",
@@ -133,7 +103,7 @@
     "RISK-INDIRECT-PROMPT-INJECTION",
     "RISK-PLUGIN-TRUST-EVIDENCE-ABSENT"
   ],
-  "next_action": "SP-026 COMPLETED. Observed CI run 33157842324 on canonical commit 348bb6a succeeded; development_unverified artifact 9680431386 retained with provenance matching the canonical commit. Temporary runner will be deregistered. SP-027 is next eligible and pending; open it only under its own authority and read order.",
+  "next_action": "SP-030 IN_PROGRESS: owner approved the continuation path (R11 local gates, ADR-046 local-only formalization, SP-030, telemetry_or_beta true). Read SP-030 prompt and run the R12 beta SLO/scenario/incident/sign-off evidence program; content-free aggregates only under explicit opt-in; user-present live measurement. Keep beta-readiness.json blocked until SP-030/SP-031 evidence closes R12 gates. Do not fabricate measurements/telemetry/sign-offs.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -143,7 +113,8 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-027_SIGNING_NOTARIZATION_AND_CLEAN_MACHINE_GATEKEEPER.prompt.md"
+    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
+    "AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md"
   ],
-  "notes": "SP-026 is COMPLETED for the reproducible-build and observed-CI slices of OPEN-12. The reproducible development_unverified build+manifest was delivered at canonical commit 3e81582 (artifact SHA-256 202bb5cd...) with deterministic-archive reproduction given identical commit+build root and a fixed provenance defect. The observed-CI slice was closed by registering a temporary self-hosted macOS/swift-6.4 runner and running the actual CI workflow on canonical commit 348bb6a: run 33157842324 completed success for governance and build-and-test, line coverage 70.69% (restored above the unchanged 70% ratchet), development_unverified artifact 9680431386 retained with provenance matching the canonical commit. CI-surfaced blockers (SP-* active-prompt schema/manifest, stale projections, coverage regression, Swift warnings-as-errors) were resolved. Full suite 0 failed bundles; governance 41/41; all validators pass. The app artifact is development_unverified, not signed/notarized, and not a release. No raw audio, screenshots, secrets, tokens, private account data, or unredacted model output were written to any ledger or context file."
+  "notes": "SP-029 is COMPLETED (EV-SP-029-20260830-CLOSEOUT-01): beta scope/consent/privacy/telemetry/kill-switch contract defined (EV-SP-029-20260829-01), owner-approved (EV-SP-029-20260830-OWNER-APPROVAL-01), content-free aggregate engine with no transport implemented and dormant by default (EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01). SP-030 is IN_PROGRESS: the owner approved the continuation-path authority (R11 local gates, ADR-046 local-only formalization, SP-030, telemetry_or_beta true). R11 closure plan: AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md (EV-SP-029-20260830-R11-CLOSURE-PLAN-01). No telemetry transmission, cohort enrollment, participant consent collection, SLO measurement, or RC approval was performed. R12 is not RC-ready; beta-readiness.json stays blocked; artifact stays development_unverified. Run validators and mandatory 15_SESSION_CLOSEOUT.prompt.md."
 }

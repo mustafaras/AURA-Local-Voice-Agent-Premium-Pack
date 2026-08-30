@@ -48,7 +48,8 @@ let package = Package(
         .library(name: "AuraPlugins", targets: ["AuraPlugins"]),
         .library(name: "AuraIntent", targets: ["AuraIntent"]),
         .library(name: "AuraConfig", targets: ["AuraConfig"]),
-        .library(name: "AuraProductivity", targets: ["AuraProductivity"])
+        .library(name: "AuraProductivity", targets: ["AuraProductivity"]),
+        .library(name: "AuraLifecycle", targets: ["AuraLifecycle"])
     ],
     dependencies: [
     ],
@@ -74,7 +75,8 @@ let package = Package(
                 "AuraPlugins",
                 "AuraConfig",
                 "AuraVSCode",
-                "AuraProductivity"
+                "AuraProductivity",
+                "AuraLifecycle"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
@@ -362,9 +364,24 @@ let package = Package(
                 .linkedFramework("Network", .when(platforms: [.macOS]))
             ]
         ),
+        .target(
+            name: "AuraLifecycle",
+            dependencies: ["AuraCore", "AuraStore", "AuraConfig", "AuraSecurity"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("ServiceManagement", .when(platforms: [.macOS]))
+            ]
+        ),
         .testTarget(
             name: "AuraProductivityTests",
             dependencies: ["AuraProductivity", "AuraSecurity", "AuraCore", "AuraIntent"],
+            swiftSettings: testingSwiftSettings
+        ),
+        .testTarget(
+            name: "AuraLifecycleTests",
+            dependencies: ["AuraLifecycle", "AuraCore", "AuraStore", "AuraConfig", "AuraSecurity"],
             swiftSettings: testingSwiftSettings
         ),
         .testTarget(
@@ -437,9 +454,10 @@ let package = Package(
                 "AuraIntent",
                 "AuraConfig",
                 "AuraSecurity",
-                "AuraProductivity"
-            , "AuraSafariExtensionHandler"],
+                "AuraProductivity",
+                "AuraSafariExtensionHandler"
+            ],
             swiftSettings: testingSwiftSettings
-        )
+        ),
     ]
 )

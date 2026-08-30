@@ -173,6 +173,7 @@ extension Capability {
     case .reversible: return .computerUseInteract
     case .mutation: return .computerUseMutate
     case .destructive: return .computerUseDestructiveAct
+    case .network: return .computerUseDestructiveAct
     }
   }
 
@@ -225,6 +226,32 @@ extension Capability {
   /// tier — always allowed by default, never denied or confirmed.
   public static let intentConverse = Capability(
     domain: "intent", action: "converse", riskTier: .observation)
+
+  // MARK: Lifecycle / updater / recovery capabilities
+
+  public static let lifecycleLaunchAtLogin = Capability(
+    domain: "lifecycle", action: "launchAtLogin", riskTier: .mutation)
+  public static let lifecycleCheckUpdate = Capability(
+    domain: "lifecycle", action: "checkUpdate", riskTier: .network)
+  public static let lifecycleApproveUpdate = Capability(
+    domain: "lifecycle", action: "approveUpdate", riskTier: .destructive)
+  public static let lifecycleStageUpdate = Capability(
+    domain: "lifecycle", action: "stageUpdate", riskTier: .destructive)
+  public static let lifecycleRollback = Capability(
+    domain: "lifecycle", action: "rollback", riskTier: .destructive)
+  public static let lifecycleSafeMode = Capability(
+    domain: "lifecycle", action: "safeMode", riskTier: .mutation)
+  public static let lifecycleReset = Capability(
+    domain: "lifecycle", action: "reset", riskTier: .destructive)
+  public static let lifecycleSupportBundle = Capability(
+    domain: "lifecycle", action: "supportBundle", riskTier: .observation)
+  public static let lifecycleMigrationPreflight = Capability(
+    domain: "lifecycle", action: "migrationPreflight", riskTier: .observation)
+  public static let lifecycleUninstall = Capability(
+    domain: "lifecycle", action: "uninstall", riskTier: .destructive)
+  public static let lifecycleFactoryReset = Capability(
+    domain: "lifecycle", action: "factoryReset", riskTier: .destructive)
+
   /// A shell command matched a conservative destructive-pattern denylist
   /// (`IntentSemanticCategory.shellDestructive`). Distinct from `.shellExec`
   /// so a grant scoped to ordinary shell execution can never silently cover
