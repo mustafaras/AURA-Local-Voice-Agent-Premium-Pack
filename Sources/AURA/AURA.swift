@@ -34,7 +34,8 @@ struct AURAApp: App {
         "AURA — \(model.status.title(for: model.productUIState.language))",
         systemImage: model.status.symbolName)
         .accessibilityLabel(
-          "AURA status: \(model.status.title(for: model.productUIState.language))")
+          "\(AuraCopy.text("a11y.statusPrefix", language: model.productUIState.language)): "
+            + "\(model.status.title(for: model.productUIState.language))")
     }
     .menuBarExtraStyle(.window)
 

@@ -57,6 +57,16 @@ final class AuraAppModel: ObservableObject {
   @Published var status: AuraAppStatus = .starting
   @Published var statusDetail = "Starting local services"
   @Published var permissions = PermissionCoordinator.snapshot()
+
+  /// Launch-at-login state, mirrored from the lifecycle controller. The
+  /// capability was implemented in SP-028 and wired into the kernel, but had
+  /// no user-reachable control until 2026-08-30 — a feature nobody can turn on
+  /// is not shipped, and the R11 gate asks for a live enable/disable.
+  @Published var launchAtLoginEnabled = false
+  @Published var launchAtLoginDetail = ""
+  /// Latency percentiles (p50/p95/p99) observed in this process, for the
+  /// Recovery tab readout. Empty until a real turn has been taken.
+  @Published var latencySummaries: [LatencyPercentileSummary] = []
   @Published var pendingConfirmation: PolicyConfirmationChallenge?
   @Published var tasks: [AuraTaskSummary] = []
   @Published var emergencyStopActive = false

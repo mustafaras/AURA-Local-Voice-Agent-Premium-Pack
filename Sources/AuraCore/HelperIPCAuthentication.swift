@@ -64,9 +64,14 @@ public struct HelperIPCAuthenticator: Sendable {
   }
 
   public func constantTimeEquals(_ lhs: String, _ rhs: String) -> Bool {
-    guard lhs.count == rhs.count else { return false }
+    // Compare the UTF-8 byte counts, never `String.count`. `String.count` is a
+    // grapheme count, so a hostile 64-*character* tag containing a multi-byte
+    // scalar passes a grapheme-length guard while producing a longer byte array
+    // than the computed tag, and indexing the shorter side traps. This check
+    // runs before authentication succeeds and its input is attacker-controlled.
     let a = Array(lhs.utf8)
     let b = Array(rhs.utf8)
+    guard a.count == b.count else { return false }
     var diff: UInt8 = 0
     for i in a.indices {
       diff |= a[i] ^ b[i]

@@ -39,13 +39,80 @@ extension AuraAppModel {
     permissions = PermissionCoordinator.requestAccessibilityPermission()
   }
 
+  /// `preservingDetail` exists because this method is also the re-read on
+  /// `setLaunchAtLogin`'s failure path. Clearing the detail unconditionally
+  /// erased the message that path had just written, so a toggle that failed
+  /// snapped back with **no explanation at all** — the silent failure the
+  /// `catch` below is explicitly written to avoid. Found live on 2026-08-31
+  /// (`EV-SP-030-20260831-R11-LIVE-GATE-01`): the UI showed an unchanged
+  /// toggle and an empty detail while the underlying call had thrown.
+  func refreshLaunchAtLogin(preservingDetail: String? = nil) {
+    Task {
+      do {
+        launchAtLoginEnabled = try await kernel?.isLaunchAtLoginEnabled() ?? false
+        launchAtLoginDetail = preservingDetail ?? ""
+      } catch {
+        // Reported, never swallowed: a silent false here would read as
+        // "disabled" when the truth is "could not be determined".
+        launchAtLoginDetail = error.localizedDescription
+      }
+    }
+  }
+
+  func setLaunchAtLogin(_ enabled: Bool) {
+    Task {
+      do {
+        guard let result = try await kernel?.setLaunchAtLoginEnabled(enabled) else { return }
+        launchAtLoginEnabled = result.enabled
+        launchAtLoginDetail = result.detail
+      } catch {
+        let message = error.localizedDescription
+        launchAtLoginDetail = message
+        // Re-read rather than assume the toggle took effect — but carry the
+        // reason through, or the re-read reports success and wipes it.
+        refreshLaunchAtLogin(preservingDetail: message)
+      }
+    }
+  }
+
+  func refreshLatencySummaries() {
+    Task { latencySummaries = await kernel?.latencyPercentileSummaries() ?? [] }
+  }
+
   func requestScreenRecordingPermission() {
     permissions = PermissionCoordinator.requestScreenRecordingPermission()
   }
 
+  /// `ptt_ack` sample eligibility and elapsed time, or `nil` when the turn is
+  /// not a sample at all.
+  ///
+  /// A turn that had to raise the OS permission prompt is **excluded**. Its
+  /// window contains the user's reaction time to a modal dialog plus one-time
+  /// speech-engine startup — neither is the machine latency this SLO reports,
+  /// and one such sample would dominate an early percentile set. Denial
+  /// already returns before the acknowledgement; *granting* did not, which is
+  /// the case this guards.
+  /// `nonisolated`: pure arithmetic over its arguments, touching no model
+  /// state, so it carries no main-actor requirement of its own.
+  nonisolated static func pushToTalkAckSample(
+    pressedAt: DispatchTime,
+    acknowledgedAt: DispatchTime,
+    promptedForPermissions: Bool
+  ) -> Double? {
+    guard !promptedForPermissions else { return nil }
+    return Double(
+      acknowledgedAt.uptimeNanoseconds - pressedAt.uptimeNanoseconds) / 1_000_000_000
+  }
+
   func pushToTalk() {
+    // `ptt_ack` starts here, at the button press. Any later origin — the wake
+    // activation, the first response plan — measures a different thing and
+    // would understate what the user actually waits for.
+    let pressedAt = DispatchTime.now()
     Task {
+      var promptedForPermissions = false
       if !permissions.speechReady {
+        promptedForPermissions = true
         // Proactively trigger the real OS permission prompt here instead of
         // only setting a passive status label — a user pressing Push to Talk
         // expects that action itself to request access, the same way it
@@ -73,6 +140,18 @@ extension AuraAppModel {
         try await kernel?.activatePushToTalk()
         status = .listening
         statusDetail = "Listening on device"
+        // Recorded only on the path that actually reached the listening
+        // acknowledgement, and only when no permission prompt intervened.
+        // A failure returns before this point; a *granted* prompt did not,
+        // so the exclusion is enforced by `pushToTalkAckSample` rather than
+        // by control flow.
+        if let elapsed = Self.pushToTalkAckSample(
+          pressedAt: pressedAt,
+          acknowledgedAt: .now(),
+          promptedForPermissions: promptedForPermissions)
+        {
+          await kernel?.recordPushToTalkAcknowledgement(seconds: elapsed)
+        }
       } catch {
         setError(error.localizedDescription)
       }
@@ -126,6 +205,19 @@ extension AuraAppModel {
     confirmationContinuation = nil
     pendingConfirmation = nil
     productUIState.reduce(.hideConfirmation)
+  }
+
+  /// Fail closed when a confirmation surface goes away without an explicit
+  /// answer — Escape, a drag-dismiss, a window closing.
+  ///
+  /// Answering through `AuraConfirmationCard` clears `pendingConfirmation`
+  /// first, so this is a no-op on that path and cannot turn an *accepted*
+  /// authorization into a denial. Anything else leaves the challenge pending,
+  /// and an authorization the user never granted must never be treated as
+  /// granted. See `EV-SP-030-20260831-R11-LIVE-GATE-03`.
+  func denyConfirmationIfStillPending() {
+    guard pendingConfirmation != nil else { return }
+    resolveConfirmation(accepted: false, outcome: .denied)
   }
 
   func selectTab(_ tab: AuraProductTab) {

@@ -365,9 +365,20 @@ extension InitialCapabilitySet {
   private static let vscodeDisabledReason =
     "VS Code capabilities start disabled until the authenticated extension bridge is live."
 
+  // SP-030 (`EV-SP-030-20260831-R11-POLICY-BLOCK-01`): the previous wording
+  // claimed these were "reachable through direct AuraKernel RuntimeAPI calls".
+  // That was FALSE for nine of the eleven. Being disabled here keeps them out
+  // of the NLU classifier, which is deliberate; but the direct-call route named
+  // as the compensating control was itself denied, because `.mutation`,
+  // `.destructive` and `.network` are deny-by-default and no grant existed. The
+  // reason string is split so it can no longer assert reachability the code
+  // does not provide.
   private static let lifecycleDirectCallReason =
-    "Wired into the composition root and reachable through direct AuraKernel RuntimeAPI calls; "
-    + "not routed through the natural-language intent engine in this pass."
+    "Wired into the composition root and not routed through the natural-language intent "
+    + "engine in this pass; reachable only through direct AuraKernel RuntimeAPI calls, and "
+    + "only where a policy grant exists. Of these, ONLY lifecycle.launchAtLogin is granted "
+    + "(DefaultPolicyGrants, SP-030). The observation-tier support bundle and migration "
+    + "preflight allow by default. The rest stay deny-by-default and are NOT reachable."
 
   public static let vscodeEditorState = vscodeObservationManifest(
     id: "vscode.editor_state",

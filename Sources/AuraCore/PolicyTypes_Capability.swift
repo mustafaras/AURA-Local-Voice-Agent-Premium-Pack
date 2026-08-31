@@ -231,6 +231,16 @@ extension Capability {
 
   public static let lifecycleLaunchAtLogin = Capability(
     domain: "lifecycle", action: "launchAtLogin", riskTier: .mutation)
+  /// Reading whether a login item exists. SP-030
+  /// (`EV-SP-030-20260831-R11-LIVE-GATE-01`): this was previously gated by
+  /// `lifecycleLaunchAtLogin` itself, so a *read* demanded the same
+  /// `.mutation` confirmation as a write — opening Settings raised a card, the
+  /// toggle raised a second, and the failure path's re-read raised a third,
+  /// each expiring in 60 s. Observing a login item's presence is not a
+  /// mutation, so it gets its own `.observation` capability; the write keeps
+  /// per-action confirmation.
+  public static let lifecycleLaunchAtLoginStatus = Capability(
+    domain: "lifecycle", action: "launchAtLoginStatus", riskTier: .observation)
   public static let lifecycleCheckUpdate = Capability(
     domain: "lifecycle", action: "checkUpdate", riskTier: .network)
   public static let lifecycleApproveUpdate = Capability(

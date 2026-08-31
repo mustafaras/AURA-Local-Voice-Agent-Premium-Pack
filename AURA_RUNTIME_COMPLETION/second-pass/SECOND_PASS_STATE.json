@@ -3,10 +3,10 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-08-29T00:00:00Z",
-  "session_id": "AURA-SP-029-BETA-CONTRACT-20260829",
+  "updated_at": "2026-08-31T16:30:00Z",
+  "session_id": "AURA-SP-030-SLO-INSTRUMENTATION-20260831",
   "active_prompt": "SP-030",
-  "active_state": "in_progress",
+  "active_state": "blocked",
   "completed_prompts": [
     "SP-000",
     "SP-001",
@@ -40,8 +40,33 @@
     "SP-029"
   ],
   "blocked_prompts": [
+    "SP-030"
   ],
   "last_evidence_ids": [
+    "EV-SP-030-20260831-R11-LIVE-GATE-03",
+    "EV-SP-030-20260831-R11-LIVE-GATE-02",
+    "EV-SP-030-20260831-R11-LIVE-GATE-01",
+    "EV-SP-030-20260831-R11-POLICY-FIX-01",
+    "EV-SP-030-20260831-R11-POLICY-BLOCK-01",
+    "EV-SP-030-20260831-SLO-INSTRUMENTATION-01",
+    "EV-SP-030-20260830-A11Y-COVERAGE-03",
+    "EV-SP-030-20260830-A11Y-COVERAGE-02",
+    "EV-SP-030-20260830-RECORD-INTEGRITY-01",
+    "EV-SP-030-20260830-A11Y-COVERAGE-01",
+    "EV-SP-030-20260830-A11Y-CORRECTION-01",
+    "EV-SP-030-20260830-PRIVACY-REVIEW-01",
+    "EV-SP-030-20260830-A11Y-REMEDIATION-01",
+    "EV-SP-030-20260830-A11Y-REVIEW-01",
+    "EV-SP-030-20260830-HARNESS-MEASUREMENT-02",
+    "EV-SP-030-20260830-SECURITY-REVIEW-01",
+    "EV-SP-030-20260830-CLOSEOUT-02",
+    "EV-SP-030-20260830-HARNESS-MEASUREMENT-01",
+    "EV-SP-030-20260830-CONTRACT-MEASURED-MODE-01",
+    "EV-SP-030-20260830-ADR046-ACCEPTED-01",
+    "EV-SP-030-20260830-OWNER-APPROVAL-03",
+    "EV-SP-030-20260830-OWNER-APPROVAL-02",
+    "EV-SP-030-20260830-CLOSEOUT-01",
+    "EV-SP-030-20260830-PROGRAM-BLOCKED-01",
     "EV-SP-029-20260830-CLOSEOUT-01",
     "EV-SP-029-20260830-OWNER-APPROVAL-01",
     "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01",
@@ -149,7 +174,8 @@
     "push": true,
     "merge": true,
     "release_or_deploy": true
-  },  "control_files": {
+  },
+  "control_files": {
     "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "prompt_manifest": "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
     "prompt_contract": "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
@@ -160,5 +186,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-030 IN_PROGRESS: owner approved the continuation-path authority (R11 local gates, ADR-046 local-only formalization, SP-030 opening, telemetry_or_beta). SP-029 remains completed. Define the beta SLO/scenario/incident/sign-off evidence program; collect content-free aggregates via the default-off engine only under explicit opt-in; run live SLOs/scenarios in a user-present session; record incidents/remediation; obtain independent sign-offs. Keep beta-readiness.json blocked until SP-030/SP-031 evidence closes R12 direct-evidence gates. Do not fabricate measurements, telemetry transmission, or sign-offs."
+  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. 2026-08-31 recorded SIX new evidence IDs: SLO-INSTRUMENTATION-01, R11-POLICY-BLOCK-01, R11-POLICY-FIX-01, R11-LIVE-GATE-01, R11-LIVE-GATE-02, R11-LIVE-GATE-03. SLOs: ptt_ack and stt_partial are INSTRUMENTED but hold ZERO samples and stay not_measured -- instrumentation is not measurement; beta-readiness.json untouched. A contamination defect was fixed before any sample was taken. stt_partial CANNOT be automated: it needs the owner to speak. Below ~20 samples record 'insufficient samples', never a p95/p99. NEVER substitute wakeToAck. R11: 9 of 11 lifecycle capabilities were denied before reaching their implementation. Owner authorized three changes: a seeded lifecycleLaunchAtLogin grant + wiring evaluateDirectCapability to the existing confirmationPresenter; a new observation-tier lifecycleLaunchAtLoginStatus so a READ no longer needs a mutation confirmation; and rendering the confirmation card as the first row of the Settings form. PROVEN LIVE: the old 'no matching grant' denial is GONE, the card IS presented, opening Settings no longer prompts, and the failure reason now persists. NOT VERIFIED: the Settings-card fix -- the display powered off after install and cannot be woken programmatically. FIRST JOB NEXT SESSION, display awake: gear -> Settings -> toggle -> the card should appear IN SETTINGS -> accept -> toggle reads back enabled -> check System Settings > General > Login Items -> reboot. R11 live gate NOT closed; SMAppService never reached. FOUR items still need a person: DeepSeek cross-review (alone unblocks security, ADR-050 s4); the owner's release_recovery + product_truthfulness verdicts (blanket approval is AUTHORITY, never review); native-speaker review of 184 AuraCopy keys; R11 live gates + ptt_ack/stt_partial with the owner present. Suite 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 OK; 3 validators exit 0. Do NOT start SP-031."
 }

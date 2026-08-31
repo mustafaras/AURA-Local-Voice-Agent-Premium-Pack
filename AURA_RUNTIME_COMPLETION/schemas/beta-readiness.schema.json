@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aura.local/schemas/runtime-completion/beta-readiness.schema.json",
   "title": "AURA Beta Readiness Contract",
+  "description": "The R12 beta readiness record. Every field has an explicit unstarted form and a measured form; a measured form must carry its own provenance (evidence ID, measurement class, limitations). Authoritative enforcement lives in scripts/validate_beta_readiness.py.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -21,21 +22,168 @@
     "release_candidate",
     "open_blockers"
   ],
+  "$defs": {
+    "evidenceId": {
+      "type": "string",
+      "pattern": "^EV-[A-Z0-9][A-Z0-9-]{4,}$",
+      "description": "Provenance pointer into EVIDENCE_INDEX.md."
+    },
+    "measurementClass": {
+      "type": "string",
+      "enum": ["live_user_present", "deterministic_harness", "synthetic_speech"],
+      "description": "How the number was produced. Travels with the number so a repeatable harness result can never be read as a live beta sample."
+    },
+    "sloDefinition": {
+      "type": "object",
+      "required": ["id", "metric", "status"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "metric": {"type": "string", "minLength": 1},
+        "percentiles": {"type": "array", "items": {"type": "number"}},
+        "status": {"type": "string", "enum": ["not_measured", "measured"]},
+        "target_ms": {"type": ["number", "null"]},
+        "sample_minimum": {"type": ["integer", "null"], "minimum": 1},
+        "measurement": {
+          "type": ["object", "null"],
+          "required": ["evidence_id", "measurement_class", "sample_count", "limitations"],
+          "properties": {
+            "evidence_id": {"$ref": "#/$defs/evidenceId"},
+            "measurement_class": {"$ref": "#/$defs/measurementClass"},
+            "sample_count": {"type": "integer", "minimum": 1},
+            "percentiles_ms": {"type": "object", "additionalProperties": {"type": "number"}},
+            "value": {"type": "number"},
+            "meets_target": {"type": "boolean"},
+            "live_beta_sample": {"type": "boolean"},
+            "limitations": {"type": "string", "minLength": 12}
+          }
+        }
+      }
+    },
+    "scenarioEntry": {
+      "type": "object",
+      "required": ["id", "status", "evidence_ids"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "status": {"type": "string", "enum": ["not_run", "passed", "failed"]},
+        "evidence_ids": {"type": "array", "items": {"$ref": "#/$defs/evidenceId"}},
+        "measurement_class": {"$ref": "#/$defs/measurementClass"},
+        "limitations": {"type": "string", "minLength": 12}
+      }
+    },
+    "signoff": {
+      "description": "Either the literal 'not_obtained', or an object naming an independent, non-implementing evaluator.",
+      "oneOf": [
+        {"type": "string", "const": "not_obtained"},
+        {
+          "type": "object",
+          "required": ["status", "evaluator", "independent", "evaluator_is_implementing_agent", "evidence_id"],
+          "properties": {
+            "status": {"type": "string", "const": "obtained"},
+            "evaluator": {"type": "string", "minLength": 1},
+            "independent": {"type": "boolean", "const": true},
+            "evaluator_is_implementing_agent": {"type": "boolean", "const": false},
+            "evidence_id": {"$ref": "#/$defs/evidenceId"},
+            "date": {"type": "string"}
+          }
+        }
+      ]
+    },
+    "remediationRecord": {
+      "type": "object",
+      "required": ["root_cause", "remediation", "regression_test", "closure_owner", "evidence_id"],
+      "properties": {
+        "root_cause": {"type": "string", "minLength": 1},
+        "remediation": {"type": "string", "minLength": 1},
+        "regression_test": {"type": "string", "minLength": 1},
+        "closure_owner": {"type": "string", "minLength": 1},
+        "evidence_id": {"$ref": "#/$defs/evidenceId"}
+      }
+    }
+  },
   "properties": {
     "$schema": {"type": "string", "const": "../schemas/beta-readiness.schema.json"},
     "schema_version": {"type": "string", "const": "1.0.0"},
-    "readiness_status": {"type": "string", "enum": ["blocked", "not_ready"]},
+    "readiness_status": {
+      "type": "string",
+      "enum": ["blocked", "not_ready"],
+      "description": "Promoting past not_ready is SP-031/ADR-047 work, never this record's."
+    },
     "session_id": {"type": "string", "minLength": 1, "maxLength": 128},
-    "authority": {"type": "object"},
-    "dependency_gate": {"type": "object"},
-    "cohort": {"type": "object"},
+    "authority": {
+      "type": "object",
+      "description": "release must stay false here; any other enabling flag requires authority_source.",
+      "properties": {
+        "mode": {"type": "string"},
+        "beta_enrollment": {"type": "boolean"},
+        "telemetry_activation": {"type": "boolean"},
+        "app_install_or_launch": {"type": "boolean"},
+        "release": {"type": "boolean", "const": false},
+        "authority_source": {"$ref": "#/$defs/evidenceId"}
+      }
+    },
+    "dependency_gate": {
+      "type": "object",
+      "properties": {
+        "r11_state": {"type": "string", "enum": ["in_progress", "completed"]},
+        "r11_evidence_id": {"$ref": "#/$defs/evidenceId"},
+        "r11_release_status": {"type": "string", "const": "development_unverified"},
+        "r11_completion_required": {"type": "boolean", "const": true}
+      }
+    },
+    "cohort": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "enum": ["not_enrolled", "enrolled"]},
+        "type": {"type": "string"},
+        "consent": {"type": "string", "enum": ["not_collected", "collected"]},
+        "consent_evidence_id": {"$ref": "#/$defs/evidenceId"},
+        "participants": {"type": ["integer", "null"], "minimum": 1},
+        "minimum_sessions": {"type": ["integer", "null"]},
+        "supported_profiles": {"type": "array", "items": {"type": "string"}}
+      }
+    },
     "capability_scope": {"type": "object"},
-    "telemetry": {"type": "object"},
-    "slo_definitions": {"type": "array", "minItems": 1},
-    "scenario_matrix": {"type": "array", "minItems": 1},
-    "incident_review": {"type": "object"},
-    "signoffs": {"type": "object"},
-    "release_candidate": {"type": "object"},
+    "telemetry": {
+      "type": "object",
+      "description": "transport must remain 'none' and raw_content_allowed false in every mode (ADR-049 local-only).",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "consent_required": {"type": "boolean", "const": true},
+        "consent_evidence_id": {"$ref": "#/$defs/evidenceId"},
+        "raw_content_allowed": {"type": "boolean", "const": false},
+        "transport": {"type": "string", "const": "none"},
+        "retention_days": {"type": ["integer", "null"], "minimum": 1},
+        "aggregate_fields": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "slo_definitions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sloDefinition"}},
+    "scenario_matrix": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/scenarioEntry"}},
+    "incident_review": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "enum": ["not_run", "completed"]},
+        "evidence_id": {"$ref": "#/$defs/evidenceId"},
+        "severity_1_2_count": {"type": ["integer", "null"], "minimum": 0},
+        "false_success_count": {"type": ["integer", "null"], "minimum": 0},
+        "unauthorized_action_count": {"type": ["integer", "null"], "minimum": 0},
+        "remediation_records": {"type": "array", "items": {"$ref": "#/$defs/remediationRecord"}}
+      }
+    },
+    "signoffs": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"$ref": "#/$defs/signoff"}
+    },
+    "release_candidate": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "const": "blocked"},
+        "approved": {"type": "boolean", "const": false},
+        "commit": {"type": "null"},
+        "artifact_path": {"type": "null"},
+        "artifact_sha256": {"type": "null"}
+      }
+    },
     "open_blockers": {"type": "array", "minItems": 1, "items": {"type": "string"}}
   }
 }

@@ -2010,6 +2010,132 @@ sensitive false). R11 remains `in_progress`; `beta-readiness.json` stays
 `blocked`; the artifact stays `development_unverified`. Opening SP-030 requires
 `telemetry_or_beta: true` (owner-gated).
 
+**SP-030 attempt (2026-08-30, `EV-SP-030-20260830-PROGRAM-BLOCKED-01`):**
+SP-030 **remains blocked/in_progress**. Its completion gate — *"Mandatory SLOs
+and scenarios pass, incidents are remediated, and independent sign-offs are
+complete"* — cannot be honestly satisfied in this pass. Exact blockers:
+
+- No enrolled/consented beta cohort (`cohort.not_enrolled`,
+  `consent.not_collected`); there is no "collected approved sample" to compute
+  percentile SLOs from, and no authority to enroll/consent a participant.
+- No enabled measurement/transport path: the content-free aggregate engine
+  (`EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01`) is default-off and has
+  `transport: none`; `telemetry.enabled: false`. No live beta window exists to
+  run the Turkish/English/mixed scenario matrix or collect SLO/incident data.
+- No independent evaluator: all five sign-offs (`security`, `privacy`,
+  `accessibility_localization`, `release_recovery`, `product_truthfulness`)
+  remain `not_obtained`. An independent sign-off requires a non-implementing
+  evaluator, which is not present; it cannot be fabricated.
+- R11 dependency incomplete: R11 is `in_progress`, artifact
+  `development_unverified`, no signed/notarized clean-machine release artifact,
+  ADR-046 not accepted; `dependency_gate.r11_completion_required: true`.
+- Fail-closed schema: `beta-readiness.schema.json`/`validate_beta_readiness.py`
+  only allow `readiness_status` ∈ `{blocked, not_ready}` and require the above
+  flags to remain `false`/`not_obtained` until real gates close.
+
+Verified this attempt: live `HEAD == origin/main == 8b16142` (clean worktree);
+`validate_second_pass_program.py` PASSED; `validate_beta_readiness.py` → "valid
+and blocked" (both exit 0). Stale `current-state.json` repository pointers were
+reconciled to live HEAD. `beta-readiness.json` stays `blocked`. **SP-031 must
+NOT start** (its precondition is SP-030 completion). Completion requires
+owner-authorized R11 completion + a real consented beta window + independent
+evaluation, then re-running SP-030.
+
+**Owner broad approval (2026-08-30, `EV-SP-030-20260830-OWNER-APPROVAL-02`):**
+the release owner stated **"neler eksik kaldı ben tümü için onay veriyorum"**,
+granting approval for the remaining locally-closable R12/R11 work: R11 local
+gates (live launch-at-login, sleep/wake/crash, safe mode/support-bundle,
+migration), ADR-046 local-only acceptance, the beta cohort (owner as the single
+local participant) with the owner's consent, content-free aggregate telemetry
+for local measurement, and SP-031 (local-only signed RC + ADR-047) — all for
+execution in a **user-present session**. Approval does NOT fabricate
+independent sign-offs (need a non-implementing evaluator), live STT/WER (need a
+speech-capable operator), or live beta SLO/scenario/incident measurement (need a
+user-present session); none was produced in the unattended pass. SP-030 stays
+`in_progress`/blocked; `beta-readiness.json` stays `blocked`; SP-031 must NOT
+start until SP-030 completes.
+
+**Owner present approval + ADR-046 local-only acceptance (2026-08-30,
+`EV-SP-030-20260830-OWNER-APPROVAL-03`, `EV-SP-030-20260830-ADR046-ACCEPTED-01`):**
+the release owner, present, stated **"burdayım ve herşeyi onaylıyorum"** on top
+of the prior broad grant. **ADR-046 advanced from Proposed to Accepted
+(local-only scope)** per the R11 closure plan and ADR-049: the local
+updater/rollback/recovery/safe-mode/reset contract is implemented and
+adversarially tested (SP-028 `EV-SP-028-20260829-*`); a real externally signed
+update/transport/distribution remains out of scope and is not claimed.
+`DECISION_INDEX.md` updated. Independent sign-offs, live STT/WER, and live beta
+SLO/scenario/incident measurement still require a non-implementing evaluator /
+speech-capable operator / user-present beta window and were NOT produced in this
+pass. SP-030 stays `in_progress`/blocked; `beta-readiness.json` stays `blocked`;
+SP-031 must NOT start until SP-030 completes.
+
+**SP-030 contract + partial measurement (2026-08-30,
+`EV-SP-030-20260830-CONTRACT-MEASURED-MODE-01`,
+`EV-SP-030-20260830-HARNESS-MEASUREMENT-01`):** the reason SP-030 kept
+terminating in the same blocked state was not only missing evidence — the R12
+contract **could not represent a completed beta at all**. The old
+`validate_beta_readiness.py` asserted every SLO `not_measured`, every scenario
+`not_run`, the incident review `not_run`, and every sign-off `not_obtained`, so
+it could not distinguish a real measurement from a fabricated one. Submitting a
+hypothetical *perfectly executed, honest* beta record returned
+`beta readiness validation failed: SLO measurement is fabricated` (exit 2). The
+completion gate was therefore unreachable **by construction**, independent of
+authority or evidence.
+
+The validator and schema now support a second, provenance-bound **measured**
+mode. It is not a relaxation: a measurement class
+(`live_user_present` / `deterministic_harness` / `synthetic_speech`) travels with
+every number and a harness result claiming `live_beta_sample` is rejected; every
+measured SLO requires an evidence ID, class, prose limitations, and a
+`sample_count` meeting a declared `sample_minimum`; and **an obtained sign-off
+must name an evaluator asserting `independent: true` and
+`evaluator_is_implementing_agent: false`**, so sign-offs cannot be self-granted.
+`telemetry.transport == "none"`, `raw_content_allowed == false`,
+`authority.release == false`, and RC `blocked`/unapproved hold in every mode.
+
+A second defect was found and fixed: `scripts/aura-test.sh` `TEST_TARGETS`
+omitted **`AuraLifecycleTests`**, so the SP-028 updater/rollback/recovery/
+safe-mode/migration bundle — the evidence the R11 dependency rests on — never ran
+in any "full suite". It passes (48 tests / 10 suites) and was restored; the true
+full-suite total is **1290 tests / 80 suites / 22 bundles, 0 failures**, not
+1242 / 21.
+
+Recorded as `deterministic_harness` class (explicitly **not** a live beta window):
+`false_success` = 0.0 (0 of 9 verification-bearing cases) and
+`unauthorized_action` = 0 (255 adversarial/policy cases); all five scenario-matrix
+entries pass as harness coverage with stated limitations. The cohort is `enrolled`
+(the owner as the single consented local participant); telemetry authority exists
+but the engine was **not** enabled.
+
+**OPEN-13 remains open.** Still outstanding: the three live latency SLOs
+(`ptt_ack`, `stt_partial`, `dialogue_first_token`), live STT/WER, a live-window
+run of the scenario matrix, the incident review, and **all five independent
+sign-offs** — which require a named non-implementing evaluator that owner
+authority cannot substitute for. `beta-readiness.json` stays `blocked`; SP-030
+stays `blocked`; **SP-031 must NOT start.**
+
+**2026-08-31 update (`EV-SP-030-20260831-SLO-INSTRUMENTATION-01`).** Two of the
+three outstanding latency SLOs now have a readable source for the first time:
+`ptt_ack` and `stt_partial` are instrumented, with percentile aggregation
+(p50/p95/p99) replacing a median/worst-case readout that could not satisfy this
+gate's contract. **Neither is measured.** Both hold **zero samples** and remain
+`not_measured`; instrumentation is not measurement, and `beta-readiness.json` is
+untouched. A contamination defect was found and fixed before any sample was
+taken — the permission-prompt grant path recorded human reaction time as machine
+latency, and would have poisoned the first `ptt_ack` sample. `ptt_ack` is
+obtainable by automation; **`stt_partial` is not** — it needs the owner to speak,
+because automation produces no sound at the microphone. Below roughly 20 samples,
+record "insufficient samples" rather than a p95/p99.
+
+**2026-08-31 R11 dependency (`EV-SP-030-20260831-R11-POLICY-BLOCK-01`).** OPEN-13's
+R11 dependency is worse than "in_progress" recorded: **9 of 11 lifecycle
+capabilities are unreachable from the running product**, denied by the policy
+engine before reaching their implementations. The capability registry disables
+them citing a direct-RuntimeAPI route as the compensating control, and that route
+does not work. No fix applied — defining a grant is a permission mutation outside
+current authority, so the decision is the owner's, and **the live R11 gates cannot
+run until it is taken.**
+
 ## OPEN-14 — FINAL: Acceptance, Cleanup, and Operational Handoff
 
 Prompt: [`14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md`](prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md)

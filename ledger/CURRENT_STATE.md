@@ -1,18 +1,47 @@
 # Current State
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-29.
+Projection refreshed from live repository and command evidence on 2026-08-30.
 
-## Authoritative current status — 2026-08-30T00:00:00Z (SP-029 completed)
+## Authoritative current status — 2026-08-30T20:30:00Z (SP-030 `blocked`)
 
-The active second-pass prompt is **`SP-030` / `pending`** (beta SLOs, scenarios,
-incidents, sign-offs, R12). SP-029 is `completed` for its beta scope/consent/
-privacy/telemetry/kill-switch contract scope. SP-028 is `completed` for the
-updater, lifecycle, recovery, migration slice of OPEN-12 under
+The active second-pass prompt is **`SP-030` / `blocked`** (beta
+SLOs, scenarios, incidents, sign-offs, R12) under
+`EV-SP-030-20260830-PROGRAM-BLOCKED-01`. Its completion gate — mandatory SLOs and
+scenarios pass, incidents remediated, and independent sign-offs complete — cannot
+be honestly met this pass: no enrolled/consented beta cohort, no enabled
+content-free measurement/transport (engine default-off, `transport: none`), no
+independent evaluator, and the R11 dependency is `in_progress`. `beta-readiness.json`
+stays `blocked`; no SLO/scenario/incident/sign-off/telemetry/cohort/consent/RC
+evidence was produced or fabricated. **SP-031 must NOT start** until owner-authorized
+R11 completion + a real consented beta window + independent evaluation occur and
+SP-030 is re-run. Verified live `HEAD == origin/main == 8b16142`; the **worktree is
+dirty by design** (29 modified + 20 untracked), declared as `dirty_expected` with
+its change groups in `current-state.json` `repository.user_owned_changes` — the
+owner has not asked for a commit. All **three** validators exit 0:
+`validate_second_pass_program.py`, `validate_runtime_completion.py` (which was
+failing until `EV-SP-030-20260830-RECORD-INTEGRITY-01`), and
+`validate_beta_readiness.py` ("valid and blocked"). Swift suite 1302 tests /
+83 suites / 22 bundles, 0 failures; Python suite 58 tests, OK.
+Mandatory closeout: `EV-SP-030-20260830-CLOSEOUT-01`.
+
+**Status reconciled 2026-08-30** (`EV-SP-030-20260830-RECORD-INTEGRITY-01`): the
+record previously asserted `in_progress`, `blocked_prompts: ["SP-030"]`, and
+"BLOCKED/IN_PROGRESS" simultaneously. Resolved to `blocked` on the control
+contract's definition — a blocked prompt has an explicit blocker and remains the
+active prompt. Emptying `blocked_prompts` was rejected because it would hide the
+blocker. The plumbing refactor is closed
+(`EV-SP-030-20260830-A11Y-COVERAGE-02`), which surfaced that the confirmation
+card — including the Deny and Allow Once buttons — was hardcoded English; it is
+now localized. `accessibility_localization` remains **REFUSED**.
+
+SP-029 is `completed` for its beta scope/consent/privacy/telemetry/kill-switch
+contract scope. SP-028 is `completed` for the updater, lifecycle, recovery,
+migration slice of OPEN-12 under
 `EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01`,
 `EV-SP-028-20260829-RUNTIME-API-02`, and `EV-SP-028-20260829-CLOSEOUT-03`.
 
-**`SP-029` is `completed` for OPEN-13 (R12):** The beta scope/consent/privacy/
+**`SP-029` was `completed` for OPEN-13 (R12):** The beta scope/consent/privacy/
 telemetry/kill-switch contract is defined in `EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01`
 for an internal local-machine-only closed beta: supported macOS/Swift/Xcode
 profiles, capability inclusion/exclusion, privacy notice, explicit opt-in, consent

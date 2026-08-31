@@ -223,6 +223,35 @@ extension AuraKernel {
     await emergencyStop?.reset(actor: .user)
   }
 
+  /// Publish a push-to-talk acknowledgement sample (`ptt_ack`).
+  ///
+  /// Measured by the UI, because the metric starts at the **button press** — a
+  /// point only the view layer observes. `wakeToAck` cannot stand in for it:
+  /// that fires when a response plan arrives, after NLU, policy evaluation and
+  /// the model round trip, so it overstates the acknowledgement by whole
+  /// seconds. The 0.5 s budget is a reporting reference; the SLO contract
+  /// asserts no target and none is claimed.
+  func recordPushToTalkAcknowledgement(seconds: Double) async {
+    await eventBus.emit(
+      EventEnvelope(
+        correlationID: UUID(),
+        causationID: UUID(),
+        actor: .user,
+        sensitivity: .internalLevel,
+        payload: LatencyMeasuredEvent(
+          kind: .pushToTalkAck,
+          latencySeconds: seconds,
+          budgetSeconds: 0.5,
+          isMockEngine: false)))
+  }
+
+  /// Percentile summaries (p50/p95/p99, ms) for every latency kind that has
+  /// samples in this process. Empty until a real turn has been taken — kinds
+  /// without samples are omitted rather than reported as zero.
+  func latencyPercentileSummaries() async -> [LatencyPercentileSummary] {
+    await performanceSampler?.percentileSummaries() ?? []
+  }
+
   func runtimeHealthSnapshot() async -> [RuntimeHealth] {
     await runtimeHealthRegistry?.snapshot() ?? []
   }
@@ -274,12 +303,24 @@ extension AuraKernel {
       return
     case .deny(let reason, _):
       throw AuraError.permissionDenied(reason)
-    case .confirm:
-      // No confirmation presenter is wired for this direct-call path yet;
-      // fail closed rather than silently proceed or silently auto-confirm.
-      throw AuraError.permissionDenied(
-        "\(capability.domain).\(capability.action) requires confirmation, "
-          + "which this call path does not yet support")
+    case .confirm(let challenge, _):
+      // SP-030 (`EV-SP-030-20260831-R11-POLICY-BLOCK-01`): this arm used to
+      // throw, because no presenter was wired here. That was the correct
+      // fail-closed default, but it left every confirmation-requiring
+      // capability unreachable through the direct-call path — including the
+      // lifecycle controls the capability registry names this path as the
+      // access route for. The presenter existed the whole time and was already
+      // passed to four other subsystems; only this call site never used it.
+      //
+      // Same present-then-submit cycle as `ToolRouter_Policy`: the decision is
+      // re-derived by `submitConfirmation`, which verifies nonce, hash and
+      // expiry, so a forged or replayed response cannot authorize anything.
+      // Anything other than `.allow` still fails closed.
+      let response = await confirmationPresenter.present(challenge: challenge)
+      guard case .allow = await policyEngine.submitConfirmation(response) else {
+        throw AuraError.permissionDenied(
+          "\(capability.domain).\(capability.action) was not confirmed")
+      }
     }
   }
 
@@ -631,11 +672,17 @@ extension AuraKernel {
   }
 
   /// Current launch-at-login state from the controller's service adapter.
+  ///
+  /// Gated by `.lifecycleLaunchAtLoginStatus` (`.observation`), NOT by the
+  /// `.mutation`-tier write capability. Sharing the write's capability meant
+  /// every read raised its own confirmation, so simply opening Settings
+  /// prompted the user and the failure path's re-read prompted again — see
+  /// `EV-SP-030-20260831-R11-LIVE-GATE-01`.
   func isLaunchAtLoginEnabled() async throws(AuraError) -> Bool {
     guard started, let lifecycleController else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
     }
-    try await evaluateDirectCapability(.lifecycleLaunchAtLogin)
+    try await evaluateDirectCapability(.lifecycleLaunchAtLoginStatus)
     let status = await lifecycleController.serviceStatus()
     let preference = await lifecycleController.userPreferenceEnabled()
     return status == .enabled && preference

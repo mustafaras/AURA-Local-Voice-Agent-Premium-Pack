@@ -52,7 +52,7 @@ extension AuraMenuView {
         RoundedRectangle(cornerRadius: AuraDesign.Radius.medium, style: .continuous)
           .fill(Color.accentColor.opacity(0.14))
         Image(systemName: model.status.symbolName)
-          .font(.system(size: 15, weight: .semibold))
+          .font(.subheadline.weight(.semibold))
           .foregroundStyle(.tint)
       }
       .frame(width: 34, height: 34)
@@ -92,7 +92,7 @@ extension AuraMenuView {
         model.beginOnboarding()
       } label: {
         Image(systemName: "wand.and.stars")
-          .font(.system(size: 13, weight: .medium))
+          .font(.footnote.weight(.medium))
       }
       .buttonStyle(.bordered)
       .help(copy("onboarding.title"))
@@ -104,7 +104,7 @@ extension AuraMenuView {
         openSettings()
       } label: {
         Image(systemName: "gearshape")
-          .font(.system(size: 13, weight: .medium))
+          .font(.footnote.weight(.medium))
       }
       .buttonStyle(.bordered)
       .help(language == .turkish ? "Ayarlar" : "Settings")
@@ -142,7 +142,7 @@ extension AuraMenuView {
     } label: {
       HStack(spacing: AuraDesign.Spacing.xs) {
         Image(systemName: tab.symbolName)
-          .font(.system(size: 11, weight: .medium))
+          .font(.caption2.weight(.medium))
         Text(copy(tab.copyKey))
           .font(AuraDesign.Typography.meta.weight(isSelected ? .semibold : .regular))
           .lineLimit(1)
@@ -186,9 +186,9 @@ extension AuraMenuView {
         .foregroundStyle(.secondary)
         .accessibilityLabel("\(copy("conversation.local")). \(copy("conversation.cloudDisabled"))")
       if model.isVSCodeBridgeAcceptanceEnabled {
-        GroupBox("VS Code live bridge") {
+        GroupBox(copy("vscode.bridge")) {
           VStack(alignment: .leading, spacing: 8) {
-            Text("Read-only probe through the authenticated AURA extension bridge.")
+            Text(copy("vscode.probeNote"))
               .font(.caption)
               .foregroundStyle(.secondary)
               .fixedSize(horizontal: false, vertical: true)
@@ -200,12 +200,11 @@ extension AuraMenuView {
             Button {
               model.readVSCodeEditorState()
             } label: {
-              Label("Read VS Code editor state", systemImage: "arrow.triangle.2.circlepath")
+              Label(copy("a11y.vscodeRead"), systemImage: "arrow.triangle.2.circlepath")
             }
             .disabled(!model.isVSCodeBridgeProvisioned)
-            .accessibilityLabel("Read VS Code editor state")
-            .accessibilityHint(
-              "Performs a read-only, policy-authorized live bridge check")
+            .accessibilityLabel(copy("a11y.vscodeRead"))
+            .accessibilityHint(copy("a11y.vscodeReadHint"))
             if !model.vscodeBridgeRoundTripStatus.isEmpty {
               Text(model.vscodeBridgeRoundTripStatus)
                 .font(.caption)
@@ -271,7 +270,7 @@ extension AuraMenuView {
               model.submitText()
             } label: {
               Image(systemName: "arrow.up.circle.fill")
-                .font(.system(size: 18))
+                .font(.title3)
                 .foregroundStyle(
                   model.textInput.isEmpty ? AnyShapeStyle(.tertiary) : AnyShapeStyle(.tint))
             }
@@ -306,7 +305,7 @@ extension AuraMenuView {
           .id(challenge.requestID)
       }
       if let plan = model.lastPlanSummary, !plan.isEmpty {
-        GroupBox("Plan / Verification") {
+        GroupBox(copy("plan.title")) {
           Text(plan)
             .frame(maxWidth: .infinity, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)
@@ -318,7 +317,7 @@ extension AuraMenuView {
           .font(.callout)
           .foregroundStyle(model.status == .error ? .red : .secondary)
           .fixedSize(horizontal: false, vertical: true)
-          .accessibilityLabel("Diagnostic: \(model.lastOperationMessage)")
+          .accessibilityLabel("\(copy("a11y.diagnosticPrefix")): \(model.lastOperationMessage)")
       }
       emergencyControls
     }
@@ -332,6 +331,7 @@ extension AuraMenuView {
     case .system: role = language == .turkish ? "Sistem" : "System"
     }
     return AuraMessageBubble(
+      language: language,
       roleLabel: role,
       text: message.text,
       isUser: message.role == .user,

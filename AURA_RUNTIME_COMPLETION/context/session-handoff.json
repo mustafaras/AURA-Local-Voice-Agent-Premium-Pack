@@ -1,25 +1,25 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-08-29T00:00:00Z",
-  "session_id": "AURA-SP-029-BETA-CONTRACT-20260829",
-  "last_verified_commit": "9e1c756b63fce8cc4d95c53178253379dfd6c2f5",
+  "updated_at": "2026-08-31T16:30:00Z",
+  "session_id": "AURA-SP-030-SLO-INSTRUMENTATION-20260831",
+  "last_verified_commit": "8b16142e508294ecce9fd64477ac35bb2c4c1393",
   "active_prompt": {
     "id": "SP-030",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
-    "state": "in_progress",
-    "step": "SP-030 IN_PROGRESS: owner approved continuation path (R11 local gates, ADR-046 local-only formalization, SP-030, telemetry_or_beta true). Run R12 SLO/scenario/incident/sign-off evidence program; content-free aggregates only under explicit opt-in; user-present live measurement. Keep beta-readiness.json blocked until SP-030/SP-031 evidence closes R12 gates. No fabricated measurements/telemetry/sign-offs."
+    "state": "blocked",
+    "step": "SP-030 BLOCKED. 2026-08-31: SLO instrumentation recorded (ptt_ack/stt_partial instrumented, ZERO samples, still not_measured). R11 lifecycle controls were unreachable; owner authorized the grant + presenter wiring, an observation-tier read split, and moving the confirmation card into the Settings window. Live: both policy layers open, card presented, Settings no longer prompts. The Settings-card fix is tested but NOT live-verified (display off). R11 live gate NOT closed. Do NOT start SP-031."
   },
-  "summary": "SP-029 is COMPLETED for its beta scope/consent/privacy/telemetry/kill-switch contract scope. SP-030 (beta SLOs/scenarios/incidents/sign-offs) is IN_PROGRESS: the owner approved the continuation-path authority (R11 local gates, ADR-046 local-only formalization, SP-030 opening, telemetry_or_beta: true). The release owner approved the SP-029 contract (EV-SP-029-20260830-OWNER-APPROVAL-01) and confirmed 'ONLARI DA ONAYLIYORUM YAP ARTIK'. The in-scope content-free aggregate engine (EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01) is implemented default-off/no-transport. SP-030 defines/runs the R12 SLO/scenario/incident/sign-off evidence program; content-free aggregates are collectable only under explicit opt-in; beta-readiness.json stays blocked until SP-030/SP-031 evidence closes the R12 direct-evidence gates. SP-031 owns signed RC + ADR-047.",
+  "summary": "SP-030 is BLOCKED/IN_PROGRESS for its live-evidence scope (EV-SP-030-20260830-PROGRAM-BLOCKED-01). Its completion gate (mandatory SLOs/scenarios pass, incidents remediated, independent sign-offs complete) cannot be honestly met: no enrolled/consented beta cohort (not_enrolled/not_collected), no enabled content-free measurement/transport (telemetry.enabled:false, transport:none), no independent evaluator (all signoffs not_obtained), and R11 dependency in_progress. beta-readiness.json stays blocked. No SLO/scenario/incident/sign-off/telemetry/cohort/consent/RC produced. SP-031 must NOT start. Reconciled stale current-state.json repository pointers to live HEAD == origin/main == 8b16142 (clean worktree).",
   "completed": [
+    "SP-030 attempt recorded as BLOCKED (EV-SP-030-20260830-PROGRAM-BLOCKED-01): exact blocker and cognitive-gate answers preserved; the beta SLO/scenario/incident/sign-off completion gate is NOT met and SP-030 stays in_progress/blocked.",
+    "Reconciled stale current-state.json repository block (verified_head/remote_head) to live HEAD == origin/main == 8b16142; removed the already-committed EV-ADR-049 user-owned-changes entry; advanced updated_at.",
+    "Verified validators: validate_second_pass_program.py PASSED; validate_beta_readiness.py -> 'valid and blocked' (both exit 0).",
+    "Kept beta-readiness.json blocked; no telemetry transmitted, no cohort enrolled/consented, no SLO measured, no incident reviewed, no sign-off obtained, no RC approved.",
     "SP-029 COMPLETED for its beta scope/consent/privacy/telemetry/kill-switch contract scope (EV-SP-029-20260830-CLOSEOUT-01).",
     "Recorded release-owner approval of the SP-029 beta/consent/privacy/telemetry/kill-switch contract (EV-SP-029-20260830-OWNER-APPROVAL-01); the release owner explicitly granted full authority to the completion gate.",
     "Implemented SP-029 Procedure step 2 (previously missing): explicit opt-in content-free aggregate telemetry engine.",
-    "Added config keys telemetry.aggregateOptInEnabled (default false, user-scoped/reversible) and telemetry.aggregateRetentionDays (default 90); privacy.rawTelemetryEnabled stays immutable false.",
-    "Added telemetry_aggregates store table + v1_8_0_lifecycle_telemetry migration.",
-    "Added content-free enum buckets and TelemetryAggregateEvent payloads (TelemetryEventPayloads.swift).",
     "Added TelemetryAggregator actor: fail-closed (no-op unless opt-in on), per-day/per-field/per-bucket counters, latency bucketing, disableAndPurge() telemetry-off/consent-withdrawal path, retention purge, no transport.",
-    "Wired telemetryAggregator into AuraKernel construction with health recordReady.",
     "Added 9 deterministic TelemetryAggregatorTests; swift build passes; AuraLifecycleTests 48 in 10 suites pass; full suite 89 test suites 0 failed.",
     "Created EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01 and EV-SP-029-20260830-OWNER-APPROVAL-01 and updated EVIDENCE_INDEX, SECOND_PASS_LEDGER, PROGRAM_LEDGER, PROJECT_LEDGER, SECOND_PASS_OPEN_GAPS, SECOND_PASS_STATE.json, current-state.json, ACTIVE_CONTEXT, RISK_REGISTER."
   ],
@@ -41,9 +41,27 @@
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md"
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260830-PROGRAM-BLOCKED-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260830-CLOSEOUT-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260830-OWNER-APPROVAL-02.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260830-OWNER-APPROVAL-03.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260830-ADR046-ACCEPTED-01.md",
+    "docs/decisions/ADR-046-signed-update-recovery.md",
+    "ledger/DECISION_INDEX.md"
   ],
   "evidence_ids": [
+    "EV-SP-030-20260831-R11-LIVE-GATE-03",
+    "EV-SP-030-20260831-R11-LIVE-GATE-02",
+    "EV-SP-030-20260831-R11-LIVE-GATE-01",
+    "EV-SP-030-20260831-R11-POLICY-FIX-01",
+    "EV-SP-030-20260831-R11-POLICY-BLOCK-01",
+    "EV-SP-030-20260831-SLO-INSTRUMENTATION-01",
+    "EV-SP-030-20260830-ADR046-ACCEPTED-01",
+    "EV-SP-030-20260830-OWNER-APPROVAL-03",
+    "EV-SP-030-20260830-OWNER-APPROVAL-02",
+    "EV-SP-030-20260830-CLOSEOUT-01",
+    "EV-SP-030-20260830-PROGRAM-BLOCKED-01",
     "EV-SP-029-20260830-CLOSEOUT-01",
     "EV-SP-029-20260830-OWNER-APPROVAL-01",
     "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01",
@@ -80,14 +98,14 @@
     }
   ],
   "blockers": [
-    "SP-030 (beta SLOs/scenarios/incidents/sign-offs) is pending and must be opened under its own authority.",
+    "SP-030 is BLOCKED/IN_PROGRESS (EV-SP-030-20260830-PROGRAM-BLOCKED-01): the beta SLO/scenario/incident/sign-off gate cannot be honestly met — no enrolled/consented cohort (not_enrolled/not_collected), no enabled content-free measurement/transport (telemetry.enabled:false, transport:none), no independent evaluator (all signoffs not_obtained), R11 dependency in_progress.",
     "R12 as a whole is not RC-ready: fail-closed beta-readiness.json stays blocked (authority flags false, cohort not_enrolled, consent not_collected, telemetry enabled:false/transport:none, sign-offs not_obtained, RC blocked/approved:false).",
     "R11 is incomplete (development_unverified; no signed/notarized clean-machine artifact; no ADR-046 acceptance).",
     "R12 direct-evidence gates for the SP-030/SP-031 scope remain open: live scenario/SLO/incident results, independent sign-offs, signed RC artifact (SP-031), and ADR-047 (SP-031).",
-    "No controlled beta cohort is enrolled; no participant consent is collected; no telemetry is transmitted; no SLO is measured; no RC is approved."
+    "No controlled beta cohort is enrolled; no participant consent is collected; no telemetry is transmitted; no SLO is measured; no RC is approved; SP-031 must NOT start."
   ],
   "open_decisions": [
-    "SP-029 is completed. SP-030 (SLOs/scenarios/incidents/sign-offs) is next eligible and pending; SP-031 (RC package + ADR-047) follows."
+    "SP-030 is BLOCKED/IN_PROGRESS. It cannot be completed without owner-authorized R11 completion (local gates + ADR-046), a real consented beta window with the opt-in content-free engine on a sanctioned transport, and independent sign-offs, then a re-run of SP-030. SP-031 (RC package + ADR-047) must NOT start until SP-030 completes."
   ],
   "risks": [
     "RISK-NO-INDEPENDENT-BETA-EVIDENCE",
@@ -103,7 +121,7 @@
     "RISK-INDIRECT-PROMPT-INJECTION",
     "RISK-PLUGIN-TRUST-EVIDENCE-ABSENT"
   ],
-  "next_action": "SP-030 IN_PROGRESS: owner approved the continuation path (R11 local gates, ADR-046 local-only formalization, SP-030, telemetry_or_beta true). Read SP-030 prompt and run the R12 beta SLO/scenario/incident/sign-off evidence program; content-free aggregates only under explicit opt-in; user-present live measurement. Keep beta-readiness.json blocked until SP-030/SP-031 evidence closes R12 gates. Do not fabricate measurements/telemetry/sign-offs.",
+  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. 2026-08-31 recorded SIX new evidence IDs: SLO-INSTRUMENTATION-01, R11-POLICY-BLOCK-01, R11-POLICY-FIX-01, R11-LIVE-GATE-01, R11-LIVE-GATE-02, R11-LIVE-GATE-03. SLOs: ptt_ack and stt_partial are INSTRUMENTED but hold ZERO samples and stay not_measured -- instrumentation is not measurement; beta-readiness.json untouched. A contamination defect was fixed before any sample was taken. stt_partial CANNOT be automated: it needs the owner to speak. Below ~20 samples record 'insufficient samples', never a p95/p99. NEVER substitute wakeToAck. R11: 9 of 11 lifecycle capabilities were denied before reaching their implementation. Owner authorized three changes: a seeded lifecycleLaunchAtLogin grant + wiring evaluateDirectCapability to the existing confirmationPresenter; a new observation-tier lifecycleLaunchAtLoginStatus so a READ no longer needs a mutation confirmation; and rendering the confirmation card as the first row of the Settings form. PROVEN LIVE: the old 'no matching grant' denial is GONE, the card IS presented, opening Settings no longer prompts, and the failure reason now persists. NOT VERIFIED: the Settings-card fix -- the display powered off after install and cannot be woken programmatically. FIRST JOB NEXT SESSION, display awake: gear -> Settings -> toggle -> the card should appear IN SETTINGS -> accept -> toggle reads back enabled -> check System Settings > General > Login Items -> reboot. R11 live gate NOT closed; SMAppService never reached. FOUR items still need a person: DeepSeek cross-review (alone unblocks security, ADR-050 s4); the owner's release_recovery + product_truthfulness verdicts (blanket approval is AUTHORITY, never review); native-speaker review of 184 AuraCopy keys; R11 live gates + ptt_ack/stt_partial with the owner present. Suite 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 OK; 3 validators exit 0. Do NOT start SP-031.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -116,5 +134,5 @@
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
     "AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md"
   ],
-  "notes": "SP-029 is COMPLETED (EV-SP-029-20260830-CLOSEOUT-01): beta scope/consent/privacy/telemetry/kill-switch contract defined (EV-SP-029-20260829-01), owner-approved (EV-SP-029-20260830-OWNER-APPROVAL-01), content-free aggregate engine with no transport implemented and dormant by default (EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01). SP-030 is IN_PROGRESS: the owner approved the continuation-path authority (R11 local gates, ADR-046 local-only formalization, SP-030, telemetry_or_beta true). R11 closure plan: AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md (EV-SP-029-20260830-R11-CLOSURE-PLAN-01). No telemetry transmission, cohort enrollment, participant consent collection, SLO measurement, or RC approval was performed. R12 is not RC-ready; beta-readiness.json stays blocked; artifact stays development_unverified. Run validators and mandatory 15_SESSION_CLOSEOUT.prompt.md."
+  "notes": "SP-030 is BLOCKED/IN_PROGRESS (EV-SP-030-20260830-PROGRAM-BLOCKED-01): its completion gate (mandatory SLOs/scenarios pass, incidents remediated, independent sign-offs complete) cannot be honestly met this pass — no enrolled/consented cohort, no enabled content-free measurement/transport (engine default-off, transport:none), no independent evaluator, R11 dependency in_progress. beta-readiness.json stays blocked. No SLO/scenario/incident/sign-off/telemetry/cohort/consent/RC produced. Reconciled stale current-state.json repository pointers to live HEAD == origin/main == 8b16142 (clean worktree). Validators PASSED (second-pass) and 'valid and blocked' (beta-readiness). SP-031 must NOT start. SP-029 remains completed. Lawful completion requires owner-authorized R11 completion + a real consented beta window + independent evaluation, then re-run SP-030. Run the mandatory 15_SESSION_CLOSEOUT.prompt.md."
 }

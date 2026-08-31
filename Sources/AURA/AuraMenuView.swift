@@ -14,12 +14,18 @@ struct AuraConfirmationCard: View {
   @ObservedObject var model: AuraAppModel
   let challenge: PolicyConfirmationChallenge
 
+  private var language: AuraUILanguage { model.productUIState.language }
+
+  private func copy(_ key: String) -> String {
+    AuraCopy.text(key, language: language)
+  }
+
   var body: some View {
     // The highest-stakes surface in the product: the user is authorizing a real
     // action. It is deliberately the most prominent panel — tinted heading,
     // risk stated in words, and the safe choice (Deny) reachable first in both
     // reading and tab order.
-    AuraPanel(title: "Confirmation Required", tint: .orange) {
+    AuraPanel(title: copy("confirmation.title"), tint: .orange) {
       VStack(alignment: .leading, spacing: AuraDesign.Spacing.s) {
         Text("\(challenge.requestedAction.domain).\(challenge.requestedAction.action)")
           .font(AuraDesign.Typography.sectionTitle)
@@ -27,7 +33,8 @@ struct AuraConfirmationCard: View {
           .font(AuraDesign.Typography.body)
           .fixedSize(horizontal: false, vertical: true)
         Label(
-          "Risk: \(challenge.riskTier.rawValue) · Expires \(challenge.expiresAt.formatted())",
+          "\(copy("confirmation.riskPrefix")): \(challenge.riskTier.rawValue) · "
+            + "\(copy("confirmation.expires")) \(challenge.expiresAt.formatted())",
           systemImage: "exclamationmark.shield"
         )
         .font(AuraDesign.Typography.meta)
@@ -38,15 +45,15 @@ struct AuraConfirmationCard: View {
           Text(traceText)
             .font(.caption2.monospaced())
             .foregroundStyle(.secondary)
-            .accessibilityLabel("Trace: \(traceText)")
+            .accessibilityLabel("\(copy("a11y.tracePrefix")): \(traceText)")
         }
         HStack {
-          Button("Deny", role: .cancel) {
+          Button(copy("confirmation.deny"), role: .cancel) {
             model.resolveConfirmation(accepted: false, outcome: .denied)
           }
           .keyboardShortcut(.cancelAction)
           Spacer()
-          Button("Allow Once") {
+          Button(copy("confirmation.allowOnce")) {
             model.resolveConfirmation(accepted: true, outcome: .accepted)
           }
           .buttonStyle(.borderedProminent)
@@ -63,27 +70,41 @@ struct MemoryRowView: View {
   @ObservedObject var model: AuraAppModel
   let record: AuraMemoryRow
 
+  private var language: AuraUILanguage { model.productUIState.language }
+
+  private func copy(_ key: String) -> String {
+    AuraCopy.text(key, language: language)
+  }
+
   var body: some View {
     GroupBox {
       VStack(alignment: .leading, spacing: 6) {
         Text(record.statement).fixedSize(horizontal: false, vertical: true)
         Text("\(record.memoryClass) · \(record.subject)")
           .font(.caption).foregroundStyle(.secondary)
-        Text("Purpose: \(record.purpose) · Provenance: \(record.provenance)")
+        Text(
+          "\(copy("memory.purpose")): \(record.purpose) · "
+            + "\(copy("memory.provenance")): \(record.provenance)")
           .font(.caption2).foregroundStyle(.secondary)
           .fixedSize(horizontal: false, vertical: true)
-        Text("Confidence: \(Int(record.confidence * 100))% · Sensitivity: \(record.sensitivity)")
+        Text(
+          "\(copy("memory.confidence")): \(Int(record.confidence * 100))% · "
+            + "\(copy("memory.sensitivity")): \(record.sensitivity)")
           .font(.caption2).foregroundStyle(.secondary)
-        Text("Retention: \(String(describing: record.retention)) · Scope: \(scopeSummary)")
+        Text(
+          "\(copy("memory.retention")): \(String(describing: record.retention)) · "
+            + "\(copy("memory.scope")): \(scopeSummary)")
           .font(.caption2).foregroundStyle(.secondary)
           .fixedSize(horizontal: false, vertical: true)
         if record.canMutate {
           HStack {
-            Button("Correct") { model.beginMemoryCorrection(record) }
-            Button("Delete", role: .destructive) { model.deleteMemory(record.id) }
+            Button(copy("memory.correctShort")) { model.beginMemoryCorrection(record) }
+            Button(copy("memory.deleteShort"), role: .destructive) {
+              model.deleteMemory(record.id)
+            }
           }
         } else {
-          Text("Audit/security records are not user-mutable.")
+          Text(copy("memory.immutable"))
             .font(.caption).foregroundStyle(.secondary)
         }
       }
@@ -98,7 +119,7 @@ struct MemoryRowView: View {
       record.scope.taskID.map { "task=\($0.uuidString.prefix(8))" },
       record.scope.sessionID.map { "session=\($0.uuidString.prefix(8))" },
     ].compactMap { $0 }
-    return values.isEmpty ? "global" : values.joined(separator: ", ")
+    return values.isEmpty ? copy("memory.global") : values.joined(separator: ", ")
   }
 }
 
@@ -113,9 +134,15 @@ struct MemoryCorrectionSheet: View {
     self.draft = AuraMemoryCorrectionDraft(statement: record.statement)
   }
 
+  private var language: AuraUILanguage { model.productUIState.language }
+
+  private func copy(_ key: String) -> String {
+    AuraCopy.text(key, language: language)
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text("Correct memory").font(.headline)
+      Text(copy("privacy.correct")).font(.headline)
       TextEditor(
         text: Binding(
           get: { draft.statement },
@@ -123,11 +150,11 @@ struct MemoryCorrectionSheet: View {
       )
       .frame(minHeight: 120)
       .border(.secondary)
-      .accessibilityLabel("Corrected memory statement")
+      .accessibilityLabel(copy("a11y.correctedMemory"))
       HStack {
-        Button("Cancel", role: .cancel) { model.memoryCorrectionTarget = nil }
+        Button(copy("action.cancel"), role: .cancel) { model.memoryCorrectionTarget = nil }
         Spacer()
-        Button("Save correction") {
+        Button(copy("memory.saveCorrection")) {
           model.correctMemory(record.id, statement: draft.statement)
           model.memoryCorrectionTarget = nil
         }
@@ -266,11 +293,32 @@ struct AuraOnboardingView: View {
 struct AuraSettingsView: View {
   @ObservedObject var model: AuraAppModel
 
+  private var language: AuraUILanguage { model.productUIState.language }
+
+  private func copy(_ key: String) -> String {
+    AuraCopy.text(key, language: language)
+  }
+
   var body: some View {
     Form {
-      Section("Product UI") {
+      // A confirmation raised by a control in *this* window must be answerable
+      // *in* this window. `AuraConfirmationCard` otherwise renders only inside
+      // the main panel, and every AURA window dismisses when the app's focus
+      // moves — so a user toggling launch-at-login here was asked to authorize
+      // in a window they were not looking at, the challenge expired unanswered,
+      // and the toggle failed with "was not confirmed". Verified live and
+      // recorded in `EV-SP-030-20260831-R11-LIVE-GATE-02`.
+      //
+      // Rendered inline as the first row rather than in a `.sheet`: sheets
+      // attached inside SwiftUI's `Settings` scene do not reliably present, so
+      // a sheet here would have reintroduced the same invisible-confirmation
+      // bug in a new form. First row means it is on screen without scrolling.
+      if let challenge = model.pendingConfirmation {
+        AuraConfirmationCard(model: model, challenge: challenge)
+      }
+      Section(copy("settings.productUI")) {
         Picker(
-          "Language",
+          copy("settings.language"),
           selection: Binding(
             get: { model.productUIState.language },
             set: { model.setUILanguage($0) })
@@ -278,73 +326,88 @@ struct AuraSettingsView: View {
           Text("English").tag(AuraUILanguage.english)
           Text("Türkçe").tag(AuraUILanguage.turkish)
         }
-        Button("Open guided setup") { model.beginOnboarding() }
+        Button(copy("settings.openGuidedSetup")) { model.beginOnboarding() }
       }
-      Section("Voice") {
-        LabeledContent("Activation", value: "Push to Talk")
-        Text("A trained acoustic wake-word model is not installed.")
+      Section(copy("models.voice")) {
+        LabeledContent(copy("settings.activation"), value: copy("conversation.pushToTalk"))
+        Text(copy("settings.noWakeModel"))
           .foregroundStyle(.secondary)
-        Button("Request Microphone and Speech Access") { model.requestVoicePermissions() }
+        Button(copy("settings.requestMicSpeech")) { model.requestVoicePermissions() }
       }
-      Section("System Permissions") {
-        Button("Request Accessibility Access") { model.requestAccessibilityPermission() }
-        Button("Request Screen Recording Access") { model.requestScreenRecordingPermission() }
-        Button("Open Microphone Settings") { model.openMicrophoneSettings() }
-        Button("Open Speech Recognition Settings") { model.openSpeechSettings() }
-        Button("Open Accessibility Settings") { model.openAccessibilitySettings() }
-        Button("Open Screen Recording Settings") { model.openScreenRecordingSettings() }
-        Button("Refresh Permission Status") { model.refreshPermissions() }
+      Section(copy("settings.systemPermissions")) {
+        Button(copy("settings.requestAccessibility")) { model.requestAccessibilityPermission() }
+        Button(copy("settings.requestScreenRecording")) { model.requestScreenRecordingPermission() }
+        Button(copy("settings.openMicSettings")) { model.openMicrophoneSettings() }
+        Button(copy("settings.openSpeechSettings")) { model.openSpeechSettings() }
+        Button(copy("settings.openAccessibilitySettings")) { model.openAccessibilitySettings() }
+        Button(copy("settings.openScreenRecordingSettings")) { model.openScreenRecordingSettings() }
+        Button(copy("settings.refreshPermissions")) { model.refreshPermissions() }
       }
-      Section("VS Code Bridge") {
+      Section(copy("settings.vscodeBridge")) {
         if model.isVSCodeBridgeAcceptanceEnabled {
-          Text(
-            "Local authenticated bridge; the shared secret stays in AURA Keychain "
-              + "and VS Code SecretStorage."
-          )
+          Text(copy("settings.bridgeSecretNote"))
           .foregroundStyle(.secondary)
-          LabeledContent("Extension ID", value: model.vscodeBridgeExtensionID)
-          SecureField("Shared secret (16+ characters)", text: $model.vscodeBridgeSecret)
+          LabeledContent(copy("settings.extensionID"), value: model.vscodeBridgeExtensionID)
+          SecureField(copy("settings.sharedSecret"), text: $model.vscodeBridgeSecret)
             .textContentType(.password)
           HStack {
-            Button("Provision in AURA") { model.provisionVSCodeBridge() }
+            Button(copy("settings.provision")) { model.provisionVSCodeBridge() }
               .disabled(model.vscodeBridgeSecret.utf8.count < 16)
-            Button("Revoke") { model.revokeVSCodeBridge() }
+            Button(copy("settings.revoke")) { model.revokeVSCodeBridge() }
               .disabled(!model.isVSCodeBridgeProvisioned)
           }
           LabeledContent(
-            "AURA Keychain",
-            value: model.isVSCodeBridgeProvisioned ? "Provisioned" : "Not provisioned")
+            copy("settings.auraKeychain"),
+            value: model.isVSCodeBridgeProvisioned
+              ? copy("settings.provisioned") : copy("settings.notProvisioned"))
         } else {
-          Text("The SP-012 live bridge profile is not enabled.")
+          Text(copy("settings.bridgeDisabled"))
             .foregroundStyle(.secondary)
         }
       }
-      Section("Privacy") {
-        Text("Speech recognition and system speech synthesis remain on device.")
-        Text("Plugin execution remains isolated in the verified helper process.")
-      }
-      Section("Configuration Governance") {
+      Section(copy("settings.startup")) {
         Toggle(
-          "Local tuning recommendations",
+          copy("settings.launchAtLogin"),
+          isOn: Binding(
+            get: { model.launchAtLoginEnabled },
+            set: { model.setLaunchAtLogin($0) }))
+        Text(copy("settings.launchAtLoginNote"))
+          .font(.caption).foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+        if !model.launchAtLoginDetail.isEmpty {
+          Text(model.launchAtLoginDetail)
+            .font(.caption2).foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+      }
+      Section(copy("settings.privacy")) {
+        Text(copy("settings.onDeviceNote"))
+        Text(copy("settings.pluginIsolation"))
+      }
+      Section(copy("settings.configGovernance")) {
+        Toggle(
+          copy("recovery.localTuning"),
           isOn: Binding(
             get: { model.localRecommendationsEnabled },
             set: { model.setLocalRecommendationsEnabled($0) }))
-        Text(
-          "Uses bounded aggregate metrics only. Recommendations are never applied automatically."
-        )
+        Text(copy("settings.aggregateNote"))
         .foregroundStyle(.secondary)
-        LabeledContent("Effective keys", value: "\(model.effectiveConfiguration.count)")
-        LabeledContent("Audit records", value: "\(model.configurationAuditCount)")
+        LabeledContent(copy("settings.effectiveKeys"), value: "\(model.effectiveConfiguration.count)")
+        LabeledContent(copy("settings.auditRecords"), value: "\(model.configurationAuditCount)")
         ForEach(
           model.effectiveConfiguration.filter(\.differsFromDefault).prefix(8), id: \.key
         ) { entry in
           LabeledContent(entry.key, value: entry.value.displayValue)
         }
-        Button("Refresh Configuration Inspection") { model.refreshConfigurationInspection() }
+        Button(copy("settings.refreshConfig")) { model.refreshConfigurationInspection() }
       }
     }
     .formStyle(.grouped)
     .padding()
     .frame(width: 620, height: 600)
+    .onAppear { model.refreshLaunchAtLogin() }
+    // Closing this window with a confirmation still unanswered fails closed
+    // rather than leaving the challenge to lapse on its 60 s timer.
+    .onDisappear { model.denyConfirmationIfStillPending() }
   }
 }

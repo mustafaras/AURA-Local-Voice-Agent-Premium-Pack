@@ -185,6 +185,11 @@ public actor STTPipeline {
       metrics.partialsEmitted += 1
       if metrics.firstPartialLatencySeconds == 0 {
         metrics.firstPartialLatencySeconds = monotonicClock() - activationTime
+        // The value was already measured here; until now it was only kept in
+        // `metrics` and never left the pipeline, so the R12 `stt_partial` SLO
+        // had no readable source. Emitting it lets `PerformanceSampler`
+        // aggregate real percentiles from a live session.
+        await emitFirstPartialLatency(metrics.firstPartialLatencySeconds)
       }
       await emitPartialEvent(result)
       if let command = vocabulary.matchDeterministicCommand(result.text) {
@@ -193,6 +198,22 @@ public actor STTPipeline {
         await emitStableSegmentEvent(result)
       }
     }
+  }
+
+  /// Publish the activation-to-first-partial latency as the `stt_partial` SLO
+  /// sample. The 1.0 s budget is a reporting reference only — the SLO contract
+  /// asserts no target, and none is claimed here.
+  private func emitFirstPartialLatency(_ seconds: TimeInterval) async {
+    await eventBus.emit(
+      envelope(
+        payload: LatencyMeasuredEvent(
+          kind: .sttFirstPartial,
+          latencySeconds: seconds,
+          budgetSeconds: 1.0,
+          turnContext: activeTurnContext),
+        context: activeTurnContext,
+        causationID: sessionID)
+    )
   }
 
   private func emitPartialEvent(_ result: STTTranscriptResult) async {

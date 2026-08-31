@@ -82,6 +82,46 @@ public struct SystemHealthSnapshot: Sendable, Equatable, Codable {
 /// produces a `SystemHealthSnapshot` on demand.
 ///
 /// All state is isolated to the actor. Tests can inject a custom clock.
+/// Percentile summary for one latency kind, in milliseconds.
+///
+/// `SystemHealthSnapshot` reports only a median and a worst case, which is not
+/// enough for the R12 SLO contract: that asks for p50/p95/p99. This carries the
+/// percentiles plus the honesty fields a measurement record needs — how many
+/// samples backed them, and whether any came from a mock engine.
+public struct LatencyPercentileSummary: Sendable, Equatable, Codable {
+  public let kind: LatencyMeasuredEvent.Kind
+  public let sampleCount: Int
+  public let p50Milliseconds: Double
+  public let p95Milliseconds: Double
+  public let p99Milliseconds: Double
+  public let maxMilliseconds: Double
+  /// True when **every** sample behind these percentiles came from a mock
+  /// engine. A record must never present such a summary as a live measurement.
+  public let isMockDerived: Bool
+  /// Samples that exceeded their declared budget.
+  public let budgetBreaches: Int
+
+  public init(
+    kind: LatencyMeasuredEvent.Kind,
+    sampleCount: Int,
+    p50Milliseconds: Double,
+    p95Milliseconds: Double,
+    p99Milliseconds: Double,
+    maxMilliseconds: Double,
+    isMockDerived: Bool,
+    budgetBreaches: Int
+  ) {
+    self.kind = kind
+    self.sampleCount = sampleCount
+    self.p50Milliseconds = p50Milliseconds
+    self.p95Milliseconds = p95Milliseconds
+    self.p99Milliseconds = p99Milliseconds
+    self.maxMilliseconds = maxMilliseconds
+    self.isMockDerived = isMockDerived
+    self.budgetBreaches = budgetBreaches
+  }
+}
+
 public actor PerformanceSampler {
   public static let defaultWakeToAckBudgetSeconds: Double = 0.5
   public static let defaultSimpleCommandBudgetSeconds: Double = 1.5
@@ -181,6 +221,27 @@ public actor PerformanceSampler {
       ollamaUnhealthy: ollamaUnhealthy,
       isMockEngineDerived: allSamplesMock,
       timestamp: Date())
+  }
+
+  /// Percentile summaries per latency kind, for the kinds that have samples.
+  ///
+  /// Kinds with no samples are omitted rather than reported as zero: a zero
+  /// would read as "measured, and fast", which is the opposite of the truth.
+  public func percentileSummaries() -> [LatencyPercentileSummary] {
+    LatencyMeasuredEvent.Kind.allCases.compactMap { kind in
+      let forKind = samples.filter { $0.kind == kind }
+      guard !forKind.isEmpty else { return nil }
+      let seconds = forKind.map(\.latencySeconds)
+      return LatencyPercentileSummary(
+        kind: kind,
+        sampleCount: forKind.count,
+        p50Milliseconds: percentile(seconds, fraction: 0.50) * 1000,
+        p95Milliseconds: percentile(seconds, fraction: 0.95) * 1000,
+        p99Milliseconds: percentile(seconds, fraction: 0.99) * 1000,
+        maxMilliseconds: (seconds.max() ?? 0) * 1000,
+        isMockDerived: forKind.allSatisfy(\.isMockEngine),
+        budgetBreaches: forKind.count { $0.latencySeconds > $0.budgetSeconds })
+    }
   }
 
   /// True if every recorded sample is within its declared budget.

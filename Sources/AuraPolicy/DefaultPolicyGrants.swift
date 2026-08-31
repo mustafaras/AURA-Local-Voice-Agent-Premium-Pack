@@ -98,6 +98,29 @@ public enum DefaultPolicyGrants {
     Grant(
       capability: .taskRetry, patterns: [.any], confirmationRequirement: .none,
       purpose: seedPurpose),
+    // SP-030 (`EV-SP-030-20260831-R11-POLICY-BLOCK-01`): launch at login. This
+    // is the SP-006 finding at the top of this file, recurring one track later
+    // — a capability registered and implemented, but denied before reaching
+    // its implementation because nothing seeded a grant. `.mutation` tier is
+    // deny-by-default in production `PolicyConfiguration`, so the Settings
+    // toggle failed with "No matching grant and tier mutation is denied by
+    // default" and `SMAppService` was never reached.
+    //
+    // `.forRiskTier(.mutation)` rather than `.none`, matching `.appTerminate`
+    // above: this writes a persistent, system-level login item, so the user
+    // confirms the effect rather than the grant silently standing in for their
+    // intent. It resolves to a confirmation for this capability, which is why
+    // `evaluateDirectCapability` had to learn to present one.
+    //
+    // The other eight denied lifecycle capabilities — safe mode, reset,
+    // rollback, uninstall, factory reset, update check/stage/approve — are
+    // deliberately NOT granted here, for the same reason `task.delete` above
+    // is not: they are `.destructive` or `.network` tier and must stay
+    // deny-by-default until each is authorized on its own terms. Fixing the
+    // reachability of one control is not a licence to open the rest.
+    Grant(
+      capability: .lifecycleLaunchAtLogin, patterns: [.any],
+      confirmationRequirement: .forRiskTier(.mutation), purpose: seedPurpose),
   ]
 
   /// The filesystem capabilities SP-004/SP-005 delivered, confined to the

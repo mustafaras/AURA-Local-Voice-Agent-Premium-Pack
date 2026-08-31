@@ -2,25 +2,30 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-29T00:00:00Z",
-  "session_id": "AURA-SP-029-BETA-CONTRACT-20260829",
+  "updated_at": "2026-08-31T16:30:00Z",
+  "session_id": "AURA-SP-030-BETA-EVIDENCE-20260830",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
     "verified_head": "9e1c756b63fce8cc4d95c53178253379dfd6c2f5",
-    "remote_head": "74567227e906cd3abd059223f501cf7001edefae",
-    "working_tree_state": "clean",
+    "remote_head": "8b16142e508294ecce9fd64477ac35bb2c4c1393",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
-      "AURA_RUNTIME_COMPLETION/state/EV-ADR-049-20260830-LOCAL-ONLY-NO-DEVELOPER-ID-01.md"
+      "SP-030 body of work, uncommitted at the owner's discretion — 29 modified + 17 untracked files.",
+      "Source: Sources/AuraCore/HelperIPCAuthentication.swift (F-001 security fix); Sources/AURA/{AURA,AuraDesign,ProductUIState,AuraMenuView,AuraMenuView_Content,AuraMenuView_Tabs}.swift (F-005 accessibility localization + F-006 Dynamic Type).",
+      "Tests: Tests/AURAIntegrationTests/AuraAccessibilityIdentifierTests.swift; Tests/AuraCoreTests/HelperIPCAuthenticationTests.swift.",
+      "Tooling: scripts/aura-test.sh (AuraLifecycleTests was missing from TEST_TARGETS); scripts/validate_beta_readiness.py + schema (R12 measured mode); scripts/tests/test_beta_readiness.py.",
+      "Governance: AURA_RUNTIME_COMPLETION state/ledger/index/register files, ledger/*, EV-SP-030-2026083* evidence records, ADR-046, ADR-050, and three docs/operations/ documents.",
+      "Not yet committed: the owner has not asked for a commit. Do not commit or revert unasked."
     ]
   },
   "program_status": "in_progress",
   "active_prompt": {
     "id": "SP-030",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
-    "state": "in_progress",
-    "step": "SP-030 IN_PROGRESS: owner approved continuation path (R11 local gates, ADR-046 local-only formalization, SP-030, telemetry_or_beta true). Run R12 SLO/scenario/incident/sign-off evidence program; content-free aggregates only under explicit opt-in; user-present live measurement. Keep beta-readiness.json blocked until SP-030/SP-031 evidence closes R12 gates. No fabricated measurements/telemetry/sign-offs."
+    "state": "blocked",
+    "step": "SP-030 BLOCKED. 2026-08-31: SLO instrumentation recorded (ptt_ack/stt_partial instrumented, ZERO samples, still not_measured). R11 lifecycle controls were unreachable; owner authorized the grant + presenter wiring, an observation-tier read split, and moving the confirmation card into the Settings window. Live: both policy layers open, card presented, Settings no longer prompts. The Settings-card fix is tested but NOT live-verified (display off). R11 live gate NOT closed. Do NOT start SP-031."
   },
   "tracks": [
     {
@@ -331,6 +336,11 @@
       "started_at": "2026-08-09T10:34:16Z",
       "completed_at": null,
       "evidence_ids": [
+        "EV-SP-030-20260831-R11-LIVE-GATE-03",
+        "EV-SP-030-20260831-R11-LIVE-GATE-02",
+        "EV-SP-030-20260831-R11-LIVE-GATE-01",
+        "EV-SP-030-20260831-R11-POLICY-FIX-01",
+        "EV-SP-030-20260831-R11-POLICY-BLOCK-01",
         "EV-R11-20260809-ARTIFACT-MANIFEST-01"
       ],
       "open_risk_ids": [
@@ -351,6 +361,7 @@
       "started_at": "2026-08-09T11:20:21Z",
       "completed_at": null,
       "evidence_ids": [
+        "EV-SP-030-20260831-SLO-INSTRUMENTATION-01",
         "EV-R12-20260809-BETA-BOUNDARY-START-01",
         "EV-R12-20260809-READINESS-CONTRACT-01",
         "EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01",
@@ -473,6 +484,20 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-030-20260831-R11-LIVE-GATE-03",
+    "EV-SP-030-20260831-R11-LIVE-GATE-02",
+    "EV-SP-030-20260831-R11-LIVE-GATE-01",
+    "EV-SP-030-20260831-R11-POLICY-FIX-01",
+    "EV-SP-030-20260831-R11-POLICY-BLOCK-01",
+    "EV-SP-030-20260831-SLO-INSTRUMENTATION-01",
+    "EV-SP-030-20260830-A11Y-COVERAGE-03",
+    "EV-SP-030-20260830-A11Y-COVERAGE-02",
+    "EV-SP-030-20260830-RECORD-INTEGRITY-01",
+    "EV-SP-030-20260830-ADR046-ACCEPTED-01",
+    "EV-SP-030-20260830-OWNER-APPROVAL-03",
+    "EV-SP-030-20260830-OWNER-APPROVAL-02",
+    "EV-SP-030-20260830-CLOSEOUT-01",
+    "EV-SP-030-20260830-PROGRAM-BLOCKED-01",
     "EV-ADR-049-20260830-LOCAL-ONLY-NO-DEVELOPER-ID-01",
     "EV-SP-030-20260830-LOCAL-DEPLOY-01",
     "EV-SP-030-20260830-OPENING-01",
@@ -542,12 +567,15 @@
     "SP-011 is completed under EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13. Every leg named in its procedure has live evidence and both revocation legs passed; mutation/send is explicitly excluded and asserted by test. OPEN-06 itself stays open for items SP-011 does not own, chiefly Developer ID signing and notarization (R11), which would remove Safari's Allow-unsigned-extensions requirement.",
     "R2-R10 live, manual, security, accessibility, integration, and privilege gates remain open as recorded in SECOND_PASS_OPEN_GAPS.md.",
     "R11 has only a local development_unverified artifact/manifest slice; full Xcode, signing/notarization, clean-machine, updater, launch-at-login, recovery, migration, uninstall, and observed CI evidence remain open.",
-    "R12 has no authorized beta cohort, telemetry/SLO evidence, scenario results, incident review, independent sign-offs, or approved release-candidate package.",
+    "R12: the beta cohort is enrolled (owner as single consented local participant) and false_success/unauthorized_action plus the scenario matrix are recorded as deterministic_harness class (EV-SP-030-20260830-HARNESS-MEASUREMENT-01). Still open: the three live latency SLOs, live STT/WER, a live-window scenario run, the incident review, all five independent sign-offs, and an approved release-candidate package. Telemetry authority exists but the engine is not enabled.",
     "FINAL acceptance is blocked; no clean-Mac end-to-end, support-bundle privacy, rollback/uninstall/factory-reset, or authorized release evidence exists.",
     "SP-017 residuals are intentionally outside the completed system-only branch: neural co-resident soak/MPS/human listening, energy/thermal qualification, wake word, and physical headset/route/sleep/echo verification remain open for future scope.",
     "Repository hygiene H-010 local blockers are resolved and delivered on main merge commit d0527d923d2ed02be3daf291e8181c900508a59a: Xcode/SourceKit, strict formatter/build/full tests, fsck, strict SwiftLint, and the unchanged 70% coverage gate pass; the wrapper records 21/21 bundles, 795 tests, and 70.57%. The 219 byte-identical copies are preserved in recoverable external quarantine and the repository has zero in-repository untracked paths. No H-011 exists.",
     "SP-019 direct user-present controls now partially pass under an isolated Foundation home; export is directly evidenced, but verified tool fact, resolved reference, destructive clarification, contradiction resolution, deletion receipt, and direct transport trace remain unproven. SP-020 is not safe to start.",
-    "SP-029 is completed for the beta scope/consent/telemetry/kill-switch contract scope (EV-SP-029-20260829-01, EV-SP-029-20260830-OWNER-APPROVAL-01, EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01, EV-SP-029-20260830-CLOSEOUT-01). R11 incompleteness (development_unverified, no signed/notarized clean-machine artifact, no ADR-046 acceptance) plus the R12 direct-evidence gates (SP-030 SLOs/scenarios/incidents/sign-offs and SP-031 RC/ADR-047) remain open and block R12 completion, but they are owned by SP-030/SP-031, not SP-029. Fail-closed beta-readiness.json stays blocked."
+    "SP-029 is completed for the beta scope/consent/telemetry/kill-switch contract scope (EV-SP-029-20260829-01, EV-SP-029-20260830-OWNER-APPROVAL-01, EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01, EV-SP-029-20260830-CLOSEOUT-01). R11 incompleteness (development_unverified, no signed/notarized clean-machine artifact, no ADR-046 acceptance) plus the R12 direct-evidence gates (SP-030 SLOs/scenarios/incidents/sign-offs and SP-031 RC/ADR-047) remain open and block R12 completion, but they are owned by SP-030/SP-031, not SP-029. Fail-closed beta-readiness.json stays blocked.",
+    "SP-030 (EV-SP-030-20260830-PROGRAM-BLOCKED-01) is BLOCKED for its live-evidence scope: no enrolled/consented beta cohort, no enabled content-free measurement/transport, no independent evaluator, and the R11 dependency is in_progress. SP-030 stays in_progress/blocked; SP-031 must NOT start until owner-authorized R11 completion + a real consented beta window + independent evaluation and a re-run of SP-030.",
+    "Owner broad approval recorded (EV-SP-030-20260830-OWNER-APPROVAL-02): R11 local gates, ADR-046 local-only acceptance, beta cohort (owner as single participant), content-free telemetry for local measurement, and SP-031 are unblocked FOR A USER-PRESENT SESSION. Independent sign-offs, live STT/WER, and live beta SLO/scenario/incident measurement still require a non-implementing evaluator / speech-capable operator / user-present session and were NOT produced in the unattended pass.",
+    "Owner present approval (EV-SP-030-20260830-OWNER-APPROVAL-03) and ADR-046 local-only acceptance (EV-SP-030-20260830-ADR046-ACCEPTED-01) recorded: ADR-046 advanced to Accepted (local-only scope) per the R11 closure plan and ADR-049; DECISION_INDEX updated. Independent sign-offs, live STT/WER, and live beta SLO/scenario/incident measurement still require a non-implementing evaluator / speech-capable operator / user-present beta window and were NOT produced in this pass."
   ],
-  "next_action": "SP-029 COMPLETED for the beta scope/consent/telemetry/kill-switch contract scope (EV-SP-029-20260829-01, EV-SP-029-20260830-OWNER-APPROVAL-01, EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01, EV-SP-029-20260830-CLOSEOUT-01). SP-030 (R12 SLOs/scenarios/incidents/sign-offs) is next eligible and pending under its own authority. Fail-closed beta-readiness.json remains blocked (SP-031 RC/ADR-047)."
+  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. 2026-08-31 recorded SIX new evidence IDs: SLO-INSTRUMENTATION-01, R11-POLICY-BLOCK-01, R11-POLICY-FIX-01, R11-LIVE-GATE-01, R11-LIVE-GATE-02, R11-LIVE-GATE-03. SLOs: ptt_ack and stt_partial are INSTRUMENTED but hold ZERO samples and stay not_measured -- instrumentation is not measurement; beta-readiness.json untouched. A contamination defect was fixed before any sample was taken. stt_partial CANNOT be automated: it needs the owner to speak. Below ~20 samples record 'insufficient samples', never a p95/p99. NEVER substitute wakeToAck. R11: 9 of 11 lifecycle capabilities were denied before reaching their implementation. Owner authorized three changes: a seeded lifecycleLaunchAtLogin grant + wiring evaluateDirectCapability to the existing confirmationPresenter; a new observation-tier lifecycleLaunchAtLoginStatus so a READ no longer needs a mutation confirmation; and rendering the confirmation card as the first row of the Settings form. PROVEN LIVE: the old 'no matching grant' denial is GONE, the card IS presented, opening Settings no longer prompts, and the failure reason now persists. NOT VERIFIED: the Settings-card fix -- the display powered off after install and cannot be woken programmatically. FIRST JOB NEXT SESSION, display awake: gear -> Settings -> toggle -> the card should appear IN SETTINGS -> accept -> toggle reads back enabled -> check System Settings > General > Login Items -> reboot. R11 live gate NOT closed; SMAppService never reached. FOUR items still need a person: DeepSeek cross-review (alone unblocks security, ADR-050 s4); the owner's release_recovery + product_truthfulness verdicts (blanket approval is AUTHORITY, never review); native-speaker review of 184 AuraCopy keys; R11 live gates + ptt_ack/stt_partial with the owner present. Suite 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 OK; 3 validators exit 0. Do NOT start SP-031."
 }
