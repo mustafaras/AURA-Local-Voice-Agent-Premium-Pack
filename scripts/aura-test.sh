@@ -96,6 +96,7 @@ TEST_TARGETS=(
     AuraShellTests AuraComputerUseTests AuraSecurityTests AuraPluginsTests
     AuraIntentTests AuraConfigTests AuraVSCodeTests AuraTasksTests AuraMemoryTests
     AuraContextTests AuraScreenTests AuraAdversarialTests AuraProductivityTests
+    AuraLifecycleTests
 )
 
 echo "==> Building test targets"

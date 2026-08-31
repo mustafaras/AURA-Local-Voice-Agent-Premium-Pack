@@ -303,6 +303,264 @@ enum AuraCopy {
       .english: "Cloud context is disabled by machine policy",
       .turkish: "Bulut bağlamı makine politikasıyla devre dışı",
     ],
+    "a11y.tracePrefix": [.english: "Trace", .turkish: "İz"],
+    "a11y.diagnosticPrefix": [.english: "Diagnostic", .turkish: "Tanılama"],
+    "a11y.correctedMemory": [
+      .english: "Corrected memory statement", .turkish: "Düzeltilmiş bellek ifadesi",
+    ],
+    "a11y.vscodeRead": [
+      .english: "Read VS Code editor state", .turkish: "VS Code düzenleyici durumunu oku",
+    ],
+    "a11y.vscodeReadHint": [
+      .english: "Performs a read-only, policy-authorized live bridge check",
+      .turkish: "Salt okunur, politikaca yetkilendirilmiş canlı köprü denetimi yapar",
+    ],
+    "a11y.memorySearch": [
+      .english: "Search inspectable memory", .turkish: "İncelenebilir bellekte ara",
+    ],
+    "a11y.deletionReceipt": [
+      .english: "Memory deletion receipt", .turkish: "Bellek silme makbuzu",
+    ],
+    "a11y.receiptRecord": [.english: "Record", .turkish: "Kayıt"],
+    "a11y.receiptClass": [.english: "class", .turkish: "sınıf"],
+    "a11y.receiptReason": [.english: "reason", .turkish: "gerekçe"],
+    "a11y.receiptDeletedAt": [.english: "deleted at", .turkish: "silinme zamanı"],
+    "a11y.statusPrefix": [.english: "AURA status", .turkish: "AURA durumu"],
+    // The confirmation card is where the user authorizes a real, side-effecting
+    // action. It is the same class of surface as the emergency control, so it
+    // gets the same treatment: every word the user reads before consenting.
+    "confirmation.title": [.english: "Confirmation Required", .turkish: "Onay Gerekli"],
+    "confirmation.deny": [.english: "Deny", .turkish: "Reddet"],
+    "confirmation.allowOnce": [.english: "Allow Once", .turkish: "Bir Kez İzin Ver"],
+    // Deliberately identical: "risk" is the ordinary Turkish word, a loanword
+    // with no distinct native equivalent in this register. It is excluded from
+    // the differs-between-languages assertion for that reason, not by oversight.
+    "confirmation.riskPrefix": [.english: "Risk", .turkish: "Risk"],
+    "confirmation.expires": [.english: "Expires", .turkish: "Bitiş"],
+    "action.cancel": [.english: "Cancel", .turkish: "İptal"],
+    "memory.saveCorrection": [
+      .english: "Save correction", .turkish: "Düzeltmeyi kaydet",
+    ],
+    "message.degraded": [.english: "Degraded response", .turkish: "Kısıtlı yanıt"],
+    "emergency.group": [.english: "Emergency control", .turkish: "Acil durum kontrolü"],
+    "emergency.stop": [.english: "Emergency Stop", .turkish: "Acil Durdurma"],
+    "emergency.stopHint": [
+      .english: "Immediately disables generated input",
+      .turkish: "Üretilen girdiyi anında devre dışı bırakır",
+    ],
+    "emergency.rearm": [
+      .english: "Re-arm generated input", .turkish: "Üretilen girdiyi yeniden etkinleştir",
+    ],
+    "emergency.rearmHint": [
+      .english: "Allows generated mouse and keyboard input again",
+      .turkish: "Üretilen fare ve klavye girdisine yeniden izin verir",
+    ],
+    // --- Permission surface (F-005, third instance) -------------------------
+    "perm.group": [.english: "Permissions", .turkish: "İzinler"],
+    "perm.indicators": [.english: "Permission indicators", .turkish: "İzin göstergeleri"],
+    "perm.microphone": [.english: "Microphone", .turkish: "Mikrofon"],
+    "perm.speechRecognition": [.english: "Speech Recognition", .turkish: "Konuşma Tanıma"],
+    "perm.activeSpeechRecognition": [
+      .english: "Active speech recognition", .turkish: "Etkin konuşma tanıma",
+    ],
+    "perm.accessibility": [.english: "Accessibility", .turkish: "Erişilebilirlik"],
+    "perm.screenRecording": [.english: "Screen Recording", .turkish: "Ekran Kaydı"],
+    "perm.screenObservation": [.english: "Screen observation", .turkish: "Ekran gözlemi"],
+    "perm.openPrivacySettings": [
+      .english: "Open macOS Privacy Settings", .turkish: "macOS Gizlilik Ayarlarını aç",
+    ],
+    "perm.granted": [.english: "Granted", .turkish: "Verildi"],
+    "perm.denied": [.english: "Denied", .turkish: "Reddedildi"],
+    "perm.notRequested": [.english: "Not requested", .turkish: "İstenmedi"],
+    "perm.restricted": [.english: "Restricted", .turkish: "Kısıtlı"],
+    "perm.unavailable": [.english: "Unavailable", .turkish: "Kullanılamıyor"],
+    // --- Capability / model inspection --------------------------------------
+    "tasks.failed": [.english: "Failed", .turkish: "Başarısız"],
+    "capabilities.confirmationRisk": [.english: "Confirmation / risk", .turkish: "Onay / risk"],
+    "capabilities.none": [
+      .english: "No registered capabilities are available to inspect.",
+      .turkish: "İncelenebilecek kayıtlı yetenek yok.",
+    ],
+    "models.voice": [.english: "Voice", .turkish: "Ses"],
+    "models.speechRecognition": [.english: "Speech recognition", .turkish: "Konuşma tanıma"],
+    "models.systemTTS": [
+      .english: "System speech synthesis: configured local pipeline",
+      .turkish: "Sistem konuşma sentezi: yapılandırılmış yerel hat",
+    ],
+    "models.state": [.english: "State", .turkish: "Durum"],
+    "models.authentication": [.english: "Authentication", .turkish: "Kimlik doğrulama"],
+    "models.availability": [
+      .english: "Model availability", .turkish: "Model kullanılabilirliği",
+    ],
+    // --- Memory inspection and controls -------------------------------------
+    "memory.preferenceProfile": [
+      .english: "Memory preference profile", .turkish: "Bellek tercih profili",
+    ],
+    "memory.preferenceNote": [
+      .english: "This is a bounded user preference, not an execution grant.",
+      .turkish: "Bu, sınırlı bir kullanıcı tercihidir; yürütme izni değildir.",
+    ],
+    "memory.savePreference": [.english: "Save preference", .turkish: "Tercihi kaydet"],
+    "memory.clearPreference": [
+      .english: "Clear saved preference", .turkish: "Kayıtlı tercihi temizle",
+    ],
+    "memory.controls": [.english: "Memory controls", .turkish: "Bellek denetimleri"],
+    "memory.visibleOf": [.english: "visible of", .turkish: "görünür /"],
+    "memory.records": [.english: "records", .turkish: "kayıt"],
+    "memory.runRetention": [
+      .english: "Run retention cleanup", .turkish: "Saklama temizliğini çalıştır",
+    ],
+    "memory.receiptGone": [
+      .english: "The record content is gone; only this receipt and the audit event remain.",
+      .turkish: "Kayıt içeriği silindi; yalnızca bu makbuz ve denetim olayı kalır.",
+    ],
+    "memory.conflicts": [
+      .english: "Unresolved and resolved conflicts",
+      .turkish: "Çözülmemiş ve çözülmüş çakışmalar",
+    ],
+    "memory.previous": [.english: "Previous", .turkish: "Önceki"],
+    "memory.new": [.english: "New", .turkish: "Yeni"],
+    "memory.keepPrevious": [.english: "Keep previous", .turkish: "Öncekini koru"],
+    "memory.keepNew": [.english: "Keep new", .turkish: "Yeniyi koru"],
+    "memory.searchPlaceholder": [.english: "Search memory", .turkish: "Bellekte ara"],
+    // Capitalized variants of the lowercase `a11y.receipt*` keys, which are
+    // composed mid-sentence in the VoiceOver label and cannot be reused as
+    // sentence-initial visible labels.
+    "memory.reasonLabel": [.english: "Reason", .turkish: "Gerekçe"],
+    "memory.deletedAtLabel": [.english: "Deleted at", .turkish: "Silinme zamanı"],
+    "memory.purpose": [.english: "Purpose", .turkish: "Amaç"],
+    "memory.provenance": [.english: "Provenance", .turkish: "Köken"],
+    "memory.confidence": [.english: "Confidence", .turkish: "Güven"],
+    "memory.sensitivity": [.english: "Sensitivity", .turkish: "Duyarlılık"],
+    "memory.retention": [.english: "Retention", .turkish: "Saklama"],
+    "memory.scope": [.english: "Scope", .turkish: "Kapsam"],
+    "memory.global": [.english: "global", .turkish: "genel"],
+    "memory.correctShort": [.english: "Correct", .turkish: "Düzelt"],
+    "memory.deleteShort": [.english: "Delete", .turkish: "Sil"],
+    "memory.immutable": [
+      .english: "Audit/security records are not user-mutable.",
+      .turkish: "Denetim/güvenlik kayıtları kullanıcı tarafından değiştirilemez.",
+    ],
+    // --- Recovery / diagnostics ---------------------------------------------
+    "recovery.diagnostics": [
+      .english: "Runtime diagnostics", .turkish: "Çalışma zamanı tanılamaları",
+    ],
+    "recovery.localTuning": [
+      .english: "Local tuning recommendations", .turkish: "Yerel ayar önerileri",
+    ],
+    // --- VS Code bridge / plan ----------------------------------------------
+    "vscode.bridge": [.english: "VS Code live bridge", .turkish: "VS Code canlı köprüsü"],
+    "vscode.probeNote": [
+      .english: "Read-only probe through the authenticated AURA extension bridge.",
+      .turkish: "Kimliği doğrulanmış AURA uzantı köprüsü üzerinden salt okunur sonda.",
+    ],
+    "plan.title": [.english: "Plan / Verification", .turkish: "Plan / Doğrulama"],
+    // --- Settings window ----------------------------------------------------
+    "settings.productUI": [.english: "Product UI", .turkish: "Ürün arayüzü"],
+    "settings.language": [.english: "Language", .turkish: "Dil"],
+    "settings.openGuidedSetup": [
+      .english: "Open guided setup", .turkish: "Rehberli kurulumu aç",
+    ],
+    "settings.activation": [.english: "Activation", .turkish: "Etkinleştirme"],
+    "settings.noWakeModel": [
+      .english: "A trained acoustic wake-word model is not installed.",
+      .turkish: "Eğitilmiş akustik uyandırma sözcüğü modeli kurulu değil.",
+    ],
+    "settings.requestMicSpeech": [
+      .english: "Request Microphone and Speech Access",
+      .turkish: "Mikrofon ve Konuşma erişimi iste",
+    ],
+    "settings.systemPermissions": [
+      .english: "System Permissions", .turkish: "Sistem İzinleri",
+    ],
+    "settings.requestAccessibility": [
+      .english: "Request Accessibility Access", .turkish: "Erişilebilirlik erişimi iste",
+    ],
+    "settings.requestScreenRecording": [
+      .english: "Request Screen Recording Access", .turkish: "Ekran Kaydı erişimi iste",
+    ],
+    "settings.openMicSettings": [
+      .english: "Open Microphone Settings", .turkish: "Mikrofon Ayarlarını aç",
+    ],
+    "settings.openSpeechSettings": [
+      .english: "Open Speech Recognition Settings", .turkish: "Konuşma Tanıma Ayarlarını aç",
+    ],
+    "settings.openAccessibilitySettings": [
+      .english: "Open Accessibility Settings", .turkish: "Erişilebilirlik Ayarlarını aç",
+    ],
+    "settings.openScreenRecordingSettings": [
+      .english: "Open Screen Recording Settings", .turkish: "Ekran Kaydı Ayarlarını aç",
+    ],
+    "settings.refreshPermissions": [
+      .english: "Refresh Permission Status", .turkish: "İzin durumunu yenile",
+    ],
+    "settings.vscodeBridge": [.english: "VS Code Bridge", .turkish: "VS Code Köprüsü"],
+    "settings.bridgeSecretNote": [
+      .english: "Local authenticated bridge; the shared secret stays in AURA Keychain "
+        + "and VS Code SecretStorage.",
+      .turkish: "Yerel kimlik doğrulamalı köprü; paylaşılan gizli anahtar AURA Anahtar "
+        + "Zinciri'nde ve VS Code SecretStorage'da kalır.",
+    ],
+    "settings.extensionID": [.english: "Extension ID", .turkish: "Uzantı kimliği"],
+    "settings.sharedSecret": [
+      .english: "Shared secret (16+ characters)",
+      .turkish: "Paylaşılan gizli anahtar (16+ karakter)",
+    ],
+    "settings.provision": [.english: "Provision in AURA", .turkish: "AURA'da sağla"],
+    "settings.revoke": [.english: "Revoke", .turkish: "İptal et"],
+    "settings.auraKeychain": [.english: "AURA Keychain", .turkish: "AURA Anahtar Zinciri"],
+    "settings.provisioned": [.english: "Provisioned", .turkish: "Sağlandı"],
+    "settings.notProvisioned": [.english: "Not provisioned", .turkish: "Sağlanmadı"],
+    "settings.bridgeDisabled": [
+      .english: "The SP-012 live bridge profile is not enabled.",
+      .turkish: "SP-012 canlı köprü profili etkin değil.",
+    ],
+    "settings.startup": [.english: "Startup", .turkish: "Başlangıç"],
+    "settings.launchAtLogin": [
+      .english: "Launch AURA at login", .turkish: "Girişte AURA'yı başlat",
+    ],
+    "settings.launchAtLoginNote": [
+      .english: "Registers AURA with macOS Login Items via ServiceManagement.",
+      .turkish: "AURA'yı ServiceManagement ile macOS Giriş Ögeleri'ne kaydeder.",
+    ],
+    "recovery.latency": [
+      .english: "Observed latency (this session)", .turkish: "Gözlenen gecikme (bu oturum)",
+    ],
+    "recovery.latencyNone": [
+      .english: "No latency samples yet. Take a turn to populate this.",
+      .turkish: "Henüz gecikme örneği yok. Doldurmak için bir tur yapın.",
+    ],
+    "recovery.latencyRefresh": [
+      .english: "Refresh latency readout", .turkish: "Gecikme okumasını yenile",
+    ],
+    "recovery.samples": [.english: "samples", .turkish: "örnek"],
+    "recovery.mockDerived": [
+      .english: "mock-derived — not a live measurement",
+      .turkish: "sahte motordan — canlı ölçüm değil",
+    ],
+    "settings.privacy": [.english: "Privacy", .turkish: "Gizlilik"],
+    "settings.onDeviceNote": [
+      .english: "Speech recognition and system speech synthesis remain on device.",
+      .turkish: "Konuşma tanıma ve sistem konuşma sentezi cihazda kalır.",
+    ],
+    "settings.pluginIsolation": [
+      .english: "Plugin execution remains isolated in the verified helper process.",
+      .turkish: "Eklenti yürütmesi doğrulanmış yardımcı süreçte yalıtılmış kalır.",
+    ],
+    "settings.configGovernance": [
+      .english: "Configuration Governance", .turkish: "Yapılandırma Yönetişimi",
+    ],
+    "settings.aggregateNote": [
+      .english: "Uses bounded aggregate metrics only. Recommendations are never applied "
+        + "automatically.",
+      .turkish: "Yalnızca sınırlı toplu ölçümler kullanır. Öneriler asla otomatik uygulanmaz.",
+    ],
+    "settings.effectiveKeys": [.english: "Effective keys", .turkish: "Etkin anahtarlar"],
+    "settings.auditRecords": [.english: "Audit records", .turkish: "Denetim kayıtları"],
+    "settings.refreshConfig": [
+      .english: "Refresh Configuration Inspection",
+      .turkish: "Yapılandırma incelemesini yenile",
+    ],
     "tasks.title": [.english: "Task Center", .turkish: "Görev Merkezi"],
     "tasks.empty": [
       .english: "No durable tasks are currently tracked.",
@@ -421,6 +679,11 @@ enum AuraCopy {
     ],
     "onboarding.stage.12": [.english: "Setup complete", .turkish: "Kurulum tamamlandı"],
   ]
+
+  /// Every key in the table, for the coverage guard in `AURAIntegrationTests`.
+  /// Exposed so the guard cannot drift out of step with the table by hand-listing
+  /// keys — a hand-maintained list is exactly what let earlier gaps survive.
+  static var allKeys: [String] { translations.keys.sorted() }
 
   static func text(_ key: String, language: AuraUILanguage) -> String {
     let values = translations[key] ?? [.english: key, .turkish: key]

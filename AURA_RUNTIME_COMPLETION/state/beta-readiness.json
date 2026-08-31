@@ -2,13 +2,14 @@
   "$schema": "../schemas/beta-readiness.schema.json",
   "schema_version": "1.0.0",
   "readiness_status": "blocked",
-  "session_id": "AURA-R12-BETA-20260809",
+  "session_id": "AURA-SP-030-BETA-EVIDENCE-20260830",
   "authority": {
-    "mode": "edit_only",
-    "beta_enrollment": false,
-    "telemetry_activation": false,
-    "app_install_or_launch": false,
-    "release": false
+    "mode": "owner_granted_local",
+    "beta_enrollment": true,
+    "telemetry_activation": true,
+    "app_install_or_launch": true,
+    "release": false,
+    "authority_source": "EV-SP-030-20260830-OWNER-APPROVAL-03"
   },
   "dependency_gate": {
     "r11_state": "in_progress",
@@ -16,11 +17,16 @@
     "r11_completion_required": true
   },
   "cohort": {
-    "status": "not_enrolled",
-    "type": "none",
-    "consent": "not_collected",
+    "status": "enrolled",
+    "type": "internal_local_single_participant",
+    "consent": "collected",
+    "consent_evidence_id": "EV-SP-030-20260830-OWNER-APPROVAL-03",
+    "participants": 1,
     "minimum_sessions": null,
-    "supported_profiles": ["clean_profile", "configured_profile"]
+    "supported_profiles": [
+      "clean_profile",
+      "configured_profile"
+    ]
   },
   "capability_scope": {
     "included": [],
@@ -51,18 +57,133 @@
     ]
   },
   "slo_definitions": [
-    {"id": "ptt_ack", "metric": "push_to_talk_acknowledgement_ms", "percentiles": [50, 95, 99], "target_ms": null, "sample_minimum": null, "status": "not_measured"},
-    {"id": "stt_partial", "metric": "first_stt_partial_ms", "percentiles": [50, 95, 99], "target_ms": null, "sample_minimum": null, "status": "not_measured"},
-    {"id": "dialogue_first_token", "metric": "local_dialogue_first_token_ms", "percentiles": [50, 95, 99], "target_ms": null, "sample_minimum": null, "status": "not_measured"},
-    {"id": "false_success", "metric": "false_success_rate", "percentiles": [50, 95, 99], "target_ms": null, "sample_minimum": null, "status": "not_measured"},
-    {"id": "unauthorized_action", "metric": "unauthorized_action_count", "percentiles": [], "target_ms": null, "sample_minimum": null, "status": "not_measured"}
+    {
+      "id": "ptt_ack",
+      "metric": "push_to_talk_acknowledgement_ms",
+      "percentiles": [
+        50,
+        95,
+        99
+      ],
+      "target_ms": null,
+      "sample_minimum": null,
+      "status": "not_measured"
+    },
+    {
+      "id": "stt_partial",
+      "metric": "first_stt_partial_ms",
+      "percentiles": [
+        50,
+        95,
+        99
+      ],
+      "target_ms": null,
+      "sample_minimum": null,
+      "status": "not_measured"
+    },
+    {
+      "id": "dialogue_first_token",
+      "metric": "local_dialogue_first_token_ms",
+      "percentiles": [
+        50,
+        95,
+        99
+      ],
+      "target_ms": null,
+      "sample_minimum": 20,
+      "status": "measured",
+      "measurement": {
+        "evidence_id": "EV-SP-030-20260830-HARNESS-MEASUREMENT-02",
+        "measurement_class": "deterministic_harness",
+        "sample_count": 30,
+        "percentiles_ms": {
+          "50": 38.9,
+          "95": 40.1,
+          "99": 41.1
+        },
+        "live_beta_sample": false,
+        "limitations": "LOWER BOUND, NOT THE FULL METRIC. This measures only the local Ollama first-token leg over loopback (127.0.0.1:11434, streaming, warm resident model); it EXCLUDES AURA's in-app routing, NLU, policy evaluation and UI render, all of which sit between the user and the first visible token. The user-observed local_dialogue_first_token_ms is therefore strictly larger than these numbers and remains unmeasured. Model: hf.co/GnLOLot/MiniCPM5-1B-...-GGUF:Q8_0 (1.3 GB, 100% GPU) — a 1B model, not necessarily the model the product routes to; the value is model-dependent. granite4.2:8b (5.3 GB) was attempted first and failed to return a first token within a 900 s warmup, so an 8B-class figure could not be obtained. No target is asserted and no pass/fail is claimed. 30 samples after a discarded warmup."
+      }
+    },
+    {
+      "id": "false_success",
+      "metric": "false_success_rate",
+      "percentiles": [],
+      "target_ms": null,
+      "sample_minimum": 5,
+      "status": "measured",
+      "measurement": {
+        "evidence_id": "EV-SP-030-20260830-HARNESS-MEASUREMENT-01",
+        "measurement_class": "deterministic_harness",
+        "sample_count": 9,
+        "value": 0.0,
+        "live_beta_sample": false,
+        "limitations": "Sample is the 9 verification-bearing cases in SP014LiveAcceptanceTests (5) and SP016BilingualFailClosedTests (4), which assert a claimed success matches observed reality. Deterministic harness coverage from the 2026-08-30 full-suite run (1290 tests, 22 bundles, 0 failures). This is NOT a live user-present beta window and NOT a live-microphone result. Recorded as a single aggregate proportion (0/9); per-session p50/p95/p99 require a live multi-session beta window and are not claimed here."
+      }
+    },
+    {
+      "id": "unauthorized_action",
+      "metric": "unauthorized_action_count",
+      "percentiles": [],
+      "target_ms": null,
+      "sample_minimum": 50,
+      "status": "measured",
+      "measurement": {
+        "evidence_id": "EV-SP-030-20260830-HARNESS-MEASUREMENT-01",
+        "measurement_class": "deterministic_harness",
+        "sample_count": 255,
+        "value": 0,
+        "live_beta_sample": false,
+        "limitations": "Sample is the 255 adversarial/policy cases in AuraAdversarialTests (68), AuraPolicyTests (39), AuraComputerUseTests (104) and AuraSecurityTests (44). Zero unauthorized actions were observed. Deterministic harness coverage from the 2026-08-30 full-suite run (1290 tests, 22 bundles, 0 failures). This is NOT a live user-present beta window and NOT a live-microphone result."
+      }
+    }
   ],
   "scenario_matrix": [
-    {"id": "turkish_english_mixed", "status": "not_run", "evidence_ids": []},
-    {"id": "permission_denial_revocation", "status": "not_run", "evidence_ids": []},
-    {"id": "offline_backend_unavailable", "status": "not_run", "evidence_ids": []},
-    {"id": "task_helper_crash_recovery", "status": "not_run", "evidence_ids": []},
-    {"id": "injection_emergency_stop_accessibility", "status": "not_run", "evidence_ids": []}
+    {
+      "id": "turkish_english_mixed",
+      "status": "passed",
+      "evidence_ids": [
+        "EV-SP-030-20260830-HARNESS-MEASUREMENT-01"
+      ],
+      "measurement_class": "deterministic_harness",
+      "limitations": "SP003LiveBilingualDialogueScenarios, SP016BilingualFailClosedTests, TurnCompletionHeuristicsTests. Deterministic harness coverage from the 2026-08-30 full-suite run (1290 tests, 22 bundles, 0 failures). This is NOT a live user-present beta window and NOT a live-microphone result."
+    },
+    {
+      "id": "permission_denial_revocation",
+      "status": "passed",
+      "evidence_ids": [
+        "EV-SP-030-20260830-HARNESS-MEASUREMENT-01"
+      ],
+      "measurement_class": "deterministic_harness",
+      "limitations": "SP006LiveCapabilityScenarios and the AuraPolicyTests revocation cases. Deterministic harness coverage from the 2026-08-30 full-suite run (1290 tests, 22 bundles, 0 failures). This is NOT a live user-present beta window and NOT a live-microphone result."
+    },
+    {
+      "id": "offline_backend_unavailable",
+      "status": "passed",
+      "evidence_ids": [
+        "EV-SP-030-20260830-HARNESS-MEASUREMENT-01"
+      ],
+      "measurement_class": "deterministic_harness",
+      "limitations": "AgentBackendHealthTests, RuntimeHealthTests and SP014LiveAcceptanceTests P3. Deterministic harness coverage from the 2026-08-30 full-suite run (1290 tests, 22 bundles, 0 failures). This is NOT a live user-present beta window and NOT a live-microphone result."
+    },
+    {
+      "id": "task_helper_crash_recovery",
+      "status": "passed",
+      "evidence_ids": [
+        "EV-SP-030-20260830-HARNESS-MEASUREMENT-01"
+      ],
+      "measurement_class": "deterministic_harness",
+      "limitations": "HelperIPCAdversarialTests, SP016DeviceRecoveryTests, AuraLifecycleTests SafeModeTests/LifecycleObserverTests. Deterministic harness coverage from the 2026-08-30 full-suite run (1290 tests, 22 bundles, 0 failures). This is NOT a live user-present beta window and NOT a live-microphone result."
+    },
+    {
+      "id": "injection_emergency_stop_accessibility",
+      "status": "passed",
+      "evidence_ids": [
+        "EV-SP-030-20260830-HARNESS-MEASUREMENT-01"
+      ],
+      "measurement_class": "deterministic_harness",
+      "limitations": "PromptInjectionAdversarialTests (19), EmergencyStopControllerTests (4), AuraAccessibilityIdentifierTests. Deterministic harness coverage from the 2026-08-30 full-suite run (1290 tests, 22 bundles, 0 failures). This is NOT a live user-present beta window and NOT a live-microphone result."
+    }
   ],
   "incident_review": {
     "status": "not_run",
@@ -73,7 +194,14 @@
   },
   "signoffs": {
     "security": "not_obtained",
-    "privacy": "not_obtained",
+    "privacy": {
+      "status": "obtained",
+      "evaluator": "Claude Code (Opus 5) — cross-agent reviewer under ADR-050; authored none of the reviewed privacy artifacts",
+      "independent": true,
+      "evaluator_is_implementing_agent": false,
+      "evidence_id": "EV-SP-030-20260830-PRIVACY-REVIEW-01",
+      "date": "2026-08-30"
+    },
     "accessibility_localization": "not_obtained",
     "release_recovery": "not_obtained",
     "product_truthfulness": "not_obtained"
@@ -86,8 +214,12 @@
     "artifact_sha256": null
   },
   "open_blockers": [
+    "Live latency SLOs (ptt_ack, stt_partial, dialogue_first_token) are not measured: they require a user-present beta window with a live microphone.",
+    "Live STT/WER is not measured: it requires a speech-capable operator; only the documented synthetic-speech accommodation exists.",
+    "The scenario matrix passed as deterministic_harness coverage only; it has NOT been exercised in a live beta window.",
+    "The incident review has not run because no beta window has produced incidents to review.",
+    "Four of five independent sign-offs remain not_obtained (privacy was obtained 2026-08-30, EV-SP-030-20260830-PRIVACY-REVIEW-01): security awaits the DeepSeek cross-review; accessibility_localization is REFUSED on unreviewed translation, absent live VoiceOver verification and ADR-050 §4 reviewer independence — no longer on coverage, which closed under EV-SP-030-20260830-A11Y-COVERAGE-03; release_recovery and product_truthfulness await the owner's verdicts against OWNER_SIGNOFF_FALSIFICATION_PACKET.md. An independent sign-off requires a named non-implementing evaluator, which authority cannot substitute for.",
     "R11 is incomplete and has no signed/notarized clean-machine release artifact.",
-    "No beta cohort, consent, telemetry, SLO samples, incident review, or independent sign-off exists.",
     "ADR-047 is absent and no release-candidate approval authority exists."
   ]
 }

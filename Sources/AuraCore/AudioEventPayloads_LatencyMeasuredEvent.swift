@@ -6,13 +6,27 @@ import Foundation
 public struct LatencyMeasuredEvent: EventPayload {
   public static let eventType = "performance.latency.measured"
 
-  public enum Kind: String, Codable, Sendable, Equatable {
+  public enum Kind: String, Codable, Sendable, Equatable, CaseIterable {
     /// Wake-word activation to first response-plan emission (acknowledgement).
     case wakeToAck
 
     /// Wake-word activation to end of spoken response for a deterministic
     /// command that needs no remote model.
     case simpleCommandCompletion
+
+    /// Push-to-talk **button press** to the moment the UI acknowledges that it
+    /// is listening. This is the R12 `ptt_ack` SLO
+    /// (`push_to_talk_acknowledgement_ms`).
+    ///
+    /// Deliberately distinct from `wakeToAck`, which is measured to the first
+    /// *response plan* and therefore includes NLU, policy evaluation and the
+    /// model round trip. Reporting `wakeToAck` as `ptt_ack` would overstate the
+    /// acknowledgement by whole seconds; they are different metrics.
+    case pushToTalkAck
+
+    /// STT activation to the first partial transcript. This is the R12
+    /// `stt_partial` SLO (`first_stt_partial_ms`).
+    case sttFirstPartial
   }
 
   public let kind: Kind

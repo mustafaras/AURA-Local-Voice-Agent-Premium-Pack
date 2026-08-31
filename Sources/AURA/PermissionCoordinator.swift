@@ -11,13 +11,17 @@ enum PermissionState: String, Sendable {
   case restricted
   case unavailable
 
-  var title: String {
+  /// Localized, following the `AuraAppStatus.title(for:)` precedent. There is
+  /// deliberately no unlocalized `title` left behind: this value is read out to
+  /// VoiceOver on the surface that tells a user whether AURA can hear them, and
+  /// an English-only overload is exactly how that regressed before.
+  func title(for language: AuraUILanguage) -> String {
     switch self {
-    case .granted: "Granted"
-    case .denied: "Denied"
-    case .notDetermined: "Not requested"
-    case .restricted: "Restricted"
-    case .unavailable: "Unavailable"
+    case .granted: AuraCopy.text("perm.granted", language: language)
+    case .denied: AuraCopy.text("perm.denied", language: language)
+    case .notDetermined: AuraCopy.text("perm.notRequested", language: language)
+    case .restricted: AuraCopy.text("perm.restricted", language: language)
+    case .unavailable: AuraCopy.text("perm.unavailable", language: language)
     }
   }
 }

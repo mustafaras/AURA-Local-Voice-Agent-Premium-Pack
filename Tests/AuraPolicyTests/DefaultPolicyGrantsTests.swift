@@ -351,6 +351,14 @@ struct DefaultPolicyGrantsTests {
         Capability.taskPause.identifier,
         Capability.taskResume.identifier,
         Capability.taskRetry.identifier,
+        // SP-030 (`EV-SP-030-20260831-R11-POLICY-BLOCK-01`). Added
+        // deliberately: this test failing is the intended alarm on any
+        // widening of the seeded set, and the widening was authorized by the
+        // owner. It is the ONLY lifecycle capability seeded — the destructive
+        // and network-tier ones stay deny-by-default, which
+        // `destructiveLifecycleCapabilitiesStayDenied` pins from the other
+        // direction.
+        Capability.lifecycleLaunchAtLogin.identifier,
       ])
   }
 
@@ -367,5 +375,83 @@ struct DefaultPolicyGrantsTests {
     }
     #expect(
       !DefaultPolicyGrants.all.contains { $0.capability == Capability.taskDelete })
+  }
+
+  // MARK: - SP-030: R11 lifecycle reachability
+
+  /// `EV-SP-030-20260831-R11-POLICY-BLOCK-01`. The launch-at-login toggle was
+  /// denied before reaching `SMAppService`, and the whole 1317-test suite
+  /// passed with that defect present, because nothing asserted that a
+  /// lifecycle capability is reachable at all. That absence is what let a
+  /// registered, implemented, composition-root-wired control ship unusable.
+  @Test("SP-030: launch at login is reachable, and asks for confirmation")
+  func launchAtLoginIsReachable() async throws {
+    let engine = try await makeProductionEngine()
+    let decision = await evaluate(.lifecycleLaunchAtLogin, engine: engine)
+    // `.confirm`, not `.allow`: this writes a persistent system-level login
+    // item, so the user confirms the effect. What must never recur is
+    // `.deny` — the toggle failing before it reaches the OS.
+    guard case .confirm = decision else {
+      Issue.record("Expected .confirm for lifecycle.launchAtLogin, got \(decision)")
+      return
+    }
+  }
+
+  /// The companion to the test above, and the more important one. Fixing the
+  /// reachability of one control must not quietly open the destructive rest.
+  @Test("SP-030: the destructive lifecycle capabilities stay deny-by-default")
+  func destructiveLifecycleCapabilitiesStayDenied() async throws {
+    let engine = try await makeProductionEngine()
+    let mustStayDenied: [Capability] = [
+      .lifecycleReset, .lifecycleRollback, .lifecycleUninstall,
+      .lifecycleFactoryReset, .lifecycleApproveUpdate, .lifecycleStageUpdate,
+      .lifecycleCheckUpdate, .lifecycleSafeMode,
+    ]
+    for capability in mustStayDenied {
+      let decision = await evaluate(capability, engine: engine)
+      guard case .deny = decision else {
+        Issue.record(
+          "\(capability.identifier) must stay deny-by-default, got \(decision)")
+        return
+      }
+    }
+  }
+
+  /// `EV-SP-030-20260831-R11-LIVE-GATE-01`. Reading whether a login item
+  /// exists is not a mutation. While the read shared the write's `.mutation`
+  /// capability, opening Settings raised a confirmation, the toggle raised a
+  /// second, and the failure path's re-read raised a third — they queued,
+  /// lapsed after 60 s, and the toggle never enabled.
+  @Test("SP-030: reading launch-at-login status needs no confirmation")
+  func launchAtLoginStatusIsObservation() async throws {
+    let engine = try await makeProductionEngine()
+    let decision = await evaluate(.lifecycleLaunchAtLoginStatus, engine: engine)
+    guard case .allow = decision else {
+      Issue.record("Expected .allow for the status read, got \(decision)")
+      return
+    }
+    #expect(Capability.lifecycleLaunchAtLoginStatus.riskTier == .observation)
+  }
+
+  /// The other half: splitting the read out must not have weakened the write.
+  @Test("SP-030: the read/write split kept the write behind confirmation")
+  func writeStillRequiresConfirmationAfterSplit() async throws {
+    let engine = try await makeProductionEngine()
+    #expect(Capability.lifecycleLaunchAtLogin != Capability.lifecycleLaunchAtLoginStatus)
+    #expect(Capability.lifecycleLaunchAtLogin.riskTier == .mutation)
+    guard case .confirm = await evaluate(.lifecycleLaunchAtLogin, engine: engine) else {
+      Issue.record("the write must still require confirmation")
+      return
+    }
+  }
+
+  /// Pins the *scope* of the seed change, so a future edit that widens the
+  /// seeded lifecycle set has to change this assertion deliberately.
+  @Test("SP-030: exactly one lifecycle capability is seeded")
+  func exactlyOneLifecycleCapabilityIsSeeded() {
+    let seeded = DefaultPolicyGrants.all
+      .map(\.capability)
+      .filter { $0.domain == "lifecycle" }
+    #expect(seeded == [.lifecycleLaunchAtLogin])
   }
 }

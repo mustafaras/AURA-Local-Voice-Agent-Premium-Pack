@@ -50,6 +50,30 @@ func authenticatorConstantTimeEqualsDetectsMismatch() throws {
   #expect(!a.constantTimeEquals("abc", "abcd"))
 }
 
+/// Regression: a hostile tag whose grapheme count matches the computed tag but
+/// whose UTF-8 byte count does not must be rejected, not trap. The comparison
+/// runs before authentication succeeds and its left operand comes off the wire,
+/// so a trap here is an unauthenticated crash of whichever side is verifying.
+@Test
+func authenticatorRejectsMultiByteTagWithMatchingGraphemeCount() throws {
+  let a = try makeAuthenticator()
+  let computed = String(repeating: "a", count: 64)
+  let hostile = String(repeating: "a", count: 63) + "\u{00e9}"
+
+  #expect(hostile.count == computed.count)
+  #expect(Array(hostile.utf8).count != Array(computed.utf8).count)
+  #expect(!a.constantTimeEquals(hostile, computed))
+  #expect(!a.constantTimeEquals(computed, hostile))
+}
+
+/// The same asymmetry in the other direction: a shorter byte array on the left.
+@Test
+func authenticatorRejectsTagsDifferingOnlyInByteLength() throws {
+  let a = try makeAuthenticator()
+  #expect(!a.constantTimeEquals("\u{00e9}", "ab"))
+  #expect(!a.constantTimeEquals("ab", "\u{00e9}"))
+}
+
 // MARK: - Authenticated request/response envelopes
 
 @Test

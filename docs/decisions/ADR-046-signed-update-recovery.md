@@ -1,7 +1,7 @@
 # ADR-046 — Signed Updates, Rollback, and Recovery
 
-- **Status:** Proposed
-- **Date:** 2026-08-09
+- **Status:** Accepted (local-only scope)
+- **Date:** 2026-08-09 (Proposed); **2026-08-30 (Accepted, local-only scope)**
 - **Owners:** AURA Runtime Completion Program
 - **Scope:** R11 release engineering and continuous operations
 
@@ -88,6 +88,10 @@ and outside evidence logs.
 
 R11 may produce a local, untrusted development artifact and deterministic
 manifest evidence, but it must not label that artifact a release candidate.
-ADR-046 remains Proposed until the local updater/rollback/recovery/safe-mode/
-reset contract evidence exists and receives independent review; a real
-externally signed update is out of the local-only scope (ADR-049).
+ADR-046 is **Accepted for the local-only scope** (2026-08-30): the local
+updater/rollback/recovery/safe-mode/reset contract is implemented and
+adversarially tested (SP-028 `EV-SP-028-20260829-*`), and the release owner
+decided AURA is permanently local-only (ADR-049). A real externally signed
+update, network transport, and distribution remain out of the local-only scope
+(ADR-049) and are not claimed. The local updater/rollback contract is the
+accepted design for local operation.

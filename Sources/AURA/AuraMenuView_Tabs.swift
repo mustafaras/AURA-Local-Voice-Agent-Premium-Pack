@@ -50,7 +50,7 @@ extension AuraMenuView {
               }
             }
             if let error = task.errorMessage {
-              Text("Failed: \(error)")
+              Text("\(copy("tasks.failed")): \(error)")
                 .font(.caption)
                 .foregroundStyle(.red)
                 .fixedSize(horizontal: false, vertical: true)
@@ -131,7 +131,7 @@ extension AuraMenuView {
               .font(.caption)
               .foregroundStyle(capability.isEnabled ? Color.secondary : Color.orange)
               .fixedSize(horizontal: false, vertical: true)
-            Text("Confirmation / risk: \(capability.riskAndConfirmation)")
+            Text("\(copy("capabilities.confirmationRisk")): \(capability.riskAndConfirmation)")
               .font(.caption2).foregroundStyle(.secondary)
               .fixedSize(horizontal: false, vertical: true)
           }
@@ -144,7 +144,7 @@ extension AuraMenuView {
         )
       }
       if model.capabilityRows.isEmpty {
-        Text("No registered capabilities are available to inspect.")
+        Text(copy("capabilities.none"))
           .foregroundStyle(.secondary)
       }
     }
@@ -161,12 +161,13 @@ extension AuraMenuView {
           Label(copy("models.refresh"), systemImage: "arrow.clockwise")
         }
       }
-      GroupBox("Voice") {
+      GroupBox(copy("models.voice")) {
         VStack(alignment: .leading, spacing: 5) {
           Label(
-            "Speech recognition: \(model.permissions.speechRecognition.title)",
+            "\(copy("models.speechRecognition")): "
+              + model.permissions.speechRecognition.title(for: language),
             systemImage: "waveform")
-          Label("System speech synthesis: configured local pipeline", systemImage: "speaker.wave.2")
+          Label(copy("models.systemTTS"), systemImage: "speaker.wave.2")
           Text(
             "Reference-voice cloning is not enabled by this surface and requires explicit consent."
           )
@@ -178,9 +179,9 @@ extension AuraMenuView {
       ForEach(model.backendHealth, id: \.backend) { backend in
         GroupBox(backend.backend.rawValue.capitalized) {
           VStack(alignment: .leading, spacing: 4) {
-            Text("State: \(backendState(backend.state))")
-            Text("Authentication: \(backend.authentication.rawValue)")
-            Text("Model availability: \(backend.modelAvailability)")
+            Text("\(copy("models.state")): \(backendState(backend.state))")
+            Text("\(copy("models.authentication")): \(backend.authentication.rawValue)")
+            Text("\(copy("models.availability")): \(backend.modelAvailability)")
             Text(backend.detail)
               .font(.caption).foregroundStyle(.secondary)
               .fixedSize(horizontal: false, vertical: true)
@@ -286,21 +287,25 @@ extension AuraMenuView {
   var privacyTab: some View {
     VStack(alignment: .leading, spacing: 12) {
       sectionTitle("privacy.title", symbol: "lock.shield")
-      GroupBox("Permission indicators") {
+      GroupBox(copy("perm.indicators")) {
         VStack(alignment: .leading, spacing: 5) {
-          permissionIndicator("Microphone", model.permissions.microphone.title)
           permissionIndicator(
-            "Active speech recognition", model.permissions.speechRecognition.title)
-          permissionIndicator("Screen observation", model.permissions.screenRecording.title)
+            copy("perm.microphone"), model.permissions.microphone.title(for: language))
+          permissionIndicator(
+            copy("perm.activeSpeechRecognition"),
+            model.permissions.speechRecognition.title(for: language))
+          permissionIndicator(
+            copy("perm.screenObservation"),
+            model.permissions.screenRecording.title(for: language))
           Label(copy("conversation.cloudDisabled"), systemImage: "icloud.slash")
             .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
       }
       integrationsSection
-      GroupBox("Memory preference profile") {
+      GroupBox(copy("memory.preferenceProfile")) {
         VStack(alignment: .leading, spacing: 8) {
-          Text("This is a bounded user preference, not an execution grant.")
+          Text(copy("memory.preferenceNote"))
             .font(.caption).foregroundStyle(.secondary)
           Picker(
             "Response length",
@@ -318,9 +323,9 @@ extension AuraMenuView {
           )
           .help("The machine policy can reject this preference; it cannot widen policy authority.")
           HStack {
-            Button("Save preference") { model.saveMemoryPreferences() }
+            Button(copy("memory.savePreference")) { model.saveMemoryPreferences() }
               .buttonStyle(.borderedProminent)
-            Button("Clear saved preference", role: .destructive) {
+            Button(copy("memory.clearPreference"), role: .destructive) {
               model.clearMemoryPreferences()
             }
             .disabled(!model.hasSavedMemoryPreference)
@@ -335,12 +340,12 @@ extension AuraMenuView {
           .fixedSize(horizontal: false, vertical: true)
         }
       }
-      GroupBox("Memory controls") {
+      GroupBox(copy("memory.controls")) {
         VStack(alignment: .leading, spacing: 8) {
           HStack {
-            TextField("Search memory", text: $model.memorySearchText)
+            TextField(copy("memory.searchPlaceholder"), text: $model.memorySearchText)
               .textFieldStyle(.roundedBorder)
-              .accessibilityLabel("Search inspectable memory")
+              .accessibilityLabel(copy("a11y.memorySearch"))
             Button {
               model.exportMemory()
             } label: {
@@ -352,10 +357,12 @@ extension AuraMenuView {
                 : "Audit and security records are excluded")
           }
           HStack {
-            Text("\(model.visibleMemoryRows.count) visible of \(model.memoryRows.count) records")
+            Text(
+              "\(model.visibleMemoryRows.count) \(copy("memory.visibleOf")) "
+                + "\(model.memoryRows.count) \(copy("memory.records"))")
               .font(.caption).foregroundStyle(.secondary)
             Spacer()
-            Button("Run retention cleanup") { model.enforceMemoryRetention() }
+            Button(copy("memory.runRetention")) { model.enforceMemoryRetention() }
           }
           Text(
             "Audit/security memory is excluded from inspection and export "
@@ -366,12 +373,12 @@ extension AuraMenuView {
           if let receipt = model.lastMemoryDeletionReceipt {
             Divider()
             VStack(alignment: .leading, spacing: 3) {
-              Label("Deletion receipt", systemImage: "trash.slash")
+              Label(copy("a11y.deletionReceipt"), systemImage: "trash.slash")
                 .font(.caption).bold()
-              Text("Record \(receipt.id.uuidString) (\(receipt.memoryClass))")
-              Text("Reason: \(receipt.reason)")
-              Text("Deleted at \(receipt.deletedAt.formatted(.iso8601))")
-              Text("The record content is gone; only this receipt and the audit event remain.")
+              Text("\(copy("a11y.receiptRecord")) \(receipt.id.uuidString) (\(receipt.memoryClass))")
+              Text("\(copy("memory.reasonLabel")): \(receipt.reason)")
+              Text("\(copy("memory.deletedAtLabel")) \(receipt.deletedAt.formatted(.iso8601))")
+              Text(copy("memory.receiptGone"))
                 .foregroundStyle(.secondary)
             }
             .font(.caption2)
@@ -382,21 +389,21 @@ extension AuraMenuView {
             // receipt" would leave the record, reason, and time unreachable to
             // VoiceOver, which is exactly the proof the receipt exists to give.
             .accessibilityLabel(
-              "Memory deletion receipt. Record \(receipt.id.uuidString), "
-                + "class \(receipt.memoryClass), reason \(receipt.reason), "
-                + "deleted at \(receipt.deletedAt.formatted(.iso8601)). "
+              "\(copy("a11y.deletionReceipt")). \(copy("a11y.receiptRecord")) \(receipt.id.uuidString), "
+                + "\(copy("a11y.receiptClass")) \(receipt.memoryClass), \(copy("a11y.receiptReason")) \(receipt.reason), "
+                + "\(copy("a11y.receiptDeletedAt")) \(receipt.deletedAt.formatted(.iso8601)). "
                 + "The record content is gone; only this receipt and the audit event remain.")
           }
         }
       }
       if !model.memoryConflicts.isEmpty {
-        GroupBox("Unresolved and resolved conflicts") {
+        GroupBox(copy("memory.conflicts")) {
           VStack(alignment: .leading, spacing: 8) {
             ForEach(model.memoryConflicts) { conflict in
               VStack(alignment: .leading, spacing: 5) {
                 Text(conflict.subject).bold()
-                Text("Previous: \(conflict.existingStatement)")
-                Text("New: \(conflict.newStatement)")
+                Text("\(copy("memory.previous")): \(conflict.existingStatement)")
+                Text("\(copy("memory.new")): \(conflict.newStatement)")
                 Text(
                   conflict.resolution == nil
                     ? "Unresolved contradiction; neither statement is silently discarded."
@@ -404,13 +411,13 @@ extension AuraMenuView {
                 )
                 .font(.caption2).foregroundStyle(.secondary)
                 HStack {
-                  Button("Keep previous") {
+                  Button(copy("memory.keepPrevious")) {
                     model.resolveMemoryConflict(
                       conflict.id,
                       resolution: .keptExisting(reason: "user selected previous belief")
                     )
                   }
-                  Button("Keep new") {
+                  Button(copy("memory.keepNew")) {
                     model.resolveMemoryConflict(
                       conflict.id, resolution: .supersededExisting)
                   }
@@ -443,17 +450,51 @@ extension AuraMenuView {
           Label(copy("recovery.refresh"), systemImage: "arrow.clockwise")
         }
       }
-      GroupBox("Permissions") {
+      GroupBox(copy("perm.group")) {
         VStack(alignment: .leading, spacing: 7) {
-          permissionIndicator("Microphone", model.permissions.microphone.title)
-          permissionIndicator("Speech Recognition", model.permissions.speechRecognition.title)
-          permissionIndicator("Accessibility", model.permissions.accessibility.title)
-          permissionIndicator("Screen Recording", model.permissions.screenRecording.title)
-          Button("Open macOS Privacy Settings") { model.openMicrophoneSettings() }
+          permissionIndicator(
+            copy("perm.microphone"), model.permissions.microphone.title(for: language))
+          permissionIndicator(
+            copy("perm.speechRecognition"),
+            model.permissions.speechRecognition.title(for: language))
+          permissionIndicator(
+            copy("perm.accessibility"), model.permissions.accessibility.title(for: language))
+          permissionIndicator(
+            copy("perm.screenRecording"),
+            model.permissions.screenRecording.title(for: language))
+          Button(copy("perm.openPrivacySettings")) { model.openMicrophoneSettings() }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
       }
-      GroupBox("Runtime diagnostics") {
+      GroupBox(copy("recovery.latency")) {
+        VStack(alignment: .leading, spacing: 5) {
+          if model.latencySummaries.isEmpty {
+            // Deliberately says "no samples" rather than showing zeros. A zero
+            // would read as "measured, and instant" — the opposite of the truth.
+            Text(copy("recovery.latencyNone"))
+              .foregroundStyle(.secondary)
+              .fixedSize(horizontal: false, vertical: true)
+          } else {
+            ForEach(model.latencySummaries, id: \LatencyPercentileSummary.kind) { summary in
+              let line =
+                "\(summary.kind.rawValue): p50 \(Int(summary.p50Milliseconds)) ms · "
+                + "p95 \(Int(summary.p95Milliseconds)) ms · "
+                + "p99 \(Int(summary.p99Milliseconds)) ms"
+              VStack(alignment: .leading, spacing: 1) {
+                Text(line)
+                Text(
+                  "\(summary.sampleCount) \(copy("recovery.samples"))"
+                    + (summary.isMockDerived ? " · \(copy("recovery.mockDerived"))" : ""))
+                  .font(.caption2).foregroundStyle(summary.isMockDerived ? .orange : .secondary)
+              }
+              .accessibilityElement(children: .combine)
+            }
+          }
+          Button(copy("recovery.latencyRefresh")) { model.refreshLatencySummaries() }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
+      GroupBox(copy("recovery.diagnostics")) {
         VStack(alignment: .leading, spacing: 5) {
           ForEach(model.runtimeHealth, id: \RuntimeHealth.componentID) { (health: RuntimeHealth) in
             let diagnosticLabel =
@@ -474,7 +515,7 @@ extension AuraMenuView {
       }
       emergencyControls
       Toggle(
-        "Local tuning recommendations",
+        copy("recovery.localTuning"),
         isOn: Binding(
           get: { model.localRecommendationsEnabled },
           set: { model.setLocalRecommendationsEnabled($0) }))
@@ -485,23 +526,26 @@ extension AuraMenuView {
   }
 
   var emergencyControls: some View {
-    GroupBox("Emergency control") {
+    // Every string here goes through `copy(_:)`. This is the control that stops
+    // generated mouse and keyboard input, so it must be readable — including to a
+    // VoiceOver user — in the language the operator actually selected.
+    GroupBox(copy("emergency.group")) {
       if model.emergencyStopActive {
-        Button("Re-arm generated input") {
+        Button(copy("emergency.rearm")) {
           model.resetEmergencyStop()
         }
         .controlSize(.large)
-        .accessibilityHint("Allows generated mouse and keyboard input again")
+        .accessibilityHint(copy("emergency.rearmHint"))
       } else {
         Button(role: .destructive) {
           model.triggerEmergencyStop()
         } label: {
-          Label("Emergency Stop", systemImage: "hand.raised.fill")
+          Label(copy("emergency.stop"), systemImage: "hand.raised.fill")
             .frame(maxWidth: .infinity)
         }
         .controlSize(.large)
         .keyboardShortcut(.escape, modifiers: [.command, .shift])
-        .accessibilityHint("Immediately disables generated input")
+        .accessibilityHint(copy("emergency.stopHint"))
       }
     }
   }

@@ -132,7 +132,7 @@ struct AuraSectionHeader: View {
   var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: AuraDesign.Spacing.s) {
       Image(systemName: symbol)
-        .font(.system(size: 12, weight: .semibold))
+        .font(.caption.weight(.semibold))
         .foregroundStyle(.tint)
         .accessibilityHidden(true)
       VStack(alignment: .leading, spacing: AuraDesign.Spacing.xxs) {
@@ -179,6 +179,10 @@ struct AuraPanel<Content: View>: View {
 /// scannable at a glance — far more than any amount of ornament — and it is why
 /// this replaced the uniform `GroupBox` rows the transcript used before.
 struct AuraMessageBubble: View {
+  /// Threaded rather than defaulted on purpose. This view has no model to read
+  /// the language from, and a default of `.english` would let a caller forget
+  /// to pass it and silently ship the untranslated string this closes.
+  let language: AuraUILanguage
   let roleLabel: String
   let text: String
   let isUser: Bool
@@ -216,7 +220,8 @@ struct AuraMessageBubble: View {
         Text(traceSummary)
           .font(AuraDesign.Typography.mono)
           .foregroundStyle(.tertiary)
-          .accessibilityLabel("Trace: \(traceSummary)")
+          .accessibilityLabel(
+            "\(AuraCopy.text("a11y.tracePrefix", language: language)): \(traceSummary)")
       }
     }
     .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
@@ -232,7 +237,9 @@ struct AuraMessageBubble: View {
     .accessibilityLabel("\(roleLabel): \(text)")
   }
 
-  private var degradedNote: String { "Degraded response" }
+  private var degradedNote: String {
+    AuraCopy.text("message.degraded", language: language)
+  }
 
   @ViewBuilder
   private var bubbleBackground: some View {
