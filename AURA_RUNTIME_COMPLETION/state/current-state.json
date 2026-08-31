@@ -2,23 +2,16 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-31T16:30:00Z",
+  "updated_at": "2026-08-31T17:00:00Z",
   "session_id": "AURA-SP-030-BETA-EVIDENCE-20260830",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "9e1c756b63fce8cc4d95c53178253379dfd6c2f5",
-    "remote_head": "8b16142e508294ecce9fd64477ac35bb2c4c1393",
-    "working_tree_state": "dirty_expected",
-    "user_owned_changes": [
-      "SP-030 body of work, uncommitted at the owner's discretion — 29 modified + 17 untracked files.",
-      "Source: Sources/AuraCore/HelperIPCAuthentication.swift (F-001 security fix); Sources/AURA/{AURA,AuraDesign,ProductUIState,AuraMenuView,AuraMenuView_Content,AuraMenuView_Tabs}.swift (F-005 accessibility localization + F-006 Dynamic Type).",
-      "Tests: Tests/AURAIntegrationTests/AuraAccessibilityIdentifierTests.swift; Tests/AuraCoreTests/HelperIPCAuthenticationTests.swift.",
-      "Tooling: scripts/aura-test.sh (AuraLifecycleTests was missing from TEST_TARGETS); scripts/validate_beta_readiness.py + schema (R12 measured mode); scripts/tests/test_beta_readiness.py.",
-      "Governance: AURA_RUNTIME_COMPLETION state/ledger/index/register files, ledger/*, EV-SP-030-2026083* evidence records, ADR-046, ADR-050, and three docs/operations/ documents.",
-      "Not yet committed: the owner has not asked for a commit. Do not commit or revert unasked."
-    ]
+    "verified_head": "37fce3ec0785c93012c79601ebeac88c666a1f89",
+    "remote_head": "37fce3ec0785c93012c79601ebeac88c666a1f89",
+    "working_tree_state": "clean",
+    "user_owned_changes": []
   },
   "program_status": "in_progress",
   "active_prompt": {
