@@ -2,7 +2,7 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-08-31T17:00:00Z",
+  "updated_at": "2026-08-31T18:30:00Z",
   "session_id": "AURA-SP-030-BETA-EVIDENCE-20260830",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
@@ -18,7 +18,7 @@
     "id": "SP-030",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
     "state": "blocked",
-    "step": "SP-030 BLOCKED. 2026-08-31: SLO instrumentation recorded (ptt_ack/stt_partial instrumented, ZERO samples, still not_measured). R11 lifecycle controls were unreachable; owner authorized the grant + presenter wiring, an observation-tier read split, and moving the confirmation card into the Settings window. Live: both policy layers open, card presented, Settings no longer prompts. The Settings-card fix is tested but NOT live-verified (display off). R11 live gate NOT closed. Do NOT start SP-031."
+    "step": "SP-030 BLOCKED. SLO instrumentation recorded, zero samples still. R11: owner-authorized grant, presenter, read/write split, Settings-inline card all implemented and tested. sfltool dumpbtm proves service.register() succeeded live at least once -- strong OS-level evidence the mechanism works. Automated click-through NOT reproduced (AX-tree flakiness in Settings, not a product defect). Toggle currently OFF. R11 live gate NOT closed. Do NOT start SP-031."
   },
   "tracks": [
     {
@@ -329,6 +329,7 @@
       "started_at": "2026-08-09T10:34:16Z",
       "completed_at": null,
       "evidence_ids": [
+        "EV-SP-030-20260831-R11-LIVE-GATE-04",
         "EV-SP-030-20260831-R11-LIVE-GATE-03",
         "EV-SP-030-20260831-R11-LIVE-GATE-02",
         "EV-SP-030-20260831-R11-LIVE-GATE-01",
@@ -477,6 +478,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-030-20260831-R11-LIVE-GATE-04",
     "EV-SP-030-20260831-R11-LIVE-GATE-03",
     "EV-SP-030-20260831-R11-LIVE-GATE-02",
     "EV-SP-030-20260831-R11-LIVE-GATE-01",
@@ -570,5 +572,5 @@
     "Owner broad approval recorded (EV-SP-030-20260830-OWNER-APPROVAL-02): R11 local gates, ADR-046 local-only acceptance, beta cohort (owner as single participant), content-free telemetry for local measurement, and SP-031 are unblocked FOR A USER-PRESENT SESSION. Independent sign-offs, live STT/WER, and live beta SLO/scenario/incident measurement still require a non-implementing evaluator / speech-capable operator / user-present session and were NOT produced in the unattended pass.",
     "Owner present approval (EV-SP-030-20260830-OWNER-APPROVAL-03) and ADR-046 local-only acceptance (EV-SP-030-20260830-ADR046-ACCEPTED-01) recorded: ADR-046 advanced to Accepted (local-only scope) per the R11 closure plan and ADR-049; DECISION_INDEX updated. Independent sign-offs, live STT/WER, and live beta SLO/scenario/incident measurement still require a non-implementing evaluator / speech-capable operator / user-present beta window and were NOT produced in this pass."
   ],
-  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. 2026-08-31 recorded SIX new evidence IDs: SLO-INSTRUMENTATION-01, R11-POLICY-BLOCK-01, R11-POLICY-FIX-01, R11-LIVE-GATE-01, R11-LIVE-GATE-02, R11-LIVE-GATE-03. SLOs: ptt_ack and stt_partial are INSTRUMENTED but hold ZERO samples and stay not_measured -- instrumentation is not measurement; beta-readiness.json untouched. A contamination defect was fixed before any sample was taken. stt_partial CANNOT be automated: it needs the owner to speak. Below ~20 samples record 'insufficient samples', never a p95/p99. NEVER substitute wakeToAck. R11: 9 of 11 lifecycle capabilities were denied before reaching their implementation. Owner authorized three changes: a seeded lifecycleLaunchAtLogin grant + wiring evaluateDirectCapability to the existing confirmationPresenter; a new observation-tier lifecycleLaunchAtLoginStatus so a READ no longer needs a mutation confirmation; and rendering the confirmation card as the first row of the Settings form. PROVEN LIVE: the old 'no matching grant' denial is GONE, the card IS presented, opening Settings no longer prompts, and the failure reason now persists. NOT VERIFIED: the Settings-card fix -- the display powered off after install and cannot be woken programmatically. FIRST JOB NEXT SESSION, display awake: gear -> Settings -> toggle -> the card should appear IN SETTINGS -> accept -> toggle reads back enabled -> check System Settings > General > Login Items -> reboot. R11 live gate NOT closed; SMAppService never reached. FOUR items still need a person: DeepSeek cross-review (alone unblocks security, ADR-050 s4); the owner's release_recovery + product_truthfulness verdicts (blanket approval is AUTHORITY, never review); native-speaker review of 184 AuraCopy keys; R11 live gates + ptt_ack/stt_partial with the owner present. Suite 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 OK; 3 validators exit 0. Do NOT start SP-031."
+  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. 2026-08-31 recorded SEVEN evidence IDs: SLO-INSTRUMENTATION-01, R11-POLICY-BLOCK-01, R11-POLICY-FIX-01, R11-LIVE-GATE-01 through -04. SLOs: ptt_ack/stt_partial instrumented, ZERO samples, not_measured; beta-readiness.json untouched. stt_partial needs the owner to speak, cannot be automated. Below ~20 samples record 'insufficient samples'. R11: owner authorized a seeded grant + presenter wiring, an observation-tier read capability so Settings no longer prompts on open, and the confirmation card moved inline into the Settings form (a .sheet did not present inside SwiftUI's Settings scene). sfltool dumpbtm PROVES service.register() has executed successfully live at least once (AURA registered in Background Task Management, disposition disabled) -- strong evidence the grant-to-OS pipeline works. FOUR automated click-through attempts this session did not converge: fixed a Unicode is-vs-contains matching bug, then hit position-of and role queries intermittently failing on the SAME elements across identical repeated calls -- judged as SwiftUI AX-tree flakiness, NOT a product defect, since the identical script returns different results on consecutive runs, unlike every earlier defect in this track. FIRST ACTION NEXT: a single MANUAL click by the owner -- Settings, toggle, accept the card IN Settings, verify it reads on, check System Settings > General > Login Items -- resolves this in under a minute. Toggle currently reads OFF. R11 live gate NOT closed; reboot persistence never tested. FOUR items still need a person: DeepSeek cross-review (ADR-050 s4); owner's release_recovery + product_truthfulness verdicts; native-speaker review of 184 AuraCopy keys; R11 live gate + ptt_ack/stt_partial with owner present. Suite 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 OK; 3 validators exit 0. Do NOT start SP-031."
 }
