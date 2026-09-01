@@ -60,7 +60,18 @@ extension AuraAppModel {
   }
 
   func setLaunchAtLogin(_ enabled: Bool) {
+    // Re-entrancy guard, not just a nice-to-have: found live 2026-09-01. The
+    // Settings Toggle's inline Binding(get:set:) re-invokes `set` a second
+    // time before `launchAtLoginEnabled` catches up — it only updates after
+    // this whole async round trip completes — and the second call's
+    // awaitConfirmation immediately superseded (denied) the first call's
+    // still-pending confirmation before its card ever had a chance to render.
+    // The result was "was not confirmed" appearing instantly, with no card
+    // visible at all. One in-flight request at a time closes that race.
+    guard !isSettingLaunchAtLogin else { return }
+    isSettingLaunchAtLogin = true
     Task {
+      defer { isSettingLaunchAtLogin = false }
       do {
         guard let result = try await kernel?.setLaunchAtLoginEnabled(enabled) else { return }
         launchAtLoginEnabled = result.enabled

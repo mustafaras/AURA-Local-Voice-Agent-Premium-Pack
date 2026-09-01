@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-09-01T13:00:00Z",
+  "updated_at": "2026-09-01T15:30:00Z",
   "session_id": "AURA-SP-030-SLO-INSTRUMENTATION-20260831",
   "active_prompt": "SP-030",
   "active_state": "blocked",
@@ -43,6 +43,7 @@
     "SP-030"
   ],
   "last_evidence_ids": [
+    "EV-SP-030-20260901-R11-LIVE-GATE-05",
     "EV-SP-030-20260901-OWNER-SIGNOFF-PRODUCT-TRUTHFULNESS-01",
     "EV-SP-030-20260901-OWNER-SIGNOFF-RELEASE-RECOVERY-01",
     "EV-SP-030-20260901-A11Y-OWNER-REVIEW-01",
@@ -191,5 +192,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-030 BLOCKED (not closed by the sign-offs below). Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. MILESTONE 2026-09-01: ALL FIVE R12 sign-offs now obtained -- privacy (2026-08-30), security, accessibility_localization, release_recovery, product_truthfulness (all 2026-09-01). THIS DOES NOT CLOSE SP-030 -- restated because five green sign-offs invite exactly this misreading. Still open: dependency_gate.r11_state = in_progress (R11 live gate not closed, launch-at-login toggle not confirmed end-to-end by a human -- grant+presenter+read/write split+Settings-inline card implemented and tested, sfltool dumpbtm proves service.register() succeeded live once, toggle last read OFF, a single owner click-through would close it); ptt_ack/stt_partial ZERO samples not_measured (stt_partial needs the owner to speak, cannot be automated; below ~20 samples record 'insufficient samples', never a p95/p99, NEVER substitute wakeToAck); incident_review.status = not_run (no beta window has occurred); readiness_status = blocked in beta-readiness.json, untouched by any sign-off. This session found macOS blocks several forms of synthetic system automation (raw clicks -25211, VoiceOver toggle) and AURA's own Settings AX tree is severely flaky -- when a wall like this repeats, stop forcing it and hand the single action to the owner. Suite: Swift 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 -> 64 tests OK; 3 validators exit 0. Do NOT start SP-031 until R11 + SLOs + incident review are genuinely done."
+  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. MILESTONE 2026-09-01: all 5 R12 sign-offs obtained, AND R11 launch-at-login CLOSED end-to-end. Root cause was NOT a state race (two fix attempts assumed this and failed) but a scroll-position visibility bug: the confirmation card rendered correctly but above the Settings scroll position users reach the toggle from. Fixed with ScrollViewReader auto-scroll. Live-verified: 'preference and service updated', sfltool dumpbtm shows enabled (was disabled). See EV-SP-030-20260901-R11-LIVE-GATE-05. STILL OPEN: sleep/wake/crash recovery, safe-mode export, migration -- unit-tested only, never live (RISK-LIVE-LIFECYCLE-UNVERIFIED). dependency_gate.r11_state stays in_progress for this reason. ptt_ack/stt_partial: ZERO samples, not_measured -- stt_partial needs the owner to speak, cannot be automated. incident_review.status: not_run (no beta window has occurred). readiness_status: blocked. Do NOT start SP-031 until sleep/wake/crash/safe-mode/migration are live-tested (or explicitly accepted) and ptt_ack/stt_partial are measured. Suite: Swift 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 -> 64 tests OK; 3 validators exit 0."
 }

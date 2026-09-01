@@ -3420,3 +3420,12 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - **Evidence / class:** `EV-SP-030-20260901-OWNER-SIGNOFF-PRODUCT-TRUTHFULNESS-01` (owner decision).
 - **Falsifier:** any claim that the four claims weren't re-verified before use; that the SLO-count correction wasn't actually checked; that F-002/003/004/007 were treated as newly decided here; or that this record claims SP-030's gate is met, `readiness_status` changed, or SP-031 may start.
 - **Residual / next action:** R11 live gate (owner click-through), `ptt_ack`/`stt_partial` live measurement, incident review, before SP-030 can honestly close. **Do not start SP-031.**
+
+### 2026-09-01T15:30:00Z — SP-030 — R11 launch-at-login CLOSED: card was rendering off-screen, not racing
+
+- Two earlier fix attempts this session (re-entrancy guard, NSAlert — reverted after it hung `aura-test.sh` since `runModal()` has no event loop under `swift test`) both assumed a state race. Neither was the real bug.
+- A multi-checkpoint AX capture around the toggle click proved the card WAS created and DID persist (present at click, still present 0.5s later, in both windows) — the actual defect was that the Startup section sits below the fold, so a user scrolled down to reach the toggle never saw the card, rendered as the form's first row above their scroll position. It expired unseen.
+- Fixed: `ScrollViewReader` + `.onChange(of: model.pendingConfirmation != nil)` scrolls the card into view the instant it appears.
+- **Live-verified end to end**: user got "preference and service updated" (the real success string, not an error); `sfltool dumpbtm` confirms `Disposition: [enabled, allowed, notified]`, was `disabled`.
+- Evidence: `EV-SP-030-20260901-R11-LIVE-GATE-05`. Suite 1325/87/22, 0 failures.
+- **Residual, unchanged**: sleep/wake/crash recovery, safe-mode export, migration remain unit-tested only, never live. `dependency_gate.r11_state` stays `in_progress`. `ptt_ack`/`stt_partial` still zero samples. **Do not start SP-031.**

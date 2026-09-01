@@ -299,8 +299,11 @@ struct AuraSettingsView: View {
     AuraCopy.text(key, language: language)
   }
 
+  private static let confirmationCardAnchorID = "settings.pendingConfirmationCard"
+
   var body: some View {
-    Form {
+    ScrollViewReader { scrollProxy in
+      Form {
       // A confirmation raised by a control in *this* window must be answerable
       // *in* this window. `AuraConfirmationCard` otherwise renders only inside
       // the main panel, and every AURA window dismisses when the app's focus
@@ -312,9 +315,20 @@ struct AuraSettingsView: View {
       // Rendered inline as the first row rather than in a `.sheet`: sheets
       // attached inside SwiftUI's `Settings` scene do not reliably present, so
       // a sheet here would have reintroduced the same invisible-confirmation
-      // bug in a new form. First row means it is on screen without scrolling.
+      // bug in a new form.
+      //
+      // First row is not enough on its own, found live 2026-09-01: the
+      // Startup section that hosts the launch-at-login toggle sits well below
+      // the fold, so a user who scrolled down to reach it never saw a card
+      // rendered above their current scroll position — the request was made,
+      // the card existed and persisted (confirmed via the accessibility tree:
+      // present at click time and still present half a second later), and it
+      // simply expired off-screen, unseen. `.onChange` below explicitly
+      // scrolls the card into view the moment it appears, rather than relying
+      // on it merely being first in source order.
       if let challenge = model.pendingConfirmation {
         AuraConfirmationCard(model: model, challenge: challenge)
+          .id(Self.confirmationCardAnchorID)
       }
       Section(copy("settings.productUI")) {
         Picker(
@@ -401,13 +415,23 @@ struct AuraSettingsView: View {
         }
         Button(copy("settings.refreshConfig")) { model.refreshConfigurationInspection() }
       }
+      }
+      .formStyle(.grouped)
+      .padding()
+      .frame(width: 620, height: 600)
+      .onAppear { model.refreshLaunchAtLogin() }
+      // Closing this window with a confirmation still unanswered fails closed
+      // rather than leaving the challenge to lapse on its 60 s timer.
+      .onDisappear { model.denyConfirmationIfStillPending() }
+      // The fix for the off-screen card, found live 2026-09-01: bring it into
+      // view the instant it appears, regardless of where the user had
+      // scrolled to reach the control that raised it.
+      .onChange(of: model.pendingConfirmation != nil) { _, isPending in
+        guard isPending else { return }
+        withAnimation {
+          scrollProxy.scrollTo(Self.confirmationCardAnchorID, anchor: .top)
+        }
+      }
     }
-    .formStyle(.grouped)
-    .padding()
-    .frame(width: 620, height: 600)
-    .onAppear { model.refreshLaunchAtLogin() }
-    // Closing this window with a confirmation still unanswered fails closed
-    // rather than leaving the challenge to lapse on its 60 s timer.
-    .onDisappear { model.denyConfirmationIfStillPending() }
   }
 }

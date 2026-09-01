@@ -64,6 +64,14 @@ final class AuraAppModel: ObservableObject {
   /// is not shipped, and the R11 gate asks for a live enable/disable.
   @Published var launchAtLoginEnabled = false
   @Published var launchAtLoginDetail = ""
+  /// Guards against a double-fire of `setLaunchAtLogin`. Found live 2026-09-01:
+  /// the Settings `Toggle`'s inline `Binding(get:set:)` re-invoked `set` a
+  /// second time before `launchAtLoginEnabled` had caught up (it only updates
+  /// after an async kernel round trip), and the second call's
+  /// `awaitConfirmation` immediately superseded — denied — the first one's
+  /// still-pending challenge before the confirmation card ever rendered. The
+  /// user saw "was not confirmed" instantly, with no card visible at all.
+  var isSettingLaunchAtLogin = false
   /// Latency percentiles (p50/p95/p99) observed in this process, for the
   /// Recovery tab readout. Empty until a real turn has been taken.
   @Published var latencySummaries: [LatencyPercentileSummary] = []
