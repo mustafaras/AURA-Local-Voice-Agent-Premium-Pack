@@ -398,3 +398,193 @@ and its scope stay visible.
 **Method note for future rounds:** a proximity heuristic over source text is not
 evidence. Either parse structure, or verify each hit by hand and report the count
 as a hand-verified sample — never as an exhaustive ratio.
+
+---
+
+# Round 4 — 2026-09-01 — cross-agent independent review (Artifact 4 continuation)
+
+> **Reviewer:** `deepseek-v4-flash:0731-cloud` (VS Code Copilot), acting as the
+> non-implementing reviewer of the SP-030 / R11 / R12 work.
+> **Conflict of interest (disclosed):** the reviewer **did** author SP-023
+> (helper IPC authentication), SP-024 (network/OAuth/injection) and SP-025
+> (plugin trust). It did **not** author any artifact below — Claude Code wrote
+> Artifacts 1–3 in session `AURA-SP-030-BETA-EVIDENCE-20260830` and Artifact 4
+> in session `AURA-SP-030-SLO-INSTRUMENTATION-20260831` — so the reviewer is
+> independent of all of them under ADR-050's authorship definition. Both parties
+> are LLM agents of the same class; this is **not** a human expert audit and is
+> not presented as one.
+> **Method:** adversarial source read of the security core, each claim checked
+> against a call-path trace and, where a defect was suspected, an executable
+> proof-of-concept rather than an assertion. The beta-readiness validator was
+> executed directly against mutated copies of the committed record.
+
+## Findings
+
+| ID | Area | Severity | Status | Owner | Closure evidence |
+|----|------|----------|--------|-------|------------------|
+| F-007 | R12 readiness contract (measured mode) | **Medium** | Open | Unassigned — needs a provenance-existence check | — |
+
+### F-007 (Medium, open) — the readiness validator accepts a well-formed but non-existent evidence ID
+
+`scripts/validate_beta_readiness.py` enforces that every recorded result carries
+an evidence ID matching `EVIDENCE_ID_RE = ^EV-[A-Z0-9][A-Z0-9-]{4,}$`, but it
+never checks that the ID **exists** in `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`
+(or anywhere else). The validator's own docstring claims "every recorded result
+must carry its own provenance: an evidence ID, a measurement class that states
+how the number was produced, and the limitations of that class." A well-formed
+ID that names nothing is not provenance — it is a plausible-looking string.
+
+**Reproduction** (executed, not asserted). Mutate the committed record to claim a
+`live_user_present` beta sample with a fabricated evidence ID:
+
+```python
+rec['slo_definitions'][2]['status'] = 'measured'
+rec['slo_definitions'][2]['measurement']['measurement_class'] = 'live_user_present'
+rec['slo_definitions'][2]['measurement']['live_beta_sample'] = True
+rec['slo_definitions'][2]['measurement']['evidence_id'] = 'EV-SP-030-20260830-FABRICATED-99'
+rec['slo_definitions'][2]['measurement']['limitations'] = 'A fabricated live beta window that never happened.'
+v.validate_record(rec)
+```
+
+**Observed output:** `ACCEPTED fabricated live-user-present claim with non-existent evidence ID`.
+
+The same validator correctly rejects the other fabrication vectors the request
+listed (verified by execution): a sign-off with `evaluator_is_implementing_agent`
+absent (rejected — `value.get(...) is False` fails on `None`), a scenario `passed`
+with an empty evidence ID (rejected), and a measured SLO with no evidence ID at
+all (rejected). The single gap is the **existence** of the referenced evidence.
+
+**Impact.** The validator is a self-attestation gate, not a runtime control, so
+this is not a privilege escalation. But the contract's stated purpose is that a
+completed beta is representable "without being able to record a fake one"; a
+fabricated result that names a non-existent evidence ID defeats that purpose and
+would let a sign-off be recorded against a record whose provenance does not
+exist. The committed `beta-readiness.json` itself does **not** exploit this — its
+referenced IDs (`EV-SP-030-20260830-OWNER-APPROVAL-03`, `-PRIVACY-REVIEW-01`,
+`-HARNESS-MEASUREMENT-01/02`) all exist in `EVIDENCE_INDEX.md` — so this is a
+latent gap in the validator, not a defect in the committed record.
+
+**Suggested remediation.** After the format check, verify each evidence ID
+resolves to a file under `AURA_RUNTIME_COMPLETION/state/` (or an entry in
+`EVIDENCE_INDEX.md`), and fail closed when it does not. This is a provenance-
+existence check, not a semantic one, and belongs in the validator so the
+"cannot record a fake" claim holds.
+
+## Reviewed with no finding
+
+- **Artifact 1 — F-001 remediation.** `HelperIPCAuthenticator.constantTimeEquals`
+  now compares UTF-8 **byte** counts (`Array(lhs.utf8).count == Array(rhs.utf8).count`)
+  before the XOR loop, so a hostile 64-*character* tag containing a multi-byte
+  scalar is rejected by the length guard for **both** operand orders and cannot
+  trap. The loop runs only when the byte arrays are equal length, so no
+  out-of-range index is reachable. The comparison is constant-time for equal-length
+  inputs (XOR accumulation, no early exit on a byte mismatch); the early return on
+  a length mismatch is acceptable because the right operand is always the locally
+  computed fixed-length 64-char hex tag. Both regression tests
+  (`authenticatorRejectsMultiByteTagWithMatchingGraphemeCount`,
+  `authenticatorRejectsTagsDifferingOnlyInByteLength`) would **fail** against the
+  old implementation — the old code would trap (`Index out of range`) on the
+  multi-byte case, which is a test failure — so they are real regression tests.
+  The only other `constantTimeEquals` in the codebase
+  (`VSCodeBridgeSecurity.constantTimeEquals`) already used byte counts correctly;
+  no other site compares attacker-controlled strings via `String.count` before
+  indexing bytes (verified by grep over `\.count ==`/`\.count !=` and
+  `Array(.*\.utf8)`).
+- **Artifact 2 — privacy invariants and fail-closed status.** The privacy
+  invariants are unconditional in every mode: `_validate_telemetry` requires
+  `raw_content_allowed is False`, `transport == "none"`, and rejects any
+  `aggregate_fields` entry containing a forbidden content term; `_validate_authority`
+  requires `release is False`; `_validate_release_candidate` requires `blocked` /
+  `approved is False` / null artifact fields. Every status field is checked
+  against an explicit allow-set and an unknown value raises `ValidationFailure`
+  (no branch silently accepts an unrecognized status). The committed
+  `beta-readiness.json` makes no claim stronger than its evidence: the three
+  `measured` SLOs are all `deterministic_harness` with explicit "NOT a live beta
+  window" limitations, `ptt_ack`/`stt_partial` are `not_measured`, the `privacy`
+  sign-off names a real evaluator, and `security` is `not_obtained`.
+- **Artifact 3 — F-005 localization.** All five emergency-control strings route
+  through `copy(_:)` → `AuraCopy.text` (verified in `AuraMenuView_Tabs.swift`
+  `emergencyControls`); none bypasses the table. The three regression tests
+  (`emergencyKeysResolveInBothLanguages`, `emergencyStringsAreGenuinelyTranslated`,
+  `emergencyVoiceOverHintsAreLocalized`) would **fail** against the pre-fix code:
+  pre-fix the `emergency.*` keys did not exist in `AuraCopy`, so `AuraCopy.text`
+  returned the key itself and the `value != key` assertions would fail. The
+  Turkish strings are grammatically sound and idiomatic ("Acil Durdurma",
+  "Üretilen girdiyi anında devre dışı bırakır", "Üretilen girdiyi yeniden
+  etkinleştir", "Üretilen fare ve klavye girdisine yeniden izin verir",
+  "Acil durum kontrolü"); the reviewer is not a native speaker and cannot certify
+  register under stress, but found no structural error. The systemic gap (13 of
+  41 accessibility strings still unlocalized) is accurately reflected in the
+  Round 3 correction and the risk register; nothing overstates the remediation.
+- **Artifact 4 — confirmation-response verification.** `evaluateDirectCapability`'s
+  new `.confirm` arm calls `confirmationPresenter.present(challenge:)` then
+  `policyEngine.submitConfirmation(response)`. `submitConfirmation` looks up the
+  challenge by `response.requestID` in `pendingConfirmations`, checks `now <
+  challenge.expiresAt`, and verifies `response.nonce == challenge.nonce &&
+  response.responseHash == challenge.expectedHash && response.requestID ==
+  challenge.requestID`. The nonce is 32 random bytes and `expectedHash` is
+  SHA-256 over `requestID|nonce|capability|targetSummary|planHash|expiresAt`, so a
+  forged or predictable response cannot satisfy it, and a stale response from an
+  earlier confirmation carries a different `requestID` that is no longer in
+  `pendingConfirmations` (denied). The `UIConfirmationPresenter` builds the
+  response from the challenge's own nonce/hash, so the caller cannot inject one.
+- **Artifact 4 — grant scoping.** `patterns: [.any]` on the new
+  `lifecycleLaunchAtLogin` grant is appropriately scoped: `matchingGrant` requires
+  `grant.capability == request.capability`, so a different capability cannot ride
+  through under this grant, and launch-at-login has no path/URL target to narrow.
+  The grant carries `purpose: seedPurpose`, so `reconcileSeededGrants` does not
+  prune it as a legacy `.any` grant (legacy requires `purpose.isEmpty`).
+- **Artifact 4 — `denyConfirmationIfStillPending()` ordering.** `AuraAppModel` is
+  `@MainActor`, and both `resolveConfirmation` and `denyConfirmationIfStillPending`
+  run on the main actor. `resolveConfirmation` clears `pendingConfirmation = nil`
+  synchronously before returning, so a subsequent `.onDisappear` dismissal finds
+  nothing pending and is a no-op. There is no cross-actor race: all mutations are
+  serialized on the main actor. The `answeredConfirmationIsNotReDenied` test pins
+  exactly this ordering.
+- **Artifact 4 — read/write split.** `lifecycleLaunchAtLoginStatus` is
+  `.observation` tier and `isLaunchAtLoginEnabled()` performs only pure reads
+  (`serviceStatus()`, `userPreferenceEnabled()` — a config read); no side effect
+  is reachable through the read path. The write keeps `.mutation` confirmation.
+- **Artifact 4 — shared presenter cross-matching.** `AuraKernel.confirmationPresenter`
+  is a single `UIConfirmationPresenter` actor with one handler. If a second
+  confirmation arrives while one is pending, `awaitConfirmation` supersedes the
+  first (`resolveConfirmation(accepted: false, outcome: .superseded)`), and the
+  timeout task guards on `pendingConfirmation?.requestID == requestID` so it cannot
+  resolve a stale challenge. The card renders `model.pendingConfirmation` (the
+  latest), so a user answering the visible card resolves the latest pending
+  request; the superseded one is denied (fail-closed). No cross-matching found.
+- **Artifact 4 — regression tests.** `launchAtLoginIsReachable`,
+  `exactlyOneLifecycleCapabilityIsSeeded`, `writeStillRequiresConfirmationAfterSplit`,
+  `launchAtLoginStatusIsObservation`, and the three `ConfirmationSheetFailClosedTests`
+  all fail against the pre-fix code (pre-fix: no grant → `.deny` not `.confirm`;
+  `lifecycleLaunchAtLoginStatus` and `denyConfirmationIfStillPending` did not
+  exist). `destructiveLifecycleCapabilitiesStayDenied` is a **scope pin** that
+  passes both before and after the fix — it is not a regression test for the
+  change, but it does correctly exercise all eight destructive/network lifecycle
+  capabilities (`.lifecycleReset, .lifecycleRollback, .lifecycleUninstall,
+  .lifecycleFactoryReset, .lifecycleApproveUpdate, .lifecycleStageUpdate,
+  .lifecycleCheckUpdate, .lifecycleSafeMode`) and skips none. The two
+  `.observation` lifecycle capabilities (`supportBundle`, `migrationPreflight`)
+  are allow-by-default and correctly not in the deny list.
+- **Artifact 5 — `ptt_ack` contamination fix.** `pushToTalkAckSample` returns
+  `nil` when `promptedForPermissions` is true, and `pushToTalk()` sets that flag
+  whenever `!permissions.speechReady` before requesting permissions — so every
+  turn that raised the OS prompt is excluded, including a prompt that was
+  **granted** (the case the pre-fix code missed). The four tests
+  (`promptedTurnIsExcluded`, `ordinaryTurnIsMeasured`, `fastPromptedTurnIsStillExcluded`,
+  `kindIsNotConflatedWithWake`) fail against the pre-fix logic, which recorded on
+  every path reaching the acknowledgement.
+
+## Limitations
+
+Source-level adversarial reading plus call-path tracing and executable
+proof-of-concept runs against the validator. It is **not** a human expert audit,
+**not** a penetration test, **not** a runtime/fuzzing campaign, and it did not
+launch the app, drive a live confirmation card, or exercise the helpers under a
+live hostile peer. The Turkish translation review is a structural/grammatical
+read by a non-native reviewer, not a native-speaker usability test under stress.
+The F-007 reproduction mutates the committed record in memory only; the committed
+`beta-readiness.json` was not modified and does not itself contain a fabricated
+evidence ID. Reviewer and author are LLM agents of the same class; the reviewer
+authored SP-023/024/025 and is therefore not independent of those, but is
+independent of all artifacts reviewed here.

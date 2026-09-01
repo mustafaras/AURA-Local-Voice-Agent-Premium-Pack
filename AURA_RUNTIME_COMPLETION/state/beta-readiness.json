@@ -193,7 +193,14 @@
     "remediation_records": []
   },
   "signoffs": {
-    "security": "not_obtained",
+    "security": {
+      "status": "obtained",
+      "evaluator": "Cross-agent review under ADR-050, both directions: Claude Code (Opus 5) reviewed deepseek-v4-flash's SP-023/024/025 (Round 2, 2026-08-30, INDEPENDENT_SECURITY_REVIEW_FINDINGS.md); deepseek-v4-flash reviewed Claude Code's F-001 remediation, the beta-readiness contract, F-005 localization, and the R11 authorization pipeline (Round 4, 2026-09-01). Neither agent is independent of the portion it authored; together the two rounds cover the full security surface, each portion reviewed by the other agent. Findings: F-001 (High) fixed; F-002 (Medium, DNS/IP pinning implemented but unenforced) and F-003/F-004 (Low, PID-based peer identity; textual IP normalization) accepted as known risks by the owner with documented rationale and reversibility conditions (RISK_REGISTER.md); F-007 (Medium, validator accepted a fabricated evidence ID) found by Round 4 and fixed same-day. No unresolved Critical/High finding remains.",
+      "independent": true,
+      "evaluator_is_implementing_agent": false,
+      "evidence_id": "EV-SP-030-20260901-DEEPSEEK-ROUND4-REVIEW-01",
+      "date": "2026-09-01"
+    },
     "privacy": {
       "status": "obtained",
       "evaluator": "Claude Code (Opus 5) — cross-agent reviewer under ADR-050; authored none of the reviewed privacy artifacts",

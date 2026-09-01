@@ -64,9 +64,16 @@ class BetaReadinessTests(unittest.TestCase):
 
 
 def _measured_slo(**overrides):
-    """A well-formed measured SLO; overrides mutate the measurement block."""
+    """A well-formed measured SLO; overrides mutate the measurement block.
+
+    `evidence_id` defaults to a real, permanent evidence ID (F-007,
+    `INDEPENDENT_SECURITY_REVIEW_FINDINGS.md` Round 4): the validator now
+    checks that an evidence ID actually exists in `EVIDENCE_INDEX.md`, so a
+    synthetic placeholder like `EV-SP-030-20260830-SLO-01` would fail every
+    "accepted" test below for the wrong reason.
+    """
     measurement = {
-        "evidence_id": "EV-SP-030-20260830-SLO-01",
+        "evidence_id": "EV-SP-030-20260830-PRIVACY-REVIEW-01",
         "measurement_class": "deterministic_harness",
         "sample_count": 50,
         "percentiles_ms": {"50": 120, "95": 300, "99": 410},
@@ -136,7 +143,7 @@ class MeasuredModeTests(unittest.TestCase):
         record["scenario_matrix"][0].update(
             {
                 "status": "passed",
-                "evidence_ids": ["EV-SP-030-20260830-SCENARIO-01"],
+                "evidence_ids": ["EV-SP-030-20260830-PRIVACY-REVIEW-01"],
                 "measurement_class": "deterministic_harness",
                 "limitations": "Deterministic harness coverage, not a live beta window.",
             }
@@ -168,7 +175,7 @@ class MeasuredModeTests(unittest.TestCase):
             "evaluator": "named non-implementing reviewer",
             "independent": True,
             "evaluator_is_implementing_agent": False,
-            "evidence_id": "EV-SP-030-20260830-SIGNOFF-01",
+            "evidence_id": "EV-SP-030-20260830-PRIVACY-REVIEW-01",
         }
         VALIDATOR.validate_record(record)
 
@@ -189,7 +196,7 @@ class MeasuredModeTests(unittest.TestCase):
         record = copy.deepcopy(self.record)
         record["incident_review"] = {
             "status": "completed",
-            "evidence_id": "EV-SP-030-20260830-INCIDENT-01",
+            "evidence_id": "EV-SP-030-20260830-PRIVACY-REVIEW-01",
             "severity_1_2_count": 0,
             "false_success_count": 0,
             "unauthorized_action_count": 0,
@@ -215,6 +222,72 @@ class MeasuredModeTests(unittest.TestCase):
         record["authority"]["release"] = True
         with self.assertRaises(VALIDATOR.ValidationFailure):
             VALIDATOR.validate_record(record)
+
+
+class EvidenceIdMustExistTests(unittest.TestCase):
+    """F-007 (`INDEPENDENT_SECURITY_REVIEW_FINDINGS.md` Round 4, 2026-09-01,
+    cross-agent review by `deepseek-v4-flash`): a well-formed evidence ID was
+    not provenance — the validator never checked it named a real record, so a
+    plausible-looking but entirely fabricated ID for a `live_user_present`
+    beta sample was accepted. Reproduced independently before the fix (the
+    exact mutation DeepSeek used) and pinned here after it.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.record = json.loads(
+            (ROOT / "AURA_RUNTIME_COMPLETION/state/beta-readiness.json").read_text()
+        )
+
+    def _with_slo(self, **overrides):
+        record = copy.deepcopy(self.record)
+        slo = _measured_slo(**overrides)
+        slo["id"] = record["slo_definitions"][0]["id"]
+        slo["metric"] = record["slo_definitions"][0]["metric"]
+        slo["percentiles"] = record["slo_definitions"][0]["percentiles"]
+        record["slo_definitions"][0] = slo
+        return record
+
+    def test_well_formed_but_fabricated_evidence_id_is_rejected(self):
+        # DeepSeek's exact reproduction: a live_user_present sample naming an
+        # evidence ID that is correctly shaped but names nothing real.
+        record = self._with_slo(
+            measurement_class="live_user_present",
+            live_beta_sample=True,
+            evidence_id="EV-SP-030-20260830-FABRICATED-99",
+        )
+        with self.assertRaises(VALIDATOR.ValidationFailure) as ctx:
+            VALIDATOR.validate_record(record)
+        self.assertIn("does not exist", str(ctx.exception))
+
+    def test_evidence_id_present_in_the_real_index_is_accepted(self):
+        VALIDATOR.validate_record(self._with_slo())
+
+    def test_known_evidence_ids_override_accepts_an_injected_id(self):
+        # The override replaces the whole known-IDs set, not just adds to it,
+        # so it must still carry every real ID the rest of the fixture record
+        # legitimately cites (authority_source, cohort consent, etc.) alongside
+        # the one synthetic ID under test.
+        record = self._with_slo(evidence_id="EV-TEST-SYNTHETIC-FIXTURE-01")
+        known = VALIDATOR._load_known_evidence_ids() | {"EV-TEST-SYNTHETIC-FIXTURE-01"}
+        VALIDATOR.validate_record(record, known_evidence_ids=frozenset(known))
+
+    def test_known_evidence_ids_override_rejects_an_id_outside_the_set(self):
+        record = self._with_slo(evidence_id="EV-TEST-SYNTHETIC-FIXTURE-01")
+        known = VALIDATOR._load_known_evidence_ids()  # real set, without the synthetic ID
+        with self.assertRaises(VALIDATOR.ValidationFailure):
+            VALIDATOR.validate_record(record, known_evidence_ids=frozenset(known))
+
+    def test_loader_finds_real_ids_and_not_a_fabricated_one(self):
+        known = VALIDATOR._load_known_evidence_ids()
+        self.assertIn("EV-SP-030-20260830-PRIVACY-REVIEW-01", known)
+        self.assertNotIn("EV-SP-030-20260830-FABRICATED-99", known)
+
+    def test_loader_fails_closed_when_the_index_is_missing(self):
+        # An unreadable index makes every evidence ID unverifiable, so the
+        # loader must return nothing accepted rather than everything.
+        known = VALIDATOR._load_known_evidence_ids(repo_root=ROOT / "nonexistent-root")
+        self.assertEqual(known, frozenset())
 
 
 if __name__ == "__main__":

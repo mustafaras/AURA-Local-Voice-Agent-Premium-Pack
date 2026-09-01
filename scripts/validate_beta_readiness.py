@@ -34,6 +34,33 @@ class ValidationFailure(Exception):
 ALLOWED_STATUSES = {"blocked", "not_ready"}
 
 EVIDENCE_ID_RE = re.compile(r"^EV-[A-Z0-9][A-Z0-9-]{4,}$")
+# Same character class as EVIDENCE_ID_RE, without the anchors: used to scan an
+# arbitrary block of text (the evidence index) for every ID it names, rather
+# than to validate one candidate string in isolation.
+_EVIDENCE_ID_SCAN_RE = re.compile(r"EV-[A-Z0-9][A-Z0-9-]{4,}")
+
+EVIDENCE_INDEX_RELATIVE_PATH = Path("AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md")
+
+
+def _load_known_evidence_ids(repo_root: Path | None = None) -> frozenset[str]:
+    """Every evidence ID mentioned anywhere in the committed evidence index.
+
+    A well-formed evidence ID is not provenance by itself — it is a plausible-
+    looking string until something can confirm it names a real record. This
+    scans `EVIDENCE_INDEX.md` (the append-only ledger every evidence ID is
+    required to appear in, per SECOND_PASS_CONTROL_CONTRACT.md) for every
+    substring shaped like an evidence ID, rather than parsing its table
+    structure — a scan cannot be fooled by a malformed row, and a fabricated ID
+    cannot appear in the file's text without actually being added to it.
+    """
+    root = repo_root if repo_root is not None else Path(__file__).resolve().parents[1]
+    index_path = root / EVIDENCE_INDEX_RELATIVE_PATH
+    if not index_path.is_file():
+        # Fails closed: an unreadable index makes every evidence ID unverifiable,
+        # so nothing should be accepted rather than everything.
+        return frozenset()
+    text = index_path.read_text(encoding="utf-8")
+    return frozenset(_EVIDENCE_ID_SCAN_RE.findall(text))
 
 # How a number was produced. The class travels with the number so a repeatable
 # harness result can never be read as a live beta sample.
@@ -66,10 +93,17 @@ def require(condition: bool, message: str) -> None:
         raise ValidationFailure(message)
 
 
-def _require_evidence_id(value: Any, where: str) -> None:
+def _require_evidence_id(value: Any, where: str, known_ids: frozenset[str]) -> None:
     require(
         isinstance(value, str) and bool(EVIDENCE_ID_RE.fullmatch(value)),
         f"{where} must carry a well-formed evidence ID, got {value!r}",
+    )
+    # A well-formed ID is a plausible-looking string, not provenance. It must
+    # actually name a record in EVIDENCE_INDEX.md, or a fabricated but
+    # correctly-shaped ID would pass every other check in this validator.
+    require(
+        value in known_ids,
+        f"{where} names {value!r}, which does not exist in EVIDENCE_INDEX.md",
     )
 
 
@@ -102,7 +136,7 @@ def _require_non_negative_int(value: Any, where: str) -> int:
     return int(value)
 
 
-def _validate_authority(record: dict[str, Any]) -> None:
+def _validate_authority(record: dict[str, Any], known_ids: frozenset[str]) -> None:
     authority = record.get("authority", {})
     require(isinstance(authority, dict), "authority must be an object")
     # Release authority is SP-031/ADR-047 territory and is never granted here.
@@ -115,16 +149,17 @@ def _validate_authority(record: dict[str, Any]) -> None:
             _require_evidence_id(
                 authority.get("authority_source"),
                 f"authority.{field} is enabled, so authority.authority_source",
+                known_ids,
             )
 
 
-def _validate_dependency(record: dict[str, Any]) -> None:
+def _validate_dependency(record: dict[str, Any], known_ids: frozenset[str]) -> None:
     dependency = record.get("dependency_gate", {})
     require(isinstance(dependency, dict), "dependency_gate must be an object")
     state = dependency.get("r11_state")
     require(state in {"in_progress", "completed"}, f"unknown r11_state {state!r}")
     if state == "completed":
-        _require_evidence_id(dependency.get("r11_evidence_id"), "a completed R11 gate")
+        _require_evidence_id(dependency.get("r11_evidence_id"), "a completed R11 gate", known_ids)
     require(
         dependency.get("r11_release_status") == "development_unverified",
         "R11 release status is unsafe",
@@ -132,7 +167,7 @@ def _validate_dependency(record: dict[str, Any]) -> None:
     require(dependency.get("r11_completion_required") is True, "R11 dependency gate is missing")
 
 
-def _validate_cohort(record: dict[str, Any]) -> None:
+def _validate_cohort(record: dict[str, Any], known_ids: frozenset[str]) -> None:
     cohort = record.get("cohort", {})
     require(isinstance(cohort, dict), "cohort must be an object")
     status = cohort.get("status")
@@ -142,7 +177,7 @@ def _validate_cohort(record: dict[str, Any]) -> None:
         require(cohort.get("minimum_sessions") is None, "beta sample size is fabricated")
         return
     require(cohort.get("consent") == "collected", "an enrolled cohort must record collected consent")
-    _require_evidence_id(cohort.get("consent_evidence_id"), "collected beta consent")
+    _require_evidence_id(cohort.get("consent_evidence_id"), "collected beta consent", known_ids)
     require(
         isinstance(cohort.get("type"), str) and cohort["type"] not in ("", "none"),
         "an enrolled cohort must name its type",
@@ -150,7 +185,7 @@ def _validate_cohort(record: dict[str, Any]) -> None:
     _require_positive_int(cohort.get("participants"), "cohort.participants")
 
 
-def _validate_telemetry(record: dict[str, Any]) -> None:
+def _validate_telemetry(record: dict[str, Any], known_ids: frozenset[str]) -> None:
     telemetry = record.get("telemetry", {})
     require(isinstance(telemetry, dict), "telemetry must be an object")
     require(telemetry.get("consent_required") is True, "telemetry consent gate is missing")
@@ -168,11 +203,11 @@ def _validate_telemetry(record: dict[str, Any]) -> None:
     if enabled is False:
         require(telemetry.get("retention_days") is None, "telemetry retention is fabricated")
         return
-    _require_evidence_id(telemetry.get("consent_evidence_id"), "enabled telemetry")
+    _require_evidence_id(telemetry.get("consent_evidence_id"), "enabled telemetry", known_ids)
     _require_positive_int(telemetry.get("retention_days"), "telemetry.retention_days")
 
 
-def _validate_slos(record: dict[str, Any]) -> None:
+def _validate_slos(record: dict[str, Any], known_ids: frozenset[str]) -> None:
     for definition in record.get("slo_definitions", []):
         require(isinstance(definition, dict), "each SLO definition must be an object")
         slo_id = definition.get("id", "<unnamed>")
@@ -194,7 +229,7 @@ def _validate_slos(record: dict[str, Any]) -> None:
 
         measurement = definition.get("measurement")
         require(isinstance(measurement, dict), f"{where} is measured but carries no measurement block")
-        _require_evidence_id(measurement.get("evidence_id"), f"{where} measurement")
+        _require_evidence_id(measurement.get("evidence_id"), f"{where} measurement", known_ids)
         measurement_class = _require_class(measurement.get("measurement_class"), f"{where} measurement")
         _require_limitations(measurement.get("limitations"), f"{where} measurement")
 
@@ -242,7 +277,7 @@ def _validate_slos(record: dict[str, Any]) -> None:
             )
 
 
-def _validate_scenarios(record: dict[str, Any]) -> None:
+def _validate_scenarios(record: dict[str, Any], known_ids: frozenset[str]) -> None:
     for scenario in record.get("scenario_matrix", []):
         require(isinstance(scenario, dict), "each scenario must be an object")
         scenario_id = scenario.get("id", "<unnamed>")
@@ -259,12 +294,12 @@ def _validate_scenarios(record: dict[str, Any]) -> None:
 
         require(bool(evidence_ids), f"{where} is {status} but cites no evidence")
         for evidence_id in evidence_ids:
-            _require_evidence_id(evidence_id, f"{where} evidence")
+            _require_evidence_id(evidence_id, f"{where} evidence", known_ids)
         _require_class(scenario.get("measurement_class"), where)
         _require_limitations(scenario.get("limitations"), where)
 
 
-def _validate_incidents(record: dict[str, Any]) -> None:
+def _validate_incidents(record: dict[str, Any], known_ids: frozenset[str]) -> None:
     incident = record.get("incident_review", {})
     require(isinstance(incident, dict), "incident_review must be an object")
     status = incident.get("status")
@@ -279,7 +314,7 @@ def _validate_incidents(record: dict[str, Any]) -> None:
         require(records == [], "incident remediation is fabricated")
         return
 
-    _require_evidence_id(incident.get("evidence_id"), "a completed incident review")
+    _require_evidence_id(incident.get("evidence_id"), "a completed incident review", known_ids)
     total = 0
     for field in counts:
         total += _require_non_negative_int(incident.get(field), f"incident_review.{field}")
@@ -294,10 +329,10 @@ def _validate_incidents(record: dict[str, Any]) -> None:
                 isinstance(entry.get(field), str) and entry[field].strip(),
                 f"remediation record is missing {field}",
             )
-        _require_evidence_id(entry.get("evidence_id"), "a remediation record")
+        _require_evidence_id(entry.get("evidence_id"), "a remediation record", known_ids)
 
 
-def _validate_signoffs(record: dict[str, Any]) -> None:
+def _validate_signoffs(record: dict[str, Any], known_ids: frozenset[str]) -> None:
     signoffs = record.get("signoffs", {})
     require(isinstance(signoffs, dict) and signoffs, "signoffs must be a non-empty object")
     for name, value in signoffs.items():
@@ -322,7 +357,7 @@ def _validate_signoffs(record: dict[str, Any]) -> None:
             value.get("evaluator_is_implementing_agent") is False,
             f"{where} cannot be signed by the implementing agent",
         )
-        _require_evidence_id(value.get("evidence_id"), where)
+        _require_evidence_id(value.get("evidence_id"), where, known_ids)
 
 
 def _validate_release_candidate(record: dict[str, Any]) -> None:
@@ -335,17 +370,26 @@ def _validate_release_candidate(record: dict[str, Any]) -> None:
         require(release_candidate.get(field) is None, f"release candidate field is fabricated: {field}")
 
 
-def validate_record(record: dict[str, Any]) -> None:
+def validate_record(
+    record: dict[str, Any], known_evidence_ids: frozenset[str] | None = None
+) -> None:
+    """`known_evidence_ids` overrides the default `EVIDENCE_INDEX.md` scan —
+    intended for tests, which reference synthetic IDs no production index
+    should ever actually contain. Production callers (`main`) always use the
+    default, which is the real committed index."""
+    known_ids = (
+        known_evidence_ids if known_evidence_ids is not None else _load_known_evidence_ids()
+    )
     require(record.get("schema_version") == "1.0.0", "unsupported readiness schema")
     require(record.get("readiness_status") in ALLOWED_STATUSES, "readiness must be blocked")
-    _validate_authority(record)
-    _validate_dependency(record)
-    _validate_cohort(record)
-    _validate_telemetry(record)
-    _validate_slos(record)
-    _validate_scenarios(record)
-    _validate_incidents(record)
-    _validate_signoffs(record)
+    _validate_authority(record, known_ids)
+    _validate_dependency(record, known_ids)
+    _validate_cohort(record, known_ids)
+    _validate_telemetry(record, known_ids)
+    _validate_slos(record, known_ids)
+    _validate_scenarios(record, known_ids)
+    _validate_incidents(record, known_ids)
+    _validate_signoffs(record, known_ids)
     _validate_release_candidate(record)
 
 
