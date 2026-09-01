@@ -3429,3 +3429,9 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - **Live-verified end to end**: user got "preference and service updated" (the real success string, not an error); `sfltool dumpbtm` confirms `Disposition: [enabled, allowed, notified]`, was `disabled`.
 - Evidence: `EV-SP-030-20260901-R11-LIVE-GATE-05`. Suite 1325/87/22, 0 failures.
 - **Residual, unchanged**: sleep/wake/crash recovery, safe-mode export, migration remain unit-tested only, never live. `dependency_gate.r11_state` stays `in_progress`. `ptt_ack`/`stt_partial` still zero samples. **Do not start SP-031.**
+
+### 2026-09-01T12:43:30Z — SP-030 — Governance pointer realignment to 0047339
+
+- Committed the R11-LIVE-GATE-05 fix (Swift source: AuraMenuView.swift, AuraAppModel.swift, AuraAppModel_Interaction.swift) at commit `0047339`.
+- Swift source changed (52 lines across 3 files) relative to the prior pointer (`05c8bea`), so this pointer bump is justified by a fresh full-suite run AT this exact commit, not a documentation-only bump: 1325 tests / 87 suites / 22 bundles, 0 failures.
+- `current-state.json.repository.{verified_head,remote_head}` and `capability-matrix.json.repository_commit` realigned to `004733910eaedf7b04bbf2fc03568ebc3a8a4216`.
