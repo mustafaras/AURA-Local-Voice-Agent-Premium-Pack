@@ -217,7 +217,14 @@
       "evidence_id": "EV-SP-030-20260901-A11Y-OWNER-REVIEW-01",
       "date": "2026-09-01"
     },
-    "release_recovery": "not_obtained",
+    "release_recovery": {
+      "status": "obtained",
+      "evaluator": "AURA release owner — independent under ADR-050 §1 (did not author the reviewed code); signatory for this owner-judgment domain under ADR-050 §3",
+      "independent": true,
+      "evaluator_is_implementing_agent": false,
+      "evidence_id": "EV-SP-030-20260901-OWNER-SIGNOFF-RELEASE-RECOVERY-01",
+      "date": "2026-09-01"
+    },
     "product_truthfulness": "not_obtained"
   },
   "release_candidate": {

@@ -3,7 +3,7 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-09-01T11:00:00Z",
+  "updated_at": "2026-09-01T12:00:00Z",
   "session_id": "AURA-SP-030-SLO-INSTRUMENTATION-20260831",
   "active_prompt": "SP-030",
   "active_state": "blocked",
@@ -43,6 +43,7 @@
     "SP-030"
   ],
   "last_evidence_ids": [
+    "EV-SP-030-20260901-OWNER-SIGNOFF-RELEASE-RECOVERY-01",
     "EV-SP-030-20260901-A11Y-OWNER-REVIEW-01",
     "EV-SP-030-20260901-DEEPSEEK-ROUND4-REVIEW-01",
     "EV-SP-030-20260831-R11-LIVE-GATE-04",
@@ -189,5 +190,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. MILESTONE 2026-09-01: TWO sign-offs now obtained -- security (EV-...-DEEPSEEK-ROUND4-REVIEW-01) and accessibility_localization (EV-...-A11Y-OWNER-REVIEW-01, owner reviewed all 190 AuraCopy strings + live VoiceOver on 3 screens). privacy was already obtained 2026-08-30. 3 of 5 R12 sign-offs done. STILL OPEN: release_recovery and product_truthfulness -- owner-judgment domains per ADR-050 s3, need review against docs/operations/OWNER_SIGNOFF_FALSIFICATION_PACKET.md, cannot be self-granted by any agent. R11 live gate: grant + presenter + read/write split + Settings-inline card all implemented and tested; sfltool dumpbtm proves service.register() succeeded live once; toggle currently reads OFF; a manual click by the owner would close the remaining uncertainty -- automated attempts abandoned due to severe SwiftUI AX-tree flakiness (documented in memory, not a product defect). ptt_ack/stt_partial: instrumented, ZERO samples, not_measured -- stt_partial needs the owner to speak, cannot be automated; ptt_ack automation also abandoned (same AX flakiness). Below ~20 samples record 'insufficient samples', never a p95/p99. NEVER substitute wakeToAck for ptt_ack. Note: this session found macOS blocks SEVERAL forms of synthetic system automation (raw clicks -25211, VoiceOver toggle) -- when a wall like this repeats, stop forcing it and hand the single action to the owner rather than keep spending on automation. Suite: Swift 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 -> 64 tests OK; 3 validators exit 0. Do NOT start SP-031."
+  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. MILESTONE 2026-09-01: THREE sign-offs now obtained -- security, accessibility_localization, release_recovery (owner verdict, known gap explicitly accepted: launch-at-login partially live-tested via sfltool dumpbtm proof, sleep/wake/crash/safe-mode/migration never live-tested). privacy was already obtained 2026-08-30. 4 of 5 R12 sign-offs done. ONLY product_truthfulness remains -- owner-judgment domain per ADR-050 s3, needs review against OWNER_SIGNOFF_FALSIFICATION_PACKET.md Section B (re-verify claims against CURRENT tree first, the packet is stale from 2026-08-30 -- test counts, ADR-050 status line 'Proposed' now 'Accepted', etc). Cannot be self-granted by any agent. R11 live gate: grant + presenter + read/write split + Settings-inline card all implemented and tested; sfltool dumpbtm proves service.register() succeeded live once; toggle currently reads OFF; a manual click by the owner would close the remaining uncertainty -- automated attempts abandoned due to severe SwiftUI AX-tree flakiness AND macOS blocking synthetic system automation (raw clicks -25211, VoiceOver toggle) -- when a wall like this repeats, stop forcing it and hand the single action to the owner. ptt_ack/stt_partial: instrumented, ZERO samples, not_measured -- stt_partial needs the owner to speak. Below ~20 samples record 'insufficient samples'. NEVER substitute wakeToAck for ptt_ack. Suite: Swift 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 -> 64 tests OK; 3 validators exit 0. Do NOT start SP-031."
 }
