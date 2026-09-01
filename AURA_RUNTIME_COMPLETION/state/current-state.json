@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-01T09:00:00Z",
+  "updated_at": "2026-09-01T09:15:00Z",
   "session_id": "AURA-SP-030-BETA-EVIDENCE-20260830",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "37fce3ec0785c93012c79601ebeac88c666a1f89",
-    "remote_head": "37fce3ec0785c93012c79601ebeac88c666a1f89",
+    "verified_head": "3fa088e796538e32b5c5cfcae35c4d9857890dda",
+    "remote_head": "3fa088e796538e32b5c5cfcae35c4d9857890dda",
     "working_tree_state": "clean",
     "user_owned_changes": []
   },
