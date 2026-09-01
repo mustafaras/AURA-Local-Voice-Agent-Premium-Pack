@@ -209,7 +209,14 @@
       "evidence_id": "EV-SP-030-20260830-PRIVACY-REVIEW-01",
       "date": "2026-08-30"
     },
-    "accessibility_localization": "not_obtained",
+    "accessibility_localization": {
+      "status": "obtained",
+      "evaluator": "AURA release owner — independent under ADR-050 (authored none of the reviewed AuraCopy strings); reviewed as a Turkish speaker, which neither Claude nor DeepSeek could certify for this domain",
+      "independent": true,
+      "evaluator_is_implementing_agent": false,
+      "evidence_id": "EV-SP-030-20260901-A11Y-OWNER-REVIEW-01",
+      "date": "2026-09-01"
+    },
     "release_recovery": "not_obtained",
     "product_truthfulness": "not_obtained"
   },
