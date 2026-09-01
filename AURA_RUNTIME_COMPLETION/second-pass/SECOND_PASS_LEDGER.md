@@ -3407,3 +3407,16 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - **Evidence / class:** `EV-SP-030-20260901-OWNER-SIGNOFF-RELEASE-RECOVERY-01` (owner decision).
 - **Falsifier:** any claim that the packet's claims weren't re-verified before use; that launch-at-login is claimed to work end-to-end (it is not); that sleep/wake/crash/safe-mode/migration were claimed live-tested; or that this closes R11's live gate or SP-030 overall.
 - **Residual / next action:** `product_truthfulness` — packet Section B, not yet walked. R11 live gate still open. `ptt_ack`/`stt_partial` still zero samples. **Do not start SP-031.**
+
+### 2026-09-01T13:00:00Z — SP-030 — `product_truthfulness` OBTAINED — all five R12 sign-offs now closed
+
+- **Same method as `release_recovery`: the packet was not handed over unverified.** Section B's four claims re-checked against the current tree first. Found and corrected one packet error along the way (not drift, a pre-existing miscount): it said "three of five SLOs must say `not_measured`", the real count is two — the substance (zero `live_user_present` claims, zero `live_beta_sample: true`, every measured SLO's own `limitations` field states what it actually is) holds regardless.
+- **Claim 3 verified against the live filesystem, not asserted**: `ls Tests/` and `TEST_TARGETS` in `scripts/aura-test.sh` both list exactly 22 entries, one-to-one — this is the exact mechanism whose absence (`AuraLifecycleTests` missing from the array) was the real defect this whole packet exists to catch.
+- **Claim 4 strengthened since the packet was written**: it named only Round 2's COI disclosure; Round 4 now exists and carries the identical "LLM agents of the same class, not a human audit" disclosure — five instances across the findings document.
+- **The packet's own "F-002 open finding" note is stale and was not treated as new work**: F-002/F-003/F-004 already accepted, F-007 already fixed, all separately recorded earlier this session. Signing here inherits a settled position.
+- **Owner signed clean** — no new residual gap accepted by this record, unlike `release_recovery`'s explicit acceptance.
+- **All five R12 sign-offs now obtained**: `privacy` (2026-08-30), `security`, `accessibility_localization`, `release_recovery`, `product_truthfulness` (all 2026-09-01).
+- **The load-bearing caveat, stated precisely because five green sign-offs invite exactly this misreading: this does NOT close SP-030.** `dependency_gate.r11_state` is still `in_progress`; `ptt_ack`/`stt_partial` still hold zero samples; `incident_review.status` is still `not_run`; `readiness_status` is still `blocked`. Sign-offs attest records aren't fabricated — they don't measure SLOs, run scenarios, or exercise R11's live gate.
+- **Evidence / class:** `EV-SP-030-20260901-OWNER-SIGNOFF-PRODUCT-TRUTHFULNESS-01` (owner decision).
+- **Falsifier:** any claim that the four claims weren't re-verified before use; that the SLO-count correction wasn't actually checked; that F-002/003/004/007 were treated as newly decided here; or that this record claims SP-030's gate is met, `readiness_status` changed, or SP-031 may start.
+- **Residual / next action:** R11 live gate (owner click-through), `ptt_ack`/`stt_partial` live measurement, incident review, before SP-030 can honestly close. **Do not start SP-031.**

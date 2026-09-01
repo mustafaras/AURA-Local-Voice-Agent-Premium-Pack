@@ -225,7 +225,14 @@
       "evidence_id": "EV-SP-030-20260901-OWNER-SIGNOFF-RELEASE-RECOVERY-01",
       "date": "2026-09-01"
     },
-    "product_truthfulness": "not_obtained"
+    "product_truthfulness": {
+      "status": "obtained",
+      "evaluator": "AURA release owner — independent under ADR-050 §1 (did not author the reviewed code or records); signatory for this owner-judgment domain under ADR-050 §3",
+      "independent": true,
+      "evaluator_is_implementing_agent": false,
+      "evidence_id": "EV-SP-030-20260901-OWNER-SIGNOFF-PRODUCT-TRUTHFULNESS-01",
+      "date": "2026-09-01"
+    }
   },
   "release_candidate": {
     "status": "blocked",
