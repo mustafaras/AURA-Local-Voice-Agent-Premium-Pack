@@ -4,22 +4,30 @@
 > `deepseek-v4-flash` model and paste the "Task" section below. This closes the
 > other half of the ADR-050 cross-review loop. Claude Code reviewed your SP-023 /
 > SP-024 / SP-025 work; it **cannot** review its own, so `security` cannot close
-> until someone else reads the two artifacts listed here.
+> until someone else reads the artifacts listed here.
+>
+> **Updated 2026-09-01, still not executed as of that date.** Artifacts 1–3 are
+> unchanged from the original 2026-08-30 request. **Artifact 4 is new** — it
+> covers a second, later session's work (2026-08-31) that touches the policy
+> authorization pipeline directly and has never been read by anyone independent
+> either. Do all four (five, counting the optional one) in the same pass so this
+> is one trip rather than two.
 
 ## Why you are the right reviewer
 
 Under ADR-050, independence is defined by **authorship**. You authored SP-023,
-SP-024 and SP-025. You did **not** author the two artifacts below — Claude Code
-wrote them in session `AURA-SP-030-BETA-EVIDENCE-20260830` — so you are
-independent of them, and disclosing that you authored the code Claude Code
-reviewed is the conflict-of-interest note your review must carry.
+SP-024 and SP-025. You did **not** author any artifact below — Claude Code wrote
+Artifacts 1–3 in session `AURA-SP-030-BETA-EVIDENCE-20260830` and Artifact 4 in
+session `AURA-SP-030-SLO-INSTRUMENTATION-20260831` — so you are independent of
+all of them, and disclosing that you authored the code Claude Code reviewed
+(SP-023/024/025) is the conflict-of-interest note your review must carry.
 
 ## Task
 
-Perform an adversarial review of exactly two artifacts. Do not review anything
-else. Do not accept a claim because a comment or an evidence record asserts it —
-check the call path, and where you suspect a defect, produce an executable proof
-rather than an assertion.
+Perform an adversarial review of the artifacts below (four required, one
+optional). Do not accept a claim because a comment or an evidence record
+asserts it — check the call path, and where you suspect a defect, produce an
+executable proof rather than an assertion.
 
 ### Artifact 1 — the F-001 remediation
 
@@ -95,15 +103,131 @@ Questions to answer:
    instance was fixed accurately reflected in the evidence and risk register, or
    does anything overstate the remediation?
 
+### Artifact 4 — the R11 lifecycle-capability authorization pipeline (2026-08-31, required)
+
+Nine of eleven lifecycle capabilities (launch-at-login, safe mode, reset,
+rollback, uninstall, factory reset, update check/stage/approve) were denied
+before reaching their implementation, because the capability registry disabled
+them citing a "reachable through direct `AuraKernel` RuntimeAPI calls" escape
+hatch that did not actually work — no grant existed and the direct-call
+confirmation path threw unconditionally. Under owner authorization, Claude Code
+changed the **authorization pipeline itself** for exactly one capability,
+`lifecycle.launchAtLogin`. This is squarely a security artifact, not a
+convenience fix, and it has not been read by anyone independent.
+
+Files:
+
+- `Sources/AuraPolicy/DefaultPolicyGrants.swift` — new seeded grant:
+  `Grant(capability: .lifecycleLaunchAtLogin, patterns: [.any], confirmationRequirement: .forRiskTier(.mutation), purpose: seedPurpose)`.
+- `Sources/AuraCore/PolicyTypes_Capability.swift` — new capability
+  `lifecycleLaunchAtLoginStatus` (`.observation` tier), split out of the write
+  so a **read** no longer needs a `.mutation` confirmation.
+- `Sources/AURA/AuraKernel_RuntimeAPI.swift` — `evaluateDirectCapability`'s
+  `.confirm` case: previously threw unconditionally ("no confirmation
+  presenter is wired for this direct-call path yet"); now calls
+  `confirmationPresenter.present(challenge:)` then
+  `policyEngine.submitConfirmation(response)`, mirroring the existing
+  `ToolRouter_Policy` pattern. Also `isLaunchAtLoginEnabled()`, re-gated to the
+  new observation capability.
+- `Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift` — the
+  `lifecycleDirectCallReason` string, corrected to stop asserting a
+  reachability guarantee the code did not provide.
+- `Sources/AURA/AuraAppModel_Interaction.swift` —
+  `denyConfirmationIfStillPending()`: closing the Settings window (or any
+  other dismissal of the confirmation surface) with a challenge still pending
+  now denies it explicitly, rather than letting it lapse on its 60 s timer.
+- `Sources/AURA/AuraMenuView.swift` — `AuraConfirmationCard` is now rendered as
+  the first row of `AuraSettingsView`'s `Form` (a `.sheet` was tried and
+  rejected — it did not present at all inside SwiftUI's `Settings` scene), and
+  `.onDisappear { model.denyConfirmationIfStillPending() }` is attached to that
+  view.
+- Tests: `Tests/AuraPolicyTests/DefaultPolicyGrantsTests.swift` (5 new tests:
+  `launchAtLoginIsReachable`, `destructiveLifecycleCapabilitiesStayDenied`,
+  `exactlyOneLifecycleCapabilityIsSeeded`, `launchAtLoginStatusIsObservation`,
+  `writeStillRequiresConfirmationAfterSplit`) and
+  `Tests/AURAIntegrationTests/ConfirmationSheetFailClosedTests.swift` (3 tests:
+  `dismissalDenies`, `answeredConfirmationIsNotReDenied`,
+  `noPendingConfirmationIsNoOp`).
+
+Questions to answer:
+1. Does `evaluateDirectCapability`'s new `.confirm` handling actually verify
+   the response before granting, or could a forged, replayed, or predictable
+   `PolicyConfirmationResponse` be accepted without the card ever being
+   answered by a user? Trace `PolicyEngine.submitConfirmation` yourself — does
+   it check nonce, expected hash, and expiry against the **original**
+   challenge, or could a stale response from an earlier, unrelated
+   confirmation be replayed against a new one?
+2. Is `patterns: [.any]` on the new grant appropriately scoped for this
+   capability, or does it create any unintended broader authorization — could
+   a call site construct a `PolicyTarget` that lets a *different* action ride
+   through under this grant because the target isn't actually checked against
+   anything?
+3. The safety of `denyConfirmationIfStillPending()` depends entirely on
+   `resolveConfirmation` clearing `pendingConfirmation` **before** any
+   dismissal callback can run, so that accepting a confirmation makes the
+   subsequent dismissal a no-op. Is that ordering actually guaranteed by
+   SwiftUI's view-lifecycle and `@Published` delivery, or is there a
+   plausible race — concurrent dismissal and acceptance, a different actor,
+   a re-entrant call — where an **accepted** confirmation could be
+   incorrectly denied after the fact, or a **denied** one incorrectly
+   register as accepted?
+4. Does splitting `lifecycleLaunchAtLoginStatus` (`.observation`, no
+   confirmation) from `lifecycleLaunchAtLogin` (`.mutation`, confirmed) leak
+   anything through the read path that the write path is supposed to gate?
+   Could the read path be induced to trigger any side effect at all — should
+   be a pure query with zero mutation?
+5. `AuraKernel.confirmationPresenter` is a single shared instance used by both
+   the NLU-driven `ToolRouter_Policy` path and this new direct-call path. Is
+   there any way two concurrently pending confirmations — one from each path —
+   could be cross-matched, so a user answering the card they see actually
+   resolves a *different* pending request than the one displayed?
+6. Do the eight new tests listed above actually fail against the pre-fix code
+   (i.e., are they real regression tests), or would some of them pass either
+   way?
+7. Nine of eleven lifecycle capabilities remain deny-by-default on purpose
+   (destructive/network tier). Confirm none of this change widens any of the
+   other eight — `destructiveLifecycleCapabilitiesStayDenied` claims to pin
+   this; does it actually exercise all eight, or does it silently skip any?
+
+### Artifact 5 (optional, lower priority) — the `ptt_ack` SLO contamination fix
+
+`Sources/AURA/AuraAppModel_Interaction.swift`,
+`AuraAppModel.pushToTalkAckSample(pressedAt:acknowledgedAt:promptedForPermissions:)`,
+and `Tests/AURAIntegrationTests/PushToTalkAckSampleTests.swift`. Not an
+authorization defect — a measurement-integrity one: the pre-fix code recorded
+the user's reaction time to a permission dialog as machine latency for the
+`ptt_ack` SLO. Only worth your time if Artifact 4 turns up nothing and you have
+capacity left: does the fix genuinely exclude every turn that raised the OS
+permission prompt, and do the tests actually fail against the pre-fix logic?
+
 ## What to produce
 
-A findings list in the format of
-`docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md`, with:
-- your COI disclosure (you authored SP-023/024/025, which Claude Code reviewed);
-- severity per finding;
-- for each finding, a reproduction — command, input, observed output;
-- explicitly, the areas you checked and found **no** defect, so the coverage is legible.
+**Append your findings directly to
+`docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md`** as a new section at
+the end of the file, titled exactly:
+
+```markdown
+## Round 4 — 2026-09-01 — cross-agent independent review (Artifact 4 continuation)
+```
+
+Match the structure Round 2 already established in that file (read it before
+you write — it is the template): a blockquote header with **Reviewer**,
+**Conflict of interest (disclosed)**, and **Method** lines; a `## Findings`
+table (`ID | Area | Severity | Status | Owner | Closure evidence`); one
+`### F-0XX (Severity, status) — title` block per finding, each with a
+reproduction (command, input, observed output) — **continue the numbering from
+F-007** (F-001–F-006 already exist in that file, do not reuse them); a
+`## Reviewed with no finding` section; and a `## Limitations` section stating
+exactly what you did and did not exercise (no live app run, no signed binary,
+static/source review only — unless you actually did more, in which case say
+so).
+
+If your VS Code Copilot session can write files directly, write that section
+into the file yourself. If it cannot, paste your raw findings back into this
+conversation and Claude Code will append them **verbatim, unedited** under the
+same heading — editing an independent reviewer's own words would defeat the
+point of the review.
 
 Do **not** mark any sign-off obtained. Sign-offs are recorded separately against
-`beta-readiness.json` by the agent holding the owner's instruction, and only after
-both directions of this cross-review exist.
+`beta-readiness.json` by the agent holding the owner's instruction, and only
+after both directions of this cross-review exist.
