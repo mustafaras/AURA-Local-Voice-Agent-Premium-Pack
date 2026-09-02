@@ -63,18 +63,7 @@
     "scripts/render_network.py",
     "Sources/AuraLifecycle/SupportBundleExporter.swift",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260902-UNATTENDED-ALTERNATE-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-    "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-    "ledger/PROJECT_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
-    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-    "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-    "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
-    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
-    "AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md",
-    "ledger/CURRENT_STATE.md"
+    "AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md"
   ],
   "evidence_ids": [
     "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01",
