@@ -1,5 +1,36 @@
 # Current State
 
+## Delivery reconciliation — 2026-09-02 (graphify, Git delivery, and local deploy)
+
+This newest projection is based on the verified source/delivery baseline
+`25abcb70cfe11dd8e92af1de78ea3e8b2e2425b6` (`main`, pushed to
+`origin/main`). The two reusable graphify helpers are committed; the generated
+`graphify-out/` snapshot/cache (~60 MB) is preserved locally and excluded only
+through `.git/info/exclude`, so it was neither deleted nor pushed.
+
+- Graph validation passed: `graph.json` has 13,515 nodes / 35,358 links;
+  generated visualization has 400 nodes / 1,478 edges; the full renderer also
+  completed for 13,515 nodes / 35,358 links. The shared node/edge placeholder
+  defect in the helper was fixed before delivery.
+- Strict Swift build passed with concurrency checking and warnings-as-errors;
+  the full wrapper passed 1,325 tests / 87 suites / 22 bundles with 0 failures
+  and 70.20% line coverage. `AuraLifecycleTests` passed 48 tests / 10 suites.
+  Python governance tests passed 64 tests; runtime, second-pass,
+  beta-readiness, repository-hygiene, and supply-chain validators passed.
+- The unsigned local app bundle built successfully and its main executable
+  stayed alive for a 12-second isolated launch smoke. No Developer ID signing,
+  notarization, `/Applications` install, telemetry activation, or public
+  release was performed or claimed. CI run `33601259000` was observed queued,
+  not successful. Direct `main` delivery has no open PR to merge.
+
+SP-030 remains **blocked**. All five R12 sign-offs and launch-at-login are now
+closed. The remaining blockers are live sleep/wake/crash recovery, safe-mode
+export, populated-profile migration, qualifying live-beta samples for
+`ptt_ack`/`stt_partial`/`dialogue_first_token`, a live-window scenario run, and
+incident review. `beta-readiness.json` remains blocked, telemetry remains
+disabled with `transport: none`, and `release_candidate` remains
+`blocked`/`approved: false`. SP-031 must not start.
+
 This file is a compact, atomically replaced projection of the append-only ledger.
 Projection refreshed from live repository and command evidence on 2026-08-30.
 

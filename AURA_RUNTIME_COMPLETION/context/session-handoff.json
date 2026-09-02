@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-09-01T15:30:00Z",
-  "session_id": "AURA-SP-030-SLO-INSTRUMENTATION-20260831",
-  "last_verified_commit": "8b16142e508294ecce9fd64477ac35bb2c4c1393",
+  "updated_at": "2026-09-02T07:03:47Z",
+  "session_id": "AURA-DELIVERY-20260902-GRAPHIFY",
+  "last_verified_commit": "25abcb70cfe11dd8e92af1de78ea3e8b2e2425b6",
   "active_prompt": {
     "id": "SP-030",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
     "state": "blocked",
-    "step": "SP-030 BLOCKED. SLO instrumentation recorded, zero samples still. R11: owner-authorized grant, presenter, read/write split, Settings-inline card all implemented and tested. sfltool dumpbtm proves service.register() succeeded live at least once -- strong OS-level evidence the mechanism works. Automated click-through NOT reproduced (AX-tree flakiness in Settings, not a product defect). Toggle currently OFF. R11 live gate NOT closed. Do NOT start SP-031."
+    "step": "SP-030 BLOCKED: all five R12 sign-offs and live launch-at-login are closed. R11 sleep/wake/crash, safe-mode export, and populated-profile migration remain unit-tested only; ptt_ack/stt_partial have zero samples; incident_review is not_run; beta readiness is blocked. Do NOT start SP-031."
   },
-  "summary": "SP-030 is BLOCKED/IN_PROGRESS for its live-evidence scope (EV-SP-030-20260830-PROGRAM-BLOCKED-01). Its completion gate (mandatory SLOs/scenarios pass, incidents remediated, independent sign-offs complete) cannot be honestly met: no enrolled/consented beta cohort (not_enrolled/not_collected), no enabled content-free measurement/transport (telemetry.enabled:false, transport:none), no independent evaluator (all signoffs not_obtained), and R11 dependency in_progress. beta-readiness.json stays blocked. No SLO/scenario/incident/sign-off/telemetry/cohort/consent/RC produced. SP-031 must NOT start. Reconciled stale current-state.json repository pointers to live HEAD == origin/main == 8b16142 (clean worktree).",
+  "summary": "SP-030 remains blocked for its live-evidence gate. The owner single-participant cohort is enrolled and consented, all five R12 sign-offs are obtained, and launch-at-login is closed live. Closure is still not honest: R11 sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only; ptt_ack, stt_partial, and dialogue_first_token lack a qualifying live-beta sample set; the scenario matrix is deterministic_harness only; incident_review is not_run; telemetry remains disabled with transport none; and beta-readiness.json plus the release candidate remain blocked. SP-031 must not start. Delivery commit 25abcb70cfe11dd8e92af1de78ea3e8b2e2425b6 is verified locally and pushed to origin/main.",
   "completed": [
     "SP-030 attempt recorded as BLOCKED (EV-SP-030-20260830-PROGRAM-BLOCKED-01): exact blocker and cognitive-gate answers preserved; the beta SLO/scenario/incident/sign-off completion gate is NOT met and SP-030 stays in_progress/blocked.",
     "Reconciled stale current-state.json repository block (verified_head/remote_head) to live HEAD == origin/main == 8b16142; removed the already-committed EV-ADR-049 user-owned-changes entry; advanced updated_at.",
@@ -21,7 +21,11 @@
     "Implemented SP-029 Procedure step 2 (previously missing): explicit opt-in content-free aggregate telemetry engine.",
     "Added TelemetryAggregator actor: fail-closed (no-op unless opt-in on), per-day/per-field/per-bucket counters, latency bucketing, disableAndPurge() telemetry-off/consent-withdrawal path, retention purge, no transport.",
     "Added 9 deterministic TelemetryAggregatorTests; swift build passes; AuraLifecycleTests 48 in 10 suites pass; full suite 89 test suites 0 failed.",
-    "Created EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01 and EV-SP-029-20260830-OWNER-APPROVAL-01 and updated EVIDENCE_INDEX, SECOND_PASS_LEDGER, PROGRAM_LEDGER, PROJECT_LEDGER, SECOND_PASS_OPEN_GAPS, SECOND_PASS_STATE.json, current-state.json, ACTIVE_CONTEXT, RISK_REGISTER."
+    "Created EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01 and EV-SP-029-20260830-OWNER-APPROVAL-01 and updated EVIDENCE_INDEX, SECOND_PASS_LEDGER, PROGRAM_LEDGER, PROJECT_LEDGER, SECOND_PASS_OPEN_GAPS, SECOND_PASS_STATE.json, current-state.json, ACTIVE_CONTEXT, RISK_REGISTER.",
+    "Added the graphify source helpers and fixed their shared node/edge JSON placeholder bug; generated graphify output remains local and is excluded through .git/info/exclude.",
+    "Removed six unnecessary await markers from synchronous SupportBundleExporter writes so the strict Swift 6.4 warnings-as-errors build passes without behavior change.",
+    "Verified delivery gates: Swift full suite 1325 tests / 87 suites / 22 bundles with 0 failures and 70.20% line coverage; AuraLifecycleTests 48 / 10; strict build passed; Python governance suite 64 tests OK; runtime, second-pass, beta-readiness, repo-hygiene, and supply-chain validators passed.",
+    "Pushed 25abcb70cfe11dd8e92af1de78ea3e8b2e2425b6 to origin/main. No pull request is open because this repository uses direct main delivery; CI run 33601259000 was observed queued, not claimed successful. Local unsigned app build and 12-second isolated launch smoke passed; no codesign, install, or external release was claimed."
   ],
   "files_changed": [
     "Sources/AuraConfig/ConfigurationTypes.swift",
@@ -48,7 +52,13 @@
     "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260830-OWNER-APPROVAL-03.md",
     "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260830-ADR046-ACCEPTED-01.md",
     "docs/decisions/ADR-046-signed-update-recovery.md",
-    "ledger/DECISION_INDEX.md"
+    "ledger/DECISION_INDEX.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-DELIVERY-20260902-GRAPHIFY-01.md",
+    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+    "ledger/CURRENT_STATE.md",
+    "scripts/generate_network_viz.py",
+    "scripts/render_network.py",
+    "Sources/AuraLifecycle/SupportBundleExporter.swift"
   ],
   "evidence_ids": [
     "EV-SP-030-20260901-R11-LIVE-GATE-05",
@@ -74,44 +84,27 @@
     "EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01",
     "EV-SP-028-20260829-CLOSEOUT-03",
     "EV-SP-028-20260829-RUNTIME-API-02",
-    "EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01"
+    "EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01",
+    "EV-DELIVERY-20260902-GRAPHIFY-01"
   ],
   "tests": [
-    {
-      "name": "swift build --build-path /tmp/aura-build",
-      "result": "passed",
-      "evidence_id": "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01"
-    },
-    {
-      "name": "AuraLifecycleTests: 48 tests in 10 suites pass (includes 9 new TelemetryAggregatorTests)",
-      "result": "passed",
-      "evidence_id": "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01"
-    },
-    {
-      "name": "Full suite: 89 test suites, 0 failed",
-      "result": "passed",
-      "evidence_id": "EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01"
-    },
-    {
-      "name": "validate_beta_readiness.py --record beta-readiness.json PASSED (blocked)",
-      "result": "passed",
-      "evidence_id": "EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01"
-    },
-    {
-      "name": "No telemetry/cohort/consent/SLO/RC transmission action performed (approval covers contract scope only)",
-      "result": "passed",
-      "evidence_id": "EV-SP-029-20260830-OWNER-APPROVAL-01"
-    }
+    {"name": "AURA_ENABLE_COVERAGE=1 AURA_COVERAGE_MIN=70 ./scripts/aura-test.sh /tmp/aura-delivery-20260902-final-test: 1325 tests / 87 suites / 22 bundles, 0 failures; 70.20% line coverage", "result": "passed", "evidence_id": "EV-DELIVERY-20260902-GRAPHIFY-01"},
+    {"name": "./scripts/aura-test.sh /tmp/aura-delivery-20260902-lifecycle AuraLifecycleTests: 48 tests / 10 suites, 0 failures", "result": "passed", "evidence_id": "EV-DELIVERY-20260902-GRAPHIFY-01"},
+    {"name": "swift build --build-path /tmp/aura-delivery-20260902-strict-build-2 -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors", "result": "passed", "evidence_id": "EV-DELIVERY-20260902-GRAPHIFY-01"},
+    {"name": "Python governance suite: python3 -m unittest discover -s scripts/tests -p test_*.py: 64 tests, OK", "result": "passed", "evidence_id": "EV-DELIVERY-20260902-GRAPHIFY-01"},
+    {"name": "Runtime, second-pass, beta-readiness, repo-hygiene, and supply-chain validators", "result": "passed", "evidence_id": "EV-DELIVERY-20260902-GRAPHIFY-01"},
+    {"name": "Local unsigned app build and isolated direct-launch smoke: alive after 12 seconds", "result": "passed", "evidence_id": "EV-DELIVERY-20260902-GRAPHIFY-01"}
   ],
   "blockers": [
-    "SP-030 is BLOCKED/IN_PROGRESS (EV-SP-030-20260830-PROGRAM-BLOCKED-01): the beta SLO/scenario/incident/sign-off gate cannot be honestly met — no enrolled/consented cohort (not_enrolled/not_collected), no enabled content-free measurement/transport (telemetry.enabled:false, transport:none), no independent evaluator (all signoffs not_obtained), R11 dependency in_progress.",
-    "R12 as a whole is not RC-ready: fail-closed beta-readiness.json stays blocked (authority flags false, cohort not_enrolled, consent not_collected, telemetry enabled:false/transport:none, sign-offs not_obtained, RC blocked/approved:false).",
-    "R11 is incomplete (development_unverified; no signed/notarized clean-machine artifact; no ADR-046 acceptance).",
-    "R12 direct-evidence gates for the SP-030/SP-031 scope remain open: live scenario/SLO/incident results, independent sign-offs, signed RC artifact (SP-031), and ADR-047 (SP-031).",
-    "No controlled beta cohort is enrolled; no participant consent is collected; no telemetry is transmitted; no SLO is measured; no RC is approved; SP-031 must NOT start."
+    "R11 remains in_progress: the artifact is development_unverified with no signed/notarized clean-machine release artifact. Launch-at-login is closed live, but sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only.",
+    "SP-030 live latency SLOs are not closed: ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta sample set; stt_partial additionally requires the owner to speak into the microphone.",
+    "The five scenario entries are deterministic_harness only, not a live beta-window run, and incident_review.status is not_run because no beta window has produced incidents.",
+    "beta-readiness.json remains blocked: telemetry is disabled with transport none, release_candidate is blocked/approved:false with no artifact, and the R11 dependency gate is in_progress. The cohort and all five R12 sign-offs are already obtained.",
+    "SP-031 must NOT start until SP-030 is honestly completed; ADR-047 and the signed RC package are still absent."
   ],
   "open_decisions": [
-    "SP-030 is BLOCKED/IN_PROGRESS. It cannot be completed without owner-authorized R11 completion (local gates + ADR-046), a real consented beta window with the opt-in content-free engine on a sanctioned transport, and independent sign-offs, then a re-run of SP-030. SP-031 (RC package + ADR-047) must NOT start until SP-030 completes."
+    "Owner-present live validation is still required for the remaining R11 flows and voice SLO sample collection. Afterward, run incident review and revalidate beta readiness; do not activate telemetry or transport outside the approved content-free contract.",
+    "External distribution remains out of scope under ADR-049; Developer ID signing and notarization are not authorized or claimed."
   ],
   "risks": [
     "RISK-NO-INDEPENDENT-BETA-EVIDENCE",
@@ -127,7 +120,7 @@
     "RISK-INDIRECT-PROMPT-INJECTION",
     "RISK-PLUGIN-TRUST-EVIDENCE-ABSENT"
   ],
-  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. MILESTONE 2026-09-01: all 5 R12 sign-offs obtained, AND R11 launch-at-login CLOSED end-to-end. Root cause was NOT a state race (two fix attempts assumed this and failed) but a scroll-position visibility bug: the confirmation card rendered correctly but above the Settings scroll position users reach the toggle from. Fixed with ScrollViewReader auto-scroll. Live-verified: 'preference and service updated', sfltool dumpbtm shows enabled (was disabled). See EV-SP-030-20260901-R11-LIVE-GATE-05. STILL OPEN: sleep/wake/crash recovery, safe-mode export, migration -- unit-tested only, never live (RISK-LIVE-LIFECYCLE-UNVERIFIED). dependency_gate.r11_state stays in_progress for this reason. ptt_ack/stt_partial: ZERO samples, not_measured -- stt_partial needs the owner to speak, cannot be automated. incident_review.status: not_run (no beta window has occurred). readiness_status: blocked. Do NOT start SP-031 until sleep/wake/crash/safe-mode/migration are live-tested (or explicitly accepted) and ptt_ack/stt_partial are measured. Suite: Swift 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 -> 64 tests OK; 3 validators exit 0.",
+  "next_action": "SP-030 remains BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. Five R12 sign-offs and launch-at-login are closed. Remaining gates are live R11 sleep/wake/crash recovery, safe-mode export, populated-profile migration, qualifying live-beta measurement of ptt_ack/stt_partial/dialogue_first_token, a live-window scenario run, and incident_review. beta-readiness remains blocked and release_candidate is blocked/approved:false. Do NOT start SP-031.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -140,5 +133,5 @@
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
     "AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md"
   ],
-  "notes": "SP-030 is BLOCKED/IN_PROGRESS (EV-SP-030-20260830-PROGRAM-BLOCKED-01): its completion gate (mandatory SLOs/scenarios pass, incidents remediated, independent sign-offs complete) cannot be honestly met this pass — no enrolled/consented cohort, no enabled content-free measurement/transport (engine default-off, transport:none), no independent evaluator, R11 dependency in_progress. beta-readiness.json stays blocked. No SLO/scenario/incident/sign-off/telemetry/cohort/consent/RC produced. Reconciled stale current-state.json repository pointers to live HEAD == origin/main == 8b16142 (clean worktree). Validators PASSED (second-pass) and 'valid and blocked' (beta-readiness). SP-031 must NOT start. SP-029 remains completed. Lawful completion requires owner-authorized R11 completion + a real consented beta window + independent evaluation, then re-run SP-030. Run the mandatory 15_SESSION_CLOSEOUT.prompt.md."
+  "notes": "The delivery record is scoped to graphify source helpers, repository delivery, local build/launch smoke, and truthful SP-030 handoff. Generated graphify output remains local and excluded via .git/info/exclude. No signing, notarization, telemetry activation, external release, or production deployment was performed. The final closeout remains SP-030 blocked: all five R12 sign-offs and launch-at-login are closed, while live R11 recovery flows, qualifying voice SLO samples, live scenario execution, and incident review remain open."
 }
