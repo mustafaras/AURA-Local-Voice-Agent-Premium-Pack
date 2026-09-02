@@ -105,7 +105,7 @@
     {"name": "./scripts/aura-test.sh /tmp/aura-sp030-alt-lifecycle-20260902 AuraLifecycleTests: 48 tests / 10 suites, 0 failures", "result": "passed", "evidence_id": "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01"},
     {"name": "./scripts/aura-test.sh /tmp/aura-sp030-alt-integration-20260902 AURAIntegrationTests: 111 tests / 22 suites, 0 failures", "result": "passed", "evidence_id": "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01"},
     {"name": "./scripts/aura-test.sh /tmp/aura-sp030-alt-stt-20260902 AuraSTTTests: 19 tests / 4 suites, 0 failures", "result": "passed", "evidence_id": "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01"},
-    {"name": "AURA_ENABLE_LIVE_SPEECH_TESTS=1 AURA_TEST_TIMEOUT_SECONDS=90 ./scripts/aura-test.sh /tmp/aura-sp030-alt-synthetic-20260902 AuraSTTTests: 3 real-recognizer tests failed closed with speechNotAuthorized; no TCC prompt requested", "result": "failed_closed", "evidence_id": "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01"}
+    {"name": "AURA_ENABLE_LIVE_SPEECH_TESTS=1 AURA_TEST_TIMEOUT_SECONDS=90 ./scripts/aura-test.sh /tmp/aura-sp030-alt-synthetic-20260902 AuraSTTTests: 3 real-recognizer tests failed closed with speechNotAuthorized; no TCC prompt requested", "result": "blocked", "evidence_id": "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01"}
   ],
   "blockers": [
     "R11 remains in_progress: the artifact is development_unverified with no signed/notarized clean-machine release artifact. Launch-at-login is closed live, but sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only.",
