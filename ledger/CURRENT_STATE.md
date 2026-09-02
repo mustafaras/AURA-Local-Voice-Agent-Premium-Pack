@@ -1,5 +1,22 @@
 # Current State
 
+## Computer Use diagnostic reconciliation — 2026-09-02
+
+The owner-present Computer Use Recovery attempt is recorded as
+`EV-SP-030-20260902-CUA-SERVICE-CRASH-01`. AURA and Settings were reachable,
+but selecting Recovery caused `SkyComputerUseService` 26.817.1000761 to crash
+with `EXC_BREAKPOINT` / `SIGTRAP` at Swift `Array.remove(at:)` while AURA
+remained alive. The same failure reproduced against a fresh local bundle. A
+temporary Recovery accessibility-tree flattening experiment was reverted after
+it did not change the result; no product source workaround remains.
+
+Clean-source `AURAIntegrationTests` passed 111 tests / 22 suites / 0 failures.
+This is a Computer Use service-boundary blocker, not a beta SLO, scenario, or
+release pass. SP-030 remains blocked: live R11 recovery flows, qualifying live
+voice SLO samples, live scenario execution, and incident review are still open;
+SP-031 must not start. Update/restart the Computer Use service or perform the
+Recovery checks manually with the owner present.
+
 ## Delivery reconciliation — 2026-09-02 (graphify, Git delivery, and local deploy)
 
 This newest projection is based on the verified source/delivery baseline

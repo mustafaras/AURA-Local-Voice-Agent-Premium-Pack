@@ -841,3 +841,12 @@ system-TTS interruption evidence does not substitute for that physical test.
   target) and expiry-driven retention purging are covered only by the
   deterministic suite. Both are follow-ups outside SP-019's scenarios.
 - **Falsifier:** any of the eight scenarios failing on a single-build re-run.
+
+### RISK-CUA-BRIDGE-SERVICE-CRASH — new, 2026-09-02
+
+- **Risk ID:** `RISK-CUA-BRIDGE-SERVICE-CRASH`
+- **Status:** **Open — the external Computer Use service can crash while observing AURA's accessibility stream**
+- **Owner:** owner-present live validation / Computer Use integration boundary
+- **Risk:** selecting AURA's Recovery tab closed the native Computer Use pipe while the AURA process remained alive. macOS diagnostic reports identify `SkyComputerUseService` 26.817.1000761, not AURA, as the crashing component; the fault is `EXC_BREAKPOINT` / `SIGTRAP` at Swift `Array.remove(at:)` in the AX-observer path. The failure reproduced with the installed and freshly built bundles.
+- **Assessment / mitigation:** a temporary source-side Recovery AX-flattening experiment did not prevent the service crash and was reverted, so no speculative product regression remains. Keep owner-present Recovery evidence blocked until the service is updated/restarted or the owner performs the checks manually. This tooling risk cannot be converted into beta SLO, scenario, or release evidence.
+- **Evidence / falsifier:** `EV-SP-030-20260902-CUA-SERVICE-CRASH-01`; falsified by a successful owner-present Recovery interaction without a new `SkyComputerUseService` crash, or by an AURA process/crash report tied to the same action.

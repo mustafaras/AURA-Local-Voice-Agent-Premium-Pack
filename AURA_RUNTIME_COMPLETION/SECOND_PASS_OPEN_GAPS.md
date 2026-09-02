@@ -2136,6 +2136,22 @@ does not work. No fix applied — defining a grant is a permission mutation outs
 current authority, so the decision is the owner's, and **the live R11 gates cannot
 run until it is taken.**
 
+**2026-09-02 Computer Use recovery attempt (`EV-SP-030-20260902-CUA-SERVICE-CRASH-01`).**
+The owner-present Computer Use path reached AURA and opened Settings, but the
+native pipe closed when Recovery was selected while AURA itself stayed alive.
+Fresh macOS diagnostic reports attribute the failure to
+`SkyComputerUseService` (`com.openai.sky.CUAService` 26.817.1000761), which
+crashed with `EXC_BREAKPOINT` / `SIGTRAP` at Swift `Array.remove(at:)` while
+observing AURA's AX notification stream. The same failure reproduced against a
+fresh local AURA bundle. A temporary Recovery AX-flattening source experiment
+did not change the result and was reverted; no product source fix is retained.
+This is a Computer Use service/tooling blocker, not a beta pass or a claim that
+AURA Recovery is product-verified. SP-030 remains blocked; the remaining R11
+live recovery flows, qualifying live SLO samples, live scenario window, and
+incident review are still open, and SP-031 must not start. Next safe action is
+to update/restart the Computer Use service or perform the Recovery checks
+manually with the owner present.
+
 ## OPEN-14 — FINAL: Acceptance, Cleanup, and Operational Handoff
 
 Prompt: [`14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md`](prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md)

@@ -3,10 +3,21 @@
 > **Program:** AURA Runtime Completion Program v1.0.0  
 > **Current prompt:** `SP-030` (blocked)
 > **Current program state:** In progress; SP-000 through SP-029 completed, SP-030 blocked, while R1-R12 and the broader program remain open.
-> **Live repository lineage:** SP-019 product content was merged to `main` at `e6706157178d3d3c41b8d6cab8572ca5102b8f76` (PR #6); SP-020 state commit `1d9f42c16ced7def33b29917ee0df67a984d1476`; SP-021/SP-022 product content merged at `ec41e7814f34922cdd9e9a7f168b2d3fb2ba4d40`; SP-023/SP-024 delivered at `7b425e8` and `bdcc810`; SP-025 delivered at `5a664a0`; SP-026 delivered at `348bb6a` (observed CI run `33157842324` success); SP-027 local-only scope completed at `37805cb0`; SP-028 local lifecycle/update/recovery source and test scope completed at pending commit (work in this session not yet merged). `HEAD` carries unmerged SP-028 changes; `origin/main` remains `37805cb0` until the next authorized merge. No repository-defined signed/notarized/public deployment target exists.
+> **Live repository lineage:** current `HEAD == origin/main == 0bafc4f249968d6b620b181ff4ffd3da1d13b71e` on `main`; graphify source helpers and the delivery reconciliation are pushed. Generated graphify output remains local and excluded through `.git/info/exclude`. The current worktree has only the new SP-030 diagnostic evidence/state projections uncommitted; no product source or test workaround remains. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
+
+## Current diagnostic overlay — 2026-09-02 (`SP-030` / `blocked`)
+
+Owner-present Computer Use reached AURA and Settings, but selecting Recovery
+closed the native pipe while AURA remained alive. The crash reports identify
+`SkyComputerUseService` 26.817.1000761 and `Array.remove(at:)` in the AX
+observer path; the same result reproduced with a fresh local AURA bundle. A
+temporary Recovery AX-tree flattening experiment was reverted because it did
+not change the result. This is an external Computer Use service blocker, not a
+product-pass claim. Clean-source `AURAIntegrationTests` passed 111 tests / 22
+suites / 0 failures. SP-030 remains blocked and SP-031 must not start.
 
 ## Second-pass synchronized overlay — 2026-08-30 (`SP-030` / `blocked`) — contract fixed, partial measurement
 

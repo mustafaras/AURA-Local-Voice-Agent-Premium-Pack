@@ -3435,3 +3435,13 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
 - Committed the R11-LIVE-GATE-05 fix (Swift source: AuraMenuView.swift, AuraAppModel.swift, AuraAppModel_Interaction.swift) at commit `0047339`.
 - Swift source changed (52 lines across 3 files) relative to the prior pointer (`05c8bea`), so this pointer bump is justified by a fresh full-suite run AT this exact commit, not a documentation-only bump: 1325 tests / 87 suites / 22 bundles, 0 failures.
 - `current-state.json.repository.{verified_head,remote_head}` and `capability-matrix.json.repository_commit` realigned to `004733910eaedf7b04bbf2fc03568ebc3a8a4216`.
+
+### 2026-09-02T08:23:21Z — SP-030 — Computer Use Recovery attempt: external service crash reproduced
+
+- **Session ID:** `AURA-SP-030-CUA-DIAGNOSTIC-20260902`; **Gap:** OPEN-13 / R11 owner-present Recovery validation.
+- **Objective / authority:** use Computer Use to open AURA, inspect Settings, select Recovery, and proceed only with directly observable owner-present evidence. No TCC mutation, telemetry activation, provider account, signing, release, or deployment action occurred.
+- **Result:** AURA and Settings were reachable; selecting Recovery closed the native Computer Use pipe, while AURA remained alive. The failure reproduced against the installed and freshly built bundles. `SkyComputerUseService` 26.817.1000761 reports `EXC_BREAKPOINT` / `SIGTRAP` at Swift `Array.remove(at:)` in the AX-observer path.
+- **Source judgment:** a temporary Recovery accessibility-tree flattening experiment did not prevent the crash and was reverted. No product source fix is retained; this is an external Computer Use service/tooling blocker, not a product-pass claim.
+- **Evidence / tests:** `EV-SP-030-20260902-CUA-SERVICE-CRASH-01`; clean-source `./scripts/aura-test.sh /tmp/aura-cu-fix-final AURAIntegrationTests` passed 111 tests / 22 suites / 0 failures; `git diff --check` passed.
+- **Cognitive gate:** symptom = native pipe closure on Recovery; mechanism = external AX observer service crash; falsifier = later successful Recovery observation without a new service crash or an AURA crash/exit; residual = no direct Recovery-window proof and all previously open live R11/SLO/scenario/incident gates remain open.
+- **Verdict / next action:** SP-030 stays `blocked`, `beta-readiness.json` stays blocked, and SP-031 must not start. Update/restart the Computer Use service or perform the Recovery checks manually with the owner present, then re-run only the remaining live gates.

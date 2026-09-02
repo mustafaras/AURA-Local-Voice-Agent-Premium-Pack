@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-02T07:03:47Z",
-  "session_id": "AURA-DELIVERY-20260902-GRAPHIFY",
+  "updated_at": "2026-09-02T08:23:21Z",
+  "session_id": "AURA-SP-030-CUA-DIAGNOSTIC-20260902",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "25abcb70cfe11dd8e92af1de78ea3e8b2e2425b6",
-    "remote_head": "25abcb70cfe11dd8e92af1de78ea3e8b2e2425b6",
+    "verified_head": "0bafc4f249968d6b620b181ff4ffd3da1d13b71e",
+    "remote_head": "0bafc4f249968d6b620b181ff4ffd3da1d13b71e",
     "working_tree_state": "clean",
     "user_owned_changes": []
   },
@@ -18,7 +18,7 @@
     "id": "SP-030",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
     "state": "blocked",
-    "step": "SP-030 BLOCKED: all five R12 sign-offs and live launch-at-login are closed. R11 sleep/wake/crash, safe-mode export, and populated-profile migration remain unit-tested only; ptt_ack/stt_partial have zero samples; incident_review is not_run; beta readiness is blocked. Do NOT start SP-031."
+    "step": "SP-030 BLOCKED: all five R12 sign-offs and live launch-at-login are closed. R11 sleep/wake/crash, safe-mode export, and populated-profile migration remain unit-tested only; ptt_ack/stt_partial have zero samples; incident_review is not_run; beta readiness is blocked. Computer Use Recovery validation is blocked by an external SkyComputerUseService crash while AURA remained alive. Do NOT start SP-031."
   },
   "tracks": [
     {
@@ -329,6 +329,7 @@
       "started_at": "2026-08-09T10:34:16Z",
       "completed_at": null,
       "evidence_ids": [
+        "EV-SP-030-20260902-CUA-SERVICE-CRASH-01",
         "EV-DELIVERY-20260902-GRAPHIFY-01",
         "EV-SP-030-20260901-R11-LIVE-GATE-05",
         "EV-SP-030-20260831-R11-LIVE-GATE-04",
@@ -377,7 +378,8 @@
       "open_risk_ids": [
         "RISK-NO-INDEPENDENT-BETA-EVIDENCE",
         "RISK-NO-BETA-CONSENT-BOUNDARY",
-        "RISK-NO-RC-EVIDENCE-PACKAGE"
+        "RISK-NO-RC-EVIDENCE-PACKAGE",
+        "RISK-CUA-BRIDGE-SERVICE-CRASH"
       ]
     }
   ],
@@ -486,6 +488,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-030-20260902-CUA-SERVICE-CRASH-01",
     "EV-SP-030-20260901-R11-LIVE-GATE-05",
     "EV-SP-030-20260901-OWNER-SIGNOFF-PRODUCT-TRUTHFULNESS-01",
     "EV-SP-030-20260901-OWNER-SIGNOFF-RELEASE-RECOVERY-01",
@@ -576,8 +579,9 @@
     "R11 remains in_progress: the local artifact is development_unverified and no signed/notarized clean-machine release artifact exists. Launch-at-login is now closed live, but sleep/wake/crash recovery, safe-mode export, and populated-profile migration remain unit-tested only; observed CI is still queued.",
     "SP-030 remains blocked because ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta SLO sample set; the scenario matrix is deterministic_harness only, not a live beta run; incident_review is not_run; and beta-readiness.json remains blocked.",
     "The cohort/signoff prerequisites are no longer the blocker: the owner single-participant cohort is enrolled/consented and all five R12 sign-offs are obtained. Telemetry remains disabled with transport none, by contract and safety boundary.",
+    "Owner-present Computer Use Recovery validation is blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained.",
     "SP-031 must NOT start: release_candidate is blocked/approved false with no artifact, SHA, or ADR-047; it depends on an honestly completed SP-030.",
     "FINAL acceptance and external release remain blocked by the local-only ADR-049 scope, absent Developer ID/notarization, clean-machine recovery/uninstall/factory-reset evidence, and unresolved broader R2-R10 gates."
   ],
-  "next_action": "SP-030 remains BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. Current closure gaps: R11 sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only; ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta sample set; the scenario matrix is deterministic_harness only; incident_review.status is not_run; beta-readiness.readiness_status is blocked; release_candidate is blocked/approved:false. Five R12 sign-offs and R11 launch-at-login are closed. Do NOT start SP-031. Next safe action is a user-present, owner-authorized live validation window for the remaining R11 flows and voice SLOs, followed by incident review and readiness revalidation."
+  "next_action": "SP-030 remains BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. Current closure gaps: R11 sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only; ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta sample set; the scenario matrix is deterministic_harness only; incident_review.status is not_run; beta-readiness.readiness_status is blocked; release_candidate is blocked/approved:false. Five R12 sign-offs and R11 launch-at-login are closed. Owner-present Computer Use Recovery validation is currently blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained. Update/restart that service or perform Recovery checks manually with the owner present, then continue the remaining live R11 flows and voice SLOs, followed by incident review and readiness revalidation. Do NOT start SP-031."
 }

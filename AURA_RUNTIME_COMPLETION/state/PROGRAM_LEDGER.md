@@ -3472,3 +3472,11 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Live-verified end to end**: user got "preference and service updated" (the real success string, not an error); `sfltool dumpbtm` confirms `Disposition: [enabled, allowed, notified]`, was `disabled`.
 - Evidence: `EV-SP-030-20260901-R11-LIVE-GATE-05`. Suite 1325/87/22, 0 failures.
 - **Residual, unchanged**: sleep/wake/crash recovery, safe-mode export, migration remain unit-tested only, never live. `dependency_gate.r11_state` stays `in_progress`. `ptt_ack`/`stt_partial` still zero samples. **Do not start SP-031.**
+
+### 2026-09-02T08:23:21Z — SP-030 — Computer Use Recovery attempt blocked by external service crash
+
+- **Objective / authority:** complete the owner-present Computer Use Recovery check while preserving the fail-closed boundary. UI observation was authorized; no TCC/permission mutation, telemetry activation, provider account, signing, release, or deployment action was authorized or performed.
+- **Observed:** AURA opened and Settings could be opened and closed. Selecting Recovery closed the native Computer Use pipe while the AURA process remained alive. macOS reports identify `SkyComputerUseService` 26.817.1000761 (`EXC_BREAKPOINT` / `SIGTRAP`, Swift `Array.remove(at:)` in the AX observer), not an AURA process exit. The same result reproduced against a fresh local AURA bundle.
+- **Source decision:** a temporary Recovery AX-flattening experiment did not change the failure and was reverted. No speculative product source change remains.
+- **Evidence / verification:** `EV-SP-030-20260902-CUA-SERVICE-CRASH-01`; clean-source `AURAIntegrationTests` passed 111 tests / 22 suites / 0 failures; `git diff --check` passed. This is tool-boundary live observation only, not beta SLO/scenario/release evidence.
+- **Verdict / next action:** SP-030 remains blocked; `RISK-CUA-BRIDGE-SERVICE-CRASH` is open. Update/restart the Computer Use service or perform Recovery checks manually with the owner present, then continue with live R11 recovery, qualifying voice SLO samples, live scenario execution, and incident review. **Do not start SP-031.**
