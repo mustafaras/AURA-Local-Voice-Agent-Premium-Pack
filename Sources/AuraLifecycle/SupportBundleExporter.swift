@@ -59,9 +59,9 @@ public actor SupportBundleExporter {
     var secretHits = 0
     var writtenFiles: [String] = []
 
-    secretHits += try await writeJSON(
+    secretHits += try writeJSON(
       health, to: outputDirectory.appendingPathComponent("health.json"), writtenFiles: &writtenFiles)
-    secretHits += try await writeJSON(
+    secretHits += try writeJSON(
       configuration,
       to: outputDirectory.appendingPathComponent("configuration.json"),
       writtenFiles: &writtenFiles)
@@ -78,7 +78,7 @@ public actor SupportBundleExporter {
         actionIdentifier: row["action_identifier"]?.textValue,
         outcome: row["outcome"]?.textValue ?? "")
     }
-    secretHits += try await writeJSON(
+    secretHits += try writeJSON(
       traceRecords, to: outputDirectory.appendingPathComponent("redacted_trace.json"),
       writtenFiles: &writtenFiles)
 
@@ -94,7 +94,7 @@ public actor SupportBundleExporter {
         currentState: entry.currentState,
         nextSafeAction: entry.nextSafeAction)
     }
-    secretHits += try await writeJSON(
+    secretHits += try writeJSON(
       sanitizedEntries,
       to: outputDirectory.appendingPathComponent("ledger.json"),
       writtenFiles: &writtenFiles)
@@ -111,7 +111,7 @@ public actor SupportBundleExporter {
         result: row["result"]?.textValue ?? "",
         detail: row["detail"]?.textValue ?? "")
     }
-    secretHits += try await writeJSON(
+    secretHits += try writeJSON(
       migrationAudits,
       to: outputDirectory.appendingPathComponent("migration_audits.json"),
       writtenFiles: &writtenFiles)
@@ -123,7 +123,7 @@ public actor SupportBundleExporter {
       redacted: true,
       secretScanHits: secretHits,
       files: writtenFiles)
-    secretHits += try await writeJSON(
+    secretHits += try writeJSON(
       summary, to: outputDirectory.appendingPathComponent("summary.json"), writtenFiles: &writtenFiles)
 
     try await store.database.run(

@@ -2,23 +2,28 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-01T15:30:00Z",
-  "session_id": "AURA-SP-030-BETA-EVIDENCE-20260830",
+  "updated_at": "2026-09-02T06:45:10Z",
+  "session_id": "AURA-DELIVERY-20260902-GRAPHIFY",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
     "verified_head": "004733910eaedf7b04bbf2fc03568ebc3a8a4216",
-    "remote_head": "004733910eaedf7b04bbf2fc03568ebc3a8a4216",
-    "working_tree_state": "clean",
-    "user_owned_changes": []
+    "remote_head": "cd2c3cdf4a581c607bfd32e34bb882f13bb2e679",
+    "working_tree_state": "dirty_expected",
+    "user_owned_changes": [
+      "ledger/PROJECT_LEDGER.md (delivery-start ledger entry; in-scope)",
+      "Sources/AuraLifecycle/SupportBundleExporter.swift (strict-build warning hygiene; in-scope)",
+      "scripts/generate_network_viz.py (graphify source helper; in-scope)",
+      "scripts/render_network.py (graphify source helper; in-scope)"
+    ]
   },
   "program_status": "in_progress",
   "active_prompt": {
     "id": "SP-030",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
     "state": "blocked",
-    "step": "SP-030 BLOCKED. SLO instrumentation recorded, zero samples still. R11: owner-authorized grant, presenter, read/write split, Settings-inline card all implemented and tested. sfltool dumpbtm proves service.register() succeeded live at least once -- strong OS-level evidence the mechanism works. Automated click-through NOT reproduced (AX-tree flakiness in Settings, not a product defect). Toggle currently OFF. R11 live gate NOT closed. Do NOT start SP-031."
+    "step": "SP-030 BLOCKED: all five R12 sign-offs and live launch-at-login are closed. R11 sleep/wake/crash, safe-mode export, and populated-profile migration remain unit-tested only; ptt_ack/stt_partial have zero samples; incident_review is not_run; beta readiness is blocked. Do NOT start SP-031."
   },
   "tracks": [
     {

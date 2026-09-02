@@ -2,6 +2,15 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-09-02T06:45:10Z — Delivery request started — graphify helpers, Git delivery, and local deploy
+
+- **Session / starting point:** `AURA-DELIVERY-20260902-GRAPHIFY`; branch `main`; verified start commit `cd2c3cdf4a581c607bfd32e34bb882f13bb2e679`; `origin/main` matched; only `graphify-out/`, `scripts/generate_network_viz.py`, and `scripts/render_network.py` were untracked.
+- **Objective:** deliver the safe graphify source helpers, preserve the generated graph output locally without deleting it, run the repository gates, commit and push the scoped result, verify merge applicability and remote equality, and perform the allowed local-only AURA build/launch deployment check.
+- **Assumptions:** `graphify-out/` is generated output/cache rather than canonical source; the two Python scripts are the intended reusable source; direct work on `main` is the repository's established delivery path, so a separate PR merge may be inapplicable.
+- **Authority boundary:** edit/test, launch/install, commit, push, merge, and local-only deploy are authorized for this turn. No dependency/model installation, TCC or other permission mutation, Developer ID signing, notarization, public release, provider action, or telemetry/beta activation is authorized.
+- **Risks:** generated graph output is approximately 60 MB and includes a source-derived snapshot/cache; pushing it would create unnecessary repository weight and expose more internal structure. The visualization helper currently uses one replacement token for both node and edge JSON and must be corrected before delivery. Local deploy evidence must remain distinct from SP-030 beta/SLO evidence.
+- **Acceptance criteria:** (1) no graphify output is deleted; (2) the helper scripts pass syntax and generated node/edge-shape checks; (3) required repository validators/tests and relevant build checks pass; (4) only the scoped source/docs/evidence changes are committed; (5) `git ls-remote` proves remote equality after push; (6) merge is reported as applicable or not applicable from live PR state; (7) local deployment is reported only with direct build/launch evidence; and (8) SP-030 remains blocked unless its direct completion gate is independently met.
+
 ### 2026-08-30T21:30:00Z — SP-030 — F-005 coverage CLOSED and guarded; refusal now rests on review, not coverage
 
 - **Session ID:** `AURA-SP-030-A11Y-PLUMBING-20260830`; actor: Claude Code (Opus 5).
