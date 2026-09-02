@@ -3,8 +3,8 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-09-02T08:23:21Z",
-  "session_id": "AURA-SP-030-CUA-DIAGNOSTIC-20260902",
+  "updated_at": "2026-09-02T09:04:12Z",
+  "session_id": "AURA-SP-030-UNATTENDED-ALTERNATE-20260902",
   "active_prompt": "SP-030",
   "active_state": "blocked",
   "completed_prompts": [
@@ -43,6 +43,7 @@
     "SP-030"
   ],
   "last_evidence_ids": [
+    "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01",
     "EV-SP-030-20260902-CUA-SERVICE-CRASH-01",
     "EV-SP-030-20260901-R11-LIVE-GATE-05",
     "EV-SP-030-20260901-OWNER-SIGNOFF-PRODUCT-TRUTHFULNESS-01",
@@ -193,5 +194,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. MILESTONE 2026-09-01: all 5 R12 sign-offs obtained, AND R11 launch-at-login CLOSED end-to-end. Root cause was NOT a state race (two fix attempts assumed this and failed) but a scroll-position visibility bug: the confirmation card rendered correctly but above the Settings scroll position users reach the toggle from. Fixed with ScrollViewReader auto-scroll. Live-verified: 'preference and service updated', sfltool dumpbtm shows enabled (was disabled). See EV-SP-030-20260901-R11-LIVE-GATE-05. NEW TOOLING BLOCKER: owner-present Computer Use reached AURA and Settings, but selecting Recovery crashed SkyComputerUseService 26.817.1000761 with EXC_BREAKPOINT at Array.remove(at:) while AURA remained alive; a source-side AX flattening experiment was reverted because it did not change the result. See EV-SP-030-20260902-CUA-SERVICE-CRASH-01. STILL OPEN: sleep/wake/crash recovery, safe-mode export, migration -- unit-tested only, never live (RISK-LIVE-LIFECYCLE-UNVERIFIED). dependency_gate.r11_state stays in_progress for this reason. ptt_ack/stt_partial: ZERO samples, not_measured -- stt_partial needs the owner to speak, cannot be automated. incident_review.status: not_run (no beta window has occurred). readiness_status: blocked. Do NOT start SP-031 until sleep/wake/crash/safe-mode/migration are live-tested (or explicitly accepted) and ptt_ack/stt_partial are measured. Suite: Swift 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 -> 64 tests OK; 3 validators exit 0."
+  "next_action": "SP-030 BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. MILESTONE 2026-09-01: all 5 R12 sign-offs obtained, AND R11 launch-at-login CLOSED end-to-end. Userless alternate checks re-confirmed AuraLifecycleTests 48/10/0, AURAIntegrationTests 111/22/0, and AuraSTTTests 19/4/0; the opt-in synthetic Speech path failed closed with speechNotAuthorized in 3 tests without requesting TCC. These are deterministic/synthetic checks only and cannot satisfy live-beta evidence. Root cause was NOT a state race (two fix attempts assumed this and failed) but a scroll-position visibility bug: the confirmation card rendered correctly but above the Settings scroll position users reach the toggle from. Fixed with ScrollViewReader auto-scroll. Live-verified: 'preference and service updated', sfltool dumpbtm shows enabled (was disabled). See EV-SP-030-20260901-R11-LIVE-GATE-05. NEW TOOLING BLOCKER: owner-present Computer Use reached AURA and Settings, but selecting Recovery crashed SkyComputerUseService 26.817.1000761 with EXC_BREAKPOINT at Array.remove(at:) while AURA remained alive; a source-side AX flattening experiment was reverted because it did not change the result. See EV-SP-030-20260902-CUA-SERVICE-CRASH-01. STILL OPEN: sleep/wake/crash recovery, safe-mode export, migration -- unit-tested only, never live (RISK-LIVE-LIFECYCLE-UNVERIFIED). dependency_gate.r11_state stays in_progress for this reason. ptt_ack/stt_partial: ZERO samples, not_measured -- stt_partial needs the owner to speak, cannot be automated. incident_review.status: not_run (no beta window has occurred). readiness_status: blocked. Do NOT start SP-031 until sleep/wake/crash/safe-mode/migration are live-tested (or explicitly accepted) and ptt_ack/stt_partial are measured. Suite: Swift 1325 tests / 87 suites / 22 bundles 0 failures; Python 58 -> 64 tests OK; 3 validators exit 0."
 }

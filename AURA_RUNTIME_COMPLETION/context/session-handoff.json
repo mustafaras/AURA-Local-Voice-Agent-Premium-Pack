@@ -1,16 +1,16 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-09-02T08:23:21Z",
-  "session_id": "AURA-SP-030-CUA-DIAGNOSTIC-20260902",
+  "updated_at": "2026-09-02T09:04:12Z",
+  "session_id": "AURA-SP-030-UNATTENDED-ALTERNATE-20260902",
   "last_verified_commit": "0bafc4f249968d6b620b181ff4ffd3da1d13b71e",
   "active_prompt": {
     "id": "SP-030",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
     "state": "blocked",
-    "step": "SP-030 BLOCKED: all five R12 sign-offs and live launch-at-login are closed. R11 sleep/wake/crash, safe-mode export, and populated-profile migration remain unit-tested only; ptt_ack/stt_partial have zero samples; incident_review is not_run; beta readiness is blocked. Computer Use Recovery validation is blocked by an external SkyComputerUseService crash while AURA remained alive. Do NOT start SP-031."
+    "step": "SP-030 BLOCKED: all five R12 sign-offs and live launch-at-login are closed. R11 sleep/wake/crash, safe-mode export, and populated-profile migration remain unit-tested only; ptt_ack/stt_partial have zero samples; incident_review is not_run; beta readiness is blocked. Userless lifecycle/integration/STT checks pass deterministically, while opt-in synthetic Speech fails closed at missing authorization and cannot create live samples. Computer Use Recovery validation is also blocked by an external SkyComputerUseService crash while AURA remained alive. Do NOT start SP-031."
   },
-  "summary": "SP-030 remains blocked for its live-evidence gate. The owner single-participant cohort is enrolled and consented, all five R12 sign-offs are obtained, and launch-at-login is closed live. Closure is still not honest: R11 sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only; ptt_ack, stt_partial, and dialogue_first_token lack a qualifying live-beta sample set; the scenario matrix is deterministic_harness only; incident_review is not_run; telemetry remains disabled with transport none; and beta-readiness.json plus the release candidate remain blocked. Owner-present Computer Use reached AURA and Settings, but selecting Recovery crashed SkyComputerUseService while AURA remained alive; no source workaround was retained. SP-031 must not start. Source/delivery baseline 0bafc4f249968d6b620b181ff4ffd3da1d13b71e is verified locally and pushed to origin/main.",
+  "summary": "SP-030 remains blocked for its live-evidence gate. The owner single-participant cohort is enrolled and consented, all five R12 sign-offs are obtained, and launch-at-login is closed live. Userless alternate checks re-confirmed AuraLifecycleTests 48/10/0, AURAIntegrationTests 111/22/0, and AuraSTTTests 19/4/0; the opt-in synthetic Speech path failed closed in 3 real-recognizer tests with speechNotAuthorized and no TCC prompt. Closure is still not honest: R11 sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only; ptt_ack, stt_partial, and dialogue_first_token lack a qualifying live-beta sample set; the scenario matrix is deterministic_harness only; incident_review is not_run; telemetry remains disabled with transport none; and beta-readiness.json plus the release candidate remain blocked. Owner-present Computer Use reached AURA and Settings, but selecting Recovery crashed SkyComputerUseService while AURA remained alive; no source workaround was retained. SP-031 must not start. Source/delivery baseline 0bafc4f249968d6b620b181ff4ffd3da1d13b71e is verified locally and pushed to origin/main.",
   "completed": [
     "SP-030 attempt recorded as BLOCKED (EV-SP-030-20260830-PROGRAM-BLOCKED-01): exact blocker and cognitive-gate answers preserved; the beta SLO/scenario/incident/sign-off completion gate is NOT met and SP-030 stays in_progress/blocked.",
     "Reconciled stale current-state.json repository block (verified_head/remote_head) to live HEAD == origin/main == 8b16142; removed the already-committed EV-ADR-049 user-owned-changes entry; advanced updated_at.",
@@ -26,7 +26,8 @@
     "Removed six unnecessary await markers from synchronous SupportBundleExporter writes so the strict Swift 6.4 warnings-as-errors build passes without behavior change.",
     "Verified delivery gates: Swift full suite 1325 tests / 87 suites / 22 bundles with 0 failures and 70.20% line coverage; AuraLifecycleTests 48 / 10; strict build passed; Python governance suite 64 tests OK; runtime, second-pass, beta-readiness, repo-hygiene, and supply-chain validators passed.",
     "Pushed 25abcb70cfe11dd8e92af1de78ea3e8b2e2425b6 to origin/main. No pull request is open because this repository uses direct main delivery; CI run 33601259000 was observed queued, not claimed successful. Local unsigned app build and 12-second isolated launch smoke passed; no codesign, install, or external release was claimed.",
-    "Owner-present Computer Use Recovery attempt recorded in EV-SP-030-20260902-CUA-SERVICE-CRASH-01: the external SkyComputerUseService crashed on Recovery observation while AURA remained alive. The Recovery AX-flattening experiment was reverted after a fresh-bundle reproduction; no product source fix remains."
+    "Owner-present Computer Use Recovery attempt recorded in EV-SP-030-20260902-CUA-SERVICE-CRASH-01: the external SkyComputerUseService crashed on Recovery observation while AURA remained alive. The Recovery AX-flattening experiment was reverted after a fresh-bundle reproduction; no product source fix remains.",
+    "Userless alternate verification recorded in EV-SP-030-20260902-UNATTENDED-ALTERNATE-01: AuraLifecycleTests 48/10/0, AURAIntegrationTests 111/22/0, and AuraSTTTests 19/4/0 passed; opt-in synthetic Speech failed closed in 3 tests with speechNotAuthorized and no TCC prompt or mutation."
   ],
   "files_changed": [
     "Sources/AuraConfig/ConfigurationTypes.swift",
@@ -60,9 +61,23 @@
     "ledger/CURRENT_STATE.md",
     "scripts/generate_network_viz.py",
     "scripts/render_network.py",
-    "Sources/AuraLifecycle/SupportBundleExporter.swift"
+    "Sources/AuraLifecycle/SupportBundleExporter.swift",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260902-UNATTENDED-ALTERNATE-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+    "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+    "ledger/PROJECT_LEDGER.md",
+    "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+    "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/current-state.json",
+    "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+    "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+    "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+    "AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md",
+    "ledger/CURRENT_STATE.md"
   ],
   "evidence_ids": [
+    "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01",
     "EV-SP-030-20260902-CUA-SERVICE-CRASH-01",
     "EV-SP-030-20260901-R11-LIVE-GATE-05",
     "EV-SP-030-20260901-OWNER-SIGNOFF-PRODUCT-TRUTHFULNESS-01",
@@ -97,7 +112,11 @@
     {"name": "Python governance suite: python3 -m unittest discover -s scripts/tests -p test_*.py: 64 tests, OK", "result": "passed", "evidence_id": "EV-DELIVERY-20260902-GRAPHIFY-01"},
     {"name": "Runtime, second-pass, beta-readiness, repo-hygiene, and supply-chain validators", "result": "passed", "evidence_id": "EV-DELIVERY-20260902-GRAPHIFY-01"},
     {"name": "Local unsigned app build and isolated direct-launch smoke: alive after 12 seconds", "result": "passed", "evidence_id": "EV-DELIVERY-20260902-GRAPHIFY-01"},
-    {"name": "./scripts/aura-test.sh /tmp/aura-cu-fix-final AURAIntegrationTests: 111 tests / 22 suites, 0 failures; clean source after Computer Use experiment revert", "result": "passed", "evidence_id": "EV-SP-030-20260902-CUA-SERVICE-CRASH-01"}
+    {"name": "./scripts/aura-test.sh /tmp/aura-cu-fix-final AURAIntegrationTests: 111 tests / 22 suites, 0 failures; clean source after Computer Use experiment revert", "result": "passed", "evidence_id": "EV-SP-030-20260902-CUA-SERVICE-CRASH-01"},
+    {"name": "./scripts/aura-test.sh /tmp/aura-sp030-alt-lifecycle-20260902 AuraLifecycleTests: 48 tests / 10 suites, 0 failures", "result": "passed", "evidence_id": "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01"},
+    {"name": "./scripts/aura-test.sh /tmp/aura-sp030-alt-integration-20260902 AURAIntegrationTests: 111 tests / 22 suites, 0 failures", "result": "passed", "evidence_id": "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01"},
+    {"name": "./scripts/aura-test.sh /tmp/aura-sp030-alt-stt-20260902 AuraSTTTests: 19 tests / 4 suites, 0 failures", "result": "passed", "evidence_id": "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01"},
+    {"name": "AURA_ENABLE_LIVE_SPEECH_TESTS=1 AURA_TEST_TIMEOUT_SECONDS=90 ./scripts/aura-test.sh /tmp/aura-sp030-alt-synthetic-20260902 AuraSTTTests: 3 real-recognizer tests failed closed with speechNotAuthorized; no TCC prompt requested", "result": "failed_closed", "evidence_id": "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01"}
   ],
   "blockers": [
     "R11 remains in_progress: the artifact is development_unverified with no signed/notarized clean-machine release artifact. Launch-at-login is closed live, but sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only.",
@@ -105,7 +124,8 @@
     "The five scenario entries are deterministic_harness only, not a live beta-window run, and incident_review.status is not_run because no beta window has produced incidents.",
     "beta-readiness.json remains blocked: telemetry is disabled with transport none, release_candidate is blocked/approved:false with no artifact, and the R11 dependency gate is in_progress. The cohort and all five R12 sign-offs are already obtained.",
     "SP-031 must NOT start until SP-030 is honestly completed; ADR-047 and the signed RC package are still absent.",
-    "Owner-present Computer Use Recovery validation is blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained."
+    "Owner-present Computer Use Recovery validation is blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained.",
+    "Userless opt-in synthetic Speech verification failed closed with speechNotAuthorized in 3 real-recognizer tests; no TCC/permission prompt was requested, so no live speech or live-beta sample exists."
   ],
   "open_decisions": [
     "Owner-present live validation is still required for the remaining R11 flows and voice SLO sample collection. Afterward, run incident review and revalidate beta readiness; do not activate telemetry or transport outside the approved content-free contract.",
@@ -124,9 +144,10 @@
     "RISK-OAUTH-LIFECYCLE-INCOMPLETE",
     "RISK-INDIRECT-PROMPT-INJECTION",
     "RISK-PLUGIN-TRUST-EVIDENCE-ABSENT",
-    "RISK-CUA-BRIDGE-SERVICE-CRASH"
+    "RISK-CUA-BRIDGE-SERVICE-CRASH",
+    "RISK-SP-030-USERLESS-ALTERNATE-CANNOT-CLOSE-LIVE"
   ],
-  "next_action": "SP-030 remains BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. Five R12 sign-offs and launch-at-login are closed. Remaining gates are live R11 sleep/wake/crash recovery, safe-mode export, populated-profile migration, qualifying live-beta measurement of ptt_ack/stt_partial/dialogue_first_token, a live-window scenario run, and incident_review. Owner-present Computer Use Recovery validation is currently blocked by SkyComputerUseService 26.817.1000761 crashing at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained. Update/restart the service or perform Recovery checks manually with the owner present. beta-readiness remains blocked and release_candidate is blocked/approved:false. Do NOT start SP-031.",
+  "next_action": "SP-030 remains BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. Userless alternate checks re-confirmed AuraLifecycleTests 48/10/0, AURAIntegrationTests 111/22/0, and AuraSTTTests 19/4/0; the opt-in synthetic Speech path failed closed with speechNotAuthorized in 3 tests without requesting TCC. These results are deterministic/synthetic only and cannot satisfy live-beta evidence. Five R12 sign-offs and launch-at-login are closed. Remaining gates are live R11 sleep/wake/crash recovery, safe-mode export, populated-profile migration, qualifying live-beta measurement of ptt_ack/stt_partial/dialogue_first_token, a live-window scenario run, and incident_review. Owner-present Computer Use Recovery validation is currently blocked by SkyComputerUseService 26.817.1000761 crashing at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained. Update/restart the service or perform Recovery checks manually with the owner present. beta-readiness remains blocked and release_candidate is blocked/approved:false. Do NOT start SP-031.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -139,5 +160,5 @@
     "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
     "AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md"
   ],
-  "notes": "The delivery record is scoped to graphify source helpers, repository delivery, local build/launch smoke, and truthful SP-030 handoff. Generated graphify output remains local and excluded via .git/info/exclude. The Computer Use Recovery diagnostic is recorded separately: SkyComputerUseService crashed while AURA remained alive, and no source workaround was retained. No signing, notarization, telemetry activation, external release, or production deployment was performed. The final closeout remains SP-030 blocked: all five R12 sign-offs and launch-at-login are closed, while live R11 recovery flows, qualifying voice SLO samples, live scenario execution, and incident review remain open."
+  "notes": "The delivery record is scoped to graphify source helpers, repository delivery, local build/launch smoke, and truthful SP-030 handoff. Generated graphify output remains local and excluded via .git/info/exclude. The userless alternate diagnostic is recorded separately: deterministic suites passed, the opt-in synthetic Speech path failed closed at missing authorization, and no TCC mutation occurred. The Computer Use Recovery diagnostic is also recorded separately: SkyComputerUseService crashed while AURA remained alive, and no source workaround was retained. No signing, notarization, telemetry activation, external release, or production deployment was performed. The final closeout remains SP-030 blocked: all five R12 sign-offs and launch-at-login are closed, while live R11 recovery flows, qualifying voice SLO samples, live scenario execution, and incident review remain open."
 }

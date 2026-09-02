@@ -1,4 +1,4 @@
-# AURA Next Session Starter — SP-030 is `blocked`, four items need a human
+# AURA Next Session Starter — SP-030 is `blocked`; userless alternatives attempted
 
 > Rewritten 2026-08-30 at the end of the a11y-plumbing / record-integrity session.
 > **Never copy a commit out of this header.** Run `git rev-parse HEAD` and
@@ -6,6 +6,19 @@
 >
 > Authoritative state: `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json`
 > and `AURA_RUNTIME_COMPLETION/context/session-handoff.json`.
+
+## Current overlay — 2026-09-02 unattended alternate verification
+
+`EV-SP-030-20260902-UNATTENDED-ALTERNATE-01` records the latest attempt. Without
+the owner present, `AuraLifecycleTests` passed 48/10/0,
+`AURAIntegrationTests` 111/22/0, and `AuraSTTTests` 19/4/0. The explicitly
+opt-in synthetic Speech path failed closed in three real-recognizer tests with
+`speechNotAuthorized`; no TCC mutation or permission prompt was requested.
+These are deterministic/synthetic checks, not live-beta evidence. They do not
+close `ptt_ack`, `stt_partial`, live dialogue latency, R11 recovery,
+scenario-window, or incident-review gates. SP-030 remains blocked and SP-031
+must not start. The older historical status below is retained as history; use
+the authoritative JSON and this overlay for the current state.
 
 ## Read these first, in this order
 

@@ -2541,3 +2541,15 @@ provider acceptance residual named in the historical wording above is closed
 through the exclusion branch. The historical wording above is retained
 unchanged. The other R8/R9 gates (manual accessibility, signing, release,
 deployment) remain open and owned by their own prompts.
+**2026-09-02 unattended alternate verification (`EV-SP-030-20260902-UNATTENDED-ALTERNATE-01`).**
+The userless deterministic paths were re-run: `AuraLifecycleTests` 48/10/0,
+`AURAIntegrationTests` 111/22/0, and `AuraSTTTests` 19/4/0. An explicitly
+opt-in synthetic Speech attempt was also made without requesting or mutating
+TCC; three real-recognizer tests failed closed with `speechNotAuthorized`.
+These results re-confirm deterministic contracts and the permission boundary,
+but they are `deterministic_harness` / `synthetic_speech`, not
+`live_user_present`. They produce no microphone speech, `stt_partial`,
+`ptt_ack`, live-beta sample, live R11 evidence, scenario-window result, or
+incident review. SP-030 and `beta-readiness.json` remain blocked; SP-031 must
+not start. A synthetic host may narrow an implementation timing question only
+with explicit provenance and cannot be relabeled as live beta.

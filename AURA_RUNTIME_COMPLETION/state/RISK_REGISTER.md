@@ -850,3 +850,11 @@ system-TTS interruption evidence does not substitute for that physical test.
 - **Risk:** selecting AURA's Recovery tab closed the native Computer Use pipe while the AURA process remained alive. macOS diagnostic reports identify `SkyComputerUseService` 26.817.1000761, not AURA, as the crashing component; the fault is `EXC_BREAKPOINT` / `SIGTRAP` at Swift `Array.remove(at:)` in the AX-observer path. The failure reproduced with the installed and freshly built bundles.
 - **Assessment / mitigation:** a temporary source-side Recovery AX-flattening experiment did not prevent the service crash and was reverted, so no speculative product regression remains. Keep owner-present Recovery evidence blocked until the service is updated/restarted or the owner performs the checks manually. This tooling risk cannot be converted into beta SLO, scenario, or release evidence.
 - **Evidence / falsifier:** `EV-SP-030-20260902-CUA-SERVICE-CRASH-01`; falsified by a successful owner-present Recovery interaction without a new `SkyComputerUseService` crash, or by an AURA process/crash report tied to the same action.
+### RISK-SP-030-USERLESS-ALTERNATE-CANNOT-CLOSE-LIVE — new, 2026-09-02
+
+- **Risk ID:** `RISK-SP-030-USERLESS-ALTERNATE-CANNOT-CLOSE-LIVE`
+- **Status:** **Open — alternate headless or synthetic evidence could be promoted incorrectly to live-beta evidence**
+- **Owner:** SP-030 evidence classification / release readiness
+- **Risk:** Deterministic lifecycle, integration, and STT suites can pass without supplying owner speech, microphone hardware, a running beta window, live R11 transitions, or incident observations. The opt-in real-recognizer tests also stop at the OS authorization boundary when Speech Recognition is unavailable.
+- **Assessment / mitigation:** Keep measurement class, sample provenance, limitations, and authorization result attached to the evidence. Do not mutate TCC or label `deterministic_harness` / `synthetic_speech` as `live_user_present`; leave `ptt_ack`, `stt_partial`, live scenario, and incident gates open. This attempt narrowed contract coverage only.
+- **Evidence / falsifier:** `EV-SP-030-20260902-UNATTENDED-ALTERNATE-01`; falsified by a qualifying live-beta sample set and direct user-present R11/scenario/incident evidence that closes the corresponding gates.

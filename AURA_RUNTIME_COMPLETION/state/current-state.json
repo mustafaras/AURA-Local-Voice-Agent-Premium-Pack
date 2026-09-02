@@ -2,8 +2,8 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-02T08:23:21Z",
-  "session_id": "AURA-SP-030-CUA-DIAGNOSTIC-20260902",
+  "updated_at": "2026-09-02T09:04:12Z",
+  "session_id": "AURA-SP-030-UNATTENDED-ALTERNATE-20260902",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
@@ -18,7 +18,7 @@
     "id": "SP-030",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
     "state": "blocked",
-    "step": "SP-030 BLOCKED: all five R12 sign-offs and live launch-at-login are closed. R11 sleep/wake/crash, safe-mode export, and populated-profile migration remain unit-tested only; ptt_ack/stt_partial have zero samples; incident_review is not_run; beta readiness is blocked. Computer Use Recovery validation is blocked by an external SkyComputerUseService crash while AURA remained alive. Do NOT start SP-031."
+    "step": "SP-030 BLOCKED: all five R12 sign-offs and live launch-at-login are closed. R11 sleep/wake/crash, safe-mode export, and populated-profile migration remain unit-tested only; ptt_ack/stt_partial have zero samples; incident_review is not_run; beta readiness is blocked. Userless lifecycle/integration/STT checks pass deterministically, while opt-in synthetic Speech fails closed at missing authorization and cannot create live samples. Computer Use Recovery validation is also blocked by an external SkyComputerUseService crash while AURA remained alive. Do NOT start SP-031."
   },
   "tracks": [
     {
@@ -488,6 +488,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01",
     "EV-SP-030-20260902-CUA-SERVICE-CRASH-01",
     "EV-SP-030-20260901-R11-LIVE-GATE-05",
     "EV-SP-030-20260901-OWNER-SIGNOFF-PRODUCT-TRUTHFULNESS-01",
@@ -580,8 +581,9 @@
     "SP-030 remains blocked because ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta SLO sample set; the scenario matrix is deterministic_harness only, not a live beta run; incident_review is not_run; and beta-readiness.json remains blocked.",
     "The cohort/signoff prerequisites are no longer the blocker: the owner single-participant cohort is enrolled/consented and all five R12 sign-offs are obtained. Telemetry remains disabled with transport none, by contract and safety boundary.",
     "Owner-present Computer Use Recovery validation is blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained.",
+    "Userless opt-in synthetic Speech verification failed closed with speechNotAuthorized in 3 real-recognizer tests; no TCC/permission prompt was requested, so no live speech or live-beta sample exists.",
     "SP-031 must NOT start: release_candidate is blocked/approved false with no artifact, SHA, or ADR-047; it depends on an honestly completed SP-030.",
     "FINAL acceptance and external release remain blocked by the local-only ADR-049 scope, absent Developer ID/notarization, clean-machine recovery/uninstall/factory-reset evidence, and unresolved broader R2-R10 gates."
   ],
-  "next_action": "SP-030 remains BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. Current closure gaps: R11 sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only; ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta sample set; the scenario matrix is deterministic_harness only; incident_review.status is not_run; beta-readiness.readiness_status is blocked; release_candidate is blocked/approved:false. Five R12 sign-offs and R11 launch-at-login are closed. Owner-present Computer Use Recovery validation is currently blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained. Update/restart that service or perform Recovery checks manually with the owner present, then continue the remaining live R11 flows and voice SLOs, followed by incident review and readiness revalidation. Do NOT start SP-031."
+  "next_action": "SP-030 remains BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. Userless alternate checks re-confirmed AuraLifecycleTests 48/10/0, AURAIntegrationTests 111/22/0, and AuraSTTTests 19/4/0; the opt-in synthetic Speech path failed closed with speechNotAuthorized in 3 tests without requesting TCC. These results are deterministic/synthetic only and cannot satisfy live-beta evidence. Current closure gaps: R11 sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only; ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta sample set; the scenario matrix is deterministic_harness only; incident_review.status is not_run; beta-readiness.readiness_status is blocked; release_candidate is blocked/approved:false. Five R12 sign-offs and R11 launch-at-login are closed. Owner-present Computer Use Recovery validation is currently blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained. Update/restart that service or perform Recovery checks manually with the owner present, then continue the remaining live R11 flows and voice SLOs, followed by incident review and readiness revalidation. Do NOT start SP-031."
 }

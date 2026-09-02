@@ -19,6 +19,15 @@ not change the result. This is an external Computer Use service blocker, not a
 product-pass claim. Clean-source `AURAIntegrationTests` passed 111 tests / 22
 suites / 0 failures. SP-030 remains blocked and SP-031 must not start.
 
+Userless alternate verification was then attempted under
+`EV-SP-030-20260902-UNATTENDED-ALTERNATE-01`: `AuraLifecycleTests` 48/10/0,
+`AURAIntegrationTests` 111/22/0, and `AuraSTTTests` 19/4/0 passed. The opt-in
+synthetic Speech path failed closed in three real-recognizer tests with
+`speechNotAuthorized`; no TCC mutation or permission prompt was requested.
+This confirms deterministic contracts only. It does not create live voice
+samples or close `ptt_ack`, `stt_partial`, live R11, scenario, or incident
+gates. SP-030 remains blocked.
+
 ## Second-pass synchronized overlay — 2026-08-30 (`SP-030` / `blocked`) — contract fixed, partial measurement
 
 `SP-030` remains the active prompt and is `blocked`. The reason earlier attempts kept terminating in the

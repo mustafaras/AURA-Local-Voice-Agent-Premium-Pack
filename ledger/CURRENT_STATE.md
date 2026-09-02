@@ -1,5 +1,16 @@
 # Current State
 
+## Userless alternate verification — 2026-09-02
+
+Evidence `EV-SP-030-20260902-UNATTENDED-ALTERNATE-01` records the attempt to
+validate remaining SP-030 gaps without the owner present. `AuraLifecycleTests`
+passed 48/10/0, `AURAIntegrationTests` 111/22/0, and `AuraSTTTests` 19/4/0.
+The opt-in synthetic Speech path failed closed in three real-recognizer tests
+with `speechNotAuthorized`; no TCC/permission mutation or prompt was requested.
+The result is deterministic/synthetic evidence only, not live-beta evidence.
+SP-030 remains blocked on live R11 recovery, qualifying voice samples, a live
+scenario window, and incident review; SP-031 must not start.
+
 ## Computer Use diagnostic reconciliation — 2026-09-02
 
 The owner-present Computer Use Recovery attempt is recorded as
