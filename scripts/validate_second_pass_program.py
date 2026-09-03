@@ -176,16 +176,20 @@ def _validate_state(root: Path, manifest_prompts: list[dict[str, Any]], state: d
     for prompt_id in completed + blocked:
         if prompt_id not in known:
             errors.append(f"state references unknown prompt: {prompt_id}")
-    if active in completed:
+    program_status = state.get("program_status")
+    fully_completed = len(completed) == len(prompt_ids) and program_status == "completed"
+    if active in completed and not fully_completed:
         errors.append("active_prompt cannot also be completed")
     if blocked and blocked != [active]:
         errors.append("only the active prompt may be blocked")
     if active in known:
         active_sequence = prompt_ids.index(active)
-        if active_sequence != len(completed):
+        if not fully_completed and active_sequence != len(completed):
             errors.append("active_prompt must be the first uncompleted prompt")
     if state.get("active_state") not in {"pending", "in_progress", "blocked", "completed"}:
         errors.append("second-pass active_state is invalid")
+    if fully_completed and state.get("active_state") != "completed":
+        errors.append("a fully-completed chain must set active_state=completed")
     if not isinstance(state.get("next_action"), str) or not state["next_action"].strip():
         errors.append("second-pass next_action must be non-empty")
     controls = state.get("control_files", {})

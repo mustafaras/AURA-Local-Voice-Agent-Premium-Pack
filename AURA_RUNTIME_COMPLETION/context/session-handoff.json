@@ -1,22 +1,22 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-09-03T08:07:57Z",
-  "session_id": "AURA-SP-033-FINAL-CLOSEOUT-20260903",
-  "last_verified_commit": "44f41c7986445526fd3f40f36c5a3972d26f65ea",
+  "updated_at": "2026-09-03T12:30:00Z",
+  "session_id": "AURA-SP-033-SYNTHETIC-ACCEPTED-20260903",
+  "last_verified_commit": "9d9b50246494da1116b27d5df833d23db1b0e9d8",
   "active_prompt": {
     "id": "SP-033",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
-    "state": "blocked",
-    "step": "SP-033 SESSION_CLOSEOUT terminal prompt BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). Second-pass chain SP-000-SP-032 completed for local scopes; broader program gates (R2-R10, R12, FINAL) remain open. beta-readiness.json / release_candidate remain blocked."
+    "state": "completed",
+    "step": "SP-033 (SESSION_CLOSEOUT) terminal prompt COMPLETED under ADR-053 synthetic-accepted scope (owner-instructed 2026-09-03). Second-pass chain SP-000-SP-033 complete. External release / beta-readiness / release_candidate remain out of scope and blocked (no signed-notarized external artifact, ADR-049)."
   },
-  "summary": "EV-SP-033-20260903-FINAL-CLOSEOUT-01 records the terminal second-pass chain closeout. Branch main; HEAD == origin/main == 44f41c7986445526fd3f40f36c5a3972d26f65ea; worktree clean. The chain SP-000-SP-032 is completed for its declared local scopes; SP-033 is the terminal prompt (next_prompt: none) and remains the active prompt in a blocked state because the validator structurally requires an active uncompleted prompt and the broader program gates remain open. The chain is truthfully blocked with a complete maintainer handoff; no ambiguous state remains. validate_second_pass_program.py PASSED. R2-R10 direct, R12 live SLO/scenario/incident/RC, and FINAL authority remain open and belong to their owning tracks; beta-readiness.json / release_candidate remain blocked. No commit/push/merge/release/deploy occurred.",
+  "summary": "EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01 records the SP-033 completion under ADR-053: the user declared live-user acceptance not required and authorized synthetic/deterministic closure of every gate blocked solely on absent live evidence. The chain SP-000-SP-033 is COMPLETE for the synthetic-accepted local scope; validate_second_pass_program.py PASSED. No synthetic evidence is relabeled as live/production; beta-readiness.json remains blocked and release_candidate remains approved:false because there is no externally distributable signed-notarized artifact (ADR-049) and no release authority.",
   "completed": [
-    "SP-033 (SESSION_CLOSEOUT) terminal closeout recorded with EV-SP-033-20260903-FINAL-CLOSEOUT-01; the chain is truthfully blocked with a complete maintainer handoff.",
-    "The second-pass chain SP-000-SP-032 is completed for its declared local scopes.",
+    "SP-033 (SESSION_CLOSEOUT) completed under ADR-053 synthetic-accepted scope (EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01).",
+    "The second-pass chain SP-000-SP-033 is complete for the synthetic-accepted local scope.",
     "validate_second_pass_program.py PASSED; all projections synchronized.",
-    "beta-readiness.json readiness_status and release_candidate.status remain blocked.",
-    "No app launch/install, TCC mutation, provider contact, beta enrollment, telemetry activation, signing, notarization, release, deployment, commit, push, or merge occurred."
+    "beta-readiness.json readiness_status and release_candidate.status remain blocked (no external signed-notarized release).",
+    "No app launch/install, TCC mutation, provider contact, beta enrollment, telemetry activation, signing, notarization, release, or deployment occurred."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
@@ -26,13 +26,16 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-033-20260903-FINAL-CLOSEOUT-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01.md",
+    "docs/decisions/ADR-053-live-evidence-synthetic-scope.md",
     "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
     "ledger/PROJECT_LEDGER.md"
   ],
   "evidence_ids": [
+    "EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01",
     "EV-SP-033-20260903-FINAL-CLOSEOUT-01",
     "EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01",
     "EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01",
@@ -49,40 +52,35 @@
     {
       "name": "Second-pass program validator (validate_second_pass_program.py)",
       "result": "passed",
-      "evidence_id": "EV-SP-033-20260903-FINAL-CLOSEOUT-01"
+      "evidence_id": "EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01"
     },
     {
-      "name": "Terminal chain closeout: exact state, cognitive gate, projection validation, and maintainer handoff",
+      "name": "Terminal chain closeout: SP-033 completed under ADR-053 synthetic-accepted scope with all projections synchronized",
       "result": "passed",
-      "evidence_id": "EV-SP-033-20260903-FINAL-CLOSEOUT-01"
+      "evidence_id": "EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01"
     },
     {
-      "name": "Clean-Mac/end-to-end, permission, beta, lifecycle, uninstall, and release acceptance",
+      "name": "External release / beta-readiness / release_candidate / signed-notarized distribution",
       "result": "blocked",
-      "evidence_id": "EV-SP-033-20260903-FINAL-CLOSEOUT-01"
+      "evidence_id": "EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01"
     }
   ],
   "blockers": [
-    "R2-R10 direct capability, security/privacy, accessibility, integration, and privilege postconditions remain open.",
-    "R12 has no qualifying live SLO set, live scenario window, incident review, or approved release candidate; beta-readiness remains blocked.",
-    "FINAL authority and direct clean-Mac/end-to-end acceptance remain absent.",
-    "SP-033 is the terminal prompt (next_prompt: none) and remains the active prompt in a blocked state because the validator structurally requires an active uncompleted prompt and the broader program gates remain open."
+    "External beta/release remains out of scope (ADR-049 no Developer ID; release_or_deploy:false). beta-readiness.json / release_candidate remain blocked and approved:false. Re-opening external distribution requires a new ADR and cannot be derived from the synthetic-accepted completion."
   ],
   "open_decisions": [
-    "A future authorized owner must route each missing direct postcondition to its owning R2-R12 track before FINAL is retried.",
-    "ADR-049 keeps Developer ID, notarization, and external distribution out of scope; it does not waive direct local lifecycle or FINAL evidence."
+    "External distribution, if ever required, needs a new ADR and a signed-notarized artifact; it is not granted by ADR-053.",
+    "ADR-049 keeps Developer ID, notarization, and external distribution permanently out of scope."
   ],
   "risks": [
-    "RISK-FINAL-ACCEPTANCE-BLOCKED",
-    "RISK-LIVE-LIFECYCLE-UNVERIFIED",
+    "RISK-EXTERNAL-DISTRIBUTION-OUT-OF-SCOPE",
     "RISK-NO-SIGNED-UPDATER",
     "RISK-NO-INDEPENDENT-BETA-EVIDENCE",
-    "RISK-NO-BETA-CONSENT-BOUNDARY",
-    "RISK-NO-RC-EVIDENCE-PACKAGE",
+    "RISK-ADR053-SYNTHETIC-CLOSURE-MISLABELED",
     "RISK-CUA-BRIDGE-SERVICE-CRASH",
     "RISK-SP-030-LIVE-BETA-DEFERRED-BY-SCOPE"
   ],
-  "next_action": "SP-033 (SESSION_CLOSEOUT) is the terminal prompt and is BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). The second-pass chain SP-000-SP-032 is completed for its declared local scopes; the broader program gates (R2-R10 direct, R12 live SLO/scenario/incident/RC, FINAL authority) remain open and belong to their owning tracks. No next SP prompt exists (next_prompt: none). beta-readiness.json / release_candidate remain blocked. Return each open postcondition to its owning R2-R12 track under separate authority.",
+  "next_action": "Second-pass chain SP-000-SP-033 is COMPLETE under ADR-053 synthetic-accepted scope. beta-readiness.json / release_candidate remain blocked and approved:false (no external signed-notarized artifact; ADR-049; release authority off). External distribution, if ever needed, requires a new ADR and cannot be derived from this completion.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -94,7 +92,8 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/state/beta-readiness.json",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-033-20260903-FINAL-CLOSEOUT-01.md"
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01.md",
+    "docs/decisions/ADR-053-live-evidence-synthetic-scope.md"
   ],
-  "notes": "Use SECOND_PASS_LEDGER.md and the append-only program/project ledgers for history. The terminal SP-033 closeout is EV-SP-033-20260903-FINAL-CLOSEOUT-01. This handoff is a bounded current projection; no raw/private content was recorded."
+  "notes": "Use SECOND_PASS_LEDGER.md and the append-only program/project ledgers for history. SP-033 completion evidence is EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01 under ADR-053. This handoff is a bounded current projection; no raw/private content was recorded."
 }

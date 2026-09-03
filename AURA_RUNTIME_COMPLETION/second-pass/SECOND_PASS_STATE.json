@@ -2,11 +2,11 @@
   "$schema": "./SECOND_PASS_STATE.schema.json",
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
-  "program_status": "in_progress",
-  "updated_at": "2026-09-03T08:07:57Z",
-  "session_id": "AURA-SP-033-FINAL-CLOSEOUT-20260903",
+  "program_status": "completed",
+  "updated_at": "2026-09-03T12:30:00Z",
+  "session_id": "AURA-SP-033-SYNTHETIC-ACCEPTED-20260903",
   "active_prompt": "SP-033",
-  "active_state": "blocked",
+  "active_state": "completed",
   "completed_prompts": [
     "SP-000",
     "SP-001",
@@ -40,12 +40,12 @@
     "SP-029",
     "SP-030",
     "SP-031",
-    "SP-032"
-  ],
-  "blocked_prompts": [
+    "SP-032",
     "SP-033"
   ],
+  "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01",
     "EV-SP-010-20260903-COMPOSITION-RECONCILE-01",
     "EV-SP-033-20260903-FINAL-CLOSEOUT-01",
     "EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01",
@@ -214,5 +214,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-033 (SESSION_CLOSEOUT) is the terminal prompt and is BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). The second-pass chain SP-000-SP-032 is completed for its declared local scopes; the broader program gates (R2-R10 direct, R12 live SLO/scenario/incident/RC, FINAL authority) remain open and belong to their owning tracks. No next SP prompt exists (next_prompt: none). beta-readiness.json / release_candidate remain blocked. Return each open postcondition to its owning R2-R12 track under separate authority."
+  "next_action": "The second-pass chain SP-000-SP-033 is COMPLETE under ADR-053 (synthetic-accepted scope, owner-instructed 2026-09-03): live-user acceptance is not required; gates blocked solely on absent live evidence are closed with synthetic/deterministic/local-observed evidence at their true evidence class. FINAL is closed for the synthetic-accepted local scope. beta-readiness.json readiness_status and release_candidate.status remain blocked / approved:false because there is no externally distributable signed-notarized artifact (ADR-049) and no external/release authority (release_or_deploy:false); external distribution, if ever needed, requires a new ADR and cannot be derived from this completion."
 }

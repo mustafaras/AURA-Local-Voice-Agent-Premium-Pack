@@ -2423,6 +2423,11 @@ terminal prompt (`next_prompt: none`) and remains the active prompt in a
 `blocked` state because the validator structurally requires an active
 uncompleted prompt and the broader program gates remain open.
 
+> **[SUPERSEDED 2026-09-03 by ADR-053]:** The terminal `blocked` state below was
+> re-resolved under ADR-053 (synthetic-accepted scope). See the new
+> **"SP-033 ADR-053 synthetic-accepted completion"** subsection below this entry.
+> The historical wording is preserved unchanged (append-only).
+
 The chain is **truthfully blocked** with a complete maintainer handoff; no
 ambiguous state remains. The following program-wide gates remain open and
 belong to their owning tracks (not to SP-033's SESSION_CLOSEOUT scope):
@@ -2792,3 +2797,26 @@ but they are `deterministic_harness` / `synthetic_speech`, not
 incident review. SP-030 and `beta-readiness.json` remain blocked; SP-031 must
 not start. A synthetic host may narrow an implementation timing question only
 with explicit provenance and cannot be relabeled as live beta.
+
+### OPEN-15 / SP-033 ADR-053 synthetic-accepted completion — 2026-09-03
+
+`EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01` records the SP-033 completion under
+`docs/decisions/ADR-053-live-evidence-synthetic-scope.md` (Accepted): the user
+declared (2026-09-03) that live-user acceptance is **not required**, and every
+gate blocked solely on the absence of canlı (live) evidence is closed with
+synthetic/deterministic/local-observed evidence at its **true evidence class**
+— never relabeled as `live_user_present`, `live_beta_sample`, signed,
+notarized, or production. **OPEN-15 is resolved for the synthetic-accepted
+local scope**; the chain SP-000–SP-033 is COMPLETE under that scope.
+
+`validate_second_pass_program.py` and its unit tests PASSED; all projections
+(state/handoff/context/ledger/evidence/decision/risk/indexes) are
+synchronized. `beta-readiness.json` `readiness_status` and
+`release_candidate.status` remain `blocked` / `approved:false`
+(`release_or_deploy:false`; ADR-049 keeps Developer ID/notarization/external
+distribution out of scope). External distribution, if ever required, needs a
+new ADR and cannot be derived from this synthetic-accepted closure.
+
+Falsifiers: any record that relabels synthetic/deterministic evidence as
+live/beta/production, or that treats this completion as granting release
+authority, would falsify ADR-053.

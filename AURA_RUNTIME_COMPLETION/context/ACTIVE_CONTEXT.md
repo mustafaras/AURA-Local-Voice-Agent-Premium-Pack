@@ -1,18 +1,23 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-033` (`blocked`)
-> **Current program state:** In progress; SP-000 through SP-032 completed for their declared local scopes. SP-033 (SESSION_CLOSEOUT) is the terminal prompt and is `blocked` with a complete maintainer handoff. R12 and the broader program remain open; `beta-readiness.json` / `release_candidate` remain blocked.
-> **Live repository lineage:** current `HEAD == origin/main == 44f41c7` on `main`; worktree clean. The recorded `verified_head` in `current-state.json` (`7687de55...`) is the last delivered commit; `44f41c7` is the pointer-sync commit, consistent with the repository's `verified_head` convention. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-033` (`completed`)
+> **Current program state:** Complete for the synthetic-accepted local scope under ADR-053 (owner-instructed 2026-09-03: live-user acceptance not required; gates blocked solely on absent live evidence closed with synthetic/deterministic/local-observed evidence). SP-000 through SP-033 completed. External beta/release remains out of scope; `beta-readiness.json` / `release_candidate` remain `blocked`.
+> **Live repository lineage:** current `HEAD == origin/main == 9d9b502` on `main`; worktree clean. The recorded `verified_head` in `current-state.json` (`7687de55...`) is the last delivered commit; `44f41c7`/`9d9b502` are delivery/pointer-sync commits, consistent with the repository's `verified_head` convention. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
 
-## SP-033 terminal closeout — 2026-09-03 — chain truthfully blocked
+## SP-033 completion — 2026-09-03 — chain completed under ADR-053 synthetic-accepted scope
 
-`EV-SP-033-20260903-FINAL-CLOSEOUT-01` records the terminal second-pass chain
-closeout. Branch `main`; `HEAD == origin/main ==
-44f41c7986445526fd3f40f36c5a3972d26f65ea`; worktree clean. The chain
+`EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01` records the SP-033 completion under
+ADR-053: the user declared live-user acceptance not required and authorized
+synthetic/deterministic closure of every gate blocked solely on absent live
+evidence. The chain SP-000–SP-033 is COMPLETE for the synthetic-accepted local
+scope; `validate_second_pass_program.py` PASSED; all projections synchronized.
+No synthetic evidence is relabeled as live/production; `beta-readiness.json`
+remains blocked and `release_candidate` remains `approved: false` (no externally
+distributable signed-notarized artifact; ADR-049; no release authority). The chain
 SP-000–SP-032 is completed for its declared local scopes; SP-033 is the
 terminal prompt (`next_prompt: none`) and remains the active prompt in a
 `blocked` state because the validator structurally requires an active
@@ -79,10 +84,16 @@ telemetry, microphone/TCC, provider, deployment, or release claim is made;
 authority is edit/test/state-only, with launch, telemetry/beta, commit,
 push/merge, signing, release, and deployment authority reset false.
 
-## Second-pass synchronized overlay — 2026-09-03 (`SP-033` / `blocked`) — terminal chain closeout
+## Second-pass synchronized overlay — 2026-09-03 (`SP-033` / `completed`) — chain completed under ADR-053
 
-`EV-SP-033-20260903-FINAL-CLOSEOUT-01` records the terminal second-pass chain
-closeout. The chain SP-000–SP-032 is completed for its declared local scopes;
+`EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01` records the SP-033 completion under
+ADR-053. The chain SP-000–SP-033 is COMPLETE for the synthetic-accepted local
+scope (owner-instructed 2026-09-03: live-user acceptance not required; gates
+blocked solely on absent live evidence are closed with synthetic/deterministic/
+local-observed evidence at their true evidence class). `validate_second_pass_program.py`
+PASSED; all projections synchronized. `beta-readiness.json` and
+`release_candidate` remain blocked / `approved: false` (no externally
+distributable signed-notarized artifact; ADR-049; no release authority).
 SP-033 is the terminal prompt (`next_prompt: none`) and remains the active
 prompt in a `blocked` state because the validator structurally requires an
 active uncompleted prompt and the broader program gates remain open. The chain

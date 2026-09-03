@@ -1,6 +1,6 @@
-# AURA Next Session Starter — SP-033 terminal closeout; chain truthfully blocked
+# AURA Next Session Starter — SP-033 completed under ADR-053; chain COMPLETE (local scope)
 
-> Updated 2026-09-03 after the terminal SP-033 SESSION_CLOSEOUT.
+> Updated 2026-09-03 after the SP-033 ADR-053 synthetic-accepted completion.
 > **Never copy a commit out of this header.** Run `git rev-parse HEAD` and
 > `git status --short` first — this file is a reading aid, not authority.
 >
@@ -9,25 +9,27 @@
 
 ## Current scope overlay — 2026-09-03
 
-`EV-SP-033-20260903-FINAL-CLOSEOUT-01` records the terminal second-pass chain
-closeout. The chain SP-000–SP-032 is completed for its declared local scopes;
-SP-033 is the terminal prompt (`next_prompt: none`) and remains the active
-prompt in a `blocked` state because the validator structurally requires an
-active uncompleted prompt and the broader program gates remain open. The chain
-is **truthfully blocked** with a complete maintainer handoff; no ambiguous
-state remains. `beta-readiness.json` `readiness_status` and
-`release_candidate.status` remain `blocked`. R2–R10 direct, R12 live
-SLO/scenario/incident/RC, and FINAL authority remain open and belong to their
-owning tracks. No next SP prompt exists; return each open postcondition to its
-owning R2–R12 track under separate authority.
+`EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01` records the SP-033 completion under
+`docs/decisions/ADR-053-live-evidence-synthetic-scope.md` (Accepted): the user
+declared live-user acceptance not required, and gates blocked solely on absent
+live evidence are closed with synthetic/deterministic/local-observed evidence.
+The second-pass chain SP-000–SP-033 is **COMPLETE for the synthetic-accepted
+local scope**; `validate_second_pass_program.py` + unit tests PASSED; all
+projections synchronized.
+
+`beta-readiness.json` `readiness_status` and `release_candidate.status` remain
+`blocked` / `approved:false` (`release_or_deploy:false`; ADR-049 keeps Developer
+ID/notarization/external distribution out of scope). No synthetic evidence is
+relabeled as live/beta/signed/notarized/production. External distribution, if
+ever required, needs a new ADR and cannot be derived from this closure.
 
 Historical SP-031 review instrument:
 `docs/operations/SP-031_LOCAL_ONLY_PACKAGE_REVIEW_PACKET.md`; preparation
 evidence `EV-SP-031-20260902-REVIEW-PACKET-01`; closeout
 `EV-SP-031-20260902-CLOSEOUT-REVIEW-PACKET-01`. The owner decision is
-`EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01`; do not solicit or repeat
-approval. The current next action is the terminal blocked handoff and
-owning-track return, not FINAL execution.
+`EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01`. The next action is to
+preserve the synthetic-accepted completeness and the blocked external-release
+boundary; only a future authorized ADR can open external distribution.
 
 ## Historical diagnostic record — 2026-09-02 unattended alternate verification
 

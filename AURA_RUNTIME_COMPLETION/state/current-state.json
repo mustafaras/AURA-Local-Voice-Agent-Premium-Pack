@@ -2,8 +2,8 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-03T08:07:57Z",
-  "session_id": "AURA-SP-033-FINAL-CLOSEOUT-20260903",
+  "updated_at": "2026-09-03T12:30:00Z",
+  "session_id": "AURA-SP-033-SYNTHETIC-ACCEPTED-20260903",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
@@ -61,12 +61,12 @@
       "docs/operations/UPDATE_MECHANISM.md"
     ]
   },
-  "program_status": "in_progress",
+  "program_status": "blocked",
   "active_prompt": {
     "id": "SP-033",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
-    "state": "blocked",
-    "step": "SP-033 SESSION_CLOSEOUT terminal prompt BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). Second-pass chain SP-000-SP-032 completed for local scopes; broader program gates (R2-R10, R12, FINAL) remain open. beta-readiness.json / release_candidate remain blocked."
+    "state": "completed",
+    "step": "SP-033 (SESSION_CLOSEOUT) terminal prompt COMPLETED under ADR-053 synthetic-accepted scope (owner-instructed 2026-09-03). Second-pass chain SP-000-SP-033 complete for the synthetic-accepted local scope. External release / beta-readiness / release_candidate remain out of scope and blocked (no signed-notarized external artifact; ADR-049)."
   },
   "tracks": [
     {
@@ -463,42 +463,58 @@
     {
       "id": "GATE-TRUTHFUL-BILINGUAL-LOOP",
       "name": "One truthful bilingual assistant loop",
-      "state": "open",
+      "state": "waived",
       "required_for": "development",
-      "evidence_ids": [],
-      "waiver_reason": null
+      "evidence_ids": [
+        "EV-SP-003-20260815-LIVE-7SCENARIO-16",
+        "EV-SP-014-20260822-LIVE-ACCEPTANCE-COMPLETED-02"
+      ],
+      "waiver_reason": "ADR-053 (2026-09-03): live-microphone/user-present bilingual loop acceptance not required by owner direction; gate closed under deterministic/dialogue-simulated evidence with the fails-safe boundary preserved."
     },
     {
       "id": "GATE-COMPUTER-USE-LIVE",
       "name": "Bounded live computer-use validation",
-      "state": "open",
+      "state": "waived",
       "required_for": "internal_beta",
-      "evidence_ids": [],
-      "waiver_reason": null
+      "evidence_ids": [
+        "EV-SP-006-20260816-LIVERERUN-05",
+        "EV-SP-007-20260816-LIVE-02",
+        "EV-SP-008-20260817-ADVERSARIAL-01"
+      ],
+      "waiver_reason": "ADR-053 (2026-09-03): live-user acceptance not required by owner direction; gate closed under synthetic/deterministic/local-observed evidence at its true evidence class. computerUse.run remains .disabled in the product; enabling it on a real approved app would reopen this gate."
     },
     {
       "id": "GATE-PRODUCTIVITY-ADAPTERS",
       "name": "Read-first browser, mail, and calendar workflows",
-      "state": "open",
+      "state": "waived",
       "required_for": "internal_beta",
-      "evidence_ids": [],
-      "waiver_reason": null
+      "evidence_ids": [
+        "EV-SP-010-20260817-COMPOSITION-01",
+        "EV-SP-011-20260820-CALENDAR-IDENTITY-AND-FREE-WINDOW-13"
+      ],
+      "waiver_reason": "ADR-053 (2026-09-03): live provider/OAuth/TCC acceptance not required by owner direction; gate closed under synthetic/contract/local-observed evidence. Four read capabilities remain .disabled; real provider OAuth/real-account live flows would reopen this gate."
     },
     {
       "id": "GATE-PRIVILEGE-SEPARATION",
       "name": "Least-privilege helper separation",
-      "state": "open",
+      "state": "waived",
       "required_for": "external_beta",
-      "evidence_ids": [],
-      "waiver_reason": null
+      "evidence_ids": [
+        "EV-SP-023-20260827-AUTHENTICATED-IPC-01",
+        "EV-SP-024-20260827-NETWORK-OAUTH-INJECTION-01"
+      ],
+      "waiver_reason": "ADR-053 (2026-09-03): live helper execution / real OS-confinement acceptance not required by owner direction; gate closed under deterministic/adversarial/contract evidence. External distribution stays out of scope (ADR-049); real-signed-helper OS-confinement would reopen this gate."
     },
     {
       "id": "GATE-ACCESSIBILITY-LOCALIZATION",
       "name": "VoiceOver, keyboard, contrast, and Turkish/English localization",
-      "state": "open",
+      "state": "waived",
       "required_for": "external_beta",
-      "evidence_ids": [],
-      "waiver_reason": null
+      "evidence_ids": [
+        "EV-SP-021-20260825-ACCESSIBILITY-LOCALIZATION-01",
+        "EV-SP-022-20260826-LIVE-UI-01"
+      ],
+      "waiver_reason": "ADR-053 (2026-09-03): live VoiceOver/assistive-tech acceptance not required by owner direction; gate closed under manual/review + deterministic/local-observed evidence."
     },
     {
       "id": "GATE-DEVELOPER-ID-NOTARIZATION",
@@ -526,10 +542,13 @@
     {
       "id": "GATE-BETA-SLOS",
       "name": "Beta reliability and safety SLOs",
-      "state": "open",
+      "state": "waived",
       "required_for": "release",
-      "evidence_ids": [],
-      "waiver_reason": null
+      "evidence_ids": [
+        "EV-SP-029-20260830-CLOSEOUT-01",
+        "EV-SP-030-20260831-SLO-INSTRUMENTATION-01"
+      ],
+      "waiver_reason": "ADR-053 (2026-09-03): live-beta SLO cohort evidence not required by owner direction; gate closed under deterministic SLO instrumentation / synthetic measurement at its true evidence class. No external beta is claimed."
     },
     {
       "id": "GATE-REFERENCE-VOICE",
@@ -555,6 +574,7 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01",
     "EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01",
     "EV-SP-032-20260903-LIVE-ACCEPTANCE-01",
     "EV-SP-032-20260902-DETERMINISTIC-SUITE-01",
@@ -656,14 +676,8 @@
     "EV-SP-011-20260819-SAFARI-TRUST-PATH-09"
   ],
   "blockers": [
-    "R2-R10 live, manual, integration, and privilege gates remain open as recorded in SECOND_PASS_OPEN_GAPS.md.",
-    "R11 remains in_progress: the artifact is development_unverified. ADR-049 makes Developer ID, notarization, and external clean-machine distribution out of scope; direct local recovery, clean-profile, update/rollback, uninstall/factory-reset, and support-bundle evidence remains absent.",
-    "SP-030 is completed only for the local-only deterministic scope under ADR-051. The broader live-beta objective remains deferred: ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta SLO sample set; the scenario matrix is deterministic_harness only; incident_review is not_run; and beta-readiness.json remains blocked.",
-    "The cohort/signoff prerequisites are no longer the blocker: the owner single-participant cohort is enrolled/consented and all five R12 sign-offs are obtained. Telemetry remains disabled with transport none, by contract and safety boundary.",
-    "Owner-present Computer Use Recovery validation is blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained.",
-    "Userless opt-in synthetic Speech verification failed closed with speechNotAuthorized in 3 real-recognizer tests; no TCC/permission prompt was requested, so no live speech or live-beta sample exists.",
-    "SP-031 is complete only for the owner-approved local development_unverified package scope under accepted ADR-047. SP-032 is blocked and unexecuted because its FINAL direct-evidence gates remain absent; beta-readiness and release_candidate stay blocked/unapproved, and no beta/release claim is authorized.",
-    "FINAL acceptance remains blocked by missing direct local lifecycle and R2-R12 evidence. External release is outside the local-only scope under ADR-049, not a waived FINAL pass."
+    "External beta/production release remains out of scope: ADR-049 (no Developer ID/notarization) and release_or_deploy:false. beta-readiness.json readiness_status and release_candidate.status remain blocked / approved:false.",
+    "Gates closed under ADR-053 use synthetic/deterministic/local-observed evidence at their true evidence class; they are not live-user, beta, signed, or notarized proof. Enabling a previously .disabled capability live (computerUse.run, provider OAuth/real-account flows, etc.) would reopen its gate."
   ],
-  "next_action": "SP-033 (SESSION_CLOSEOUT) is the terminal prompt and is BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). The second-pass chain SP-000-SP-032 is completed for its declared local scopes; the broader program gates (R2-R10 direct, R12 live SLO/scenario/incident/RC, FINAL authority) remain open and belong to their owning tracks. No next SP prompt exists (next_prompt: none). beta-readiness.json / release_candidate remain blocked. Return each open postcondition to its owning R2-R12 track under separate authority."
+  "next_action": "Second-pass chain SP-000-SP-033 is COMPLETE under ADR-053 synthetic-accepted scope (owner-instructed 2026-09-03): live-user acceptance not required; gates blocked solely on absent live evidence closed with synthetic/deterministic/local-observed evidence. beta-readiness.json / release_candidate remain blocked and approved:false (no externally distributable signed-notarized artifact; ADR-049; no release authority). External distribution, if ever required, needs a new ADR and cannot be derived from this closure."
 }

@@ -963,3 +963,38 @@ remains.
 - **`RISK-NO-INDEPENDENT-BETA-EVIDENCE`, `RISK-NO-BETA-CONSENT-BOUNDARY`,
   `RISK-NO-RC-EVIDENCE-PACKAGE`:** remain open; the local-only scope decision
   leaves readiness blocked and makes no beta, production, or release claim.
+
+### SP-033 ADR-053 synthetic-accepted completion — 2026-09-03
+
+`EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01` records the SP-033 completion under
+ADR-053: the user declared (2026-09-03) that live-user acceptance is not
+required, and gates blocked solely on the absence of live evidence are closed
+with synthetic/deterministic/local-observed evidence at their true evidence
+class. The chain SP-000–SP-033 is COMPLETE for the synthetic-accepted local
+scope; `validate_second_pass_program.py` and its unit tests PASSED; all
+projections synchronized.
+
+- **`RISK-SECOND-PASS-SYNC-DRIFT`:** `Closed` for this chain — the terminal
+  completion synchronized state/handoff/context/ledger/indexes and re-ran the
+  validators.
+- **`RISK-FINAL-ACCEPTANCE-BLOCKED`:** `Closed` for the synthetic-accepted
+  local scope under ADR-053. It is **not** a release/live/beta acceptance; it
+  only closes gates blocked on absent live evidence.
+- **`RISK-EXTERNAL-DISTRIBUTION-OUT-OF-SCOPE`:** `Accepted` (permanent) — ADR-049
+  keeps Developer ID/notarization/external distribution out of scope;
+  `beta-readiness.json` / `release_candidate` remain `blocked` / `approved:false`.
+- **`RISK-ADR053-SYNTHETIC-CLOSURE-MISLABELED`:** `Accepted` (mitigation) — any
+  record that relabels synthetic/deterministic evidence as live/beta/signed/
+  notarized/production, or treats this completion as granting release authority,
+  would falsify ADR-053. `release_or_deploy:false` remains.
+- **`RISK-LIVE-LIFECYCLE-UNVERIFIED`:** `Accepted` as a known real-host gap under
+  ADR-053 / `EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01` (physical sleep/wake,
+  real signed update transport, real clean-profile migration, destructive
+  user-data removal). Not live/release evidence.
+
+### Risk-register definition rows (for machine references used in handoff)
+
+| ID | Risk | Track | Probability | Impact | Status | Required mitigation / closure evidence |
+|---|---|---:|---:|---:|---|---|
+| RISK-EXTERNAL-DISTRIBUTION-OUT-OF-SCOPE | AURA is a permanent local-only product; external signed-notarized distribution is permanently out of scope under ADR-049. | R0/R11/R12 | Low | Medium | Accepted | `beta-readiness.json`/`release_candidate` stay `blocked`/`approved:false`; no external release claim. Evidence: `ADR-049`, `ADR-053`. |
+| RISK-ADR053-SYNTHETIC-CLOSURE-MISLABELED | Synthetic/deterministic evidence from the ADR-053 accepted scope could be mistakenly promoted to a live/beta/signed/notarized/production claim. | R0-R12/FINAL | Medium | High | Accepted | Every synthetic-closure record names ADR-053 and its true evidence class; `release_or_deploy:false`. Falsifier = any live/release promotion. Evidence: `EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01`. |
