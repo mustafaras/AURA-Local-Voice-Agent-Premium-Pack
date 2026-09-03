@@ -2,7 +2,7 @@
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
   "updated_at": "2026-09-02T15:16:37Z",
-  "repository_commit": "4eede46313f72e69ae7a2724c8858fe19fb36f2d",
+  "repository_commit": "ef61b5b216ca3f380ca45ec312bc184f0e44877f",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
