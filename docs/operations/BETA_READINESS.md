@@ -10,11 +10,11 @@ exists. Current session authority still forbids app launch/install, beta work,
 and telemetry activation.
 
 The machine-readable contract is
-`AURA_RUNTIME_COMPLETION/state/beta-readiness.json`. Validate it with:
+`archive/runtime-completion/state/beta-readiness.json`. Validate it with:
 
 ```sh
 python3 scripts/validate_beta_readiness.py \
-  --record AURA_RUNTIME_COMPLETION/state/beta-readiness.json
+  --record archive/runtime-completion/state/beta-readiness.json
 ```
 
 ## Safety boundary

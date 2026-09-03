@@ -29,7 +29,7 @@ release procedure; SP-032 remains blocked.
 python3 scripts/validate_runtime_completion.py --ci
 python3 scripts/validate_second_pass_program.py
 python3 scripts/validate_beta_readiness.py \
-  --record AURA_RUNTIME_COMPLETION/state/beta-readiness.json
+  --record archive/runtime-completion/state/beta-readiness.json
 python3 scripts/validate_release_manifest.py \
   --manifest /tmp/aura-sp031-local-rc-20260902/output/AURA-development-unverified.manifest.json \
   --bundle-root /tmp/aura-sp031-local-rc-20260902/app-build/AURA.app \

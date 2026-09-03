@@ -32,7 +32,7 @@
       "required": ["id", "file", "state", "step"],
       "properties": {
         "id": { "type": "string", "pattern": "^(BOOTSTRAP|R[0-9]+|FINAL|SP-[0-9]{3})$" },
-        "file": { "type": "string", "pattern": "^AURA_RUNTIME_COMPLETION/prompts/.+\\.prompt\\.md$" },
+        "file": { "type": "string", "pattern": "^archive/runtime-completion/prompts/.+\\.prompt\\.md$" },
         "state": { "enum": ["pending", "ready", "in_progress", "blocked", "completed", "skipped", "superseded"] },
         "step": { "type": "string", "minLength": 1, "maxLength": 500 }
       }

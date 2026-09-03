@@ -1,14 +1,14 @@
 {
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
-  "gap_register": "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
-  "prompt_directory": "AURA_RUNTIME_COMPLETION/prompts/second_pass",
+  "gap_register": "archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md",
+  "prompt_directory": "archive/runtime-completion/prompts/second_pass",
   "transition_policy": "Strictly linear: only the active prompt may execute; its predecessor must be completed, its cognitive gate and evidence must be recorded, all projections must synchronize, and the validator must pass before next_prompt may become active.",
   "prompts": [
     {
       "id": "SP-000",
       "sequence": 0,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-000_BASELINE_AND_SYNCHRONIZATION_LOCK.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-000_BASELINE_AND_SYNCHRONIZATION_LOCK.prompt.md",
       "track": "BOOTSTRAP/R0",
       "gap_ids": [
         "OPEN-00",
@@ -23,7 +23,7 @@
     {
       "id": "SP-001",
       "sequence": 1,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-001_LIVE_TRACE_AND_CONFIRMATION_RESIDUAL.prompt.md",
       "track": "R1",
       "gap_ids": [
         "OPEN-02"
@@ -39,7 +39,7 @@
     {
       "id": "SP-002",
       "sequence": 2,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-002_MICROPHONE_AND_TCC_PUSH_TO_TALK.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-002_MICROPHONE_AND_TCC_PUSH_TO_TALK.prompt.md",
       "track": "R2",
       "gap_ids": [
         "OPEN-03"
@@ -55,7 +55,7 @@
     {
       "id": "SP-003",
       "sequence": 3,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-003_SEVEN_LIVE_BILINGUAL_DIALOGUE_SCENARIOS.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-003_SEVEN_LIVE_BILINGUAL_DIALOGUE_SCENARIOS.prompt.md",
       "track": "R2",
       "gap_ids": [
         "OPEN-03"
@@ -71,7 +71,7 @@
     {
       "id": "SP-004",
       "sequence": 4,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-004_FILESYSTEM_AND_URL_CAPABILITY_ADAPTERS.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-004_FILESYSTEM_AND_URL_CAPABILITY_ADAPTERS.prompt.md",
       "track": "R3",
       "gap_ids": [
         "OPEN-04"
@@ -87,7 +87,7 @@
     {
       "id": "SP-005",
       "sequence": 5,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-005_CAPABILITY_REACHABILITY_AND_PLANNER_WIRING.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-005_CAPABILITY_REACHABILITY_AND_PLANNER_WIRING.prompt.md",
       "track": "R3",
       "gap_ids": [
         "OPEN-04"
@@ -103,7 +103,7 @@
     {
       "id": "SP-006",
       "sequence": 6,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-006_R3_LIVE_CAPABILITY_SCENARIOS.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-006_R3_LIVE_CAPABILITY_SCENARIOS.prompt.md",
       "track": "R3",
       "gap_ids": [
         "OPEN-04"
@@ -119,7 +119,7 @@
     {
       "id": "SP-007",
       "sequence": 7,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-007_LIVE_COMPUTER_USE_PLANNER_IN_APPROVED_APPS.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-007_LIVE_COMPUTER_USE_PLANNER_IN_APPROVED_APPS.prompt.md",
       "track": "R4",
       "gap_ids": [
         "OPEN-05"
@@ -135,7 +135,7 @@
     {
       "id": "SP-008",
       "sequence": 8,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-008_COMPUTER_USE_ADVERSARIAL_SAFETY.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-008_COMPUTER_USE_ADVERSARIAL_SAFETY.prompt.md",
       "track": "R4",
       "gap_ids": [
         "OPEN-05"
@@ -151,7 +151,7 @@
     {
       "id": "SP-009",
       "sequence": 9,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-009_SAFARI_EXTENSION_PACKAGING_AND_AUTHENTICATION.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-009_SAFARI_EXTENSION_PACKAGING_AND_AUTHENTICATION.prompt.md",
       "track": "R5",
       "gap_ids": [
         "OPEN-06"
@@ -167,7 +167,7 @@
     {
       "id": "SP-010",
       "sequence": 10,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-010_PROVIDER_ACCOUNT_AND_UI_COMPOSITION.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-010_PROVIDER_ACCOUNT_AND_UI_COMPOSITION.prompt.md",
       "track": "R5",
       "gap_ids": [
         "OPEN-06"
@@ -183,7 +183,7 @@
     {
       "id": "SP-011",
       "sequence": 11,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-011_PRODUCTIVITY_LIVE_ACCEPTANCE.prompt.md",
       "track": "R5",
       "gap_ids": [
         "OPEN-06"
@@ -199,7 +199,7 @@
     {
       "id": "SP-012",
       "sequence": 12,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md",
       "track": "R6",
       "gap_ids": [
         "OPEN-07"
@@ -215,7 +215,7 @@
     {
       "id": "SP-013",
       "sequence": 13,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-013_CODING_BACKEND_AND_DURABLE_TASK_LIFECYCLE.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-013_CODING_BACKEND_AND_DURABLE_TASK_LIFECYCLE.prompt.md",
       "track": "R6",
       "gap_ids": [
         "OPEN-07"
@@ -231,7 +231,7 @@
     {
       "id": "SP-014",
       "sequence": 14,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-014_CODING_ASSISTANT_LIVE_ACCEPTANCE.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-014_CODING_ASSISTANT_LIVE_ACCEPTANCE.prompt.md",
       "track": "R6",
       "gap_ids": [
         "OPEN-07"
@@ -247,7 +247,7 @@
     {
       "id": "SP-015",
       "sequence": 15,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-015_WAKE_WORD_DECISION_AND_EVALUATION.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-015_WAKE_WORD_DECISION_AND_EVALUATION.prompt.md",
       "track": "R7",
       "gap_ids": [
         "OPEN-08"
@@ -263,7 +263,7 @@
     {
       "id": "SP-016",
       "sequence": 16,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-016_BILINGUAL_STT_QUALITY_AND_VOICE_RECOVERY.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-016_BILINGUAL_STT_QUALITY_AND_VOICE_RECOVERY.prompt.md",
       "track": "R7",
       "gap_ids": [
         "OPEN-08"
@@ -279,7 +279,7 @@
     {
       "id": "SP-017",
       "sequence": 17,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-017_TTS_RESOURCE_SOAK_AND_ADR_042.prompt.md",
       "track": "R7",
       "gap_ids": [
         "OPEN-08"
@@ -295,7 +295,7 @@
     {
       "id": "SP-018",
       "sequence": 18,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-018_PRODUCTION_MEMORY_REFERENCE_WIRING.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-018_PRODUCTION_MEMORY_REFERENCE_WIRING.prompt.md",
       "track": "R8",
       "gap_ids": [
         "OPEN-09"
@@ -311,7 +311,7 @@
     {
       "id": "SP-019",
       "sequence": 19,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-019_LIVE_MEMORY_CONTROLS_CONFLICTS_AND_RESTART.prompt.md",
       "track": "R8",
       "gap_ids": [
         "OPEN-09"
@@ -327,7 +327,7 @@
     {
       "id": "SP-020",
       "sequence": 20,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-020_REMOTE_CONTEXT_BOUNDARY_AND_ADR_043.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-020_REMOTE_CONTEXT_BOUNDARY_AND_ADR_043.prompt.md",
       "track": "R8",
       "gap_ids": [
         "OPEN-09"
@@ -343,7 +343,7 @@
     {
       "id": "SP-021",
       "sequence": 21,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-021_ACCESSIBILITY_AND_LOCALIZATION_ACCEPTANCE.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-021_ACCESSIBILITY_AND_LOCALIZATION_ACCEPTANCE.prompt.md",
       "track": "R9",
       "gap_ids": [
         "OPEN-10"
@@ -359,7 +359,7 @@
     {
       "id": "SP-022",
       "sequence": 22,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-022_UI_CONTROLS_ONBOARDING_AND_RECOVERY.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-022_UI_CONTROLS_ONBOARDING_AND_RECOVERY.prompt.md",
       "track": "R9",
       "gap_ids": [
         "OPEN-10"
@@ -375,7 +375,7 @@
     {
       "id": "SP-023",
       "sequence": 23,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-023_AUTHENTICATED_IPC_AND_PRIVILEGE_SEPARATION.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-023_AUTHENTICATED_IPC_AND_PRIVILEGE_SEPARATION.prompt.md",
       "track": "R10",
       "gap_ids": [
         "OPEN-11"
@@ -391,7 +391,7 @@
     {
       "id": "SP-024",
       "sequence": 24,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-024_NETWORK_OAUTH_AND_INJECTION_ENFORCEMENT.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-024_NETWORK_OAUTH_AND_INJECTION_ENFORCEMENT.prompt.md",
       "track": "R10",
       "gap_ids": [
         "OPEN-11"
@@ -407,7 +407,7 @@
     {
       "id": "SP-025",
       "sequence": 25,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-025_PLUGIN_TRUST_INCIDENT_RESPONSE_AND_ADR_044.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-025_PLUGIN_TRUST_INCIDENT_RESPONSE_AND_ADR_044.prompt.md",
       "track": "R10",
       "gap_ids": [
         "OPEN-11"
@@ -423,7 +423,7 @@
     {
       "id": "SP-026",
       "sequence": 26,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-026_RELEASE_TOOLCHAIN_REPRODUCIBILITY_AND_CI.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-026_RELEASE_TOOLCHAIN_REPRODUCIBILITY_AND_CI.prompt.md",
       "track": "R11",
       "gap_ids": [
         "OPEN-12"
@@ -439,7 +439,7 @@
     {
       "id": "SP-027",
       "sequence": 27,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-027_SIGNING_NOTARIZATION_AND_CLEAN_MACHINE_GATEKEEPER.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-027_SIGNING_NOTARIZATION_AND_CLEAN_MACHINE_GATEKEEPER.prompt.md",
       "track": "R11",
       "gap_ids": [
         "OPEN-12"
@@ -455,7 +455,7 @@
     {
       "id": "SP-028",
       "sequence": 28,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-028_UPDATER_LIFECYCLE_RECOVERY_AND_MIGRATION.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-028_UPDATER_LIFECYCLE_RECOVERY_AND_MIGRATION.prompt.md",
       "track": "R11",
       "gap_ids": [
         "OPEN-12"
@@ -471,7 +471,7 @@
     {
       "id": "SP-029",
       "sequence": 29,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-029_BETA_SCOPE_CONSENT_AND_TELEMETRY.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-029_BETA_SCOPE_CONSENT_AND_TELEMETRY.prompt.md",
       "track": "R12",
       "gap_ids": [
         "OPEN-13"
@@ -487,7 +487,7 @@
     {
       "id": "SP-030",
       "sequence": 30,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
       "track": "R12",
       "gap_ids": [
         "OPEN-13"
@@ -503,7 +503,7 @@
     {
       "id": "SP-031",
       "sequence": 31,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-031_RELEASE_CANDIDATE_EVIDENCE_PACKAGE_AND_ADR_047.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-031_RELEASE_CANDIDATE_EVIDENCE_PACKAGE_AND_ADR_047.prompt.md",
       "track": "R12",
       "gap_ids": [
         "OPEN-13"
@@ -519,7 +519,7 @@
     {
       "id": "SP-032",
       "sequence": 32,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-032_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-032_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
       "track": "FINAL",
       "gap_ids": [
         "OPEN-14"
@@ -535,7 +535,7 @@
     {
       "id": "SP-033",
       "sequence": 33,
-      "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
+      "file": "archive/runtime-completion/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
       "track": "SESSION_CLOSEOUT",
       "gap_ids": [
         "OPEN-15"

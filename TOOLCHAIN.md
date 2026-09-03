@@ -35,7 +35,7 @@ is macOS 27 and must not be lowered without an availability audit.
   `4 function_body_length`, `2 file_length`); `--disable-sourcekit` remains only a
   partial diagnostic mode.
 
-The machine-readable source is `AURA_RUNTIME_COMPLETION/state/toolchain-manifest.json`.
+The machine-readable source is `archive/runtime-completion/state/toolchain-manifest.json`.
 
 The test wrapper discovers the active Swift toolchain with `xcode-select -p`
 and `xcrun --find swift`, then validates the SwiftPM helper, Testing framework,
@@ -107,7 +107,7 @@ authority.
 
 ## Projection policy
 
-`AURA_RUNTIME_COMPLETION/state/current-state.json` is canonical. `ledger/CURRENT_STATE.md` and `SESSION_STARTER.md` are compatibility/historical surfaces and must point to the canonical state rather than copying an active hash or next action. `verified_head` identifies the audited code/evidence baseline. A descendant HEAD is allowed only when the intervening diff is projection-only; product changes require a new audited baseline and evidence.
+`archive/runtime-completion/state/current-state.json` is canonical. `ledger/CURRENT_STATE.md` and `SESSION_STARTER.md` are compatibility/historical surfaces and must point to the canonical state rather than copying an active hash or next action. `verified_head` identifies the audited code/evidence baseline. A descendant HEAD is allowed only when the intervening diff is projection-only; product changes require a new audited baseline and evidence.
 
 ## Compatibility and deprecation
 

@@ -11,7 +11,7 @@ AURA targets macOS 27 and Swift 6.4, but the observed development host has Apple
 
 ## Decisions
 
-1. `AURA_RUNTIME_COMPLETION/state/current-state.json` is the canonical machine state. `session-handoff.json` is a concise next-session projection. `ledger/CURRENT_STATE.md` and `SESSION_STARTER.md` are historical compatibility surfaces and must point to the canonical state instead of copying active status claims.
+1. `archive/runtime-completion/state/current-state.json` is the canonical machine state. `session-handoff.json` is a concise next-session projection. `ledger/CURRENT_STATE.md` and `SESSION_STARTER.md` are historical compatibility surfaces and must point to the canonical state instead of copying active status claims.
 2. `verified_head` identifies the audited code/evidence baseline. A later repository HEAD is valid only when it is a descendant and the intervening diff contains projection-only files. Product/source changes require a new audit and evidence before the state can advance.
 3. The repository validator is standard-library-only and fails closed on malformed JSON, unsupported schema keywords, missing prompt dependencies, unknown evidence/risk/gate IDs, stale active prompts, capability evidence mismatches, impossible release states, stale repository claims, and unsupported toolchain profiles.
 4. The supported development baseline is macOS 27+, arm64, Swift 6.4, and macOS SDK 27.0+. The observed CommandLineTools profile is valid for local development and the custom test wrapper. Full Xcode is required for the local-only release packaging and nested-signing verification. Developer ID signing, notarization, and external clean-machine validation are **permanently out of scope** for AURA's local-only product (ADR-049).

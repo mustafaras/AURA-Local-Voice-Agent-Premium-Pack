@@ -22,7 +22,7 @@ class RuntimeCompletionValidatorTests(unittest.TestCase):
         # carries an active_prompt.id like SP-026. The first-pass schema must
         # accept SP-<NNN> ids (regression: previously only BOOTSTRAP|R[0-9]+|FINAL).
         schema = json.loads(
-            (ROOT / "AURA_RUNTIME_COMPLETION/schemas/program-state.schema.json").read_text()
+            (ROOT / "archive/runtime-completion/schemas/program-state.schema.json").read_text()
         )
         active_prompt_schema = schema["properties"]["active_prompt"]["properties"]
         pattern = active_prompt_schema["id"]["pattern"]
@@ -53,7 +53,7 @@ class RuntimeCompletionValidatorTests(unittest.TestCase):
                 {
                     "id": "BOOTSTRAP",
                     "order": 0,
-                    "file": "AURA_RUNTIME_COMPLETION/prompts/missing.prompt.md",
+                    "file": "archive/runtime-completion/prompts/missing.prompt.md",
                     "dependencies": [],
                 }
             ]
@@ -78,7 +78,7 @@ class RuntimeCompletionValidatorTests(unittest.TestCase):
                 {
                     "id": "BOOTSTRAP",
                     "order": 0,
-                    "file": "AURA_RUNTIME_COMPLETION/prompts/bootstrap.prompt.md",
+                    "file": "archive/runtime-completion/prompts/bootstrap.prompt.md",
                     "dependencies": [],
                 }
             ],
@@ -93,7 +93,7 @@ class RuntimeCompletionValidatorTests(unittest.TestCase):
             prompt_path = root / manifest["prompts"][0]["file"]
             prompt_path.parent.mkdir(parents=True)
             prompt_path.write_text("prompt")
-            (root / "AURA_RUNTIME_COMPLETION/prompts/15_SESSION_CLOSEOUT.prompt.md").write_text("closeout")
+            (root / "archive/runtime-completion/prompts/15_SESSION_CLOSEOUT.prompt.md").write_text("closeout")
             with self.assertRaises(VALIDATOR.ValidationFailure):
                 VALIDATOR.validate_prompt_contract(root, manifest, state, handoff)
 
@@ -151,7 +151,7 @@ class RuntimeCompletionValidatorTests(unittest.TestCase):
             VALIDATOR.validate_toolchain_environment(ROOT, toolchain, release=False)
 
     def test_projection_only_paths_are_distinguished(self):
-        self.assertTrue(VALIDATOR.projection_only_paths(["AURA_RUNTIME_COMPLETION/state/current-state.json"]))
+        self.assertTrue(VALIDATOR.projection_only_paths(["archive/runtime-completion/state/current-state.json"]))
         self.assertTrue(VALIDATOR.projection_only_paths(["ledger/CURRENT_STATE.md", "TOOLCHAIN.md"]))
         self.assertFalse(VALIDATOR.projection_only_paths(["Sources/AuraCore/EventEnvelope.swift"]))
 

@@ -6,7 +6,7 @@
 **Verified content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` (projection-only descendants under ADR-045)
 **Scope:** Source, tests, build artifacts, Git object database, tooling, CI, secrets, dependencies, documentation, ledgers, and agent context
 
-This is the canonical human-readable plan for the repository-hygiene pass. It is intentionally separate from the product second-pass chain in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. The two programs may share evidence, but a repository-hygiene task must not silently close a product, release, beta, permission, or live-hardware gate.
+This is the canonical human-readable plan for the repository-hygiene pass. It is intentionally separate from the product second-pass chain in `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md`. The two programs may share evidence, but a repository-hygiene task must not silently close a product, release, beta, permission, or live-hardware gate.
 
 ## Current authoritative verdict — 2026-08-12T14:19:57Z
 
@@ -41,7 +41,7 @@ No cleanup, deletion, garbage collection, re-pack, dependency installation, secr
 | Source risk | H-006 removed production `try!`, `as!`, and direct `print()` sites; 21 lock/actor `@unchecked Sendable` declarations and two detached task boundaries remain | Safe replacements and payload-free private diagnostics are evidenced; retained concurrency boundaries are ADR/test-backed with real-hardware/CI residual risk | High |
 | Secrets | Narrow tracked scan found no real credential; one intentional token-shaped test fixture is present | Add scanner policy and fixture sentinel before claiming secret hygiene | Medium |
 
-The snapshot is a starting fact set. Every prompt must refresh facts that can drift and must record the command, exit status, environment, and artifact path in `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md`.
+The snapshot is a starting fact set. Every prompt must refresh facts that can drift and must record the command, exit status, environment, and artifact path in `archive/runtime-completion/repo-hygiene/REPO_HYGIENE_LEDGER.md`.
 
 ## Gap register and ordered prompts
 
@@ -308,10 +308,10 @@ The hygiene program is complete only if the final gate proves: repository object
 
 ## Control-plane links
 
-- [Read-first context](../../AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_READ_FIRST.md)
-- [Control contract](../../AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md)
-- [Prompt contract](../../AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md)
-- [Prompt manifest](../../AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json)
-- [Machine state](../../AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json)
-- [Focused ledger](../../AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md)
+- [Read-first context](../../archive/runtime-completion/context/REPO_HYGIENE_READ_FIRST.md)
+- [Control contract](../../archive/runtime-completion/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md)
+- [Prompt contract](../../archive/runtime-completion/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md)
+- [Prompt manifest](../../archive/runtime-completion/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json)
+- [Machine state](../../archive/runtime-completion/repo-hygiene/REPO_HYGIENE_STATE.json)
+- [Focused ledger](../../archive/runtime-completion/repo-hygiene/REPO_HYGIENE_LEDGER.md)
 - Validator: `python3 scripts/validate_repo_hygiene_program.py`

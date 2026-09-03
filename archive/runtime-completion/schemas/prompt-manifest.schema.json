@@ -10,9 +10,9 @@
     "schema_version": { "const": "1.0.0" },
     "program_version": { "type": "string", "pattern": "^1\\.[0-9]+\\.[0-9]+$" },
     "program_name": { "const": "AURA Runtime Completion Program" },
-    "shared_contract": { "const": "AURA_RUNTIME_COMPLETION/prompts/SHARED_EXECUTION_CONTRACT.md" },
-    "state_file": { "const": "AURA_RUNTIME_COMPLETION/state/current-state.json" },
-    "handoff_file": { "const": "AURA_RUNTIME_COMPLETION/context/session-handoff.json" },
+    "shared_contract": { "const": "archive/runtime-completion/prompts/SHARED_EXECUTION_CONTRACT.md" },
+    "state_file": { "const": "archive/runtime-completion/state/current-state.json" },
+    "handoff_file": { "const": "archive/runtime-completion/context/session-handoff.json" },
     "prompts": {
       "type": "array",
       "minItems": 15,
@@ -26,7 +26,7 @@
           "name": { "type": "string", "minLength": 3, "maxLength": 200 },
           "file": {
             "type": "string",
-            "pattern": "^AURA_RUNTIME_COMPLETION/(?:prompts|archive/first-pass-prompts/2026-08-12)/.+\\.prompt\\.md$"
+            "pattern": "^archive/runtime-completion/(?:prompts|archive/first-pass-prompts/2026-08-12)/.+\\.prompt\\.md$"
           },
           "dependencies": {
             "type": "array",

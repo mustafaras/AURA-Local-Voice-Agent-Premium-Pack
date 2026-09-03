@@ -194,7 +194,7 @@ VS Code bridge keys merge in empty defaults, leaving the bridge `.unauthorized`.
 
 ## Related
 
-- `AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md`
+- `archive/runtime-completion/prompts/second_pass/SP-012_AUTHENTICATED_VS_CODE_EXTENSION_BRIDGE.prompt.md`
 - `docs/decisions/ADR-038-capability-registry-and-planner.md`
 - `docs/decisions/ADR-020-security-hardening.md`
 - `docs/decisions/ADR-037-runtime-health-and-confirmation-transactions.md`

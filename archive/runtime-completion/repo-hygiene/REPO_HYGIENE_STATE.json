@@ -28,11 +28,11 @@
   },
   "control_files":{
     "program_document":"docs/operations/REPO_HYGIENE_PROGRAM.md",
-    "read_first":"AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_READ_FIRST.md",
-    "control_contract":"AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md",
-    "prompt_contract":"AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md",
-    "manifest":"AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json",
-    "ledger":"AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md",
+    "read_first":"archive/runtime-completion/context/REPO_HYGIENE_READ_FIRST.md",
+    "control_contract":"archive/runtime-completion/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md",
+    "prompt_contract":"archive/runtime-completion/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md",
+    "manifest":"archive/runtime-completion/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json",
+    "ledger":"archive/runtime-completion/repo-hygiene/REPO_HYGIENE_LEDGER.md",
     "validator":"scripts/validate_repo_hygiene_program.py"
   },
   "next_action":"H-010 is terminally complete at verified main baseline d82fde6be6e95bc8d3ccb64341bd2538baf12a92. Hosted proof remains bound to workflow/source SHA 6d4d6da382cd94cd3ac006e26e6f0502eacb9ea8; subsequent descendants are control-plane-only projections. Local and hosted hygiene gates remain valid for their recorded boundaries. The terminal H-000..H-010 prompt definitions are locatable through the manifest; no H-011 exists. SP-000 is complete in the separate second-pass program; SP-001 is pending. No product, beta, signing, release, or deployment completion is implied."

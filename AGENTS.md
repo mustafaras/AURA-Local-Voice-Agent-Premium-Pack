@@ -55,3 +55,17 @@ A task is done only when:
 - permissions remain least-privilege;
 - state survives restart where required;
 - ledger and documentation are current.
+
+## Archived runtime-completion surface (2026-09-03)
+
+The former `AURA_RUNTIME_COMPLETION/` execution surface (the second-pass prompt
+chain: `SP-000`–`SP-033`) is **complete and archived**. It is preserved
+under `archive/runtime-completion/` (git history and tracking intact, 298 files)
+so the runtime/second-pass/beta validators and the ledger/evidence/decision/
+risk history continue to resolve.
+
+- Do **not** start a new `SP-*` prompt; `next_prompt` is `none` and the chain is
+  closed under `docs/decisions/ADR-053-live-evidence-synthetic-scope.md`.
+- Re-point any in-repo reference from `AURA_RUNTIME_COMPLETION/…` to
+  `archive/runtime-completion/…` (or treat it as frozen history).
+- Re-opening requires a new ADR (see ADR-049/ADR-053), not a file edit.

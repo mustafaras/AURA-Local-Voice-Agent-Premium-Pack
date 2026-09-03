@@ -18,7 +18,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Build and tests:** strict Swift 6.4 build with concurrency checking and warnings-as-errors passed; full wrapper passed 1,325 tests / 87 suites / 22 bundles with 0 failures and 70.20% line coverage; `AuraLifecycleTests` passed 48 / 10; Python governance suite passed 64 tests; all scoped runtime, second-pass, beta-readiness, repo-hygiene, and supply-chain validators passed. Six unnecessary synchronous-write `await` markers were removed from `SupportBundleExporter.swift` to make the strict build truthful.
 - **Delivery checks:** no open PR targets `main`, so direct-main delivery has no separate merge commit. GitHub Actions run `33601259000` was observed `queued`; CI success is not claimed. The unsigned local app bundle built and its main process stayed alive for 12 seconds under an isolated home. No codesign, notarization, `/Applications` installation, external release, or production deployment was claimed.
 - **SP-030:** remains `blocked`. The owner cohort is enrolled/consented; all five R12 sign-offs and live launch-at-login are closed. Remaining gates are live R11 sleep/wake/crash recovery, safe-mode export, populated-profile migration, qualifying live-beta `ptt_ack`/`stt_partial`/`dialogue_first_token` samples, a live-window scenario run, and incident review. `beta-readiness.json` remains blocked; telemetry is disabled with `transport: none`; `release_candidate` is blocked/unapproved. SP-031 must not start.
-- **Evidence/state:** recorded in `AURA_RUNTIME_COMPLETION/state/EV-DELIVERY-20260902-GRAPHIFY-01.md`, refreshed `current-state.json`, `capability-matrix.json`, `session-handoff.json`, and the top projection of `ledger/CURRENT_STATE.md`. Next safe action is an owner-present live validation window for the remaining R11 flows and voice SLOs, followed by incident review and readiness revalidation.
+- **Evidence/state:** recorded in `archive/runtime-completion/state/EV-DELIVERY-20260902-GRAPHIFY-01.md`, refreshed `current-state.json`, `capability-matrix.json`, `session-handoff.json`, and the top projection of `ledger/CURRENT_STATE.md`. Next safe action is an owner-present live validation window for the remaining R11 flows and voice SLOs, followed by incident review and readiness revalidation.
 
 ### 2026-08-30T21:30:00Z — SP-030 — F-005 coverage CLOSED and guarded; refusal now rests on review, not coverage
 
@@ -198,7 +198,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - R11 dependency incomplete: R11 `in_progress`, artifact `development_unverified`, no signed/notarized clean-machine release artifact, ADR-046 not accepted; `dependency_gate.r11_completion_required: true`.
   - Fail-closed `beta-readiness.schema.json`/`validate_beta_readiness.py` only allow `blocked`/`not_ready` until these real gates close.
 - **Evidence:** `EV-SP-030-20260830-PROGRAM-BLOCKED-01` (process/blocked). Supporting: `EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01` (engine default-off/no-transport), `EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01` (consent boundary), `EV-SP-030-20260830-LOCAL-DEPLOY-01` (12s launch smoke, explicitly not an SLO/scenario measurement), `EV-SP-030-20260830-OPENING-01` (continuation-path authority).
-- **Verification:** live `HEAD == origin/main == 8b16142` (clean worktree); `python3 scripts/validate_second_pass_program.py` → PASSED; `python3 scripts/validate_beta_readiness.py --record AURA_RUNTIME_COMPLETION/state/beta-readiness.json` → "valid and blocked" (both exit 0). Reconciled stale `current-state.json` repository pointers to live HEAD.
+- **Verification:** live `HEAD == origin/main == 8b16142` (clean worktree); `python3 scripts/validate_second_pass_program.py` → PASSED; `python3 scripts/validate_beta_readiness.py --record archive/runtime-completion/state/beta-readiness.json` → "valid and blocked" (both exit 0). Reconciled stale `current-state.json` repository pointers to live HEAD.
 - **Acceptance verdict:** SP-030 stays `in_progress`/blocked; `beta-readiness.json` stays `blocked`; no SLO/scenario/incident/sign-off/telemetry/cohort/consent/RC result produced or claimed. **SP-031 must NOT start.**
 - **Falsifier:** any claim that SP-030 is completed, that a participant was enrolled/consented, that telemetry was transmitted, that an SLO was measured against a live beta window, that an incident was reviewed, that an independent sign-off was obtained, that `beta-readiness.json` left `blocked`, or that SP-031 started would falsify this record.
 - **Next safe action:** Complete the mandatory `15_SESSION_CLOSEOUT.prompt.md`; keep SP-030 blocked/in_progress. The only lawful path to completion is owner authorization to (a) finish R11 (local gates + ADR-046), (b) enroll an explicitly named consented beta participant, (c) run a genuine user-present beta window with the opt-in content-free engine on a sanctioned transport to collect real SLO/scenario samples, and (d) obtain independent sign-offs — then re-run SP-030.
@@ -229,7 +229,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - `swift test --build-path /tmp/aura-build` → 89 tests in 16 suites pass, 0 failed bundles.
   - `python3 scripts/validate_second_pass_program.py` → PASSED.
   - `python3 scripts/validate_runtime_completion.py --ci` → PASSED.
-- **Files changed:** `Package.swift`; `Sources/AuraCore/{ActorID.swift,AuraError.swift,PolicyTypes_Capability.swift,RuntimeHealth.swift}`; `Sources/AuraConfig/ConfigurationTypes.swift`; `Sources/AuraStore/AuraDatabase_MigrationsAndBinding.swift`; `Sources/AuraPolicy/PolicyEngine_ConfirmationAndPersistence.swift`; `Sources/AuraMemory/{MemoryActorIDExtensions.swift,ActorHealthReporter.swift}`; all new `Sources/AuraLifecycle/*.swift`; `Sources/AURA/{AuraKernel.swift,AuraKernel_Construction.swift,AuraKernel_RuntimeAPI.swift,ApplicationSupportBootstrap.swift}`; `Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift`; all new `Tests/AuraLifecycleTests/*.swift`; `AURA_RUNTIME_COMPLETION/state/EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01.md`; `AURA_RUNTIME_COMPLETION/state/EV-SP-028-20260829-RUNTIME-API-02.md`; `AURA_RUNTIME_COMPLETION/state/EV-SP-028-20260829-CLOSEOUT-03.md`; plus the evidence index, second-pass ledger, program ledger, open-gaps register, second-pass state, session handoff, active context, risk register, project ledger, and current state.
+- **Files changed:** `Package.swift`; `Sources/AuraCore/{ActorID.swift,AuraError.swift,PolicyTypes_Capability.swift,RuntimeHealth.swift}`; `Sources/AuraConfig/ConfigurationTypes.swift`; `Sources/AuraStore/AuraDatabase_MigrationsAndBinding.swift`; `Sources/AuraPolicy/PolicyEngine_ConfirmationAndPersistence.swift`; `Sources/AuraMemory/{MemoryActorIDExtensions.swift,ActorHealthReporter.swift}`; all new `Sources/AuraLifecycle/*.swift`; `Sources/AURA/{AuraKernel.swift,AuraKernel_Construction.swift,AuraKernel_RuntimeAPI.swift,ApplicationSupportBootstrap.swift}`; `Sources/AuraIntent/InitialCapabilitySet_CapabilityDefinitions.swift`; all new `Tests/AuraLifecycleTests/*.swift`; `archive/runtime-completion/state/EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01.md`; `archive/runtime-completion/state/EV-SP-028-20260829-RUNTIME-API-02.md`; `archive/runtime-completion/state/EV-SP-028-20260829-CLOSEOUT-03.md`; plus the evidence index, second-pass ledger, program ledger, open-gaps register, second-pass state, session handoff, active context, risk register, project ledger, and current state.
 - **Acceptance criteria verdict:**
   - Launch-at-login controller with enable/disable/status and health reporting implemented and tested behind protocol. **Met for contract scope; live ServiceManagement mutation not exercised.**
   - Crash/sleep/wake recovery state machine with store-backed heartbeat and clean-shutdown flag implemented and tested. **Met for contract scope; live sleep/wake not exercised.**
@@ -252,11 +252,11 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - Current authority is edit/test/state only; `beta_enrollment`, `telemetry_activation`, `release_candidate_approval`, install, launch, TCC mutation, provider contact, signing, notarization, commit, push, merge, and deployment are not granted.
   - No telemetry collection may be implemented, no cohort may be enrolled, and no consent may be collected until authorized approval is recorded.
 - **Implementation / documentation:**
-  - Validated existing `AURA_RUNTIME_COMPLETION/state/beta-readiness.json` remains fail-closed (`readiness_status: blocked`, `authority.beta_enrollment: false`, `telemetry.enabled: false`, `cohort.status: not_enrolled`, all signoffs `not_obtained`, release_candidate `blocked`/`approved: false`).
-  - Created `AURA_RUNTIME_COMPLETION/state/EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01.md` defining: internal local-machine-only closed beta cohort; supported macOS/Swift/Xcode profiles; capability inclusion/exclusion consistent with local-only scope; privacy notice; explicit opt-in and consent withdrawal; data retention/access/deletion rights; content-free aggregate telemetry schema (event class counts, latency histograms, error code tallies — no transcript/audio/screenshot/content); kill switch; telemetry-off mode; rollback procedure; incident containment.
+  - Validated existing `archive/runtime-completion/state/beta-readiness.json` remains fail-closed (`readiness_status: blocked`, `authority.beta_enrollment: false`, `telemetry.enabled: false`, `cohort.status: not_enrolled`, all signoffs `not_obtained`, release_candidate `blocked`/`approved: false`).
+  - Created `archive/runtime-completion/state/EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01.md` defining: internal local-machine-only closed beta cohort; supported macOS/Swift/Xcode profiles; capability inclusion/exclusion consistent with local-only scope; privacy notice; explicit opt-in and consent withdrawal; data retention/access/deletion rights; content-free aggregate telemetry schema (event class counts, latency histograms, error code tallies — no transcript/audio/screenshot/content); kill switch; telemetry-off mode; rollback procedure; incident containment.
   - No telemetry code, cohort enrollment, consent collection, SLO measurement, or RC approval was added.
 - **Verification evidence:**
-  - `python3 scripts/validate_beta_readiness.py --record AURA_RUNTIME_COMPLETION/state/beta-readiness.json` → "beta readiness contract valid and blocked".
+  - `python3 scripts/validate_beta_readiness.py --record archive/runtime-completion/state/beta-readiness.json` → "beta readiness contract valid and blocked".
   - `python3 scripts/validate_runtime_completion.py --ci` → PASSED.
   - `python3 scripts/validate_second_pass_program.py` → PASSED.
   - `python3 scripts/validate_repo_hygiene_program.py` → PASSED.
@@ -264,7 +264,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - Python governance tests ran directly via `python3 scripts/tests/*.py` (some require `PYTHONPATH=$PWD`) → PASSED.
   - `python3 -m compileall scripts tests -q` → no errors.
   - `git diff --check` → no whitespace errors.
-- **Files changed:** `AURA_RUNTIME_COMPLETION/state/EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01.md`; plus append-only updates to `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`, `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md`, `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md`, this ledger, `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`, `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, `AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md`, and `AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md`.
+- **Files changed:** `archive/runtime-completion/state/EV-SP-029-20260829-BETA-CONTRACT-BLOCKED-01.md`; plus append-only updates to `archive/runtime-completion/state/EVIDENCE_INDEX.md`, `archive/runtime-completion/second-pass/SECOND_PASS_LEDGER.md`, `archive/runtime-completion/state/PROGRAM_LEDGER.md`, this ledger, `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md`, `archive/runtime-completion/second-pass/SECOND_PASS_STATE.json`, `archive/runtime-completion/state/current-state.json`, `archive/runtime-completion/context/session-handoff.json`, `archive/runtime-completion/context/ACTIVE_CONTEXT.md`, and `archive/runtime-completion/state/RISK_REGISTER.md`.
 - **Acceptance criteria verdict:**
   - Beta scope and cohort definition documented and aligned with local-only scope. **Met.**
   - Consent/privacy notice, opt-in, withdrawal, retention, access, deletion defined. **Met for contract scope; no consent collected.**
@@ -293,7 +293,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - `swift build --build-path /tmp/aura-build` → Build complete.
   - `swift test --filter AuraLifecycleTests --build-path /tmp/aura-build` → 48 tests in 10 suites passed (39 prior + 9 new).
   - `swift test --build-path /tmp/aura-build` → 89 test suites, 0 failed.
-- **Files changed:** the five source/store/lifecycle/kernel files above + `TelemetryAggregatorTests.swift`; plus `AURA_RUNTIME_COMPLETION/state/EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01.md`, `EVIDENCE_INDEX.md`, `SECOND_PASS_LEDGER.md`, `PROGRAM_LEDGER.md`, this ledger.
+- **Files changed:** the five source/store/lifecycle/kernel files above + `TelemetryAggregatorTests.swift`; plus `archive/runtime-completion/state/EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01.md`, `EVIDENCE_INDEX.md`, `SECOND_PASS_LEDGER.md`, `PROGRAM_LEDGER.md`, this ledger.
 - **Acceptance criteria verdict:**
   - Explicit opt-in content-free aggregates implemented (default off, reversible, no raw content). **Met for the deterministic engine.**
   - No telemetry activated by this prompt alone. **Met — default off + no transport.**
@@ -326,7 +326,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Actor:** GitHub Copilot.
 - **Objective result:** Under the owner's option-A instruction ("a go be perfect and premium"), produced a decision-ready **R11 closure plan** and reconciled the stale authority drift, without fabricating R11/RC/beta evidence.
 - **Delivered:**
-  - `AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md` mapping every R11 gate to an honest disposition (locally-closable / external-Apple-prerequisite-and-local-only-out-of-scope / owner-decision).
+  - `archive/runtime-completion/context/R11_CLOSURE_PLAN.md` mapping every R11 gate to an honest disposition (locally-closable / external-Apple-prerequisite-and-local-only-out-of-scope / owner-decision).
   - Reconciled `current-state.json` `authority` to match the owner grants and `SECOND_PASS_STATE.json`: edit/test/state + `launch_or_install_app` + `commit`/`push`/`merge` true; TCC/signing/release/telemetry/model-download/dependency/provider remain false.
   - Recommended advancing ADR-046 under an explicit local-only scope limitation; keeping the artifact `development_unverified`; keeping `beta-readiness.json` blocked.
 - **Evidence:** `EV-SP-029-20260830-R11-CLOSURE-PLAN-01` (process/plan).
@@ -3533,7 +3533,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
   - Unsigned executable startup from a workspace-local bundle with isolated `HOME`: remained alive for 12 seconds until watchdog exit 142; no crash output.
   - `git diff --check` and shell syntax checks passed.
 - **Limitations:** `swift-format` is unavailable. The smoke test did not sign, notarize, mutate TCC permissions, or claim microphone, Screen Recording, GUI, real wake-word, or release validation.
-- **Next safe action:** Begin R0 from `AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md`.
+- **Next safe action:** Begin R0 from `archive/runtime-completion/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md`.
 
 ### 2026-08-02T14:26:47Z — R0_GOVERNANCE_REPAIR_COMPLETED — validator, toolchain contract, CI gate, and capability audit
 
@@ -3543,19 +3543,19 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Verification:** `python3 scripts/validate_runtime_completion.py --ci` passed; 13/13 validator tests passed; Ruby parsed `.github/workflows/ci.yml`; `zsh -n scripts/*.sh`; Python `py_compile`; and `git diff --check` passed.
 - **Evidence:** `EV-R0-20260802-STATE-VALIDATOR-01`, `EV-R0-20260802-TOOLCHAIN-MANIFEST-01`, `EV-R0-20260802-CI-CONFIG-01`, `EV-R0-20260802-CAPABILITY-AUDIT-01`, `EV-R0-20260802-LEGACY-REDIRECT-01`.
 - **Limitations:** No actual GitHub Actions run was observed. The host lacks full Xcode/`xcodebuild` and `swift-format`; release validation remains blocked by those gates. No install, model download, TCC mutation, app launch, signing, notarization, release, or deployment occurred.
-- **State transition:** R0 is `completed`; R1 is `ready`. The next exact action is recorded in `AURA_RUNTIME_COMPLETION/context/session-handoff.json`.
+- **State transition:** R0 is `completed`; R1 is `ready`. The next exact action is recorded in `archive/runtime-completion/context/session-handoff.json`.
 
 ### 2026-08-02T14:15:06Z — BOOTSTRAP_STRICT_GATE_RECONCILED — canonical state and required evidence repaired
 
 - **Actor:** Copilot.
-- **Prompt:** `BOOTSTRAP` (`AURA_RUNTIME_COMPLETION/prompts/00_SESSION_BOOTSTRAP.prompt.md`).
+- **Prompt:** `BOOTSTRAP` (`archive/runtime-completion/prompts/00_SESSION_BOOTSTRAP.prompt.md`).
 - **Verified commit:** `62f96da3c14b1def80764a259377638142876ccc` on `main`; `origin/main` matched at capture.
 - **Result:** Re-ran the prompt’s live repository, authority, schema/manifest, dependency, legacy-status, and toolchain preflight. Corrected the state/handoff head from stale `041b0d7` to live `62f96da`; recorded the current session’s edit-only authority; added canonical-state pointers to legacy status files; and recorded the three required bootstrap evidence IDs.
 - **Validation:** Five JSON documents pass `jsonschema` 4.26.0; 15 ordered implementation prompts and the mandatory out-of-manifest `15_SESSION_CLOSEOUT.prompt.md` pass existence/order/dependency checks; required reads/references/identifier formats pass; live remote probe returns `62f96da`; toolchain inventory records macOS 27.0 arm64, Swift 6.4, SDK 27.0, Python 3.14.6/Chatterbox Python 3.11.15, Git 2.54.0, and the CommandLineTools limitation.
 - **Evidence:** `EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01`, `EV-BOOTSTRAP-20260802-SCHEMA-MANIFEST-01`, `EV-BOOTSTRAP-20260802-TOOLCHAIN-INVENTORY-01`.
 - **Limitations:** No Xcode `xcodebuild` or `swift-format` is available on this host; R0 owns the durable toolchain/CI contract. No product source was changed. No commit or push was performed in this session.
 - **Acceptance:** BOOTSTRAP gate **passed**; R0 remains ready. Historical append-only entries were preserved, and the remaining legacy projection work is explicitly assigned to R0.
-- **Next safe action:** Execute `AURA_RUNTIME_COMPLETION/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md` and inspect the canonical state, capability/evidence/risk registers, decision index, `Package.swift`, CI workflow, and build/signing scripts before editing.
+- **Next safe action:** Execute `archive/runtime-completion/prompts/01_R0_REPOSITORY_TRUTH_AND_GOVERNANCE.prompt.md` and inspect the canonical state, capability/evidence/risk registers, decision index, `Package.swift`, CI workflow, and build/signing scripts before editing.
 
 ### 2026-08-02T14:35:54Z — R0_POST_COMMIT_AND_TODO_AUDIT — pushed baseline and clean regression evidence
 
@@ -3654,7 +3654,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 ### 2026-08-08T10:51:29Z — R6_POLICY_BRIDGE_SLICE_STARTED — R5 gaps preserved; R6 objective and acceptance recorded
 
 - **Actor:** Codex engineering session.
-- **Transition:** R5 remains `in_progress`; its unresolved gates and the R2/R3/R4 deferred gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. R6 is now the active prompt by user-directed continuation.
+- **Transition:** R5 remains `in_progress`; its unresolved gates and the R2/R3/R4 deferred gates are recorded in `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md`. R6 is now the active prompt by user-directed continuation.
 - **Objective:** Enforce `PolicyEngine` decisions before every VS Code action path and harden the existing structured bridge boundary with authenticated/versioned/nonce-aware contracts, bounded data, and explicit stale/disconnect behavior.
 - **Assumptions:** Existing `AuraVSCode`, `AuraTasks`, `AuraAgent`, `WorktreeManager`, and ADR-041 Proposed record are the governing local surfaces; the installed `code` CLI is version `1.132.0` arm64; no live extension packaging, agent backend execution, TCC, commit, or publication action is authorized in this slice.
 - **Risks:** Current bridge state is file-based and unauthenticated; CLI/backend flags and health may drift; direct adapter paths could bypass policy; dirty editor and workspace ambiguity could cause loss or wrong-directory execution.
@@ -3695,7 +3695,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **User correction:** R6 is the active first-pass continuation. The phrase
   “second local R6 slice” was incorrect and has been removed from the current
   handoff/state projections.
-- **State boundary:** `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md` is
+- **State boundary:** `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md` is
   reserved for the R2-R5 gates deferred for the future second pass. R6's
   remaining extension, backend, durable-flow, and user-present acceptance
   gates remain current first-pass work and are tracked in the authoritative R6
@@ -3707,7 +3707,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 
 - **User instruction:** After every prompt, including the active R6 prompt,
   append unresolved gates to
-  `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md` for completion from the
+  `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md` for completion from the
   beginning in the future second pass.
 - **R6 state:** The R6 section is restored in that file. Its presence is a
   future second-pass record and does not suspend or close the current first-pass
@@ -3719,7 +3719,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 ### 2026-08-08T12:43:10Z — R7_VOICE_ROUTING_RESOURCE_GOVERNOR_STARTED — objective and boundaries recorded before R7 continuation
 
 - **Actor:** Codex engineering session; user explicitly authorized continuation to R7.
-- **Transition:** R6 remains `in_progress`; R2-R6 unresolved gates remain recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. R7 is the active first-pass prompt. No R8 work is authorized before R7 delivery and explicit user approval.
+- **Transition:** R6 remains `in_progress`; R2-R6 unresolved gates remain recorded in `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md`. R7 is the active first-pass prompt. No R8 work is authorized before R7 delivery and explicit user approval.
 - **Objective:** Implement the R7 local voice slice: exact-frame wake pipeline safety with truthful PTT-only production behavior, reusable local STT routing with capability-aware on-device recognition, bounded incomplete-turn completion, deterministic system-TTS interruption/fallback, and actor-isolated resource admission under memory pressure and thermal state.
 - **Assumptions:** Apple Speech and AVFoundation remain the native local adapters; no qualified real wake-word engine, live bilingual corpus, live human barge-in session, or approved ADR-042 acceptance is available in this pass. The existing dirty R5/R6 worktree is user-owned state and must be preserved.
 - **Risks:** Wake-word FAR/FRR and neural-TTS quality are unverified; local STT fallback is not a qualified Whisper-quality router; sleep/device/TCC recovery and measured 16 GB soak require live evidence; ADR-042 must not be accepted without explicit user approval.
@@ -3775,7 +3775,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Actor:** Codex engineering session; session `AURA-R9-PRODUCT-UI-20260808`, branch `main`, dirty worktree at `HEAD 3f5c28f`.
 - **Objective result:** Replaced the single control panel with a SwiftUI product surface for conversation, durable tasks, capabilities/permissions, models/voice, privacy/memory, and recovery. Added truthful local/cloud and ready/degraded/disabled projections, task cancellation, backend/model health, non-audit memory inspect/correct/delete/export paths, confirmation/emergency controls, persisted UI tab/language/onboarding state, staged onboarding, and English/Turkish shell copy. Existing policy, append-only memory, permission, and emergency-stop boundaries remain authoritative.
 - **Verification:** `swift build --target AURA` passed on macOS 27 / Apple Silicon / Swift 6.4 CommandLineTools with known missing-framework search-path warnings. `swift build --target AURAIntegrationTests` compiled the test target; the direct Swift Testing helper run passed `R9ProductUIStateTests` 3/3 (reducer, localization, export round-trip). The normal `swift test --filter` runner remains host-blocked by unrelated all-bundle codesign/Finder metadata and test-framework rpath behavior; no test result was inferred from that failed command.
-- **Risks:** User-present VoiceOver reading order, keyboard-only focus, contrast/scaled-layout/reduced-motion, live TCC permission denial/revocation, onboarding restart/recovery, task scope/review metadata, capability grant lifecycle, model lifecycle, integrations/account controls, support bundles, and full privacy/recovery acceptance remain open exactly as recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. R9 remains `in_progress`.
+- **Risks:** User-present VoiceOver reading order, keyboard-only focus, contrast/scaled-layout/reduced-motion, live TCC permission denial/revocation, onboarding restart/recovery, task scope/review metadata, capability grant lifecycle, model lifecycle, integrations/account controls, support bundles, and full privacy/recovery acceptance remain open exactly as recorded in `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md`. R9 remains `in_progress`.
 - **Evidence:** `EV-R9-20260808-UI-BUILD-02`, `EV-R9-20260808-UI-TESTS-03`, and `EV-R9-20260808-GAPS-04`.
 - **Delivery boundary:** No commit, push, merge, release, deploy, installation, dependency/model download, or TCC mutation was performed or authorized. Stop for user-present R9 acceptance or explicit scope direction before R10.
 
@@ -3914,7 +3914,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Actor:** Codex session `AURA-REPO-HYGIENE-H000-20260809`; mandatory `15_SESSION_CLOSEOUT.prompt.md`; edit-only authority.
 - **Closeout result:** H-000 remains the active prompt with `program_status=blocked` and `active_state=blocked`. The baseline and six-question cognitive gate are recorded in `EV-REPO-HYGIENE-H-000-20260809-01`; no H-001 action occurred.
 - **Verification:** Repository-hygiene validator passed at `H-000/blocked`; focused hygiene tests passed 3/3; runtime-completion CI governance passed; deterministic script tests passed 29/29; JSON parsing, `git diff --check`, and `zsh -n scripts/aura-test.sh` passed. The non-zero Git fsck and CommandLineTools-only limitation remain open.
-- **Projection review:** `AURA_RUNTIME_COMPLETION/state/current-state.json`, capability-matrix commit binding, session handoff, `ledger/CURRENT_STATE.md`, evidence index, risk register, focused hygiene ledger, and program documentation were synchronized to `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`. No decision-register or capability-status change was made.
+- **Projection review:** `archive/runtime-completion/state/current-state.json`, capability-matrix commit binding, session handoff, `ledger/CURRENT_STATE.md`, evidence index, risk register, focused hygiene ledger, and program documentation were synchronized to `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`. No decision-register or capability-status change was made.
 - **Authority boundary:** No cleanup, Git object recovery, dependency/tool/model installation, permission change, app action, commit, push, merge, release, or deployment occurred.
 - **Next safe action:** Keep H-000 active and wait for explicit direction; do not open H-001 until unknown Git metadata ownership/provenance and the independently verified backup/clean-clone recovery gate are resolved.
 
@@ -4066,7 +4066,7 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Objective/result:** Added the versioned fail-closed secret/dependency/workflow policy, schema, validator, exact synthetic fixture markers, validator tests, and CI invocation. Current-tree evidence records five explicitly allowed synthetic findings, zero unallowlisted findings, zero tracked sensitive artifact suffixes, zero external Swift dependencies, 146 locked Python packages with hash/provenance checks and `uv lock --check`, and three full-SHA workflow action references.
 - **Verification:** macOS 27.0/arm64, Swift 6.4, SDK 27.0, host Python 3.14.6, `uv` 0.11.24; supply validator exit 0; governance 37/37; Chatterbox 4/4; final Swift matrix 21/21 bundles, 794/794 tests, zero failures, exit 0; log `/tmp/aura-h008-tests-final-pass.log`, SHA-256 `cc628901892b911be42c1c767f396bb525265482fc259683851f9cbc41acf353`. The transient AuraAudio helper exit 142 was isolated and the bundle rerun passed 35/35.
 - **Acceptance/limitations:** H-008 is ready for chain-order continuation only. Historical secret absence is not claimed because the damaged original Git object database remains untouched; `gitleaks`, `trufflehog`, `osv-scanner`, `syft`, and `grype` are unavailable; hosted CI, vulnerability/SBOM, and external git commit revalidation are unverified and separately owned. No secret value was exposed or transmitted.
-- **Evidence:** `EV-REPO-HYGIENE-H-008-20260810-01`, `EV-REPO-HYGIENE-H-008-CLOSEOUT-20260810-01`; focused details are in `AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md`.
+- **Evidence:** `EV-REPO-HYGIENE-H-008-20260810-01`, `EV-REPO-HYGIENE-H-008-CLOSEOUT-20260810-01`; focused details are in `archive/runtime-completion/repo-hygiene/REPO_HYGIENE_LEDGER.md`.
 - **Next safe action:** Stop at H-008 and await exact `ONAY: H-009`; do not open or apply H-009 automatically.
 
 ### 2026-08-10T13:08:41Z — REPO_HYGIENE_H008_DELIVERY
@@ -4167,7 +4167,7 @@ new hosted-CI result is claimed. Evidence:
 
 ### 2026-08-12T14:46:13Z — CONTROLLED_COMPLETED_PROMPT_ARCHIVE
 
-- **Objective/result:** Reduced default repository context without removing evidence. The eleven completed H-000…H-010 hygiene prompt definitions were moved with `git mv` to `AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/`; `REPO_HYGIENE_PROMPT_MANIFEST.json` is the canonical locator and `AURA_RUNTIME_COMPLETION/archive/README.md` defines the loading boundary.
+- **Objective/result:** Reduced default repository context without removing evidence. The eleven completed H-000…H-010 hygiene prompt definitions were moved with `git mv` to `archive/runtime-completion/archive/repo-hygiene/2026-08-12/`; `REPO_HYGIENE_PROMPT_MANIFEST.json` is the canonical locator and `archive/runtime-completion/archive/README.md` defines the loading boundary.
 - **Preserved boundary:** Active FINAL and pending SP-000…SP-033 prompts, ADRs, current handoff/context, state/evidence/risk registers, and append-only ledgers remain in place. No H-011, prompt transition, product source, Git-object, release, deployment, or permission action occurred.
 - **Verification/next action:** Repository-hygiene, second-pass, supply-chain, JSON, and diff checks passed. The archive is an expected uncommitted control-plane change; explicit delivery is the next safe action before asserting a clean worktree.
 
@@ -4180,7 +4180,7 @@ new hosted-CI result is claimed. Evidence:
 
 ### 2026-08-12T15:45:00Z — SECOND_PASS_REPO_SURFACE_CLEANUP
 
-- **Scope:** Removed only three verified-empty legacy directories and moved the unreferenced `AURA_RUNTIME_COMPLETION/state/README.md` to the recoverable dated archive. No historical ledger was rewritten and no active second-pass or product file was deleted.
+- **Scope:** Removed only three verified-empty legacy directories and moved the unreferenced `archive/runtime-completion/state/README.md` to the recoverable dated archive. No historical ledger was rewritten and no active second-pass or product file was deleted.
 - **Preserved boundary:** Build/cache/user metadata surfaces remain untouched; canonical schemas, ADRs, source/tests, ledgers, evidence/risk registers, hygiene controls, and all `SP-*` prompts remain available.
 - **Verification/next action:** Full governance/second-pass/supply-chain validation, 38/38 script tests, JSON, shell, diff, empty-directory, and active-reference checks passed. Keep `SP-000/pending`; no automatic prompt transition or Git delivery follows.
 
@@ -4219,7 +4219,7 @@ new hosted-CI result is claimed. Evidence:
 - **Session/actor:** `AURA-SP-001-LIVE-TRACE-20260814`; Codex.
 - **Scope/objective:** Attempted only `SP-001` / `OPEN-02`, requiring direct user-present safe observation plus reversible mutation with truthful trace, confirmation, execution, verification, and deny/timeout/dismissal/replay/changed-plan/cancellation/restart coverage. SP-002 was not started.
 - **State/authority:** `main`, `HEAD == origin/main == 76ce21ab423bd3c828e3386fb7174bf11ec56862`; verified non-projection baseline `d82fde6be6e95bc8d3ccb64341bd2538baf12a92`; macOS 27 / arm64 / Swift 6.4. The prompt does not authorize app launch/install, TCC/provider/account actions, signing, release, deploy, commit, push, or merge.
-- **Evidence/result:** `EV-SP-001-20260814-ATTEMPT-01`. The five prompt-relevant suites passed 316 tests total (AuraCore 27, AuraPolicy 19, AURAIntegration 21, AuraAgent 214, AuraAudio 35); log paths and SHA-256 hashes are indexed in `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`. This proves deterministic contract/integration behavior only.
+- **Evidence/result:** `EV-SP-001-20260814-ATTEMPT-01`. The five prompt-relevant suites passed 316 tests total (AuraCore 27, AuraPolicy 19, AURAIntegration 21, AuraAgent 214, AuraAudio 35); log paths and SHA-256 hashes are indexed in `archive/runtime-completion/state/EVIDENCE_INDEX.md`. This proves deterministic contract/integration behavior only.
 - **Symptom/mechanism:** Required live displayed confirmation, real reversible mutation, target-Mac correlated execution/verification, truthful response, and live negative/restart traces were not observed. The blocker is missing authorized app execution at the user-present runtime/UI boundary; local/simulated tests cannot substitute.
 - **Falsifier/residual:** An authorized redacted target-Mac bundle containing the complete direct trace and all required negative/restart cases would falsify the blocker. Until then `RISK-SP-001-LIVE-TRACE-AUTHORITY` remains Open, SP-001 remains blocked, and no denied action or product mutation was performed.
 - **Next safe action:** Obtain explicit target-Mac/app-launch authority, retry only SP-001, run the mandated closeout/validators, and do not advance to SP-002.
@@ -4228,7 +4228,7 @@ new hosted-CI result is claimed. Evidence:
 
 - **Scope:** Authorized user-present execution of `SP-001` / `OPEN-02` only; no `SP-002`, product-source change, TCC mutation, installation, dependency/model/provider action, signing, release, deploy, commit, push, or merge.
 - **Direct result:** Local AURA speech observation completed. A displayed confirmation was denied once and allowed once for a safe reversible Calculator termination; the UI reported `Quit com.apple.calculator.` and a read-only process check returned `NOT_RUNNING`. Untouched confirmation, changed-plan, emergency-stop/re-arm, replay, and quit/reopen restart behavior were observed fail-closed. The fresh restart showed no carried confirmation.
-- **Evidence:** `EV-SP-001-20260814-LIVE-TRACE-03`; redacted artifact `AURA_RUNTIME_COMPLETION/state/EV-SP-001-20260814-LIVE-TRACE-03.md` with SHA-256 indexed in `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`.
+- **Evidence:** `EV-SP-001-20260814-LIVE-TRACE-03`; redacted artifact `archive/runtime-completion/state/EV-SP-001-20260814-LIVE-TRACE-03.md` with SHA-256 indexed in `archive/runtime-completion/state/EVIDENCE_INDEX.md`.
 - **Truth boundary:** The live UI does not expose redacted correlation/causation IDs, and the in-memory event bus does not supply a durable trace artifact. The timeout ended as `thinking timeout`; distinct UI dismissal, failed-verification, and concurrent-turn-isolation evidence were not proven. Therefore the live bundle does not satisfy the universal postcondition and `SP-001` remains blocked; no next prompt is safe.
 - **Next action:** Preserve the blocked state and retry only `SP-001` after independently captureable correlation/causation and missing negative/verification traces are available.
 
@@ -4309,9 +4309,9 @@ remaining post-fix live matrix; `SP-002` remains unopened. Evidence:
   - Observed the conversation area display `You: hello`.
   - Reverted the temporary source change back to `'native-speech'`.
   - Closed the AURA process.
-  - Updated `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md`, `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`, `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md`, `AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md`, and this ledger.
+  - Updated `archive/runtime-completion/second-pass/SECOND_PASS_STATE.json`, `archive/runtime-completion/state/current-state.json`, `archive/runtime-completion/context/session-handoff.json`, `archive/runtime-completion/second-pass/SECOND_PASS_LEDGER.md`, `archive/runtime-completion/state/EVIDENCE_INDEX.md`, `archive/runtime-completion/state/PROGRAM_LEDGER.md`, `archive/runtime-completion/state/RISK_REGISTER.md`, and this ledger.
 - **Verification evidence:**
-  - Evidence artifact `AURA_RUNTIME_COMPLETION/state/EV-SP-002-20260815-PTT-MOCK-14.md` records the live procedure, executable SHA-256, and limits.
+  - Evidence artifact `archive/runtime-completion/state/EV-SP-002-20260815-PTT-MOCK-14.md` records the live procedure, executable SHA-256, and limits.
   - `python3 scripts/validate_second_pass_program.py` passed.
   - `python3 scripts/validate_runtime_completion.py --ci` passed.
   - `python3 scripts/validate_repo_hygiene_program.py` passed.
@@ -4320,7 +4320,7 @@ remaining post-fix live matrix; `SP-002` remains unopened. Evidence:
   - `python3 -m compileall -q scripts` passed.
   - `zsh -n scripts/*.sh` passed.
   - `git diff --check` passed.
-- **Files changed (uncommitted, append-only/control-plane):** `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md`, `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`, `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md`, `AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md`, `AURA_RUNTIME_COMPLETION/state/EV-SP-002-20260815-PTT-MOCK-14.md`, `ledger/PROJECT_LEDGER.md`, and this entry. No product source path was changed; the temporary `Configuration_STTConfiguration.defaultEngineID` change was reverted.
+- **Files changed (uncommitted, append-only/control-plane):** `archive/runtime-completion/second-pass/SECOND_PASS_STATE.json`, `archive/runtime-completion/state/current-state.json`, `archive/runtime-completion/context/session-handoff.json`, `archive/runtime-completion/second-pass/SECOND_PASS_LEDGER.md`, `archive/runtime-completion/state/EVIDENCE_INDEX.md`, `archive/runtime-completion/state/PROGRAM_LEDGER.md`, `archive/runtime-completion/state/RISK_REGISTER.md`, `archive/runtime-completion/state/EV-SP-002-20260815-PTT-MOCK-14.md`, `ledger/PROJECT_LEDGER.md`, and this entry. No product source path was changed; the temporary `Configuration_STTConfiguration.defaultEngineID` change was reverted.
 - **Acceptance criteria verdict:**
   - Full SP-002 authority obtained and recorded. **Met.**
   - AURA built, signed, and launched from local source. **Met.**
@@ -4568,7 +4568,7 @@ in-turn user go-ahead for commit, push, and merge.
 
 - **Actor:** GitHub Copilot engineering session.
 - **Session ID:** `AURA-SP-010-COMPOSITION-20260817`.
-- **Prompt:** `SP-010` (`AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-010_PROVIDER_ACCOUNT_AND_UI_COMPOSITION.prompt.md`), track R5, gap `OPEN-06` deterministic slice.
+- **Prompt:** `SP-010` (`archive/runtime-completion/prompts/second_pass/SP-010_PROVIDER_ACCOUNT_AND_UI_COMPOSITION.prompt.md`), track R5, gap `OPEN-06` deterministic slice.
 - **Authority:** User explicitly authorized completing the partially-finished SP-010 prompt and state/ledger reconciliation. No live provider OAuth, TCC mutation, app launch/install, Safari extension install, commit, push, merge, signing, release, or deployment action was authorized or performed.
 - **Objective:** Close the deterministic provider/account onboarding and UI composition slice of OPEN-06 per the SP-010 prompt contract.
 - **Assumptions:** SP-009 Safari bridge packaging/authentication evidence remains valid.
@@ -4591,7 +4591,7 @@ in-turn user go-ahead for commit, push, and merge.
 - **Active prompt:** R5 / in_progress with SP-010 completed; SP-011 is next eligible and pending/unopened.
 - **Verified repository state:** main HEAD == origin/main == 33688e2a54f1e5d53574d0ddea22d5256eec29c7; working_tree_state = dirty_expected.
 - **Objective:** Run 15_SESSION_CLOSEOUT.prompt.md and leave deterministic closeout artifacts that a fresh session can resume safely.
-- **Delivered changes:** Repaired malformed SECOND_PASS_LEDGER.md tail; updated current-state.json and capability-matrix.json heads; synchronized session-handoff.json to schema; appended SP-010 entries to AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md and this ledger; updated EVIDENCE_INDEX.md and RISK_REGISTER.md.
+- **Delivered changes:** Repaired malformed SECOND_PASS_LEDGER.md tail; updated current-state.json and capability-matrix.json heads; synchronized session-handoff.json to schema; appended SP-010 entries to archive/runtime-completion/state/PROGRAM_LEDGER.md and this ledger; updated EVIDENCE_INDEX.md and RISK_REGISTER.md.
 - **Evidence IDs:** EV-SP-010-20260817-COMPOSITION-01.
 - **Tests / validators:** AuraProductivityTests 48/48; full regression 21/21 bundles, 954/954 tests, 0 failed; validate_second_pass_program.py, validate_runtime_completion.py --ci, validate_repo_hygiene_program.py, validate_repo_hygiene_supply_chain.py, and 38/38 governance unit tests passed.
 - **Acceptance criteria verdict:** Closeout artifacts are schema-valid, heads are synchronized, next action is explicit. Met.
@@ -4833,7 +4833,7 @@ Recorded under `EV-SP-011-20260818-OAUTH-RETRY-06` after the user's explicit ret
 - **Verified start commit:** `389ea344652d3d1d8211e6ce244f909eff42bc6e` (== `origin/main`); clean worktree.
 - **Authority:** `edit:true`; `download_models:false`; `install_dependencies:false`; no commit/push/merge/release/permission/provider action.
 - **Evidence / class:** `EV-SP-015-20260822-WAKE-EXCLUSION-01` — manual review + system test + static inventory audit.
-- **Decision:** **wake word is EXPLICITLY EXCLUDED from the release scope** (SP-015 Procedure step 3). No licensed local candidate is provisioned or bundled (inventory `AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md` records zero candidates; only Chatterbox ONNX library conformance fixtures exist, not wake models). The active authority forbids `download_models`/`install_dependencies`, so qualification is not lawfully possible in this pass. Production remains Push-to-Talk-only (`DisabledWakeWordDetector`); `MarkerWakeWordDetector` is test-only (ADR-003). The truthful UI already states no acoustic model is installed ("Activation: Push to Talk"; onboarding `.wakeWord`; runtime warning). No `ADR-042` file exists anywhere (decision register path absent) — reconciled as a projection gap, ADR-042 stays `Proposed`. Re-evaluation requires the user to grant model-download authority and supply a licensed local candidate with Turkish/FAR-FRR/noise/self-trigger/license-hash/soak evidence.
+- **Decision:** **wake word is EXPLICITLY EXCLUDED from the release scope** (SP-015 Procedure step 3). No licensed local candidate is provisioned or bundled (inventory `archive/runtime-completion/context/WAKE_MODEL_INVENTORY.md` records zero candidates; only Chatterbox ONNX library conformance fixtures exist, not wake models). The active authority forbids `download_models`/`install_dependencies`, so qualification is not lawfully possible in this pass. Production remains Push-to-Talk-only (`DisabledWakeWordDetector`); `MarkerWakeWordDetector` is test-only (ADR-003). The truthful UI already states no acoustic model is installed ("Activation: Push to Talk"; onboarding `.wakeWord`; runtime warning). No `ADR-042` file exists anywhere (decision register path absent) — reconciled as a projection gap, ADR-042 stays `Proposed`. Re-evaluation requires the user to grant model-download authority and supply a licensed local candidate with Turkish/FAR-FRR/noise/self-trigger/license-hash/soak evidence.
 - **Verification:** `python3 scripts/validate_second_pass_program.py` **PASSED**; `AuraAudioTests` 35/35 (includes `disabledWakeDetectorNeverClaimsProductionActivation`), 0 failed bundles.
 - **Acceptance verdict:** SP-015 completion gate **MET** — wake word is live-excluded with truthful UI and no wake-word claim. **SP-015 `completed`.** SP-016 (bilingual STT quality and voice recovery) is safe to start.
 - **Residual risks:** `RISK-NO-REAL-WAKE-WORD` Mitigating — explicitly excluded; re-enablement gated on future model-download authority. ADR-042 file absent (projection gap). Bilingual STT quality/recovery forwarded to SP-016. No commit/push/merge performed (authority edit-only for delivery).
@@ -5614,7 +5614,7 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Objective:** use the owner-present Computer Use path to inspect AURA Settings → Recovery and identify whether the remaining SP-030 blocker is in AURA or at the UI-automation boundary.
 - **Assumptions / risks:** preserve the user's app state and fail closed on missing live evidence; do not mutate TCC/permissions, telemetry, provider accounts, signing, release, or deployment. The required acceptance is a directly observable Recovery interaction, not a deterministic test or a tool-recovery claim.
 - **Result:** AURA stayed alive, but selecting Recovery closed the native Computer Use pipe. Fresh macOS reports identify `SkyComputerUseService` 26.817.1000761 and `Array.remove(at:)` in its AX observer as the crash path; the same result reproduced with a fresh local AURA bundle. A temporary Recovery AX-flattening source experiment did not help and was reverted, so no speculative product change remains.
-- **Verification:** `AURAIntegrationTests` passed 111 tests / 22 suites / 0 failures on the clean source; `git diff --check` passed. Evidence: `AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260902-CUA-SERVICE-CRASH-01.md`.
+- **Verification:** `AURAIntegrationTests` passed 111 tests / 22 suites / 0 failures on the clean source; `git diff --check` passed. Evidence: `archive/runtime-completion/state/EV-SP-030-20260902-CUA-SERVICE-CRASH-01.md`.
 - **Acceptance / next safe action:** the Computer Use Recovery acceptance criterion is **not met** and SP-030 remains blocked. Update/restart the Computer Use service or complete the Recovery checks manually with the owner present. Remaining live R11 recovery, live-beta voice SLO samples, live scenario execution, and incident review are still required; SP-031 must not start.
 ### 2026-09-02T09:04:12Z — SP-030 — unattended alternate validation attempt
 
@@ -5778,7 +5778,7 @@ delivery is explicitly excluded; local-only claims remain truthful.
   `bee334782262089fa117124ababa9b3c6dfed394`; the worktree is
   `dirty_expected` with 35 existing control-plane paths. The recorded
   `user_owned_changes` projection is incomplete because it omits the modified
-  `AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md`; this must be reconciled
+  `archive/runtime-completion/state/DECISION_REGISTER.md`; this must be reconciled
   before further acceptance work.
 - **Authority and risks:** only edit/test/state work is authorized. No install
   or launch, TCC mutation, provider contact, beta/telemetry activity, signing,

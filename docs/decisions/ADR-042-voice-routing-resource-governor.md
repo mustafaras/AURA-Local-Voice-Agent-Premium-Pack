@@ -9,7 +9,7 @@
   - `Sources/AuraSTT/STTRouter.swift`
   - `Sources/AuraAudio/ChatterboxTTSEngine.swift`
   - `Sources/AuraAgent/OllamaAdapter_Preflight.swift`
-  - `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md` (OPEN-08)
+  - `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md` (OPEN-08)
 
 ## Decision
 

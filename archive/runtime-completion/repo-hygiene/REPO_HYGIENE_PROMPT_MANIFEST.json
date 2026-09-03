@@ -1,0 +1,22 @@
+{
+  "$schema": "./REPO_HYGIENE_PROMPT_MANIFEST.schema.json",
+  "schema_version": "1.0.0",
+  "program_id": "AURA-REPO-HYGIENE",
+  "program_document": "docs/operations/REPO_HYGIENE_PROGRAM.md",
+  "state_file": "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_STATE.json",
+  "prompt_directory": "archive/runtime-completion/archive/repo-hygiene/2026-08-12",
+  "validator": "scripts/validate_repo_hygiene_program.py",
+  "prompts": [
+    {"id":"H-000","sequence":0,"gap_id":"HYGIENE-00","title":"Baseline freeze and evidence capture","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-000_BASELINE_FREEZE_AND_EVIDENCE_CAPTURE.prompt.md","depends_on":null,"next_prompt":"H-001"},
+    {"id":"H-001","sequence":1,"gap_id":"HYGIENE-01","title":"Git object database recovery","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-001_GIT_OBJECT_DATABASE_RECOVERY.prompt.md","depends_on":"H-000","next_prompt":"H-002"},
+    {"id":"H-002","sequence":2,"gap_id":"HYGIENE-02","title":"Dirty worktree and artifact quarantine","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-002_DIRTY_WORKTREE_AND_ARTIFACT_QUARANTINE.prompt.md","depends_on":"H-001","next_prompt":"H-003"},
+    {"id":"H-003","sequence":3,"gap_id":"HYGIENE-03","title":"Ignore rules and generated-file hygiene","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-003_IGNORE_RULES_AND_GENERATED_FILE_HYGIENE.prompt.md","depends_on":"H-002","next_prompt":"H-004"},
+    {"id":"H-004","sequence":4,"gap_id":"HYGIENE-04","title":"Canonical toolchain and documentation drift","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-004_CANONICAL_TOOLCHAIN_AND_DOCUMENTATION_DRIFT.prompt.md","depends_on":"H-003","next_prompt":"H-005"},
+    {"id":"H-005","sequence":5,"gap_id":"HYGIENE-05","title":"Swift format lint and strict concurrency","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-005_SWIFT_FORMAT_LINT_AND_STRICT_CONCURRENCY.prompt.md","depends_on":"H-004","next_prompt":"H-006"},
+    {"id":"H-006","sequence":6,"gap_id":"HYGIENE-06","title":"Unsafe constructs and debug output","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-006_UNSAFE_CONSTRUCTS_AND_DEBUG_OUTPUT.prompt.md","depends_on":"H-005","next_prompt":"H-007"},
+    {"id":"H-007","sequence":7,"gap_id":"HYGIENE-07","title":"Test matrix CI and coverage hygiene","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-007_TEST_MATRIX_CI_AND_COVERAGE_HYGIENE.prompt.md","depends_on":"H-006","next_prompt":"H-008"},
+    {"id":"H-008","sequence":8,"gap_id":"HYGIENE-08","title":"Secret dependency and supply-chain hygiene","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-008_SECRET_DEPENDENCY_AND_SUPPLY_CHAIN_HYGIENE.prompt.md","depends_on":"H-007","next_prompt":"H-009"},
+    {"id":"H-009","sequence":9,"gap_id":"HYGIENE-09","title":"Ledger context and architecture hygiene","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-009_LEDGER_CONTEXT_AND_ARCHITECTURE_HYGIENE.prompt.md","depends_on":"H-008","next_prompt":"H-010"},
+    {"id":"H-010","sequence":10,"gap_id":"HYGIENE-10","title":"Final repository hygiene gate and closeout","file":"archive/runtime-completion/archive/repo-hygiene/2026-08-12/H-010_FINAL_REPO_HYGIENE_GATE_AND_CLOSEOUT.prompt.md","depends_on":"H-009","next_prompt":null}
+  ]
+}

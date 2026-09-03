@@ -16,15 +16,15 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json"
-STATE = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json"
+MANIFEST = ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json"
+STATE = ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_STATE.json"
 PROGRAM = ROOT / "docs/operations/REPO_HYGIENE_PROGRAM.md"
-READ_FIRST = ROOT / "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_READ_FIRST.md"
-CONTRACT = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md"
-PROMPT_CONTRACT = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md"
-LEDGER = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_LEDGER.md"
-CONTEXT_SUMMARY = ROOT / "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_CONTEXT_SUMMARY.md"
-ARCHITECTURE_AUDIT = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/H-009_ARCHITECTURE_AUDIT.md"
+READ_FIRST = ROOT / "archive/runtime-completion/context/REPO_HYGIENE_READ_FIRST.md"
+CONTRACT = ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_CONTROL_CONTRACT.md"
+PROMPT_CONTRACT = ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_PROMPT_CONTRACT.md"
+LEDGER = ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_LEDGER.md"
+CONTEXT_SUMMARY = ROOT / "archive/runtime-completion/context/REPO_HYGIENE_CONTEXT_SUMMARY.md"
+ARCHITECTURE_AUDIT = ROOT / "archive/runtime-completion/repo-hygiene/H-009_ARCHITECTURE_AUDIT.md"
 
 REQUIRED_PROMPT_MARKERS = (
     "## Cognitive completion gate",

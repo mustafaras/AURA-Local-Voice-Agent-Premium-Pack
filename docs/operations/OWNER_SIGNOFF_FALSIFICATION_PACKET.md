@@ -37,7 +37,7 @@
   notarized artifact, or clean-machine Gatekeeper evidence. None exists.
 
 **Claim 3 — the release artifact is still `development_unverified`.**
-- Check: `grep -n "r11_release_status" AURA_RUNTIME_COMPLETION/state/beta-readiness.json`
+- Check: `grep -n "r11_release_status" archive/runtime-completion/state/beta-readiness.json`
 - Expect: `development_unverified`.
 - **Falsified if:** it reads anything else, or any record calls the artifact a
   release candidate. `release_candidate.status` must be `blocked`.
@@ -58,7 +58,7 @@ direct evidence rather than a document change.
 > `blocked` and is the authoritative source.
 
 **Claim 1 — no SLO, scenario, incident, or sign-off result is fabricated.**
-- Check: `python3 scripts/validate_beta_readiness.py --record AURA_RUNTIME_COMPLETION/state/beta-readiness.json`
+- Check: `python3 scripts/validate_beta_readiness.py --record archive/runtime-completion/state/beta-readiness.json`
 - Expect: exit 0. Then read `slo_definitions` — two of five must say
   `not_measured`; the three measured ones must carry `measurement_class:
   deterministic_harness` and a `limitations` string saying it is not a live beta.

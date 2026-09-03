@@ -8,7 +8,7 @@ from scripts import validate_repo_hygiene_supply_chain as supply_chain
 
 ROOT = Path(__file__).resolve().parents[2]
 POLICY = json.loads(
-    (ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json").read_text(
+    (ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json").read_text(
         encoding="utf-8"
     )
 )

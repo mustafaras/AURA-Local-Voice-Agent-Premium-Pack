@@ -243,7 +243,7 @@ incident containment. The release owner approved the contract
 (`EV-SP-029-20260830-OWNER-APPROVAL-01`). The in-scope content-free aggregate
 engine with no transport was implemented (`EV-SP-029-20260830-TELEMETRY-AGGREGATOR-01`)
 and is dormant by default. Closeout recorded at `EV-SP-029-20260830-CLOSEOUT-01`.
-The fail-closed `AURA_RUNTIME_COMPLETION/state/beta-readiness.json` contract was
+The fail-closed `archive/runtime-completion/state/beta-readiness.json` contract was
 validated and remains `blocked` (`authority.beta_enrollment: false`,
 `telemetry.enabled: false`, `cohort.status: not_enrolled`, all signoffs
 `not_obtained`, release_candidate `blocked`/`approved: false`). No telemetry was
@@ -278,7 +278,7 @@ SP-030 and SP-031.
 
 **R11 dependency planning (2026-08-30):** Under the owner option-A grant
 ("a go be perfect and premium"), a decision-ready R11 closure plan
-(`AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md`;
+(`archive/runtime-completion/context/R11_CLOSURE_PLAN.md`;
 `EV-SP-029-20260830-R11-CLOSURE-PLAN-01`) maps the remaining R11 gates into
 locally-closable / external-Apple-prerequisite-and-local-only-out-of-scope /
 owner-decision buckets and reconciles the stale authority drift in
@@ -414,7 +414,7 @@ changes (inventory, evidence, state, and ledger projections).
 **SP-015 wake-word decision COMPLETED (EV-SP-015-20260822-WAKE-EXCLUSION-01):**
 wake word is **explicitly excluded from the release scope** (SP-015 Procedure
 step 3). No licensed local candidate is provisioned or bundled (new inventory
-`AURA_RUNTIME_COMPLETION/context/WAKE_MODEL_INVENTORY.md` records zero
+`archive/runtime-completion/context/WAKE_MODEL_INVENTORY.md` records zero
 candidates); the active authority forbids `download_models`/`install_dependencies`,
 so qualification is not lawfully possible in this pass. Production remains
 Push-to-Talk-only through `DisabledWakeWordDetector`; `MarkerWakeWordDetector` is
@@ -465,7 +465,7 @@ or this terminal closure. Product, beta, signing, release, deployment, live,
 ADR-034/044, and FINAL gates remain separate.
 
 The terminal H-000…H-010 prompt definitions are archived under
-`AURA_RUNTIME_COMPLETION/archive/repo-hygiene/2026-08-12/`; the hygiene prompt
+`archive/runtime-completion/archive/repo-hygiene/2026-08-12/`; the hygiene prompt
 manifest remains their canonical locator. The archive/cleanup delivery is
 merged by PR #3; SP-000 state/validator delivery is merged to `main`. Main CI
 run `31613321170` is a historical queued observation; no repository-defined
@@ -527,12 +527,12 @@ re-pair, so SP-012 stays `in_progress`/`blocked` and SP-013 is not started.
 ## Canonical State Notice — 2026-08-09
 
 The authoritative current state is
-`AURA_RUNTIME_COMPLETION/state/current-state.json`, with live repository
+`archive/runtime-completion/state/current-state.json`, with live repository
 `HEAD == origin/main == 6e53e6a941756e4b34f24f5de3c9c29bdc8147bf`; its
 audited product/content baseline remains
 `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045. R2 through R12 remain
 `in_progress` with deferred/live/manual/security/release/beta gates recorded in
-`AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`. FINAL/CLOSEOUT is active by
+`archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md`. FINAL/CLOSEOUT is active by
 explicit user request for a blocked acceptance audit and maintainer handoff;
 it cannot claim release-candidate verification or release. The R11 local
 `development_unverified` artifact, manifest, SBOM, checksum, and fail-closed
@@ -559,7 +559,7 @@ Evidence: `EV-REPO-HYGIENE-TOOLCHAIN-XCODE-20260811-01` and
 
 The repository-hygiene audit is now encoded as the canonical plan
 `docs/operations/REPO_HYGIENE_PROGRAM.md` and the synchronized H-000–H-010
-control plane under `AURA_RUNTIME_COMPLETION/repo-hygiene/`. H-000 through
+control plane under `archive/runtime-completion/repo-hygiene/`. H-000 through
 H-009 were complete for chain-order purposes at that snapshot; H-010 was then
 active and `blocked`
 after the final gate preserved explicit evidence-backed limitations. H-007's explicit host-boundary scope

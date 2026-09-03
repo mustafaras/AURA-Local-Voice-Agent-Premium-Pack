@@ -39,7 +39,7 @@ EVIDENCE_ID_RE = re.compile(r"^EV-[A-Z0-9][A-Z0-9-]{4,}$")
 # than to validate one candidate string in isolation.
 _EVIDENCE_ID_SCAN_RE = re.compile(r"EV-[A-Z0-9][A-Z0-9-]{4,}")
 
-EVIDENCE_INDEX_RELATIVE_PATH = Path("AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md")
+EVIDENCE_INDEX_RELATIVE_PATH = Path("archive/runtime-completion/state/EVIDENCE_INDEX.md")
 
 
 def _load_known_evidence_ids(repo_root: Path | None = None) -> frozenset[str]:

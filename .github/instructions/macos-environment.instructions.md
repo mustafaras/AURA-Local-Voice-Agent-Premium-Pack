@@ -80,7 +80,7 @@ This instruction file is referenced by the `ledger/CURRENT_STATE.md` and `ledger
 3. Read `ledger/PROJECT_LEDGER.md`.
 4. Read the relevant current specification under `docs/` and, for governed
    work, the active prompt named by
-   `AURA_RUNTIME_COMPLETION/state/current-state.json`.
+   `archive/runtime-completion/state/current-state.json`.
 5. Run `swift build`.
 6. If the build succeeds, run `swift test`.
 7. If tests pass, update `ledger/CURRENT_STATE.md` and append to `ledger/PROJECT_LEDGER.md`.

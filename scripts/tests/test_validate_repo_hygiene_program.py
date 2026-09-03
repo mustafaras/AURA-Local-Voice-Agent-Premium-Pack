@@ -7,11 +7,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 VALIDATOR = ROOT / "scripts/validate_repo_hygiene_program.py"
-MANIFEST = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json"
-STATE = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json"
+MANIFEST = ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_PROMPT_MANIFEST.json"
+STATE = ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_STATE.json"
 COVERAGE_SCOPE = ROOT / "scripts/aura-coverage-scope.regex"
-CONTEXT_SUMMARY = ROOT / "AURA_RUNTIME_COMPLETION/context/REPO_HYGIENE_CONTEXT_SUMMARY.md"
-ARCHITECTURE_AUDIT = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/H-009_ARCHITECTURE_AUDIT.md"
+CONTEXT_SUMMARY = ROOT / "archive/runtime-completion/context/REPO_HYGIENE_CONTEXT_SUMMARY.md"
+ARCHITECTURE_AUDIT = ROOT / "archive/runtime-completion/repo-hygiene/H-009_ARCHITECTURE_AUDIT.md"
 
 
 class RepoHygieneProgramTests(unittest.TestCase):

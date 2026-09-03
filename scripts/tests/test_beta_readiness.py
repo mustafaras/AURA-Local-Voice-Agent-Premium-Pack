@@ -17,7 +17,7 @@ class BetaReadinessTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.record = json.loads(
-            (ROOT / "AURA_RUNTIME_COMPLETION/state/beta-readiness.json").read_text()
+            (ROOT / "archive/runtime-completion/state/beta-readiness.json").read_text()
         )
 
     def test_repository_contract_is_conservative(self):
@@ -90,7 +90,7 @@ class MeasuredModeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.record = json.loads(
-            (ROOT / "AURA_RUNTIME_COMPLETION/state/beta-readiness.json").read_text()
+            (ROOT / "archive/runtime-completion/state/beta-readiness.json").read_text()
         )
 
     def _with_slo(self, **overrides):
@@ -236,7 +236,7 @@ class EvidenceIdMustExistTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.record = json.loads(
-            (ROOT / "AURA_RUNTIME_COMPLETION/state/beta-readiness.json").read_text()
+            (ROOT / "archive/runtime-completion/state/beta-readiness.json").read_text()
         )
 
     def _with_slo(self, **overrides):

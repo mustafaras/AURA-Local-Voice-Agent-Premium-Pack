@@ -21,8 +21,8 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-POLICY_PATH = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json"
-POLICY_SCHEMA_PATH = ROOT / "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.schema.json"
+POLICY_PATH = ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.json"
+POLICY_SCHEMA_PATH = ROOT / "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_SUPPLY_CHAIN_POLICY.schema.json"
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 

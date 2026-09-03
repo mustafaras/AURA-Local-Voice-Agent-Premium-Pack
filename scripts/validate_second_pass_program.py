@@ -217,10 +217,10 @@ def _validate_state(root: Path, manifest_prompts: list[dict[str, Any]], state: d
     # blind spot where a completed prompt had an index row but neither an
     # artifact file nor a dense inline record (e.g. SP-010). The active prompt
     # is exempt: it may be blocked with handoff-only evidence.
-    state_dir = root / "AURA_RUNTIME_COMPLETION/state"
+    state_dir = root / "archive/runtime-completion/state"
     on_disk_evidence = 0
     index_text = ""
-    index_path = root / "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md"
+    index_path = root / "archive/runtime-completion/state/EVIDENCE_INDEX.md"
     if index_path.is_file():
         index_text = index_path.read_text(encoding="utf-8")
     if state_dir.is_dir():
@@ -249,8 +249,8 @@ def _validate_state(root: Path, manifest_prompts: list[dict[str, Any]], state: d
 
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
-    manifest_path = root / "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json"
-    state_path = root / "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json"
+    manifest_path = root / "archive/runtime-completion/second-pass/SECOND_PASS_PROMPT_MANIFEST.json"
+    state_path = root / "archive/runtime-completion/second-pass/SECOND_PASS_STATE.json"
     manifest = _load_json(manifest_path, errors)
     state = _load_json(state_path, errors)
     active = state.get("active_prompt") if isinstance(state, dict) else None
@@ -258,7 +258,7 @@ def validate(root: Path) -> list[str]:
         return errors
     prompts = _validate_manifest(root, manifest, errors)
 
-    gaps_path = root / "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md"
+    gaps_path = root / "archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md"
     gaps_text = gaps_path.read_text(encoding="utf-8") if gaps_path.is_file() else ""
     if not gaps_text:
         errors.append("missing or empty SECOND_PASS_OPEN_GAPS.md")
@@ -271,21 +271,21 @@ def validate(root: Path) -> list[str]:
             if gap_id not in gap_headings:
                 errors.append(f"{item['id']} references gap not present in gap register: {gap_id}")
     for control_file in (
-        "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
-        "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
-        "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-        "AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md",
-        "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md",
+        "archive/runtime-completion/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
+        "archive/runtime-completion/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
+        "archive/runtime-completion/second-pass/SECOND_PASS_LEDGER.md",
+        "archive/runtime-completion/context/SECOND_PASS_READ_FIRST.md",
+        "archive/runtime-completion/SECOND_PASS_PROMPT_PROGRAM.md",
     ):
         _require_file(root, control_file, errors)
 
-    read_first = root / "AURA_RUNTIME_COMPLETION/context/SECOND_PASS_READ_FIRST.md"
+    read_first = root / "archive/runtime-completion/context/SECOND_PASS_READ_FIRST.md"
     if read_first.is_file():
         read_text = read_first.read_text(encoding="utf-8")
         if "Tier 0" not in read_text or "Tier 1" not in read_text:
             errors.append("SECOND_PASS_READ_FIRST.md must define Tier 0 and Tier 1")
 
-    handoff = root / "AURA_RUNTIME_COMPLETION/context/session-handoff.json"
+    handoff = root / "archive/runtime-completion/context/session-handoff.json"
     if handoff.is_file():
         handoff_data = _load_json(handoff, errors)
         handoff_prompt = handoff_data.get("active_prompt", {}) if isinstance(handoff_data, dict) else {}
@@ -304,7 +304,7 @@ def validate(root: Path) -> list[str]:
         if "SECOND_PASS_LEDGER.md" not in handoff_text:
             errors.append("session-handoff.json must reference SECOND_PASS_LEDGER.md")
 
-    active_context = root / "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md"
+    active_context = root / "archive/runtime-completion/context/ACTIVE_CONTEXT.md"
     if active_context.is_file():
         active_text = active_context.read_text(encoding="utf-8")
         expected_overlay = f"{active}` / `{state.get('active_state')}"
@@ -313,14 +313,14 @@ def validate(root: Path) -> list[str]:
                 f"ACTIVE_CONTEXT.md must record the synchronized {active}/{state.get('active_state')} overlay"
             )
 
-    ledger = root / "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md"
+    ledger = root / "archive/runtime-completion/second-pass/SECOND_PASS_LEDGER.md"
     if ledger.is_file():
         ledger_text = ledger.read_text(encoding="utf-8")
         for phrase in ("append-only", "Current state", "Authority", "Next action"):
             if phrase.lower() not in ledger_text.lower():
                 errors.append(f"SECOND_PASS_LEDGER.md missing synchronization field: {phrase}")
 
-    program = root / "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
+    program = root / "archive/runtime-completion/SECOND_PASS_PROMPT_PROGRAM.md"
     if program.is_file():
         program_text = program.read_text(encoding="utf-8")
         for phrase in ("scripts/validate_second_pass_program.py", "SP-000", "SP-033"):

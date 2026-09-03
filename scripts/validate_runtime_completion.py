@@ -311,7 +311,7 @@ def validate_manifest_prompt_files(repo_root: Path, manifest: dict[str, Any]) ->
         prompt_path = repo_root / entry["file"]
         if not prompt_path.is_file():
             raise ValidationFailure(f"manifest prompt file is missing: {entry['file']}")
-    closeout = repo_root / "AURA_RUNTIME_COMPLETION/prompts/15_SESSION_CLOSEOUT.prompt.md"
+    closeout = repo_root / "archive/runtime-completion/prompts/15_SESSION_CLOSEOUT.prompt.md"
     if not closeout.is_file():
         raise ValidationFailure("mandatory session closeout prompt is missing")
 
@@ -328,10 +328,10 @@ def validate_references(
     capability: dict[str, Any],
 ) -> None:
     evidence_ids = extract_ids(
-        repo_root / "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md", "EV"
+        repo_root / "archive/runtime-completion/state/EVIDENCE_INDEX.md", "EV"
     )
     risk_ids = extract_ids(
-        repo_root / "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md", "RISK"
+        repo_root / "archive/runtime-completion/state/RISK_REGISTER.md", "RISK"
     )
     known_gates = {gate["id"] for gate in state["release_gates"]}
 
@@ -412,7 +412,7 @@ def validate_worktree_claim(
 
 def projection_only_paths(paths: list[str]) -> bool:
     allowed_prefixes = (
-        "AURA_RUNTIME_COMPLETION/",
+        "archive/runtime-completion/",
         ".github/workflows/",
         "ledger/",
         "SESSION_STARTER.md",
@@ -483,7 +483,7 @@ def validate_repository_claims(repo_root: Path, state: dict[str, Any]) -> None:
 def validate_legacy_pointers(repo_root: Path) -> None:
     for relative_path in ("ledger/CURRENT_STATE.md", "SESSION_STARTER.md"):
         text = (repo_root / relative_path).read_text()
-        if "AURA_RUNTIME_COMPLETION/state/current-state.json" not in text:
+        if "archive/runtime-completion/state/current-state.json" not in text:
             raise ValidationFailure(f"legacy state file lacks canonical pointer: {relative_path}")
         if "historical" not in text.lower() and "compatibility" not in text.lower():
             raise ValidationFailure(f"legacy state file is not marked historical: {relative_path}")
@@ -505,7 +505,7 @@ def validate_toolchain_environment(repo_root: Path, toolchain: dict[str, Any], r
 
 
 def validate_repository(repo_root: Path, release: bool = False) -> None:
-    runtime_root = repo_root / "AURA_RUNTIME_COMPLETION"
+    runtime_root = repo_root / "archive/runtime-completion"
     document_checks = [
         ("state/current-state.json", "schemas/program-state.schema.json"),
         ("context/session-handoff.json", "schemas/session-handoff.schema.json"),

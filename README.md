@@ -46,7 +46,7 @@ A production-oriented implementation pack for a continuously available, privacy-
 4. Read `docs/architecture/02_ARCHITECTURE.md`.
 5. Initialize `ledger/PROJECT_LEDGER.md`.
 6. For governed work, use the canonical active prompt in
-   `AURA_RUNTIME_COMPLETION/state/current-state.json` and its manifest; do not
+   `archive/runtime-completion/state/current-state.json` and its manifest; do not
    infer work from historical prompt-path references.
 7. Run the relevant review or closeout prompt after every milestone.
 8. Do not begin a later phase until the prior phase's acceptance gate passes.

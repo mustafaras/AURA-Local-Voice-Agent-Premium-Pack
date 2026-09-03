@@ -16,10 +16,10 @@ class SecondPassProgramTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.manifest = json.loads(
-            (ROOT / "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json").read_text()
+            (ROOT / "archive/runtime-completion/second-pass/SECOND_PASS_PROMPT_MANIFEST.json").read_text()
         )
         cls.state = json.loads(
-            (ROOT / "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json").read_text()
+            (ROOT / "archive/runtime-completion/second-pass/SECOND_PASS_STATE.json").read_text()
         )
 
     def test_control_plane_validates(self):
@@ -58,7 +58,7 @@ class SecondPassProgramTests(unittest.TestCase):
             else:
                 self.assertEqual(self.state["blocked_prompts"], [])
         handoff = json.loads(
-            (ROOT / "AURA_RUNTIME_COMPLETION/context/session-handoff.json").read_text()
+            (ROOT / "archive/runtime-completion/context/session-handoff.json").read_text()
         )
         self.assertEqual(handoff["active_prompt"]["id"], self.state["active_prompt"])
         self.assertEqual(handoff["active_prompt"]["state"], self.state["active_state"])

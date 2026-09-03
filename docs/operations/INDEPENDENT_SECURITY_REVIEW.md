@@ -55,7 +55,7 @@ closure status. Closed findings require a regression test in
 ## Evidence retention
 
 Each review produces a dated entry in `ledger/PROJECT_LEDGER.md` and
-`AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`. Keep reproducer inputs in
+`archive/runtime-completion/state/EVIDENCE_INDEX.md`. Keep reproducer inputs in
 test files; never commit ambient audio, screenshots, secrets, or user
 documents. Store non-public details in the project keychain or secure vault.
 

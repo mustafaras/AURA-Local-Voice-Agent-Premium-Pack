@@ -2,16 +2,16 @@
 
 > Conversation date: 9 August 2026
 > Live HEAD: `ee95b7c2e5caba9f77debf3c57e0873feb45ebf9` — `docs(delivery): record governance merge and deployment boundary`
-> Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`, `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry before changing files.
+> Read `AGENTS.md`, `archive/runtime-completion/state/current-state.json`, `archive/runtime-completion/context/session-handoff.json`, and the newest `archive/runtime-completion/state/PROGRAM_LEDGER.md` entry before changing files.
 
 ## Canonical State Notice — 2026-08-09
 
 This starter is a **historical compatibility document**. Use
-`AURA_RUNTIME_COMPLETION/state/current-state.json` and
-`AURA_RUNTIME_COMPLETION/context/session-handoff.json` as the authoritative
+`archive/runtime-completion/state/current-state.json` and
+`archive/runtime-completion/context/session-handoff.json` as the authoritative
 state. Live `HEAD == origin/main == ee95b7c2e5caba9f77debf3c57e0873feb45ebf9`;
 the active prompt is **FINAL**. R2/R3/R4/R5/R6/R7/R8/R9/R10/R11/R12 remain open and their second-pass
-gates are recorded in `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
+gates are recorded in `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md`.
 The historical phase and push claims below are not current state.
 
 ## Repository
@@ -101,7 +101,7 @@ The historical phase and push claims below are not current state.
 
 The user directed that all remaining incomplete gates be completed in a second
 pass after the first pass. The canonical list is
-`AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`; each live/account item
+`archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md`; each live/account item
 requires the user physically present or explicit authorization:
 
 1. **R2 live-verification:** microphone/TCC voice demo
@@ -153,10 +153,10 @@ this transition.
 
 ## First safe action for the next session
 
-1. Read `AGENTS.md`, `AURA_RUNTIME_COMPLETION/state/current-state.json`,
-   `AURA_RUNTIME_COMPLETION/context/session-handoff.json`, and the newest
-   `AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md` entry plus
-   `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md`.
+1. Read `AGENTS.md`, `archive/runtime-completion/state/current-state.json`,
+   `archive/runtime-completion/context/session-handoff.json`, and the newest
+   `archive/runtime-completion/state/PROGRAM_LEDGER.md` entry plus
+   `archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md`.
 2. Continue **R11** by obtaining separately authorized full-Xcode, signing,
    clean-machine, updater, recovery, migration, uninstall, and observed-CI
    evidence; keep R2/R3/R4/R5/R6/R7/R8/R9/R10/R11 open where gates remain

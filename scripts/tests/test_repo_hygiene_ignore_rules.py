@@ -33,7 +33,7 @@ class RepoHygieneIgnoreRuleTests(unittest.TestCase):
             "Sources/AURA/AuraKernel.swift",
             "Tests/AuraAgentTests/Fixtures/ollama_generate_structured_real.json",
             "Tests/AuraIntentTests/BilingualGoldenCorpusTests.swift",
-            "AURA_RUNTIME_COMPLETION/repo-hygiene/REPO_HYGIENE_STATE.json",
+            "archive/runtime-completion/repo-hygiene/REPO_HYGIENE_STATE.json",
             "docs/operations/REPO_HYGIENE_PROGRAM.md",
         )
 

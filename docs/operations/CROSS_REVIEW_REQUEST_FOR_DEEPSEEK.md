@@ -54,7 +54,7 @@ Questions to answer:
 
 ### Artifact 2 — the R12 readiness contract's measured mode
 
-`scripts/validate_beta_readiness.py`, `AURA_RUNTIME_COMPLETION/schemas/beta-readiness.schema.json`,
+`scripts/validate_beta_readiness.py`, `archive/runtime-completion/schemas/beta-readiness.schema.json`,
 and `scripts/tests/test_beta_readiness.py`.
 
 Claude Code rewrote the validator so a completed beta is representable at all.
@@ -74,7 +74,7 @@ Questions to answer:
    candidate `blocked`?
 3. Does the validator fail **closed** on unknown status values, or does any
    unrecognized value fall through a branch and get silently accepted?
-4. Does `AURA_RUNTIME_COMPLETION/state/beta-readiness.json` as committed contain
+4. Does `archive/runtime-completion/state/beta-readiness.json` as committed contain
    any claim stronger than its evidence supports?
 
 ### Artifact 3 — the F-005 localization remediation

@@ -428,7 +428,7 @@ as a hand-verified sample — never as an exhaustive ratio.
 
 `scripts/validate_beta_readiness.py` enforces that every recorded result carries
 an evidence ID matching `EVIDENCE_ID_RE = ^EV-[A-Z0-9][A-Z0-9-]{4,}$`, but it
-never checks that the ID **exists** in `AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md`
+never checks that the ID **exists** in `archive/runtime-completion/state/EVIDENCE_INDEX.md`
 (or anywhere else). The validator's own docstring claims "every recorded result
 must carry its own provenance: an evidence ID, a measurement class that states
 how the number was produced, and the limitations of that class." A well-formed
@@ -465,7 +465,7 @@ referenced IDs (`EV-SP-030-20260830-OWNER-APPROVAL-03`, `-PRIVACY-REVIEW-01`,
 latent gap in the validator, not a defect in the committed record.
 
 **Suggested remediation.** After the format check, verify each evidence ID
-resolves to a file under `AURA_RUNTIME_COMPLETION/state/` (or an entry in
+resolves to a file under `archive/runtime-completion/state/` (or an entry in
 `EVIDENCE_INDEX.md`), and fail closed when it does not. This is a provenance-
 existence check, not a semantic one, and belongs in the validator so the
 "cannot record a fake" claim holds.
