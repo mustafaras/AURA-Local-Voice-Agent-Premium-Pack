@@ -2,7 +2,7 @@
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
   "updated_at": "2026-09-02T15:16:37Z",
-  "repository_commit": "6671a6acdad5985c5c9e6936361397c6dcdec96d",
+  "repository_commit": "caa3cf5d49d324cb07a5496ada3b1d1d8a87f2cc",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -714,9 +714,9 @@
       "dependencies": [
         "dialogue.conversation"
       ],
-    "open_gaps": [
-      "ADR-043 is accepted for the explicit local-only product boundary; no production remote-context transport exists. Broader accessibility and FINAL release gates remain open outside this R8 capability scope."
-    ],
+      "open_gaps": [
+        "ADR-043 is accepted for the explicit local-only product boundary; no production remote-context transport exists. Broader accessibility and FINAL release gates remain open outside this R8 capability scope."
+      ],
       "evidence_ids": [
         "EV-R8-20260808-MEMORY-POLICY-01",
         "EV-R8-20260808-CONTEXT-PRODUCT-02",
@@ -882,7 +882,7 @@
     },
     {
       "id": "release.distribution",
-    "name": "Local-only artifact provenance and distribution boundary",
+      "name": "Local-only artifact provenance and distribution boundary",
       "domain": "release",
       "implementation_state": "partial",
       "runtime_state": "registered_disabled",
@@ -904,17 +904,17 @@
       "dependencies": [
         "security.privilege_separation"
       ],
-    "open_gaps": [
-      "The exact local artifact remains development_unverified and is not a beta or release candidate. Developer ID, notarization, and external clean-machine distribution are permanently out of scope under ADR-049; direct local lifecycle, recovery, clean-profile, uninstall, and FINAL acceptance evidence remains open."
-    ],
+      "open_gaps": [
+        "The exact local artifact remains development_unverified and is not a beta or release candidate. Developer ID, notarization, and external clean-machine distribution are permanently out of scope under ADR-049; direct local lifecycle, recovery, clean-profile, uninstall, and FINAL acceptance evidence remains open."
+      ],
       "evidence_ids": [
         "EV-R11-20260809-ARTIFACT-MANIFEST-01",
         "EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03",
         "EV-SP-031-20260902-LOCAL-ONLY-PACKAGE-01",
         "EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01",
         "EV-SP-032-20260902-FINAL-RECONCILIATION-01"
-    ],
-    "notes": "The owner-approved package is local development_unverified use only; it does not establish beta, release-candidate, production, or external-distribution readiness."
+      ],
+      "notes": "The owner-approved package is local development_unverified use only; it does not establish beta, release-candidate, production, or external-distribution readiness."
     },
     {
       "id": "operations.updates_recovery",
@@ -938,17 +938,17 @@
       "dependencies": [
         "release.distribution"
       ],
-    "open_gaps": [
-      "Direct user-present evidence is absent for sleep/wake/crash recovery, safe-mode export, populated-profile migration, update/rollback, uninstall/factory-reset, and support-bundle privacy. No approved live update transport exists; external distribution remains out of scope under ADR-049."
-    ],
+      "open_gaps": [
+        "Direct user-present evidence is absent for sleep/wake/crash recovery, safe-mode export, populated-profile migration, update/rollback, uninstall/factory-reset, and support-bundle privacy. No approved live update transport exists; external distribution remains out of scope under ADR-049."
+      ],
       "evidence_ids": [
         "EV-R11-20260809-ARTIFACT-MANIFEST-01",
         "EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01",
         "EV-SP-028-20260829-RUNTIME-API-02",
         "EV-SP-030-20260901-R11-LIVE-GATE-05",
         "EV-SP-032-20260902-FINAL-RECONCILIATION-01"
-    ],
-    "notes": "ADR-046 is accepted for the local-only contract scope. Deterministic lifecycle coverage and the direct launch-at-login observation do not prove the remaining operational lifecycle acceptance."
+      ],
+      "notes": "ADR-046 is accepted for the local-only contract scope. Deterministic lifecycle coverage and the direct launch-at-login observation do not prove the remaining operational lifecycle acceptance."
     }
   ]
 }
