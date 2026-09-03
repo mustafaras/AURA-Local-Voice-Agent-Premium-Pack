@@ -1,6 +1,105 @@
 # Current State
 
-## Userless alternate verification — 2026-09-02
+## SP-032 FINAL reconciliation — blocked, 2026-09-02
+
+`EV-SP-032-20260902-FINAL-RECONCILIATION-01` records the edit-only reconciliation
+of OPEN-14. The exact SP-031 package remains approved only as local
+`development_unverified`; ADR-046/047 are accepted only for their local scopes;
+and ADR-049 excludes Developer ID, notarization, and external clean-machine
+distribution. No clean-Mac, end-to-end, beta, lifecycle, release-candidate, or
+release procedure was authorized or executed. SP-032 remains `blocked`,
+`beta-readiness.json` and `release_candidate` remain blocked, and SP-033 must
+not start. Return direct missing postconditions to R2-R12.
+
+Mandatory closeout `EV-SP-032-20260902-CLOSEOUT-02` revalidated the blocked
+handoff and permitted integrity checks. It adds no clean-Mac, lifecycle, beta,
+release-candidate, or release evidence.
+
+Autonomous deterministic-control leg `EV-SP-032-20260902-DETERMINISTIC-SUITE-01`
+re-ran the second-pass/runtime/beta-readiness/release-manifest validators,
+rechecked both SP-031 SHA-256s, and ran a fresh full `aura-test.sh` suite (22
+bundles, 0 failed, 1325 tests / 87 suites, exit 0) under current
+edit/test/state-only authority. It is `deterministic_harness`-only evidence and
+does not close FINAL; SP-032 remains `blocked`.
+
+## SP-032 owner-grant live local acceptance — 2026-09-03
+
+`EV-SP-032-20260903-LIVE-ACCEPTANCE-01` records the owner-grant live local
+acceptance: authority reconciled to enable local launch/install, permission
+mutation, and commit/push/merge (sign/notarize/release stay OFF per ADR-049).
+Built `AURA.app` + helpers + Safari ext; local-signed with `AURA Stable Local
+Signing`, `codesign --verify --deep --strict` exit 0; live launch stable ≥13s,
+no crash, clean quit; fresh full suite 22 bundles / 0 failed / 1325 tests, line
+coverage 70.19%; supply-chain + repo-hygiene PASSED, 64 Python governance OK;
+BTM shows launch-at-login registered.
+
+This materially advances SP-032's local gates but does **not** close (and must
+not fabricate) the R12 independent-evaluator/cohort/live-SLO gates, Developer-ID/
+external distribution (ADR-049), or the unit-tested-only R11 lifecycle
+sub-gates (sleep/wake/crash/migration/safe-mode live). `beta-readiness.json` and
+`release_candidate` remain blocked.
+
+## SP-031 local-only approval and completion — 2026-09-02
+
+`EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01` records the owner's review of
+the package evidence and falsification checklist, approval of exact artifact
+SHA-256 `d870475cb2f8e2580afc72296f4a828a2c54977828d7f6792fe12d9b3f33e837` and
+manifest SHA-256 `4c5df5552867f27a43fbbf918fb7c5e07bcaefc1f6b255d1506a4c25a4cce5e5`,
+and acceptance of ADR-047 for local `development_unverified` use only. SP-031
+is complete for that narrow package scope.
+
+This is explicitly not beta, production, `release_candidate`, signed,
+notarized, or external-release approval. `beta-readiness.json` and
+`release_candidate` remain blocked. SP-032 is the next uncompleted prompt but
+is blocked and unexecuted because its FINAL direct-evidence gates are absent.
+
+## SP-031 local-only package assembly — 2026-09-02
+
+> **Historical pre-approval record:** the Proposed/pending statements below are
+> superseded for current status by the SP-031 approval entry above.
+
+`EV-SP-031-20260902-LOCAL-ONLY-PACKAGE-01` records a reproducible local-only
+`development_unverified` package built twice from clean source commit
+`bee334782262089fa117124ababa9b3c6dfed394`. The archive SHA-256 is
+`d870475cb2f8e2580afc72296f4a828a2c54977828d7f6792fe12d9b3f33e837`; the
+manifest SHA-256 is
+`4c5df5552867f27a43fbbf918fb7c5e07bcaefc1f6b255d1506a4c25a4cce5e5`; and
+the byte-for-byte rerun comparison passed. The current deterministic suite
+passed 1325 tests / 87 suites / 22 bundles with zero failures and 70.20% line
+coverage.
+
+ADR-047 is drafted as `Proposed`, not accepted. Independent declared-scope
+review and explicit owner approval for this exact local-only package are still
+missing. The package is unsigned and unnotarized; no live beta, telemetry,
+microphone/TCC, provider, deployment, production, or release approval follows.
+`beta-readiness.json` and `release_candidate` remain blocked/unapproved, SP-031
+remains `in_progress`, and SP-032 is not safe to start. Current session
+authority is reset to edit/test/state-only; commit, push, merge, launch,
+signing, release, and deployment authority are false.
+
+The review procedure is now prepared at
+`docs/operations/SP-031_LOCAL_ONLY_PACKAGE_REVIEW_PACKET.md` and recorded by
+`EV-SP-031-20260902-REVIEW-PACKET-01`; its mandatory revalidation closeout is
+`EV-SP-031-20260902-CLOSEOUT-REVIEW-PACKET-01`. These records do not
+substitute for independent review, explicit owner approval, or ADR-047
+acceptance.
+
+## SP-030 local-only scope transition — 2026-09-02
+
+At the release owner's explicit request, ADR-051 narrows SP-030 to local-only
+deterministic validation. `EV-SP-030-20260902-LOCAL-ONLY-SCOPE-01` records the
+bounded completion decision: no live test is required for this scope, but no
+live-beta, production, scientific, or release claim follows. The existing
+userless results remain the supporting evidence.
+
+SP-030 is complete for this local-only scope. The broader OPEN-13 live-beta
+objective remains deferred: `beta-readiness.json` is still `blocked`, R11 is
+still `in_progress`, and live voice/R11/scenario/incident gates remain open.
+Under ADR-052, SP-031 is now `in_progress` only for local-only
+`development_unverified` package preparation and ADR-047 drafting; this does
+not authorize live testing, beta, release, or production claims.
+
+## Historical userless alternate verification — 2026-09-02 (before ADR-051)
 
 Evidence `EV-SP-030-20260902-UNATTENDED-ALTERNATE-01` records the attempt to
 validate remaining SP-030 gaps without the owner present. `AuraLifecycleTests`
@@ -8,10 +107,12 @@ passed 48/10/0, `AURAIntegrationTests` 111/22/0, and `AuraSTTTests` 19/4/0.
 The opt-in synthetic Speech path failed closed in three real-recognizer tests
 with `speechNotAuthorized`; no TCC/permission mutation or prompt was requested.
 The result is deterministic/synthetic evidence only, not live-beta evidence.
-SP-030 remains blocked on live R11 recovery, qualifying voice samples, a live
-scenario window, and incident review; SP-031 must not start.
+At that time SP-030 remained blocked on live R11 recovery, qualifying voice
+samples, a live scenario window, and incident review; SP-031 was not allowed to
+start. The later ADR-051 transition above completes SP-030 only for local-only
+deterministic validation.
 
-## Computer Use diagnostic reconciliation — 2026-09-02
+## Historical Computer Use diagnostic reconciliation — 2026-09-02
 
 The owner-present Computer Use Recovery attempt is recorded as
 `EV-SP-030-20260902-CUA-SERVICE-CRASH-01`. AURA and Settings were reachable,
@@ -23,12 +124,12 @@ it did not change the result; no product source workaround remains.
 
 Clean-source `AURAIntegrationTests` passed 111 tests / 22 suites / 0 failures.
 This is a Computer Use service-boundary blocker, not a beta SLO, scenario, or
-release pass. SP-030 remains blocked: live R11 recovery flows, qualifying live
-voice SLO samples, live scenario execution, and incident review are still open;
-SP-031 must not start. Update/restart the Computer Use service or perform the
-Recovery checks manually with the owner present.
+release pass. At that time SP-030 remained blocked: live R11 recovery flows,
+qualifying live voice SLO samples, live scenario execution, and incident review
+were still open; SP-031 was not allowed to start. The current scope transition
+is recorded at the top of this projection.
 
-## Delivery reconciliation — 2026-09-02 (graphify, Git delivery, and local deploy)
+## Historical delivery reconciliation — 2026-09-02 (graphify, Git delivery, and local deploy)
 
 This newest projection is based on the verified source/delivery baseline
 `25abcb70cfe11dd8e92af1de78ea3e8b2e2425b6` (`main`, pushed to
@@ -51,18 +152,17 @@ through `.git/info/exclude`, so it was neither deleted nor pushed.
   release was performed or claimed. CI run `33601259000` was observed queued,
   not successful. Direct `main` delivery has no open PR to merge.
 
-SP-030 remains **blocked**. All five R12 sign-offs and launch-at-login are now
-closed. The remaining blockers are live sleep/wake/crash recovery, safe-mode
-export, populated-profile migration, qualifying live-beta samples for
-`ptt_ack`/`stt_partial`/`dialogue_first_token`, a live-window scenario run, and
-incident review. `beta-readiness.json` remains blocked, telemetry remains
-disabled with `transport: none`, and `release_candidate` remains
-`blocked`/`approved: false`. SP-031 must not start.
+At that earlier delivery checkpoint, SP-030 was **blocked** by live
+sleep/wake/crash recovery, safe-mode export, populated-profile migration,
+qualifying live-beta samples for `ptt_ack`/`stt_partial`/`dialogue_first_token`,
+a live-window scenario run, and incident review. The later ADR-051 transition
+completes SP-030 only for local-only deterministic validation; `beta-readiness`
+and `release_candidate` remain blocked, and SP-031 remains downstream blocked.
 
 This file is a compact, atomically replaced projection of the append-only ledger.
-Projection refreshed from live repository and command evidence on 2026-08-30.
+Projection refreshed from live repository and command evidence on 2026-09-02.
 
-## Authoritative current status — 2026-08-30T20:30:00Z (SP-030 `blocked`)
+## Historical authoritative status — 2026-08-30T20:30:00Z (SP-030 `blocked`, superseded by the 2026-09-02 scope transition)
 
 The active second-pass prompt is **`SP-030` / `blocked`** (beta
 SLOs, scenarios, incidents, sign-offs, R12) under

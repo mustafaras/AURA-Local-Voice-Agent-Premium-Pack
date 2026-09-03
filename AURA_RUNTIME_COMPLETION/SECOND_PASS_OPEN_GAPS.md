@@ -17,13 +17,23 @@ projections of one chain, not independent checklists:
 
 - **Gap truth:** this file, `SECOND_PASS_OPEN_GAPS.md`.
 - **Execution order:** [`SECOND_PASS_PROMPT_MANIFEST.json`](second-pass/SECOND_PASS_PROMPT_MANIFEST.json).
-- **Active state:** [`SECOND_PASS_STATE.json`](second-pass/SECOND_PASS_STATE.json), currently `SP-002` / `pending`; `SP-001` is completed for its bounded `OPEN-02` scope and `SP-002` has not been opened.
+- **Active state:** [`SECOND_PASS_STATE.json`](second-pass/SECOND_PASS_STATE.json), currently `SP-031` / `in_progress`; `SP-030` is completed for the owner-approved local-only deterministic scope under ADR-051, while SP-031 is open for local-only package preparation under ADR-052.
 - **Prompt contract:** [`SECOND_PASS_PROMPT_CONTRACT.md`](second-pass/SECOND_PASS_PROMPT_CONTRACT.md).
 - **Control invariants:** [`SECOND_PASS_CONTROL_CONTRACT.md`](second-pass/SECOND_PASS_CONTROL_CONTRACT.md).
 - **Tiered context:** [`SECOND_PASS_READ_FIRST.md`](context/SECOND_PASS_READ_FIRST.md).
 - **Focused append-only ledger:** [`SECOND_PASS_LEDGER.md`](second-pass/SECOND_PASS_LEDGER.md).
 - **Human chain index:** [`SECOND_PASS_PROMPT_PROGRAM.md`](SECOND_PASS_PROMPT_PROGRAM.md).
 - **Machine validator:** `scripts/validate_second_pass_program.py`.
+
+## Current SP-031 scope — 2026-09-02
+
+SP-030 is completed for the owner-approved local-only deterministic scope under
+ADR-051. SP-031 is now `in_progress` under ADR-052 for local-only
+`development_unverified` RC package preparation and ADR-047 drafting. This
+opening does not approve an RC, change `beta-readiness.json`, or authorize live
+testing, signing, notarization, publication, deployment, beta, or production
+claims. SP-031 must finish its own package and decision gate before SP-032 can
+start.
 
 The manifest contains 34 prompts (`SP-000` through `SP-033`). A prompt may
 only become `completed` when its named `OPEN-*` item is objectively resolved,
@@ -76,7 +86,7 @@ The result is intentionally conservative:
 | 10 | R9 | `in_progress` | Manual VoiceOver/keyboard/layout/localization pass, full task/capability/model/privacy/recovery controls, onboarding denial/restart, and support/recovery UX. | R4–R8 / UI owner | Clean/configured profile accessibility and usability evidence |
 | 11 | R10 | `in_progress` | Authenticated peer boundary/real helper execution, all-network-path enforcement, OAuth lifecycle, plugin trust, injection corpus, incident response, independent review, ADR-044. | R4–R6 and R9 surfaces / security owner | Adversarial, independent-review, and production-boundary evidence |
 | 12 | R11 | `in_progress` | Full-Xcode reproducible local-only release artifact, observed CI, local nested signing + launch, launch-at-login, updater/rollback, recovery/migration/uninstall/support bundle. Developer ID/notarization/Gatekeeper are permanently out of scope (ADR-049). | R9 + R10 / release owner | Local-only release evidence (ADR-046, nested sign, artifact hashes, launch) |
-| 13 | R12 | `in_progress`/blocked | Approved cohort/consent, content-free telemetry, SLO/scenario/incident results, independent sign-offs, and provenance-bound RC package. | R11 / beta owner | Authorized beta evidence, SLO report, sign-offs, RC approval, ADR-047 |
+| 13 | R12 | `in_progress` | Approved cohort/consent, content-free telemetry, SLO/scenario/incident results, independent sign-offs, and provenance-bound RC package. | R11 / beta owner | Authorized beta evidence, SLO report, sign-offs, RC approval, ADR-047 |
 | 14 | FINAL | `in_progress`/blocked | Full capability acceptance, clean-Mac E2E, security/privacy review, documentation cleanup, state closure, and operational handoff. | R12 / release owner | All mandatory evidence and explicit release authority |
 | 15 | SESSION CLOSEOUT | mandatory procedure | No product gap; must be rerun after every implementation/audit session with exact branch, commit, files, tests, evidence, blockers, authority, and next action. | Every order / session owner | New append-only ledger/evidence/state/handoff validation |
 
@@ -2152,6 +2162,74 @@ incident review are still open, and SP-031 must not start. Next safe action is
 to update/restart the Computer Use service or perform the Recovery checks
 manually with the owner present.
 
+**2026-09-02 local-only scope amendment (`EV-SP-030-20260902-LOCAL-ONLY-SCOPE-01`,
+`ADR-051`).** At the release owner's explicit request, SP-030 is now bounded to
+local-only deterministic validation and honest evidence classification. Its
+scope-completion gate is satisfied by the passing deterministic suites,
+provenance-bound alternate evidence, existing sign-offs/local launch-at-login
+evidence, and the recorded scope decision. No live test is required for this
+bounded scope. This does **not** close the broader OPEN-13 live-beta objective:
+live voice/latency, microphone STT quality, live R11 recovery, live scenario
+execution, and incident review remain deferred and open. `beta-readiness.json`
+stays `blocked`, R12 stays in progress, and SP-031 remains active for its
+separately bounded local-only package attempt.
+
+### SP-031 local-only package attempt — 2026-09-02
+
+`EV-SP-031-20260902-LOCAL-ONLY-PACKAGE-01` records the current package
+postcondition. A clean detached worktree at
+`bee334782262089fa117124ababa9b3c6dfed394` produced the unsigned
+`development_unverified` archive twice with byte-identical output. The bound
+artifact is `d870475cb2f8e2580afc72296f4a828a2c54977828d7f6792fe12d9b3f33e837`
+(`58420226` bytes); its manifest is
+`4c5df5552867f27a43fbbf918fb7c5e07bcaefc1f6b255d1506a4c25a4cce5e5`
+(`10775` bytes). The manifest records `development_unverified`, a 17-file
+bundle inventory, and no Developer ID/hardened-runtime/notarization evidence.
+The current deterministic suite passed 1325 tests / 87 suites / 22 bundles
+with zero failures and 70.20% line coverage; the report and logs remain in the
+local temporary test directory. Existing CI evidence remains bound to its own
+historical commit; no hosted-CI result is inferred for this package commit.
+
+The package is reproducible and recoverable for local review, but it is not an
+approved release candidate. ADR-047 is now drafted as `Proposed`; explicit
+owner approval for this exact local-only package, independent review of its
+declared scope, and ADR-047 acceptance are still absent. The external model
+manifest/weights are not present in the repository, so neural voice remains
+outside the qualified package scope. No live beta/SLO/scenario/incident/R11
+evidence was created. `beta-readiness.json` remains `blocked`,
+`release_candidate` remains blocked/unapproved, and SP-031 remains
+`in_progress`; SP-032 is not safe to start.
+
+### SP-031 review packet — 2026-09-02
+
+`EV-SP-031-20260902-REVIEW-PACKET-01` records preparation of
+`docs/operations/SP-031_LOCAL_ONLY_PACKAGE_REVIEW_PACKET.md`. The packet binds
+the exact local-only artifact, manifest, source commit, evidence classes,
+falsification checks, independence disclosure, and an explicit approve/return
+decision template. It is not evidence that an independent review or owner
+decision occurred. SP-031 therefore remains `in_progress`; ADR-047 remains
+`Proposed`; `beta-readiness.json` and `release_candidate` remain blocked; and
+SP-032 must not start until the separate review/decision evidence is recorded.
+
+`EV-SP-031-20260902-CLOSEOUT-REVIEW-PACKET-01` records the mandatory closeout
+of this packet attempt. All required local validators and package-integrity
+checks passed, but the result is still process/local evidence: it does not
+prove the owner performed the review or accepted ADR-047. The approval gate is
+therefore still open and SP-032 remains unsafe to start.
+
+**2026-09-02 owner decision update:** The owner then reviewed the exact package
+evidence and falsification checklist. `EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01`
+records approval of artifact SHA-256
+`d870475cb2f8e2580afc72296f4a828a2c54977828d7f6792fe12d9b3f33e837` and
+manifest SHA-256
+`4c5df5552867f27a43fbbf918fb7c5e07bcaefc1f6b255d1506a4c25a4cce5e5` for local
+`development_unverified` use only, with listed limitations accepted. ADR-047 is
+accepted only for that local-only scope and SP-031's local package gate is
+complete. This does not close OPEN-13/R12: `beta-readiness.json` and
+`release_candidate` remain blocked, and the direct FINAL gates remain absent.
+SP-032 is projected as the next prompt but is **blocked and unexecuted**; it is
+not safe to start under this local-only decision.
+
 ## OPEN-14 — FINAL: Acceptance, Cleanup, and Operational Handoff
 
 Prompt: [`14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md`](prompts/14_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md)
@@ -2171,15 +2249,85 @@ closure gates remain open and return to their owning tracks:
   rollback/uninstall/factory-reset evidence, or authorized release action exists;
 - ADR-047 is absent; no final decision or release waiver is invented.
 
+**Historical pre-approval correction — 2026-09-02:** At the time of that
+correction, ADR-047 existed at
+`docs/decisions/ADR-047-beta-slos-release-authority.md` with status `Proposed`.
+It was a local-only decision draft, not an accepted final decision or release
+waiver. The preceding “ADR-047 is absent” wording is retained as the historical
+pre-draft state; current status is recorded by the SP-032 reconciliation below.
+
+### SP-032 reconciliation update — 2026-09-02
+
+`EV-SP-032-20260902-FINAL-RECONCILIATION-01` records a fresh, edit-only FINAL
+audit. The preceding FINAL bullets and correction remain historical; their
+following forward-looking details are superseded by current direct records:
+
+- ADR-047 is **Accepted (local-only scope)** after the exact-hash owner decision
+  in `EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01`. It approves only the
+  local `development_unverified` package and cannot approve beta,
+  `release_candidate`, production, signing, notarization, or release.
+- The R12 cohort is enrolled/consented and all five scoped sign-offs are
+  obtained. They do not substitute for the still-absent live SLO set, live STT
+  quality, live scenario run, incident review, R11 completion, or an approved
+  release candidate. `beta-readiness.json` remains `blocked` with telemetry
+  disabled and `transport: none`.
+- Launch-at-login has direct local evidence, but sleep/wake/crash recovery,
+  safe-mode export, populated-profile migration, update/rollback, uninstall,
+  factory reset, and support-bundle privacy do not have the required direct
+  acceptance evidence. The failed Computer Use Recovery observation remains a
+  service-boundary blocker, not a pass.
+- ADR-049 permanently scopes Developer ID, notarization, and external
+  clean-machine distribution out of this local-only product. That scope decision
+  does not waive the remaining direct local clean-profile/lifecycle or FINAL
+  gates.
+
+The result is still **blocked**: the capability matrix has no
+`release_verified` row, every capability retains at least one open gap, and the
+current authority forbids installation/launch, permission changes, beta work,
+signing, release, and deployment. This reconciliation is not a clean-Mac or
+end-to-end procedure. SP-033 is not safe to start; return each missing
+postcondition to its owning R2-R12 track.
+
+`EV-SP-032-20260902-CLOSEOUT-02` records the mandatory 15_SESSION_CLOSEOUT for
+this attempt. It revalidated the bounded projections and permitted integrity
+checks; it did not execute or replace any missing clean-Mac, lifecycle, beta,
+or release procedure.
+
 The FINAL/CLOSEOUT deliverable is a blocked maintainer handoff and exact
 owning-track return, not a release claim. Stale prose may be reconciled only
 where it conflicts with canonical state; historical ledger entries remain
 append-only.
 
-Closeout evidence: `EV-FINAL-20260809-CLOSEOUT-BLOCKED-01`. The handoff is
-recorded at [`FINAL_OPERATIONAL_HANDOFF.md`](../docs/operations/FINAL_OPERATIONAL_HANDOFF.md);
-runtime governance and 23/23 deterministic script tests pass, but those checks
-do not satisfy the missing live, release, beta, or clean-machine gates above.
+Historical closeout evidence: `EV-FINAL-20260809-CLOSEOUT-BLOCKED-01`. The
+current blocked reconciliation is
+`EV-SP-032-20260902-FINAL-RECONCILIATION-01`; its mandatory SP-032 closeout is
+recorded separately. The handoff is recorded at
+[`FINAL_OPERATIONAL_HANDOFF.md`](../docs/operations/FINAL_OPERATIONAL_HANDOFF.md);
+deterministic checks do not satisfy the missing live, release, beta, or
+clean-profile gates above.
+
+**Autonomous deterministic-control leg (2026-09-02):**
+`EV-SP-032-20260902-DETERMINISTIC-SUITE-01` re-ran the second-pass/runtime/
+beta-readiness/release-manifest validators, rechecked both SP-031 SHA-256s, and
+ran a fresh full `aura-test.sh` suite (22 bundles, 0 failed, 1325 tests / 87
+suites, exit 0) under current edit/test/state-only authority. This is
+`deterministic_harness`-only evidence and does not close FINAL. SP-032 remains
+`blocked`; `beta-readiness.json` and `release_candidate` remain blocked; R2-R10
+direct, R11 live lifecycle/clean-profile, R12 live SLO/scenario/incident/
+sign-off, and FINAL authority remain open.
+
+**Owner-grant live local acceptance (2026-09-03):**
+`EV-SP-032-20260903-LIVE-ACCEPTANCE-01`. Under the owner's full-authority grant,
+`AURA.app` + helpers + Safari ext were built and local-signed (`AURA Stable
+Local Signing`, `codesign --verify --deep --strict` exit 0); the app launched
+live, stayed stable ≥13s, crashed not, and quit cleanly; a fresh full suite ran
+22 bundles / 0 failed / 1325 tests at 70.19% line coverage; supply-chain +
+repo-hygiene validators PASSED and 64 Python governance tests passed; BTM shows
+launch-at-login registered. This materially advances SP-032's local gates but
+does not close (and must not fabricate) the R12 independent-evaluator/cohort/
+live-SLO gates, Developer-ID/external distribution (ADR-049), or the
+unit-tested-only R11 lifecycle sub-gates. `beta-readiness.json` and
+`release_candidate` remain blocked.
 
 ## OPEN-15 — SESSION CLOSEOUT procedure
 

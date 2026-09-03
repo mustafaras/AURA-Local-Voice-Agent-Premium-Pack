@@ -3,6 +3,15 @@
 **Prompt lineage:** OPEN-12 (R11) → SP-026 (reproducible build + observed CI) → SP-027 (signing, local-only scope) → SP-028 (updater, lifecycle, recovery, migration) → SP-029 (beta/consent/telemetry, completed) → SP-030 (SLOs) → SP-031 (RC + ADR-047).
 **Status (2026-08-30):** R11 is `in_progress`. This plan is the owner-reviewable, decision-ready disposition of every remaining R11 gate. It is **not** a claim that R11 is complete or that an RC exists.
 
+> **Current correction (2026-09-02):** The authority discussion and proposed
+> ADR-046 disposition below are historical planning context. Current authority
+> is the synchronized edit/test/state-only projection in `SECOND_PASS_STATE.json`
+> and `current-state.json`; it does not inherit older grants. ADR-046 is now
+> accepted for local-only scope, and launch-at-login has direct local evidence.
+> The remaining direct lifecycle, clean-profile, beta, and RC/release gates
+> stay open. ADR-049 excludes Developer ID, notarization, and external
+> clean-machine distribution; it does not waive those local evidence gates.
+
 ## Authority posture
 
 - The release owner has repeatedly granted authority for the second-pass program ("go apply be perfect", "ben tüm ama tüm yetkileri veriyorum", "ONLARI DA ONAYLIYORUM YAP ARTIK", "a go be perfect and premium" → option A).
@@ -39,7 +48,7 @@
 
 | Item | Recommendation |
 |---|---|
-| **ADR-046** (Signed updates, rollback, recovery) | Status `Proposed`. The SP-028 implementation + adversarial tests prove the local contract/validator/stager/rollback/recovery/safe-mode/reset source. Recommendation: **Accept ADR-046 with an explicit local-only scope limitation**: the updater contract is implemented and tested for the local path; a real externally-signed update, network transport, and distribution remain out of scope by the SP-027 decision and are not claimed. This makes the local updater/rollback contract the accepted design for local operation. |
+| **ADR-046** (Signed updates, rollback, recovery) | **Accepted for local-only scope.** The SP-028 implementation + adversarial tests prove the local contract/validator/stager/rollback/recovery/safe-mode/reset source. A real externally signed update, network transport, and distribution remain out of scope and are not claimed; direct local lifecycle acceptance remains required. |
 | **R11 `development_unverified` → any further label** | Must stay `development_unverified` (and never `release candidate`) until ADR-047/SP-031 produce a provenance-bound RC evidence package. Do not relabel. |
 | **R12 `beta-readiness.json`** | Must stay `blocked` (fail-closed validator/schema require it). SP-029 is complete; the SLO/scenario/incident gates are SP-030's job. |
 

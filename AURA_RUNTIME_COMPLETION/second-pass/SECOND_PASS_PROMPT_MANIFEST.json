@@ -497,8 +497,8 @@
       ],
       "next_prompt": "SP-031",
       "evidence_prefix": "EV-SP-030",
-      "title": "Beta SLOs, Scenarios, Incidents, and Sign-Offs",
-      "completion_gate": "Mandatory SLOs and scenarios pass, incidents are remediated, and independent sign-offs are complete."
+      "title": "Local-Only Deterministic Validation and Scope Decision",
+      "completion_gate": "Local-only deterministic suites and validators pass; non-live evidence is provenance-bound; ADR-051 records the scope; live-beta/R11/incident evidence remains deferred; beta-readiness stays blocked and SP-031 may open only for local-only package preparation under ADR-052."
     },
     {
       "id": "SP-031",
@@ -513,8 +513,8 @@
       ],
       "next_prompt": "SP-032",
       "evidence_prefix": "EV-SP-031",
-      "title": "Release-Candidate Evidence Package and ADR-047",
-      "completion_gate": "RC package is complete, reproducible, recoverable, independently reviewed, and explicitly approved."
+      "title": "Local-Only RC Evidence Package Preparation and ADR-047",
+      "completion_gate": "Local-only development_unverified package is reproducible, recoverable, independently reviewed for its declared scope, and explicitly approved for local-only use; beta-readiness and release_candidate remain blocked unless separately authorized and evidenced."
     },
     {
       "id": "SP-032",

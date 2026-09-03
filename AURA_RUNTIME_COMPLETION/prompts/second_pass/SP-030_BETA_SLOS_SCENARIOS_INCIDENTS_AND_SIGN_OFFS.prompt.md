@@ -8,11 +8,14 @@ next_prompt: SP-031
 state: pending
 ---
 
-# SP-030 — Beta SLOs, Scenarios, Incidents, and Sign-Offs
+# SP-030 — Local-Only Deterministic Validation and Scope Decision
 
 ## Mission
 
-Run the controlled beta evidence program and close reliability, safety, accessibility, privacy, security, and false-success gates.
+Close the local-only deterministic validation scope for reliability, safety,
+accessibility, privacy, security, and false-success controls without claiming
+live beta or production readiness. The live-beta interpretation is explicitly
+deferred under ADR-051 because the release owner does not want live testing.
 
 ## Read before acting
 
@@ -31,15 +34,27 @@ Run the controlled beta evidence program and close reliability, safety, accessib
 
 - Work only on OPEN-13; do not absorb the next prompt's objective.
 - Do not infer completion from a type, fake, local contract, historical ledger line, or model assertion.
-- Do not install, launch, mutate TCC, contact providers, enroll beta users, sign, release, deploy, commit, push, or merge unless this prompt's authority explicitly permits it.
+- Do not run live user-present testing, access the microphone, mutate TCC,
+  contact providers, enroll beta users, enable telemetry, sign, release,
+  deploy, commit, push, or merge unless separately authorized. Deterministic
+  and synthetic results must retain their measurement class and may never be
+  relabeled as live-beta evidence.
 - Preserve raw audio, screenshots, secrets, tokens, private account data, and unredacted model output out of ledgers and context files.
 
 ## Procedure
 
-1. Collect the approved sample and compute defined percentile SLOs for latency, STT/WER, task completion, verification, crash/recovery, accessibility, privacy, and unauthorized actions.
-2. Run Turkish/English/mixed scenario matrix, false-success/unauthorized-action cases, update/recovery/uninstall, and incident review.
-3. For every incident, preserve redacted evidence, root cause, remediation, regression, and closure owner.
-4. Obtain independent security/privacy/accessibility/localization/release sign-offs and keep critical risks open until accepted by authorized ownership.
+1. Run the prompt-relevant deterministic lifecycle, integration, STT, safety,
+   and state-contract tests; record exact commands, counts, environment, and
+   limitations.
+2. Run the approved synthetic Speech path only when it is already authorized;
+   if the OS authorization boundary blocks it, record the blocked result without
+   requesting or changing permission.
+3. Reconcile the existing beta-readiness record without promoting any
+   non-live result: live SLOs remain `not_measured`, live scenario execution
+   remains absent, and `incident_review` remains `not_run`.
+4. Preserve the existing sign-off and local launch-at-login evidence, record
+   the deferred live-beta/R11 limitations, and keep the overall R12 readiness
+   blocked.
 
 ## Cognitive completion gate
 
@@ -47,11 +62,14 @@ Before changing this prompt to `completed`, answer all of these in `SECOND_PASS_
 
 - What exact symptom or missing postcondition was observed?
 - What mechanism and root cause explain it? Which agent/context layer was involved, if any?
-- What direct change or acceptance procedure resolved it?
+- What direct deterministic change or scope-acceptance procedure resolved the
+  local-only objective?
 - Which evidence ID and evidence class prove the result?
 - What observation would falsify the conclusion?
-- What residual risk remains, and why is it outside this prompt?
-- Why is SP-031 now safe to start?
+- What live-beta, R11, or incident residual remains, and why is it explicitly
+  outside this local-only scope?
+- Why must beta readiness and SP-031 remain blocked even after this scoped
+  completion?
 
 ## Required records
 
@@ -63,8 +81,21 @@ Before changing this prompt to `completed`, answer all of these in `SECOND_PASS_
 
 ## Completion gate
 
-Mandatory SLOs and scenarios pass, incidents are remediated, and independent sign-offs are complete.
+The local-only scope is complete when the deterministic validation suites and
+state validators pass, the userless/synthetic attempt is recorded with
+provenance and limitations, the five existing R12 sign-offs remain valid, and
+ADR-051 is recorded. No live-beta claim may be made: `ptt_ack`,
+`stt_partial`, live dialogue latency, live R11 transitions, live scenario
+execution, and incident review remain explicitly deferred.
+`beta-readiness.json` must remain `blocked`, and SP-031 may open only for its
+bounded local-only package-preparation scope under ADR-052; no release approval
+or beta claim follows from this prompt.
 
 ## Stop condition
 
-If any required evidence, authority, cognitive answer, postcondition, or validator result is missing, keep SP-030 `in_progress` or `blocked`, record the exact blocker, and do not proceed to SP-031.
+If any local-only evidence, authority, cognitive answer, postcondition, scope
+decision, or validator result is missing, keep SP-030 `in_progress` or
+`blocked`. A scoped completion does not authorize live beta, release, or
+production claims. SP-031 may be opened under ADR-052 for local-only package
+preparation, but do not proceed to SP-032 or any approval claim without its own
+scope, evidence, and decision gates.

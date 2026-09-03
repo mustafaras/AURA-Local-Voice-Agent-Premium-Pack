@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-09-02T08:23:21Z",
-  "repository_commit": "0bafc4f249968d6b620b181ff4ffd3da1d13b71e",
+  "updated_at": "2026-09-02T15:16:37Z",
+  "repository_commit": "bee334782262089fa117124ababa9b3c6dfed394",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -89,7 +89,7 @@
         "EV-R7-20260808-VOICE-LOCAL-SAFETY-01",
         "EV-SP-015-20260822-WAKE-EXCLUSION-01"
       ],
-      "notes": "DisabledWakeWordDetector is the truthful production path; MarkerWakeWordDetector is test-only. SP-015 (2026-08-22) explicitly EXCLUDES wake word from the release scope: no licensed local candidate is provisioned/bundled and download/install authority is absent; the UI truthfully states no acoustic model is installed and Push to Talk remains available. ADR-042 file is absent (Proposed)."
+      "notes": "DisabledWakeWordDetector is the truthful production path; MarkerWakeWordDetector is test-only. SP-015 (2026-08-22) explicitly excludes wake word from the release scope: no licensed local candidate is provisioned/bundled and download/install authority is absent; the UI truthfully states no acoustic model is installed and Push to Talk remains available. ADR-042 is Accepted; the explicit SP-015 exclusion keeps Push to Talk/system TTS as the qualified path."
     },
     {
       "id": "voice.audio_capture",
@@ -434,7 +434,7 @@
         "intent.capability_registry"
       ],
       "open_gaps": [
-        "The bridge is asymmetric and needs no Team ID. Live, the extension signs an envelope into the shared directory and the app's pinned key matches it. Only the observed conversational page summary remains, blocked on Safari's Allow unsigned extensions authentication, which recurs on every Safari restart until the app is Developer ID signed and notarized."
+        "The bridge is asymmetric and needs no Team ID. Live, the extension signs an envelope into the shared directory and the app's pinned key matches it. The observed conversational page summary remains blocked on Safari's Allow unsigned-extensions trust interaction, which may recur on Safari restart; Developer ID/notarization is permanently out of scope under ADR-049 and cannot be proposed as its remedy."
       ],
       "evidence_ids": [
         "EV-R5-20260808-READ-FIRST-ADAPTERS-01",
@@ -714,9 +714,9 @@
       "dependencies": [
         "dialogue.conversation"
       ],
-      "open_gaps": [
-        "ADR-043 remains Proposed pending explicit user acceptance; a separately redacted/user-approved remote-context path is not built (local-only is the explicit product boundary per SP-020); manual accessibility (R9), signing, and release gates remain open."
-      ],
+    "open_gaps": [
+      "ADR-043 is accepted for the explicit local-only product boundary; no production remote-context transport exists. Broader accessibility and FINAL release gates remain open outside this R8 capability scope."
+    ],
       "evidence_ids": [
         "EV-R8-20260808-MEMORY-POLICY-01",
         "EV-R8-20260808-CONTEXT-PRODUCT-02",
@@ -882,7 +882,7 @@
     },
     {
       "id": "release.distribution",
-      "name": "Developer ID signed and notarized distribution",
+    "name": "Local-only artifact provenance and distribution boundary",
       "domain": "release",
       "implementation_state": "partial",
       "runtime_state": "registered_disabled",
@@ -904,13 +904,17 @@
       "dependencies": [
         "security.privilege_separation"
       ],
-      "open_gaps": [
-        "The deterministic artifact/manifest slice is local and development_unverified only; CI retention is configured but no post-change run was observed; no Developer ID, secure timestamp, notarization, staple, DMG/PKG, or clean external-machine evidence exists."
-      ],
+    "open_gaps": [
+      "The exact local artifact remains development_unverified and is not a beta or release candidate. Developer ID, notarization, and external clean-machine distribution are permanently out of scope under ADR-049; direct local lifecycle, recovery, clean-profile, uninstall, and FINAL acceptance evidence remains open."
+    ],
       "evidence_ids": [
-        "EV-R11-20260809-ARTIFACT-MANIFEST-01"
-      ],
-      "notes": "Local package verification is not public distribution readiness."
+        "EV-R11-20260809-ARTIFACT-MANIFEST-01",
+        "EV-SP-027-20260828-LOCAL-ONLY-SCOPE-03",
+        "EV-SP-031-20260902-LOCAL-ONLY-PACKAGE-01",
+        "EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01",
+        "EV-SP-032-20260902-FINAL-RECONCILIATION-01"
+    ],
+    "notes": "The owner-approved package is local development_unverified use only; it does not establish beta, release-candidate, production, or external-distribution readiness."
     },
     {
       "id": "operations.updates_recovery",
@@ -934,13 +938,17 @@
       "dependencies": [
         "release.distribution"
       ],
-      "open_gaps": [
-        "Manifest validation is not an updater. No signed package transport, Sparkle/approved updater integration, rollback/downgrade protection, launch-at-login implementation, safe mode, support bundle, migration, uninstall, or factory reset evidence."
-      ],
+    "open_gaps": [
+      "Direct user-present evidence is absent for sleep/wake/crash recovery, safe-mode export, populated-profile migration, update/rollback, uninstall/factory-reset, and support-bundle privacy. No approved live update transport exists; external distribution remains out of scope under ADR-049."
+    ],
       "evidence_ids": [
-        "EV-R11-20260809-ARTIFACT-MANIFEST-01"
-      ],
-      "notes": "Design prose and local manifest contracts are not an operational updater. ADR-046 remains Proposed."
+        "EV-R11-20260809-ARTIFACT-MANIFEST-01",
+        "EV-SP-028-20260829-LIFECYCLE-IMPLEMENTATION-01",
+        "EV-SP-028-20260829-RUNTIME-API-02",
+        "EV-SP-030-20260901-R11-LIVE-GATE-05",
+        "EV-SP-032-20260902-FINAL-RECONCILIATION-01"
+    ],
+    "notes": "ADR-046 is accepted for the local-only contract scope. Deterministic lifecycle coverage and the direct launch-at-login observation do not prove the remaining operational lifecycle acceptance."
     }
   ]
 }

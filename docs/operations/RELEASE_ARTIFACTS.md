@@ -4,10 +4,11 @@
 
 AURA is a **local-only product** and does not use Developer ID or notarization
 (ADR-049). R11 currently produces only a `development_unverified` artifact. The
-local pipeline does not publish or deploy externally; it signs nested bundles
-with the local stable identity + hardened runtime, records artifact hashes, and
-launches the signed bundle for verification. A local/ad-hoc signature is not
-external distribution evidence.
+exact owner-approved SP-031 package is unsigned: Developer ID and hardened
+runtime are `false`, notarization is `not_submitted`, and verification is
+`not_performed`. The local pipeline does not publish or deploy externally; its
+documented signing design must not be read as a property of that package or as
+direct launch/lifecycle acceptance.
 
 Run the bounded local pipeline with:
 
@@ -42,17 +43,18 @@ run is currently observed.
 
 ## Release boundary (local-only scope)
 
-The local-only release path uses full Xcode and the exact pinned toolchain,
+The intended local-only pipeline uses full Xcode and the exact pinned toolchain,
 signs nested code in dependency order with the local stable identity + hardened
 runtime, verifies with `codesign --verify --deep --strict`, records artifact
-SHA-256 hashes, and launch-smokes the signed bundle in an isolated home
-(ADR-049). Developer ID signing, notarization, stapling, and external
-clean-machine Gatekeeper evidence are **permanently out of scope**.
+SHA-256 hashes, and launch-smokes a signed bundle in an isolated home (ADR-049).
+Those are planned/previously scoped pipeline steps, not properties proven for
+the current `development_unverified` package. Developer ID signing,
+notarization, stapling, and external clean-machine Gatekeeper evidence are
+**permanently out of scope**.
 
-The selected updater must separately verify its signed update metadata and
-package, compatibility, downgrade/replay rules, migration preflight, atomic
-staging, rollback, and user approval. R11 does not yet implement those runtime
-operations; ADR-046 remains Proposed (the local contract/validator/stager/
-rollback/recovery/safe-mode/reset source is implemented; a real signed external
-update is out of the local-only scope).
-
+ADR-046 is **Accepted for the local-only contract scope**: the local
+manifest/validator/stager/rollback/recovery/safe-mode/reset source and its
+deterministic tests are recorded. The remaining gap is direct operational
+evidence for local update/rollback, recovery, migration, uninstall/factory
+reset, and support-bundle privacy; no live update transport is configured.
+External signed distribution is out of scope under ADR-049.

@@ -72,7 +72,7 @@ unresolved dependency behind parallel progress.
 | 027 | SP-027 | R11 signing/notarization/clean machine |
 | 028 | SP-028 | R11 updater/lifecycle/recovery/migration |
 | 029 | SP-029 | R12 cohort/consent/telemetry |
-| 030 | SP-030 | R12 SLO/scenarios/incidents/sign-offs |
+| 030 | SP-030 | R12 local-only deterministic validation and scope decision |
 | 031 | SP-031 | R12 RC package and ADR-047 |
 | 032 | SP-032 | FINAL acceptance and cleanup |
 | 033 | SP-033 | Final closeout reconciliation |

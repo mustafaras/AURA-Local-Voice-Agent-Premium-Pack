@@ -2,14 +2,13 @@
   "$schema": "../schemas/beta-readiness.schema.json",
   "schema_version": "1.0.0",
   "readiness_status": "blocked",
-  "session_id": "AURA-SP-030-BETA-EVIDENCE-20260830",
+  "session_id": "AURA-SP-032-FINAL-RECONCILIATION-20260902",
   "authority": {
-    "mode": "owner_granted_local",
-    "beta_enrollment": true,
-    "telemetry_activation": true,
-    "app_install_or_launch": true,
-    "release": false,
-    "authority_source": "EV-SP-030-20260830-OWNER-APPROVAL-03"
+    "mode": "current_session_edit_only",
+    "beta_enrollment": false,
+    "telemetry_activation": false,
+    "app_install_or_launch": false,
+    "release": false
   },
   "dependency_gate": {
     "r11_state": "in_progress",
@@ -246,8 +245,8 @@
     "Live STT/WER is not measured: it requires a speech-capable operator; only the documented synthetic-speech accommodation exists.",
     "The scenario matrix passed as deterministic_harness coverage only; it has NOT been exercised in a live beta window.",
     "The incident review has not run because no beta window has produced incidents to review.",
-    "Four of five independent sign-offs remain not_obtained (privacy was obtained 2026-08-30, EV-SP-030-20260830-PRIVACY-REVIEW-01): security awaits the DeepSeek cross-review; accessibility_localization is REFUSED on unreviewed translation, absent live VoiceOver verification and ADR-050 §4 reviewer independence — no longer on coverage, which closed under EV-SP-030-20260830-A11Y-COVERAGE-03; release_recovery and product_truthfulness await the owner's verdicts against OWNER_SIGNOFF_FALSIFICATION_PACKET.md. An independent sign-off requires a named non-implementing evaluator, which authority cannot substitute for.",
+    "All five R12 sign-offs are obtained under their recorded evidence IDs, but sign-offs do not substitute for the excluded live-beta SLO, scenario, incident, or R11 evidence. The local-only scope decision leaves readiness blocked and makes no beta, production, or release claim.",
     "R11 is incomplete and has no signed/notarized clean-machine release artifact.",
-    "ADR-047 is absent and no release-candidate approval authority exists."
+    "ADR-047 is accepted only for the exact local development_unverified SP-031 package; no beta or release-candidate approval authority exists."
   ]
 }

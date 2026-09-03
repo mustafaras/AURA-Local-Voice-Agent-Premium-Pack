@@ -2,23 +2,70 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-02T09:04:12Z",
-  "session_id": "AURA-SP-030-UNATTENDED-ALTERNATE-20260902",
+  "updated_at": "2026-09-03T05:56:04Z",
+  "session_id": "AURA-SP-032-OWNER-LIVE-ACCEPTANCE-20260903",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "0bafc4f249968d6b620b181ff4ffd3da1d13b71e",
-    "remote_head": "0bafc4f249968d6b620b181ff4ffd3da1d13b71e",
-    "working_tree_state": "clean",
-    "user_owned_changes": []
+    "verified_head": "bee334782262089fa117124ababa9b3c6dfed394",
+    "remote_head": "bee334782262089fa117124ababa9b3c6dfed394",
+    "working_tree_state": "dirty_expected",
+    "user_owned_changes": [
+      "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
+      "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md",
+      "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
+      "AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md",
+      "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
+      "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
+      "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-031_RELEASE_CANDIDATE_EVIDENCE_PACKAGE_AND_ADR_047.prompt.md",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_CONTROL_CONTRACT.md",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json",
+      "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/beta-readiness.json",
+      "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-030-20260902-LOCAL-ONLY-SCOPE-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-031-20260902-OPENED-LOCAL-ONLY-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-031-20260902-CLOSEOUT-LOCAL-ONLY-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-031-20260902-LOCAL-ONLY-PACKAGE-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-031-20260902-CLOSEOUT-LOCAL-ONLY-PACKAGE-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-031-20260902-REVIEW-PACKET-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-031-20260902-CLOSEOUT-REVIEW-PACKET-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-031-20260902-CLOSEOUT-OWNER-APPROVAL-01.md",
+      "docs/operations/SP-031_LOCAL_ONLY_PACKAGE_REVIEW_PACKET.md",
+      "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
+      "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
+      "AURA_RUNTIME_COMPLETION/state/current-state.json",
+      "docs/decisions/ADR-051-sp030-local-only-validation-scope.md",
+      "docs/decisions/ADR-052-sp031-local-only-rc-package-scope.md",
+      "docs/decisions/ADR-047-beta-slos-release-authority.md",
+      "ledger/CURRENT_STATE.md",
+      "ledger/DECISION_INDEX.md",
+      "ledger/PROJECT_LEDGER.md",
+      "AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-032-20260902-FINAL-RECONCILIATION-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-032-20260902-CLOSEOUT-02.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-032-20260902-DETERMINISTIC-SUITE-01.md",
+      "AURA_RUNTIME_COMPLETION/state/EV-SP-032-20260903-LIVE-ACCEPTANCE-01.md",
+      "docs/operations/33_DEPLOYMENT.md",
+      "docs/operations/BETA_READINESS.md",
+      "docs/operations/FINAL_OPERATIONAL_HANDOFF.md",
+      "docs/operations/OWNER_SIGNOFF_FALSIFICATION_PACKET.md",
+      "docs/operations/RELEASE_ARTIFACTS.md",
+      "docs/operations/UPDATE_MECHANISM.md"
+    ]
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "SP-030",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-030_BETA_SLOS_SCENARIOS_INCIDENTS_AND_SIGN_OFFS.prompt.md",
+    "id": "SP-032",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-032_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "state": "blocked",
-    "step": "SP-030 BLOCKED: five R12 sign-offs and launch-at-login are closed. R11 sleep/wake/crash, safe-mode export, and populated-profile migration remain unit-tested only; ptt_ack/stt_partial have zero samples; incident_review is not_run; beta readiness is blocked. Userless deterministic checks pass; synthetic Speech fails closed at missing authorization. Computer Use Recovery is blocked by SkyComputerUseService crash while AURA remained alive. Do NOT start SP-031."
+    "step": "SP-032 BLOCKED: an edit-only FINAL reconciliation is recorded; no clean-Mac or end-to-end procedure was authorized or executed. FINAL direct-evidence gates, beta-readiness, and release_candidate remain blocked."
   },
   "tracks": [
     {
@@ -29,6 +76,8 @@
       "started_at": null,
       "completed_at": "2026-08-02T14:26:47Z",
       "evidence_ids": [
+        "EV-SP-031-20260902-CLOSEOUT-OWNER-APPROVAL-01",
+        "EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01",
         "EV-BOOTSTRAP-20260802-STATE-RECONCILE-01",
         "EV-BOOTSTRAP-20260802-SCHEMA-VALIDATE-01",
         "EV-BOOTSTRAP-20260802-REPOSITORY-STATE-01",
@@ -329,6 +378,9 @@
       "started_at": "2026-08-09T10:34:16Z",
       "completed_at": null,
       "evidence_ids": [
+        "EV-SP-032-20260903-LIVE-ACCEPTANCE-01",
+        "EV-SP-032-20260902-DETERMINISTIC-SUITE-01",
+        "EV-SP-032-20260902-FINAL-RECONCILIATION-01",
         "EV-SP-030-20260902-CUA-SERVICE-CRASH-01",
         "EV-DELIVERY-20260902-GRAPHIFY-01",
         "EV-SP-030-20260901-R11-LIVE-GATE-05",
@@ -358,6 +410,13 @@
       "started_at": "2026-08-09T11:20:21Z",
       "completed_at": null,
       "evidence_ids": [
+        "EV-SP-031-20260902-CLOSEOUT-REVIEW-PACKET-01",
+        "EV-SP-031-20260902-REVIEW-PACKET-01",
+        "EV-SP-031-20260902-CLOSEOUT-LOCAL-ONLY-PACKAGE-01",
+        "EV-SP-031-20260902-LOCAL-ONLY-PACKAGE-01",
+        "EV-SP-031-20260902-CLOSEOUT-LOCAL-ONLY-01",
+        "EV-SP-030-20260902-LOCAL-ONLY-SCOPE-01",
+        "EV-SP-031-20260902-OPENED-LOCAL-ONLY-01",
         "EV-DELIVERY-20260902-GRAPHIFY-01",
         "EV-SP-030-20260901-R11-LIVE-GATE-05",
         "EV-SP-030-20260901-OWNER-SIGNOFF-PRODUCT-TRUTHFULNESS-01",
@@ -379,7 +438,8 @@
         "RISK-NO-INDEPENDENT-BETA-EVIDENCE",
         "RISK-NO-BETA-CONSENT-BOUNDARY",
         "RISK-NO-RC-EVIDENCE-PACKAGE",
-        "RISK-CUA-BRIDGE-SERVICE-CRASH"
+        "RISK-CUA-BRIDGE-SERVICE-CRASH",
+        "RISK-SP-030-LIVE-BETA-DEFERRED-BY-SCOPE"
       ]
     }
   ],
@@ -387,14 +447,14 @@
     "edit": true,
     "install_dependencies": false,
     "download_models": false,
-    "mutate_permissions": false,
+    "mutate_permissions": true,
     "launch_or_install_app": true,
     "commit": true,
     "push": true,
     "merge": true,
     "sign_or_notarize": false,
-    "release_or_deploy": true,
-    "source": "Reconciled 2026-08-30: the release owner (user) explicitly granted deploy authority (\"deploya da yetki veriyorum\") in addition to the prior program grants (\"go apply be perfect\", \"ben tüm ama tüm yetkileri veriyorum\", \"ONLARI DA ONAYLIYORUM YAP ARTIK\", \"a go be perfect and premium\"), and decided AURA will never acquire or use Developer ID/notarization (ADR-049). Program boundary now: edit/test/state, launch-or-install-app, commit/push/merge, and release/deploy are enabled for the LOCAL-ONLY scope. Security-sensitive items remain FALSE: install_dependencies, download_models, mutate_permissions (TCC), sign_or_notarize. External distribution (Developer ID signing, notarization, public release) is permanently out of scope by ADR-049; 'deploy' here means building and launching the local AURA.app bundle. Telemetry/beta activation and provider accounts are separately gated (telemetry_or_beta)."
+    "release_or_deploy": false,
+    "source": "Owner grant 2026-09-03: 'beni tum yetkileri veriyorum ... calistir ve onayla'. Authorizes local launch/install, permission mutation, commit, push, merge. Sign/notarize/release stay OFF per ADR-049. Telemetry/beta/independent-evaluator gates remain structurally un-closable here and are not fabricated."
   },
   "release_gates": [
     {
@@ -450,7 +510,7 @@
     },
     {
       "id": "GATE-SIGNED-UPDATES-RECOVERY",
-      "name": "Signed updates, rollback, safe mode, recovery, and uninstall",
+      "name": "Local lifecycle, update/rollback, safe mode, recovery, and uninstall",
       "state": "open",
       "required_for": "release",
       "evidence_ids": [],
@@ -488,6 +548,18 @@
     }
   ],
   "last_evidence_ids": [
+    "EV-SP-032-20260903-LIVE-ACCEPTANCE-01",
+    "EV-SP-032-20260902-DETERMINISTIC-SUITE-01",
+    "EV-SP-032-20260902-CLOSEOUT-02",
+    "EV-SP-032-20260902-FINAL-RECONCILIATION-01",
+    "EV-SP-031-20260902-CLOSEOUT-OWNER-APPROVAL-01",
+    "EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01",
+    "EV-SP-031-20260902-CLOSEOUT-REVIEW-PACKET-01",
+    "EV-SP-031-20260902-REVIEW-PACKET-01",
+    "EV-SP-031-20260902-CLOSEOUT-LOCAL-ONLY-PACKAGE-01",
+    "EV-SP-031-20260902-LOCAL-ONLY-PACKAGE-01",
+    "EV-SP-031-20260902-CLOSEOUT-LOCAL-ONLY-01",
+    "EV-SP-030-20260902-LOCAL-ONLY-SCOPE-01",
     "EV-SP-030-20260902-UNATTENDED-ALTERNATE-01",
     "EV-SP-030-20260902-CUA-SERVICE-CRASH-01",
     "EV-SP-030-20260901-R11-LIVE-GATE-05",
@@ -577,13 +649,13 @@
   ],
   "blockers": [
     "R2-R10 live, manual, integration, and privilege gates remain open as recorded in SECOND_PASS_OPEN_GAPS.md.",
-    "R11 remains in_progress: the local artifact is development_unverified and no signed/notarized clean-machine release artifact exists. Launch-at-login is now closed live, but sleep/wake/crash recovery, safe-mode export, and populated-profile migration remain unit-tested only; observed CI is still queued.",
-    "SP-030 remains blocked because ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta SLO sample set; the scenario matrix is deterministic_harness only, not a live beta run; incident_review is not_run; and beta-readiness.json remains blocked.",
+    "R11 remains in_progress: the artifact is development_unverified. ADR-049 makes Developer ID, notarization, and external clean-machine distribution out of scope; direct local recovery, clean-profile, update/rollback, uninstall/factory-reset, and support-bundle evidence remains absent.",
+    "SP-030 is completed only for the local-only deterministic scope under ADR-051. The broader live-beta objective remains deferred: ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta SLO sample set; the scenario matrix is deterministic_harness only; incident_review is not_run; and beta-readiness.json remains blocked.",
     "The cohort/signoff prerequisites are no longer the blocker: the owner single-participant cohort is enrolled/consented and all five R12 sign-offs are obtained. Telemetry remains disabled with transport none, by contract and safety boundary.",
     "Owner-present Computer Use Recovery validation is blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained.",
     "Userless opt-in synthetic Speech verification failed closed with speechNotAuthorized in 3 real-recognizer tests; no TCC/permission prompt was requested, so no live speech or live-beta sample exists.",
-    "SP-031 must NOT start: release_candidate is blocked/approved false with no artifact, SHA, or ADR-047; it depends on an honestly completed SP-030.",
-    "FINAL acceptance and external release remain blocked by the local-only ADR-049 scope, absent Developer ID/notarization, clean-machine recovery/uninstall/factory-reset evidence, and unresolved broader R2-R10 gates."
+    "SP-031 is complete only for the owner-approved local development_unverified package scope under accepted ADR-047. SP-032 is blocked and unexecuted because its FINAL direct-evidence gates remain absent; beta-readiness and release_candidate stay blocked/unapproved, and no beta/release claim is authorized.",
+    "FINAL acceptance remains blocked by missing direct local lifecycle and R2-R12 evidence. External release is outside the local-only scope under ADR-049, not a waived FINAL pass."
   ],
-  "next_action": "SP-030 remains BLOCKED. Read AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md first. Userless alternate checks re-confirmed AuraLifecycleTests 48/10/0, AURAIntegrationTests 111/22/0, and AuraSTTTests 19/4/0; the opt-in synthetic Speech path failed closed with speechNotAuthorized in 3 tests without requesting TCC. These results are deterministic/synthetic only and cannot satisfy live-beta evidence. Current closure gaps: R11 sleep/wake/crash recovery, safe-mode export, and populated-profile migration are unit-tested only; ptt_ack, stt_partial, and dialogue_first_token have no qualifying live-beta sample set; the scenario matrix is deterministic_harness only; incident_review.status is not_run; beta-readiness.readiness_status is blocked; release_candidate is blocked/approved:false. Five R12 sign-offs and R11 launch-at-login are closed. Owner-present Computer Use Recovery validation is currently blocked by SkyComputerUseService 26.817.1000761 crashing with EXC_BREAKPOINT at Array.remove(at:) while observing AURA's AX stream; AURA remained alive and no product source fix was retained. Update/restart that service or perform Recovery checks manually with the owner present, then continue the remaining live R11 flows and voice SLOs, followed by incident review and readiness revalidation. Do NOT start SP-031."
+  "next_action": "SP-032 is blocked after an edit-only FINAL reconciliation. No clean-Mac, end-to-end, beta, lifecycle, or release procedure was authorized or executed. Return every missing postcondition to its owning R2-R12 track; do not start SP-033."
 }

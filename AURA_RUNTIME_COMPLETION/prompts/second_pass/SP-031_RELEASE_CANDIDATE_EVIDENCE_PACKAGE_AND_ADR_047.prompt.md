@@ -8,11 +8,15 @@ next_prompt: SP-032
 state: pending
 ---
 
-# SP-031 — Release-Candidate Evidence Package and ADR-047
+# SP-031 — Local-Only RC Evidence Package Preparation and ADR-047
 
 ## Mission
 
-Assemble and approve one provenance-bound RC package without inventing a release decision.
+Open and assemble one provenance-bound local-only `development_unverified`
+RC evidence package and prepare the ADR-047 decision record without inventing
+beta, production, or release approval. This prompt may advance the local-only
+package work after SP-030, but it must not manufacture the live evidence that
+SP-030 deliberately deferred.
 
 ## Read before acting
 
@@ -25,21 +29,33 @@ Assemble and approve one provenance-bound RC package without inventing a release
 - `beta report`
 - `sign-offs`
 - `ADR-047 decision record`
+- `docs/decisions/ADR-052-sp031-local-only-rc-package-scope.md`
 - `AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md` sections OPEN-13
 
 ## Hard boundaries
 
 - Work only on OPEN-13; do not absorb the next prompt's objective.
 - Do not infer completion from a type, fake, local contract, historical ledger line, or model assertion.
-- Do not install, launch, mutate TCC, contact providers, enroll beta users, sign, release, deploy, commit, push, or merge unless this prompt's authority explicitly permits it.
+- Do not run live beta tests, capture microphone audio, mutate TCC, contact
+  providers, enroll beta users, enable telemetry, sign/notarize, publish,
+  release, deploy, commit, push, or merge unless separately authorized. Bind
+  only local `development_unverified` artifacts and non-live evidence, and
+  preserve each evidence class and limitation.
 - Preserve raw audio, screenshots, secrets, tokens, private account data, and unredacted model output out of ledgers and context files.
 
 ## Procedure
 
-1. Bind exact commit/tag, signed/notarized hashes, SBOM/dependency/model manifests, CI/test/coverage/adversarial results, and clean-machine evidence.
-2. Attach SLO report, beta incident/fix summary, open/accepted risks, capability exclusions, privacy/security/accessibility sign-offs, notes, and rollback/kill-switch plan.
-3. Draft and obtain authorized ADR-047 decision on beta evidence, SLOs, RC authority, and completion declaration.
-4. Only an authorized owner may approve `release_candidate_verified`; otherwise remain blocked.
+1. Bind the exact local source commit and existing `development_unverified`
+   artifact, hashes, SBOM/dependency/model manifests, deterministic CI/test/
+   coverage/adversarial results, and known artifact limitations.
+2. Attach the local-only SLO/scenario limitations, deferred live-beta/R11/
+   incident gates, open/accepted risks, capability exclusions, five sign-offs,
+   and rollback/kill-switch plan without promoting non-live evidence.
+3. Draft the local-only ADR-047 decision record and identify the explicit
+   owner decision still required for any package approval. Do not infer that
+   opening this prompt is approval.
+4. If package evidence, cognitive answers, or the required decision is absent,
+   keep SP-031 `in_progress` or `blocked`; do not advance to SP-032.
 
 ## Cognitive completion gate
 
@@ -51,7 +67,7 @@ Before changing this prompt to `completed`, answer all of these in `SECOND_PASS_
 - Which evidence ID and evidence class prove the result?
 - What observation would falsify the conclusion?
 - What residual risk remains, and why is it outside this prompt?
-- Why is SP-032 now safe to start?
+- Why is SP-032 safe or not safe to start after this local-only package attempt?
 
 ## Required records
 
@@ -63,8 +79,16 @@ Before changing this prompt to `completed`, answer all of these in `SECOND_PASS_
 
 ## Completion gate
 
-RC package is complete, reproducible, recoverable, independently reviewed, and explicitly approved.
+The local-only package may complete only when it is reproducible,
+recoverable, independently reviewed for its declared scope, and explicitly
+approved for local-only use with ADR-047 evidence. A `development_unverified`
+artifact is never a signed/notarized or external-release artifact;
+`beta-readiness.json` and `release_candidate` remain blocked unless their own
+direct authority and evidence gates are separately satisfied.
 
 ## Stop condition
 
-If any required evidence, authority, cognitive answer, postcondition, or validator result is missing, keep SP-031 `in_progress` or `blocked`, record the exact blocker, and do not proceed to SP-032.
+If any required package evidence, authority, cognitive answer, postcondition,
+or validator result is missing, keep SP-031 `in_progress` or `blocked`, record
+the exact blocker, and do not proceed to SP-032. Do not turn the local-only
+package preparation into a beta, production, or release claim.

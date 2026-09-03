@@ -35,6 +35,16 @@ The prompt may be marked `completed` only when:
 
 Otherwise use `in_progress` or `blocked` and keep the same prompt active.
 
+### Scope-limited completion
+
+An owner-approved scope decision may complete a prompt for a narrower product
+scope when the excluded evidence class is explicitly named, preserved as an
+open limitation, and cannot be mistaken for a pass. The evidence, prompt,
+state, and downstream handoff must say that the broader gate remains blocked.
+This exception does not promote deterministic or synthetic evidence to
+`live_user_present`, does not change `beta-readiness.json`, and does not make a
+blocked successor safe to execute.
+
 ## Mandatory closeout update
 
 After every prompt attempt, including failure or interruption, update:

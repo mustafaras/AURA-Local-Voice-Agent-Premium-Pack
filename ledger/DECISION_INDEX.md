@@ -31,4 +31,7 @@
 | ADR-037 | Accepted | Typed runtime health registry and fail-closed confirmation transaction lifecycle | 2026-08-02 | — |
 | ADR-045 | Accepted for R0 governance; release portions remain open | Toolchain, state projection, deployment target, and release pipeline baseline | 2026-08-02 | — |
 | ADR-046 | Accepted (local-only scope) | Signed updates, rollback, downgrade protection, safe mode, and recovery | 2026-08-09 (Proposed); 2026-08-30 (Accepted, local-only) | — |
+| ADR-047 | Accepted (local-only scope) | Exact SP-031 `development_unverified` package approval only; beta, production, release-candidate, signing, notarization, and external release remain blocked | 2026-09-02 | `EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01` |
 | ADR-050 | Accepted | What "independent sign-off" means for a local-only, single-user product: independence defined by authorship, cross-agent review with mandatory COI disclosure, owner as signatory for owner-judgment domains, no self-sign-off ever, and explicitly accepted risks (no human/external audit) | 2026-08-30 (Proposed and Accepted) | — |
+| ADR-051 | Accepted | SP-030 local-only deterministic validation scope; live-beta/R11/incident evidence explicitly deferred; beta readiness and SP-031 remain blocked | 2026-09-02 | SP-030 live-beta-only completion interpretation |
+| ADR-052 | Accepted | Open SP-031 for local-only development-unverified RC package preparation and ADR-047 drafting; no beta/release approval or live-test claim | 2026-09-02 | ADR-051 item 4 is amended only to permit bounded SP-031 preparation |

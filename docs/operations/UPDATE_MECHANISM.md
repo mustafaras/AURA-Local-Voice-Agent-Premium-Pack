@@ -4,7 +4,17 @@
 
 # AURA Update Mechanism
 
-This document describes the planned software-update design for AURA. R11 now provides a local, `development_unverified` artifact/manifest/checksum slice; it does not constitute a signed release or an update engine. The in-app update engine remains intentionally deferred until the signing, notarization, transport, and recovery gates are separately authorized and evidenced.
+This document describes the planned software-update design for AURA. R11 now provides a local, `development_unverified` artifact/manifest/checksum slice; it does not constitute a signed release or an update engine. The in-app update engine remains intentionally deferred until separately authorized direct local lifecycle evidence exists; external signing, notarization, and distribution are out of scope under ADR-049.
+
+> **Current scope correction (2026-09-02):** ADR-046 is accepted only for
+> the local contract/source scope. The architecture and remote URL below are
+> historical design material, not an implemented transport or lifecycle
+> acceptance claim. Direct local evidence is still required for update,
+> rollback, migration, safe-mode, support-bundle, reset, and uninstall
+> postconditions. Launch-at-login has later direct local evidence, but does
+> not prove that wider recovery matrix. ADR-049 permanently excludes Developer
+> ID, notarization, and external clean-machine distribution from the local
+> product; it does not turn missing local lifecycle evidence into a pass.
 
 ## Goals
 
@@ -19,7 +29,7 @@ This document describes the planned software-update design for AURA. R11 now pro
 - Delta / incremental patching for v1.
 - App Store distribution (requires further ADR).
 
-## Architecture
+## Historical planned architecture
 
 ```
 ┌─────────────────────────────────────┐
@@ -45,7 +55,7 @@ This document describes the planned software-update design for AURA. R11 now pro
 └───────────────────────────────────────┘
 ```
 
-## Trust model
+## Historical planned trust model
 
 1. Release artifacts are signed with the local stable identity + hardened runtime and verified locally; the product is local-only and does not use Developer ID or notarization (ADR-049).
 2. The helper verifies:
@@ -54,7 +64,7 @@ This document describes the planned software-update design for AURA. R11 now pro
    - Version string is strictly newer than the running version (semantic-version compare).
 3. If any check fails, the artifact is discarded and the event is recorded in the ledger.
 
-## Update flow
+## Historical planned update flow
 
 | Step | Actor | Action | Evidence |
 |---|---|---|---|
@@ -98,9 +108,10 @@ These scripts intentionally do not perform network operations, do not distribute
 - [ ] Add `UpdateCheckRequestedEvent` and related event payloads.
 - [ ] Add update approval UI/voice flow.
 - [ ] Add atomic install assistant.
-- [ ] Implement the maintained updater design in
-  `docs/decisions/ADR-046-signed-update-recovery.md` only after explicit
-  approval and a signed release authority exists.
+- [ ] Turn the accepted local-only updater design in
+  `docs/decisions/ADR-046-signed-update-recovery.md` into direct lifecycle
+  evidence only under separate, explicit authority. This is not an external
+  release or transport authorization.
 - [ ] Add a ServiceManagement launch-at-login implementation with explicit
   user consent and lifecycle evidence.
 - [ ] Add safe mode, support-bundle, migration, uninstall, and factory-reset

@@ -7,14 +7,21 @@
 
 # Build, Signing, Deployment, and Uninstall
 
+> **Current scope note (2026-09-02):** ADR-049 permanently excludes Developer
+> ID, notarization, and external deployment/distribution from the local-only
+> product. This document is not deployment authority and does not establish
+> direct local uninstall, support-bundle, update/rollback, or lifecycle
+> acceptance; those postconditions remain owned by their R11/FINAL gates.
+
 ## Build
 Reproducible builds, pinned dependencies, generated lockfiles, static analysis, and release provenance.
 
 ## macOS
 Use supported signing, hardened runtime, notarization, entitlements, privacy usage descriptions, and launch-at-login mechanisms.
 
-The local development bundle is signed with the local stable identity +
-hardened runtime (ADR-049). `AuraPluginHost` is separately
+The intended local development bundle uses the local stable identity +
+hardened runtime (ADR-049); the current SP-031 `development_unverified` package
+does not claim that signature state. `AuraPluginHost` is separately
 App Sandbox confined and self-attests its sandbox at runtime. The main
 application is intentionally unsandboxed until Accessibility and CLI execution
 move into least-privilege helpers; therefore its network allowlist is an AURA

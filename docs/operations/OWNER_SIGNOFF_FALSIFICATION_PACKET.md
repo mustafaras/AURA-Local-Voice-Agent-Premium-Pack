@@ -11,8 +11,15 @@
 > It was assembled by the implementing agent. Its value is that it tells you where
 > to look and what would break it.
 >
-> **Status:** ADR-050 is `Proposed`. Accept it first, or these sign-offs have no
-> agreed definition.
+> **Historical setup status:** At packet preparation, ADR-050 was `Proposed` and
+> the sign-offs below were not yet recorded.
+>
+> **Current correction — 2026-09-02:** ADR-050 is accepted; all five scoped R12
+> sign-offs are recorded. Launch-at-login now has direct local evidence, while
+> sleep/wake/crash recovery, safe-mode export, and populated-profile migration
+> remain unproved. The original packet text is retained as the review instrument
+> used at the time; it does not make R12 ready or replace the remaining direct
+> SLO, scenario, incident, R11, RC, or FINAL gates.
 
 ## A. `release_recovery`
 
@@ -35,18 +42,25 @@
 - **Falsified if:** it reads anything else, or any record calls the artifact a
   release candidate. `release_candidate.status` must be `blocked`.
 
-**Known gap you are signing over:** live launch-at-login, live sleep/wake/crash
+**Historical known gap:** At packet preparation, launch-at-login, sleep/wake/crash
 recovery, live safe-mode export, and live migration against a populated profile
-have **not** been exercised on this Mac. They are implemented and unit-tested only.
-If you are not willing to sign over that, say so — it is a legitimate refusal and
-the fix is a user-present session, not a document change.
+had not been exercised on this Mac. Launch-at-login later gained direct local
+evidence; the remaining lifecycle items are still not proved. The owner could
+legitimately refuse the sign-off then; the current open FINAL gates require
+direct evidence rather than a document change.
 
 ## B. `product_truthfulness`
 
+> **Current correction — 2026-09-02:** the original SLO count in this historical
+> packet was corrected before the owner decision. `ptt_ack` and `stt_partial`
+> are the two `not_measured` SLOs; all recorded measurements retain their
+> deterministic-harness limitations. The current `beta-readiness.json` is still
+> `blocked` and is the authoritative source.
+
 **Claim 1 — no SLO, scenario, incident, or sign-off result is fabricated.**
 - Check: `python3 scripts/validate_beta_readiness.py --record AURA_RUNTIME_COMPLETION/state/beta-readiness.json`
-- Expect: exit 0. Then read `slo_definitions` — three of five must say
-  `not_measured`; the two measured ones must carry `measurement_class:
+- Expect: exit 0. Then read `slo_definitions` — two of five must say
+  `not_measured`; the three measured ones must carry `measurement_class:
   deterministic_harness` and a `limitations` string saying it is not a live beta.
 - **Falsified if:** any SLO claims `live_user_present` class, any
   `live_beta_sample: true` appears, or `incident_review.status` is anything but
@@ -60,7 +74,7 @@ the fix is a user-present session, not a document change.
 
 **Claim 3 — the full test suite genuinely covers what records claim.**
 - Check: `./scripts/aura-test.sh /tmp/aurabuild` then compare the bundle count to `ls Tests/`.
-- Expect: 22 bundles, 1292 tests, `Done. Failed bundles: 0`.
+- Expect: 22 bundles, 1325 tests, `Done. Failed bundles: 0`.
 - **Falsified if:** the bundle count is lower than the directory count. *This exact
   defect was real:* `AuraLifecycleTests` was missing from the runner's hardcoded
   `TEST_TARGETS` and every prior "full suite passed" record excluded it. It was
@@ -74,11 +88,11 @@ the fix is a user-present session, not a document change.
 - **Falsified if:** anything in the repository describes AURA as having passed an
   external, human, or third-party audit. It has not.
 
-**Open finding you are signing over:** F-002 — DNS/IP pinning
+**Historical accepted finding:** F-002 — DNS/IP pinning
 (`ResolvedIPValidator`) is implemented and tested but has **zero production
 callers**, while SP-024's evidence describes network enforcement as covering
-DNS/IP. Either accept it as a known gap in writing, or require it wired before you
-sign. Do not sign silently over it.
+DNS/IP. The owner accepted it as a documented risk; it is not a current sign-off
+blocker, but it remains a risk rather than a closed enforcement claim.
 
 ## C. What you are NOT signing
 

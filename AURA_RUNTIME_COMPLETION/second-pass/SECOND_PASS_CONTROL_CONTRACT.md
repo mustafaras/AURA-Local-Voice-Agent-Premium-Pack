@@ -60,6 +60,16 @@ If any answer is unknown, the prompt is `blocked` or `in_progress`, never
 - Authority resets to edit-only at closeout unless the user explicitly grants
   a narrower consequential action.
 
+## Scope-limited prompt completion
+
+An explicit owner-approved local-only scope decision may close a prompt for that
+bounded scope while leaving a broader live or release gate open. The decision
+must be recorded in an ADR and evidence/ledger entry, the excluded gate must
+remain visible as an open limitation, and the downstream prompt must remain
+blocked when its prerequisites are absent. This cannot relabel deterministic
+or synthetic evidence as live evidence and cannot silently change readiness or
+release state.
+
 ## Context anti-amnesia rules
 
 - Load only Tier 0 plus the active prompt and named Tier-1 files first.

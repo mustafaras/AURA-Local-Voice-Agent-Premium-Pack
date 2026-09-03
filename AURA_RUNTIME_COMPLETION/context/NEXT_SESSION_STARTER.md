@@ -1,13 +1,39 @@
-# AURA Next Session Starter — SP-030 is `blocked`; userless alternatives attempted
+# AURA Next Session Starter — SP-031 local-only package approved; SP-032 blocked
 
-> Rewritten 2026-08-30 at the end of the a11y-plumbing / record-integrity session.
+> Updated 2026-09-02 after the blocked SP-032 FINAL reconciliation.
 > **Never copy a commit out of this header.** Run `git rev-parse HEAD` and
 > `git status --short` first — this file is a reading aid, not authority.
 >
 > Authoritative state: `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json`
 > and `AURA_RUNTIME_COMPLETION/context/session-handoff.json`.
 
-## Current overlay — 2026-09-02 unattended alternate verification
+## Current scope overlay — 2026-09-02
+
+ADR-051 records the owner's explicit no-live-test decision. SP-030 is complete
+only for the local-only deterministic validation scope. The broader live-beta
+objective is deferred, not passed: `beta-readiness.json` remains `blocked`,
+R11 remains `in_progress`. The owner approved the exact SP-031 package for
+local `development_unverified` use only and accepted ADR-047 at that scope
+(`EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01`). SP-031 is complete only
+for that local package scope; no deterministic or synthetic result may be
+relabeled as live beta. `EV-SP-032-20260902-FINAL-RECONCILIATION-01` records
+the completed edit-only cleanup, and `EV-SP-032-20260902-CLOSEOUT-02` records
+its mandatory closeout. `EV-SP-032-20260902-DETERMINISTIC-SUITE-01` records a
+fresh deterministic-control leg (validators + full 22-bundle/1325-test suite +
+SP-031 SHA checks all green) that is `deterministic_harness`-only and does not
+unblock FINAL. SP-032 remains blocked because no clean-Mac or end-to-end
+procedure was authorized. Return missing postconditions to their
+owning R2-R12 tracks; do not start SP-033.
+
+Historical SP-031 review instrument:
+`docs/operations/SP-031_LOCAL_ONLY_PACKAGE_REVIEW_PACKET.md`; preparation
+evidence `EV-SP-031-20260902-REVIEW-PACKET-01`; closeout
+`EV-SP-031-20260902-CLOSEOUT-REVIEW-PACKET-01`. The owner decision is
+`EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01`; do not solicit or repeat
+approval. The current next action is the blocked SP-032 handoff and
+owning-track return, not FINAL execution.
+
+## Historical diagnostic record — 2026-09-02 unattended alternate verification
 
 `EV-SP-030-20260902-UNATTENDED-ALTERNATE-01` records the latest attempt. Without
 the owner present, `AuraLifecycleTests` passed 48/10/0,
@@ -16,9 +42,11 @@ opt-in synthetic Speech path failed closed in three real-recognizer tests with
 `speechNotAuthorized`; no TCC mutation or permission prompt was requested.
 These are deterministic/synthetic checks, not live-beta evidence. They do not
 close `ptt_ack`, `stt_partial`, live dialogue latency, R11 recovery,
-scenario-window, or incident-review gates. SP-030 remains blocked and SP-031
-must not start. The older historical status below is retained as history; use
-the authoritative JSON and this overlay for the current state.
+scenario-window, or incident-review gates. At that stage SP-030 remained
+blocked; the later ADR-051 scope amendment recorded local-only completion while
+preserving those broader live gates as open. The older historical status below
+is retained as history; use the authoritative JSON and the current scope
+overlay above for the current state.
 
 ## Read these first, in this order
 
@@ -29,16 +57,21 @@ the authoritative JSON and this overlay for the current state.
 4. `docs/operations/INDEPENDENT_SECURITY_REVIEW_FINDINGS.md` — Rounds 2 and 3 plus
    the **correction** to Round 3. Read the correction; do not cite the withdrawn figures.
 
-## Status changed: SP-030 is `blocked`, not `in_progress`
+## Historical status reconciliation before ADR-051: SP-030 was `blocked`, not `in_progress`
 
 The previous handoff said `in_progress`. The record simultaneously said
 `blocked_prompts: ["SP-030"]`, `"SP-030 BLOCKED/IN_PROGRESS"` in two JSON files,
 and carried a heading reading `` `SP-030` / `in_progress` / **BLOCKED** ``. Those
 cannot all be true. It was reconciled to **`blocked`** on the control contract's
 own definition — *"A blocked prompt has an explicit blocker and remains the active
-prompt"* — which is exactly SP-030's situation. Emptying `blocked_prompts` to match
+prompt"* — which was exactly SP-030's situation at that time. Emptying `blocked_prompts` to match
 `in_progress` was rejected because it would have hidden the blocker.
 See `EV-SP-030-20260830-RECORD-INTEGRITY-01`.
+
+ADR-051 later superseded this historical live-beta-only state for the
+owner-approved local-only scope: SP-030 is now completed for deterministic
+validation, while the broader live-beta gates and downstream SP-031 remain
+blocked.
 
 ## Do not trust the previous starter's test claim
 
@@ -67,7 +100,7 @@ asked to be committed.** Do not "clean it up", do not revert it, do not commit i
 unasked. `current-state.json` now declares this honestly as `dirty_expected` with
 the change groups described in `repository.user_owned_changes`.
 
-## Where SP-030 actually stands
+## Historical SP-030 state before the local-only scope decision
 
 Gate: *"Mandatory SLOs and scenarios pass, incidents are remediated, and
 independent sign-offs are complete."* Not met. **Do not start SP-031.**
@@ -88,7 +121,7 @@ independent sign-offs are complete."* Not met. **Do not start SP-031.**
 Swift suite: **1307 tests / 84 suites / 22 bundles, 0 failures.**
 Python: **58 tests, OK.** All **three** validators exit 0.
 
-## The four things that still need a person
+## Historical owner-dependent items at that time
 
 Authority does not substitute for any of them.
 

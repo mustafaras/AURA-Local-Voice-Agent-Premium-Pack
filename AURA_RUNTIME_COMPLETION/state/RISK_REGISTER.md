@@ -858,3 +858,81 @@ system-TTS interruption evidence does not substitute for that physical test.
 - **Risk:** Deterministic lifecycle, integration, and STT suites can pass without supplying owner speech, microphone hardware, a running beta window, live R11 transitions, or incident observations. The opt-in real-recognizer tests also stop at the OS authorization boundary when Speech Recognition is unavailable.
 - **Assessment / mitigation:** Keep measurement class, sample provenance, limitations, and authorization result attached to the evidence. Do not mutate TCC or label `deterministic_harness` / `synthetic_speech` as `live_user_present`; leave `ptt_ack`, `stt_partial`, live scenario, and incident gates open. This attempt narrowed contract coverage only.
 - **Evidence / falsifier:** `EV-SP-030-20260902-UNATTENDED-ALTERNATE-01`; falsified by a qualifying live-beta sample set and direct user-present R11/scenario/incident evidence that closes the corresponding gates.
+### RISK-SP-030-LIVE-BETA-DEFERRED-BY-SCOPE — new, 2026-09-02
+
+- **Risk ID:** `RISK-SP-030-LIVE-BETA-DEFERRED-BY-SCOPE`
+- **Status:** **Open — SP-030 is complete only for local-only deterministic validation**
+- **Owner:** AURA Runtime Completion Program / release owner
+- **Risk:** A local-only completion label could be misread as beta, production, or scientific clearance even though live voice, latency, R11 recovery, scenario, and incident evidence was deliberately not collected.
+- **Assessment / mitigation:** ADR-051, the prompt, state, evidence, and handoff all preserve the scope qualifier. Keep `beta-readiness.json` blocked, R12 in progress, and SP-031 limited to local-only package preparation under ADR-052; do not treat that preparation as approval. Re-open with a new scope decision before any live beta or external-release claim.
+- **Evidence / falsifier:** `EV-SP-030-20260902-LOCAL-ONLY-SCOPE-01`; falsified by a record that omits the local-only qualifier or promotes deferred evidence to live.
+### RISK-SP-031-LOCAL-ONLY-PACKAGE-NOT-APPROVED — new, 2026-09-02
+
+- **Risk ID:** `RISK-SP-031-LOCAL-ONLY-PACKAGE-NOT-APPROVED`
+- **Status:** **Open — SP-031 is in progress but its local-only package and decision gate are not yet complete**
+- **Owner:** AURA Runtime Completion Program / release owner
+- **Risk:** Opening SP-031 could be misread as an approved release-candidate or beta decision even though the local `development_unverified` package, ADR-047 decision, and explicit package approval are not yet recorded.
+- **Assessment / mitigation:** Keep SP-031 `in_progress`; bind exact artifact/provenance, SBOM/manifests, deterministic evidence, limitations, rollback plan, and the draft ADR-047 record. Keep `beta-readiness.json` and `release_candidate` blocked and do not claim `release_candidate_verified`, beta, production, signing, or notarization.
+- **Evidence / falsifier:** `EV-SP-031-20260902-OPENED-LOCAL-ONLY-01`; falsified by a complete, independently reviewed, provenance-bound local-only package and explicit decision satisfying SP-031's completion gate.
+
+**2026-09-02 package update:** The package assembly postcondition is now
+recorded by `EV-SP-031-20260902-LOCAL-ONLY-PACKAGE-01` and the proposed ADR-047
+record. The risk remains **Open** because independent declared-scope review,
+explicit owner approval for local-only use, and ADR-047 acceptance are still
+missing. The original opening-state wording above is retained as history; the
+current blocker is approval/decision evidence, not absence of the ZIP.
+
+`EV-SP-031-20260902-CLOSEOUT-LOCAL-ONLY-PACKAGE-01` confirms the same
+disposition after the mandatory closeout: the package is locally reproducible,
+but SP-031 is not complete and SP-032 remains unsafe to start.
+
+**2026-09-02 review-packet update:** `EV-SP-031-20260902-REVIEW-PACKET-01`
+and `docs/operations/SP-031_LOCAL_ONLY_PACKAGE_REVIEW_PACKET.md` now provide
+the missing falsification-bound review procedure and a separate approve/return
+decision path. This does not prove that the review occurred or that the owner
+approved the package. The risk remains **Open** until an independent
+declared-scope review, explicit local-only owner decision, and ADR-047
+acceptance are separately evidenced; beta-readiness and `release_candidate`
+remain blocked.
+
+`EV-SP-031-20260902-CLOSEOUT-REVIEW-PACKET-01` confirms that the review
+instrument and package-integrity revalidation closed out cleanly. It does not
+close this risk: actual independent review, explicit owner local-only approval,
+and ADR-047 acceptance remain absent.
+
+**2026-09-02 owner-decision update:** This narrow approval risk is now
+**Closed for the SP-031 local-only package postcondition**. The release owner
+reviewed the exact package and falsification checklist, approved the artifact
+and manifest hashes for local `development_unverified` use only, accepted the
+limitations, and accepted ADR-047 at that scope
+(`EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01`). This does not alter the
+separate open R12 risks: beta-readiness and `release_candidate` remain blocked,
+and live R11/SLO/scenario/incident and external-release gates remain outside
+this completed SP-031 scope.
+
+### SP-032 current-risk reconciliation — 2026-09-02
+
+`EV-SP-032-20260902-FINAL-RECONCILIATION-01` supersedes only stale
+forward-looking statements in the rows below; it does not rewrite their
+historical observations or reduce any FINAL gate.
+
+- **`RISK-NO-SIGNED-UPDATER`:** ADR-046 is **Accepted (local-only scope)**, not
+  Proposed. Its deterministic manifest/stager/rollback/recovery contract is
+  implemented and its external distribution path is out of scope under ADR-049.
+  The risk remains mitigating because no direct local evidence covers a real
+  update/rollback, sleep/wake/crash recovery, safe-mode export, populated-profile
+  migration, uninstall/factory-reset, or support-bundle privacy acceptance.
+- **`RISK-NO-INDEPENDENT-BETA-EVIDENCE` and
+  `RISK-NO-BETA-CONSENT-BOUNDARY`:** the canonical readiness record now proves
+  one enrolled/consented local participant and all five scoped sign-offs.
+  Telemetry remains disabled with `transport: none`. These facts do not create a
+  live beta window, qualifying SLO samples, a live scenario matrix, incident
+  review, R11 completion, beta readiness, or release-candidate approval.
+- **`RISK-NO-RC-EVIDENCE-PACKAGE`:** the exact SP-031 local package and owner
+  decision now exist, but only as `development_unverified`; they cannot close
+  the absent release-candidate, live-beta, or FINAL postconditions.
+- **`RISK-FINAL-ACCEPTANCE-BLOCKED`:** remains **Open**. The capability matrix
+  has 32 rows with open gaps, 0 `release_verified` rows, and 12 rows without an
+  evidence ID. The current authority also prohibits the clean-profile/live
+  acceptance procedures. Return to the owning R2-R12 gates; do not advance
+  SP-033 from this blocked result.
