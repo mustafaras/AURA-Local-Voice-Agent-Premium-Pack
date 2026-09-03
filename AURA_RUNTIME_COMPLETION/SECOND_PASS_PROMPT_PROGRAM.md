@@ -1,5 +1,11 @@
 # AURA Second-Pass Prompt Program
 
+> **STATUS: RETIRED / FROZEN (2026-09-03).** The second-pass chain is
+> **COMPLETE** under `docs/decisions/ADR-053-live-evidence-synthetic-scope.md`
+> (`SP-000`–`SP-033`; terminal SP-033 `completed`, `next_prompt: none`). This
+> file is preserved so the validators and ledger history resolve; it is no
+> longer the active execution surface.
+
 This is the human-facing index for the one-gap-at-a-time second pass. The
 machine source is
 `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_MANIFEST.json`; the

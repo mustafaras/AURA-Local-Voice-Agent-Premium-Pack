@@ -1,5 +1,12 @@
 # Second-Pass Context Read Order
 
+> **STATUS: RETIRED / FROZEN (2026-09-03).** The second-pass chain is
+> **COMPLETE** under `docs/decisions/ADR-053-live-evidence-synthetic-scope.md`
+> (`SP-000`–`SP-033`; terminal SP-033 `completed`, `next_prompt: none`). This
+> read-order contract is preserved for the record and for validator resolution;
+> it is no longer the active execution surface. Do not start a new `SP-*`
+> prompt — none exists.
+
 This is the Tier-0/Tier-1 context contract for every `SP-*` prompt. It keeps
 the prompt chain anti-amnesic without loading the entire repository into every
 session.

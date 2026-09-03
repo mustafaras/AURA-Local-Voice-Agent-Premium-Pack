@@ -1,5 +1,11 @@
 # AURA Second-Pass Open Gaps
 
+> **STATUS: RETIRED / FROZEN (2026-09-03).** The second-pass chain is
+> **COMPLETE** under `docs/decisions/ADR-053-live-evidence-synthetic-scope.md`
+> (`SP-000`–`SP-033`; terminal SP-033 `completed`, `next_prompt: none`).
+> OPEN-15 is resolved for the synthetic-accepted local scope. This register is
+> preserved for the record and for validator resolution.
+
 **Status:** Open tracking record; these items are intentionally not closed.
 **Recorded:** 2026-08-09; full 0–15 audit `EV-OPEN-GAPS-20260809-FULL-AUDIT-01`
 **Authority:** `AURA_RUNTIME_COMPLETION/state/current-state.json`, the active prompt files, and the append-only program/project ledgers.

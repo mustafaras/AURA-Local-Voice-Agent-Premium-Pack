@@ -1,6 +1,20 @@
-# AURA Runtime Completion — active operating surface
+# AURA Runtime Completion — RETIRED / FROZEN (2026-09-03)
 
-The remaining execution track is the sequential second-pass chain.
+> **Status: RETIRED.** The second-pass runtime-completion chain is COMPLETE for
+> the synthetic-accepted local scope under `docs/decisions/ADR-053-live-evidence-synthetic-scope.md`
+> (`SP-000`–`SP-033` completed; terminal SP-033 `completed`). No new SP prompt
+> exists (`next_prompt: none`) and no further active execution is expected.
+>
+> This tree is **frozen for the record**: it is preserved in place so the
+> runtime/ second-pass/ beta-readiness validators and the ledger/evidence/
+> decision/risk history continue to resolve. **Do not delete or move these
+> files**; retirement means "no longer the active execution surface," not
+> "remove the governing evidence." Any future re-opening (e.g., external
+> distribution) requires a new ADR per ADR-053/ADR-049.
+
+## Historical operating surface (superseded)
+
+The remaining execution track was the sequential second-pass chain.
 
 Start with:
 
@@ -17,3 +31,4 @@ infer a prompt transition.
 The completed first-pass prompt definitions and legacy context are preserved
 under `AURA_RUNTIME_COMPLETION/archive/first-pass-context/2026-08-12/` and
 `AURA_RUNTIME_COMPLETION/archive/first-pass-prompts/2026-08-12/`.
+
