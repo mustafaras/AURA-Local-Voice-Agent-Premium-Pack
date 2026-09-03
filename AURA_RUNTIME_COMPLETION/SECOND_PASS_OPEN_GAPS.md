@@ -2329,6 +2329,41 @@ live-SLO gates, Developer-ID/external distribution (ADR-049), or the
 unit-tested-only R11 lifecycle sub-gates. `beta-readiness.json` and
 `release_candidate` remain blocked.
 
+### Net blocked sebepleri (2026-09-03, kanonik state'ten doğrulandı)
+
+SP-032 `blocked` kalır çünkü FINAL acceptance gate'i, aşağıdaki postcondition'ların
+**tamamı** geçmeden `release_candidate_verified` / `released` durumuna geçemez ve
+bunların hiçbiri tek bir yerel oturumda meşru şekilde kapatılamaz (fabrikasyon
+yasak — ADR-051/052, kontrol kontratı):
+
+1. **R11 tamamlanmadı** — `beta-readiness.json` `dependency_gate`:
+   `r11_state: in_progress`, `r11_release_status: development_unverified`,
+   `r11_completion_required: true`. Canlı lifecycle gate'leri (sleep/wake/crash
+   recovery, dolu-profil migration, safe-mode/support-bundle canlı gözlem)
+   yalnızca unit-testli (`AuraLifecycleTests` 48/10/0), canlı değil.
+2. **Canlı beta SLO'ları ölçülmedi** — `open_blockers`: `ptt_ack`,
+   `stt_partial`, `dialogue_first_token` latency SLO'ları canlı mikrofonlu bir
+   kullanıcı-beta penceresi gerektirir; ölçülmedi.
+3. **Canlı STT/WER ölçülmedi** — konuşabilen bir operatör gerektirir; yalnızca
+   belgelenmiş sentetik-speech accommodation var, canlı mikrofon WER sonucu yok.
+4. **Senaryo matrisi canlı çalıştırılmadı** — yalnızca `deterministic_harness`
+   sınıfı olarak geçti; canlı beta penceresinde hiç çalıştırılmadı.
+5. **Incident review yok** — beta penceresi olmadığı için üretilecek incident
+   yok; review çalışmadı.
+6. **R12 sign-off'ları canlı kanıtın yerine geçmez** — 5 sign-off kayıtlıdır ama
+   bunlar dışlanmış canlı-beta SLO/senaryo/incident/R11 kanıtının yerini tutmaz;
+   local-only scope kararı readiness'i `blocked` tutar.
+7. **Telemetri kapalı** — `telemetry.enabled: false`, `transport: none`; canlı
+   beta ölçümü için `telemetry_or_beta` yetkisi gerekir, bu yalnızca owner'ın
+   açabileceği bir şeydir.
+8. **Developer ID / notarization / harici dağıtım** — ADR-049 ile kalıcı olarak
+   kapsam dışı; bu, `release_candidate`'in `blocked` kalmasını sağlar.
+9. **FINAL authority yok** — SP-032'nin kendisi `release_candidate_verified` /
+   `released` durumuna geçmek için FINAL yetkisi gerektirir; bu yetki verilmedi.
+
+Sonuç: `beta-readiness.json` `readiness_status: blocked`,
+`release_candidate.status: blocked`, `approved: false`. SP-033 başlatılmadı.
+
 ## OPEN-15 — SESSION CLOSEOUT procedure
 
 This is mandatory after every numbered step, including a blocked or failed
