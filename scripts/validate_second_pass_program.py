@@ -9,6 +9,7 @@ projections without treating prose or a local test as live acceptance proof.
 from __future__ import annotations
 
 import argparse
+import glob
 import json
 import re
 import sys
@@ -205,6 +206,41 @@ def _validate_state(root: Path, manifest_prompts: list[dict[str, Any]], state: d
     for key, relative in controls.items():
         if isinstance(relative, str):
             _require_file(root, relative, errors)
+
+    # Evidence-traceability invariant: every completed prompt must have at
+    # least one matching evidence artifact file on disk (state/EV-SP-###-*.md)
+    # OR a corresponding row in EVIDENCE_INDEX.md. This closes the historical
+    # blind spot where a completed prompt had an index row but neither an
+    # artifact file nor a dense inline record (e.g. SP-010). The active prompt
+    # is exempt: it may be blocked with handoff-only evidence.
+    state_dir = root / "AURA_RUNTIME_COMPLETION/state"
+    on_disk_evidence = 0
+    index_text = ""
+    index_path = root / "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md"
+    if index_path.is_file():
+        index_text = index_path.read_text(encoding="utf-8")
+    if state_dir.is_dir():
+        on_disk_evidence = len(glob.glob(str(state_dir / "EV-SP-*.md")))
+        for prompt_id in completed:
+            number = prompt_id.replace("SP-", "", 1)
+            file_prefix = f"EV-SP-{number}"
+            has_file = bool(glob.glob(str(state_dir / f"{file_prefix}-*.md")))
+            # EVIDENCE_INDEX row is present if the prefix appears as a cell
+            # followed by a pipe or as an inline `EV-SP-###-...` token.
+            has_index = (
+                f"| {file_prefix}-" in index_text
+                or f"`{file_prefix}-" in index_text
+                or f"**{file_prefix}-" in index_text
+            )
+            if not (has_file or has_index):
+                errors.append(
+                    f"completed prompt {prompt_id} has no matching evidence artifact file "
+                    f"(expected state/{file_prefix}-*.md) and no EVIDENCE_INDEX.md row"
+                )
+    else:
+        errors.append(f"missing second-pass evidence directory: {state_dir}")
+    if on_disk_evidence == 0:
+        errors.append("no EV-SP-*.md evidence files found under state/")
 
 
 def validate(root: Path) -> list[str]:

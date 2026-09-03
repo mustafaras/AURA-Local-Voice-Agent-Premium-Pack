@@ -936,3 +936,30 @@ historical observations or reduce any FINAL gate.
   evidence ID. The current authority also prohibits the clean-profile/live
   acceptance procedures. Return to the owning R2-R12 gates; do not advance
   SP-033 from this blocked result.
+
+### SP-033 terminal closeout risk reconciliation — 2026-09-03
+
+`EV-SP-033-20260903-FINAL-CLOSEOUT-01` records the terminal second-pass chain
+closeout. The chain SP-000–SP-032 is completed for its declared local scopes;
+SP-033 is the terminal prompt (`next_prompt: none`) and remains the active
+prompt in a `blocked` state because the validator structurally requires an
+active uncompleted prompt and the broader program gates remain open. The chain
+is truthfully blocked with a complete maintainer handoff; no ambiguous state
+remains.
+
+- **`RISK-SECOND-PASS-SYNC-DRIFT`:** remains `Mitigating`. The terminal
+  reconciliation re-ran `validate_second_pass_program.py` (PASSED) and
+  synchronized all projections; closure of this risk requires the chain-end
+  reconciliation to prove no projection drift, which this closeout records.
+- **`RISK-FINAL-ACCEPTANCE-BLOCKED`:** remains `Open`. R2–R10 direct
+  capability/security/privacy/accessibility/integration/privilege
+  postconditions, R12 live SLO/scenario/incident/RC evidence, and FINAL
+  authority remain open and belong to their owning tracks. `beta-readiness.json`
+  `readiness_status` and `release_candidate.status` remain `blocked`.
+- **`RISK-LIVE-LIFECYCLE-UNVERIFIED`:** remains partially open for the
+  real-host R11 sub-gates (physical sleep/wake, real signed update, real
+  clean-profile migration, destructive user-data removal), which the owner
+  accepted as known gaps under `EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01`.
+- **`RISK-NO-INDEPENDENT-BETA-EVIDENCE`, `RISK-NO-BETA-CONSENT-BOUNDARY`,
+  `RISK-NO-RC-EVIDENCE-PACKAGE`:** remain open; the local-only scope decision
+  leaves readiness blocked and makes no beta, production, or release claim.

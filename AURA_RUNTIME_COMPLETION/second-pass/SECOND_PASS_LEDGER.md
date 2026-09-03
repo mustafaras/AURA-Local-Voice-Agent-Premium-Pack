@@ -3761,3 +3761,28 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
   open and reversible.
 - **Next action:** complete SP-033 (SESSION_CLOSEOUT) reconciliation; keep
   `beta-readiness.json` / `release_candidate` blocked.
+
+### 2026-09-03T08:07:57Z — SP-033_OPEN-15 — terminal chain closeout — truthfully blocked
+
+- **Prompt / gap:** `SP-033` / `OPEN-15` (SESSION_CLOSEOUT); terminal prompt (`next_prompt: none`).
+- **Predecessor evidence:** `EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01` (SP-032 completed for local scope; SP-033 opened).
+- **Verified state:** `main`; `HEAD == origin/main == 44f41c7986445526fd3f40f36c5a3972d26f65ea`; worktree clean. Recorded `verified_head` in `current-state.json` (`7687de55...`) is the last delivered commit; `44f41c7` is the pointer-sync commit, consistent with the repository's `verified_head` convention.
+- **Objective:** Close the second-pass chain with a machine-resumable, append-only handoff. Work limited to OPEN-15; no product source, launch/install, TCC, provider, beta, telemetry, signing, release, deploy, commit, push, or merge action occurred.
+- **Authority:** edit/launch/commit/push/merge true; sign/notarize/release false per ADR-049.
+- **Exact work:** Recorded exact branch/HEAD/remote/worktree/authority; answered the cognitive completion gate for the entire chain; validated manifest/state/prompt/gap/dependency/evidence/projection references via `python3 scripts/validate_second_pass_program.py` (PASSED); updated OPEN-15, evidence index, risk register, and all three ledgers.
+- **Cognitive resolution record:** The chain is structurally complete for its declared local scopes (SP-000–SP-032), but the program-wide live and release gates (R2–R10 direct, R12 live SLO/scenario/incident/RC, FINAL authority) require evidence classes that cannot be fabricated in a local session. The chain is **truthfully blocked** with a complete maintainer handoff; no ambiguous state remains. SP-033 remains the active prompt in a `blocked` state because the validator structurally requires an active uncompleted prompt.
+- **Evidence:** `EV-SP-033-20260903-FINAL-CLOSEOUT-01` — closeout/process + deterministic governance class; artifact `AURA_RUNTIME_COMPLETION/state/EV-SP-033-20260903-FINAL-CLOSEOUT-01.md`.
+- **Residual risks:** R2–R10 direct acceptance, R12 live SLO/scenario/incident/RC, and FINAL authority remain open and belong to their owning tracks; `beta-readiness.json`/`release_candidate` stay blocked. These are outside SP-033's SESSION_CLOSEOUT scope.
+- **Acceptance verdict:** SP-033 is **blocked** (terminal) with a complete maintainer handoff. The chain is truthfully closed for the second-pass program; the broader first-pass program remains open.
+- **Next prompt/action:** No next SP prompt exists (`next_prompt: none`). The exact next action is to return each open postcondition to its owning R2–R12 track under separate authority; `beta-readiness.json`/`release_candidate` remain blocked.
+
+### 2026-09-03 — SP-010 evidence traceability reconciliation (correction of an underspecified historical index row)
+
+- **Prompt / gap:** SP-010 / OPEN-06 (deterministic slice only). This entry does not reopen SP-010; it repairs the evidence artifact that was missing at completion and closes the historical index/hash gap identified by audit. It does not change the completion verdict or the terminal SP-033 blocked state.
+- **Symptom/root cause:** SP-010 was closed on 2026-08-17T16:59:23Z by reconciling an already-advanced machine state, so no `EV-SP-010-*.md` artifact file was created and the `EVIDENCE_INDEX.md` row `| EV-SP-010-20260817-COMPOSITION-01 |` recorded empty artifact/hash cells (` SHA-256 ; SHA-256 `) with a `Working tree (SP-010 uncommitted)` commit value. The implementation itself was subsequently committed as part of the `feat(sp-011)` series; only the traceability record was left unsaid.
+- **Direct change:** Created `AURA_RUNTIME_COMPLETION/state/EV-SP-010-20260903-COMPOSITION-RECONCILE-01.md` pinning the SP-010 source/test artifacts (IntegrationOnboardingService, HTTP/Gmail transports, read bridge, registry/routing, UI) and their SHA-256 hashes, and updated `EVIDENCE_INDEX.md` row 78 with the enclosing commit (`44f41c7`), the source/test file hashes, and the reconciliation record hash.
+- **Evidence:** `EV-SP-010-20260903-COMPOSITION-RECONCILE-01` — source/build/test/state + traceability class; SHA-256 `4a421d3549805a73db41943aeced9a852512156670f716de10c2367527a85346`.
+- **Falsifier:** Any SP-010 artifact file or test that does not exist at `HEAD`, any hash mismatch, or any claim that this reconciliation adds live/provider/TCC/real-account acceptance would falsify this entry.
+- **Residual / boundary:** Live provider OAuth consent, real account configuration, TCC/Contacts/Calendar prompts, real Safari native-messaging, mutation/send, and user-present acceptance remain open and are owned by SP-011; four capabilities remain `.disabled`. No launch/install/TCC/provider/beta/signing/release/deploy/commit/push/merge occurred during this reconciliation.
+- **Validator hardening:** `scripts/validate_second_pass_program.py` now also rejects a completed prompt that has neither an `EV-SP-###-*.md` artifact file nor a corresponding `EVIDENCE_INDEX.md` row, closing the blind spot that permitted the SP-010 gap. Validator and its unit tests pass.
+- **State:** SP-000–SP-032 remain `completed`; SP-033 remains the active terminal prompt, `blocked`; `beta-readiness.json`/`release_candidate` stay blocked. This is an append-only correction; no historical wording was altered.

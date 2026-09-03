@@ -1,12 +1,27 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-033` (`in_progress`)
-> **Current program state:** In progress; SP-000 through SP-032 completed for their declared local scopes. SP-033 (SESSION_CLOSEOUT) is active. R12 and the broader program remain open; `beta-readiness.json` / `release_candidate` remain blocked.
-> **Live repository lineage:** current `HEAD == origin/main == 706a03a` on `main`; graphify source helpers and prior state delivery are pushed. The current worktree contains bounded SP-030/SP-031/SP-032 control-plane, evidence, ADR, and ledger projections; no product source or test workaround remains. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-033` (`blocked`)
+> **Current program state:** In progress; SP-000 through SP-032 completed for their declared local scopes. SP-033 (SESSION_CLOSEOUT) is the terminal prompt and is `blocked` with a complete maintainer handoff. R12 and the broader program remain open; `beta-readiness.json` / `release_candidate` remain blocked.
+> **Live repository lineage:** current `HEAD == origin/main == 44f41c7` on `main`; worktree clean. The recorded `verified_head` in `current-state.json` (`7687de55...`) is the last delivered commit; `44f41c7` is the pointer-sync commit, consistent with the repository's `verified_head` convention. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
+
+## SP-033 terminal closeout — 2026-09-03 — chain truthfully blocked
+
+`EV-SP-033-20260903-FINAL-CLOSEOUT-01` records the terminal second-pass chain
+closeout. Branch `main`; `HEAD == origin/main ==
+44f41c7986445526fd3f40f36c5a3972d26f65ea`; worktree clean. The chain
+SP-000–SP-032 is completed for its declared local scopes; SP-033 is the
+terminal prompt (`next_prompt: none`) and remains the active prompt in a
+`blocked` state because the validator structurally requires an active
+uncompleted prompt and the broader program gates remain open. The chain is
+**truthfully blocked** with a complete maintainer handoff; no ambiguous state
+remains. `python3 scripts/validate_second_pass_program.py` PASSED. R2–R10
+direct, R12 live SLO/scenario/incident/RC, and FINAL authority remain open and
+belong to their owning tracks; `beta-readiness.json` `readiness_status` and
+`release_candidate.status` remain `blocked`.
 
 ## SP-032 owner accepted-gaps decision; SP-033 opened — 2026-09-03
 
@@ -64,18 +79,21 @@ telemetry, microphone/TCC, provider, deployment, or release claim is made;
 authority is edit/test/state-only, with launch, telemetry/beta, commit,
 push/merge, signing, release, and deployment authority reset false.
 
-## Second-pass synchronized overlay — 2026-09-03 (`SP-033` / `in_progress`) — SP-032 completed for local scope; SP-033 opened
+## Second-pass synchronized overlay — 2026-09-03 (`SP-033` / `blocked`) — terminal chain closeout
 
-`EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01` records the owner's option (A)
-decision: accept the real-host R11 sub-gates as known gaps (same pattern as
-ADR-049, RISK-DNS-IP-PINNING, RISK-PEER-IDENTITY, RISK-LIVE-LIFECYCLE-UNVERIFIED)
-and open SP-033. R11 `dependency_gate.r11_state` → `completed` (local scope,
-evidence `EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01`); R11 track →
-`completed`; `GATE-SIGNED-UPDATES-RECOVERY` → `accepted`; SP-032 → `completed`;
-SP-033 → `in_progress` (active). This is an owner decision / accepted-known-gap,
-not live/clean-Mac/beta/release evidence; the accepted real-host sub-gates
-remain open and reversible. `beta-readiness.json` `readiness_status` and
-`release_candidate.status` remain `blocked`.
+`EV-SP-033-20260903-FINAL-CLOSEOUT-01` records the terminal second-pass chain
+closeout. The chain SP-000–SP-032 is completed for its declared local scopes;
+SP-033 is the terminal prompt (`next_prompt: none`) and remains the active
+prompt in a `blocked` state because the validator structurally requires an
+active uncompleted prompt and the broader program gates remain open. The chain
+is **truthfully blocked** with a complete maintainer handoff; no ambiguous
+state remains. `python3 scripts/validate_second_pass_program.py` PASSED.
+R2–R10 direct, R12 live SLO/scenario/incident/RC, and FINAL authority remain
+open and belong to their owning tracks; `beta-readiness.json` `readiness_status`
+and `release_candidate.status` remain `blocked`.
+
+The prior `SP-032 owner accepted-gaps decision` overlay below records the
+owner's option (A) decision that opened SP-033; it is retained as history.
 
 ## Second-pass synchronized overlay — 2026-09-02 (`SP-032` / `blocked`) — SP-031 local-only scope completed
 

@@ -1,53 +1,40 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-09-03T05:56:04Z",
-  "session_id": "AURA-SP-032-OWNER-LIVE-ACCEPTANCE-20260903",
-  "last_verified_commit": "7687de55fa89e62a72bbf4d2eb01e4c80c6f5046",
+  "updated_at": "2026-09-03T08:07:57Z",
+  "session_id": "AURA-SP-033-FINAL-CLOSEOUT-20260903",
+  "last_verified_commit": "44f41c7986445526fd3f40f36c5a3972d26f65ea",
   "active_prompt": {
     "id": "SP-033",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
-    "state": "in_progress",
-    "step": "SP-033 SESSION_CLOSEOUT active. SP-032 completed for local scope under owner accepted-gaps decision (EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01). Record chain closeout; beta-readiness.json / release_candidate remain blocked."
+    "state": "blocked",
+    "step": "SP-033 SESSION_CLOSEOUT terminal prompt BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). Second-pass chain SP-000-SP-032 completed for local scopes; broader program gates (R2-R10, R12, FINAL) remain open. beta-readiness.json / release_candidate remain blocked."
   },
-  "summary": "EV-SP-032-20260902-DETERMINISTIC-SUITE-01 re-ran the deterministic-control leg under current edit/test/state-only authority: second-pass/runtime/beta/readiness/release-manifest validators, SP-031 artifact+manifest SHA-256 checks, and a fresh full aura-test.sh suite all passed (22 bundles, 0 failed, 1325 tests/87 suites, exit 0). This is deterministic_harness evidence only; it does not close FINAL. SP-032 remains blocked; beta-readiness and release_candidate remain blocked. main HEAD equals origin/main at bee334782262089fa117124ababa9b3c6dfed394; the worktree is dirty_expected and no install/launch/TCC/beta/signing/commit/push/merge/deploy occurred.",
+  "summary": "EV-SP-033-20260903-FINAL-CLOSEOUT-01 records the terminal second-pass chain closeout. Branch main; HEAD == origin/main == 44f41c7986445526fd3f40f36c5a3972d26f65ea; worktree clean. The chain SP-000-SP-032 is completed for its declared local scopes; SP-033 is the terminal prompt (next_prompt: none) and remains the active prompt in a blocked state because the validator structurally requires an active uncompleted prompt and the broader program gates remain open. The chain is truthfully blocked with a complete maintainer handoff; no ambiguous state remains. validate_second_pass_program.py PASSED. R2-R10 direct, R12 live SLO/scenario/incident/RC, and FINAL authority remain open and belong to their owning tracks; beta-readiness.json / release_candidate remain blocked. No commit/push/merge/release/deploy occurred.",
   "completed": [
-    "SP-031 is complete only for the owner-approved local development_unverified package scope; ADR-047 is accepted only at that scope.",
-    "SP-032 edit-only FINAL reconciliation completed with EV-SP-032-20260902-FINAL-RECONCILIATION-01; its FINAL gate remains blocked.",
-    "Mandatory 15_SESSION_CLOSEOUT recorded in EV-SP-032-20260902-CLOSEOUT-02; the blocked FINAL handoff and authority reset were revalidated.",
-    "EV-SP-032-20260902-DETERMINISTIC-SUITE-01 re-ran validators + full 22-bundle/1325-test suite green (deterministic_harness only; FINAL unchanged).",
-    "Historical SP-031 package/review entries that said ADR-047 Proposed or owner approval pending are superseded for current status by EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01.",
-    "Current authority was reset across second-pass, first-pass, and beta-readiness projections; no earlier grant remains executable."
+    "SP-033 (SESSION_CLOSEOUT) terminal closeout recorded with EV-SP-033-20260903-FINAL-CLOSEOUT-01; the chain is truthfully blocked with a complete maintainer handoff.",
+    "The second-pass chain SP-000-SP-032 is completed for its declared local scopes.",
+    "validate_second_pass_program.py PASSED; all projections synchronized.",
+    "beta-readiness.json readiness_status and release_candidate.status remain blocked.",
+    "No app launch/install, TCC mutation, provider contact, beta enrollment, telemetry activation, signing, notarization, release, deployment, commit, push, or merge occurred."
   ],
   "files_changed": [
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/context/ACTIVE_CONTEXT.md",
     "AURA_RUNTIME_COMPLETION/context/NEXT_SESSION_STARTER.md",
-    "AURA_RUNTIME_COMPLETION/context/R11_CLOSURE_PLAN.md",
     "AURA_RUNTIME_COMPLETION/context/session-handoff.json",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
-    "AURA_RUNTIME_COMPLETION/state/DECISION_REGISTER.md",
     "AURA_RUNTIME_COMPLETION/state/EVIDENCE_INDEX.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-032-20260902-FINAL-RECONCILIATION-01.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-032-20260902-CLOSEOUT-02.md",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-032-20260902-DETERMINISTIC-SUITE-01.md",
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-033-20260903-FINAL-CLOSEOUT-01.md",
     "AURA_RUNTIME_COMPLETION/state/PROGRAM_LEDGER.md",
     "AURA_RUNTIME_COMPLETION/state/RISK_REGISTER.md",
-    "AURA_RUNTIME_COMPLETION/state/beta-readiness.json",
-    "AURA_RUNTIME_COMPLETION/state/capability-matrix.json",
     "AURA_RUNTIME_COMPLETION/state/current-state.json",
-    "docs/operations/33_DEPLOYMENT.md",
-    "docs/operations/BETA_READINESS.md",
-    "docs/operations/FINAL_OPERATIONAL_HANDOFF.md",
-    "docs/operations/OWNER_SIGNOFF_FALSIFICATION_PACKET.md",
-    "docs/operations/RELEASE_ARTIFACTS.md",
-    "docs/operations/SP-031_LOCAL_ONLY_PACKAGE_REVIEW_PACKET.md",
-    "docs/operations/UPDATE_MECHANISM.md",
-    "ledger/CURRENT_STATE.md",
     "ledger/PROJECT_LEDGER.md"
   ],
   "evidence_ids": [
+    "EV-SP-033-20260903-FINAL-CLOSEOUT-01",
+    "EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01",
     "EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01",
     "EV-SP-032-20260903-SESSION-CLOSEOUT-01",
     "EV-SP-032-20260903-LIVE-ACCEPTANCE-01",
@@ -60,36 +47,26 @@
   ],
   "tests": [
     {
-      "name": "Mandatory closeout: diff/projection review and permitted second-pass/runtime/beta/package/JSON/hash checks",
+      "name": "Second-pass program validator (validate_second_pass_program.py)",
       "result": "passed",
-      "evidence_id": "EV-SP-032-20260902-CLOSEOUT-02"
+      "evidence_id": "EV-SP-033-20260903-FINAL-CLOSEOUT-01"
     },
     {
-      "name": "Second-pass/runtime/beta-readiness/release-manifest validators, package SHA-256/archive comparison, and diff check",
+      "name": "Terminal chain closeout: exact state, cognitive gate, projection validation, and maintainer handoff",
       "result": "passed",
-      "evidence_id": "EV-SP-032-20260902-FINAL-RECONCILIATION-01"
-    },
-    {
-      "name": "Full Swift wrapper and Python governance suite",
-      "result": "not_run",
-      "evidence_id": "EV-SP-032-20260902-FINAL-RECONCILIATION-01"
-    },
-    {
-      "name": "Full deterministic suite (aura-test.sh) + second-pass/runtime/beta/readiness/release-manifest validators + SP-031 SHA checks",
-      "result": "passed",
-      "evidence_id": "EV-SP-032-20260902-DETERMINISTIC-SUITE-01"
+      "evidence_id": "EV-SP-033-20260903-FINAL-CLOSEOUT-01"
     },
     {
       "name": "Clean-Mac/end-to-end, permission, beta, lifecycle, uninstall, and release acceptance",
       "result": "blocked",
-      "evidence_id": "EV-SP-032-20260902-DETERMINISTIC-SUITE-01"
+      "evidence_id": "EV-SP-033-20260903-FINAL-CLOSEOUT-01"
     }
   ],
   "blockers": [
     "R2-R10 direct capability, security/privacy, accessibility, integration, and privilege postconditions remain open.",
-    "R11 direct local lifecycle and clean-profile evidence is absent for recovery, safe mode, migration, update/rollback, uninstall/factory reset, and support-bundle privacy.",
     "R12 has no qualifying live SLO set, live scenario window, incident review, or approved release candidate; beta-readiness remains blocked.",
-    "Current authority forbids app launch/install, TCC change, telemetry/beta, providers, signing, release/deploy, commit, push, and merge."
+    "FINAL authority and direct clean-Mac/end-to-end acceptance remain absent.",
+    "SP-033 is the terminal prompt (next_prompt: none) and remains the active prompt in a blocked state because the validator structurally requires an active uncompleted prompt and the broader program gates remain open."
   ],
   "open_decisions": [
     "A future authorized owner must route each missing direct postcondition to its owning R2-R12 track before FINAL is retried.",
@@ -105,7 +82,7 @@
     "RISK-CUA-BRIDGE-SERVICE-CRASH",
     "RISK-SP-030-LIVE-BETA-DEFERRED-BY-SCOPE"
   ],
-  "next_action": "SP-032 is blocked after an edit-only FINAL reconciliation. No clean-Mac, end-to-end, beta, lifecycle, or release procedure was authorized or executed. Return every missing postcondition to its owning R2-R12 track; do not start SP-033.",
+  "next_action": "SP-033 (SESSION_CLOSEOUT) is the terminal prompt and is BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). The second-pass chain SP-000-SP-032 is completed for its declared local scopes; the broader program gates (R2-R10 direct, R12 live SLO/scenario/incident/RC, FINAL authority) remain open and belong to their owning tracks. No next SP prompt exists (next_prompt: none). beta-readiness.json / release_candidate remain blocked. Return each open postcondition to its owning R2-R12 track under separate authority.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -115,10 +92,9 @@
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_PROMPT_CONTRACT.md",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json",
     "AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_LEDGER.md",
-    "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-032_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
     "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
     "AURA_RUNTIME_COMPLETION/state/beta-readiness.json",
-    "AURA_RUNTIME_COMPLETION/state/EV-SP-032-20260902-FINAL-RECONCILIATION-01.md"
+    "AURA_RUNTIME_COMPLETION/state/EV-SP-033-20260903-FINAL-CLOSEOUT-01.md"
   ],
-  "notes": "Use SECOND_PASS_LEDGER.md and the append-only program/project ledgers for history. The mandatory SP-032 closeout is EV-SP-032-20260902-CLOSEOUT-02. This handoff is a bounded current projection; no raw/private content was recorded."
+  "notes": "Use SECOND_PASS_LEDGER.md and the append-only program/project ledgers for history. The terminal SP-033 closeout is EV-SP-033-20260903-FINAL-CLOSEOUT-01. This handoff is a bounded current projection; no raw/private content was recorded."
 }

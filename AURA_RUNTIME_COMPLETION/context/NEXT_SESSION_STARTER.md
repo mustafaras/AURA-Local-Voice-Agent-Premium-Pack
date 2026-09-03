@@ -1,36 +1,32 @@
-# AURA Next Session Starter — SP-031 local-only package approved; SP-032 blocked
+# AURA Next Session Starter — SP-033 terminal closeout; chain truthfully blocked
 
-> Updated 2026-09-02 after the blocked SP-032 FINAL reconciliation.
+> Updated 2026-09-03 after the terminal SP-033 SESSION_CLOSEOUT.
 > **Never copy a commit out of this header.** Run `git rev-parse HEAD` and
 > `git status --short` first — this file is a reading aid, not authority.
 >
 > Authoritative state: `AURA_RUNTIME_COMPLETION/second-pass/SECOND_PASS_STATE.json`
 > and `AURA_RUNTIME_COMPLETION/context/session-handoff.json`.
 
-## Current scope overlay — 2026-09-02
+## Current scope overlay — 2026-09-03
 
-ADR-051 records the owner's explicit no-live-test decision. SP-030 is complete
-only for the local-only deterministic validation scope. The broader live-beta
-objective is deferred, not passed: `beta-readiness.json` remains `blocked`,
-R11 remains `in_progress`. The owner approved the exact SP-031 package for
-local `development_unverified` use only and accepted ADR-047 at that scope
-(`EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01`). SP-031 is complete only
-for that local package scope; no deterministic or synthetic result may be
-relabeled as live beta. `EV-SP-032-20260902-FINAL-RECONCILIATION-01` records
-the completed edit-only cleanup, and `EV-SP-032-20260902-CLOSEOUT-02` records
-its mandatory closeout. `EV-SP-032-20260902-DETERMINISTIC-SUITE-01` records a
-fresh deterministic-control leg (validators + full 22-bundle/1325-test suite +
-SP-031 SHA checks all green) that is `deterministic_harness`-only and does not
-unblock FINAL. SP-032 remains blocked because no clean-Mac or end-to-end
-procedure was authorized. Return missing postconditions to their
-owning R2-R12 tracks; do not start SP-033.
+`EV-SP-033-20260903-FINAL-CLOSEOUT-01` records the terminal second-pass chain
+closeout. The chain SP-000–SP-032 is completed for its declared local scopes;
+SP-033 is the terminal prompt (`next_prompt: none`) and remains the active
+prompt in a `blocked` state because the validator structurally requires an
+active uncompleted prompt and the broader program gates remain open. The chain
+is **truthfully blocked** with a complete maintainer handoff; no ambiguous
+state remains. `beta-readiness.json` `readiness_status` and
+`release_candidate.status` remain `blocked`. R2–R10 direct, R12 live
+SLO/scenario/incident/RC, and FINAL authority remain open and belong to their
+owning tracks. No next SP prompt exists; return each open postcondition to its
+owning R2–R12 track under separate authority.
 
 Historical SP-031 review instrument:
 `docs/operations/SP-031_LOCAL_ONLY_PACKAGE_REVIEW_PACKET.md`; preparation
 evidence `EV-SP-031-20260902-REVIEW-PACKET-01`; closeout
 `EV-SP-031-20260902-CLOSEOUT-REVIEW-PACKET-01`. The owner decision is
 `EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01`; do not solicit or repeat
-approval. The current next action is the blocked SP-032 handoff and
+approval. The current next action is the terminal blocked handoff and
 owning-track return, not FINAL execution.
 
 ## Historical diagnostic record — 2026-09-02 unattended alternate verification

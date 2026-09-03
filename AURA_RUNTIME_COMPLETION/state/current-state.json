@@ -2,15 +2,15 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-03T05:56:04Z",
-  "session_id": "AURA-SP-032-OWNER-LIVE-ACCEPTANCE-20260903",
+  "updated_at": "2026-09-03T08:07:57Z",
+  "session_id": "AURA-SP-033-FINAL-CLOSEOUT-20260903",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
     "verified_head": "7687de55fa89e62a72bbf4d2eb01e4c80c6f5046",
     "remote_head": "7687de55fa89e62a72bbf4d2eb01e4c80c6f5046",
-    "working_tree_state": "clean",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
       "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md",
@@ -65,8 +65,8 @@
   "active_prompt": {
     "id": "SP-033",
     "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
-    "state": "in_progress",
-    "step": "SP-033 SESSION_CLOSEOUT active. SP-032 completed for local scope under owner accepted-gaps decision (EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01). beta-readiness.json / release_candidate remain blocked."
+    "state": "blocked",
+    "step": "SP-033 SESSION_CLOSEOUT terminal prompt BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). Second-pass chain SP-000-SP-032 completed for local scopes; broader program gates (R2-R10, R12, FINAL) remain open. beta-readiness.json / release_candidate remain blocked."
   },
   "tracks": [
     {
@@ -665,5 +665,5 @@
     "SP-031 is complete only for the owner-approved local development_unverified package scope under accepted ADR-047. SP-032 is blocked and unexecuted because its FINAL direct-evidence gates remain absent; beta-readiness and release_candidate stay blocked/unapproved, and no beta/release claim is authorized.",
     "FINAL acceptance remains blocked by missing direct local lifecycle and R2-R12 evidence. External release is outside the local-only scope under ADR-049, not a waived FINAL pass."
   ],
-  "next_action": "SP-032 is blocked after an edit-only FINAL reconciliation. No clean-Mac, end-to-end, beta, lifecycle, or release procedure was authorized or executed. Return every missing postcondition to its owning R2-R12 track; do not start SP-033."
+  "next_action": "SP-033 (SESSION_CLOSEOUT) is the terminal prompt and is BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). The second-pass chain SP-000-SP-032 is completed for its declared local scopes; the broader program gates (R2-R10 direct, R12 live SLO/scenario/incident/RC, FINAL authority) remain open and belong to their owning tracks. No next SP prompt exists (next_prompt: none). beta-readiness.json / release_candidate remain blocked. Return each open postcondition to its owning R2-R12 track under separate authority."
 }

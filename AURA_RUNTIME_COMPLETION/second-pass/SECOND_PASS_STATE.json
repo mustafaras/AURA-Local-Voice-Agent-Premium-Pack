@@ -3,10 +3,10 @@
   "schema_version": "1.0.0",
   "program_name": "AURA Second-Pass Gap Closure",
   "program_status": "in_progress",
-  "updated_at": "2026-09-03T05:56:04Z",
-  "session_id": "AURA-SP-032-OWNER-LIVE-ACCEPTANCE-20260903",
+  "updated_at": "2026-09-03T08:07:57Z",
+  "session_id": "AURA-SP-033-FINAL-CLOSEOUT-20260903",
   "active_prompt": "SP-033",
-  "active_state": "in_progress",
+  "active_state": "blocked",
   "completed_prompts": [
     "SP-000",
     "SP-001",
@@ -42,8 +42,12 @@
     "SP-031",
     "SP-032"
   ],
-  "blocked_prompts": [],
+  "blocked_prompts": [
+    "SP-033"
+  ],
   "last_evidence_ids": [
+    "EV-SP-010-20260903-COMPOSITION-RECONCILE-01",
+    "EV-SP-033-20260903-FINAL-CLOSEOUT-01",
     "EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01",
     "EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01",
     "EV-SP-032-20260903-LIVE-ACCEPTANCE-01",
@@ -210,5 +214,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-033 (SESSION_CLOSEOUT) is now active. SP-032 completed for its local scope under the owner's accepted-gaps decision (EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01). Record the chain closeout, validate all projections, and keep beta-readiness.json / release_candidate blocked."
+  "next_action": "SP-033 (SESSION_CLOSEOUT) is the terminal prompt and is BLOCKED with a complete maintainer handoff (EV-SP-033-20260903-FINAL-CLOSEOUT-01). The second-pass chain SP-000-SP-032 is completed for its declared local scopes; the broader program gates (R2-R10 direct, R12 live SLO/scenario/incident/RC, FINAL authority) remain open and belong to their owning tracks. No next SP prompt exists (next_prompt: none). beta-readiness.json / release_candidate remain blocked. Return each open postcondition to its owning R2-R12 track under separate authority."
 }

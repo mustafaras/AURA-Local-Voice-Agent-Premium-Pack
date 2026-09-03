@@ -2413,6 +2413,35 @@ No session may report “all gaps closed” while any `OPEN-03`–`OPEN-14` item
 unverified or while the current state is not `release_candidate_verified` or
 `released` with matching direct evidence.
 
+### SP-033 terminal closeout — 2026-09-03T08:07:57Z — chain truthfully blocked
+
+`EV-SP-033-20260903-FINAL-CLOSEOUT-01` records the terminal second-pass chain
+closeout. Branch `main`; `HEAD == origin/main ==
+44f41c7986445526fd3f40f36c5a3972d26f65ea`; worktree clean. The chain
+SP-000–SP-032 is completed for its declared local scopes; SP-033 is the
+terminal prompt (`next_prompt: none`) and remains the active prompt in a
+`blocked` state because the validator structurally requires an active
+uncompleted prompt and the broader program gates remain open.
+
+The chain is **truthfully blocked** with a complete maintainer handoff; no
+ambiguous state remains. The following program-wide gates remain open and
+belong to their owning tracks (not to SP-033's SESSION_CLOSEOUT scope):
+
+- **R2–R10** direct capability, security/privacy, accessibility, integration,
+  and privilege postconditions remain open.
+- **R12** live SLO/scenario/incident/RC evidence and independent-evaluator
+  sign-offs remain open; `beta-readiness.json` `readiness_status` and
+  `release_candidate.status` remain `blocked`.
+- **FINAL** authority and direct clean-Mac/end-to-end acceptance remain absent.
+
+The cognitive completion questions for the entire chain are answered in
+`SECOND_PASS_LEDGER.md` and the two program ledgers, with each SP prompt's
+evidence/ledger entry linked. `python3 scripts/validate_second_pass_program.py`
+PASSED. No app launch/install, TCC mutation, provider contact, beta enrollment,
+telemetry activation, signing, notarization, release, deployment, commit, push,
+or merge occurred. No raw audio, screenshot, secret, token, or unredacted
+private content was recorded.
+
 ## Current first-pass workflow boundary
 
 The FINAL/CLOSEOUT audit is complete for edit-only scope and remains
