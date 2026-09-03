@@ -8,8 +8,8 @@
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "5c5ce6d5a3dde0b1f2df8a28ee9548896e2b8edd",
-    "remote_head": "5c5ce6d5a3dde0b1f2df8a28ee9548896e2b8edd",
+    "verified_head": "4eede46313f72e69ae7a2724c8858fe19fb36f2d",
+    "remote_head": "4eede46313f72e69ae7a2724c8858fe19fb36f2d",
     "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "AURA_RUNTIME_COMPLETION/SECOND_PASS_OPEN_GAPS.md",
