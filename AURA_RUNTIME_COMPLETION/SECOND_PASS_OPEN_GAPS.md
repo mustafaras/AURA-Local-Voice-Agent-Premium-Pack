@@ -2329,6 +2329,21 @@ live-SLO gates, Developer-ID/external distribution (ADR-049), or the
 unit-tested-only R11 lifecycle sub-gates. `beta-readiness.json` and
 `release_candidate` remain blocked.
 
+**Owner-authorized synthetic R11 lifecycle closure (2026-09-03):**
+`EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01`. The owner directed synthetic
+closure of the R11 lifecycle gates without a user-present session.
+`Tests/AuraLifecycleTests/SP032LifecycleHarnessTests.swift` (`.serialized`)
+drives the real production controllers end-to-end with synthetic inputs: crash
+recovery, sleep/wake, safe mode, migration preflight, support-bundle export,
+update stage/rollback + recovery checkpoints, and reset/uninstall on throwaway
+temp dirs. Lifecycle suite 60/11/0; full suite 22 bundles/0 failed/1337 tests.
+The SP-032 prompt was updated with the synthetic-closure approach and its
+honesty boundary. This is `deterministic_harness` evidence; it materially
+advances the R11 lifecycle gate but does **not** close (and must not fabricate)
+the real-host sub-gates (physical Mac sleep/wake, real signed update transport,
+real clean-profile migration, destructive user-data removal). `beta-readiness
+.json` and `release_candidate` remain blocked.
+
 ### Net blocked sebepleri (2026-09-03, kanonik state'ten doğrulandı)
 
 SP-032 `blocked` kalır çünkü FINAL acceptance gate'i, aşağıdaki postcondition'ların

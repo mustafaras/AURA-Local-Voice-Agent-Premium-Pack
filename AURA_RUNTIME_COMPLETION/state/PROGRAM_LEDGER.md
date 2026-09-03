@@ -3724,3 +3724,22 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Next action:** commit/push authorized control-plane + evidence changes; keep
   `beta-readiness.json` and `release_candidate` blocked; return R12/external gaps
   to their owning tracks under separate scope.
+
+### 2026-09-03 — SP-032 owner-authorized synthetic R11 lifecycle closure
+
+- **Session / actor:** `AURA-SP-032-OWNER-LIVE-ACCEPTANCE-20260903`; owner
+  directed synthetic closure of R11 lifecycle gates without a user-present
+  session.
+- **Evidence / verification:** `EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01`;
+  added `Tests/AuraLifecycleTests/SP032LifecycleHarnessTests.swift` driving the
+  real production controllers end-to-end (crash recovery, sleep/wake, safe
+  mode, migration preflight, support-bundle export, update stage/rollback +
+  recovery checkpoints, reset/uninstall on throwaway temp dirs). Lifecycle suite
+  60/11/0; full suite 22 bundles/0 failed/1337 tests. Updated SP-032 prompt.
+- **Result / class:** `deterministic_harness`. Materially advances the R11
+  lifecycle gate; does not close (and must not fabricate) real-host sub-gates
+  (physical sleep/wake, real signed update, real clean-profile migration,
+  destructive user-data removal). `beta-readiness.json` / `release_candidate`
+  remain blocked.
+- **Next action:** commit/push harness + prompt + evidence; keep R12/external
+  and real-host R11 sub-gates honestly open.

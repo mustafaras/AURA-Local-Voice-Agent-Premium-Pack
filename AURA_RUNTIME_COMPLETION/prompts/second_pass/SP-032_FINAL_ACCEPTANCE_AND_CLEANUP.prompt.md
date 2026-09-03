@@ -41,6 +41,33 @@ Perform the final acceptance review only after every owning prompt has direct ev
 3. Review security/privacy/accessibility, documentation, known limitations, release/rollback authority, and operational maintenance dates.
 4. Set release_candidate_verified or released only when the prompt gate and explicit authority genuinely pass.
 
+## R11 synthetic lifecycle closure (owner-authorized, 2026-09-03)
+
+The owner directed that the R11 lifecycle gates be closed **synthetically** —
+without requiring a user-present session, physical device change, or real signed
+update — so the program can advance without operator dependency. This is
+implemented as a deterministic harness that drives the **real production**
+lifecycle controllers end-to-end with synthetic inputs, following the repository
+pattern established in `SP016DeviceRecoveryTests` (drive the real code path,
+label the evidence honestly).
+
+- **Harness:** `Tests/AuraLifecycleTests/SP032LifecycleHarnessTests.swift`
+  (`.serialized`), covering: crash recovery (synthetic no-clean-shutdown), sleep/
+  wake heartbeats, safe-mode request/persist/clear + health, migration preflight
+  (fresh + database), support-bundle export (files + secret redaction), update
+  stage + rollback with recovery checkpoints, and reset/uninstall bookkeeping
+  against throwaway temp directories.
+- **Evidence class:** `deterministic_harness`. This is **not** live/release
+  evidence. It proves the production lifecycle code paths behave correctly under
+  synthetic inputs; it does **not** prove a real Mac sleep/wake cycle, a physical
+  device unplug, a real signed update transport, or destructive removal of the
+  user's actual data directory.
+- **Honesty boundary:** the harness must never be relabeled as clean-Mac, live,
+  beta, or release evidence. The residual R11 sub-gates that genuinely require a
+  real host (physical sleep/wake, real signed update, real clean-profile
+  migration) remain open and are recorded as such in `RISK_REGISTER.md` and
+  `SECOND_PASS_OPEN_GAPS.md`.
+
 ## Cognitive completion gate
 
 Before changing this prompt to `completed`, answer all of these in `SECOND_PASS_LEDGER.md` and the two program ledgers:

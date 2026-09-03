@@ -39,6 +39,23 @@ external distribution (ADR-049), or the unit-tested-only R11 lifecycle
 sub-gates (sleep/wake/crash/migration/safe-mode live). `beta-readiness.json` and
 `release_candidate` remain blocked.
 
+## SP-032 owner-authorized synthetic R11 lifecycle closure — 2026-09-03
+
+`EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01` records the owner-directed
+synthetic closure of the R11 lifecycle gates. `Tests/AuraLifecycleTests/
+SP032LifecycleHarnessTests.swift` (`.serialized`) drives the real production
+controllers end-to-end with synthetic inputs: crash recovery, sleep/wake, safe
+mode, migration preflight, support-bundle export, update stage/rollback +
+recovery checkpoints, and reset/uninstall on throwaway temp dirs. Lifecycle
+suite 60/11/0; full suite 22 bundles/0 failed/1337 tests. The SP-032 prompt was
+updated with the synthetic-closure approach and its honesty boundary.
+
+This is `deterministic_harness` evidence. It materially advances the R11
+lifecycle gate but does **not** close (and must not fabricate) the real-host
+sub-gates: physical Mac sleep/wake, real signed update transport, real
+clean-profile migration, and destructive removal of the user's actual data.
+`beta-readiness.json` and `release_candidate` remain blocked.
+
 ## SP-031 local-only approval and completion — 2026-09-02
 
 `EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01` records the owner's review of
