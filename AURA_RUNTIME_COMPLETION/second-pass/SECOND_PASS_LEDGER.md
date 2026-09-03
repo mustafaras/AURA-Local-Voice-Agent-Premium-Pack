@@ -3741,3 +3741,23 @@ AURA SUPPLY-CHAIN VALIDATION PASSED: passed.
   `beta-readiness.json` / `release_candidate` remain blocked.
 - **Next action:** commit/push the harness + prompt + evidence changes; keep
   R12/external and real-host R11 sub-gates honestly open.
+
+### 2026-09-03 — SP-032 owner accepted-gaps decision; SP-033 opened
+
+- **Evidence / state:** `EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01`; `main`;
+  `HEAD == origin/main == 706a03a` at authoring; worktree `dirty_expected`.
+- **Authority / procedure:** owner directed (option A) to accept the real-host
+  R11 sub-gates as known gaps and open SP-033 ("a ve diğer gapleri de bu şekilde
+  ilerletelim ve kapalım 33 ü açık hale getirelim"). This is the same pattern
+  already used for ADR-049, RISK-DNS-IP-PINNING, RISK-PEER-IDENTITY, and
+  RISK-LIVE-LIFECYCLE-UNVERIFIED.
+- **Result:** R11 `dependency_gate.r11_state` → `completed` (local scope) with
+  `r11_evidence_id` = `EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01`; R11 track
+  → `completed`; `GATE-SIGNED-UPDATES-RECOVERY` → `accepted`; SP-032 →
+  `completed`; SP-033 → `in_progress` (active). `beta-readiness.json`
+  `readiness_status` and `release_candidate.status` **remain `blocked`**.
+- **Verdict / class:** owner decision / accepted-known-gap. No live/clean-Mac/
+  beta/release evidence was fabricated; the accepted real-host sub-gates remain
+  open and reversible.
+- **Next action:** complete SP-033 (SESSION_CLOSEOUT) reconciliation; keep
+  `beta-readiness.json` / `release_candidate` blocked.

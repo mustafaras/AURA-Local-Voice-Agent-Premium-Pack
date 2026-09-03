@@ -63,10 +63,10 @@
   },
   "program_status": "in_progress",
   "active_prompt": {
-    "id": "SP-032",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-032_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
-    "state": "blocked",
-    "step": "SP-032 BLOCKED: an edit-only FINAL reconciliation is recorded; no clean-Mac or end-to-end procedure was authorized or executed. FINAL direct-evidence gates, beta-readiness, and release_candidate remain blocked."
+    "id": "SP-033",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
+    "state": "in_progress",
+    "step": "SP-033 SESSION_CLOSEOUT active. SP-032 completed for local scope under owner accepted-gaps decision (EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01). beta-readiness.json / release_candidate remain blocked."
   },
   "tracks": [
     {
@@ -371,14 +371,15 @@
     {
       "id": "R11",
       "name": "Release Engineering and Continuous Operations",
-      "state": "in_progress",
+      "state": "completed",
       "dependencies": [
         "R9",
         "R10"
       ],
       "started_at": "2026-08-09T10:34:16Z",
-      "completed_at": null,
+      "completed_at": "2026-09-03T00:00:00Z",
       "evidence_ids": [
+        "EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01",
         "EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01",
         "EV-SP-032-20260903-LIVE-ACCEPTANCE-01",
         "EV-SP-032-20260902-DETERMINISTIC-SUITE-01",
@@ -513,10 +514,14 @@
     {
       "id": "GATE-SIGNED-UPDATES-RECOVERY",
       "name": "Local lifecycle, update/rollback, safe mode, recovery, and uninstall",
-      "state": "open",
+      "state": "waived",
       "required_for": "release",
-      "evidence_ids": [],
-      "waiver_reason": null
+      "evidence_ids": [
+        "EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01",
+        "EV-SP-032-20260903-LIVE-ACCEPTANCE-01",
+        "EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01"
+      ],
+      "waiver_reason": "Owner decision 2026-09-03 (EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01): the R11 lifecycle code paths are exercised end-to-end by the synthetic harness (SP032LifecycleHarnessTests.swift, deterministic_harness) plus live local launch. The real-host sub-gates (physical sleep/wake, real signed update transport, real clean-profile migration, destructive user-data removal) are accepted as known gaps, consistent with ADR-049 and RISK-LIVE-LIFECYCLE-UNVERIFIED. This is not live/release evidence; beta-readiness and release_candidate remain blocked."
     },
     {
       "id": "GATE-BETA-SLOS",

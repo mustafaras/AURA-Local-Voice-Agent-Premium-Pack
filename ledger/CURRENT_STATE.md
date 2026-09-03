@@ -56,6 +56,21 @@ sub-gates: physical Mac sleep/wake, real signed update transport, real
 clean-profile migration, and destructive removal of the user's actual data.
 `beta-readiness.json` and `release_candidate` remain blocked.
 
+## SP-032 owner accepted-gaps decision; SP-033 opened — 2026-09-03
+
+`EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01` records the owner's option (A)
+decision: accept the real-host R11 sub-gates as known gaps (same pattern as
+ADR-049, RISK-DNS-IP-PINNING, RISK-PEER-IDENTITY, RISK-LIVE-LIFECYCLE-UNVERIFIED)
+and open SP-033. R11 `dependency_gate.r11_state` → `completed` (local scope,
+evidence `EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01`); R11 track →
+`completed`; `GATE-SIGNED-UPDATES-RECOVERY` → `accepted`; SP-032 → `completed`;
+SP-033 → `in_progress` (active).
+
+This is an owner decision / accepted-known-gap, not live/clean-Mac/beta/release
+evidence. The accepted real-host sub-gates remain open and reversible.
+`beta-readiness.json` `readiness_status` and `release_candidate.status` remain
+`blocked`.
+
 ## SP-031 local-only approval and completion — 2026-09-02
 
 `EV-SP-031-20260902-OWNER-LOCAL-ONLY-APPROVAL-01` records the owner's review of

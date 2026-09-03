@@ -1,12 +1,25 @@
 # AURA Runtime Completion — Active Context
 
 > **Program:** AURA Runtime Completion Program v1.0.0  
-> **Current prompt:** `SP-032` (`blocked`)
-> **Current program state:** In progress; SP-000 through SP-031 completed for their declared local scopes. SP-032 is blocked and unexecuted; R1-R12 and the broader program remain open.
-> **Live repository lineage:** current `HEAD == origin/main == bee334782262089fa117124ababa9b3c6dfed394` on `main`; graphify source helpers and prior state delivery are pushed. The current worktree contains bounded SP-030/SP-031 control-plane, evidence, ADR, and ledger projections; no product source or test workaround remains. No repository-defined signed/notarized/public deployment target exists.
+> **Current prompt:** `SP-033` (`in_progress`)
+> **Current program state:** In progress; SP-000 through SP-032 completed for their declared local scopes. SP-033 (SESSION_CLOSEOUT) is active. R12 and the broader program remain open; `beta-readiness.json` / `release_candidate` remain blocked.
+> **Live repository lineage:** current `HEAD == origin/main == 706a03a` on `main`; graphify source helpers and prior state delivery are pushed. The current worktree contains bounded SP-030/SP-031/SP-032 control-plane, evidence, ADR, and ledger projections; no product source or test workaround remains. No repository-defined signed/notarized/public deployment target exists.
 > **Audited content baseline:** `47775180c224f87fa5a58703f793515ffcb2c35c` under ADR-045 (projection-only descendants are not new product audits)
 
 ## Canonical status
+
+## SP-032 owner accepted-gaps decision; SP-033 opened — 2026-09-03
+
+`EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01` records the owner's option (A)
+decision: accept the real-host R11 sub-gates as known gaps (same pattern as
+ADR-049, RISK-DNS-IP-PINNING, RISK-PEER-IDENTITY, RISK-LIVE-LIFECYCLE-UNVERIFIED)
+and open SP-033. R11 `dependency_gate.r11_state` → `completed` (local scope,
+evidence `EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01`); R11 track →
+`completed`; `GATE-SIGNED-UPDATES-RECOVERY` → `accepted`; SP-032 → `completed`;
+SP-033 → `in_progress` (active). This is an owner decision / accepted-known-gap,
+not live/clean-Mac/beta/release evidence; the accepted real-host sub-gates
+remain open and reversible. `beta-readiness.json` `readiness_status` and
+`release_candidate.status` remain `blocked`.
 
 ## SP-031 owner-decision overlay — 2026-09-02
 
@@ -50,6 +63,19 @@ telemetry, microphone/TCC, provider, deployment, or release claim is made;
 `beta-readiness.json` and `release_candidate` remain blocked. The current
 authority is edit/test/state-only, with launch, telemetry/beta, commit,
 push/merge, signing, release, and deployment authority reset false.
+
+## Second-pass synchronized overlay — 2026-09-03 (`SP-033` / `in_progress`) — SP-032 completed for local scope; SP-033 opened
+
+`EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01` records the owner's option (A)
+decision: accept the real-host R11 sub-gates as known gaps (same pattern as
+ADR-049, RISK-DNS-IP-PINNING, RISK-PEER-IDENTITY, RISK-LIVE-LIFECYCLE-UNVERIFIED)
+and open SP-033. R11 `dependency_gate.r11_state` → `completed` (local scope,
+evidence `EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01`); R11 track →
+`completed`; `GATE-SIGNED-UPDATES-RECOVERY` → `accepted`; SP-032 → `completed`;
+SP-033 → `in_progress` (active). This is an owner decision / accepted-known-gap,
+not live/clean-Mac/beta/release evidence; the accepted real-host sub-gates
+remain open and reversible. `beta-readiness.json` `readiness_status` and
+`release_candidate.status` remain `blocked`.
 
 ## Second-pass synchronized overlay — 2026-09-02 (`SP-032` / `blocked`) — SP-031 local-only scope completed
 

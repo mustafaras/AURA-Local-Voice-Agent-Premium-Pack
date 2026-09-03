@@ -5,10 +5,10 @@
   "session_id": "AURA-SP-032-OWNER-LIVE-ACCEPTANCE-20260903",
   "last_verified_commit": "a57aef7933584f23c233964f2b8bc14508f9c84b",
   "active_prompt": {
-    "id": "SP-032",
-    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-032_FINAL_ACCEPTANCE_AND_CLEANUP.prompt.md",
-    "state": "blocked",
-    "step": "SP-032 LIVE LOCAL leg: owner grant 2026-09-03 enabled build+sign+launch+suite+coverage+governance. Local gates materially advanced; R12 independent-evaluator/cohort/live-SLO and Developer-ID/external-distribution remain open and are not fabricated."
+    "id": "SP-033",
+    "file": "AURA_RUNTIME_COMPLETION/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
+    "state": "in_progress",
+    "step": "SP-033 SESSION_CLOSEOUT active. SP-032 completed for local scope under owner accepted-gaps decision (EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01). Record chain closeout; beta-readiness.json / release_candidate remain blocked."
   },
   "summary": "EV-SP-032-20260902-DETERMINISTIC-SUITE-01 re-ran the deterministic-control leg under current edit/test/state-only authority: second-pass/runtime/beta/readiness/release-manifest validators, SP-031 artifact+manifest SHA-256 checks, and a fresh full aura-test.sh suite all passed (22 bundles, 0 failed, 1325 tests/87 suites, exit 0). This is deterministic_harness evidence only; it does not close FINAL. SP-032 remains blocked; beta-readiness and release_candidate remain blocked. main HEAD equals origin/main at bee334782262089fa117124ababa9b3c6dfed394; the worktree is dirty_expected and no install/launch/TCC/beta/signing/commit/push/merge/deploy occurred.",
   "completed": [

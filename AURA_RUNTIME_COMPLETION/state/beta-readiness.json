@@ -11,9 +11,10 @@
     "release": false
   },
   "dependency_gate": {
-    "r11_state": "in_progress",
+    "r11_state": "completed",
     "r11_release_status": "development_unverified",
-    "r11_completion_required": true
+    "r11_completion_required": true,
+    "r11_evidence_id": "EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01"
   },
   "cohort": {
     "status": "enrolled",

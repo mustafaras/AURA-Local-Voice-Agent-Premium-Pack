@@ -2344,6 +2344,18 @@ the real-host sub-gates (physical Mac sleep/wake, real signed update transport,
 real clean-profile migration, destructive user-data removal). `beta-readiness
 .json` and `release_candidate` remain blocked.
 
+**Owner accepted-gaps decision; SP-033 opened (2026-09-03):**
+`EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01`. The owner directed option (A):
+accept the real-host R11 sub-gates as known gaps (same pattern as ADR-049,
+RISK-DNS-IP-PINNING, RISK-PEER-IDENTITY, RISK-LIVE-LIFECYCLE-UNVERIFIED) and
+open SP-033. R11 `dependency_gate.r11_state` → `completed` (local scope,
+evidence `EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01`); R11 track →
+`completed`; `GATE-SIGNED-UPDATES-RECOVERY` → `accepted`; SP-032 → `completed`;
+SP-033 → `in_progress` (active). This is an owner decision / accepted-known-gap,
+not live/clean-Mac/beta/release evidence; the accepted real-host sub-gates
+remain open and reversible. `beta-readiness.json` `readiness_status` and
+`release_candidate.status` remain `blocked`.
+
 ### Net blocked sebepleri (2026-09-03, kanonik state'ten doğrulandı)
 
 SP-032 `blocked` kalır çünkü FINAL acceptance gate'i, aşağıdaki postcondition'ların

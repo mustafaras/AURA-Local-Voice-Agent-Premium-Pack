@@ -5,8 +5,8 @@
   "program_status": "in_progress",
   "updated_at": "2026-09-03T05:56:04Z",
   "session_id": "AURA-SP-032-OWNER-LIVE-ACCEPTANCE-20260903",
-  "active_prompt": "SP-032",
-  "active_state": "blocked",
+  "active_prompt": "SP-033",
+  "active_state": "in_progress",
   "completed_prompts": [
     "SP-000",
     "SP-001",
@@ -39,12 +39,12 @@
     "SP-028",
     "SP-029",
     "SP-030",
-    "SP-031"
-  ],
-  "blocked_prompts": [
+    "SP-031",
     "SP-032"
   ],
+  "blocked_prompts": [],
   "last_evidence_ids": [
+    "EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01",
     "EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01",
     "EV-SP-032-20260903-LIVE-ACCEPTANCE-01",
     "EV-SP-032-20260902-DETERMINISTIC-SUITE-01",
@@ -210,5 +210,5 @@
     "validator": "scripts/validate_second_pass_program.py",
     "prompt_program": "AURA_RUNTIME_COMPLETION/SECOND_PASS_PROMPT_PROGRAM.md"
   },
-  "next_action": "SP-032 is blocked after an edit-only FINAL reconciliation. No clean-Mac, end-to-end, beta, lifecycle, or release procedure was authorized or executed. Return every missing postcondition to its owning R2-R12 track; do not start SP-033."
+  "next_action": "SP-033 (SESSION_CLOSEOUT) is now active. SP-032 completed for its local scope under the owner's accepted-gaps decision (EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01). Record the chain closeout, validate all projections, and keep beta-readiness.json / release_candidate blocked."
 }

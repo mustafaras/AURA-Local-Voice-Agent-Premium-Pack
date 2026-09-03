@@ -3743,3 +3743,19 @@ delivery is explicitly excluded; local-only claims remain truthful.
   remain blocked.
 - **Next action:** commit/push harness + prompt + evidence; keep R12/external
   and real-host R11 sub-gates honestly open.
+
+### 2026-09-03 — SP-032 owner accepted-gaps decision; SP-033 opened
+
+- **Session / actor:** `AURA-SP-032-OWNER-LIVE-ACCEPTANCE-20260903`; owner
+  directed option (A): accept real-host R11 sub-gates as known gaps and open
+  SP-033.
+- **Evidence / verification:** `EV-SP-032-20260903-OWNER-ACCEPTED-GAPS-01`.
+  R11 `dependency_gate.r11_state` → `completed` (local scope, evidence
+  `EV-SP-032-20260903-R11-SYNTHETIC-LIFECYCLE-01`); R11 track → `completed`;
+  `GATE-SIGNED-UPDATES-RECOVERY` → `accepted`; SP-032 → `completed`; SP-033 →
+  `in_progress` (active).
+- **Result / class:** owner decision / accepted-known-gap. No live/clean-Mac/
+  beta/release evidence fabricated; accepted real-host sub-gates remain open
+  and reversible. `beta-readiness.json` / `release_candidate` remain `blocked`.
+- **Next action:** complete SP-033 (SESSION_CLOSEOUT) reconciliation; keep
+  `beta-readiness.json` / `release_candidate` blocked.
