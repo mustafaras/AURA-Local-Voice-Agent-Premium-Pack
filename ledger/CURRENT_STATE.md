@@ -2,9 +2,10 @@
 
 ## 2026-09-05 — Chrome bridge and Privacy remediation delivered locally
 
-Commit `f324ec815c9ce82e7e09e9912e1494cbc2526dde` is pushed to `main`, and
-`git ls-remote` matches `origin/main` exactly. Direct-main delivery had no open
-PR, so there is no separate merge commit. The release-shaped local bundle,
+Functional commit `f324ec815c9ce82e7e09e9912e1494cbc2526dde` and state-sync
+commit `a288ed37d7d7b84888c248aafb0b35ef449a9118` are pushed to `main`; the
+final `git ls-remote` matches `origin/main` exactly. Direct-main delivery had no
+open PR, so there is no separate merge commit. The release-shaped local bundle,
 including `AuraChromeNativeHost`, built successfully; local signing with
 `AURA Stable Local Signing`, strict signature verification, and a 12-second
 isolated launch smoke passed. The full deterministic Swift runner passed 22

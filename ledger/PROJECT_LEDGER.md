@@ -18,6 +18,11 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **CI:** AURA CI run `33967657829` was created for the exact SHA and remained `queued` with no started steps when checked; CI success is not claimed.
 - **Canonical state:** `beta-readiness.json` and `release_candidate` remain blocked/out-of-scope under ADR-049/053. Next safe action is to inspect the queued Actions run later and perform the owner-run Privacy/Chrome live check if desired.
 
+### 2026-09-05T13:06:08Z — Delivery state projection synchronized
+
+- **Final state:** the canonical repository projection now records final `HEAD == origin/main == a288ed37d7d7b84888c248aafb0b35ef449a9118` with a clean worktree. The functional delivery remains `f324ec815c9ce82e7e09e9912e1494cbc2526dde`; `a288ed3` is the evidence/state synchronization commit.
+- **Boundary:** this synchronization changes no product behavior and does not promote the local-only build to beta, RC, signed/notarized distribution, or public release.
+
 ### 2026-09-04T14:45:00Z — CORRECTION: Chrome bootstrap uses its installed extension page
 
 - **Corrects:** the `AURA-CHROME-FIRST-KEY-20260904` `about:blank` bootstrap correction recorded at `2026-09-04T16:45:00Z` local wall time (timestamp ordering defect retained because this ledger is append-only).
