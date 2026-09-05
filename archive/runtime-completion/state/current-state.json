@@ -2,7 +2,7 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-03T12:30:00Z",
+  "updated_at": "2026-09-04T09:00:00Z",
   "session_id": "AURA-SP-033-SYNTHETIC-ACCEPTED-20260903",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
@@ -10,7 +10,7 @@
     "active_branch": "main",
     "verified_head": "5445cee1316caa49894bd772c8667332232e6330",
     "remote_head": "5445cee1316caa49894bd772c8667332232e6330",
-    "working_tree_state": "clean",
+    "working_tree_state": "dirty_expected",
     "user_owned_changes": [
       "archive/runtime-completion/SECOND_PASS_OPEN_GAPS.md",
       "archive/runtime-completion/SECOND_PASS_PROMPT_PROGRAM.md",
@@ -58,7 +58,20 @@
       "docs/operations/FINAL_OPERATIONAL_HANDOFF.md",
       "docs/operations/OWNER_SIGNOFF_FALSIFICATION_PACKET.md",
       "docs/operations/RELEASE_ARTIFACTS.md",
-      "docs/operations/UPDATE_MECHANISM.md"
+      "docs/operations/UPDATE_MECHANISM.md",
+      "Sources/AURA/AuraAccessibilityIdentifiers.swift",
+      "Sources/AURA/AuraAppModel_ProductState.swift",
+      "Sources/AURA/AuraKernel.swift",
+      "Sources/AURA/AuraKernel_Productivity.swift",
+      "Sources/AURA/AuraMenuView_Content.swift",
+      "Sources/AURA/AuraMenuView_Tabs.swift",
+      "Sources/AURA/ProductUIState.swift",
+      "Sources/AuraCore/AuraConfigurationLoading.swift",
+      "Sources/AuraCore/Configuration_ProductivityConfiguration.swift",
+      "Tests/AURAIntegrationTests/AuraAccessibilityIdentifierTests.swift",
+      "Tests/AURAIntegrationTests/SP010ProductivityCompositionTests.swift",
+      "Tests/AURAIntegrationTests/SP011LiveAcceptanceReadinessTests.swift",
+      "Tests/AURAIntegrationTests/IntegrationRowRemediationTests.swift"
     ]
   },
   "program_status": "blocked",

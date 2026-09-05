@@ -20,8 +20,22 @@ enum ConfirmationResolution: String, Sendable {
 extension AuraAppModel {
   func bootstrap() async {
     do {
-      let configuration = AuraConfiguration.bootstrap
+      var configuration = AuraConfiguration.bootstrap
+      // Chrome's unpacked extension, native host, and app consumer share one
+      // fixed wire identity. Legacy Safari acceptance variables may still be
+      // decoded for archived probes, but cannot redefine the live Chrome
+      // trust boundary.
+      configuration.productivity.safariExtensionID = "com.aura.safari-extension"
+      configuration.productivity.safariProfileID = "personal"
       try configuration.validate()
+      do {
+        try ChromeBridgeInstaller.install(productivity: configuration.productivity)
+      } catch {
+        // Browser integration failure must not abort the entire local agent.
+        // The integration row remains visibly unavailable and actionable.
+        lastOperationMessage =
+          "Chrome bridge installation failed: \(error.localizedDescription)"
+      }
       let logger = AuraLogger(
         subsystem: configuration.app.bundleIdentifier,
         category: "bootstrap",

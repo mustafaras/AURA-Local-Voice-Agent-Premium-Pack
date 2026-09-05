@@ -40,13 +40,17 @@ public struct ProductivityConfiguration: Codable, Sendable, Equatable {
   /// host is absent from this list fails closed at construction.
   public var mailAllowedHosts: [String]
 
-  /// Whether the calendar read adapter is composed at all. The user's
-  /// EventKit authorization remains the real gate; this only decides whether
-  /// AURA offers the capability.
+  /// Whether the calendar read adapter is composed at all. Composed by
+  /// default: the user's EventKit authorization — grantable in-app while the
+  /// row is still `notDetermined` — remains the real gate; this only decides
+  /// whether AURA offers the capability at all. A leg left uncomposed by a
+  /// default presented the user a permanently disabled row whose only
+  /// remediation was editing a configuration key no product surface exposes.
   public var calendarReadEnabled: Bool
 
-  /// Whether the contacts lookup adapter is composed at all. The user's
-  /// Contacts authorization remains the real gate.
+  /// Whether the contacts lookup adapter is composed at all. Composed by
+  /// default for the same reason: the user's Contacts authorization remains
+  /// the real gate.
   public var contactsReadEnabled: Bool
 
   /// Whether `IntegrationAuthorizationSource.explicitTestAuthorization` is
@@ -107,8 +111,8 @@ public struct ProductivityConfiguration: Codable, Sendable, Equatable {
     mailAccountIDs: [String] = [],
     mailEndpoint: String = "https://gmail.googleapis.com/gmail/v1",
     mailAllowedHosts: [String] = ["gmail.googleapis.com"],
-    calendarReadEnabled: Bool = false,
-    contactsReadEnabled: Bool = false,
+    calendarReadEnabled: Bool = true,
+    contactsReadEnabled: Bool = true,
     allowsTestAccountAuthorization: Bool = false,
     gmailOAuthClientID: String = "",
     gmailOAuthRedirectURI: String = "http://127.0.0.1:48080/oauth2callback"

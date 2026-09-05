@@ -76,8 +76,8 @@ private struct ThreadFixtureFetcher: HTTPProviderFetching {
 
 private func makeConfiguration(
   mailAccountIDs: [String] = [],
-  calendarReadEnabled: Bool = false,
-  contactsReadEnabled: Bool = false,
+  calendarReadEnabled: Bool = true,
+  contactsReadEnabled: Bool = true,
   mailEndpoint: String = "https://gmail.googleapis.com/gmail/v1"
 ) -> ProductivityConfiguration {
   ProductivityConfiguration(
@@ -108,18 +108,35 @@ private func makeRuntime(
 
 @Suite("SP-010 composition availability")
 struct SP010CompositionAvailabilityTests {
-  @Test("with nothing approved, every read capability is disabled with a next step")
+  @Test("with nothing approved, the provider legs are disabled with a next step")
   func nothingApprovedMeansNothingReady() async throws {
     let runtime = makeRuntime(configuration: makeConfiguration())
     let snapshots = await runtime.snapshots()
 
     #expect(snapshots.count == 4)
-    for snapshot in snapshots {
+    // Mail (no approved account) and browser (no composed bridge) are
+    // deterministically not ready here. The two native legs' readiness is a
+    // property of the machine's live authorization state — a developer Mac
+    // that has already granted Calendar is a legitimate `.ready` — so their
+    // machine-agnostic invariant is covered by `nativeAuthorizationIsReported`
+    // instead of being asserted unconditionally here.
+    for snapshot in snapshots where
+      snapshot.capabilityID == InitialCapabilitySet.mailRead.id
+      || snapshot.capabilityID == InitialCapabilitySet.browserRead.id
+    {
       #expect(!snapshot.isReady)
       // "Disabled" alone is not an actionable state; every unavailable
       // integration must say what the user can do next.
       #expect(!snapshot.remediation.isEmpty)
       #expect(!snapshot.isRevocable)
+    }
+    // Every leg still projects exactly one actionable state.
+    for snapshot in snapshots {
+      if snapshot.isReady {
+        #expect(snapshot.remediation.isEmpty)
+      } else {
+        #expect(!snapshot.remediation.isEmpty)
+      }
     }
   }
 
@@ -244,12 +261,36 @@ struct SP010CompositionAvailabilityTests {
 
   @Test("disabling the native reads in configuration removes their adapters entirely")
   func configurationGatesComposition() async throws {
-    let runtime = makeRuntime(configuration: makeConfiguration())
+    let runtime = makeRuntime(
+      configuration: makeConfiguration(
+        calendarReadEnabled: false, contactsReadEnabled: false))
     #expect(runtime.calendar == nil)
     #expect(runtime.contacts == nil)
     #expect(runtime.mail == nil)
     #expect(!runtime.calendarSnapshot().isReady)
     #expect(!runtime.contactsSnapshot().isReady)
+    // The uncomposed native leg's remediation names the configuration key,
+    // which is exactly the string the row's enable action is derived from.
+    #expect(runtime.calendarSnapshot().remediation.contains("calendarReadEnabled"))
+    #expect(runtime.contactsSnapshot().remediation.contains("contactsReadEnabled"))
+  }
+
+  @Test("native legs compose by default with their authorization gate intact")
+  func nativeLegsComposeByDefault() async throws {
+    let runtime = makeRuntime(configuration: makeConfiguration())
+    #expect(runtime.calendar != nil)
+    #expect(runtime.contacts != nil)
+    // The gate is the user's macOS decision, not the composition. Whatever
+    // this machine's live authorization state is, a composed leg never
+    // invents a remediation for a state it is not in: ready means empty,
+    // not-ready means one concrete next step.
+    for snapshot in [runtime.calendarSnapshot(), runtime.contactsSnapshot()] {
+      if snapshot.isReady {
+        #expect(snapshot.remediation.isEmpty)
+      } else {
+        #expect(!snapshot.remediation.isEmpty)
+      }
+    }
   }
 }
 
@@ -309,7 +350,8 @@ struct SP010ReadBridgeTests {
 
   @Test("a calendar read with the adapter disabled refuses rather than reporting an empty day")
   func calendarReadWithoutAdapterRefuses() async throws {
-    let runtime = makeRuntime(configuration: makeConfiguration())
+    let runtime = makeRuntime(
+      configuration: makeConfiguration(calendarReadEnabled: false))
     let bridge = ProductivityReadBridge(runtime: runtime)
 
     let result = await bridge.readCalendarAgenda(dayRange: 1)

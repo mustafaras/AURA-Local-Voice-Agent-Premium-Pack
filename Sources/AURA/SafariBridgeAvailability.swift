@@ -21,10 +21,10 @@ public enum SafariBridgeAvailability {
     do {
       pinned = try await secretStore.pinnedPublicKey(profileID: profileID)
     } catch {
-      return .degraded(reason: "Safari bridge key store is unavailable")
+      return .degraded(reason: "Chrome bridge key store is unavailable")
     }
     guard let pinned, !pinned.isEmpty else {
-      return .disabled(reason: "Safari bridge is not provisioned for this profile")
+      return .disabled(reason: "Chrome bridge is not connected")
     }
 
     // Probe the transport. A successful read proves the live package and
@@ -35,20 +35,20 @@ public enum SafariBridgeAvailability {
     } catch let error as SafariBridgeTransportError {
       switch error {
       case .unavailable:
-        return .degraded(reason: "Safari extension or shared container is unavailable")
+        return .degraded(reason: "Chrome extension or shared container is unavailable")
       case .stale:
-        return .degraded(reason: "Safari bridge observation is stale")
+        return .degraded(reason: "Chrome bridge observation is stale")
       case .profileMismatch:
-        return .degraded(reason: "Safari bridge profile does not match the approved profile")
+        return .degraded(reason: "Chrome bridge profile does not match the approved profile")
       case .notProvisioned:
-        return .disabled(reason: "Safari bridge is not provisioned for this profile")
+        return .disabled(reason: "Chrome bridge is not connected")
       case .authenticationFailed:
-        return .degraded(reason: "Safari bridge authentication failed")
+        return .degraded(reason: "Chrome bridge authentication failed")
       case .malformedMessage:
-        return .degraded(reason: "Safari extension sent a malformed observation")
+        return .degraded(reason: "Chrome extension sent a malformed observation")
       }
     } catch {
-      return .degraded(reason: "Safari bridge is unavailable")
+      return .degraded(reason: "Chrome bridge is unavailable")
     }
   }
 }

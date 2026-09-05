@@ -29,6 +29,8 @@ let package = Package(
         .executable(
             name: "AuraSafariExtensionHandler", targets: ["AuraSafariExtensionHandler"]),
         .executable(
+            name: "AuraChromeNativeHost", targets: ["AuraChromeNativeHost"]),
+        .executable(
             name: "AuraSpeechQualityProbe", targets: ["AuraSpeechQualityProbe"]),
         .library(name: "AuraCore", targets: ["AuraCore"]),
         .library(name: "AuraAudio", targets: ["AuraAudio"]),
@@ -87,7 +89,8 @@ let package = Package(
                 .linkedFramework("AVFoundation", .when(platforms: [.macOS])),
                 .linkedFramework("Speech", .when(platforms: [.macOS])),
                 .linkedFramework("ApplicationServices", .when(platforms: [.macOS])),
-                .linkedFramework("CoreGraphics", .when(platforms: [.macOS]))
+                .linkedFramework("CoreGraphics", .when(platforms: [.macOS])),
+                .linkedFramework("SafariServices", .when(platforms: [.macOS]))
             ]
         ),
         .target(
@@ -326,6 +329,16 @@ let package = Package(
             linkerSettings: [
                 .linkedFramework("Security", .when(platforms: [.macOS])),
                 .linkedFramework("SafariServices", .when(platforms: [.macOS])),
+            ]
+        ),
+        .executableTarget(
+            name: "AuraChromeNativeHost",
+            dependencies: ["AuraCore", "AuraSecurity", "AuraProductivity"],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ],
+            linkerSettings: [
+                .linkedFramework("Security", .when(platforms: [.macOS]))
             ]
         ),
         .testTarget(

@@ -94,6 +94,12 @@ public struct SafariBridgeNativeMessageHandler: Sendable {
     else {
       throw .profileMismatch
     }
+    guard message.tab.tabID.utf8.count <= 256,
+      message.tab.url.absoluteString.utf8.count <= 4_096,
+      message.tab.title.utf8.count <= 1_024
+    else {
+      throw .malformedMessage
+    }
 
     try await writer.write(tab: message.tab)
     return message.tab

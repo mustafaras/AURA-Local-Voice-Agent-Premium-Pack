@@ -427,6 +427,14 @@ struct FileSystemURLOpenerTests {
     #expect(spy.opened.first?.absoluteString == "https://example.com/docs")
   }
 
+  @Test("production URL routing selects Chrome only for browser schemes")
+  func productionURLRoutingSelectsChrome() {
+    #expect(SystemLaunchServices.shouldUseChrome(for: URL(string: "https://example.com")!))
+    #expect(SystemLaunchServices.shouldUseChrome(for: URL(string: "http://example.com")!))
+    #expect(!SystemLaunchServices.shouldUseChrome(for: URL(string: "mailto:user@example.com")!))
+    #expect(!SystemLaunchServices.shouldUseChrome(for: URL(fileURLWithPath: "/tmp/note.txt")))
+  }
+
   @Test("reports the resolved destination of a symlink, never the caller's raw input")
   func reportsResolvedTarget() async throws {
     let sandbox = try Sandbox()

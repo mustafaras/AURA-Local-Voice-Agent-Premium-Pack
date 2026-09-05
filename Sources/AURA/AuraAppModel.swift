@@ -108,6 +108,9 @@ final class AuraAppModel: ObservableObject {
   /// Receipt for the most recent permanent memory deletion, retained so the
   /// user can verify the deletion after the transient status line is gone.
   @Published var lastMemoryDeletionReceipt: AuraMemoryDeletionReceiptRow?
+  /// The address being typed into the mail row's inline approval field.
+  /// Transient user input only; never persisted or logged.
+  @Published var mailApprovalAddress = ""
 
   let confirmationPresenter = UIConfirmationPresenter()
   let emergencyShortcutMonitor = EmergencyShortcutMonitor()

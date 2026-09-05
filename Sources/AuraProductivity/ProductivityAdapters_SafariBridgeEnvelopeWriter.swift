@@ -99,8 +99,10 @@ public struct SafariBridgeEnvelopeWriter: Sendable {
     encoder.outputFormatting = [.sortedKeys]
     do {
       let published = signer.publishedKey(extensionID: extensionID, profileID: profileID)
-      try encoder.encode(published).write(
-        to: Self.verifyingKeyURL(besideEnvelopeAt: sharedContainerURL), options: .atomic)
+      let url = Self.verifyingKeyURL(besideEnvelopeAt: sharedContainerURL)
+      try encoder.encode(published).write(to: url, options: .atomic)
+      try FileManager.default.setAttributes(
+        [.posixPermissions: 0o600], ofItemAtPath: url.path)
     } catch {
       throw .unavailable
     }
@@ -115,6 +117,8 @@ public struct SafariBridgeEnvelopeWriter: Sendable {
     do {
       let data = try encoder.encode(envelope)
       try data.write(to: sharedContainerURL, options: .atomic)
+      try FileManager.default.setAttributes(
+        [.posixPermissions: 0o600], ofItemAtPath: sharedContainerURL.path)
     } catch {
       throw .unavailable
     }

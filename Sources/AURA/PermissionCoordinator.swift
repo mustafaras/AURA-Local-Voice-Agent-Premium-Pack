@@ -78,6 +78,27 @@ enum PermissionCoordinator {
     return snapshot()
   }
 
+  /// Re-read the screen-recording state after the user has (possibly) flipped
+  /// the toggle in System Settings.
+  ///
+  /// Two macOS behaviors make a plain re-read insufficient:
+  /// 1. The TCC toggle takes effect for a running process only after it
+  ///    restarts — the preflight keeps answering "denied" for the current
+  ///    process even when the pane shows the switch on.
+  /// 2. The request API returns immediately, so a snapshot taken in the same
+  ///    run-loop turn races the system's own bookkeeping.
+  /// A short bounded settle, then a fresh preflight, keeps the indicator from
+  /// showing a state one toggle older than the pane. If the preflight still
+  /// says denied after a grant, the remediation is a restart — which the UI
+  /// states, instead of silently showing a stale row.
+  static func refreshScreenRecordingPermission() async -> PermissionSnapshot {
+    if !CGPreflightScreenCaptureAccess() {
+      _ = CGRequestScreenCaptureAccess()
+      try? await Task.sleep(nanoseconds: 500_000_000)
+    }
+    return snapshot()
+  }
+
   @MainActor
   static func openPrivacySettings(anchor: String) {
     guard

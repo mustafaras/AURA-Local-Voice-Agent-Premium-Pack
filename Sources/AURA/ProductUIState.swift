@@ -71,6 +71,23 @@ struct AuraIntegrationRow: Identifiable, Equatable, Sendable {
   /// here. False once macOS has recorded a decision — then the remediation
   /// points at System Settings, which is the only place left to change it.
   let canGrantAccess: Bool
+  /// Whether the row's blocking state is a configuration gate that a Settings
+  /// control can lift (a disabled-but-composable leg, a mail adapter that
+  /// needs an approved account).
+  let canEnableInConfiguration: Bool
+  /// Whether the row is blocked by a macOS privacy decision that only System
+  /// Settings can change (TCC denied/restricted, or an expired screen
+  /// observation). The button opens the exact pane.
+  let canOpenSystemSettings: Bool
+  /// Deep link for `canOpenSystemSettings`, or `nil`.
+  let systemSettingsAnchor: String?
+  /// Whether the stored credential exists but needs a fresh authorization
+  /// (an expired/revoked Gmail token).
+  let canReconnect: Bool
+  /// Whether the row should show the inline mail-account approval field (a
+  /// mail row with no approved account yet — the old remediation text was a
+  /// dead end because no Setup surface existed).
+  let needsMailApproval: Bool
 }
 
 struct AuraMemoryRow: Identifiable, Equatable, Sendable {
@@ -616,10 +633,29 @@ enum AuraCopy {
     "integrations.revoke": [.english: "Disconnect", .turkish: "Bağlantıyı kes"],
     "integrations.connect": [.english: "Connect Gmail", .turkish: "Gmail'i bağla"],
     "integrations.connectBrowser": [
-      .english: "Connect Safari profile", .turkish: "Safari profilini bağla",
+      .english: "Connect Chrome", .turkish: "Chrome'u bağla",
     ],
     "integrations.grantAccess": [
       .english: "Grant access", .turkish: "Erişim izni ver",
+    ],
+    "integrations.enableInConfiguration": [
+      .english: "Enable in configuration", .turkish: "Yapılandırmada etkinleştir",
+    ],
+    "integrations.systemSettings": [
+      .english: "Open System Settings", .turkish: "Sistem Ayarlarını aç",
+    ],
+    "integrations.retry": [
+      .english: "Retry", .turkish: "Yeniden dene",
+    ],
+    "integrations.reconnectGmail": [
+      .english: "Reconnect Gmail", .turkish: "Gmail'i yeniden bağla",
+    ],
+    "integrations.mailApprovalPlaceholder": [
+      .english: "Approve a Gmail address for read-only access",
+      .turkish: "Salt-okunur erişim için bir Gmail adresi onaylayın",
+    ],
+    "integrations.approveAndConnect": [
+      .english: "Approve and connect", .turkish: "Onayla ve bağla",
     ],
     "integrations.readOnly": [
       .english: "AURA reads only. Sending mail and changing events or contacts are not enabled.",

@@ -247,9 +247,9 @@ struct ProductivityRuntime: Sendable {
     guard let safariBridge else {
       return ProductivityIntegrationSnapshot(
         capabilityID: capabilityID,
-        availability: .disabled(reason: "The Safari read bridge is not configured."),
+        availability: .disabled(reason: "The Chrome read bridge is not configured."),
         accountLabel: nil, sourceFingerprint: nil,
-        remediation: "Set a Safari profile and shared container path in configuration.",
+        remediation: "Reinstall the bundled Chrome bridge.",
         isRevocable: false)
     }
     let profileID = safariBridge.profile.profileID
@@ -260,11 +260,11 @@ struct ProductivityRuntime: Sendable {
     case (_, .ready):
       remediation = ""
     case (.notProvisioned, _):
-      remediation = "Connect the Safari profile in Setup to provision the bridge secret."
+      remediation = "Connect Chrome to pin the local extension key."
     default:
       // Provisioned but the probe still failed — the extension is not
       // installed, not enabled, or has written no observation yet.
-      remediation = "Install and enable the AURA Safari extension, then open a page to read."
+      remediation = "Enable AURA Chrome Read Bridge, then press Command-Shift-Y on a page."
     }
     return ProductivityIntegrationSnapshot(
       capabilityID: capabilityID,

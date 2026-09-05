@@ -16,6 +16,7 @@ SHELL_HELPER_ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AuraShellHelp
 HELPER_PATH="$APP_PATH/Contents/Helpers/AuraPluginHost.app"
 AUTOMATION_HELPER_PATH="$APP_PATH/Contents/Helpers/AuraAutomationHelper.app"
 SHELL_HELPER_PATH="$APP_PATH/Contents/Helpers/AuraShellHelper.app"
+CHROME_HOST_PATH="$APP_PATH/Contents/Helpers/AuraChromeNativeHost"
 SAFARI_EXTENSION_ENTITLEMENTS="$(cd "$SCRIPT_DIR/.." && pwd)/Resources/AuraSafariExtension.entitlements"
 SAFARI_EXTENSION_PATH="$APP_PATH/Contents/PlugIns/AuraSafariExtension.appex"
 LOCAL_IDENTITY="AURA Stable Local Signing"
@@ -47,6 +48,11 @@ fi
 
 if [[ ! -d "$SHELL_HELPER_PATH" ]]; then
   echo "Shell helper not found: $SHELL_HELPER_PATH"
+  exit 1
+fi
+
+if [[ ! -x "$CHROME_HOST_PATH" ]]; then
+  echo "Chrome native host not found: $CHROME_HOST_PATH"
   exit 1
 fi
 
@@ -107,6 +113,13 @@ signed_codesign \
   --options runtime \
   --entitlements "$SHELL_HELPER_ENTITLEMENTS" \
   "$SHELL_HELPER_PATH"
+
+echo "Signing Chrome native host with identity '$SIGNING_IDENTITY'"
+signed_codesign \
+  --force \
+  --sign "$SIGNING_IDENTITY" \
+  --options runtime \
+  "$CHROME_HOST_PATH"
 
 # The extension must be signed before the app: the app's signature seals its
 # nested code, so signing the appex afterwards invalidates the containing

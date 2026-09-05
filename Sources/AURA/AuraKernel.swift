@@ -26,7 +26,12 @@ import Foundation
 /// `Conversation` and those subsystems, and starts the real audio-capture
 /// pipeline. See `docs/decisions/ADR-022-composition-root-wiring.md`.
 actor AuraKernel {
-  let configuration: AuraConfiguration
+  /// The live application configuration. Mutable only through the narrow
+  /// governance paths that recompose what they change: the productivity-leg
+  /// toggle rewrites its own section after the `ConfigurationEngine` patch is
+  /// accepted, so the in-memory composition always matches the audited
+  /// configuration state. Nothing else may write it.
+  var configuration: AuraConfiguration
   let store: AuraStore
   let eventBus: AuraEventBus
   let logger: AuraLogger

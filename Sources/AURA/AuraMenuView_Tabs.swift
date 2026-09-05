@@ -238,7 +238,7 @@ extension AuraMenuView {
                 ? "integrations.connectBrowser" : "integrations.connect"
               let connectSymbol =
                 integration.id == InitialCapabilitySet.browserRead.id
-                ? "safari" : "envelope.badge.plus"
+                ? "globe" : "envelope.badge.plus"
               Button {
                 model.connectIntegration(integration)
               } label: {
@@ -259,6 +259,71 @@ extension AuraMenuView {
               )
               .accessibilityIdentifier(
                 AuraAccessibilityID.integrationGrant(integration.id))
+            }
+            if integration.canEnableInConfiguration {
+              Button {
+                model.enableIntegrationInConfiguration(integration)
+              } label: {
+                Label(copy("integrations.enableInConfiguration"), systemImage: "switch.2")
+              }
+              .accessibilityLabel(
+                "\(copy("integrations.enableInConfiguration")): \(integration.title)"
+              )
+              .accessibilityIdentifier(
+                AuraAccessibilityID.integrationEnable(integration.id))
+            }
+            if integration.canOpenSystemSettings, let anchor = integration.systemSettingsAnchor {
+              Button {
+                model.openNativeIntegrationSettings(anchor: anchor)
+              } label: {
+                Label(copy("integrations.systemSettings"), systemImage: "gearshape")
+              }
+              .accessibilityLabel(
+                "\(copy("integrations.systemSettings")): \(integration.title)"
+              )
+              .accessibilityIdentifier(
+                AuraAccessibilityID.integrationSettings(integration.id))
+            }
+            if integration.canReconnect {
+              Button {
+                model.connectIntegration(integration)
+              } label: {
+                Label(copy("integrations.reconnectGmail"), systemImage: "arrow.clockwise")
+              }
+              .accessibilityLabel(
+                "\(copy("integrations.reconnectGmail")): \(integration.title)"
+              )
+              .accessibilityIdentifier(
+                AuraAccessibilityID.integrationReconnect(integration.id))
+            }
+            if integration.needsMailApproval {
+              // The old "approve a mail account in Setup" remediation named a
+              // surface that did not exist. The approval lives here: the user
+              // types the one address they are willing to let AURA consider,
+              // and Connect runs the read-only OAuth flow immediately after.
+              VStack(alignment: .leading, spacing: 4) {
+                TextField(
+                  copy("integrations.mailApprovalPlaceholder"),
+                  text: $model.mailApprovalAddress
+                )
+                .textFieldStyle(.roundedBorder)
+                .textContentType(.emailAddress)
+                .autocorrectionDisabled()
+                .accessibilityLabel(copy("integrations.mailApprovalPlaceholder"))
+                .accessibilityIdentifier(
+                  AuraAccessibilityID.mailApprovalField)
+                Button {
+                  model.approveAndConnectMail(address: model.mailApprovalAddress)
+                } label: {
+                  Label(
+                    copy("integrations.approveAndConnect"),
+                    systemImage: "envelope.badge.plus")
+                }
+                .disabled(!model.mailApprovalAddress.contains("@"))
+                .accessibilityLabel(copy("integrations.approveAndConnect"))
+                .accessibilityIdentifier(
+                  AuraAccessibilityID.mailApproveButton)
+              }
             }
             if integration.isRevocable {
               Button(role: .destructive) {
@@ -294,9 +359,34 @@ extension AuraMenuView {
           permissionIndicator(
             copy("perm.activeSpeechRecognition"),
             model.permissions.speechRecognition.title(for: language))
-          permissionIndicator(
-            copy("perm.screenObservation"),
-            model.permissions.screenRecording.title(for: language))
+          HStack {
+            permissionIndicator(
+              copy("perm.screenObservation"),
+              model.permissions.screenRecording.title(for: language))
+            // Both remediations stay reachable in every state: before a TCC
+            // decision the button raises the real macOS prompt; after a
+            // recorded decision the prompt can never reappear, so the row
+            // hands the user the exact System Settings pane instead. A row
+            // that only says "Denied" with no control is a dead end.
+            Button {
+              model.requestScreenRecordingPermission()
+            } label: {
+              Label(copy("integrations.grantAccess"), systemImage: "lock.open")
+            }
+            .accessibilityLabel(
+              "\(copy("integrations.grantAccess")): \(copy("perm.screenObservation"))"
+            )
+            .accessibilityIdentifier(AuraAccessibilityID.screenObservationGrant)
+            Button {
+              model.openScreenRecordingSettings()
+            } label: {
+              Label(copy("integrations.systemSettings"), systemImage: "gearshape")
+            }
+            .accessibilityLabel(
+              "\(copy("integrations.systemSettings")): \(copy("perm.screenObservation"))"
+            )
+            .accessibilityIdentifier(AuraAccessibilityID.screenObservationSettings)
+          }
           Label(copy("conversation.cloudDisabled"), systemImage: "icloud.slash")
             .fixedSize(horizontal: false, vertical: true)
         }

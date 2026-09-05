@@ -1,6 +1,7 @@
 import AppKit
 import AuraCore
 import Foundation
+import Synchronization
 
 /// The LaunchServices surface the filesystem/URL capabilities need, isolated
 /// behind a protocol so the adapter's validation, postcondition, and
@@ -26,7 +27,30 @@ public struct SystemLaunchServices: LaunchServicesOpening {
   public init() {}
 
   public func open(_ url: URL) -> Bool {
-    NSWorkspace.shared.open(url)
+    guard Self.shouldUseChrome(for: url),
+      let chromeURL = NSWorkspace.shared.urlForApplication(
+        withBundleIdentifier: "com.google.Chrome")
+    else {
+      return NSWorkspace.shared.open(url)
+    }
+
+    let result = Mutex<Bool?>(nil)
+    let completion = DispatchSemaphore(value: 0)
+    let configuration = NSWorkspace.OpenConfiguration()
+    configuration.activates = true
+    NSWorkspace.shared.open(
+      [url], withApplicationAt: chromeURL, configuration: configuration
+    ) { application, error in
+      result.withLock { $0 = application != nil && error == nil }
+      completion.signal()
+    }
+    guard completion.wait(timeout: .now() + 10) == .success else { return false }
+    return result.withLock { $0 ?? false }
+  }
+
+  static func shouldUseChrome(for url: URL) -> Bool {
+    guard let scheme = url.scheme?.lowercased() else { return false }
+    return scheme == "http" || scheme == "https"
   }
 
   public func selectFile(_ path: String, inFileViewerRootedAtPath root: String) -> Bool {

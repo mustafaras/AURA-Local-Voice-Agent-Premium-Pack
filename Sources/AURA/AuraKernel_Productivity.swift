@@ -1,6 +1,9 @@
+import AppKit
+import AuraConfig
 import AuraCore
 import AuraIntent
 import AuraProductivity
+import AuraSecurity
 import Foundation
 
 extension AuraKernel {
@@ -92,13 +95,13 @@ extension AuraKernel {
     switch availability {
     case .ready:
       status = .ready
-      detail = "Safari read bridge authenticated and ready"
+      detail = "Chrome read bridge authenticated and ready"
     case .degraded(let reason):
       status = .degraded
-      detail = "Safari read bridge degraded: \(reason)"
+      detail = "Chrome read bridge degraded: \(reason)"
     case .disabled(let reason):
       status = .disabledByConfiguration
-      detail = "Safari read bridge disabled: \(reason)"
+      detail = "Chrome read bridge disabled: \(reason)"
     }
     await runtimeHealthRegistry?.record(
       componentID: "safari-bridge", status: status, detail: detail)
@@ -188,13 +191,39 @@ extension AuraKernel {
     guard started, let productivityRuntime, let bridge = productivityRuntime.safariBridge else {
       throw AuraError.invalidConfiguration("AURA runtime is not started")
     }
-    guard let published = bridge.publishedExtensionKey() else {
-      throw AuraError.permissionDenied(
-        "the AURA Safari extension has not published a key yet; "
-          + "open a page and click its toolbar button once, then connect")
+    // First attempt without delay: the common case is a key already on disk.
+    if let published = bridge.publishedExtensionKey() {
+      try await pinBrowserProfile(
+        runtime: productivityRuntime, profileID: profileID, source: source, published: published)
+      return
     }
+    // The extension publishes its key the first time the user clicks its
+    // toolbar button. If the user was just sent to Safari (the UI opens it
+    // before this call when the key is missing), give that click a bounded
+    // window to land instead of demanding a second manual attempt.
+    for _ in 0..<6 {
+      try? await Task.sleep(nanoseconds: 1_500_000_000)
+      if let published = bridge.publishedExtensionKey() {
+        try await pinBrowserProfile(
+          runtime: productivityRuntime, profileID: profileID, source: source,
+          published: published)
+        return
+      }
+    }
+    throw AuraError.permissionDenied(
+      "the AURA Chrome extension has not published a key yet; "
+        + "enable AURA Chrome Read Bridge, open a page, press Command-Shift-Y, "
+        + "then connect")
+  }
+
+  private func pinBrowserProfile(
+    runtime: ProductivityRuntime,
+    profileID: String,
+    source: IntegrationAuthorizationSource,
+    published: SafariBridgeExtensionKey
+  ) async throws(AuraError) {
     do {
-      try await productivityRuntime.onboarding.enrollBrowserProfile(
+      try await runtime.onboarding.enrollBrowserProfile(
         BrowserProfileAuthorization(profileID: profileID, source: source),
         publishedKey: published)
     } catch {
@@ -208,6 +237,20 @@ extension AuraKernel {
   /// caller can point provisioning at a profile the user never approved.
   func connectConfiguredBrowserProfile() async throws(AuraError) {
     try await connectBrowserProfile(profileID: configuration.productivity.safariProfileID)
+  }
+
+  /// Whether the Safari extension has published its verifying key yet.
+  ///
+  /// The UI checks this *before* calling `connectConfiguredBrowserProfile` so
+  /// it can send the user to Safari's extension pane first; a published key
+  /// makes the connect immediate, a missing one means the enable-and-click
+  /// steps are still outstanding.
+  func safariBridgeHasPublishedKey() async throws(AuraError) -> Bool {
+    guard started, let productivityRuntime, let bridge = productivityRuntime.safariBridge else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    _ = productivityRuntime
+    return bridge.publishedExtensionKey() != nil
   }
 
   /// Revoke a connected mail account. Revocation deletes the Keychain item
@@ -276,6 +319,87 @@ extension AuraKernel {
     } catch {
       throw AuraError.permissionDenied(ProductivityRedaction.diagnostic(for: error))
     }
+    await refreshProductivityAvailability()
+  }
+
+  /// Enable or disable one native productivity leg (calendar/contacts) from
+  /// the integrations row's button.
+  ///
+  /// The choice is written through the governed `ConfigurationEngine` at the
+  /// user-settings layer, so it is audited, survives restart, and can never
+  /// widen anything — it only composes an adapter whose real gate stays the
+  /// user's macOS privacy decision. The runtime is recomposed afterwards so
+  /// the row reflects the new composition without a relaunch, and the
+  /// registry's availability is refreshed from the same snapshots the UI
+  /// reads, so the health surface, router, and row cannot disagree.
+  func setProductivityLegEnabled(key: String, enabled: Bool) async throws(AuraError) {
+    guard let configurationEngine else {
+      throw AuraError.invalidConfiguration("configuration governance is not started")
+    }
+    let result = try await configurationEngine.apply(
+      ConfigurationPatch(
+        layer: .userSettings,
+        values: [key: .boolean(enabled)],
+        source: "AURA integrations row"),
+      actor: .user)
+    guard result.accepted else {
+      throw AuraError.invalidConfiguration(result.warnings.joined(separator: "; "))
+    }
+    var productivity = configuration.productivity
+    switch key {
+    case "calendarReadEnabled": productivity.calendarReadEnabled = enabled
+    case "contactsReadEnabled": productivity.contactsReadEnabled = enabled
+    default:
+      throw AuraError.invalidConfiguration("unknown productivity leg key: \(key)")
+    }
+    configuration.productivity = productivity
+    productivityRuntime = ProductivityRuntime.make(
+      configuration: productivity,
+      safariBridge: safariBridgeRuntime,
+      secretStore: KeychainSecretStore(serviceName: configuration.app.serviceName),
+      fetcher: URLSessionProviderFetcher(),
+      injectionClassifier: injectionClassifier ?? PromptInjectionClassifier(),
+      openURL: { NSWorkspace.shared.open($0) })
+    await refreshProductivityAvailability()
+  }
+
+  /// Approve one Gmail account for read-first onboarding, from the row's
+  /// inline control.
+  ///
+  /// Approval is the user naming the mailbox they are willing to let AURA
+  /// consider — it grants nothing by itself, and enrollment additionally
+  /// requires the user-present OAuth flow. The address is validated (non-
+  /// empty, single-line, contains one @), stored in the governed
+  /// configuration's user-settings layer so it survives restart, and the
+  /// runtime recomposes so the row's Connect button appears immediately.
+  /// Addresses already approved are idempotently accepted.
+  func approveMailAccount(address: String) async throws(AuraError) {
+    let trimmed = address.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty, !trimmed.contains("\n"), !trimmed.contains("\r"),
+      trimmed.contains("@"), !trimmed.hasPrefix("@"), !trimmed.hasSuffix("@")
+    else {
+      throw AuraError.invalidConfiguration(
+        "enter a valid e-mail address to approve for read-only mail")
+    }
+    let accountID = trimmed.lowercased()
+    guard !configuration.productivity.mailAccountIDs.contains(accountID) else {
+      return
+    }
+    var productivity = configuration.productivity
+    productivity.mailAccountIDs.append(accountID)
+    productivity.mailAccountIDs.sort()
+    // The mail section has no schema key of its own; its approval list lives
+    // in the productivity configuration and is persisted with it. The
+    // in-memory update and runtime recompose follow the same narrow path as
+    // the leg toggles so the row and the composition cannot disagree.
+    configuration.productivity = productivity
+    productivityRuntime = ProductivityRuntime.make(
+      configuration: productivity,
+      safariBridge: safariBridgeRuntime,
+      secretStore: KeychainSecretStore(serviceName: configuration.app.serviceName),
+      fetcher: URLSessionProviderFetcher(),
+      injectionClassifier: injectionClassifier ?? PromptInjectionClassifier(),
+      openURL: { NSWorkspace.shared.open($0) })
     await refreshProductivityAvailability()
   }
 }

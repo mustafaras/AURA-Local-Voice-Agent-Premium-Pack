@@ -43,6 +43,28 @@ enum AuraAccessibilityID {
     "\(integrationRow(capabilityID)).revoke"
   }
 
+  static func integrationEnable(_ capabilityID: String) -> String {
+    "\(integrationRow(capabilityID)).enable"
+  }
+
+  static func integrationSettings(_ capabilityID: String) -> String {
+    "\(integrationRow(capabilityID)).settings"
+  }
+
+  static func integrationReconnect(_ capabilityID: String) -> String {
+    "\(integrationRow(capabilityID)).reconnect"
+  }
+
+  // Screen-observation (Screen Recording TCC) row controls on the Privacy
+  // tab. The request button raises the real macOS prompt; the settings button
+  // deep-links the pane that owns a recorded decision.
+  static let screenObservationGrant = "aura.perm.screenObservation.grant"
+  static let screenObservationSettings = "aura.perm.screenObservation.settings"
+
+  // Inline mail-account approval controls on the mail integration row.
+  static let mailApprovalField = "aura.integration.mail.approvalField"
+  static let mailApproveButton = "aura.integration.mail.approveButton"
+
   // Onboarding is a clean-profile gate: a fresh install must reach every
   // control from the keyboard and be discoverable by VoiceOver without a
   // mouse. Stable identifiers let the acceptance driver and a screen reader

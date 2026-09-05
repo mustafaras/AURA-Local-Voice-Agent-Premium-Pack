@@ -23,10 +23,12 @@ extension AuraConfiguration {
     let oauthClientID = environment["AURA_SP011_OAUTH_CLIENT_ID"] ?? ""
     let accounts = [testEmail, secondTestEmail].filter { !$0.isEmpty }
     let defaults = ProductivityConfiguration()
-    // Every acceptance leg stays off unless its own variable turns it on. The
-    // earlier profile enabled only mail, which left the calendar, contacts and
-    // Safari legs uncomposed and therefore unrunnable — the acceptance profile
-    // could not exercise the matrix it exists for.
+    // A leg follows its own variable when the environment sets it; an unset
+    // variable inherits the production composition defaults, so the
+    // acceptance profile exercises the same matrix a real launch composes.
+    // The earlier profile composed only mail, which left the calendar,
+    // contacts and Safari legs uncomposed and therefore unrunnable — the
+    // acceptance profile could not exercise the matrix it exists for.
     return AuraConfiguration(
       productivity: ProductivityConfiguration(
         safariProfileID: environment["AURA_SP011_SAFARI_PROFILE_ID"]
@@ -38,8 +40,10 @@ extension AuraConfiguration {
         safariAllowedHosts: Self.hostList(environment["AURA_SP011_SAFARI_ALLOWED_HOSTS"]),
         mailAccountIDs: accounts,
         mailAllowedHosts: ["gmail.googleapis.com"],
-        calendarReadEnabled: environment["AURA_SP011_ENABLE_CALENDAR"] == "1",
-        contactsReadEnabled: environment["AURA_SP011_ENABLE_CONTACTS"] == "1",
+        calendarReadEnabled: environment["AURA_SP011_ENABLE_CALENDAR"].map { $0 == "1" }
+          ?? defaults.calendarReadEnabled,
+        contactsReadEnabled: environment["AURA_SP011_ENABLE_CONTACTS"].map { $0 == "1" }
+          ?? defaults.contactsReadEnabled,
         allowsTestAccountAuthorization: true,
         gmailOAuthClientID: oauthClientID
       )

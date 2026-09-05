@@ -37,6 +37,10 @@ swift build \
   -c release \
   --product "AuraSafariExtensionHandler" \
   --build-path "$BUILD_DIR/swiftpm"
+swift build \
+  -c release \
+  --product "AuraChromeNativeHost" \
+  --build-path "$BUILD_DIR/swiftpm"
 
 # Assemble .app bundle
 CONTENTS="$BUILD_DIR/$APP_NAME.app/Contents"
@@ -51,6 +55,7 @@ AUTOMATION_HELPER_MACOS="$AUTOMATION_HELPER_CONTENTS/MacOS"
 SHELL_HELPER_APP="$CONTENTS/Helpers/AuraShellHelper.app"
 SHELL_HELPER_CONTENTS="$SHELL_HELPER_APP/Contents"
 SHELL_HELPER_MACOS="$SHELL_HELPER_CONTENTS/MacOS"
+CHROME_HOST="$CONTENTS/Helpers/AuraChromeNativeHost"
 # The Safari Web Extension. It must live in Contents/PlugIns for Safari to
 # discover it when the containing app is registered with Launch Services;
 # anywhere else and the extension simply never appears in Safari's list.
@@ -67,6 +72,8 @@ cp "$BUILD_DIR/swiftpm/release/$APP_NAME" "$MACOS_DIR/$APP_NAME"
 cp "$BUILD_DIR/swiftpm/release/AuraPluginHost" "$HELPER_MACOS/AuraPluginHost"
 cp "$BUILD_DIR/swiftpm/release/AuraAutomationHelper" "$AUTOMATION_HELPER_MACOS/AuraAutomationHelper"
 cp "$BUILD_DIR/swiftpm/release/AuraShellHelper" "$SHELL_HELPER_MACOS/AuraShellHelper"
+cp "$BUILD_DIR/swiftpm/release/AuraChromeNativeHost" "$CHROME_HOST"
+chmod +x "$CHROME_HOST"
 cp "$REPO_ROOT/Resources/AuraPluginHost-Info.plist" "$HELPER_CONTENTS/Info.plist"
 cp "$REPO_ROOT/Resources/AuraAutomationHelper-Info.plist" "$AUTOMATION_HELPER_CONTENTS/Info.plist"
 cp "$REPO_ROOT/Resources/AuraShellHelper-Info.plist" "$SHELL_HELPER_CONTENTS/Info.plist"
@@ -91,6 +98,11 @@ cp "$REPO_ROOT/Resources/SafariExtension/manifest.json" \
   "$SAFARI_EXTENSION_RESOURCES/manifest.json"
 cp "$REPO_ROOT/Resources/SafariExtension/background.js" \
   "$SAFARI_EXTENSION_RESOURCES/background.js"
+
+# Bundle the Chrome extension source verbatim. Chrome loads this directory as
+# an unpacked MV3 extension; the app refreshes the native host manifest on
+# every launch through ChromeBridgeInstaller.
+cp -R "$REPO_ROOT/Resources/ChromeExtension" "$RESOURCES_DIR/ChromeExtension"
 
 echo "Built $BUILD_DIR/$APP_NAME.app"
 echo "Next step: ./scripts/codesign-adhoc.sh $BUILD_DIR/$APP_NAME.app"

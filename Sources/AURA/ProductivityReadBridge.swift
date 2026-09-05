@@ -25,13 +25,13 @@ struct ProductivityReadBridge: ProductivityReading {
     let snapshot = await runtime.browserSnapshot()
     if let blocked = Self.blocking(snapshot) { return .failure(blocked) }
     guard let bridge = runtime.safariBridge else {
-      return .failure(.notConfigured(reason: "the Safari bridge is not composed"))
+      return .failure(.notConfigured(reason: "the Chrome bridge is not composed"))
     }
     // A stated profile that is not the approved one is refused rather than
     // silently redirected to whichever profile happens to be approved.
     if let profileID, profileID != bridge.profile.profileID {
       return .failure(
-        .ambiguous(question: "Which Safari profile should I read? Only one is approved."))
+        .ambiguous(question: "Which Chrome profile should I read? Only one is approved."))
     }
     do {
       let tab = try await bridge.adapter.readActiveTab()

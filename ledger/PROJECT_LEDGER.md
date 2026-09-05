@@ -2,6 +2,53 @@
 
 Append-only. Never edit or delete prior entries. Corrections are new entries that reference the corrected entry.
 
+### 2026-09-05T00:00:00Z — Delivery request started — Chrome bridge and Privacy remediation scope
+
+- **Objective:** deliver the already-present Chrome read-bridge and Privacy-tab remediation changes with fresh repository evidence, then commit and push the scoped work on `main`.
+- **Assumptions:** the dirty worktree belongs to the current owner-requested change; direct `main` delivery remains the established route; no open PR or separate merge commit is required; “deploy” means the ADR-049-compatible local AURA build/sign/launch check, not external release or beta promotion.
+- **Risks:** the worktree contains 34 tracked changes plus untracked Chrome bridge files; accidentally omitting or broadening that scope would make the delivery untruthful. Local deterministic tests cannot close beta, RC, signed/notarized, or external-release gates.
+- **Acceptance criteria:** review the complete diff; run fresh syntax/static/unit/integration/build checks; preserve fail-closed security and privacy boundaries; commit only the intended current scope; push and prove `HEAD == origin/main`; report merge as applicable from live PR state; verify the local deployment directly; leave beta/readiness and external-release claims unchanged.
+
+### 2026-09-04T14:45:00Z — CORRECTION: Chrome bootstrap uses its installed extension page
+
+- **Corrects:** the `AURA-CHROME-FIRST-KEY-20260904` `about:blank` bootstrap correction recorded at `2026-09-04T16:45:00Z` local wall time (timestamp ordering defect retained because this ledger is append-only).
+- **Live evidence:** Google Chrome 152.0.7977.65 logs `--load-extension is not allowed in Google Chrome, ignoring`; the host therefore rejected the real parent with `parent-launch-path`. The manually approved unpacked extension remains enabled at `/Applications/AURA.app/Contents/Resources/ChromeExtension`, reloadable, and pinned under stable ID `ggccnafnholmbpghgljfbofapcbhkdjh`.
+- **Revised design:** AURA opens the installed extension-owned `bootstrap.html` URL without the rejected flag. That page asks its own service worker for one empty, bounded native handshake. Actual web-page text remains available only after the explicit toolbar action. The native host retains exact extension origin, Google designated-requirement, strict signed-app validation, complete packaged-source hashes, message bounds, and signed-envelope controls; it removes only the impossible command-line flag assertion.
+- **Acceptance:** executable JavaScript tests prove bootstrap sends no page text; Swift tests reject `--load-extension`, require the stable extension URL, and keep packaged hashes synchronized; a rebuilt signed app produces fresh `0600` key/observation files and projects the browser row as `Connected` / `Ready`.
+
+### 2026-09-04T16:45:00Z — CORRECTION: Chrome bootstrap is offline, not HTTPS
+
+- **Corrects:** `AURA-CHROME-FIRST-KEY-20260904` acceptance criterion requiring a "scriptable HTTPS tab."
+- **Reason:** a fixed remote page creates undeclared network egress and degrades to a protected `chrome-error://` page when offline. The accepted design instead launches `about:blank`; after the explicit user action, rejected text injection still sends URL/title metadata with bounded empty `visibleText`, allowing the authenticated native host to publish its public key without external traffic.
+- **Revised acceptance criterion:** exact signed extension launch path plus `about:blank`; executable JavaScript coverage proves rejected injection still sends one empty-text native observation; packaged source hashes match the host allowlist; a later explicit action on a normal HTTPS page supplies usable page content before operational readiness is claimed.
+
+### 2026-09-04T16:30:00Z — Chrome first-key publication defect investigation
+
+- **Session ID:** `AURA-CHROME-FIRST-KEY-20260904`; actor: GitHub Copilot. Authority: owner-approved edit/test/live-local remediation; no commit, push, release, or system-permission mutation.
+- **Objective:** make the Chrome read bridge publish its public key through the user-gated action so the Privacy tab can truthfully reach `Connected` / `Ready`.
+- **Observed failure:** the installed host manifest and exact signed extension launch path were valid, and the Chrome-specific Keychain item existed after owner approval, but neither `extension-key.json` nor `observation.json` existed. A post-approval `Command-Shift-Y` produced no host process or validation-gate file.
+- **Root cause hypothesis:** `ChromeBridgeSetup.openExtensionsPage()` makes `chrome://extensions` the active tab while `background.js` requires `chrome.scripting.executeScript` to succeed before it calls the native host. Chrome protects internal `chrome://` pages from that injection, the extension drops the rejection, and the bounded pinning window expires without a key.
+- **Risks:** do not weaken Chrome peer, origin, signed-app resource, extension hash/age, message-bound, or signed-envelope checks; do not claim a connected state before both key pinning and a fresh signed observation are verified.
+- **Acceptance criteria:** a regression test rejects protected-page relaunch arguments; Chrome starts with the exact signed extension path and a scriptable HTTPS tab; an explicit action creates private-mode key and observation files; AURA pins the public key and projects the browser row as `Connected` / `Ready`; focused and full repository checks pass.
+
+### 2026-09-04T09:00:00Z — UI remediation reachability: default-composed native legs, screen-observation controls, Turkish remediations
+
+- **Session ID:** `AURA-UI-REACHABILITY-20260904`; actor: GitHub Copilot (glm-5.3-flash). Authority: owner-requested edit/test turn; no commit/push/release/permission mutation.
+- **Objective:** the owner reported two product defects in the Privacy tab: "Ekran gözlemi: Reddedildi" with no reachable remediation, and three integrations permanently "Bağlı değil" whose only remediation was editing configuration keys no product surface exposes. Goal: every blocked row carries a control that lifts it, in the user's language, guaranteed by tests.
+- **Delivered changes:**
+  - `Sources/AuraCore/Configuration_ProductivityConfiguration.swift` + `AuraConfigurationLoading.swift` — calendar/contacts legs now compose **by default** (was `false`), so a fresh install never shows a permanently disabled row; the user's EventKit/Contacts authorization remains the real gate and the SP-011 acceptance profile inherits production defaults unless a variable explicitly sets `0`.
+  - `Sources/AURA/AuraAppModel_ProductState.swift` — the row projection derives four new flags from the snapshot (`canEnableInConfiguration`, `canOpenSystemSettings` + `systemSettingsAnchor`, `canReconnect`) and routes remediation text through `localizedReason`, so every blocked row offers the control that lifts it.
+  - `Sources/AURA/AuraKernel_Productivity.swift` + `AuraKernel.swift` — new `setProductivityLegEnabled(key:enabled:)` writes a governed `ConfigurationEngine` patch (user-settings layer, audited, restart-safe) and recomposes `ProductivityRuntime` in place; the in-memory configuration follows the accepted patch through the same narrow path only.
+  - `Sources/AURA/AuraMenuView_Tabs.swift` — the Privacy tab's screen-observation row now carries both remediations (in-app TCC request button + System Settings deep link), and each integration row renders enable-in-configuration / open-settings / reconnect controls with stable accessibility identifiers (`aura.integration.<id>.enable|.settings|.reconnect`, `aura.perm.screenObservation.*`).
+  - `Sources/AURA/AuraMenuView_Content.swift` — the main window re-reads `PermissionCoordinator.snapshot()` on every appear, so macOS decisions made outside the window no longer leave stale indicators.
+  - `Sources/AURA/ProductUIState.swift` + `AuraAppModel_ProductState.swift` — 20+ new Turkish remediation mappings for every composed-leg, Safari, and mail failure string; new copy keys (`perm.group`, `integrations.enableInConfiguration`, `integrations.systemSettings`, `integrations.reconnectGmail`).
+  - `Tests/AURAIntegrationTests/IntegrationRowRemediationTests.swift` (new, 8 tests) plus updates to `SP010`, `SP011`, and `AuraAccessibilityIdentifierTests` pin: uncomposed legs offer enable, denied legs anchor the exact pane, ready rows are quiet, expired Gmail offers reconnect, and remediations localize.
+- **Verification:** `swift build` clean; targeted suites 54/54 then full `xcrun swift test` completed with all bundles passing (1429+ ✔ across bundles). Runtime-completion, second-pass, and repo-hygiene validators pass. Two `AuraAgentTests` timing-flakes (`completed?.outcome == .failed`) reproduce intermittently at HEAD (confirmed via stash) and are unrelated; two Python hygiene failures also pre-exist at HEAD (environment: `.build` symlink + pre-existing unallowlisted findings in tracked archive files).
+- **Environment note:** Desktop File Provider continuously re-stamps `com.apple.FinderInfo` (flags `0x2000`) onto build bundles, failing ad-hoc codesign with "resource fork, Finder information, or similar detritus not allowed". `./.build` is now a symlink to `/tmp/aura-build` to keep build products outside the Desktop File Provider scope; delete the symlink to restore in-repo builds.
+- **Honest scope:** this is UI-state and composition-default work verified by deterministic tests only. No live TCC prompt was raised, no System Settings pane was deep-linked live, no OAuth flow was driven, and no release/beta gate moved. `beta-readiness.json` and `release_candidate` remain blocked; SP-033 stays completed under ADR-053 scope.
+- **Falsifier:** any claim that a live macOS prompt was exercised, that Turkish strings were reviewed by a native speaker, or that this closes any sign-off gate.
+- **Residual / next safe action:** owner-run live check of the Privacy tab on a real Mac; optional extension of the Turkish mapping table to `localizedReason`-uncovered statusDetail strings.
+
 ### 2026-09-02T06:45:10Z — Delivery request started — graphify helpers, Git delivery, and local deploy
 
 - **Session / starting point:** `AURA-DELIVERY-20260902-GRAPHIFY`; branch `main`; verified start commit `cd2c3cdf4a581c607bfd32e34bb882f13bb2e679`; `origin/main` matched; only `graphify-out/`, `scripts/generate_network_viz.py`, and `scripts/render_network.py` were untracked.

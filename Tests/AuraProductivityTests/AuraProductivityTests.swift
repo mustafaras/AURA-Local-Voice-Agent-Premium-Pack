@@ -910,6 +910,20 @@ func safariBridgeNativeMessageHandlerRejectsUntrustedMessages() async throws {
           tab: makeSafariTab(profileID: "work"))))
   }
 
+  for oversizedTab in [
+    makeSafariTab(tabID: String(repeating: "t", count: 257)),
+    makeSafariTab(url: "https://example.com/" + String(repeating: "p", count: 4_096)),
+    makeSafariTab(title: String(repeating: "x", count: 1_025)),
+  ] {
+    await #expect(throws: SafariBridgeTransportError.malformedMessage) {
+      _ = try await handler.handle(
+        messageData: try encode(
+          SafariBridgeNativeMessage(
+            extensionID: "com.aura.safari-extension", profileID: "personal",
+            tab: oversizedTab)))
+    }
+  }
+
   // Nothing was written: a refused message never reaches the container.
   #expect(FileManager.default.fileExists(atPath: container.path) == false)
 }

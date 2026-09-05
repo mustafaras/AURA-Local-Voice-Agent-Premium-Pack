@@ -1,0 +1,45 @@
+:root {
+  color-scheme: light dark;
+  font-family: Avenir Next, Avenir, sans-serif;
+  background: Canvas;
+  color: CanvasText;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+}
+
+main {
+  width: min(32rem, calc(100% - 3rem));
+  border-left: 4px solid #1687d9;
+  padding: 1rem 1.5rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #1687d9;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.75rem;
+  letter-spacing: 0;
+}
+
+#status {
+  margin: 0;
+  line-height: 1.5;
+}
+
+body[data-state="connected"] main {
+  border-left-color: #18864b;
+}
+
+body[data-state="failed"] main {
+  border-left-color: #c34b3f;
+}

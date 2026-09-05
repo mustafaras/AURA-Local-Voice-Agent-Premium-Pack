@@ -28,7 +28,15 @@ extension AuraMenuView {
     .padding(AuraDesign.Spacing.l)
     .background(Color(nsColor: .windowBackgroundColor))
     .frame(minWidth: 680, minHeight: 720)
-    .onAppear { model.refreshProductSnapshots() }
+    .onAppear {
+      model.refreshProductSnapshots()
+      // A macOS privacy decision made outside this window (a TCC prompt in
+      // another app, a change in System Settings) leaves the snapshot stale
+      // until something re-reads it. Re-reading on every appear keeps the
+      // permission indicators and the row buttons honest without a manual
+      // refresh click.
+      model.refreshPermissions()
+    }
     .sheet(
       isPresented: Binding(
         get: { model.productUIState.onboarding.isPresented },
@@ -313,11 +321,12 @@ extension AuraMenuView {
         .accessibilityElement(children: .combine)
       }
       if !model.lastOperationMessage.isEmpty {
-        Text(model.lastOperationMessage)
+        let message = model.localizedOperationMessage(model.lastOperationMessage)
+        Text(message)
           .font(.callout)
           .foregroundStyle(model.status == .error ? .red : .secondary)
           .fixedSize(horizontal: false, vertical: true)
-          .accessibilityLabel("\(copy("a11y.diagnosticPrefix")): \(model.lastOperationMessage)")
+          .accessibilityLabel("\(copy("a11y.diagnosticPrefix")): \(message)")
       }
       emergencyControls
     }

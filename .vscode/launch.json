@@ -119,6 +119,26 @@
             "target": "AuraSpeechQualityProbe",
             "configuration": "release",
             "preLaunchTask": "swift: Build Release AuraSpeechQualityProbe"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Debug AuraChromeNativeHost",
+            "target": "AuraChromeNativeHost",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AuraChromeNativeHost"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AURA-Local-Voice-Agent-Premium-Pack}",
+            "name": "Release AuraChromeNativeHost",
+            "target": "AuraChromeNativeHost",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AuraChromeNativeHost"
         }
     ]
 }

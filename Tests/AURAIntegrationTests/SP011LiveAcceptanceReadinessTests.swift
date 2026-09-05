@@ -152,12 +152,15 @@ func unprovisionedSafariProfileCanConnect() async throws {
 
 // MARK: - The acceptance profile must compose the matrix it has to run
 
-@Test("The live acceptance profile composes only the legs its variables enable")
-func liveAcceptanceProfileIsOffByDefault() {
+@Test("The live acceptance profile inherits the production composition by default")
+func liveAcceptanceProfileInheritsProductionDefaults() {
   let configuration = AuraConfiguration.liveAcceptance(environment: [:])
 
-  #expect(!configuration.productivity.calendarReadEnabled)
-  #expect(!configuration.productivity.contactsReadEnabled)
+  // Unset variables keep the production defaults, so the acceptance profile
+  // exercises the same matrix a real launch composes — calendar and contacts
+  // are composed with their native authorization gates, not silently absent.
+  #expect(configuration.productivity.calendarReadEnabled)
+  #expect(configuration.productivity.contactsReadEnabled)
   #expect(configuration.productivity.safariAllowedHosts.isEmpty)
   #expect(configuration.productivity.mailAccountIDs.isEmpty)
 }
@@ -178,6 +181,17 @@ func liveAcceptanceProfileComposesEveryLeg() {
   // A trailing or doubled comma must not introduce a blank host: an empty
   // entry in an allowlist reads as a configured host and matches nothing.
   #expect(configuration.productivity.safariAllowedHosts == ["example.com", "example.org"])
+}
+
+@Test("An explicit 0 removes a native leg from the acceptance profile")
+func liveAcceptanceProfileCanDisableNativeLegs() {
+  let configuration = AuraConfiguration.liveAcceptance(environment: [
+    "AURA_SP011_ENABLE_CALENDAR": "0",
+    "AURA_SP011_ENABLE_CONTACTS": "0",
+  ])
+
+  #expect(!configuration.productivity.calendarReadEnabled)
+  #expect(!configuration.productivity.contactsReadEnabled)
 }
 
 @Test("SP-012 live profile configures only non-secret bridge coordinates")

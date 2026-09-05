@@ -1,5 +1,25 @@
 # Current State
 
+## 2026-09-04 — UI remediation reachability turn (uncommitted, edit/test authority)
+
+The owner-reported Privacy-tab defects are fixed deterministically: calendar and
+contacts legs compose by default with their native authorization gates, the
+screen-observation row carries both an in-app TCC request button and a System
+Settings deep link, and every blocked integration row projects the control that
+lifts it (enable-in-configuration via a governed, audited
+`ConfigurationEngine` patch + in-place recompose; System Settings pane anchor;
+Gmail reconnect). Remediation text localizes to Turkish and is covered by new
+tests (`IntegrationRowRemediationTests`, 8 tests; updates to `SP010`, `SP011`,
+`AuraAccessibilityIdentifierTests`). Full `xcrun swift test` passes; runtime-
+completion, second-pass, and repo-hygiene validators pass with
+`working_tree_state: dirty_expected` and this turn's files recorded in
+`current-state.json`. Two `AuraAgentTests` timing flakes and two Python hygiene
+failures reproduce at HEAD and are unrelated. Changes are **uncommitted**;
+`./.build` is a symlink to `/tmp/aura-build` (Desktop File Provider xattr
+workaround, documented in `ledger/PROJECT_LEDGER.md` 2026-09-04). All SP-032/
+SP-033 gate states, `beta-readiness.json`, and `release_candidate` are
+unchanged and remain blocked/out-of-scope per ADR-049/053.
+
 ## SP-032 FINAL reconciliation — blocked, 2026-09-02
 
 `EV-SP-032-20260902-FINAL-RECONCILIATION-01` records the edit-only reconciliation

@@ -72,12 +72,25 @@ struct AuraAccessibilityIdentifierTests {
         AuraAccessibilityID.integrationConnect(capability),
         AuraAccessibilityID.integrationGrant(capability),
         AuraAccessibilityID.integrationRevoke(capability),
+        AuraAccessibilityID.integrationEnable(capability),
+        AuraAccessibilityID.integrationSettings(capability),
+        AuraAccessibilityID.integrationReconnect(capability),
       ]
       for control in controls {
         #expect(control.contains(capability))
         #expect(seen.insert(control).inserted)
       }
     }
+  }
+
+  /// The screen-observation row's two remediation controls are stable and
+  /// distinct: the request button raises the macOS prompt, the settings
+  /// button deep-links the pane that owns a recorded decision.
+  @Test("screen-observation remediation identifiers are stable and distinct")
+  func screenObservationIdentifiersAreStable() {
+    #expect(AuraAccessibilityID.screenObservationGrant != AuraAccessibilityID.screenObservationSettings)
+    #expect(AuraAccessibilityID.screenObservationGrant.hasPrefix("aura.perm.screenObservation"))
+    #expect(AuraAccessibilityID.screenObservationSettings.hasPrefix("aura.perm.screenObservation"))
   }
 }
 

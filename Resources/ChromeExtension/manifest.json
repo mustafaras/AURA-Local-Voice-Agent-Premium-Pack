@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "AURA Chrome Read Bridge",
+  "version": "1.0.1",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAstH5ughFVieH2Wj7LaaYvcW3905Me62a95Wwy0M6N86TX0KPsUATvo993cEw7NSp+fFzN+mF5UID63xB4fOFCxwOHuFOym6kkdsfQEQp153hVmLzqGvfWNiIiViqAfX18vuqfeQZlb0WykFIDqjWtWeyIhcgXrjho6LgtU8VutftKUQz8WqzJKmNQqti1e9aRNoKfA1UL0Ibg3slCNuwUbQyw/TGREIFLS/f+4wl0fDTKzhZ2Hbt0C/piIefCMFFpi287nFfgbrl3v6zwvxd938JDVJtQ7SxfeEtl6NxrcDFMWtQ/lADB9g8vaduCF6N9p2JRix2cZyrhkvGjIHXfQIDAQAB",
+  "description": "Read-only bridge that sends the active tab's visible text to the AURA app when the user clicks the toolbar button. It never reads cookies, passwords, or hidden page state, and it never executes arbitrary page scripts.",
+  "permissions": [
+    "nativeMessaging",
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Send this tab's visible text to AURA"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Send the active tab to AURA"
+    }
+  }
+}

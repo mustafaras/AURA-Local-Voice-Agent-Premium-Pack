@@ -4,6 +4,7 @@ import AuraConfig
 import AuraCore
 import AuraIntent
 import AuraMemory
+import AuraProductivity
 import AuraStore
 import Foundation
 
@@ -35,14 +36,94 @@ extension AuraAppModel {
       (" access has not been granted yet.", " erişimi henüz verilmedi."),
       (" access is denied for AURA.", " erişimi AURA için reddedildi."),
       (" reported an unrecognized authorization state.", " tanınmayan bir yetkilendirme durumu bildirdi."),
-      ("Safari bridge key store is unavailable", "Safari köprüsü anahtar deposu kullanılamıyor"),
-      ("Safari bridge is not provisioned for this profile", "Safari köprüsü bu profil için sağlanmadı"),
-      ("Safari extension or shared container is unavailable", "Safari uzantısı veya paylaşılan kapsayıcı kullanılamıyor"),
-      ("Safari bridge observation is stale", "Safari köprüsü gözlemi güncel değil"),
-      ("Safari bridge profile does not match the approved profile", "Safari köprüsü profili onaylanan profille eşleşmiyor"),
-      ("Safari bridge authentication failed", "Safari köprüsü kimlik doğrulaması başarısız"),
-      ("Safari extension sent a malformed observation", "Safari uzantısı bozuk bir gözlem gönderdi"),
-      ("Safari bridge is unavailable", "Safari köprüsü kullanılamıyor"),
+      ("Set productivity.calendarReadEnabled to enable calendar reads.",
+       "calendarReadEnabled değerini etkinleştirin (Settings › Yapılandırma)."),
+      ("Set productivity.contactsReadEnabled to enable contacts reads.",
+       "contactsReadEnabled değerini etkinleştirin (Settings › Yapılandırma)."),
+      ("Grant Calendar access, then macOS will ask you to confirm.",
+       "Takvim erişimini verin; macOS onayınızı isteyecek."),
+      ("Grant Contacts access, then macOS will ask you to confirm.",
+       "Kişiler erişimini verin; macOS onayınızı isteyecek."),
+      ("Allow AURA in System Settings › Privacy & Security › Calendars.",
+       "Sistem Ayarları › Gizlilik ve Güvenlik › Takvimler'de AURA'ya izin verin."),
+      ("Allow AURA in System Settings › Privacy & Security › Contacts.",
+       "Sistem Ayarları › Gizlilik ve Güvenlik › Kişiler'de AURA'ya izin verin."),
+      ("Re-check Calendar access in System Settings.",
+       "Takvim erişimini Sistem Ayarları'ndan yeniden kontrol edin."),
+      ("Re-check Contacts access in System Settings.",
+       "Kişiler erişimini Sistem Ayarları'ndan yeniden kontrol edin."),
+      ("Chrome bridge key store is unavailable", "Chrome köprüsü anahtar deposu kullanılamıyor"),
+      ("Chrome bridge is not connected", "Chrome köprüsü bağlı değil"),
+      ("Chrome extension or shared container is unavailable", "Chrome uzantısı veya paylaşılan kapsayıcı kullanılamıyor"),
+      ("Chrome bridge observation is stale", "Chrome köprüsü gözlemi güncel değil"),
+      ("Chrome bridge profile does not match the approved profile", "Chrome köprüsü profili onaylanan profille eşleşmiyor"),
+      ("Chrome bridge authentication failed", "Chrome köprüsü kimlik doğrulaması başarısız"),
+      ("Chrome extension sent a malformed observation", "Chrome uzantısı bozuk bir gözlem gönderdi"),
+      ("Chrome bridge is unavailable", "Chrome köprüsü kullanılamıyor"),
+      ("The Chrome read bridge is not configured.", "Chrome okuma köprüsü yapılandırılmadı."),
+      ("Reinstall the bundled Chrome bridge.", "Paketli Chrome köprüsünü yeniden kurun."),
+      ("Connect Chrome to pin the local extension key.", "Yerel uzantı anahtarını sabitlemek için Chrome'u bağlayın."),
+      ("Enable AURA Chrome Read Bridge, then press Command-Shift-Y on a page.", "AURA Chrome Read Bridge'i etkinleştirin, sonra bir sayfada Komut-Shift-Y'ye basın."),
+      ("the AURA Chrome extension has not published a key yet; "
+       + "enable AURA Chrome Read Bridge, open a page, press Command-Shift-Y, then connect",
+       "AURA Chrome uzantısı henüz anahtar yayınlamadı; uzantıyı etkinleştirin, "
+       + "bir sayfa açıp Komut-Shift-Y'ye basın, sonra bağlayın"),
+      ("the AURA Safari extension has not published a key yet; "
+       + "open a page and click its toolbar button once, then connect",
+       "AURA Safari uzantısı henüz anahtar yayınlamadı; Safari'de bir sayfa "
+       + "açıp araç çubuğundaki AURA düğmesine bir kez basın, sonra tekrar bağlayın"),
+      ("the AURA Safari extension has not published a key yet; "
+       + "enable it in Safari Settings › Extensions, open a page, click its "
+       + "toolbar button once, then connect",
+       "AURA Safari uzantısı henüz anahtar yayınlamadı; Safari Ayarları › "
+       + "Uzantılar'dan etkinleştirin, bir sayfa açıp AURA düğmesine bir kez "
+       + "basın, sonra tekrar bağlayın"),
+      ("Chrome connection failed: ", "Chrome bağlantısı başarısız: "),
+      ("Gmail connection failed: ", "Gmail bağlantısı başarısız: "),
+      ("Access request failed: ", "Erişim isteme başarısız: "),
+      ("Enable failed: ", "Etkinleştirme başarısız: "),
+      ("Disconnect failed: ", "Bağlantıyı kesme başarısız: "),
+      ("Chrome connected; the read bridge is provisioned.",
+       "Chrome bağlandı; okuma köprüsü sağlandı."),
+      ("Opening the Gmail read-only authorization page.",
+       "Gmail salt-okunur yetkilendirme sayfası açılıyor."),
+      ("Gmail read-only integration connected.",
+       "Gmail salt-okunur entegrasyonu bağlandı."),
+      ("Calendar access granted.", "Takvim erişimi verildi."),
+      ("Contacts access granted.", "Kişiler erişimi verildi."),
+      ("Calendar access was not granted.", "Takvim erişimi verilmedi."),
+      ("Contacts access was not granted.", "Kişiler erişimi verilmedi."),
+      ("Calendar enabled; grant access when macOS asks.",
+       "Takvim etkinleştirildi; macOS sorduğunda izin verin."),
+      ("Contacts enabled; grant access when macOS asks.",
+       "Kişiler etkinleştirildi; macOS sorduğunda izin verin."),
+      ("If the toggle is on in System Settings, quit and reopen AURA once "
+       + "to pick up screen observation.",
+       "Sistem Ayarları'nda anahtar açıksa, ekran gözlemini almak için AURA'yı "
+       + "bir kez kapatıp yeniden açın."),
+      ("The Safari read bridge is not configured.", "Safari okuma köprüsü yapılandırılmadı."),
+      ("Set a Safari profile and shared container path in configuration.",
+       "Yapılandırmada Safari profili ve paylaşılan kapsayıcı yolu ayarlayın."),
+      ("Connect the Safari profile in Setup to provision the bridge secret.",
+       "Köprü gizli anahtarını sağlamak için Kurulum'da Safari profilini bağlayın."),
+      ("Install and enable the AURA Safari extension, then open a page to read.",
+       "AURA Safari uzantısını kurup etkinleştirin, sonra bir sayfa açın."),
+      ("No mail account is approved yet.", "Henüz onaylanmış posta hesabı yok."),
+      ("Approve a mail account in Setup, then connect it.",
+       "Kurulum'da bir posta hesabını onaylayın, sonra bağlayın."),
+      ("The mail adapter is not composed in this build.", "Bu sürümde posta bağdaştırıcısı yok."),
+      ("Approve a mail account in configuration to compose the adapter.",
+       "Bağdaştırıcıyı oluşturmak için yapılandırmada bir posta hesabı onaylayın."),
+      ("Connect Gmail to store a read-only credential.",
+       "Salt okunur kimlik bilgisi saklamak için Gmail'i bağlayın."),
+      ("Reconnect Gmail to restore read-only access.",
+       "Salt okunur erişimi geri yüklemek için Gmail'i yeniden bağlayın."),
+      ("Choose which approved account AURA should read.",
+       "AURA'nın okuyacağı onaylı hesabı seçin."),
+      ("Correct the mail endpoint and allowed hosts in configuration.",
+       "Yapılandırmada posta uç noktasını ve izinli ana makineleri düzeltin."),
+      ("Retry once the credential store is reachable.",
+       "Kimlik bilgisi deposuna erişilebilir olduğunda yeniden deneyin."),
     ]
     for (english, turkish) in map where reason.contains(english) {
       return reason.replacingOccurrences(of: english, with: turkish)
@@ -118,12 +199,73 @@ extension AuraAppModel {
       title: title,
       state: state,
       detail: detail,
-      remediation: snapshot.remediation,
+      remediation: localizedReason(snapshot.remediation),
       accountLabel: snapshot.accountLabel,
       isReady: snapshot.isReady,
       isRevocable: snapshot.isRevocable,
       canConnect: snapshot.canConnect,
-      canGrantAccess: snapshot.canGrantAccess)
+      canGrantAccess: snapshot.canGrantAccess,
+      canEnableInConfiguration: Self.canEnableInConfiguration(snapshot),
+      canOpenSystemSettings: Self.settingsAnchor(for: snapshot) != nil,
+      systemSettingsAnchor: Self.settingsAnchor(for: snapshot),
+      canReconnect: Self.canReconnect(snapshot),
+      needsMailApproval: Self.needsMailApproval(snapshot))
+  }
+
+  /// The mail row's "approve a mail account" remediation is only honest when
+  /// the row offers the field that performs it. True exactly when the snapshot
+  /// is the no-approved-account state.
+  private static func needsMailApproval(
+    _ snapshot: ProductivityIntegrationSnapshot
+  ) -> Bool {
+    snapshot.capabilityID == InitialCapabilitySet.mailRead.id
+      && snapshot.remediation.contains("Approve a mail account")
+  }
+
+  /// A native leg whose adapters are simply not composed offers a Settings
+  /// control; everything else keeps its snapshot-defined actions.
+  private static func canEnableInConfiguration(
+    _ snapshot: ProductivityIntegrationSnapshot
+  ) -> Bool {
+    guard snapshot.remediation.contains("productivity.") else { return false }
+    return snapshot.capabilityID == InitialCapabilitySet.calendarRead.id
+      || snapshot.capabilityID == InitialCapabilitySet.contactsLookup.id
+  }
+
+  /// The System Settings privacy pane that owns a denied TCC decision.
+  private static func settingsAnchor(
+    for snapshot: ProductivityIntegrationSnapshot
+  ) -> String? {
+    switch snapshot.capabilityID {
+    case InitialCapabilitySet.calendarRead.id:
+      return snapshot.remediation.contains("System Settings") ? "Calendars" : nil
+    case InitialCapabilitySet.contactsLookup.id:
+      return snapshot.remediation.contains("System Settings") ? "Contacts" : nil
+    default:
+      return nil
+    }
+  }
+
+  /// An expired/revoked Gmail credential is one reconnection away, so the row
+  /// offers the same OAuth flow the first connect uses. The check reads the
+  /// *reason* (the snapshot's own English diagnostic key) rather than the
+  /// remediation, so the flag cannot depend on which remediation sentence the
+  /// surface happens to show.
+  private static func canReconnect(_ snapshot: ProductivityIntegrationSnapshot) -> Bool {
+    guard snapshot.capabilityID == InitialCapabilitySet.mailRead.id else { return false }
+    if case .degraded(let reason) = snapshot.availability {
+      return reason.contains("credential")
+    }
+    return false
+  }
+
+  /// Test-only passthrough of the private row projection. The projection
+  /// rules are the product contract for "a blocked row is never a dead end",
+  /// so the suite pins them exactly as the UI consumes them.
+  func integrationRowForTesting(
+    _ snapshot: ProductivityIntegrationSnapshot
+  ) -> AuraIntegrationRow {
+    integrationRow(snapshot)
   }
 
   private func memoryRow(_ record: MemoryRecord) -> AuraMemoryRow {
@@ -321,7 +463,7 @@ extension AuraAppModel {
 
   /// Connect whichever integration the row names.
   ///
-  /// Mail runs the user-present OAuth flow; the Safari profile provisions the
+  /// Mail runs the user-present OAuth flow; Chrome provisions the
   /// bridge secret its extension's native half signs with. The provisioned
   /// secret is deliberately dropped here rather than shown: the native half
   /// reads it from the Keychain itself, so putting it on screen would expose a
@@ -334,11 +476,22 @@ extension AuraAppModel {
           guard let kernel else {
             throw AuraError.invalidConfiguration("AURA runtime is not started")
           }
+          // When the extension has never run, there is no key to pin and the
+          // call would fail after its bounded retry window. Send the user to
+          // the exact Safari settings pane FIRST so the enable step is one
+          // click away, then connect (which waits up to ~9s for the toolbar
+          // click to publish the key).
+          if !(try await kernel.safariBridgeHasPublishedKey()) {
+            lastOperationMessage =
+              "Chrome açılıyor: AURA Chrome Read Bridge'i etkinleştirin, bir "
+              + "sayfada Komut-Shift-Y'ye basın; bağlama kendiliğinden tamamlanacak."
+            try await ChromeBridgeSetup.relaunchChromeForBridge()
+          }
           _ = try await kernel.connectConfiguredBrowserProfile()
-          lastOperationMessage = "Safari profile connected; the read bridge is provisioned."
+          lastOperationMessage = "Chrome connected; the read bridge is provisioned."
           refreshProductSnapshots()
         } catch {
-          setError("Safari profile connection failed: \(error.localizedDescription)")
+          setError("Chrome connection failed: \(error.localizedDescription)")
         }
       }
     default:
@@ -348,6 +501,11 @@ extension AuraAppModel {
 
   /// Start the only user-facing Gmail enrollment path. Token material stays
   /// inside the kernel/coordinator and never enters this observable model.
+  ///
+  /// When no mailbox is approved yet, the row shows an inline approval field
+  /// instead of this flow; `approveMailAccount` hands the address to the
+  /// kernel first, and the OAuth connect runs immediately afterwards so the
+  /// row goes from "not connected" to the provider consent page in one tap.
   func connectMailIntegration() {
     Task {
       do {
@@ -360,6 +518,29 @@ extension AuraAppModel {
         refreshProductSnapshots()
       } catch {
         setError("Gmail connection failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  /// Approve the address typed into the mail row's inline field, then start
+  /// the OAuth connect. The address is held only long enough to validate and
+  /// persist; it is never logged and the field clears either way.
+  func approveAndConnectMail(address: String) {
+    let trimmed = address.trimmingCharacters(in: .whitespacesAndNewlines)
+    mailApprovalAddress = ""
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        try await kernel.approveMailAccount(address: trimmed)
+        lastOperationMessage = "Mail account approved; opening the read-only authorization page."
+        try await kernel.connectMailAccountViaOAuth()
+        lastOperationMessage = "Gmail read-only integration connected."
+        refreshProductSnapshots()
+      } catch {
+        setError("Gmail connection failed: \(error.localizedDescription)")
+        refreshProductSnapshots()
       }
     }
   }
@@ -385,6 +566,62 @@ extension AuraAppModel {
         setError("Access request failed: \(error.localizedDescription)")
       }
     }
+  }
+
+  /// Compose a native leg whose configuration gate is off, from the row's
+  /// button. The choice persists in the governed configuration store (user
+  /// settings layer), so it survives restart, and the runtime recomposes so
+  /// the row flips without a relaunch. A `notDetermined` authorization keeps
+  /// the row actionable: the grant button appears next to it immediately.
+  func enableIntegrationInConfiguration(_ row: AuraIntegrationRow) {
+    Task {
+      do {
+        guard let kernel else {
+          throw AuraError.invalidConfiguration("AURA runtime is not started")
+        }
+        let key: String
+        switch row.id {
+        case InitialCapabilitySet.calendarRead.id:
+          key = "calendarReadEnabled"
+        case InitialCapabilitySet.contactsLookup.id:
+          key = "contactsReadEnabled"
+        default:
+          throw AuraError.invalidConfiguration(
+            "that integration has no configuration gate to enable")
+        }
+        try await kernel.setProductivityLegEnabled(key: key, enabled: true)
+        lastOperationMessage = "\(row.title) enabled; grant access when macOS asks."
+        refreshProductSnapshots()
+      } catch {
+        setError("Enable failed: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  /// Open the System Settings pane that owns a denied native permission.
+  func openNativeIntegrationSettings(anchor: String) {
+    PermissionCoordinator.openPrivacySettings(anchor: anchor)
+  }
+
+  /// Turkish rendering of the operation/status messages this surface sets.
+  /// The runtime strings stay English internal keys, exactly like
+  /// `localizedReason` and `displayStatusDetail`; this maps the known set so
+  /// the user's own language shows on the buttons' result line too.
+  func localizedOperationMessage(_ message: String) -> String {
+    guard productUIState.language == .turkish else { return message }
+    for (english, turkish) in [
+      ("Chrome connected; the read bridge is provisioned.",
+       "Chrome bağlandı; okuma köprüsü sağlandı."),
+      ("Gmail read-only integration connected.",
+       "Gmail salt-okunur entegrasyonu bağlandı."),
+      (" access granted.", " erişimi verildi."),
+      (" access was not granted.", " erişimi verilmedi."),
+      (" enabled; grant access when macOS asks.",
+       " etkinleştirildi; macOS sorduğunda izin verin."),
+    ] where message.contains(english) {
+      return message.replacingOccurrences(of: english, with: turkish)
+    }
+    return message
   }
 
   func deleteMemory(_ id: UUID) {

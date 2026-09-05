@@ -91,7 +91,18 @@ extension AuraAppModel {
   }
 
   func requestScreenRecordingPermission() {
-    permissions = PermissionCoordinator.requestScreenRecordingPermission()
+    Task {
+      permissions = await PermissionCoordinator.refreshScreenRecordingPermission()
+      // The user's System Settings pane can show AURA's switch ON while this
+      // still-running process keeps answering "denied": the toggle binds at
+      // next launch. Say so instead of leaving a row that contradicts the
+      // pane the user just set.
+      if permissions.screenRecording != .granted {
+        lastOperationMessage =
+          "If the toggle is on in System Settings, quit and reopen AURA once "
+          + "to pick up screen observation."
+      }
+    }
   }
 
   /// `ptt_ack` sample eligibility and elapsed time, or `nil` when the turn is

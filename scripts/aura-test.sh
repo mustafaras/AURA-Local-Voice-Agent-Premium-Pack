@@ -68,6 +68,16 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 COVERAGE_SCOPE_FILE="$ROOT/scripts/aura-coverage-scope.regex"
 
+if [[ -z "$FILTER" || "$FILTER" == "AURAIntegrationTests" ]]; then
+    NODE_BINARY="$(command -v node 2>/dev/null || true)"
+    if [[ -z "$NODE_BINARY" || ! -x "$NODE_BINARY" ]]; then
+        echo "FAILED: Node.js is required for Chrome extension behavior tests" >&2
+        exit 2
+    fi
+    echo "==> Running Chrome extension behavior tests"
+    "$NODE_BINARY" --test scripts/tests/chrome-extension-background.test.js
+fi
+
 BUILD_ARGS=(--build-path "$BUILD_PATH")
 if [[ "$ENABLE_COVERAGE" == "1" ]]; then
     BUILD_ARGS+=(--enable-code-coverage)

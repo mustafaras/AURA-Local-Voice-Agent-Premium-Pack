@@ -29,7 +29,7 @@ extension ToolRouter {
     let profileID = intent.slotValue(IntentSlotName.profileID)
     return await runProductivityRead(
       intent, contract: contract, executionContext: executionContext,
-      target: PolicyTarget(appID: "com.apple.Safari")
+      target: PolicyTarget(appID: "com.google.Chrome")
     ) { reader in
       await reader.readActiveBrowserTab(profileID: profileID)
     }

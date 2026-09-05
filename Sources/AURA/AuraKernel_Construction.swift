@@ -368,12 +368,12 @@ extension AuraKernel {
       // now runs after construction; see `probeExternalAvailability`.
       await foundation.runtimeHealthRegistry.record(
         componentID: "safari-bridge", status: .loading,
-        detail: "Safari read bridge constructed; trust path not checked yet")
+        detail: "Chrome read bridge constructed; trust path not checked yet")
     } catch {
       self.safariBridgeRuntime = nil
       await foundation.runtimeHealthRegistry.record(
         componentID: "safari-bridge", status: .configurationInvalid,
-        detail: "Safari read bridge could not be constructed: \(error.localizedDescription)")
+        detail: "Chrome read bridge could not be constructed: \(error.localizedDescription)")
     }
 
     // SP-010: compose the remaining read-first integrations around the same
