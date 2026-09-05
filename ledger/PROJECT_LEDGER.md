@@ -23,6 +23,10 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Final state:** the canonical repository projection now records final `HEAD == origin/main == a288ed37d7d7b84888c248aafb0b35ef449a9118` with a clean worktree. The functional delivery remains `f324ec815c9ce82e7e09e9912e1494cbc2526dde`; `a288ed3` is the evidence/state synchronization commit.
 - **Boundary:** this synchronization changes no product behavior and does not promote the local-only build to beta, RC, signed/notarized distribution, or public release.
 
+### 2026-09-05T13:08:26Z — Governance projection alignment
+
+- `archive/runtime-completion/state/capability-matrix.json.repository_commit` was aligned to the recorded verified state-sync SHA `a288ed37d7d7b84888c248aafb0b35ef449a9118` after the runtime validator detected the stale historical pointer. This is metadata-only; no product source or readiness claim changed.
+
 ### 2026-09-04T14:45:00Z — CORRECTION: Chrome bootstrap uses its installed extension page
 
 - **Corrects:** the `AURA-CHROME-FIRST-KEY-20260904` `about:blank` bootstrap correction recorded at `2026-09-04T16:45:00Z` local wall time (timestamp ordering defect retained because this ledger is append-only).
