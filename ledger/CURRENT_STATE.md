@@ -1,5 +1,26 @@
 # Current State
 
+## 2026-09-05 — Chrome bridge and Privacy remediation delivered locally
+
+Commit `f324ec815c9ce82e7e09e9912e1494cbc2526dde` is pushed to `main`, and
+`git ls-remote` matches `origin/main` exactly. Direct-main delivery had no open
+PR, so there is no separate merge commit. The release-shaped local bundle,
+including `AuraChromeNativeHost`, built successfully; local signing with
+`AURA Stable Local Signing`, strict signature verification, and a 12-second
+isolated launch smoke passed. The full deterministic Swift runner passed 22
+bundles / 1,353 tests / 0 failures with 70.18% line coverage; Chrome Node
+tests passed 5/5; second-pass, runtime-completion, beta-readiness, JavaScript
+syntax, and diff checks passed.
+
+The standalone 64-test Python governance suite remains exit 1 on the two known
+pre-existing hygiene conditions: `.build` symlink/generated-path visibility and
+one existing fixture secret-shaped marker. GitHub Actions run `33967657829`
+for this exact SHA was still `queued` with no started steps when recorded, so
+CI success is not claimed. `beta-readiness.json` and `release_candidate` remain
+blocked/out-of-scope under ADR-049/053; this delivery is local-only and does
+not represent TCC, OAuth, beta, telemetry, notarization, or public-release
+evidence.
+
 ## 2026-09-04 — UI remediation reachability turn (uncommitted, edit/test authority)
 
 The owner-reported Privacy-tab defects are fixed deterministically: calendar and

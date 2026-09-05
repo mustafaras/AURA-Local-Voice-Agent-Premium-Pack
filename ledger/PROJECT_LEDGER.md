@@ -9,6 +9,15 @@ Append-only. Never edit or delete prior entries. Corrections are new entries tha
 - **Risks:** the worktree contains 34 tracked changes plus untracked Chrome bridge files; accidentally omitting or broadening that scope would make the delivery untruthful. Local deterministic tests cannot close beta, RC, signed/notarized, or external-release gates.
 - **Acceptance criteria:** review the complete diff; run fresh syntax/static/unit/integration/build checks; preserve fail-closed security and privacy boundaries; commit only the intended current scope; push and prove `HEAD == origin/main`; report merge as applicable from live PR state; verify the local deployment directly; leave beta/readiness and external-release claims unchanged.
 
+### 2026-09-05T13:04:18Z — Delivery completed — Chrome bridge and Privacy remediation
+
+- **Commit/push:** created `f324ec815c9ce82e7e09e9912e1494cbc2526dde` (`feat(privacy): add Chrome bridge and reachable remediations`) with 48 scoped files; push to `origin/main` succeeded. Fresh `git ls-remote` proves local `HEAD == origin/main == f324ec815c9ce82e7e09e9912e1494cbc2526dde`; worktree is clean.
+- **Merge:** live `gh pr list --state open --base main` returned `[]`; this was direct-main delivery, so no separate PR or merge commit exists or was fabricated.
+- **Verification:** Chrome Node tests 5/5; full Swift runner 22 bundles, 1,353 tests, 0 failures, 70.18% line coverage; second-pass, runtime-completion, beta-readiness, JavaScript syntax, and diff checks passed. The 64-test Python governance suite exited 1 on two known pre-existing hygiene findings (`.build` generated-path visibility and one existing fixture secret-shaped marker); no new test failure was introduced by this change.
+- **Local deployment:** release-shaped AURA bundle built with `AuraChromeNativeHost`; local signing and `codesign --verify --deep --strict` passed with `AURA Stable Local Signing`; the main process stayed alive for 12 seconds under an isolated home and was then stopped. This is local deployment evidence only; no TCC prompt, OAuth flow, beta, telemetry, notarization, external release, or public deployment was performed.
+- **CI:** AURA CI run `33967657829` was created for the exact SHA and remained `queued` with no started steps when checked; CI success is not claimed.
+- **Canonical state:** `beta-readiness.json` and `release_candidate` remain blocked/out-of-scope under ADR-049/053. Next safe action is to inspect the queued Actions run later and perform the owner-run Privacy/Chrome live check if desired.
+
 ### 2026-09-04T14:45:00Z — CORRECTION: Chrome bootstrap uses its installed extension page
 
 - **Corrects:** the `AURA-CHROME-FIRST-KEY-20260904` `about:blank` bootstrap correction recorded at `2026-09-04T16:45:00Z` local wall time (timestamp ordering defect retained because this ledger is append-only).
