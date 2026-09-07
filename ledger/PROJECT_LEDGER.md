@@ -6012,3 +6012,19 @@ delivery is explicitly excluded; local-only claims remain truthful.
   extension trust, provider OAuth, VS Code secrets remain unprovisioned owner
   steps; `beta-readiness.json` / `release_candidate` stay `blocked` /
   `approved:false`.
+
+### 2026-09-07T13:30Z — Banner-truthfulness fix delivered (ADR-055 follow-through)
+
+- **Evidence / procedure:** under evidence `EV-ADR-055-20260907-OWNER-ENABLEMENT-01`;
+  functional commit `15d88d85b480b959c72b12ebbdc69b4f1c271df2`. The privacy-tab banner printed "Cloud context is
+  disabled by machine policy" unconditionally although ADR-055 set
+  `allowCloudModels=true`; fixed to resolve from the live machine policy and
+  user preference (policy-disabled / preference-off hint / enabled), with new
+  EN/TR copy keys. Build + `AURA Stable Local Signing` + strict verification
+  PASSED; installed to `/Applications` locally.
+- **Verdict / class:** local-observed deterministic fix; app-target-only (no
+  test bundle imports the app target). Lint warnings on the two view files are
+  pre-existing on `HEAD`.
+- **Exact next action:** observe CI for this SHA; remaining owner provisioning
+  (VS Code shared secret, Gmail OAuth approval, Chrome extension enable)
+  unchanged.
