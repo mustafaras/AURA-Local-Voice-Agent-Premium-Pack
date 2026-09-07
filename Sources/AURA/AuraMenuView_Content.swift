@@ -192,7 +192,8 @@ extension AuraMenuView {
       sectionTitle("conversation.title", symbol: "bubble.left.and.bubble.right")
       Label(copy("conversation.local"), systemImage: "lock.fill")
         .foregroundStyle(.secondary)
-        .accessibilityLabel("\(copy("conversation.local")). \(copy("conversation.cloudDisabled"))")
+        .accessibilityLabel(
+          "\(copy("conversation.local")). \(model.cloudContextStatusLabel)")
       if model.isVSCodeBridgeAcceptanceEnabled {
         GroupBox(copy("vscode.bridge")) {
           VStack(alignment: .leading, spacing: 8) {

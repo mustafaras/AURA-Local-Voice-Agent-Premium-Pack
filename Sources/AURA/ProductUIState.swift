@@ -320,6 +320,14 @@ enum AuraCopy {
       .english: "Cloud context is disabled by machine policy",
       .turkish: "Bulut bağlamı makine politikasıyla devre dışı",
     ],
+    "conversation.cloudPreferenceOff": [
+      .english: "Cloud context is off in preferences — turn on \"Allow remote context\" below",
+      .turkish: "Bulut bağlamı tercihte kapalı — aşağıdaki \"Allow remote context\" düğmesini açın",
+    ],
+    "conversation.cloudAvailable": [
+      .english: "Cloud context enabled",
+      .turkish: "Bulut bağlamı etkin",
+    ],
     "a11y.tracePrefix": [.english: "Trace", .turkish: "İz"],
     "a11y.diagnosticPrefix": [.english: "Diagnostic", .turkish: "Tanılama"],
     "a11y.correctedMemory": [

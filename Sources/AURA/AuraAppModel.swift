@@ -99,6 +99,23 @@ final class AuraAppModel: ObservableObject {
   @Published var memorySearchText = ""
   @Published var memoryPreferenceProfile = UserPreferenceProfile()
   @Published var hasSavedMemoryPreference = false
+  /// ADR-055: mirrors `configuration.ollama.allowCloudModels` — the machine
+  /// policy bound that decides whether the cloud-context banner claims the
+  /// machine policy or the user preference is what keeps local-only on.
+  @Published var isCloudContextPolicyAllowed = false
+
+  /// The cloud-context status label resolved against the live machine policy
+  /// and the user preference, so the UI never shows a stale static claim.
+  var cloudContextStatusLabel: String {
+    if !isCloudContextPolicyAllowed {
+      return AuraCopy.text("conversation.cloudDisabled", language: productUIState.language)
+    }
+    if memoryPreferenceProfile.localOnly {
+      return AuraCopy.text(
+        "conversation.cloudPreferenceOff", language: productUIState.language)
+    }
+    return AuraCopy.text("conversation.cloudAvailable", language: productUIState.language)
+  }
   @Published var conversationMessages: [AuraConversationMessage] = []
   @Published var partialTranscript = ""
   @Published var lastPlanSummary: String?

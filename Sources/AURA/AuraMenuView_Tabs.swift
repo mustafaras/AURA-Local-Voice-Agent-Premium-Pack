@@ -387,8 +387,16 @@ extension AuraMenuView {
             )
             .accessibilityIdentifier(AuraAccessibilityID.screenObservationSettings)
           }
-          Label(copy("conversation.cloudDisabled"), systemImage: "icloud.slash")
-            .fixedSize(horizontal: false, vertical: true)
+          if !model.isCloudContextPolicyAllowed {
+            Label(copy("conversation.cloudDisabled"), systemImage: "icloud.slash")
+              .fixedSize(horizontal: false, vertical: true)
+          } else if model.memoryPreferenceProfile.localOnly {
+            Label(copy("conversation.cloudPreferenceOff"), systemImage: "icloud")
+              .fixedSize(horizontal: false, vertical: true)
+          } else {
+            Label(copy("conversation.cloudAvailable"), systemImage: "icloud.fill")
+              .fixedSize(horizontal: false, vertical: true)
+          }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
       }

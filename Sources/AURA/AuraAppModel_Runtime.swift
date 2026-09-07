@@ -28,6 +28,10 @@ extension AuraAppModel {
       configuration.productivity.safariExtensionID = "com.aura.safari-extension"
       configuration.productivity.safariProfileID = "personal"
       try configuration.validate()
+      // ADR-055: the banner's machine-policy bound is fixed at the same point
+      // the configuration is validated, so the UI claim always matches the
+      // policy the kernel actually runs with.
+      isCloudContextPolicyAllowed = configuration.ollama.allowCloudModels
       do {
         try ChromeBridgeInstaller.install(productivity: configuration.productivity)
       } catch {
