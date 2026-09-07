@@ -6028,3 +6028,33 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Exact next action:** observe CI for this SHA; remaining owner provisioning
   (VS Code shared secret, Gmail OAuth approval, Chrome extension enable)
   unchanged.
+
+### 2026-09-07T13:12Z — First CI execution observed (self-hosted runner provisioned)
+
+- **Infrastructure:** owner registered a local self-hosted Actions runner
+  (v2.337.0, labels `self-hosted,macOS,swift-6.4`) after it was established
+  that this repository had zero registered runners — every prior CI run
+  (Sep 3/5 included) had sat in queue and auto-cancelled near the 24 h mark
+  without executing a single step.
+- **Results:** run `34102378171` (SHA `2901775`) FAILURE; run `34113480042`
+  (SHA `82dd023`) FAILURE; run `34120676888` (SHA `34b2701`, current
+  `origin/main` head) SUCCESS — `governance` and `build-and-test` jobs both
+  executed on the runner.
+- **Failure analysis:** both failures are the governance validator's
+  `remote_head` lag, not code defects. Each run validates the state file
+  checked out at its own SHA, whose recorded `remote_head` still pointed at
+  an earlier push; the delta to the live head contained non-projection
+  (source) changes for the two intermediate SHAs
+  (`a288ed3..2901775` and `2901775..82dd023` with the `fix(ui)` banner
+  commit between). The current head `34b2701` validates clean because its
+  delta from the recorded `remote_head` (`82dd023`) is projection-only.
+  No source regression: the pushed final state is CI-green.
+- **Verdict / class:** CI-observed on owner-provisioned hardware; first
+  genuine Actions execution in repository history. Honest-queue note: the
+  two failed runs are ancestors of a CI-green head and required no code
+  change.
+- **Exact next action:** record this entry + `updated_at` projection in the
+  record commit, then the remote-head pointer commit, with the owner's
+  explicit per-turn commit/push approval; remaining owner provisioning
+  (VS Code shared secret, Gmail OAuth approval, Chrome extension enable)
+  unchanged.
