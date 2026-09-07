@@ -1,4 +1,31 @@
 # Current State
+## 2026-09-07 — ADR-055 owner-directed local enablement (uncommitted, edit/test authority)
+
+All disabled capabilities are now enabled for local use under
+`docs/decisions/ADR-055-owner-directed-local-enablement.md` (blocker group 1)
+and the five `AuraAgentTests` timing flakes are removed with event-driven waits
+(blocker group 2); external distribution stays out of scope under ADR-049 and
+the owner's explicit 2026-09-07 direction. Computer use runs with the open
+allowlist (`allowsAllApplications: true`) behind a mutation-tier confirmation;
+the 9 destructive lifecycle capabilities and `task.delete` are seeded
+confirmation-free as an owner-instructed local risk acceptance (launch-at-login
+keeps `.confirm`); Ollama cloud inference is enabled with an `.always`
+confirmation; screen context ships enabled; the browser host scope defaults to
+all-hosts; the network allowlist supports an explicit `*` wildcard while an
+empty set still denies all.
+
+Verification so far: the full deterministic runner passed **22 bundles / 0
+failed / 1,358 tests** on a fresh build, with `AuraAgentTests` re-run three
+times and `AuraTasksTests` 16/16 after the wait rewrite. Five missed
+enablement pins exposed by the first full run were corrected truthfully.
+Governance records (ADR-055, capability-matrix rows, beta-readiness scope,
+current-state, decision register, evidence index, project ledger, this file,
+operational handoff) are updated; validators are re-run after the last record
+edit. Wake word, Safari extension trust, provider OAuth, VS Code secrets, and
+cloud-model account provisioning remain unprovisioned owner steps;
+`beta-readiness.json` / `release_candidate` stay `blocked` / `approved:false`;
+no live, beta, signed, notarized, or external-release claim is made.
+
 
 ## 2026-09-05 — Chrome bridge and Privacy remediation delivered locally
 

@@ -33,14 +33,13 @@
     "excluded": [
       "real_wake_word",
       "neural_voice",
-      "computer_use",
       "mail_send",
       "plugins",
       "remote_agents",
       "signed_updates",
       "launch_at_login"
     ],
-    "rationale": "No beta capability is enabled before its direct gate passes."
+    "rationale": "No beta capability is enabled before its direct gate passes. Computer use is enabled for LOCAL use only under ADR-055 (owner-directed risk acceptance, 2026-09-07); the external-beta scope is unchanged because external release remains out of scope under ADR-049, and launch_at_login keeps its confirmation gate."
   },
   "telemetry": {
     "enabled": false,

@@ -1,7 +1,7 @@
 {
   "$schema": "../schemas/session-handoff.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-09-03T12:30:00Z",
+  "updated_at": "2026-09-07T08:23:07Z",
   "session_id": "AURA-SP-033-SYNTHETIC-ACCEPTED-20260903",
   "last_verified_commit": "9d9b50246494da1116b27d5df833d23db1b0e9d8",
   "active_prompt": {
@@ -80,7 +80,7 @@
     "RISK-CUA-BRIDGE-SERVICE-CRASH",
     "RISK-SP-030-LIVE-BETA-DEFERRED-BY-SCOPE"
   ],
-  "next_action": "Second-pass chain SP-000-SP-033 is COMPLETE under ADR-053 synthetic-accepted scope. beta-readiness.json / release_candidate remain blocked and approved:false (no external signed-notarized artifact; ADR-049; release authority off). External distribution, if ever needed, requires a new ADR and cannot be derived from this completion.",
+  "next_action": "Second-pass chain SP-000-SP-033 is COMPLETE under ADR-053 synthetic-accepted scope. beta-readiness.json / release_candidate remain blocked and approved:false (no external signed-notarized artifact; ADR-049; release authority off). External distribution, if ever needed, requires a new ADR and cannot be derived from this completion. Follow-up (2026-09-07): ADR-055 owner-directed local enablement delivered — computer use with an open allowlist (all applications), destructive lifecycle + task.delete without a confirmation challenge, Ollama cloud inference, screen capture default-on; wake word, Safari extension trust, and provider OAuth remain owner provisioning steps or excluded.",
   "required_first_reads": [
     "README.md",
     "ledger/CURRENT_STATE.md",
@@ -95,5 +95,5 @@
     "archive/runtime-completion/state/EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01.md",
     "docs/decisions/ADR-053-live-evidence-synthetic-scope.md"
   ],
-  "notes": "Use SECOND_PASS_LEDGER.md and the append-only program/project ledgers for history. SP-033 completion evidence is EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01 under ADR-053. This handoff is a bounded current projection; no raw/private content was recorded."
+  "notes": "Use SECOND_PASS_LEDGER.md and the append-only program/project ledgers for history. SP-033 completion evidence is EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01 under ADR-053. This handoff is a bounded current projection; no raw/private content was recorded. ADR-055 (2026-09-07) is the explicit reopen decision for the previously .disabled capabilities; its owner waivers are local-only and not transferable."
 }

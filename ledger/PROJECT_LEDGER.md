@@ -5980,3 +5980,35 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Evidence / procedure:** `EV-SP-033-20260903-SYNTHETIC-ACCEPTED-01`. Owner-instructed scope decision `docs/decisions/ADR-053-live-evidence-synthetic-scope.md` (2026-09-03): live-user acceptance not required; gates blocked solely on absent live evidence closed with synthetic/deterministic/local-observed evidence at its true evidence class. `validate_second_pass_program.py` PASSED; unit tests PASSED; SP-033 → `completed`; `SECOND_PASS_STATE.json` `program_status=completed`; all projections synchronized.
 - **Verdict / class:** scope-decision + process + deterministic governance. The second-pass chain SP-000–SP-033 is COMPLETE for the synthetic-accepted local scope. No synthetic evidence is relabeled as live/beta/signed/notarized/production.
 - **Exact next action / boundary:** `beta-readiness.json` / `release_candidate` remain `blocked` / `approved:false` (`release_or_deploy:false`; ADR-049 keeps Developer ID/notarization/external distribution out of scope). External distribution, if ever required, needs a new ADR and cannot be derived from this closure. Falsifier = any synthetic→live/release promotion claim.
+
+### 2026-09-07 — ADR-055 owner-directed local enablement; blocker groups 1+2 closed (local scope)
+
+- **Evidence / procedure:** `EV-ADR-055-20260907-OWNER-ENABLEMENT-01`; decision
+  `docs/decisions/ADR-055-owner-directed-local-enablement.md`. Owner directed
+  (2026-09-07): external distribution out of scope (app stays local, ADR-049
+  unchanged); all disabled capabilities enabled; computer-use allowlist open to
+  all applications; destructive lifecycle confirmation-free; Ollama cloud
+  inference enabled. `computerUse.run` seeded `.forRiskTier(.mutation)`;
+  9 lifecycle capabilities + `task.delete` seeded `.none` (owner-instructed
+  local risk acceptance; `lifecycle.launchAtLogin` keeps `.confirm`);
+  `agentOllamaCloudInference` seeded `.always`; `allowCloudModels`,
+  `screen.enabled` default-on; `safariAllowedHosts` all-hosts; network `*`
+  wildcard supported, empty set still denies all. Five missed enablement test
+  pins corrected; five capture actors + three cancel gates converted to
+  event-driven waits (10 s bound); stale "21-bundle" runner comment corrected
+  to 22.
+- **Verdict / class:** owner scope-decision + deterministic +
+  integration-simulated + adversarial test evidence (local). Full
+  `./scripts/aura-test.sh` matrix: **22 bundles PASSED / 0 failed / 1,358
+  tests** (fresh build); `AuraAgentTests` re-run three times and
+  `AuraTasksTests` 16/16 after the wait rewrite; `swift-format lint` clean
+  beyond five pre-existing warnings. Python governance suite 63/64 with the
+  single expected dirty-worktree error resolving at the delivery commit.
+- **Exact next action:** runtime-completion, second-pass, repo-hygiene, and
+  supply-chain validators re-run after the last record edit (results recorded
+  by the next ledger entry); live acceptance (build→sign→install→launch, in-app
+  TCC grants, computer-use smoke, safe lifecycle calls); CI observation; then
+  the delivery commit with the owner's explicit go-ahead. Wake word, Safari
+  extension trust, provider OAuth, VS Code secrets remain unprovisioned owner
+  steps; `beta-readiness.json` / `release_candidate` stay `blocked` /
+  `approved:false`.

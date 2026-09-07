@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-09-05T13:08:26Z",
-  "repository_commit": "a288ed37d7d7b84888c248aafb0b35ef449a9118",
+  "updated_at": "2026-09-07T00:00:00Z",
+  "repository_commit": "39d5902e4d09eaeb6faf4bb57b3efc58dddc0876",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -294,10 +294,10 @@
       ],
       "dependencies": [],
       "open_gaps": [
-        "Not connected to production dialogue, NLU, or computer-use planning; network enforcement and live model evidence required."
+        "Not connected to production dialogue, NLU, or computer-use planning; network enforcement remains partial and live model evidence is required. ADR-055 (2026-09-07) enabled Ollama cloud models (allowCloudModels defaults true); the seeded agent.ollamaCloudInference grant requires confirmation on every request."
       ],
       "evidence_ids": [],
-      "notes": "Strong adapter foundation."
+      "notes": "Strong adapter foundation. ADR-055 (2026-09-07): cloud inference enabled by owner direction; live cloud-model evidence remains an owner provisioning step."
     },
     {
       "id": "app.lifecycle",
@@ -325,7 +325,7 @@
         "Hardcoded app-name map, limited Turkish aliases, incomplete hide/discovery/open URL/file capabilities."
       ],
       "evidence_ids": [],
-      "notes": "One of the few end-to-end reachable tool paths."
+      "notes": "One of the few end-to-end reachable tool paths. ADR-055 (2026-09-07): the destructive lifecycle subset (reset/uninstall/factory-reset/rollback/update approval/stage/safe-mode) and task.delete run without a confirmation challenge — an owner-instructed local risk acceptance recorded in ADR-055, not a transferable policy default; lifecycle.launchAtLogin keeps its confirmation challenge."
     },
     {
       "id": "shell.typed_execution",
@@ -359,8 +359,8 @@
       "name": "Approved-window screen context and redaction",
       "domain": "screen",
       "implementation_state": "implemented",
-      "runtime_state": "constructed_inactive",
-      "user_path_state": "developer_only",
+      "runtime_state": "registered_ready",
+      "user_path_state": "manual",
       "verification_state": "integration_simulated",
       "risk_tier": "observation",
       "owning_track": "R4",
@@ -372,18 +372,18 @@
       ],
       "dependencies": [],
       "open_gaps": [
-        "No user-facing observation route, no active capability registration, and live redaction/permission matrix incomplete."
+        "No independent user-facing route: the engine is active by default from kernel start under ADR-055 and surfaces through computer-use runs and dialogue context, the in-app Screen Recording TCC grant is still required, and the live redaction/permission matrix remains incomplete."
       ],
       "evidence_ids": [],
-      "notes": "Strong orchestration and zero-retention defaults."
+      "notes": "Strong orchestration and zero-retention defaults. ADR-055 (2026-09-07): ships enabled by default; the TCC grant stays an in-app user action."
     },
     {
       "id": "computer_use.control_loop",
       "name": "Bounded computer-use control loop",
       "domain": "computer_use",
       "implementation_state": "partial",
-      "runtime_state": "constructed_inactive",
-      "user_path_state": "test_only",
+      "runtime_state": "registered_ready",
+      "user_path_state": "manual",
       "verification_state": "integration_simulated",
       "risk_tier": "destructive",
       "owning_track": "R4",
@@ -398,10 +398,10 @@
         "screen.approved_capture"
       ],
       "open_gaps": [
-        "No production planner, voice/UI route, persisted confirmation resume, beta app allowlist, or live end-to-end evidence."
+        "Voice/UI route and persisted confirmation resume remain open. The deterministic planner is reachable via the ADR-055 open allowlist (every application approved); the loop's verify/no-progress/destructive-action guards, emergency stop, secure-field/modal halts, and sensitive-app exclusion are untouched. Live end-to-end evidence beyond bounded fixture smoke is absent."
       ],
       "evidence_ids": [],
-      "notes": "Executor has real Accessibility/CGEvent code but product path is disconnected."
+      "notes": "Executor has real Accessibility/CGEvent code. ADR-055 (2026-09-07): owner-directed open allowlist (all applications); liveValidatedProduction is retained as the record of which apps carry real live evidence, and open-mode entries are not marked live-validated."
     },
     {
       "id": "browser.structured",
@@ -441,7 +441,7 @@
         "EV-SP-011-20260819-NATIVE-LEGS-AND-EXTENSION-08",
         "EV-SP-011-20260819-ASYMMETRIC-BRIDGE-10"
       ],
-      "notes": "Read-only browser.read stays disabled truthfully until the extension is enabled in Safari and writes its first signed observation. The Connect Safari profile control now exists, so the health surface's remediation is reachable. Computer use remains a fallback, not the primary integration."
+      "notes": "Read-only browser.read stays disabled truthfully until the extension is enabled in Safari and writes its first signed observation. The Connect Safari profile control now exists, so the health surface's remediation is reachable. Computer use remains a fallback, not the primary integration. ADR-055 (2026-09-07): the code-side host scope defaults to all-hosts; the Allow unsigned-extensions trust interaction in Safari remains the owner's provisioning step and is never recorded as satisfied."
     },
     {
       "id": "mail.read_draft_send",
@@ -472,7 +472,7 @@
         "EV-SP-010-20260817-COMPOSITION-01",
         "EV-SP-011-20260819-LIVE-GMAIL-CLOSEOUT-07"
       ],
-      "notes": "Gmail read-only is user-reachable and passed direct live acceptance on an approved test account. The current registry state is disabled because the credential and provider grant were revoked at closeout. This combined row remains integration_simulated overall because compose/send is unimplemented and disabled."
+      "notes": "Gmail read-only is user-reachable and passed direct live acceptance on an approved test account. The current registry state is disabled because the credential and provider grant were revoked at closeout. This combined row remains integration_simulated overall because compose/send is unimplemented and disabled. ADR-055 (2026-09-07) changes no code path here: OAuth provisioning remains an owner step and the send-side subset remains unimplemented."
     },
     {
       "id": "calendar.events",
@@ -572,7 +572,7 @@
         "EV-R6-20260808-TYPED-ROUTES-02",
         "EV-SP-012-20260821-LIVE-ACCEPTANCE-02"
       ],
-      "notes": "Must not close dirty editors without bound confirmation; the production file bridge remains unavailable unless authenticated configuration is supplied. SP-012 proved a live authenticated editor/workspace round trip against the installed extension without exposing the shared secret, but the failure-mode and revoke-to-fail-closed legs remain unobserved live."
+      "notes": "Must not close dirty editors without bound confirmation; the production file bridge remains unavailable unless authenticated configuration is supplied. SP-012 proved a live authenticated editor/workspace round trip against the installed extension without exposing the shared secret, but the failure-mode and revoke-to-fail-closed legs remain unobserved live. ADR-055 (2026-09-07) changes no code path here; live extension packaging and shared-secret provisioning remain owner provisioning steps."
     },
     {
       "id": "coding_agent.codex",
@@ -821,7 +821,7 @@
       "evidence_ids": [
         "EV-R10-20260809-BOUNDARY-SLICE-01"
       ],
-      "notes": "Policy object and one client boundary exist; complete enforcement does not."
+      "notes": "Policy object and one client boundary exist; complete enforcement does not. ADR-055 (2026-09-07): an explicit `*` wildcard-all host entry is supported for owner configuration; an empty host set still denies all."
     },
     {
       "id": "security.oauth_keychain",

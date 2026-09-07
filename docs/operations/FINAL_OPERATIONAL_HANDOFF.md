@@ -44,6 +44,17 @@ worktrees and can probe installed agent CLIs.
 
 ## Operational boundaries
 
+> **Update (2026-09-07, ADR-055):** for the LOCAL installation only, the
+> boundary below no longer holds for computer use. ADR-055
+> (`docs/decisions/ADR-055-owner-directed-local-enablement.md`) enables
+> computer use with an open application allowlist, seeds the destructive
+> lifecycle set and `task.delete` confirmation-free as an owner-instructed
+> local risk acceptance, and enables Ollama cloud inference and screen context.
+> Real wake-word, experimental neural voice, mail-send, plugins, remote agents,
+> and signed updates remain excluded until their gates pass, and external
+> distribution stays out of scope (ADR-049). The original boundary text is
+> preserved as the record of the posture at this document's date.
+
 - Keep Push-to-Talk/text paths truthful; real wake-word, experimental neural
   voice, computer-use, mail-send, plugins, remote agents, signed updates, and
   launch-at-login remain excluded until their gates pass.
