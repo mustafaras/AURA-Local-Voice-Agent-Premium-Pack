@@ -87,6 +87,33 @@
         "path": "Tests/AuraLifecycleTests/SupportBundleExporterTests.swift",
         "pattern": "github_token",
         "marker": "REPO_HYGIENE_SECRET_FIXTURE: github_token"
+      },
+      {
+        "path": "Tests/AuraLifecycleTests/SP032LifecycleHarnessTests.swift",
+        "pattern": "github_token",
+        "marker": "REPO_HYGIENE_SECRET_FIXTURE: github_token"
+      }
+    ],
+    "tracked_artifact_allowlist": [
+      {
+        "path": "archive/runtime-completion/state/EV-SP-006-20260816-7SCENARIO-02.entries.log",
+        "reason": "SP-006 live acceptance evidence: appended event log retained in the append-only archive"
+      },
+      {
+        "path": "archive/runtime-completion/state/EV-SP-006-20260816-LIVERERUN-05.entries.log",
+        "reason": "SP-006 live acceptance evidence: appended event log retained in the append-only archive"
+      },
+      {
+        "path": "archive/runtime-completion/state/EV-SP-006-scenario3-quit.png",
+        "reason": "SP-006 live acceptance evidence: scenario screenshot retained in the append-only archive"
+      },
+      {
+        "path": "archive/runtime-completion/state/EV-SP-006-scenarios1-2-ui.png",
+        "reason": "SP-006 live acceptance evidence: scenario screenshot retained in the append-only archive"
+      },
+      {
+        "path": "archive/runtime-completion/state/EV-SP-009-20260817-CORRECTION-02.regression.log",
+        "reason": "SP-009 regression evidence log retained in the append-only archive"
       }
     ],
     "artifact_suffixes_forbidden_when_tracked": [

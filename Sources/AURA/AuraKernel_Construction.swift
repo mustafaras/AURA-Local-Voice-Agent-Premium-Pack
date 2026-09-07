@@ -319,9 +319,11 @@ extension AuraKernel {
         emergencyStop: emergencyStop, secureFieldDetector: secureFieldDetector),
       modalDetector: AccessibilityModalDialogDetector(), secureFieldDetector: secureFieldDetector,
       emergencyStop: emergencyStop, eventBus: eventBus, configuration: configuration.computerUse)
-    // Exactly the apps with direct live evidence; see the declaration for the
-    // evidence ID and the rule for adding an entry.
-    self.computerUseAllowlist = ComputerUseBetaAllowlist.liveValidatedProduction
+    // ADR-055: the owner opened computer use to all applications. The
+    // per-app structural gate is lifted; `liveValidatedProduction` remains
+    // the record of the apps that carry direct live evidence (see the
+    // declaration for the evidence ID).
+    self.computerUseAllowlist = ComputerUseBetaAllowlist.ownerOpenApplications
     await foundation.runtimeHealthRegistry.recordReady(
       "computer-use", detail: "bounded computer-use loop constructed")
     vscodeAdapter = await constructVSCodeAdapter(

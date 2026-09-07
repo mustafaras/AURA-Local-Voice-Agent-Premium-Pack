@@ -124,7 +124,9 @@ func codexAdapterCancelStopsInFlightRun() async throws {
     try await drain(stream)
   }
 
-  try? await Task.sleep(nanoseconds: 50_000_000)
+  // Deterministic: wait until the run is actually parked in the executor's
+  // gate instead of hoping a fixed 50 ms sleep was long enough.
+  await gate.waitUntilHeld()
   await adapter.cancel(correlationID: correlationID)
 
   var threw = false
@@ -166,8 +168,7 @@ func codexTaskRunnerThrowsWhenProcessTimesOutWithoutJSONLFailure() async throws 
 
   _ = try await engine.enqueue(request: TaskRequest(objective: "reply ping"), runner: runner)
 
-  let completed = await capture.waitForEvent(
-    TaskCompletedEvent.self, timeoutNanoseconds: 1_000_000_000)
+  let completed = await capture.waitForEvent(TaskCompletedEvent.self)
   #expect(completed?.outcome == .failed)
 }
 
@@ -198,8 +199,7 @@ func codexTaskRunnerHappyPathCompletesTaskViaEngine() async throws {
     request: TaskRequest(objective: "reply ping"), runner: runner)
   #expect(status.state == .pending)
 
-  let completed = await capture.waitForEvent(
-    TaskCompletedEvent.self, timeoutNanoseconds: 1_000_000_000)
+  let completed = await capture.waitForEvent(TaskCompletedEvent.self)
   #expect(completed?.outcome == .succeeded)
   #expect(await engine.status(id: status.id)?.state == .completed)
 }

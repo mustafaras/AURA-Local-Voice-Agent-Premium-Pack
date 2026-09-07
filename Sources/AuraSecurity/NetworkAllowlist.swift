@@ -23,13 +23,20 @@ public struct NetworkAllowlist: Sendable, Equatable {
     self.allowedHosts = configuration.networkAllowlist
   }
 
-  /// True only when `host` exactly matches an entry, or matches a `*.`
-  /// wildcard entry's domain or one of its subdomains.
+  /// True when `host` matches the literal `*` wildcard-all entry, exactly
+  /// matches an entry, or matches a `*.` wildcard entry's domain or one of
+  /// its subdomains. ADR-055: `*` is the wildcard-all form the AURA
+  /// configuration uses to open the productivity bridge to every host; it
+  /// must be written explicitly — the default (empty) set still denies
+  /// everything.
   public func isAllowed(host: String) -> Bool {
     let normalizedHost = Self.normalizeHost(host)
     guard !normalizedHost.isEmpty else { return false }
     for entry in allowedHosts {
       let normalizedEntry = Self.normalizeHost(entry)
+      if normalizedEntry == "*" {
+        return true
+      }
       if normalizedEntry.hasPrefix("*.") {
         let suffix = String(normalizedEntry.dropFirst())  // ".example.com"
         let bareDomain = String(normalizedEntry.dropFirst(2))  // "example.com"

@@ -75,6 +75,16 @@ func listApprovedWindowsReturnsEmptyWhenDisabled() async throws {
   #expect(callCount == 0)
 }
 
+// MARK: - ADR-055: capture is on by default
+
+@Test
+func captureEnabledByDefaultUnderADR055() {
+  // The master switch is on by default under ADR-055; an explicit
+  // `false` (set in the disabled tests above, or persisted in a profile)
+  // still disables capture.
+  #expect(ScreenContextConfiguration().enabled)
+}
+
 // MARK: - Capture blocking
 
 @Test

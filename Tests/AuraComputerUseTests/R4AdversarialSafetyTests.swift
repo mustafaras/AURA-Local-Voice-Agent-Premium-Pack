@@ -602,3 +602,59 @@ func productionPlannerRefusesUnvalidatedApp() async {
 
   #expect(plan.isEmpty)
 }
+
+// MARK: - ADR-055 open-mode allowlist
+
+@Test("ADR-055: the owner open-mode allowlist approves every application")
+func ownerOpenAllowlistApprovesAllApplications() {
+  let open = ComputerUseBetaAllowlist.ownerOpenApplications
+  // Every bundle identifier is approved, with or without a list entry.
+  for bundleID in [
+    "com.apple.Safari", "com.microsoft.VSCode", "com.apple.iCal", "com.apple.mail",
+    "com.some.unlisted.app",
+  ] {
+    #expect(open.isApproved(bundleID), "\(bundleID) must be approved in open mode")
+  }
+  // The enumerated entries are retained so names still resolve, but none of
+  // them is marked live-validated by enumeration alone — live evidence stays
+  // recorded on `liveValidatedProduction` only.
+  for entry in [
+    "com.apple.finder", "com.apple.Safari", "com.microsoft.VSCode",
+    "com.apple.Terminal", "com.apple.Notes", "com.apple.iCal", "com.apple.mail",
+  ] {
+    #expect(open.app(for: entry) != nil, "\(entry) must still resolve in open mode")
+  }
+  #expect(open.usableBundleIdentifiers.isEmpty)
+  #expect(
+    ComputerUseBetaAllowlist.liveValidatedProduction.usableBundleIdentifiers
+      == ["com.apple.Notes", "com.apple.Terminal", "com.apple.finder"])
+}
+
+@Test("ADR-055: with the open allowlist, the planner's remaining gate is fixture coverage")
+func plannerBuiltOnOpenAllowlistIsGatedOnlyByFixtureCoverage() async {
+  let planner = DeterministicComputerUsePlanner(
+    allowlist: ComputerUseBetaAllowlist.ownerOpenApplications)
+
+  // Finder carries a curated fixture table, so the open allowlist lets the
+  // planner propose for it without any per-app validation state.
+  let finderPlan = await planner.propose(
+    observation: observation(screen: cleanScreen(bundleID: "com.apple.finder")),
+    objective: "focus_search_field", previousSteps: [])
+  #expect(!finderPlan.isEmpty)
+
+  // Safari is approved in open mode but has no fixture table, so the
+  // deterministic planner still stops and clarifies rather than guessing.
+  let safariPlan = await planner.propose(
+    observation: observation(screen: cleanScreen(bundleID: "com.apple.Safari")),
+    objective: "focus_search_field", previousSteps: [])
+  #expect(safariPlan.isEmpty)
+}
+
+@Test("ADR-055: the default allowlist mode stays closed")
+func defaultAllowlistModeStaysClosed() {
+  #expect(!ComputerUseBetaAllowlist().isApproved("com.apple.finder"))
+  #expect(
+    !ComputerUseBetaAllowlist(
+      apps: [ComputerUseBetaAllowlist.initial.app(for: "com.apple.finder")!]
+    ).isApproved("com.apple.finder"))
+}

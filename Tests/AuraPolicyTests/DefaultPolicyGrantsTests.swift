@@ -150,7 +150,9 @@ struct DefaultPolicyGrantsTests {
     }
   }
 
-  @Test("local Ollama inference stays allowed; no cloud-inference grant exists")
+  @Test(
+    "local Ollama inference stays allowed; cloud inference is seeded with an always confirmation"
+  )
   func ollamaGrants() async throws {
     let engine = try await makeProductionEngine()
     let decision = await evaluate(.agentOllamaLocalInference, engine: engine)
@@ -160,11 +162,15 @@ struct DefaultPolicyGrantsTests {
     }
     #expect(
       DefaultPolicyGrants.all.contains { $0.capability == .agentOllamaLocalInference })
-    // There must be no cloud inference capability grant to drift into.
-    #expect(
-      !DefaultPolicyGrants.all.contains {
-        $0.capability.identifier.lowercased().contains("cloud")
-      })
+    // ADR-055 ("Etkinleştir"): cloud inference joins the seed set. The prompt
+    // is proxied to Ollama's hosted backend, so the grant always requires the
+    // confirmation challenge, like the other third-party-bound agents.
+    let cloudGrant = DefaultPolicyGrants.all.first { $0.capability == .agentOllamaCloudInference }
+    #expect(cloudGrant != nil)
+    guard case .always? = cloudGrant?.confirmationRequirement else {
+      Issue.record("agent.ollamaCloudInference must confirm on every request (ADR-055)")
+      return
+    }
   }
 
   @Test("ungranted destructive capability is still denied by default")
@@ -351,30 +357,46 @@ struct DefaultPolicyGrantsTests {
         Capability.taskPause.identifier,
         Capability.taskResume.identifier,
         Capability.taskRetry.identifier,
-        // SP-030 (`EV-SP-030-20260831-R11-POLICY-BLOCK-01`). Added
-        // deliberately: this test failing is the intended alarm on any
-        // widening of the seeded set, and the widening was authorized by the
-        // owner. It is the ONLY lifecycle capability seeded — the destructive
-        // and network-tier ones stay deny-by-default, which
-        // `destructiveLifecycleCapabilitiesStayDenied` pins from the other
-        // direction.
+        Capability.taskDelete.identifier,
+        // ADR-055: computer use and Ollama cloud inference join the seed set.
+        Capability.computerUseRun.identifier,
+        Capability.agentOllamaCloudInference.identifier,
+        Capability.fileOpen.identifier,
+        Capability.fileReveal.identifier,
+        Capability.urlOpen.identifier,
+        // SP-030 (`EV-SP-030-20260831-R11-POLICY-BLOCK-01`) added
+        // lifecycleLaunchAtLogin deliberately; ADR-055 then seeded the
+        // destructive lifecycle set without a confirmation challenge as an
+        // owner-instructed local risk acceptance recorded in the ADR, not a
+        // policy default.
         Capability.lifecycleLaunchAtLogin.identifier,
+        Capability.lifecycleCheckUpdate.identifier,
+        Capability.lifecycleApproveUpdate.identifier,
+        Capability.lifecycleStageUpdate.identifier,
+        Capability.lifecycleRollback.identifier,
+        Capability.lifecycleSafeMode.identifier,
+        Capability.lifecycleReset.identifier,
+        Capability.lifecycleUninstall.identifier,
+        Capability.lifecycleFactoryReset.identifier,
       ])
   }
 
-  /// SP-022: the Task Center lifecycle controls are `.reversible` and must be
-  /// seeded (production denies `.reversible` by default), while `task.delete`
-  /// is `.destructive` and must remain unseeded so deleting persisted task
-  /// state stays deny-by-default.
-  @Test("task lifecycle grants are seeded; task.delete stays unseeded")
-  func taskLifecycleGrantsAreSeededButDeleteIsNot() {
+  /// SP-022 seeded the Task Center lifecycle controls; ADR-055 additionally
+  /// seeds `task.delete` without a confirmation challenge — an
+  /// owner-instructed local risk acceptance recorded in the ADR, not a
+  /// policy default.
+  @Test("task lifecycle grants including task.delete are seeded")
+  func taskLifecycleGrantsIncludingDeleteAreSeeded() {
     for capability in [
-      Capability.taskCancel, .taskPause, .taskResume, .taskRetry,
+      Capability.taskCancel, .taskPause, .taskResume, .taskRetry, .taskDelete,
     ] {
       #expect(DefaultPolicyGrants.all.contains { $0.capability == capability })
     }
-    #expect(
-      !DefaultPolicyGrants.all.contains { $0.capability == Capability.taskDelete })
+    let deleteGrant = DefaultPolicyGrants.all.first { $0.capability == Capability.taskDelete }
+    guard case .none? = deleteGrant?.confirmationRequirement else {
+      Issue.record("task.delete must be granted with no confirmation (ADR-055)")
+      return
+    }
   }
 
   // MARK: - SP-030: R11 lifecycle reachability
@@ -397,21 +419,23 @@ struct DefaultPolicyGrantsTests {
     }
   }
 
-  /// The companion to the test above, and the more important one. Fixing the
-  /// reachability of one control must not quietly open the destructive rest.
-  @Test("SP-030: the destructive lifecycle capabilities stay deny-by-default")
-  func destructiveLifecycleCapabilitiesStayDenied() async throws {
+  /// The companion to the test above. From SP-030 until ADR-055 the
+  /// destructive lifecycle capabilities stayed deny-by-default; ADR-055
+  /// (owner: "Onaysız tam serbest") seeds each of them with no confirmation
+  /// challenge — an owner-instructed local risk acceptance, not a default.
+  @Test("ADR-055: the destructive lifecycle capabilities are seeded without confirmation")
+  func destructiveLifecycleCapabilitiesAreGrantedWithoutConfirmation() async throws {
     let engine = try await makeProductionEngine()
-    let mustStayDenied: [Capability] = [
+    let nowGranted: [Capability] = [
       .lifecycleReset, .lifecycleRollback, .lifecycleUninstall,
       .lifecycleFactoryReset, .lifecycleApproveUpdate, .lifecycleStageUpdate,
       .lifecycleCheckUpdate, .lifecycleSafeMode,
     ]
-    for capability in mustStayDenied {
+    for capability in nowGranted {
       let decision = await evaluate(capability, engine: engine)
-      guard case .deny = decision else {
+      guard case .allow = decision else {
         Issue.record(
-          "\(capability.identifier) must stay deny-by-default, got \(decision)")
+          "\(capability.identifier) must run without confirmation (ADR-055), got \(decision)")
         return
       }
     }
@@ -446,12 +470,38 @@ struct DefaultPolicyGrantsTests {
   }
 
   /// Pins the *scope* of the seed change, so a future edit that widens the
-  /// seeded lifecycle set has to change this assertion deliberately.
-  @Test("SP-030: exactly one lifecycle capability is seeded")
-  func exactlyOneLifecycleCapabilityIsSeeded() {
+  /// seeded lifecycle set has to change this assertion deliberately. SP-030
+  /// seeded one lifecycle capability; ADR-055 opens the destructive eight.
+  @Test("ADR-055: nine lifecycle capabilities are seeded")
+  func exactlyNineLifecycleCapabilitiesAreSeeded() {
     let seeded = DefaultPolicyGrants.all
       .map(\.capability)
       .filter { $0.domain == "lifecycle" }
-    #expect(seeded == [.lifecycleLaunchAtLogin])
+    #expect(
+      seeded == [
+        .lifecycleLaunchAtLogin, .lifecycleCheckUpdate, .lifecycleApproveUpdate,
+        .lifecycleStageUpdate, .lifecycleRollback, .lifecycleSafeMode,
+        .lifecycleReset, .lifecycleUninstall, .lifecycleFactoryReset,
+      ])
+  }
+
+  /// ADR-055: computer use and Ollama cloud inference join the seed set.
+  /// Computer use carries a mutation-tier confirmation on mutation actions;
+  /// cloud inference always confirms (it proxies prompts to a third-party
+  /// backend), matching the other coding-agent capabilities.
+  @Test("ADR-055: computerUseRun and agentOllamaCloudInference are seeded")
+  func computerUseAndOllamaCloudAreSeeded() {
+    let computerUseGrant = DefaultPolicyGrants.all.first { $0.capability == .computerUseRun }
+    guard case .forRiskTier(.mutation)? = computerUseGrant?.confirmationRequirement else {
+      Issue.record("computerUseRun must be seeded with a mutation-tier confirmation")
+      return
+    }
+    let cloudGrant = DefaultPolicyGrants.all.first {
+      $0.capability == .agentOllamaCloudInference
+    }
+    guard case .always? = cloudGrant?.confirmationRequirement else {
+      Issue.record("agentOllamaCloudInference must always require confirmation")
+      return
+    }
   }
 }

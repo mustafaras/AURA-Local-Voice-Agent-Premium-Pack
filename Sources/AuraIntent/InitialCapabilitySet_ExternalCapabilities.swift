@@ -71,9 +71,9 @@ extension InitialCapabilitySet {
     presentation: CapabilityPresentation(
       titleByLocale: [.english: "Run Computer-Use Task", .turkish: "Bilgisayar Görevi Çalıştır"],
       descriptionByLocale: [
-        .english: "Run a bounded computer-use objective against an approved, live-validated app.",
+        .english: "Run a bounded computer-use objective against an approved app.",
         .turkish:
-          "Onaylanmış, canlı doğrulanmış bir uygulamaya karşı sınırlı bir "
+          "Onaylanmış bir uygulamaya karşı sınırlı bir "
           + "bilgisayar-kullanımı görevi çalıştırır.",
       ]),
     inputSchemaDescription: "appBundleIdentifier: String, objective: String",
@@ -82,7 +82,8 @@ extension InitialCapabilitySet {
     owningAdapter: "ComputerUseControlLoop.run + DeterministicComputerUsePlanner",
     requiredCapability: .computerUseRun,
     sideEffects: [
-      "drives a live UI within the approved app; blocked for unapproved apps by the beta allowlist"
+      "drives a live UI within the target app; approved by the active allowlist "
+        + "(ADR-055: all applications), gated by the policy confirmation challenge"
     ],
     isIdempotent: false,
     executionBudget: CapabilityExecutionBudget(

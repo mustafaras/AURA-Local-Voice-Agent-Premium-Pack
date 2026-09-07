@@ -595,11 +595,12 @@ extension AuraKernel {
   }
 
   /// R4's `computerUse.run` capability: launch one bounded computer-use
-  /// control-loop session against an approved, live-validated beta app.
-  /// Policy is evaluated through the exact same `PolicyEngine` every other
-  /// capability uses; the beta allowlist is the structural gate that keeps
-  /// computer use from becoming a universal shortcut around missing adapters
-  /// (unapproved apps are refused before any observation or action).
+  /// control-loop session against an approved app. Policy is evaluated
+  /// through the exact same `PolicyEngine` every other capability uses; the
+  /// allowlist remains the structural gate in its default (closed) mode, and
+  /// under ADR-055 the production instance opens it to all applications
+  /// while the policy confirmation challenge and the control loop's own
+  /// verify/no-progress/destructive-action guards stay in force.
   func computerUseRun(
     appBundleIdentifier: String,
     objective: String
@@ -611,7 +612,7 @@ extension AuraKernel {
       .computerUseRun, target: PolicyTarget(appID: appBundleIdentifier))
     guard computerUseAllowlist.isApproved(appBundleIdentifier) else {
       throw AuraError.permissionDenied(
-        "computer-use target \(appBundleIdentifier) is not on the approved beta allowlist")
+        "computer-use target \(appBundleIdentifier) is not approved by the active allowlist")
     }
     // Resolve an approved window for the target app. Computer use is
     // always app/window scoped; a session cannot start without a real

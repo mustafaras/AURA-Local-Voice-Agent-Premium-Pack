@@ -19,6 +19,12 @@ def git(*args: str, cwd: Path = ROOT) -> subprocess.CompletedProcess[str]:
 
 class RepoHygieneIgnoreRuleTests(unittest.TestCase):
     def test_current_rules_cover_generated_paths_and_leave_authored_paths_visible(self):
+        # The rule matrix runs in a throwaway fixture, not the live tree: the
+        # live tree's `.build` is a symlink to a /tmp build directory, and
+        # `git check-ignore` refuses to look "beyond a symbolic link" (rc 128)
+        # regardless of `--no-index`. The fixture reproduces the same
+        # `.gitignore` semantics (real gitignore copy + real directories), so
+        # the assertions test the rules, not the local machine's layout.
         generated = (
             ".build/generated/module.o",
             ".venv/bin/python",
@@ -37,18 +43,46 @@ class RepoHygieneIgnoreRuleTests(unittest.TestCase):
             "docs/operations/REPO_HYGIENE_PROGRAM.md",
         )
 
-        for path in generated:
-            result = git("check-ignore", "-q", "--no-index", "--", path)
-            self.assertEqual(result.returncode, 0, f"generated path is visible: {path}")
+        with tempfile.TemporaryDirectory(prefix="aura-h003-ignore-matrix-") as directory:
+            fixture = Path(directory)
+            init = git("init", "-q", cwd=fixture)
+            self.assertEqual(init.returncode, 0, init.stderr)
 
-        for path in authored:
-            result = git("check-ignore", "-q", "--no-index", "--", path)
-            self.assertNotEqual(result.returncode, 0, f"authored path is ignored: {path}")
+            (fixture / ".gitignore").write_text(
+                (ROOT / ".gitignore").read_text(encoding="utf-8"), encoding="utf-8"
+            )
+            nested_ignore = fixture / "Runtime/chatterbox/.gitignore"
+            nested_ignore.parent.mkdir(parents=True)
+            nested_ignore.write_text(
+                (ROOT / "Runtime/chatterbox/.gitignore").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            add = git("add", ".gitignore", "Runtime/chatterbox/.gitignore", cwd=fixture)
+            self.assertEqual(add.returncode, 0, add.stderr)
 
-        root_venv_rule = git("check-ignore", "-v", "--no-index", "--", ".venv/bin/python")
-        self.assertEqual(root_venv_rule.returncode, 0)
-        self.assertIn(".gitignore", root_venv_rule.stdout)
-        self.assertIn("/.venv/", root_venv_rule.stdout)
+            for relative in generated:
+                path = fixture / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("generated", encoding="utf-8")
+            for relative in authored:
+                path = fixture / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("authored", encoding="utf-8")
+
+            for relative in generated:
+                result = git("check-ignore", "-q", "--", relative, cwd=fixture)
+                self.assertEqual(result.returncode, 0, f"generated path is visible: {relative}")
+
+            for relative in authored:
+                result = git("check-ignore", "-q", "--", relative, cwd=fixture)
+                self.assertNotEqual(
+                    result.returncode, 0, f"authored path is ignored: {relative}"
+                )
+
+            root_venv_rule = git("check-ignore", "-v", "--", ".venv/bin/python", cwd=fixture)
+            self.assertEqual(root_venv_rule.returncode, 0)
+            self.assertIn(".gitignore", root_venv_rule.stdout)
+            self.assertIn("/.venv/", root_venv_rule.stdout)
 
         tracked_ignored = git("ls-files", "-ci", "--exclude-standard")
         self.assertEqual(tracked_ignored.returncode, 0)

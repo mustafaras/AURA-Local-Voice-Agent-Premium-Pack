@@ -82,10 +82,12 @@ public enum DefaultPolicyGrants {
     // silent-gap the SP-006 filesystem/URL grants fixed. `task.status` and
     // `task.list` are `.observation` and allow by default already.
     //
-    // `task.delete` is intentionally NOT granted: it is `.destructive` tier
-    // and must stay deny-by-default. Deleting a durable task's persisted state
-    // is a destructive, irreversible action that belongs behind an explicit
-    // user-controlled grant, not the seed set.
+    // ADR-055: `task.delete` (`.destructive` tier) is granted without a
+    // confirmation challenge — the owner directed that the destructive
+    // surface be freely reachable in the local build. Deleting a durable
+    // task's persisted state is still irreversible; the decision to accept
+    // that risk locally is recorded in ADR-055, not relabeled as a policy
+    // default.
     Grant(
       capability: .taskCancel, patterns: [.any], confirmationRequirement: .none,
       purpose: seedPurpose),
@@ -97,6 +99,11 @@ public enum DefaultPolicyGrants {
       purpose: seedPurpose),
     Grant(
       capability: .taskRetry, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    // ADR-055: `task.delete` joins the seed set — see the ADR-055 comment
+    // above for the owner-instructed local risk acceptance.
+    Grant(
+      capability: .taskDelete, patterns: [.any], confirmationRequirement: .none,
       purpose: seedPurpose),
     // SP-030 (`EV-SP-030-20260831-R11-POLICY-BLOCK-01`): launch at login. This
     // is the SP-006 finding at the top of this file, recurring one track later
@@ -113,14 +120,57 @@ public enum DefaultPolicyGrants {
     // `evaluateDirectCapability` had to learn to present one.
     //
     // The other eight denied lifecycle capabilities — safe mode, reset,
-    // rollback, uninstall, factory reset, update check/stage/approve — are
-    // deliberately NOT granted here, for the same reason `task.delete` above
-    // is not: they are `.destructive` or `.network` tier and must stay
-    // deny-by-default until each is authorized on its own terms. Fixing the
-    // reachability of one control is not a licence to open the rest.
+    // rollback, uninstall, factory reset, update check/stage/approve — stayed
+    // deny-by-default from SP-030 until ADR-055: they are `.destructive` or
+    // `.network` tier, and the seed set deliberately refused to open a
+    // destructive surface by default. ADR-055 (2026-09-07) records the
+    // owner's explicit decision to change exactly that for this local,
+    // non-distributed build ("Onaysız tam serbest"): the destructive
+    // lifecycle tier is granted with NO confirmation challenge. This is an
+    // owner-instructed local risk acceptance, not a policy default — an
+    // external-distribution build must not inherit it.
     Grant(
       capability: .lifecycleLaunchAtLogin, patterns: [.any],
       confirmationRequirement: .forRiskTier(.mutation), purpose: seedPurpose),
+    Grant(
+      capability: .lifecycleCheckUpdate, patterns: [.any],
+      confirmationRequirement: .none, purpose: seedPurpose),
+    Grant(
+      capability: .lifecycleApproveUpdate, patterns: [.any],
+      confirmationRequirement: .none, purpose: seedPurpose),
+    Grant(
+      capability: .lifecycleStageUpdate, patterns: [.any],
+      confirmationRequirement: .none, purpose: seedPurpose),
+    Grant(
+      capability: .lifecycleRollback, patterns: [.any],
+      confirmationRequirement: .none, purpose: seedPurpose),
+    Grant(
+      capability: .lifecycleSafeMode, patterns: [.any],
+      confirmationRequirement: .none, purpose: seedPurpose),
+    Grant(
+      capability: .lifecycleReset, patterns: [.any],
+      confirmationRequirement: .none, purpose: seedPurpose),
+    Grant(
+      capability: .lifecycleUninstall, patterns: [.any],
+      confirmationRequirement: .none, purpose: seedPurpose),
+    Grant(
+      capability: .lifecycleFactoryReset, patterns: [.any],
+      confirmationRequirement: .none, purpose: seedPurpose),
+    // ADR-055: computer use joins the seed set at the same confirmation
+    // requirement `.appActivate`/`.appTerminate` carry — a mutation-tier
+    // confirmation on mutation actions, none on observation. The allowlist
+    // gate itself (ADR-055 open mode) is structural; this grant is the
+    // policy-engine gate.
+    Grant(
+      capability: .computerUseRun, patterns: [.any],
+      confirmationRequirement: .forRiskTier(.mutation), purpose: seedPurpose),
+    // ADR-055: Ollama cloud inference ("Etkinleştir"). The prompt is proxied
+    // to Ollama's hosted backend, so this grant always requires the
+    // confirmation challenge — matching `.agentCodexRun`/`.agentClaudeRun`/
+    // `.agentCopilotRun` above, the other third-party-bound capabilities.
+    Grant(
+      capability: .agentOllamaCloudInference, patterns: [.any],
+      confirmationRequirement: .always, purpose: seedPurpose),
   ]
 
   /// The filesystem capabilities SP-004/SP-005 delivered, confined to the

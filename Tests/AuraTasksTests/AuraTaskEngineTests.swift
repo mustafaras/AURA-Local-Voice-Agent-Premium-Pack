@@ -7,24 +7,74 @@ import Testing
 // MARK: - Test helpers
 
 actor Capture {
-  var payloads: [any EventPayload] = []
-
-  func append(_ payload: any EventPayload) {
-    payloads.append(payload)
+  private struct Waiter {
+    let id: UUID
+    let matches: @Sendable (any EventPayload) -> Bool
+    let continuation: CheckedContinuation<(any EventPayload)?, Never>
   }
 
+  private var payloads: [any EventPayload] = []
+  private var waiters: [Waiter] = []
+
+  func append(_ payload: any EventPayload) {
+    if let index = waiters.firstIndex(where: { $0.matches(payload) }) {
+      waiters.remove(at: index).continuation.resume(returning: payload)
+    } else {
+      payloads.append(payload)
+    }
+  }
+
+  /// Returns the first matching payload, waiting event-driven instead of
+  /// polling: `append` resumes a registered waiter the moment a matching
+  /// payload arrives. Bounded at 10 s so a missing event fails the test
+  /// rather than hanging it. Replaces the old 0.2–0.5 s poll deadline,
+  /// which flaked when the task engine finished just past the deadline.
   func waitForEvent<E: EventPayload>(
     _ type: E.Type,
-    timeoutNanoseconds: UInt64 = 500_000_000
+    timeoutNanoseconds: UInt64 = 10_000_000_000
   ) async -> E? {
-    let deadline = ContinuousClock().now + .nanoseconds(Int64(timeoutNanoseconds))
-    while ContinuousClock().now < deadline {
-      if let found = payloads.first(where: { $0 is E }) as? E {
-        return found
+    let waiterID = UUID()
+    let received = await nextPayload(
+      id: waiterID, timeoutNanoseconds: timeoutNanoseconds, matches: { $0 is E })
+    return received as? E
+  }
+
+  private func nextPayload(
+    id: UUID,
+    timeoutNanoseconds: UInt64,
+    matches: @escaping @Sendable (any EventPayload) -> Bool
+  ) async -> (any EventPayload)? {
+    await withTaskGroup(of: (any EventPayload)?.self) { group in
+      group.addTask { await self.receive(id: id, matches: matches) }
+      group.addTask {
+        try? await Task.sleep(nanoseconds: timeoutNanoseconds)
+        await self.cancelWaiter(id: id)
+        return nil
       }
-      try? await Task.sleep(nanoseconds: 5_000_000)
+      let received = (await group.next()) ?? nil
+      group.cancelAll()
+      return received
     }
-    return nil
+  }
+
+  /// The stored-payload scan and the waiter registration run in one
+  /// synchronous, actor-isolated section, so no `append` can land between
+  /// them and strand a waiter.
+  private func receive(
+    id: UUID,
+    matches: @escaping @Sendable (any EventPayload) -> Bool
+  ) async -> (any EventPayload)? {
+    if let found = payloads.first(where: matches) {
+      return found
+    }
+    return await withCheckedContinuation { continuation in
+      waiters.append(Waiter(id: id, matches: matches, continuation: continuation))
+    }
+  }
+
+  private func cancelWaiter(id: UUID) {
+    guard let index = waiters.firstIndex(where: { $0.id == id }) else { return }
+    waiters.remove(at: index).continuation.resume(returning: nil)
   }
 }
 
@@ -203,7 +253,7 @@ func enqueueReturnsPendingStatus() async throws {
   #expect(status.objective == "count")
   #expect(status.state == .pending)
 
-  _ = await capture.waitForEvent(TaskStateChangedEvent.self, timeoutNanoseconds: 200_000_000)
+  _ = await capture.waitForEvent(TaskStateChangedEvent.self)
   #expect(await engine.status(id: status.id)?.state == .running)
   await gate.release()
   try? await Task.sleep(nanoseconds: 50_000_000)

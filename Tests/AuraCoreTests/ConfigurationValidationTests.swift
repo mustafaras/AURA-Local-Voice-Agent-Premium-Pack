@@ -246,7 +246,10 @@ struct ConfigurationValidationTests {
     assertInvalid { try config.validate() }
 
     let decoded = try JSONDecoder().decode(ScreenContextConfiguration.self, from: Data("{}".utf8))
-    #expect(decoded.enabled == false)
+    // ADR-055: screen context ships enabled by default (owner-directed local
+    // enablement). The explicit `enabled: false` opt-out stays covered by
+    // ScreenContextEngineTests.
+    #expect(decoded.enabled == true)
     #expect(decoded.retainRawFrames == false)
     #expect(decoded.ocrRedactionEnabled == true)
   }

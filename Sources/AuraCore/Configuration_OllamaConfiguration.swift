@@ -41,11 +41,12 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
 
   /// Whether models whose `/api/tags` entry reports a non-empty
   /// `remote_host` (Ollama's `:cloud` models, proxied to Ollama's hosted
-  /// backend) may be used at all. `false` by default — "local does not mean
-  /// safe" cuts both ways: a `:cloud`-suffixed name is a naming convention,
-  /// not a contract, so routing decisions must key off the real
-  /// `remote_host` field, and cloud-proxied inference must be an explicit
-  /// opt-in, not a silent default.
+  /// backend) may be used at all. On by default under ADR-055 (2026-09-07):
+  /// the owner directed that cloud-proxied inference be enabled
+  /// ("Etkinleştir"). Routing decisions still key off the real
+  /// `remote_host` field — a `:cloud`-suffixed name alone never decides —
+  /// and every cloud inference call still runs through the
+  /// `.agentOllamaCloudInference` confirmation challenge.
   public var allowCloudModels: Bool
 
   /// Whether a new model load is refused while
@@ -59,7 +60,7 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
     maxResidentModelBytes: UInt64 = 6_000_000_000,
     estimatedResidentMemoryRatio: Double = 0.5,
     keepAliveSeconds: Double = 300.0,
-    allowCloudModels: Bool = false,
+    allowCloudModels: Bool = true,
     thermalAwarenessEnabled: Bool = true
   ) {
     self.baseURL = baseURL
@@ -145,7 +146,7 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
     keepAliveSeconds =
       try container.decodeIfPresent(Double.self, forKey: .keepAliveSeconds) ?? 300.0
     allowCloudModels =
-      try container.decodeIfPresent(Bool.self, forKey: .allowCloudModels) ?? false
+      try container.decodeIfPresent(Bool.self, forKey: .allowCloudModels) ?? true
     thermalAwarenessEnabled =
       try container.decodeIfPresent(Bool.self, forKey: .thermalAwarenessEnabled) ?? true
   }

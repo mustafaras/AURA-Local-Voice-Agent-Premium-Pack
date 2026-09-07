@@ -161,7 +161,9 @@ func liveAcceptanceProfileInheritsProductionDefaults() {
   // are composed with their native authorization gates, not silently absent.
   #expect(configuration.productivity.calendarReadEnabled)
   #expect(configuration.productivity.contactsReadEnabled)
-  #expect(configuration.productivity.safariAllowedHosts.isEmpty)
+  // ADR-055: the wildcard-all host entry is the new default; an explicit
+  // environment list still overrides it.
+  #expect(configuration.productivity.safariAllowedHosts == ["*"])
   #expect(configuration.productivity.mailAccountIDs.isEmpty)
 }
 

@@ -35,14 +35,11 @@ extension InitialCapabilitySet {
     (vscodeCancelTests, .disabled(reason: vscodeDisabledReason)),
     (vscodeTerminalSessions, .disabled(reason: vscodeDisabledReason)),
     (vscodeBridgeHealth, .disabled(reason: vscodeDisabledReason)),
-    (
-      computerUseRun,
-      .disabled(
-        reason:
-          "Computer-use run is implemented (DeterministicComputerUsePlanner) but not yet wired "
-          + "into the composition root; it requires an approved, live-validated beta app."
-      )
-    ),
+    // ADR-055: computer use is wired (ComputerUseControlLoop +
+    // DeterministicComputerUsePlanner + allowlist) and the owner opened the
+    // allowlist to all applications; the confirmation challenges and the
+    // control loop's own guards remain in force.
+    (computerUseRun, .ready),
     // SP-004. Backed by `AuraAutomation.FileSystemURLOpener` and reachable
     // through direct `AuraKernel` methods that apply the same `PolicyEngine`
     // gate as every routed capability — the identical non-NLU reachability
@@ -86,22 +83,25 @@ extension InitialCapabilitySet {
           + "root wiring are user-controlled and not configured in this pass."
       )
     ),
-    // SP-028 lifecycle capabilities. They are wired into the composition root
-    // and reachable through direct `AuraKernel` RuntimeAPI methods, but they
-    // are deliberately not routed through the natural-language intent engine in
-    // this pass because they require explicit user-controlled settings or
-    // high-stakes confirmation flows.
-    (lifecycleLaunchAtLogin, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleUpdateCheck, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleApproveUpdate, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleStageUpdate, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleRollback, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleSafeMode, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleResetPlan, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleSupportBundle, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleMigrationPreflight, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleUninstall, .disabled(reason: lifecycleDirectCallReason)),
-    (lifecycleFactoryReset, .disabled(reason: lifecycleDirectCallReason)),
+    // SP-028 lifecycle capabilities under ADR-055: the owner directed that
+    // the destructive lifecycle surface (reset/rollback/uninstall/factory
+    // reset/update approval) be reachable without a confirmation challenge,
+    // so the registry no longer holds them back from the direct-call path.
+    // They are still NOT routed through the natural-language intent engine
+    // (no IntentKind in the ToolRouter closed map) and are reachable only
+    // through direct `AuraKernel` RuntimeAPI methods; each call still runs
+    // its PolicyEngine tier evaluation.
+    (lifecycleLaunchAtLogin, .ready),
+    (lifecycleUpdateCheck, .ready),
+    (lifecycleApproveUpdate, .ready),
+    (lifecycleStageUpdate, .ready),
+    (lifecycleRollback, .ready),
+    (lifecycleSafeMode, .ready),
+    (lifecycleResetPlan, .ready),
+    (lifecycleSupportBundle, .ready),
+    (lifecycleMigrationPreflight, .ready),
+    (lifecycleUninstall, .ready),
+    (lifecycleFactoryReset, .ready),
   ]
 
   public static let converse = CapabilityManifest(
@@ -365,20 +365,12 @@ extension InitialCapabilitySet {
   private static let vscodeDisabledReason =
     "VS Code capabilities start disabled until the authenticated extension bridge is live."
 
-  // SP-030 (`EV-SP-030-20260831-R11-POLICY-BLOCK-01`): the previous wording
-  // claimed these were "reachable through direct AuraKernel RuntimeAPI calls".
-  // That was FALSE for nine of the eleven. Being disabled here keeps them out
-  // of the NLU classifier, which is deliberate; but the direct-call route named
-  // as the compensating control was itself denied, because `.mutation`,
-  // `.destructive` and `.network` are deny-by-default and no grant existed. The
-  // reason string is split so it can no longer assert reachability the code
-  // does not provide.
-  private static let lifecycleDirectCallReason =
-    "Wired into the composition root and not routed through the natural-language intent "
-    + "engine in this pass; reachable only through direct AuraKernel RuntimeAPI calls, and "
-    + "only where a policy grant exists. Of these, ONLY lifecycle.launchAtLogin is granted "
-    + "(DefaultPolicyGrants, SP-030). The observation-tier support bundle and migration "
-    + "preflight allow by default. The rest stay deny-by-default and are NOT reachable."
+  // SP-030 evidence `EV-SP-030-20260831-R11-POLICY-BLOCK-01` recorded that
+  // these capabilities were deny-by-default (no grants) and therefore not
+  // reachable. ADR-055 (2026-09-07) supersedes that state: the owner
+  // directed full enablement, so all eleven are registered `.ready` and the
+  // destructive tier is granted without confirmation
+  // (DefaultPolicyGrants, ADR-055).
 
   public static let vscodeEditorState = vscodeObservationManifest(
     id: "vscode.editor_state",

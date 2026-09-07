@@ -269,7 +269,9 @@ struct SP006LiveCapabilityScenarios {
   func liveModelProposalsStayRegistryBounded() async throws {
     let fixture = try await SP006Fixture()
     let liveConfiguration = OllamaConfiguration()
-    #expect(liveConfiguration.allowCloudModels == false)
+    // ADR-055: cloud-proxied inference is enabled by default; routing still
+    // keys off the real `remote_host` field and every cloud call confirms.
+    #expect(liveConfiguration.allowCloudModels == true)
     let ollama = try OllamaAdapter(
       configuration: liveConfiguration,
       policyEngine: fixture.policyEngine,

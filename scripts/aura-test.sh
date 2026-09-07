@@ -161,7 +161,7 @@ run_bundle() {
         # This bundle combines live CLI probes, real git worktree operations,
         # and actor-backed task-engine fixtures. Swift Testing's default
         # parallel executor can starve those bounded fixtures under the full
-        # 21-bundle runner, producing nondeterministic false failures. Keep
+        # 22-bundle runner, producing nondeterministic false failures. Keep
         # the production runner deterministic while allowing an explicit
         # override for controlled experiments.
         helper_environment+=(

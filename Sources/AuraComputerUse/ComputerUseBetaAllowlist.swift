@@ -35,9 +35,21 @@ public enum ComputerUseBetaValidationState: String, Sendable, Equatable, CaseIte
 /// not a caller convention.
 public struct ComputerUseBetaAllowlist: Sendable, Equatable {
   private let apps: [String: ComputerUseBetaApp]
+  /// ADR-055 (2026-09-07): the release owner directed that computer use be
+  /// permitted for **all** applications ("olabilecek olan tüm uygulamalara
+  /// izin verilsin"). When `allowsAllApplications` is true the per-app list
+  /// is no longer the structural gate — every bundle identifier is approved,
+  /// and the remaining controls are the policy confirmation challenge, the
+  /// control loop's own verify/no-progress/destructive-action guards, and
+  /// the screen-context sensitive-app exclusion.
+  private let allowsAllApplications: Bool
 
-  public init(apps: [ComputerUseBetaApp] = []) {
+  public init(
+    apps: [ComputerUseBetaApp] = [],
+    allowsAllApplications: Bool = false
+  ) {
     self.apps = Dictionary(uniqueKeysWithValues: apps.map { ($0.appBundleIdentifier, $0) })
+    self.allowsAllApplications = allowsAllApplications
   }
 
   public func app(for bundleIdentifier: String) -> ComputerUseBetaApp? {
@@ -45,7 +57,8 @@ public struct ComputerUseBetaAllowlist: Sendable, Equatable {
   }
 
   public func isApproved(_ bundleIdentifier: String) -> Bool {
-    apps[bundleIdentifier]?.isUsable ?? false
+    if allowsAllApplications { return true }
+    return apps[bundleIdentifier]?.isUsable ?? false
   }
 
   public var usableBundleIdentifiers: [String] {
@@ -105,4 +118,19 @@ public struct ComputerUseBetaAllowlist: Sendable, Equatable {
     .validating("com.apple.finder", appName: "Finder")
     .validating("com.apple.Terminal", appName: "Terminal")
     .validating("com.apple.Notes", appName: "Notes")
+
+  /// The allowlist production runs with under ADR-055 (2026-09-07): the
+  /// release owner directed that computer use be permitted for **all**
+  /// applications. `allowsAllApplications` makes every bundle identifier
+  /// approved; the enumerated `initial` apps are retained so their names
+  /// still resolve for diagnostics, and `liveValidatedProduction` remains
+  /// the record of which apps carry real live evidence
+  /// (`EV-SP-007-20260816-LIVE-02`). The structural per-app gate is lifted;
+  /// the controls that remain are the policy confirmation challenge, the
+  /// control loop's own verify/no-progress/destructive-action guards, and
+  /// the screen-context sensitive-app exclusion.
+  public static let ownerOpenApplications: ComputerUseBetaAllowlist =
+    ComputerUseBetaAllowlist(
+      apps: Array(initial.apps.values),
+      allowsAllApplications: true)
 }

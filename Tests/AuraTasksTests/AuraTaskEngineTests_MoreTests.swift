@@ -48,7 +48,7 @@ func cancellationMovesTaskToCancelled() async throws {
   #expect(await engine.status(id: status.id)?.state == .running)
 
   try await engine.cancel(id: status.id)
-  _ = await capture.waitForEvent(TaskCancelledEvent.self, timeoutNanoseconds: 200_000_000)
+  _ = await capture.waitForEvent(TaskCancelledEvent.self)
 
   let finalStatus = await engine.status(id: status.id)
   #expect(finalStatus?.state == .cancelled)
@@ -85,17 +85,17 @@ func pauseAndResumeRunningTask() async throws {
   #expect(await engine.status(id: status.id)?.state == .running)
 
   try await engine.pause(id: status.id)
-  _ = await capture.waitForEvent(TaskPausedEvent.self, timeoutNanoseconds: 200_000_000)
+  _ = await capture.waitForEvent(TaskPausedEvent.self)
   #expect(await engine.status(id: status.id)?.state == .paused)
 
   let resumeGate = Gate()
   let resumedRunner = BlockingRunner(gate: resumeGate)
   try await engine.resume(id: status.id, runner: resumedRunner)
-  _ = await capture.waitForEvent(TaskStateChangedEvent.self, timeoutNanoseconds: 200_000_000)
+  _ = await capture.waitForEvent(TaskStateChangedEvent.self)
   #expect(await engine.status(id: status.id)?.state == .running)
 
   await resumeGate.release()
-  _ = await capture.waitForEvent(TaskCompletedEvent.self, timeoutNanoseconds: 200_000_000)
+  _ = await capture.waitForEvent(TaskCompletedEvent.self)
   #expect(await engine.status(id: status.id)?.state == .completed)
 }
 
@@ -211,7 +211,7 @@ func manualRetryReRunsFailedTaskWithoutReArmedBudget() async throws {
 
   // Manual retry resets the failed task to pending and re-runs it once.
   try await engine.retry(id: status.id, runner: runner)
-  _ = await capture.waitForEvent(TaskStateChangedEvent.self, timeoutNanoseconds: 200_000_000)
+  _ = await capture.waitForEvent(TaskStateChangedEvent.self)
   try? await Task.sleep(nanoseconds: 300_000_000)
   #expect(await engine.status(id: status.id)?.state == .failed)
   #expect(await counter.value == 2)

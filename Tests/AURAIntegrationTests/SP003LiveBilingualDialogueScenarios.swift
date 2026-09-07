@@ -46,7 +46,9 @@ struct SP003LiveBilingualDialogueScenarios {
     await recorder.attach(to: bus)
 
     let liveConfiguration = OllamaConfiguration()
-    #expect(liveConfiguration.allowCloudModels == false)
+    // ADR-055: cloud-proxied inference is enabled by default; this scenario
+    // still exercises the local model leg.
+    #expect(liveConfiguration.allowCloudModels == true)
     try liveConfiguration.validate()
 
     let policyEngine = try await SP003Fixtures.policyEngine(eventBus: bus)

@@ -80,8 +80,9 @@ func initialCapabilitySetRegistersEveryTargetManifest() async {
   await InitialCapabilitySet.registerAll(in: registry)
   #expect(await registry.allManifests().count == InitialCapabilitySet.manifests().count)
   // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters,
-  // plus SP-022's three `.ready` Task Center controls (pause/resume/retry).
-  #expect(await registry.reachableManifests().count == 17)
+  // plus SP-022's three `.ready` Task Center controls (pause/resume/retry),
+  // plus ADR-055's computerUse.run and the eleven lifecycle capabilities.
+  #expect(await registry.reachableManifests().count == 29)
 }
 
 @Test
@@ -158,23 +159,25 @@ func manifestPresentationFallsBackToEnglishForUnknownLocale() {
 }
 
 @Test
-func computerUseRunRegisteredDisabledUntilApproved() async {
+func computerUseRunRegisteredReadyUnderADR055() async {
   let registry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: registry)
-  // `computerUse.run` is registered but truthfully `.disabled`: it is
-  // implemented (DeterministicComputerUsePlanner) but not yet wired into a
-  // live user path and requires an approved, live-validated beta app.
+  // ADR-055: `computerUse.run` is registered `.ready` — the control loop,
+  // planner, and open-mode allowlist are all wired; the policy confirmation
+  // challenge and the control loop's own guards remain in force.
   guard
-    case .disabled(let reason)? = await registry.availability(
-      id: "computerUse.run", version: "1.0.0")
+    case .ready? = await registry.availability(id: "computerUse.run", version: "1.0.0")
   else {
-    Issue.record("expected computerUse.run to be registered disabled")
+    Issue.record("expected computerUse.run to be registered ready")
     return
   }
-  #expect(!reason.isEmpty)
-  #expect(!reason.lowercased().contains("todo"))
-  // Adding a disabled manifest must not change the reachable count.
-  // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters,
-  // plus SP-022's three `.ready` Task Center controls (pause/resume/retry).
-  #expect(await registry.reachableManifests().count == 17)
+  guard let manifest = await registry.resolveLatest(id: "computerUse.run") else {
+    Issue.record("expected computerUse.run to resolve")
+    return
+  }
+  #expect(manifest.owningAdapter.contains("ComputerUseControlLoop"))
+  // ADR-055: 10 from R3's initial set, plus SP-004's four filesystem/URL
+  // adapters, plus SP-022's three `.ready` Task Center controls, plus
+  // computerUse.run and the eleven lifecycle capabilities.
+  #expect(await registry.reachableManifests().count == 29)
 }

@@ -37,7 +37,8 @@ extension AuraConfiguration {
           ?? defaults.safariExtensionID,
         safariSharedContainerPath: environment["AURA_SP011_SAFARI_CONTAINER"]
           ?? defaults.safariSharedContainerPath,
-        safariAllowedHosts: Self.hostList(environment["AURA_SP011_SAFARI_ALLOWED_HOSTS"]),
+        safariAllowedHosts: environment["AURA_SP011_SAFARI_ALLOWED_HOSTS"].map { Self.hostList($0) }
+          ?? defaults.safariAllowedHosts,
         mailAccountIDs: accounts,
         mailAllowedHosts: ["gmail.googleapis.com"],
         calendarReadEnabled: environment["AURA_SP011_ENABLE_CALENDAR"].map { $0 == "1" }

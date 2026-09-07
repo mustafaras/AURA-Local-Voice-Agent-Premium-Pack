@@ -1,12 +1,17 @@
 import Foundation
 
-/// Configuration for `ScreenContextEngine` (Phase 17) — off-by-default
-/// capture, sensitive-app/self exclusion, redaction thresholds, and
+/// Configuration for `ScreenContextEngine` (Phase 17) — capture master
+/// switch, sensitive-app/self exclusion, redaction thresholds, and
 /// diagnostic raw-frame retention (governed by `PrivacyConfiguration.
 /// screenshotRetentionDays`, not a duplicate field here).
 public struct ScreenContextConfiguration: Codable, Sendable, Equatable {
-  /// Master switch. Screen capture is off until this is explicitly set —
-  /// "off until granted and actively needed."
+  /// Master switch. On by default under ADR-055 (2026-09-07): the owner
+  /// directed that the disabled capabilities be enabled, and screen context
+  /// is the dependency of `computerUse.run`. The TCC Screen Recording grant
+  /// is still requested in-app, sensitive-app/self exclusion, redaction,
+  /// and the freshness/dimension bounds below all stay in force. An
+  /// explicitly set `false` (or a persisted profile with `enabled: false`)
+  /// still disables capture.
   public var enabled: Bool
 
   /// Application bundle identifiers that must never be captured: password
@@ -41,7 +46,7 @@ public struct ScreenContextConfiguration: Codable, Sendable, Equatable {
   public var maxCaptureDimension: Int
 
   public init(
-    enabled: Bool = false,
+    enabled: Bool = true,
     sensitiveApplicationBundleIdentifiers: Set<String> = [
       "com.apple.keychainaccess",
       "com.apple.SecurityAgent",

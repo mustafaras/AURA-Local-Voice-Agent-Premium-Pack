@@ -131,7 +131,13 @@ def scan_tracked_content(policy: dict[str, Any]) -> tuple[list[SecretFinding], l
   errors: list[str] = []
   unallowed: list[SecretFinding] = []
   allowed: list[SecretFinding] = []
-  suffixes = tuple(policy["secret_scan"].get("artifact_suffixes_forbidden_when_tracked", []))
+  secret_scan = policy["secret_scan"]
+  suffixes = tuple(secret_scan.get("artifact_suffixes_forbidden_when_tracked", []))
+  artifact_allowlist = {
+    item.get("path")
+    for item in secret_scan.get("tracked_artifact_allowlist", [])
+    if isinstance(item, dict)
+  }
   for relative in scan_paths:
     path = ROOT / relative
     if not path.is_file():
@@ -139,7 +145,11 @@ def scan_tracked_content(policy: dict[str, Any]) -> tuple[list[SecretFinding], l
       continue
     data = path.read_bytes()
     text = data.decode("utf-8", errors="replace")
-    if relative in paths and relative.lower().endswith(suffixes):
+    if (
+      relative in paths
+      and relative.lower().endswith(suffixes)
+      and relative not in artifact_allowlist
+    ):
       errors.append(f"tracked artifact-like path requires explicit review: {relative}")
     for finding in secret_findings(relative, text, policy):
       if fixture_is_allowed(finding, text, policy):
@@ -158,6 +168,25 @@ def scan_tracked_content(policy: dict[str, Any]) -> tuple[list[SecretFinding], l
     text = (ROOT / relative).read_text(encoding="utf-8")
     if marker not in text:
       errors.append(f"fixture allowlist marker is missing: {relative}:{pattern}")
+
+  seen_artifacts = set()
+  for item in secret_scan.get("tracked_artifact_allowlist", []):
+    path_entry = item.get("path") if isinstance(item, dict) else None
+    reason = item.get("reason") if isinstance(item, dict) else None
+    if not isinstance(path_entry, str) or not path_entry:
+      errors.append("tracked artifact allowlist entry is missing a path")
+      continue
+    if not isinstance(reason, str) or not reason:
+      errors.append(f"tracked artifact allowlist entry is missing a reason: {path_entry}")
+      path_entry = ""
+      continue
+    if path_entry in seen_artifacts:
+      errors.append(f"duplicate tracked artifact allowlist entry: {path_entry}")
+    seen_artifacts.add(path_entry)
+    if path_entry not in tracked_set:
+      errors.append(f"tracked artifact allowlist path is not tracked: {path_entry}")
+    elif not (ROOT / path_entry).is_file():
+      errors.append(f"tracked artifact allowlist path does not exist: {path_entry}")
 
   return unallowed, allowed, errors
 

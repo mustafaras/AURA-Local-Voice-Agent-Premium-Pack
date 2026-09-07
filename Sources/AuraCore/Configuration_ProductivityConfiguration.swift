@@ -24,7 +24,9 @@ public struct ProductivityConfiguration: Codable, Sendable, Equatable {
   /// Keychain service name for the Safari bridge shared secret.
   public var safariSecretServiceName: String
 
-  /// Hosts the Safari bridge may read (the approved page domains).
+  /// Hosts the Safari bridge may read (the approved page domains). The
+  /// literal `*` entry opens the bridge to every host (ADR-055, 2026-09-07);
+  /// the bridge's own extension-trust precondition is unaffected.
   public var safariAllowedHosts: [String]
 
   /// Mail accounts the user has approved for consideration. Empty by
@@ -107,7 +109,7 @@ public struct ProductivityConfiguration: Codable, Sendable, Equatable {
     safariExtensionID: String = "com.aura.safari-extension",
     safariSharedContainerPath: String = "",
     safariSecretServiceName: String = "com.aura.safari-bridge",
-    safariAllowedHosts: [String] = [],
+    safariAllowedHosts: [String] = ["*"],
     mailAccountIDs: [String] = [],
     mailEndpoint: String = "https://gmail.googleapis.com/gmail/v1",
     mailAllowedHosts: [String] = ["gmail.googleapis.com"],

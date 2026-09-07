@@ -303,9 +303,12 @@ func initialCapabilitySetRegistersR5TruthfullyButDoesNotPretendReachability() as
   let registry = CapabilityRegistry()
   await InitialCapabilitySet.registerAll(in: registry)
   // 10 from R3's initial set, plus SP-004's four filesystem/URL adapters,
-  // plus SP-022's three `.ready` Task Center controls (pause/resume/retry).
-  // R5's four read adapters remain disabled, which is what this test guards.
-  #expect(await registry.reachableManifests().count == 17)
+  // plus SP-022's three `.ready` Task Center controls (pause/resume/retry),
+  // plus ADR-055's computerUse.run and the eleven lifecycle capabilities.
+  // R5's four read adapters remain registry-disabled until their live
+  // composition wiring (production refreshes them from bridge health),
+  // which is what this test guards.
+  #expect(await registry.reachableManifests().count == 29)
   for id in ["browser.read", "mail.read", "calendar.read", "contacts.lookup"] {
     guard case .disabled(let reason)? = await registry.availability(id: id, version: "1.0.0") else {
       Issue.record("expected \(id) to be disabled until composition/live wiring")
