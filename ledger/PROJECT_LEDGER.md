@@ -6058,3 +6058,22 @@ delivery is explicitly excluded; local-only claims remain truthful.
   explicit per-turn commit/push approval; remaining owner provisioning
   (VS Code shared secret, Gmail OAuth approval, Chrome extension enable)
   unchanged.
+
+### 2026-09-07T14:35Z — CI follow-up: infrastructure disconnect resolved by rerun
+
+- **Event:** run `34126550859` (SHA `7d92caa`) passed `governance` (16 s) but
+  its `build-and-test` job failed at ~10 min mid-test with "self-hosted
+  runner lost communication with the server". Cause assessed as
+  infrastructure, not code: the laptop entered idle sleep under build load
+  before an owner-side `caffeinate -di` hold was applied.
+- **Resolution:** with the sleep hold active, the failed job was re-run
+  (`gh run rerun --failed`) and completed **SUCCESS**; `governance` +
+  `build-and-test` are green for `7d92caa`. Full pushed history is now
+  CI-green: `2901775`/`82dd023` failures remain the known projection
+  `remote_head` lag pattern on ancestor SHAs, `34b2701`, `2e19f81`, and
+  `7d92caa` all pass.
+- **Verdict / class:** CI-observed; infra-transient resolved by rerun. No
+  source or governance artifact changed by this follow-up.
+- **Exact next action:** owner-side persistent runner service
+  (`svc.sh install/start`) as the durable alternative to the session-scoped
+  sleep hold; remaining owner provisioning unchanged.
