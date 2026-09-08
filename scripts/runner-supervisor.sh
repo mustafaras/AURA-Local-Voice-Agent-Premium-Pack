@@ -98,14 +98,26 @@ if [[ -z "$DEVELOPER_DIR_DEFAULT" ]]; then
 fi
 [[ -n "$DEVELOPER_DIR_DEFAULT" ]] || config_fail "cannot resolve DEVELOPER_DIR (set AURA_SUPERVISOR_DEVELOPER_DIR)"
 export DEVELOPER_DIR="$DEVELOPER_DIR_DEFAULT"
-# Prepend the pinned toolchain but keep the caller's PATH order after it, so
-# the caller's environment still resolves first for everything else.
-export PATH="$DEVELOPER_DIR/usr/bin:$PATH"
-if swift --version > "$STATE_DIR/toolchain-baseline.txt" 2>&1; then
+# DEVELOPER_DIR is the pin: /usr/bin/{swift,xcodebuild,xcrun} honor it.
+# Deliberately NOT prepended to PATH — the toolchain's usr/bin would shadow
+# system tools the CI jobs need (e.g. python3 >= 3.11 for tomllib) and
+# diverge from the interactive baseline that was green.
+if "$DEVELOPER_DIR/usr/bin/swift" --version > "$STATE_DIR/toolchain-baseline.txt" 2>&1; then
   log "toolchain pinned: DEVELOPER_DIR=$DEVELOPER_DIR baseline recorded"
 else
   log "toolchain pinning: swift --version failed at start (recorded verbatim)"
 fi
+
+# Keep the watchdog stamp fresh across long sleeps: a supervisor that is
+# alive must never let the stamp go stale (the watchdog alerts on
+# staleness). Sleeps longer than POLL_SECONDS go through this helper.
+fresh_sleep() {
+  local until_epoch=$(( $(date +%s) + $1 ))
+  while (( $(date +%s) < until_epoch )); do
+    write_heartbeat
+    sleep "$POLL_SECONDS"
+  done
+}
 
 restart_times=()
 breaker_tripped=0
@@ -138,6 +150,13 @@ while true; do
   log "starting runner (attempt window count: ${#restart_times})"
   "$RUNNER_DIR/run.sh" >> "$LOG_DIR/runner.log" 2>&1 &
   child_pid=$!
+  # Refresh the watchdog stamp while the runner runs: a healthy supervised
+  # runner is exactly the state the stamp must stay fresh in (a blocking
+  # wait here would freeze the stamp and fire false watchdog alerts).
+  while kill -0 "$child_pid" 2>/dev/null; do
+    write_heartbeat
+    sleep "$POLL_SECONDS"
+  done
   wait "$child_pid"
   run_rc=$?
   child_pid=""
@@ -173,7 +192,7 @@ while true; do
   backoff=$(( BACKOFF_BASE * (1 << (recent - 1)) ))
   (( backoff > BACKOFF_MAX )) && backoff=$BACKOFF_MAX
   log "backing off ${backoff}s before restart"
-  sleep "$backoff"
+  fresh_sleep "$backoff"
 done
 
 exit 0

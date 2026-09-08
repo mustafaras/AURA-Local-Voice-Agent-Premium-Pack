@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import subprocess
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -155,6 +156,34 @@ class SupervisorBehaviorTests(unittest.TestCase):
         self.assertIn("Apple Swift version 6.4 (fake-baseline)", baseline)
         self.assertIn("toolchain pinned", self._log())
 
+    def test_stamp_refreshed_while_runner_runs(self):
+        runner_dir = self.base / "runner"
+        (runner_dir / "run.sh").write_text(
+            '#!/bin/sh\nprintf "start\\n" >> "$RUN_CALLS"\nsleep 4\nexit 0\n'
+        )
+        (runner_dir / "run.sh").chmod(0o755)
+        proc = subprocess.Popen(
+            ["/bin/zsh", str(SCRIPT)],
+            env={**self._env, "AURA_SUPERVISOR_TEST_MAX_ITERATIONS": "1"},
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            for _ in range(50):
+                if self.run_calls.exists() and "start" in self.run_calls.read_text():
+                    break
+                time.sleep(0.1)
+            stamp = self.state / "watchdog-heartbeat"
+            first = int(stamp.read_text())
+            time.sleep(1.5)
+            self.assertIsNone(proc.poll(), "runner should still be running")
+            second = int(stamp.read_text())
+            # POLL_SECONDS=1: at least one refresh must land in 1.5s.
+            self.assertGreaterEqual(second, first + 1)
+        finally:
+            proc.terminate()
+            proc.wait(timeout=10)
+
     def test_heartbeat_lives_outside_repository(self):
         self._set_dead()
         self._run({"AURA_SUPERVISOR_TEST_MAX_ITERATIONS": "1"})
@@ -188,12 +217,30 @@ class SupervisorContractTests(unittest.TestCase):
 
     def test_toolchain_pin_exports_developer_dir(self):
         self.assertIn("export DEVELOPER_DIR=", self.script)
-        self.assertIn("swift --version", self.script)
+        self.assertIn('"$DEVELOPER_DIR/usr/bin/swift" --version', self.script)
         self.assertIn("toolchain-baseline.txt", self.script)
+
+    def test_toolchain_is_not_prepended_to_path(self):
+        # Regression: prepending the toolchain to PATH made CI jobs resolve
+        # python3 (and other system tools) from Xcode's bundled toolchain
+        # instead of the interactive-baseline environment (tomllib missing
+        # under Xcode's Python 3.9). DEVELOPER_DIR alone is the pin.
+        self.assertNotIn('export PATH="$DEVELOPER_DIR/usr/bin:$PATH"', self.script)
+        self.assertNotIn("PATH=\"$DEVELOPER_DIR/usr/bin:$PATH\"", self.script)
+
+    def test_heartbeat_refreshed_while_runner_alive(self):
+        # A blocking wait on a healthy runner must not freeze the stamp.
+        self.assertIn(
+            'while kill -0 "$child_pid" 2>/dev/null; do\n'
+            '    write_heartbeat\n'
+            '    sleep "$POLL_SECONDS"',
+            self.script,
+        )
 
     def test_backoff_is_exponential_with_cap(self):
         self.assertIn("BACKOFF_BASE * (1 << (recent - 1))", self.script)
         self.assertIn("BACKOFF_MAX", self.script)
+        self.assertIn("fresh_sleep \"$backoff\"", self.script)
 
     def test_heartbeat_written_outside_repo(self):
         self.assertIn("watchdog-heartbeat", self.script)

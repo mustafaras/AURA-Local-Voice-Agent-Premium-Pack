@@ -87,6 +87,20 @@ attempt is the CI run of the ledger-evidence push itself, executed on the
 supervised runner. Gates remaining: gate-2 green run, supervisor-template
 TCC copy-first fix (pre-Gate-4), two reboots.
 
+### 2026-09-08T10:22Z — stage-2 gate-2 attempt 1 failed; supervisor PATH + heartbeat fixed
+
+CI run `34214697708` failed governance: Xcode's bundled Python 3.9
+resolved `python3` because the supervisor prepended the toolchain to
+PATH (tomllib requires >= 3.11). Fix: no PATH prepend — `DEVELOPER_DIR`
+alone is the pin; baseline recorded via absolute
+`"$DEVELOPER_DIR/usr/bin/swift" --version`. Second bug fixed: the
+blocking `wait` on a healthy runner froze the watchdog stamp (age 4538s,
+false alerts) — replaced with a `kill -0` polling loop refreshing the
+heartbeat every poll, and backoff sleeps go through `fresh_sleep`. 4 new
+regression/behavior tests; supervisor suite 15/15. Old supervisor tree
+(86609) still runs the buggy script; restart on the fixed copy precedes
+Gate 2 attempt 2 (the chore-advance push's run).
+
 ## 2026-09-07 — ADR-055 owner-directed local enablement (uncommitted, edit/test authority)
 
 All disabled capabilities are now enabled for local use under

@@ -6433,3 +6433,35 @@ delivery is explicitly excluded; local-only claims remain truthful.
   proof attempt on the supervised runner (keychain round-trips, strict
   build, full suite, 70% coverage gate, artifact upload; any `-25308`
   fails the strategy).
+
+### 2026-09-08T10:22Z — Gate 2 attempt 1 failed: supervisor PATH and heartbeat bugs found and fixed
+
+Gate 2 attempt 1 (CI run `34214697708`, commit `b394466`) failed
+governance in 30s: `test_validate_repo_hygiene_supply_chain` raised
+`ModuleNotFoundError: No module named 'tomllib'`. Root cause 1: the
+supervisor exported `PATH="$DEVELOPER_DIR/usr/bin:$PATH"`, so the CI job
+resolved `python3` from Xcode-27.0.0-beta.5's bundled Python 3.9
+(`tomllib` requires Python >= 3.11) instead of the interactive-baseline
+Python. The toolchain pin is `DEVELOPER_DIR` alone — the
+`/usr/bin/{swift,xcodebuild,xcrun}` shims honor it — so the PATH prepend
+was removed and the baseline recording now invokes
+`"$DEVELOPER_DIR/usr/bin/swift" --version` absolutely (PATH-independent,
+deterministic). Root cause 2: the restart loop blocked in
+`wait "$child_pid"`, so a healthy long-lived runner never refreshed the
+watchdog heartbeat (observed age 4538s; the 300s-stale watchdog fired
+false alerts). Fixed with a `kill -0` polling loop that calls
+`write_heartbeat` every `POLL_SECONDS` while the runner child is alive,
+plus a `fresh_sleep` helper used for the bounded backoff sleep so long
+backoffs also keep the stamp fresh.
+
+Tests: `scripts/tests/test_runner_supervisor.py` gained a PATH-prepend
+regression assertion, an absolute-swift-baseline assertion, a
+heartbeat-refresh loop contract assertion, and a behavioral test
+(`test_stamp_refreshed_while_runner_runs`, Popen-based) that samples the
+stamp twice during a 4s fake runner and requires it to advance.
+`zsh -n scripts/runner-supervisor.sh` clean; supervisor suite 15/15;
+scripts suite 92 tests with only the expected pre-existing
+`test_current_repository_state_is_valid` failure (live HEAD vs stale
+`verified_head`, non-projection changes — resolved by the chore advance
+that follows). The old supervisor tree (86609) still runs the buggy
+script and will be restarted on the fixed copy before Gate 2 attempt 2.
