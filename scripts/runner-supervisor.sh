@@ -78,12 +78,21 @@ acquire_lock() {
 
 lock_acquired=0
 cleanup() {
+  # Preserve the shell's pending exit status: the EXIT trap fires on every
+  # exit path (including the lock-refusal `exit 3`), and an unguarded
+  # exit inside the handler would clobber it.
+  cleanup_rc=$?
   if (( lock_acquired == 1 )); then
     rm -rf "$STATE_DIR/supervisor.lock" 2>/dev/null
   fi
   if [[ -n "${child_pid:-}" ]] && kill -0 "$child_pid" 2>/dev/null; then
     kill "$child_pid" 2>/dev/null
   fi
+  # The trap must terminate the shell: without an explicit exit the main
+  # loop resumes after the interrupted wait and the supervisor survives
+  # its own shutdown signal (observed live: TERM left a lock-less
+  # supervisor looping in monitor-only mode).
+  exit "$cleanup_rc"
 }
 trap cleanup TERM INT EXIT
 

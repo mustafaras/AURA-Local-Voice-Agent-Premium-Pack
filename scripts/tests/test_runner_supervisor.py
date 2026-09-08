@@ -228,6 +228,16 @@ class SupervisorContractTests(unittest.TestCase):
         self.assertNotIn('export PATH="$DEVELOPER_DIR/usr/bin:$PATH"', self.script)
         self.assertNotIn("PATH=\"$DEVELOPER_DIR/usr/bin:$PATH\"", self.script)
 
+    def test_term_trap_terminates_supervisor(self):
+        # Regression: a trap handler that only cleans up lets the main loop
+        # resume after the interrupted wait, so TERM failed to stop the
+        # supervisor (observed live 2026-09-08: it kept monitor-looping).
+        # The handler must end with an explicit exit that preserves the
+        # pending status (the lock-refusal path exits 3 through it).
+        cleanup = self.script.split("cleanup() {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("cleanup_rc=$?", cleanup)
+        self.assertIn('exit "$cleanup_rc"', cleanup)
+
     def test_heartbeat_refreshed_while_runner_alive(self):
         # A blocking wait on a healthy runner must not freeze the stamp.
         self.assertIn(
