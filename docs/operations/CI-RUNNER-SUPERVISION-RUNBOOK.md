@@ -19,14 +19,25 @@ counted as healthy.
 
 ### Install
 
+The script cannot run from the repository checkout: launchd agents cannot
+read `~/Desktop` (TCC folder protection). Install a byte-identical copy in
+the state directory and point the agent at it.
+
 ```sh
 REPO_PATH="$HOME/Desktop/AURA-Local-Voice-Agent-Premium-Pack"
-mkdir -p "$HOME/Library/LaunchAgents" "$HOME/Library/Application Support/AURA-Runner/logs"
-sed -e "s|@HOME@|$HOME|g" -e "s|@REPO_PATH@|$REPO_PATH|g" \
+AURA_STATE="$HOME/Library/Application Support/AURA-Runner"
+mkdir -p "$HOME/Library/LaunchAgents" "$AURA_STATE/logs" "$AURA_STATE/scripts"
+cp "$REPO_PATH/scripts/ci-runner-watchdog.sh" "$AURA_STATE/scripts/"
+shasum -a 256 "$REPO_PATH/scripts/ci-runner-watchdog.sh" \
+              "$AURA_STATE/scripts/ci-runner-watchdog.sh"   # must match
+sed -e "s|@HOME@|$HOME|g" -e "s|@AURA_STATE@|$AURA_STATE|g" \
   "$REPO_PATH/docs/operations/com.aura.ci-runner-watchdog.plist.template" \
   > "$HOME/Library/LaunchAgents/com.aura.ci-runner-watchdog.plist"
 launchctl load "$HOME/Library/LaunchAgents/com.aura.ci-runner-watchdog.plist"
 ```
+
+After each repository-side watchdog change, re-copy and verify the hash
+again before reloading the agent.
 
 ### Verify
 
