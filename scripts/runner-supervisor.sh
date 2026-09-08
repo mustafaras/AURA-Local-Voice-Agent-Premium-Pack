@@ -110,8 +110,12 @@ export DEVELOPER_DIR="$DEVELOPER_DIR_DEFAULT"
 # DEVELOPER_DIR is the pin: /usr/bin/{swift,xcodebuild,xcrun} honor it.
 # Deliberately NOT prepended to PATH — the toolchain's usr/bin would shadow
 # system tools the CI jobs need (e.g. python3 >= 3.11 for tomllib) and
-# diverge from the interactive baseline that was green.
-if "$DEVELOPER_DIR/usr/bin/swift" --version > "$STATE_DIR/toolchain-baseline.txt" 2>&1; then
+# diverge from the interactive baseline that was green. The swift binary is
+# invoked through the stable absolute shim (real Xcode layouts do not put
+# swift at <DEVELOPER_DIR>/usr/bin/swift); the shim ignores PATH entirely.
+# Tests override AURA_SUPERVISOR_SWIFT_BIN to inject a fake toolchain.
+SWIFT_BIN="${AURA_SUPERVISOR_SWIFT_BIN:-/usr/bin/swift}"
+if "$SWIFT_BIN" --version > "$STATE_DIR/toolchain-baseline.txt" 2>&1; then
   log "toolchain pinned: DEVELOPER_DIR=$DEVELOPER_DIR baseline recorded"
 else
   log "toolchain pinning: swift --version failed at start (recorded verbatim)"

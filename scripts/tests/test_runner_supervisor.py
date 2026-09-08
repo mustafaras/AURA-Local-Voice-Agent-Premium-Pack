@@ -40,8 +40,9 @@ class SupervisorBehaviorTests(unittest.TestCase):
         self.base = Path(self.tmp.name)
         self.fake_dir = self.base / "fake-bin"
         self.fake_dir.mkdir()
-        # Fake Xcode: the supervisor resolves swift via DEVELOPER_DIR/usr/bin
-        # (real Xcode layout: <DEVELOPER_DIR>/usr/bin/swift).
+        # Fake toolchain: the supervisor resolves swift through the
+        # AURA_SUPERVISOR_SWIFT_BIN override (production default is the
+        # stable absolute /usr/bin/swift shim, which honors DEVELOPER_DIR).
         fake_xcode_bin = (
             self.base / "fake-xcode" / "Contents" / "Developer" / "usr" / "bin"
         )
@@ -73,6 +74,15 @@ class SupervisorBehaviorTests(unittest.TestCase):
                 "AURA_SUPERVISOR_TEST_MODE": "1",
                 "AURA_SUPERVISOR_DEVELOPER_DIR": str(
                     self.base / "fake-xcode" / "Contents" / "Developer"
+                ),
+                "AURA_SUPERVISOR_SWIFT_BIN": str(
+                    self.base
+                    / "fake-xcode"
+                    / "Contents"
+                    / "Developer"
+                    / "usr"
+                    / "bin"
+                    / "swift"
                 ),
                 "OSASCRIPT_LOG": str(self.osascript_log),
                 "PGREP_FAKE_FILE": str(self.base / "pgrep-result"),
@@ -217,7 +227,8 @@ class SupervisorContractTests(unittest.TestCase):
 
     def test_toolchain_pin_exports_developer_dir(self):
         self.assertIn("export DEVELOPER_DIR=", self.script)
-        self.assertIn('"$DEVELOPER_DIR/usr/bin/swift" --version', self.script)
+        self.assertIn('AURA_SUPERVISOR_SWIFT_BIN:-/usr/bin/swift', self.script)
+        self.assertIn('"$SWIFT_BIN" --version', self.script)
         self.assertIn("toolchain-baseline.txt", self.script)
 
     def test_toolchain_is_not_prepended_to_path(self):
