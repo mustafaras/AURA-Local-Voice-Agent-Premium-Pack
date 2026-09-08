@@ -6235,3 +6235,44 @@ delivery is explicitly excluded; local-only claims remain truthful.
   ADR would be needed for any service-mode change); remaining owner steps are
   unchanged (wake-word training; acceptance-profile envs when the gated
   capabilities are needed).
+
+### 2026-09-08T07:37Z — Model committee decision: durable CI runner strategy (unanimous, chaired by Sol)
+
+- **Event:** the owner invoked `/model-committee`, chose the decision topic
+  (durable CI runner strategy), confirmed external spend, and selected the
+  chair. Per the skill's chair table, a Sol chair drops the GPT member to
+  `gpt-5.6-terra`; the chair step is always delegated (this session runs
+  `glm-5.3-flash:cloud`, so the fail-closed branch applied). Seven external
+  calls were executed: two per round plus the chair.
+- **Method (protocol-conformant):** brief frozen before round 1 with a
+  precommitted rubric (weights 25/25/20/10/10/10, default tie rule, hard
+  constraints: no plaintext keychain secrets; no silent test removal; ADR
+  required for any mode change). R1 blind proposals (terra xhigh, opus high)
+  → R2 anonymous cross-critique (Proposal A/B) → R3 blinded cross-ranking
+  with reversed candidate order between members → chair `gpt-5.6-sol xhigh`
+  delegated with brief, all round outputs, and the authoritative label map.
+- **Result:** **unanimous STAGED-HYBRID** — (1) a credential-free local
+  liveness watchdog lands immediately (launchd permitted for the watchdog
+  only; it never touches the keychain); (2) a detached, self-restarting
+  supervisor (Login Item, Aqua-session membership, PID-file guard, restart
+  circuit breaker, explicit toolchain environment pinning) replaces the
+  hand-typed `run.sh` + `caffeinate` routine, gated on four proofs
+  (Terminal-Cmd-Q survival with matching audit-session, full green run with
+  all four keychain round-trips, byte-matched `swift --version` parity,
+  two real reboots). `ci.yml` unchanged. ADR-056 is a precondition and must
+  re-scope the 2026-09-07T15:51Z rule to its protected property and record
+  the GitHub-hosted migration as a proof-gated escape hatch.
+- **Rubric result (chair-verified, independently re-verified):**
+  STAGED-HYBRID 845/1000 (380+465) vs HOSTED-MIGRATION 645/1000 (285+360);
+  margin 20% > 5%; both rankings agreed on the winner; no disqualifiers from
+  either reviewer.
+- **Artifacts:** `.committee-tmp/runner-strategy/` — brief.md, round-1/2/3
+  prompt+output pairs for both members, chair.prompt.md, decision.md.
+- **Verdict / class:** advisory decision record only; no code, workflow, or
+  policy file changed; implementation deferred until the owner accepts the
+  decision (implement-once-accepted rule). Ledger/CURRENT_STATE updates are
+  local-only pending commit authorization.
+- **Exact next action:** owner acceptance of the decision → draft
+  `docs/decisions/ADR-056-self-hosted-runner-execution-mode.md` → implement
+  watchdog and supervisor as separate, independently revertible commits with
+  tests per the repo contract.

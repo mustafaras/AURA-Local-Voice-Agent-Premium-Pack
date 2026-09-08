@@ -34,6 +34,24 @@ documented `AURA_SP011_*`/`AURA_SP012_*` relaunch envs. `beta-readiness.json`
 / `release_candidate` remain `blocked` / `approved:false`; no commit/push was
 performed.
 
+## 2026-09-08 — CI green on delivery SHAs; model committee picked durable runner strategy (pending owner acceptance, uncommitted)
+
+Both delivery-record push runs completed success on the recovered interactive
+runner: `8cf6cec` (run 34198510336, 8m4s) and `3abe7d0` (run 34198534757,
+16m13s) — governance + build-and-test green, no queued-time incident. The
+owner then ran `/model-committee` on the durable CI runner strategy
+(7 external calls; chair Sol delegated, GPT member `gpt-5.6-terra`): the
+**unanimous STAGED-HYBRID** decision is recorded in
+`ledger/PROJECT_LEDGER.md` (2026-09-08T07:37Z) — credential-free watchdog
+first, then a detached supervisor (Login Item, toolchain-pinned, PID-guarded,
+circuit-broken) gated on four proofs, `ci.yml` untouched, ADR-056 a
+precondition, GitHub-hosted migration kept as a proof-gated escape hatch
+(aggregate 845/1000 vs 645/1000, margin 20%, no disqualifiers). Advisory
+only: no code changed; ADR-056 drafting and implementation wait for owner
+acceptance; ledger/current-state updates are local-only pending commit
+authorization; `.committee-tmp/runner-strategy/` holds the full transcript
+pending the owner's keep/delete choice.
+
 ## 2026-09-07 — ADR-055 owner-directed local enablement (uncommitted, edit/test authority)
 
 All disabled capabilities are now enabled for local use under
