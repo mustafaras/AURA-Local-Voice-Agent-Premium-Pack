@@ -1409,3 +1409,13 @@ bundle 238/238 (6.900 s), full suite `Failed bundles: 0`. Residual
 risk accepted: sibling test with fixed 30 ms sleep (immediate
 transition, larger margin) migrates to `waitUntil` only if it flakes.
 Next: record→advance delivery pair to turn the tip green on CI.
+
+### 2026-09-08T16:06Z — second timing flake stabilized; delivery pair re-run
+
+Run `34246601099` confirmed the continuation-window stabilization
+(AuraAgentTests 238/238 on CI) but exposed a second fixed-sleep race:
+the PushToTalk hard-deadline test lost a 150 ms sleep against a real
+50 ms deadline under CI load. Same bounded-polling pattern applied
+(file-scoped `waitUntil`, 2 s budget); full suite green locally
+(`Failed bundles: 0`). Remaining fixed-sleep expectations in the
+integration suites are event-driven rather than deadline-driven.

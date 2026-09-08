@@ -7,6 +7,23 @@ import Testing
 
 @testable import AURA
 
+/// Polls `condition` until it holds or the timeout elapses.
+///
+/// CI koşucularında yük kaynaklı scheduler gecikmeleri sabit uyku
+/// tabanlı beklentileri kaçırdırdığından, süre tabanlı finalization
+/// geçişleri sabit uyku yerine sınırlı polling ile doğrulanır.
+private func waitUntil(
+  timeout: Duration = .seconds(2),
+  _ condition: () async -> Bool
+) async -> Bool {
+  let deadline = ContinuousClock.now + timeout
+  while ContinuousClock.now < deadline {
+    if await condition() { return true }
+    try? await Task.sleep(for: .milliseconds(10))
+  }
+  return await condition()
+}
+
 private actor PushToTalkEventRecorder {
   private(set) var inactiveActivations = 0
   private(set) var inactiveContexts: [TurnContext?] = []
@@ -166,8 +183,10 @@ func pushToTalkHardDeadlineEndsSilentSession() async throws {
     EventEnvelope(
       correlationID: UUID(), causationID: UUID(), actor: .user, sensitivity: .sensitive,
       payload: WakeActivationEvent(isActive: true, privacyMode: false)))
-  try await Task.sleep(for: .milliseconds(150))
-
+  // CI yükü altında 50 ms'lik deadline'ı sabit uykuya sığdırmak güvenilmez;
+  // sessiz oturumun kapanmasını sınırlı süre içinde bekler.
+  let settled = await waitUntil { await recorder.inactiveActivations == 1 }
+  #expect(settled)
   #expect(await recorder.inactiveActivations == 1)
 }
 

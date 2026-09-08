@@ -6650,3 +6650,26 @@ reboots, owner action) with the copy-first plist install after it.
   unittest 96/96 OK post-advance (commit→validate→push ordering, the
   pre-advance 95/96 error is the documented `test_current_repository_
   state_is_valid` worktree-claim ordering, not a defect).
+
+### 2026-09-08T16:06Z — second CI flake stabilized (PushToTalk hard deadline); delivery pair re-run
+- Run `34246601099` (advance `3f38691`): governance SUCCESS, but
+  build-and-test FAILED on a SECOND timing-sensitive test —
+  `PushToTalkFinalizationTests.swift:171` "Push to Talk hard deadline
+  closes a session even when no speech is observed":
+  `inactiveActivations == 1` after a fixed 150 ms sleep racing a real
+  50 ms hard deadline (`maxDurationSeconds: 0.05`). The first
+  stabilization held: AuraAgentTests passed (238/238, 23.447 s on CI).
+- **Fix (same bounded-polling pattern):** file-scoped `waitUntil`
+  helper added to `PushToTalkFinalizationTests`; the deadline test now
+  polls `inactiveActivations == 1` (10 ms cadence, 2 s budget) instead
+  of sleeping a fixed 150 ms. No production code changed.
+- **Validation:** targeted filter 4/4 pass; AURAIntegrationTests bundle
+  126/126 (0.618 s); full suite `Failed bundles: 0`.
+- **Pattern note:** two fixed-sleep tests lost their race under CI load
+  today (10 ms continuation window, 50 ms hard deadline). Remaining
+  fixed-sleep expectations are event-driven (await-chained) rather than
+  deadline-driven; migrate any future deadline-driven ones to
+  `waitUntil` on first CI flake.
+- **Scope:** `Tests/AURAIntegrationTests/PushToTalkFinalizationTests.swift`
+  + ledger/CURRENT_STATE records. Commit+push under the owner's
+  stabilize-now authorization (2026-09-08T15:00Z).
