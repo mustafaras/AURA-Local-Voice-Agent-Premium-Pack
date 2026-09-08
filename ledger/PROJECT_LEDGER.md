@@ -6276,3 +6276,34 @@ delivery is explicitly excluded; local-only claims remain truthful.
   `docs/decisions/ADR-056-self-hosted-runner-execution-mode.md` → implement
   watchdog and supervisor as separate, independently revertible commits with
   tests per the repo contract.
+
+### 2026-09-08T07:58Z — Governance remediation: verified_head advanced to the ADR-056 record commit
+
+- **Event:** push runs `34200504544` (`00a920b`) and `34200516316`
+  (`bde8990`) failed governance in ~20s:
+  `validate_runtime_completion.py --ci` rejected the live HEAD as a
+  non-projection descendant of `verified_head` (`80c363e`) because the
+  committee record added `docs/decisions/ADR-056-…md`, which is not on the
+  ADR-045 projection allowlist. This is the validator working as designed:
+  ADR-045 requires an audit and evidence before the verified baseline
+  advances.
+- **Evidence basis for the advance:** the audit and evidence already exist in
+  the record commit — the unanimous `/model-committee` decision (7 external
+  calls, chair-verified rubric, transcript in `.committee-tmp/`),
+  ADR-056 itself, and green delivery runs `34198510336`/`34198534757` on
+  `8cf6cec`/`3abe7d0`.
+- **Change:** one projection-only `chore(state)` commit advances
+  `current-state.repository.verified_head` and
+  `capability-matrix.repository_commit` to `00a920b…27f` (the audited record
+  commit), per the established `chore(state): sync verified_head` precedent
+  (`1d52e1f`, `c0ac10b`). `remote_head` intentionally remains `00a920b…27f`;
+  the remote check's intervening diff is projection-only, so it stays valid
+  until the next record/pointer cycle.
+- **Falsifier:** that any product/source file changed in the advance; that
+  `ci.yml`, sources, or tests were modified; that the validator allowlist was
+  widened to force a pass.
+- **Verdict / class:** state projection advance with evidence basis;
+  CI re-verification of the advance commit pending on the local runner.
+- **Exact next action:** push the `chore(state)` commit, verify the AURA CI
+  run goes green, then proceed to ADR-056 Stage 1 (watchdog) only on owner
+  authorization.

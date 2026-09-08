@@ -2,13 +2,13 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-08T07:40:06Z",
+  "updated_at": "2026-09-08T07:58:00Z",
   "session_id": "AURA-SP-033-SYNTHETIC-ACCEPTED-20260903",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "80c363e4ef8cdad199ecd1639e4758bc9d07afe7",
+    "verified_head": "00a920bd3cabb8a1d20c928c424af31c1e89e27f",
     "remote_head": "00a920bd3cabb8a1d20c928c424af31c1e89e27f",
     "working_tree_state": "clean",
     "user_owned_changes": []
@@ -631,5 +631,5 @@
     "External beta/production release remains out of scope: ADR-049 (no Developer ID/notarization) and release_or_deploy:false. beta-readiness.json readiness_status and release_candidate.status remain blocked / approved:false.",
     "Gates closed under ADR-053 use synthetic/deterministic/local-observed evidence at their true evidence class; they are not live-user, beta, signed, or notarized proof. ADR-055 (2026-09-07, owner-directed) is the explicit reopen decision for computerUse.run, the destructive lifecycle set, task.delete, Ollama cloud inference, and the screen/browser host defaults; provider OAuth/real-account flows, Safari unsigned-extension trust, and wake word remain unprovisioned and are never presented as live or enabled."
   ],
-  "next_action": "Second-pass chain SP-000-SP-033 is COMPLETE under ADR-053 synthetic-accepted scope (owner-instructed 2026-09-03): live-user acceptance not required; gates blocked solely on absent live evidence closed with synthetic/deterministic/local-observed evidence. beta-readiness.json / release_candidate remain blocked and approved:false (no externally distributable signed-notarized artifact; ADR-049; no release authority). External distribution, if ever required, needs a new ADR and cannot be derived from this closure. ADR-055 (2026-09-07): owner-directed local enablement recorded — computer use with an open allowlist (all applications), destructive lifecycle + task.delete without a confirmation challenge, Ollama cloud inference, and screen capture enabled by default; wake word, Safari extension trust, and provider OAuth remain owner provisioning steps or excluded. NOTE: `program_status` is intentionally `blocked`, not `completed`, because the program-state schema only permits planned/in_progress/blocked/beta_validation/release_candidate_verified/released/suspended. This blocked status reflects the external-release scope boundary (ADR-049/ADR-053), not an unresolved internal gap."
+  "next_action": "Second-pass chain SP-000-SP-033 is COMPLETE under ADR-053 synthetic-accepted scope (owner-instructed 2026-09-03): live-user acceptance not required; gates blocked solely on absent live evidence closed with synthetic/deterministic/local-observed evidence. beta-readiness.json / release_candidate remain blocked and approved:false (no externally distributable signed-notarized artifact; ADR-049; no release authority). External distribution, if ever required, needs a new ADR and cannot be derived from this closure. ADR-055 (2026-09-07): owner-directed local enablement recorded \u2014 computer use with an open allowlist (all applications), destructive lifecycle + task.delete without a confirmation challenge, Ollama cloud inference, and screen capture enabled by default; wake word, Safari extension trust, and provider OAuth remain owner provisioning steps or excluded. NOTE: `program_status` is intentionally `blocked`, not `completed`, because the program-state schema only permits planned/in_progress/blocked/beta_validation/release_candidate_verified/released/suspended. This blocked status reflects the external-release scope boundary (ADR-049/ADR-053), not an unresolved internal gap."
 }

@@ -34,7 +34,7 @@ documented `AURA_SP011_*`/`AURA_SP012_*` relaunch envs. `beta-readiness.json`
 / `release_candidate` remain `blocked` / `approved:false`; no commit/push was
 performed.
 
-## 2026-09-08 — CI green on delivery SHAs; model committee picked durable runner strategy (pending owner acceptance, uncommitted)
+## 2026-09-08 — CI green on delivery SHAs; model committee picked durable runner strategy (committed; verified_head advanced)
 
 Both delivery-record push runs completed success on the recovered interactive
 runner: `8cf6cec` (run 34198510336, 8m4s) and `3abe7d0` (run 34198534757,
@@ -46,11 +46,15 @@ owner then ran `/model-committee` on the durable CI runner strategy
 first, then a detached supervisor (Login Item, toolchain-pinned, PID-guarded,
 circuit-broken) gated on four proofs, `ci.yml` untouched, ADR-056 a
 precondition, GitHub-hosted migration kept as a proof-gated escape hatch
-(aggregate 845/1000 vs 645/1000, margin 20%, no disqualifiers). Advisory
-only: no code changed; ADR-056 drafting and implementation wait for owner
-acceptance; ledger/current-state updates are local-only pending commit
-authorization; `.committee-tmp/runner-strategy/` holds the full transcript
-pending the owner's keep/delete choice.
+(aggregate 845/1000 vs 645/1000, margin 20%, no disqualifiers). The owner
+accepted the decision: ADR-056 was drafted and the record was committed and
+pushed as `00a920b` (record) + `bde8990` (pointer sync). Both push runs failed
+governance because ADR-056 is a non-projection file above the then-stale
+`verified_head`; the verified baseline was advanced to `00a920b` by a
+projection-only `chore(state)` commit (ledger 2026-09-08T07:58Z). Advisory
+implementation: ADR-056 Stage 1 (watchdog) and Stage 2 (supervisor) remain
+gated on separate owner authorization; `.committee-tmp/runner-strategy/`
+keeps the full transcript locally (gitignored, owner chose keep).
 
 ## 2026-09-07 — ADR-055 owner-directed local enablement (uncommitted, edit/test authority)
 
