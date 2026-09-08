@@ -1,4 +1,39 @@
 # Current State
+## 2026-09-07 — Owner provisioning turn: Gmail OAuth + VS Code bridge verified; Safari trust confirmed closed; acceptance profile cleaned (uncommitted, edit/test authority)
+
+The remaining owner-side provisioning steps were completed by owner-directed
+computer-use under ADR-055, then honestly reverted to the designed
+post-acceptance state. Gmail OAuth live acceptance ran end-to-end under the
+`AURA_SP011_LIVE_ACCEPTANCE` profile: loopback callback verified in-app,
+`mail.read.state = Bağlı` (m•••@gmail.com) confirmed in the UI, and the issued
+token persists in the login Keychain (service `AuraCore`; verified by item
+name only, value never read). The VS Code bridge shared secret was provisioned
+on both sides (AURA Keychain "Sağlandı" + `auraBridge.provision` SecretStorage)
+and all 9 VS Code capabilities verified Hazır while the profile was active.
+Safari extension trust is re-verified CLOSED per ADR-054/055 with fresh
+evidence: the appex is bundled and pluginkit-registered and passes strict
+codesign, but the locally signed app is Gatekeeper-rejected (TeamIdentifier
+not set) and Safari returns `SFErrorNoExtensionFound` and lists zero
+extensions; the session-scoped Developer-settings toggle had no effect and was
+restored off. Secret hygiene: the four `AURA_SP0*` launchctl variables are
+unset (verified), the two plaintext secret files were deleted unread, and
+`/tmp` scratch artifacts were removed. A clean-environment relaunch (PID 14433)
+reverts acceptance-gated capabilities BY DESIGN — mail + 9 VS Code rows Devre
+dışı — while the Keychain credentials persist. The `browser.read` row was then
+brought to Hazır by automation: the manifest-registered Chrome
+`Command+Shift+Y` shortcut was fired on `music.youtube.com`, the signed
+observation envelope landed (`visibleText` 4,766 chars), and AURA relaunched
+(PID 17144) so the launch probe validated the fresh envelope — the row only
+recomputes at launch and the observation carries a designed 180-second
+freshness bound — verified Hazır via AX (AXManualAccessibility probe needed
+after relaunch). Post-verification census: 30 Hazır / 10 Devre dışı.
+Remaining owner steps: wake-word training; the browser observation goes stale
+again after 180 s by design, so press Command-Shift-Y on a live page shortly
+before using browser.read; re-using the Gmail/VS Code legs requires the
+documented `AURA_SP011_*`/`AURA_SP012_*` relaunch envs. `beta-readiness.json`
+/ `release_candidate` remain `blocked` / `approved:false`; no commit/push was
+performed.
+
 ## 2026-09-07 — ADR-055 owner-directed local enablement (uncommitted, edit/test authority)
 
 All disabled capabilities are now enabled for local use under

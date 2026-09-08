@@ -6077,3 +6077,124 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Exact next action:** owner-side persistent runner service
   (`svc.sh install/start`) as the durable alternative to the session-scoped
   sleep hold; remaining owner provisioning unchanged.
+
+### 2026-09-07T15:51Z — CI infrastructure: launchd service incompatible with keychain tests
+
+- **Event:** installing the self-hosted runner as a user LaunchAgent
+  (`svc.sh`) broke `build-and-test` at Run tests: `AuraSecurityTests`
+  keychain round-trips failed with OSStatus `-25308`
+  (`errSecInteractionNotAllowed`) — a service session cannot interact with
+  the login keychain. Two intermediate failures also involved a leftover
+  interactive runner racing the service on `_diag/pages` log files. All
+  infrastructure; no code defects. The same SHAs had passed `build-and-test`
+  fully under the interactive runner.
+- **Resolution:** service uninstalled; runner reverted to interactive mode
+  with a `caffeinate -di` sleep hold; the failed job re-ran → **SUCCESS**.
+  Current `origin/main` head `7813f4e` is fully CI-green.
+- **Rule going forward:** run the self-hosted runner interactively
+  (Terminal + `caffeinate`), never as a launchd service, for this repo.
+- **Exact next action:** owner provisioning (TCC, VS Code bridge, Gmail
+  OAuth, Chrome extension); owner-directed computer-use assistance in
+  progress.
+
+### 2026-09-07T18:05Z — Owner provisioning turn: Gmail OAuth live acceptance completed, VS Code bridge secret provisioned both sides, Safari extension trust re-verified closed, secret hygiene applied
+
+- **Event:** owner-directed computer-use completion of the remaining
+  owner-side provisioning (Gmail OAuth approval + connect, VS Code
+  shared-secret provisioning, Safari extension trust verification,
+  secret/env hygiene) under ADR-055 owner-directed local enablement. No
+  source change; no commit/push (authorization not given).
+- **Evidence:**
+  - Composer keyboard-input blocker resolved via AX focus discipline: SwiftUI
+    text fields accept keystrokes only after `AXFocused` is set explicitly; AX
+    `click` does not move focus. Used for the mail approval field and the VS
+    Code SecureField.
+  - Gmail live acceptance completed under the `AURA_SP011_LIVE_ACCEPTANCE`
+    profile (client ID env + owner-provided client secret, secret value never
+    echoed, logged, or recorded): OAuth loopback callback with a fresh state
+    verified in-app, and the UI showed `mail.read.state = Bağlı`
+    (m•••@gmail.com). The issued token persists in the login Keychain
+    (service `AuraCore`, account `aura.oauth.gmail.m•••@gmail.com` — verified
+    by item name only; the secret value was never read).
+  - VS Code bridge shared secret generated (32 bytes, `secrets.token_urlsafe`)
+    and provisioned on both sides: AURA Settings showed "AURA Anahtar Zinciri:
+    Sağlandı" (Keychain account `ai.aura.vscode-bridge.ai.aura.vscode-bridge.shared-secret`)
+    and the Aura VS Code extension stored it via `auraBridge.provision`
+    SecretStorage. All 9 VS Code capabilities verified Hazır while the
+    acceptance profile was active.
+  - Safari extension trust: re-verified CLOSED per ADR-054/ADR-055 with fresh
+    evidence. `AuraSafariExtension.appex` is correctly bundled
+    (`manifest.json` + `background.js` present), pluginkit-registered
+    (`ai.aura.local.agent.SafariExtension(0.1.0)`), and passes
+    `codesign --verify --deep --strict`; the containing app is locally signed
+    (custom identity, TeamIdentifier not set) and Gatekeeper assessment is
+    rejected. Safari does not register the extension: header-verified
+    `SFSafariExtensionManager.getStateOfSafariExtensionWithIdentifier`
+    returns `SFErrorNoExtensionFound` (SFError.h:17) both before and after
+    flipping the session-scoped Developer-settings Extensions toggle, and the
+    Extensions pane lists zero extensions. The toggle was restored to its
+    original off state after testing.
+  - Post-cleanup clean-environment relaunch (PID 14433; `ps eww` shows no
+    `AURA_SP0*` variables): acceptance-gated capabilities revert by design —
+    `Postaları Oku` Devre dışı ("Henüz onaylanmış posta hesabı yok"; the
+    approval had been seeded by `AURA_SP011_TEST_EMAIL` under the profile),
+    all 9 VS Code capabilities Devre dışı ("shared-secret authentication is
+    not configured", VSCodeExtensionBridge.swift:98), `Tarayıcı Sayfasını
+    Oku` Kısıtlı (stale observation). Row census in the clean state:
+    29 Hazır / 10 Devre dışı / 1 Kısıtlı. The Keychain Gmail token and the
+    VS Code shared secret persist through the relaunch.
+  - Chrome browser.read refresh (Command-Shift-Y on a page, or the AURA
+    extension toolbar button) could not be triggered via AX: Chrome exposes
+    no `AXWebArea` and extension toolbar buttons carry no descriptions. The
+    row stays Kısıtlı pending one owner keystroke.
+- **Hygiene:** `launchctl` acceptance variables (`AURA_SP011_LIVE_ACCEPTANCE`,
+  `AURA_SP011_OAUTH_CLIENT_ID`, `AURA_SP011_TEST_EMAIL`,
+  `AURA_SP012_LIVE_ACCEPTANCE`) unset and verified empty; plaintext secret
+  files `~/.aura/gmail-oauth-secret` (35 B) and `~/.aura/vscode-bridge-secret`
+  (32 B) deleted (chmod 600 while present; contents never read, echoed, or
+  recorded anywhere); `/tmp` scratch artifacts removed. No secret, token,
+  code, or unredacted address appears in this entry.
+- **Verdict / class:** owner-provisioned live acceptance completed and
+  honestly reverted to the designed post-acceptance state; durable artifacts
+  are the Keychain credentials and the verified procedures. The acceptance
+  profile is intentionally off in clean runs.
+- **Exact next action:** owner presses Command-Shift-Y on a Chrome page to
+  refresh the browser.read observation (last outstanding owner step in this
+  turn's scope); using the Gmail/VS Code legs requires relaunching AURA with
+  the documented `AURA_SP011_*`/`AURA_SP012_*` envs or a future
+  productization task; commit/push remains unperformed.
+
+### 2026-09-07T18:22Z — browser.read readiness completed by automation (Chrome Cmd-Shift-Y + launch-probe timing)
+
+- **Event:** completing the one outstanding owner step recorded at 18:05Z
+  (refresh the Chrome bridge observation): the shortcut was triggered by
+  computer use and the `browser.read` capability row verified Hazır.
+- **Evidence:**
+  - The bundled extension's `manifest.json` registers `_execute_action` with
+    mac `Command+Shift+Y` (action title "Send this tab's visible text to
+    AURA").
+  - A System Events keystroke to Chrome (active tab `music.youtube.com`) made
+    the native host write
+    `~/Library/Application Support/AURA/SafariBridge/observation.json`
+    (issuedAt 18:10:05Z, `visibleText` 4,766 chars, signed envelope, profile
+    `personal`). An earlier attempt on `chrome://history/` wrote a valid but
+    empty-text envelope — Chrome content scripts cannot inject on chrome://
+    pages, so the shortcut must be pressed on a normal web page.
+  - Root cause of the stale row: the row state is computed at launch by
+    `probeExternalAvailability` (AuraKernel_Productivity.swift) and the
+    transport refuses observations older than 180 s + 5 s skew by file mtime
+    (SafariBridgeSecurity.swift:33; AuthenticatedSafariTransport
+    `readEnvelope`). The post-cleanup relaunch (PID 14433) had probed before
+    any fresh observation existed, and the UI does not re-probe on focus.
+  - Correct sequence, verified: fire the keystroke → immediately relaunch
+    AURA (clean env, new PID 17144) → launch probe validates the fresh
+    envelope → row reads "Tarayıcı Sayfasını Oku, Hazır" (verified via an AX
+    probe after setting `AXManualAccessibility`; the freshly launched app
+    exposed no AX tree to System Events until that attribute was set).
+- **Verdict / class:** owner-directed computer-use completion of the last
+  provisioning step in scope; no source change, no commit/push. The
+  observation's 180-second freshness bound is by design — future probes
+  report stale again until the shortcut is pressed on a live page.
+- **Exact next action:** none for this provisioning scope; wake-word training
+  remains the only unprovisioned owner step. Scratch probe
+  `/tmp/axprobe.swift` binary removed after use.
