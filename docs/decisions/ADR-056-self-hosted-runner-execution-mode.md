@@ -181,6 +181,13 @@ recovery (`ledger/PROJECT_LEDGER.md:6081-6095`); interactive pickup ~1 minute
 `decision.md`; aggregate 845/1000 vs 645/1000, margin 20%, unanimous, no
 disqualifiers; chair arithmetic independently verified).
 
+Implementation status (2026-09-08T08:20Z): stage-1 watchdog code, template,
+runbook, and 12 unit tests landed (`9cc2a33`); stage-2 supervisor code,
+template, and 13 unit tests landed in the companion stage-2 commit (see
+`ledger/PROJECT_LEDGER.md`, 2026-09-08T08:20Z); both `zsh -n` clean and green
+via `python3 -m unittest discover -s scripts/tests`. The stage-2 LaunchAgent
+is **not installed**; the four gates above remain pending and unproven.
+
 ## Consequences
 
 - The interactive-only rule is narrowed to its protected property; the

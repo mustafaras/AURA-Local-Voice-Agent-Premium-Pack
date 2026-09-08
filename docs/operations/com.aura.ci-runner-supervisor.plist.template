@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ADR-056 stage 2 (GATED — DO NOT INSTALL YET): runner-supervisor LaunchAgent
+  template. Installing this agent activates the supervisor, which requires the
+  four validation gates in ADR-056 (Cmd-Q survival, full green CI, swift
+  toolchain parity, two clean reboots) to be signed off first. Until then this
+  file is reference material only; see
+  docs/operations/CI-RUNNER-SUPERVISION-RUNBOOK.md.
+
+  KeepAlive is false on purpose: the supervisor manages its own bounded
+  restart loop and circuit breaker, and must not fight launchd over runner
+  restarts.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.aura.ci-runner-supervisor</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>@REPO_PATH@/scripts/runner-supervisor.sh</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>AURA_RUNNER_DIR</key>
+        <string>@HOME@/actions-runner</string>
+        <key>AURA_SUPERVISOR_DIR</key>
+        <string>@HOME@/Library/Application Support/AURA-Runner</string>
+        <key>AURA_SUPERVISOR_DEVELOPER_DIR</key>
+        <string>@XCODE_DIR@</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <false/>
+    <key>ProcessType</key>
+    <string>Background</string>
+    <key>StandardOutPath</key>
+    <string>@HOME@/Library/Application Support/AURA-Runner/logs/runner-supervisor-stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>@HOME@/Library/Application Support/AURA-Runner/logs/runner-supervisor-stderr.log</string>
+</dict>
+</plist>
