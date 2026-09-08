@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ADR-056 stage 1 (conditional): ci-runner-watchdog LaunchAgent template.
+
+  Substitute @HOME@ and @REPO_PATH@ before install (see
+  docs/operations/CI-RUNNER-SUPERVISION-RUNBOOK.md). Install with:
+    launchctl load ~/Library/LaunchAgents/com.aura.ci-runner-watchdog.plist
+
+  The watchdog is credential-free and only alerts locally (osascript
+  notification); it never talks to the network or the keychain.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.aura.ci-runner-watchdog</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>@REPO_PATH@/scripts/ci-runner-watchdog.sh</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>AURA_RUNNER_DIR</key>
+        <string>@HOME@/actions-runner</string>
+        <key>AURA_RUNNER_WATCHDOG_DIR</key>
+        <string>@HOME@/Library/Application Support/AURA-Runner</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StartInterval</key>
+    <integer>300</integer>
+    <key>ProcessType</key>
+    <string>Background</string>
+    <key>KeepAlive</key>
+    <false/>
+    <key>StandardOutPath</key>
+    <string>@HOME@/Library/Application Support/AURA-Runner/logs/watchdog-stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>@HOME@/Library/Application Support/AURA-Runner/logs/watchdog-stderr.log</string>
+</dict>
+</plist>

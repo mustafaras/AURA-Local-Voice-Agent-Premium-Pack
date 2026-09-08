@@ -6307,3 +6307,24 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Exact next action:** push the `chore(state)` commit, verify the AURA CI
   run goes green, then proceed to ADR-056 Stage 1 (watchdog) only on owner
   authorization.
+
+### 2026-09-08T08:06Z — ADR-056 implementation started (owner full approval)
+
+- **Objective:** land ADR-056 as two independently revertible commits —
+  (1) credential-free watchdog `scripts/ci-runner-watchdog.sh` + LaunchAgent
+  template + runbook, (2) detached Aqua-session supervisor
+  `scripts/runner-supervisor.sh` + login-time template + runbook — with
+  unittest coverage under `scripts/tests/`, `zsh -n` clean.
+- **Assumptions:** runner lives at `~/actions-runner` (verified, Listener
+  PID 37231); toolchain root `/Applications/Xcode-27.0.0-beta.5.app/…`
+  (verified via `xcode-select -p`); heartbeat state outside the repository
+  under `~/Library/Application Support/AURA-Runner/`.
+- **Risks:** new scripts are non-projection paths, so governance will
+  red-light the implementation commits until a following `chore(state)`
+  advances `verified_head` with evidence (same pattern as the ADR-056 record
+  remediation); stage-2 activation (login-time item load) stays gated on the
+  four acceptance proofs and is NOT performed by these commits.
+- **Acceptance criteria:** both scripts pass `zsh -n`; both test files pass
+  via `python3 -m unittest discover -s scripts/tests`; watchdog installable
+  and verifiable on this Mac; `ci.yml`, sources, and tests untouched;
+  ledger/CURRENT_STATE/ADR evidence updated; commits pushed with CI watched.
