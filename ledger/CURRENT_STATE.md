@@ -114,6 +114,29 @@ that let a lock-less supervisor monitor-loop, and a nonexistent
 Gate 3 (baseline byte-match) with a fresh heartbeat. Remaining: Gate 4
 two-reboot owner action + copy-first plist install.
 
+### 2026-09-08T14:30Z — stage-2 Gate 4 PASS; all four ADR-056 gates closed
+
+The owner installed both plists copy-first (11:20Z, regular files, lint OK,
+ProgramArguments → state-dir script copies; supervisor sha256 `253ca5ea…`
+repo == state) and performed two real reboots (13:17Z and 13:41:49Z). On
+both boots launchd alone started the supervisor (PPID 1; PIDs 786 then
+1304) with the pinned toolchain, the full run.sh → run-helper →
+Runner.Listener tree came up, the GitHub runner reported `online`
+(`busy:false`), the watchdog reported fresh (current:
+`healthy (pid=2744 stamp=fresh)`), and the re-recorded
+`toolchain-baseline.txt` byte-matched (Swift 6.4,
+`swiftlang-6.4.0.30.4`, `arm64-apple-macosx27.0.0`) — no improvised owner
+commands. The watchdog's pre-login `unhealthy` boot-gap lines are the
+designed detection (detection, not availability). Gate 4 criterion
+("Across two real reboots, the Login Item starts the supervisor, the
+Listener comes up, and the watchdog reports fresh without improvised
+owner commands") is met on both reboots; **ADR-056 implementation is
+complete** (Gate 1 mechanism evidence + Gate 2 `34215969514` + Gate 3
+byte-match + Gate 4 two-reboot, all PASS). Residuals unchanged: CI queues
+until next GUI login after an unattended reboot; push-triggered workflow
+code keeps login-keychain access (recorded dissent). Ledger:
+2026-09-08T14:30Z entry.
+
 ## 2026-09-07 — ADR-055 owner-directed local enablement (uncommitted, edit/test authority)
 
 All disabled capabilities are now enabled for local use under

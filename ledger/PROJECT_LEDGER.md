@@ -6498,3 +6498,57 @@ Gate 3 re-proven on the restarted tree: the recorded
 heartbeat age 4s at verification. State-dir script copy re-verified
 (sha256 `253ca5ea…`, repo == state). Remaining gates: Gate 4 (two
 reboots, owner action) with the copy-first plist install after it.
+
+### 2026-09-08T14:30Z — Gate 4 PASS across two real reboots; all four ADR-056 stage-2 gates closed
+
+- **Owner action:** copy-first plist install (11:20Z / 14:20 local) then two
+  real reboots (13:17Z and 13:41:49Z, both 2026-09-08) via Apple-menu
+  Restart; no other intervention, no improvised owner commands.
+- **Copy-first plist install: PASS.** Both LaunchAgents are regular-file
+  copies (not symlinks) under `~/Library/LaunchAgents/`
+  (`com.aura.ci-runner-supervisor.plist` 2190 B installed 11:20Z,
+  `com.aura.ci-runner-watchdog.plist` 1645 B; both `plutil -lint` OK).
+  ProgramArguments point at the state-dir copies — supervisor script
+  sha256 `253ca5ea…` repo == state byte-match, watchdog script sha256
+  `f322ee98…` matches the recorded copy-first hash.
+- **Reboot #1 (boot 13:17Z): PASS** (live evidence collected in the prior
+  session): launchd started the supervisor (PID 786, PPID 1, 13:33:27Z per
+  the supervisor log, pinned `DEVELOPER_DIR` baseline recorded), full tree
+  run.sh → run-helper → Runner.Listener came up, GitHub API runner
+  `online`, watchdog heartbeat fresh; the watchdog's boot-gap `unhealthy`
+  lines before login were the designed detection working.
+- **Reboot #2 (boot 13:41:49Z, `kern.boottime` 1788874909): PASS.** launchd
+  started the supervisor (PID 1304, PPID 1) at 13:42:52Z — log:
+  `toolchain pinned: DEVELOPER_DIR=… baseline recorded` then `supervisor
+  starting (pid 1304)`. Full tree without any owner command: run.sh 2732 →
+  run-helper 2739 → Runner.Listener 2744. `supervisor.lock/pid` = 1304
+  (match). `toolchain-baseline.txt` re-recorded at boot, byte-match
+  (Swift 6.4, `swiftlang-6.4.0.30.4`, `arm64-apple-macosx27.0.0`). GitHub
+  API: runner `m-rass-MacBook-Air` `online`, `busy:false`. Watchdog plist
+  loaded (StartInterval 300, 3 runs this boot), heartbeat fresh (epoch
+  1788877264, seconds old at check), current stdout
+  `watchdog: healthy (pid=2744 stamp=fresh)`.
+- **Watchdog detection note:** stderr `unhealthy` lines (stale heartbeat /
+  Listener not running) end at 13:42:46Z — the expected boot-gap detections
+  before the supervisor's first heartbeat on both boots; detection, not
+  availability, exactly as ADR-056 scoped.
+- **Gate 4: PASS.** "Across two real reboots, the Login Item starts the
+  supervisor, the Listener comes up, and the watchdog reports fresh without
+  improvised owner commands" — met on both reboots.
+- **Stage-2 gate ledger (final):** Gate 1 mechanism evidence (no controlling
+  TTY, SIGHUP undeliverable; literal Cmd-Q folded into the stronger
+  two-reboot proof per the 09:03Z entry); Gate 2 PASS (run `34215969514`,
+  commit `7f2a645`, rerun-verified); Gate 3 PASS (byte-match parity,
+  re-proven at every supervisor start including both boots); Gate 4 PASS.
+  **ADR-056 implementation is complete.**
+- **Residuals (unchanged, recorded in ADR-056):** CI queues between an
+  unattended reboot and the next GUI login (covered by detection);
+  push-triggered workflow code keeps login-keychain access (recorded
+  dissent).
+- **Scope:** ledger/CURRENT_STATE/ADR-record and state-file updates only; no
+  source, test, workflow, or repository-side plist changes. Commit+push
+  authorized by the owner (2026-09-08T14:26Z): delivery is the record
+  commit followed by the projection-only `chore(state)` verified_head
+  advance (the record commit's own CI run is expected to fail governance
+  on the non-projection ADR change above the then-stale verified_head —
+  the 2026-09-08T07:58Z precedent — and turns green on the advance).

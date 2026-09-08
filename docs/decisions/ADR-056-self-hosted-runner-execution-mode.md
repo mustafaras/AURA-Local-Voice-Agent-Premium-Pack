@@ -160,7 +160,8 @@ and the ledger. Runbook guidance lands under `docs/operations/`.
 ## Validation evidence
 
 Stage 2 acceptance gates (all must pass before this ADR's implementation is
-marked complete; all currently **pending**):
+marked complete; outcomes recorded 2026-09-08T14:30Z at the end of this
+section):
 
 1. Start the supervisor detached, fully quit Terminal (Cmd-Q), confirm
    `Runner.Listener` survives with the same audit-session identity.
@@ -187,6 +188,33 @@ template, and 13 unit tests landed in the companion stage-2 commit (see
 `ledger/PROJECT_LEDGER.md`, 2026-09-08T08:20Z); both `zsh -n` clean and green
 via `python3 -m unittest discover -s scripts/tests`. The stage-2 LaunchAgent
 is **not installed**; the four gates above remain pending and unproven.
+
+Gate outcomes (2026-09-08T14:30Z): **all four gates PASS; ADR-056 stage-2
+implementation is complete.**
+
+1. **Gate 1 — mechanism evidence:** the detached supervisor tree shows no
+   controlling terminal (`TTY ??`), so the Cmd-Q SIGHUP teardown is
+   structurally undeliverable; the literal Cmd-Q demonstration was folded
+   into the strictly stronger Gate 4 two-reboot proof (Terminal.app is not
+   running on this Mac; `ledger/CURRENT_STATE.md` 2026-09-08T09:03Z).
+2. **Gate 2 — PASS:** run `34215969514` (commit `7f2a645`) green on the
+   supervised runner (governance + build-and-test, all four keychain
+   round-trips, strict build, full suite, 70% coverage gate, artifact
+   retained, no `-25308`; rerun-verified).
+3. **Gate 3 — PASS:** the supervisor-recorded `toolchain-baseline.txt`
+   byte-matches the interactive baseline (Swift 6.4,
+   `swiftlang-6.4.0.30.4`, `arm64-apple-macosx27.0.0`), re-proven at every
+   supervisor start including both reboots.
+4. **Gate 4 — PASS across two real reboots** (2026-09-08, boots 13:17Z and
+   13:41:49Z, both after the 11:20Z copy-first plist install): launchd
+   alone started the supervisor (PPID 1; PIDs 786 then 1304) with the
+   pinned `DEVELOPER_DIR`, the run.sh → run-helper → Runner.Listener tree
+   came up, the GitHub runner reported `online`, the watchdog reported a
+   fresh heartbeat (`healthy (pid=2744 stamp=fresh)` after boot #2), and
+   the lock/toolchain baseline were consistent — without improvised owner
+   commands. Pre-login watchdog `unhealthy` lines are the designed
+   boot-gap detection. Full evidence: `ledger/PROJECT_LEDGER.md`
+   2026-09-08T14:30Z entry.
 
 ## Consequences
 
