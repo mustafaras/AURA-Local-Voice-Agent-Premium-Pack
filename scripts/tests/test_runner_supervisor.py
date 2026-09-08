@@ -194,6 +194,54 @@ class SupervisorBehaviorTests(unittest.TestCase):
             proc.terminate()
             proc.wait(timeout=10)
 
+    def test_boot_mode_restores_interactive_baseline_path(self):
+        # Regression (live 2026-09-08, CI run 34238247712): a launchd-started
+        # supervisor receives a minimal PATH without the homebrew prefix, so
+        # the CI governance jobs resolved python3 through the /usr/bin shim
+        # to the toolchain's bundled Python 3.9 (no tomllib). The supervisor
+        # must prepend the interactive-baseline prefix for its child env.
+        runner_dir = self.base / "runner-env-dump"
+        runner_dir.mkdir()
+        env_dump = self.base / "run-env.txt"
+        (runner_dir / "run.sh").write_text(
+            '#!/bin/sh\nprintf "%s\\n" "$PATH" >> "$PATH_DUMP"\nexit 0\n'
+        )
+        (runner_dir / "run.sh").chmod(0o755)
+        proc = self._run(
+            {
+                "AURA_RUNNER_DIR": str(runner_dir),
+                "PATH_DUMP": str(env_dump),
+                "AURA_SUPERVISOR_TEST_MAX_ITERATIONS": "1",
+                "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+            }
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        child_path = env_dump.read_text().splitlines()[0]
+        self.assertTrue(child_path.startswith("/opt/homebrew/bin:"), child_path)
+
+    def test_baseline_prefix_is_idempotent(self):
+        # A PATH that already contains the prefix must not gain a duplicate
+        # entry (the supervisor can be started from an interactive shell
+        # whose PATH already has the homebrew prefix first).
+        runner_dir = self.base / "runner-env-dump-2"
+        runner_dir.mkdir()
+        env_dump = self.base / "run-env-2.txt"
+        (runner_dir / "run.sh").write_text(
+            '#!/bin/sh\nprintf "%s\\n" "$PATH" >> "$PATH_DUMP"\nexit 0\n'
+        )
+        (runner_dir / "run.sh").chmod(0o755)
+        proc = self._run(
+            {
+                "AURA_RUNNER_DIR": str(runner_dir),
+                "PATH_DUMP": str(env_dump),
+                "AURA_SUPERVISOR_TEST_MAX_ITERATIONS": "1",
+                "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+            }
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        child_path = env_dump.read_text().splitlines()[0]
+        self.assertEqual(child_path.count("/opt/homebrew/bin"), 1, child_path)
+
     def test_heartbeat_lives_outside_repository(self):
         self._set_dead()
         self._run({"AURA_SUPERVISOR_TEST_MAX_ITERATIONS": "1"})
@@ -238,6 +286,12 @@ class SupervisorContractTests(unittest.TestCase):
         # under Xcode's Python 3.9). DEVELOPER_DIR alone is the pin.
         self.assertNotIn('export PATH="$DEVELOPER_DIR/usr/bin:$PATH"', self.script)
         self.assertNotIn("PATH=\"$DEVELOPER_DIR/usr/bin:$PATH\"", self.script)
+
+    def test_baseline_path_prefix_is_test_overridable(self):
+        self.assertIn(
+            'AURA_SUPERVISOR_PATH_PREFIX:-/opt/homebrew/bin', self.script
+        )
+
 
     def test_term_trap_terminates_supervisor(self):
         # Regression: a trap handler that only cleans up lets the main loop

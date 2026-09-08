@@ -101,6 +101,24 @@ regression/behavior tests; supervisor suite 15/15. Old supervisor tree
 (86609) still runs the buggy script; restart on the fixed copy precedes
 Gate 2 attempt 2 (the chore-advance push's run).
 
+### 2026-09-08T14:35Z — boot-mode env-parity defect fixed; supervisor PATH pin live
+
+The advance run `34238247712` exposed a real defect the reboot proof had
+been hiding: with a launchd-started supervisor (minimal PATH, no
+`/opt/homebrew/bin`), CI `python3` resolved via the `/usr/bin` shim to
+the DEVELOPER_DIR-pinned Xcode-bundled Python 3.9 — no `tomllib`
+(`ModuleNotFoundError` in governance tests; main RED on the advance).
+Record run `34238213059` had failed as designed (non-projection ADR
+above stale head). Fix: `runner-supervisor.sh` now pins the interactive
+baseline (prepends `/opt/homebrew/bin` when absent, idempotent,
+`AURA_SUPERVISOR_PATH_PREFIX`-overridable) and logs the pin; three
+regression tests added (suite 96/96). Applied live at 14:33Z via
+copy-first + `launchctl kickstart -k`: supervisor pid 45916 logged the
+pin, lock/heartbeat fresh, new Listener 45992, runner `online`. The
+record commit for this fix is expected to fail governance on the
+non-projection `scripts/` changes (tomllib step passing = live proof);
+the `chore(state)` advance turns the tip green.
+
 ### 2026-09-08T10:50Z — stage-2 Gate 2 PASS; three supervisor defects fixed and tree restarted
 
 Attempt 2 (run `34215969514`, `7f2a645`) is green on the supervised

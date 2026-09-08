@@ -227,3 +227,16 @@ implementation is complete.**
   being reopened ad hoc; if it is ever opened, it must meet the bar in
   Decision (6).
 - Any future re-scoping of the protected rule requires a new ADR.
+## Amendment (2026-09-08T14:35Z): boot-mode PATH parity
+
+The two-reboot proof (Gate 4) surfaced the last env-parity gap: a
+launchd-started supervisor receives a minimal PATH, so CI jobs resolved
+`python3` through the `/usr/bin` shim to the toolchain's bundled Python
+3.9 (no `tomllib`; CI run `34238247712`). The supervisor now pins the
+interactive baseline explicitly — `/opt/homebrew/bin` is prepended when
+absent (idempotent, `AURA_SUPERVISOR_PATH_PREFIX`-overridable for tests)
+— completing the "explicit toolchain pinning (DEVELOPER_DIR/PATH)"
+contract: the supervised env is now fully self-contained and identical
+whether started from a login shell, launchd boot, or a manual reload.
+Regression-tested (suite 96/96); live-applied 14:33Z (supervisor pid
+45916, pin logged, runner `online`).

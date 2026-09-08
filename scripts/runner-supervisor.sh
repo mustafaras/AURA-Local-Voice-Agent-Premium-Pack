@@ -101,6 +101,20 @@ if ! acquire_lock; then
   exit 3
 fi
 
+# PATH pinning (ADR-056 contract: explicit DEVELOPER_DIR/PATH pinning):
+# a launchd-started supervisor receives a minimal PATH that lacks the
+# homebrew prefix, so the CI governance jobs resolve `python3` through
+# the /usr/bin shim to the toolchain's bundled Python 3.9 (no tomllib;
+# live regression 2026-09-08, CI run 34238247712). Prepend the
+# interactive-baseline prefix when absent (idempotent); tests override
+# AURA_SUPERVISOR_PATH_PREFIX to inject a controlled value.
+AURA_SUPERVISOR_PATH_PREFIX="${AURA_SUPERVISOR_PATH_PREFIX:-/opt/homebrew/bin}"
+case ":$PATH:" in
+  *":$AURA_SUPERVISOR_PATH_PREFIX:"*) ;;
+  *) export PATH="$AURA_SUPERVISOR_PATH_PREFIX:$PATH" ;;
+esac
+log "PATH pinned with baseline prefix: $AURA_SUPERVISOR_PATH_PREFIX"
+
 # Toolchain pinning: resolve once at start, record the baseline.
 if [[ -z "$DEVELOPER_DIR_DEFAULT" ]]; then
   DEVELOPER_DIR_DEFAULT=$(xcode-select -p 2>/dev/null || true)

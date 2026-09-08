@@ -6552,3 +6552,42 @@ reboots, owner action) with the copy-first plist install after it.
   advance (the record commit's own CI run is expected to fail governance
   on the non-projection ADR change above the then-stale verified_head —
   the 2026-09-08T07:58Z precedent — and turns green on the advance).
+
+### 2026-09-08T14:35Z — boot-mode env-parity defect fixed (supervisor PATH pin); delivery pair CI outcomes recorded
+
+- **Delivery-pair CI outcomes (honest record):** run `34238213059`
+  (record `2a004a0`) failed governance **as designed** — non-projection
+  `docs/decisions/ADR-056` change above the then-stale `verified_head`
+  (the 07:58Z precedent). Run `34238247712` (advance `ec14661`) failed
+  **unexpectedly**: the governance test step died with
+  `ModuleNotFoundError: No module named 'tomllib'` (main RED).
+- **Root cause (live-verified):** after reboot #2 the launchd-started
+  supervisor received launchd's minimal PATH (no `/opt/homebrew/bin`), so
+  the CI job's `python3` resolved through the `/usr/bin` shim to the
+  DEVELOPER_DIR-pinned Xcode-bundled **Python 3.9** (traceback path:
+  `Xcode-27.0.0-beta.5/.../Python3.framework/Versions/3.9`), which has no
+  `tomllib`. Earlier green runs ran under supervisors started from
+  interactive shells (inherited homebrew Python 3.14 first). Boot mode —
+  the very mode Gate 4 proved — exposed the gap: ADR-056's contract line
+  "explicit toolchain pinning (DEVELOPER_DIR/PATH)" had no PATH pin.
+- **Fix:** `scripts/runner-supervisor.sh` now pins the interactive
+  baseline for its child env — prepends `/opt/homebrew/bin` when absent
+  (idempotent; overridable via `AURA_SUPERVISOR_PATH_PREFIX` for tests)
+  and logs the pin at start. Three regression tests added to
+  `scripts/tests/test_runner_supervisor.py` (launchd-minimal PATH gets
+  the prefix; no duplicate when already present; override hook exists).
+  Suite: 96/96 locally (95/96 pre-commit — the one failure is the known
+  worktree-claim commit→validate→push ordering, not a defect).
+- **Live apply:** state-dir copy is byte-identical
+  (`6528fd28…` repo == state, `zsh -n` OK); agent reloaded via
+  `launchctl kickstart -k` at 14:33Z. New supervisor pid 45916 logged
+  `PATH pinned with baseline prefix: /opt/homebrew/bin`; lock pid 45916,
+  heartbeat fresh (5 s), new `Runner.Listener` pid 45992, GitHub runner
+  `online` (`busy:false`).
+- **Next:** record commit expected to fail governance on the non-
+  projection `scripts/` changes above the stale `verified_head`
+  (tomllib step must now PASS — that is the live proof of the fix);
+  the projection-only `chore(state)` advance then turns the tip green.
+- **Scope:** supervisor script + regression tests + ledger/CURRENT_STATE/
+  ADR-056 amendment + state-file update. Commit+push authorized by the
+  owner (2026-09-08T14:35Z, fix-now decision).
