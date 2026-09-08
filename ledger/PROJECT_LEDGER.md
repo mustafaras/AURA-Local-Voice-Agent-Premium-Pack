@@ -6198,3 +6198,40 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Exact next action:** none for this provisioning scope; wake-word training
   remains the only unprovisioned owner step. Scratch probe
   `/tmp/axprobe.swift` binary removed after use.
+
+### 2026-09-08T06:59Z — Authorized delivery: provisioning records pushed; CI green; runner recovered
+
+- **Event:** the owner explicitly authorized "push commit merge deploy". The
+  uncommitted record set was committed and pushed to `main` directly (the
+  established direct-main pattern; no open PR existed to merge, so none was
+  created). No deploy surface exists in this repository — the only workflow is
+  `ci.yml`, beta/release gates stay blocked under ADR-049/053, and the
+  "deployment" surface is the already-installed local `/Applications/AURA.app`
+  — so no deploy action was taken or implied.
+- **Evidence:**
+  - Record commit `f3e3ba6` ("docs(state): record owner provisioning turn and
+    browser.read readiness"): ledger/CURRENT_STATE.md, ledger/PROJECT_LEDGER.md,
+    and the `updated_at` projection in
+    archive/runtime-completion/state/current-state.json (157 insertions,
+    1 deletion). The diff was secret-scanned before commit: no client-ID
+    value, token, key material, or unredacted address appears.
+  - Pointer-sync commit `493a8d3` ("docs(state): sync remote head pointer"):
+    `remote_head` advanced to `f3e3ba6…`; `git ls-remote` matches `493a8d3`.
+  - CI: run `34194018979` (`f3e3ba6`) and run `34194027121` (`493a8d3`) both
+    completed **success** (`governance` + `build-and-test` green; governance
+    1m1s on the record SHA).
+  - Runner incident: both runs sat queued for ~36 minutes because the
+    interactive self-hosted runner had been dead since 2026-09-07T15:29Z (the
+    interactive runner dies with its owning Terminal session; the documented
+    rule is interactive-only, never a launchd service, for keychain tests).
+    Restarted `~/actions-runner/run.sh` interactively; Listener came up and
+    picked the jobs within ~1 minute. The `caffeinate` sleep hold was already
+    alive throughout.
+- **Verdict / class:** authorized documentation-record delivery; CI-observed
+  on owner-provisioned hardware; infra-transient (dead runner) resolved by
+  restart. No source change; beta-readiness/RC gates unchanged.
+- **Exact next action:** owner-side durable runner choice remains open
+  (interactive runner requires a kept-open Terminal + `caffeinate`; a future
+  ADR would be needed for any service-mode change); remaining owner steps are
+  unchanged (wake-word training; acceptance-profile envs when the gated
+  capabilities are needed).
