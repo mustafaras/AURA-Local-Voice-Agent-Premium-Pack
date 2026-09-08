@@ -6397,3 +6397,39 @@ delivery is explicitly excluded; local-only claims remain truthful.
   `remote_head` (CI on `5869da9` red-flagged exactly that: live origin/main
   is `5869da9`, state `remote_head` still `00a920b`, intervening diff
   non-projection by design); continue CI monitoring to green.
+
+### 2026-09-08T09:03Z — Stage-2 gate execution begun: detached supervisor live, toolchain parity proven
+
+- **Owner direction:** gate execution ("sırada ne var" → stage-2 gates; user
+  chose "en doğru yolu seç ve uygula" for the Cmd-Q path).
+- **Transition:** interactive `run.sh` session stopped (old Listener PID
+  37231 exited); `scripts/runner-supervisor.sh` started detached
+  (`setsid`, no controlling TTY) with
+  `AURA_SUPERVISOR_DEVELOPER_DIR=/Applications/Xcode-27.0.0-beta.5.app/Contents/Developer`.
+- **Supervisor evidence:** supervisor PID 86609 holds the atomic
+  `supervisor.lock` (pid file); Listener PID 86634 started 09:03:16Z;
+  heartbeat stamp written to the state dir; log records `toolchain pinned:
+  DEVELOPER_DIR=… baseline recorded`. GitHub API: runner `online`,
+  `busy:false`.
+- **Gate 3 (toolchain parity): PASS.** Supervisor-pinned `DEVELOPER_DIR`
+  byte-matches `xcode-select -p`
+  (`/Applications/Xcode-27.0.0-beta.5.app/Contents/Developer`); the
+  supervisor-recorded `toolchain-baseline.txt` byte-matches the interactive
+  `swift --version` baseline (Swift 6.4, `swiftlang-6.4.0.30.4`,
+  `arm64-apple-macosx27.0.0`) — the toolchain of today's green runs
+  (`34204074431` and the earlier delivery runs).
+- **Gate 1 (Cmd-Q): mechanism evidence recorded.** Supervisor (86609),
+  run-helper (86629), and Listener (86634) all show `TTY ??` — no
+  controlling terminal exists, so the SIGHUP teardown that Cmd-Q exercises
+  is structurally undeliverable. Literal demonstration deferred to Gate 4:
+  Terminal.app is not running on this Mac (the CLI session is hosted in
+  VS Code), and a two-reboot cycle proves session-independence strictly
+  more strongly than a terminal quit.
+- **Note (pre-existing pattern):** the new listener's diag shows periodic
+  BrokerServer long-poll `TimeoutException`s; the old interactive diag
+  (`Runner_20260908-065019-utc.log`) contains the same pattern (2
+  occurrences) — network long-poll behavior, not supervisor-caused.
+- **Gate 2:** the CI run triggered by this push is the full-green-run
+  proof attempt on the supervised runner (keychain round-trips, strict
+  build, full suite, 70% coverage gate, artifact upload; any `-25308`
+  fails the strategy).

@@ -70,6 +70,23 @@ the four ADR-056 validation gates (Cmd-Q survival, full green run, toolchain
 parity, two reboots) are owner actions and stay pending; only the watchdog
 LaunchAgent is to be installed and verified on this Mac.
 
+### 2026-09-08T09:03Z — stage-2 gates: supervisor detached-live, toolchain parity proven
+
+With continued owner authorization the interactive `run.sh` was stopped and
+`scripts/runner-supervisor.sh` started detached (`setsid`, `TTY ??`):
+supervisor PID 86609 holds `supervisor.lock`, Listener PID 86634 (started
+09:03:16Z) serves the queue (GitHub API `online`, `busy:false`), and the
+state-dir heartbeat flows. **Gate 3 passes**: the supervisor's pinned
+`DEVELOPER_DIR` and recorded `toolchain-baseline.txt` byte-match the
+interactive baseline (Xcode 27.0.0-beta.5 / Swift 6.4
+`swiftlang-6.4.0.30.4`). **Gate 1** has its mechanism evidence: no
+controlling terminal exists, so terminal-teardown SIGHUP is undeliverable
+(literal Cmd-Q demonstration folds into the stronger Gate 4 reboot proof;
+Terminal.app is not running — the CLI lives in VS Code). Gate 2's proof
+attempt is the CI run of the ledger-evidence push itself, executed on the
+supervised runner. Gates remaining: gate-2 green run, supervisor-template
+TCC copy-first fix (pre-Gate-4), two reboots.
+
 ## 2026-09-07 — ADR-055 owner-directed local enablement (uncommitted, edit/test authority)
 
 All disabled capabilities are now enabled for local use under
