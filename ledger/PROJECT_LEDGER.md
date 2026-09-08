@@ -6673,3 +6673,29 @@ reboots, owner action) with the copy-first plist install after it.
 - **Scope:** `Tests/AURAIntegrationTests/PushToTalkFinalizationTests.swift`
   + ledger/CURRENT_STATE records. Commit+push under the owner's
   stabilize-now authorization (2026-09-08T15:00Z).
+
+### 2026-09-08T16:21Z — third CI flake stabilized (context latency budget); delivery pair re-run
+- Run `34249066062` (advance `da803dc`): governance SUCCESS,
+  build-and-test FAILED on a THIRD distinct timing-sensitive assertion —
+  `AuraContextTests` `multiHopFileTaskDecisionPreferenceLineageIsInjected`
+  (`ContextBuilderTests.swift:206`): real wall-clock `elapsedSeconds`
+  (0.2641 s) exceeded the 250 ms `lookupLatencyBudgetSeconds` under CI
+  load. Production treats the budget as a soft SLA (a `metLatencyBudget`
+  flag on `DeepContextBuiltEvent`, no enforcement), so a hard wall-clock
+  assertion on shared CI is a lottery.
+- **Fix (test-scoped budget):** the test now sets
+  `lookupLatencyBudgetSeconds = 2.0` so it verifies that elapsed time is
+  measured and compared against the configured budget deterministically;
+  the production default (0.25 s) and the telemetry semantics are
+  unchanged. No production code changed.
+- **Validation:** targeted 4/4 pass; full suite `Failed bundles: 0`.
+- **Pattern note:** three distinct flake classes unmasked once
+  build-and-test ran again after the governance repairs: (1) fixed sleep
+  vs 10 ms continuation window, (2) fixed sleep vs 50 ms hard deadline,
+  (3) real wall-clock vs 250 ms soft-SLA budget. All stabilized with
+  bounded polling or test-scoped budgets; no production code changed.
+  Any further load-sensitive wall-clock assertions should follow the
+  same pattern on first flake.
+- **Scope:** `Tests/AuraContextTests/ContextBuilderTests.swift` + ledger
+  records. Commit+push under the owner's stabilize-now authorization
+  (2026-09-08T15:00Z).

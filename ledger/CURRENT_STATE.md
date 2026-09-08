@@ -1419,3 +1419,14 @@ the PushToTalk hard-deadline test lost a 150 ms sleep against a real
 (file-scoped `waitUntil`, 2 s budget); full suite green locally
 (`Failed bundles: 0`). Remaining fixed-sleep expectations in the
 integration suites are event-driven rather than deadline-driven.
+
+### 2026-09-08T16:21Z — third timing flake stabilized; delivery pair re-run
+
+Run `34249066062` proved the first two stabilizations (both bundles
+green) but exposed a third class: a real wall-clock assertion
+(`elapsedSeconds` 0.264 s vs 0.25 s soft-SLA budget) under CI load.
+Test now uses a test-scoped 2.0 s budget — measurement-vs-budget logic
+still verified deterministically; production default (0.25 s) and
+`metLatencyBudget` telemetry unchanged. Full suite green locally
+(`Failed bundles: 0`). Three flake classes stabilized today, all
+test-only; no production code changed.
