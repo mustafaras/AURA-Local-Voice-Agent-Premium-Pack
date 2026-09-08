@@ -101,6 +101,19 @@ regression/behavior tests; supervisor suite 15/15. Old supervisor tree
 (86609) still runs the buggy script; restart on the fixed copy precedes
 Gate 2 attempt 2 (the chore-advance push's run).
 
+### 2026-09-08T10:50Z — stage-2 Gate 2 PASS; three supervisor defects fixed and tree restarted
+
+Attempt 2 (run `34215969514`, `7f2a645`) is green on the supervised
+runner (governance + build-and-test, ~15m41s, artifact retained, no
+`-25308`). Three supervisor defects were found live during restart and
+fixed with regression tests (suite 16/16): toolchain PATH prepend
+(Xcode Python 3.9 shadowing — attempt-1's tomllib failure), TERM trap
+that let a lock-less supervisor monitor-loop, and a nonexistent
+`<DEVELOPER_DIR>/usr/bin/swift` path (baseline now via the absolute
+`/usr/bin/swift` shim). The restarted tree (11622/11640/11645) re-proves
+Gate 3 (baseline byte-match) with a fresh heartbeat. Remaining: Gate 4
+two-reboot owner action + copy-first plist install.
+
 ## 2026-09-07 — ADR-055 owner-directed local enablement (uncommitted, edit/test authority)
 
 All disabled capabilities are now enabled for local use under

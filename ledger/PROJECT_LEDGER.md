@@ -6465,3 +6465,36 @@ scripts suite 92 tests with only the expected pre-existing
 `verified_head`, non-projection changes — resolved by the chore advance
 that follows). The old supervisor tree (86609) still runs the buggy
 script and will be restarted on the fixed copy before Gate 2 attempt 2.
+
+### 2026-09-08T10:50Z — Gate 2 PASS on the supervised runner after three supervisor fixes
+
+Gate 2 attempt 2 (run `34215969514`, commit `7f2a645`) concluded **success**
+on the supervised runner: governance (11 steps) and build-and-test (9
+steps) both green in ~15m41s, development-unverified artifact retained,
+no `-25308`. The runner was served throughout by the detached supervisor
+tree started 10:32:39Z (supervisor 11622, run-helper 11640, Listener
+11645).
+
+Restart-time defects found live and fixed (each with a regression test;
+supervisor suite now 16/16, scripts suite 93 tests, validator 14/14):
+- `b48aaf1` — the supervisor prepended the toolchain to PATH, so attempt
+  1 (`34214697708`) resolved Xcode's bundled Python 3.9 (no tomllib);
+  PATH prepend removed, `DEVELOPER_DIR` alone is the pin, and the
+  blocking `wait` was replaced by a `kill -0` polling loop that keeps
+  the watchdog heartbeat fresh (observed 4538s stale before).
+- `fa2de72` — the cleanup trap did not terminate the shell: TERM left a
+  lock-less supervisor monitor-looping while run-helper respawned the
+  Listener under the poisoned env (observed live). cleanup now exits
+  with the preserved pending status (lock refusal still exits 3).
+- `f6cf7d7` — real Xcode-27.0.0-beta.5 has no swift at
+  `<DEVELOPER_DIR>/usr/bin/swift`; the baseline now records via the
+  absolute `/usr/bin/swift` shim (honors `DEVELOPER_DIR`, ignores PATH,
+  verified with `env -i`); tests inject a fake via
+  `AURA_SUPERVISOR_SWIFT_BIN`.
+
+Gate 3 re-proven on the restarted tree: the recorded
+`toolchain-baseline.txt` byte-matches the interactive baseline
+(Swift 6.4, `swiftlang-6.4.0.30.4`, `arm64-apple-macosx27.0.0`) with
+heartbeat age 4s at verification. State-dir script copy re-verified
+(sha256 `253ca5ea…`, repo == state). Remaining gates: Gate 4 (two
+reboots, owner action) with the copy-first plist install after it.
