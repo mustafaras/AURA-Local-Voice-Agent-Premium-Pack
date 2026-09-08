@@ -6328,3 +6328,43 @@ delivery is explicitly excluded; local-only claims remain truthful.
   via `python3 -m unittest discover -s scripts/tests`; watchdog installable
   and verifiable on this Mac; `ci.yml`, sources, and tests untouched;
   ledger/CURRENT_STATE/ADR evidence updated; commits pushed with CI watched.
+
+### 2026-09-08T08:20Z — ADR-056 implementation landed (stage-1 + stage-2 code, gates pending)
+
+- **Change:** two independently revertible commits on `main`: `9cc2a33`
+  (stage-1 watchdog `scripts/ci-runner-watchdog.sh` + 12 unit tests +
+  `docs/operations/com.aura.ci-runner-watchdog.plist.template` +
+  `docs/operations/CI-RUNNER-SUPERVISION-RUNBOOK.md`) and ``2205602e4fbb512d1788cb23bef3e64fbb579258`
+  (stage-2 supervisor `scripts/runner-supervisor.sh` + 13 unit tests +
+  `docs/operations/com.aura.ci-runner-supervisor.plist.template`).
+- **Evidence:** `zsh -n scripts/ci-runner-watchdog.sh
+  scripts/runner-supervisor.sh` clean; `python3 -m unittest discover
+  -s scripts/tests` 88/89 green with the one error being the documented
+  dirty-worktree validator check, which passed after the commits landed;
+  `python3 -m unittest scripts.tests.test_ci_runner_watchdog
+  scripts.tests.test_runner_supervisor` 25/25 OK (~14s, deterministic,
+  fake pgrep/osascript/swift/run.sh, no network, no keychain, no real
+  runner interaction). Behavioral proof points: lock refusal (exit 3,
+  holder's lock preserved), stale-lock reclaim, foreign-listener
+  monitor-only (no competing runner, heartbeat continues), circuit
+  breaker (2 starts then stop, flag + heartbeat survive), toolchain
+  pinning recorded via `DEVELOPER_DIR/usr/bin` resolution. One script fix
+  during testing: PATH prepend is `$DEVELOPER_DIR/usr/bin:$PATH` (caller
+  order preserved) so external resolution is never silently demoted.
+- **Projection note:** both new script paths and the runbook are
+  non-projection under `validate_runtime_completion.py`, so the two
+  implementation commits red-light governance by design; the follow-up
+  `chore(state)` commit advances `verified_head`/`capability` to
+  `2205602e4fbb512d1788cb23bef3e64fbb579258` (audit baseline = ADR-056
+  implementation with green test evidence; ADR-045 audit requirement met
+  by this entry + ADR Validation evidence note).
+- **Gates:** the four stage-2 acceptance gates remain **pending** (owner
+  actions: Cmd-Q survival, full green run, toolchain parity, two reboots);
+  the supervisor LaunchAgent is NOT installed; only the watchdog
+  LaunchAgent install (stage 1, conditionally active) is authorized.
+- **Falsifier:** ADR-056 Decision list unchanged; no `ci.yml`, source, or
+  shipped-test edits; state JSONs changed only in `verified_head`,
+  `repository_commit`, `updated_at`.
+- **Next action:** commit the `chore(state)` advance, push, watch both CI
+  runs to green, then install + kickstart the watchdog LaunchAgent and
+  record its exit status.

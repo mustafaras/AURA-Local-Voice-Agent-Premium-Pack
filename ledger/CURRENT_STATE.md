@@ -56,6 +56,20 @@ implementation: ADR-056 Stage 1 (watchdog) and Stage 2 (supervisor) remain
 gated on separate owner authorization; `.committee-tmp/runner-strategy/`
 keeps the full transcript locally (gitignored, owner chose keep).
 
+The owner then gave full approval ("izin verdim full onay") and ADR-056
+implementation landed as two independently revertible commits: `9cc2a33`
+(stage-1 credential-free watchdog: `scripts/ci-runner-watchdog.sh`, 12 unit
+tests, LaunchAgent template, supervision runbook) and ``2205602e4fbb512d1788cb23bef3e64fbb579258` (stage-2
+supervisor: `scripts/runner-supervisor.sh` with instance lock,
+foreign-listener monitor-only guard, bounded backoff + circuit breaker,
+toolchain pinning, 13 unit tests, KeepAlive-false template). Both are
+`zsh -n` clean; all 25 new tests pass; `ci.yml`, sources, and shipped tests
+are untouched; the non-projection scripts require the `verified_head` advance
+that follows (ledger 2026-09-08T08:20Z). Stage 2 remains **not installed**:
+the four ADR-056 validation gates (Cmd-Q survival, full green run, toolchain
+parity, two reboots) are owner actions and stay pending; only the watchdog
+LaunchAgent is to be installed and verified on this Mac.
+
 ## 2026-09-07 — ADR-055 owner-directed local enablement (uncommitted, edit/test authority)
 
 All disabled capabilities are now enabled for local use under
