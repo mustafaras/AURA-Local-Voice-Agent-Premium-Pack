@@ -6368,3 +6368,32 @@ delivery is explicitly excluded; local-only claims remain truthful.
 - **Next action:** commit the `chore(state)` advance, push, watch both CI
   runs to green, then install + kickstart the watchdog LaunchAgent and
   record its exit status.
+
+### 2026-09-08T08:35Z — Stage-1 watchdog installed and verified; launchd/TCC install correction
+
+- **Install:** watchdog LaunchAgent loaded in the owner's GUI domain
+  (`gui/501/com.aura.ci-runner-watchdog`, plist lint OK); `launchctl
+  kickstart` verification returned **exit 0** with stdout
+  `watchdog: healthy (pid=37231 stamp=missing)` — the live interactive
+  Listener (PID 37231) is healthy and the missing heartbeat stamp is
+  tolerated while stage 2 is not active, exactly per the ADR-056 stage-1
+  contract. Agent schedule: RunAtLoad + StartInterval 300.
+- **Incident (install layout):** the first install pointed ProgramArguments
+  at the repository checkout under `~/Desktop`; launchd reported exit 127
+  with `zsh: can't open input file` — launchd GUI agents cannot read
+  `~/Desktop` (TCC folder protection). Resolution: byte-identical copy of
+  the script installed at
+  `~/Library/Application Support/AURA-Runner/scripts/ci-runner-watchdog.sh`
+  (sha256 `f322ee98cb963845cc080c4cd2485f524f840b8e038f3262ef5cf71d4b6b16b4`
+  matches the repository file), plist repointed, reload + kickstart green.
+  Template and runbook corrected to the copy-first install layout; the
+  runbook now requires re-copy + hash verification after each repo-side
+  watchdog change.
+- **Scope:** `ci.yml`, sources, and tests untouched; stage-2 supervisor
+  remains not installed (four gates pending). No secrets, no ambient audio,
+  no network calls involved.
+- **Next action:** follow-up docs commit (template/runbook copy-first
+  layout) + projection-only `chore(state)` advance that also re-points
+  `remote_head` (CI on `5869da9` red-flagged exactly that: live origin/main
+  is `5869da9`, state `remote_head` still `00a920b`, intervening diff
+  non-projection by design); continue CI monitoring to green.
