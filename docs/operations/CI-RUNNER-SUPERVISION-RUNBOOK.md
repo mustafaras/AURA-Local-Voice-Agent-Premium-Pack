@@ -79,15 +79,26 @@ alerting.
 
 ### Install (after gates)
 
+The script cannot run from the repository checkout: launchd agents cannot
+read `~/Desktop` (TCC folder protection). Install a byte-identical copy in
+the state directory and point the agent at it.
+
 ```sh
 REPO_PATH="$HOME/Desktop/AURA-Local-Voice-Agent-Premium-Pack"
+AURA_STATE="$HOME/Library/Application Support/AURA-Runner"
+cp "$REPO_PATH/scripts/runner-supervisor.sh" "$AURA_STATE/scripts/"
+shasum -a 256 "$REPO_PATH/scripts/runner-supervisor.sh" \
+              "$AURA_STATE/scripts/runner-supervisor.sh"   # must match
 XCODE_DIR="$(xcode-select -p)"
-sed -e "s|@HOME@|$HOME|g" -e "s|@REPO_PATH@|$REPO_PATH|g" \
+sed -e "s|@HOME@|$HOME|g" -e "s|@AURA_STATE@|$AURA_STATE|g" \
     -e "s|@XCODE_DIR@|$XCODE_DIR|g" \
   "$REPO_PATH/docs/operations/com.aura.ci-runner-supervisor.plist.template" \
   > "$HOME/Library/LaunchAgents/com.aura.ci-runner-supervisor.plist"
 launchctl load "$HOME/Library/LaunchAgents/com.aura.ci-runner-supervisor.plist"
 ```
+
+After each repository-side supervisor change, re-copy and verify the hash
+again before reloading the agent.
 
 ### Verify
 

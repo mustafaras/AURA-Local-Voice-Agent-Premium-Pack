@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  ADR-056 stage 2 (GATED — DO NOT INSTALL YET): runner-supervisor LaunchAgent
-  template. Installing this agent activates the supervisor, which requires the
-  four validation gates in ADR-056 (Cmd-Q survival, full green CI, swift
-  toolchain parity, two clean reboots) to be signed off first. Until then this
-  file is reference material only; see
+  ADR-056 stage 2 (GATED — DO NOT INSTALL UNTIL THE FOUR GATES PASS):
+  runner-supervisor LaunchAgent template. Installing this agent activates the
+  supervisor, which requires the four validation gates in ADR-056 (Cmd-Q
+  survival, full green CI, swift toolchain parity, two clean reboots) to be
+  signed off first. Until then this file is reference material only; see
   docs/operations/CI-RUNNER-SUPERVISION-RUNBOOK.md.
+
+  Install layout is copy-first: launchd GUI agents cannot read ~/Desktop
+  (TCC folder protection), so ProgramArguments points at the byte-identical
+  script copy in the state directory, exactly like the stage-1 watchdog.
+  After each repository-side supervisor change, re-copy and verify the
+  sha256 before reloading the agent.
 
   KeepAlive is false on purpose: the supervisor manages its own bounded
   restart loop and circuit breaker, and must not fight launchd over runner
@@ -19,7 +25,7 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/zsh</string>
-        <string>@REPO_PATH@/scripts/runner-supervisor.sh</string>
+        <string>@AURA_STATE@/scripts/runner-supervisor.sh</string>
     </array>
     <key>EnvironmentVariables</key>
     <dict>
