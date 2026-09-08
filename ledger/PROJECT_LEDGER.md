@@ -6635,3 +6635,18 @@ reboots, owner action) with the copy-first plist install after it.
 - **Scope:** `Tests/AuraAgentTests/ConversationTests.swift` only (helper +
   one test). Commit+push authorized by the owner (2026-09-08T15:00Z,
   stabilize-now decision).
+
+### 2026-09-08T15:32Z — delivery pair closed; main fully green on CI
+- Run `34243029828` (record `cb32c01`): governance failed on the
+  non-projection test change above stale `verified_head` — expected
+  record-commit behavior.
+- Run `34243427777` (advance `efa7594`, projection-only):
+  **governance SUCCESS** and **build-and-test SUCCESS** — the
+  stabilized continuation-window test passed on CI under load; tip
+  `efa7594` is fully green. `verified_head` = `cb32c01`,
+  `remote_head` = `cb32c01`, tip = `efa7594` (projection advance).
+- Validation trail: targeted filter 6/6; AuraAgentTests 238/238
+  (6.900 s); full suite `Failed bundles: 0`; local validator +
+  unittest 96/96 OK post-advance (commit→validate→push ordering, the
+  pre-advance 95/96 error is the documented `test_current_repository_
+  state_is_valid` worktree-claim ordering, not a defect).
