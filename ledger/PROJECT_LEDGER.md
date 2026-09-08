@@ -6591,3 +6591,47 @@ reboots, owner action) with the copy-first plist install after it.
 - **Scope:** supervisor script + regression tests + ledger/CURRENT_STATE/
   ADR-056 amendment + state-file update. Commit+push authorized by the
   owner (2026-09-08T14:35Z, fix-now decision).
+
+### 2026-09-08T15:09Z — build-and-test flake diagnosed and stabilized (ConversationTests continuation window)
+- **CI outcomes of the delivery pair (evidence):**
+  - Run `34239069328` (record commit `40c7514`): governance failed on the
+    non-projection rule as predicted. The governance job runs the
+    validator step FIRST, so the tomllib unittest step was SKIPPED under
+    `bash -e` step semantics — the record run could not prove the PATH-pin fix.
+  - Run `34239174067` (advance `46bb05a`): **governance SUCCESS** —
+    "Ran 96 tests in 39.365 s" on CI proves the supervisor PATH pin live
+    (Python ≥3.11 resolves under the pinned PATH).
+  - Run `34239174067` build-and-test: FAILED —
+    `ConversationTests.swift:150` "incomplete stable segment gets a
+    bounded continuation window": fixed 40 ms sleep expired before the
+    10 ms continuation window closed under CI load.
+  - **Rerun of the failed job:** same test failed again (2/2 on CI),
+    test failing after only ~0.069 s. Local repro under the exact CI-like
+    env (supervisor-pinned PATH + DEVELOPER_DIR) passed 2/2 (238/238,
+    6.85 s) — no plausible mechanism links the PATH pin to the failure;
+    the correlation is explained by build-and-test having been SKIPPED on
+    the three preceding red-governance runs (no recent green baseline).
+- **Diagnosis:** the test relied on wall-clock racing — a fixed 40 ms
+  sleep against a real 10 ms `Task.sleep` window
+  (`Conversation_State.swift:97`). Under load the scheduler overshoots
+  the 4x margin. A first stabilization attempt (poll on
+  `conversation.state == .thinking`) exposed a second race: the actor
+  emits `TurnCompletedEvent` AFTER `transition(to: .thinking)`, so an
+  event-bus subscriber may observe the state flip before the event lands
+  (caught locally, 1 failing run before fix v2).
+- **Stabilization (v2):** `ConversationTests` gains a bounded
+  `waitUntil(timeout:_:)` polling helper (10 ms cadence, 2 s default);
+  the test now waits for the `TurnCompletedEvent` (which strictly
+  postdates the state flip), then asserts `state == .thinking` and
+  count == 1. No production code changed.
+- **Validation:** targeted filter 6/6 pass; AuraAgentTests bundle
+  238/238 (6.900 s); full suite via `scripts/aura-test.sh /tmp/aurabuild-ci`
+  → `Failed bundles: 0`.
+- **Residual risk (accepted):** sibling test "stable STT segment
+  completes turn and moves to thinking" still uses a fixed 30 ms sleep,
+  but its transition is immediate (no window) with a larger effective
+  margin; it passed 2/2 on CI and 2/2 locally. Migrate to `waitUntil` if
+  it ever flakes.
+- **Scope:** `Tests/AuraAgentTests/ConversationTests.swift` only (helper +
+  one test). Commit+push authorized by the owner (2026-09-08T15:00Z,
+  stabilize-now decision).

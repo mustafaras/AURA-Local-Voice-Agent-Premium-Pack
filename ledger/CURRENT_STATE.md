@@ -1391,3 +1391,21 @@ Evidence: `EV-SP-019-20260825-CONSOLIDATED-ACCEPTANCE-14`.
 closed. SP-020 is next. Release/deploy remains blocked on signing and
 notarization (SP-026/SP-027); only a `development_unverified` artifact is
 producible today.
+
+### 2026-09-08T15:09Z — build-and-test flake stabilized; tip green path open
+
+Run `34239174067` proved the supervisor PATH pin live (governance
+SUCCESS, "Ran 96 tests in 39.365 s") but failed build-and-test on
+`ConversationTests.swift:150` (fixed 40 ms sleep racing a real 10 ms
+continuation window under CI load; failed 2/2 on CI including a rerun,
+passed 2/2 locally under the CI-like env — PATH pin not causal, the
+test was merely unexercised while build-and-test was skipped on the
+three preceding red-governance runs). Stabilization: bounded polling on
+the `TurnCompletedEvent` via a new `waitUntil` helper in
+`ConversationTests` (the event strictly postdates the `.thinking` state
+flip; a state-based poll was caught racing the event bus locally and
+was replaced). No production code changed. Validation: targeted 6/6,
+bundle 238/238 (6.900 s), full suite `Failed bundles: 0`. Residual
+risk accepted: sibling test with fixed 30 ms sleep (immediate
+transition, larger margin) migrates to `waitUntil` only if it flakes.
+Next: record→advance delivery pair to turn the tip green on CI.

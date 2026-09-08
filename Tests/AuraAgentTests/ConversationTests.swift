@@ -97,6 +97,23 @@ struct ConversationTests {
     box.events.compactMap { $0 as? ConversationStateEvent }
   }
 
+  /// Polls `condition` until it holds or the timeout elapses.
+  ///
+  /// CI koşucularında yük kaynaklı scheduler gecikmeleri sabit uyku
+  /// tabanlı beklentileri kaçırdırdığından, asenkron geçişler sabit uyku
+  /// yerine sınırlı polling ile doğrulanır.
+  func waitUntil(
+    timeout: Duration = .seconds(2),
+    _ condition: () async -> Bool
+  ) async -> Bool {
+    let deadline = ContinuousClock.now + timeout
+    while ContinuousClock.now < deadline {
+      if await condition() { return true }
+      try? await Task.sleep(for: .milliseconds(10))
+    }
+    return await condition()
+  }
+
   // MARK: - Idle to listening and timeout
 
   @Test("wake activation moves idle to listening")
@@ -146,7 +163,14 @@ struct ConversationTests {
     #expect(await conversation.state == .listening)
     #expect(box.events.compactMap { $0 as? TurnCompletedEvent }.isEmpty)
 
-    try? await Task.sleep(for: .milliseconds(40))
+    // CI yükü altında 10 ms'lik pencereyi sabit uykuya sığdırmak güvenilmez;
+    // pencerenin kapanıp turn'ün tamamlanmasını sınırlı süre içinde bekler.
+    // Turn tamamlanması state geçişini önce, olayı sonra yayar; olayın
+    // görülmesi her iki beklentiyi de kesinleştirir.
+    let settled = await waitUntil {
+      !box.events.compactMap { $0 as? TurnCompletedEvent }.isEmpty
+    }
+    #expect(settled)
     #expect(await conversation.state == .thinking)
     #expect(box.events.compactMap { $0 as? TurnCompletedEvent }.count == 1)
   }
