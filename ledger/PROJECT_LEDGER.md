@@ -6699,3 +6699,15 @@ reboots, owner action) with the copy-first plist install after it.
 - **Scope:** `Tests/AuraContextTests/ContextBuilderTests.swift` + ledger
   records. Commit+push under the owner's stabilize-now authorization
   (2026-09-08T15:00Z).
+
+### 2026-09-08T16:37Z — third delivery pair closed; main fully green on CI
+- Run `34250547764` (advance `7ee9e8b`): **governance SUCCESS** and
+  **build-and-test SUCCESS** — all three stabilizations held together on
+  CI (AuraAgentTests, AURAIntegrationTests, AuraContextTests). Tip
+  `7ee9e8b` is fully green; `verified_head`/`remote_head` = `4beb075`.
+- Session flake ledger: (1) 10 ms continuation window vs fixed sleep →
+  bounded polling (`waitUntil`); (2) 50 ms PTT hard deadline vs fixed
+  sleep → bounded polling; (3) 250 ms soft-SLA wall-clock assertion →
+  test-scoped 2.0 s budget. All test-only; no production code changed.
+  Supervisor PATH-pin fix (14:35Z entry) remains live-proven
+  (governance green on every advance run since).
