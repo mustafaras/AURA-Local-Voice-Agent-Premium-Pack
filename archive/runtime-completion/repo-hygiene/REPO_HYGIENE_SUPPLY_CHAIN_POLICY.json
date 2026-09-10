@@ -114,6 +114,42 @@
       {
         "path": "archive/runtime-completion/state/EV-SP-009-20260817-CORRECTION-02.regression.log",
         "reason": "SP-009 regression evidence log retained in the append-only archive"
+      },
+      {
+        "path": "ui-improvement-plan/evidence/icon-dark-16.png",
+        "reason": "UI-0 G0-8 icon acceptance evidence: 16 px dark legibility render"
+      },
+      {
+        "path": "ui-improvement-plan/evidence/icon-dark-32.png",
+        "reason": "UI-0 G0-8 icon acceptance evidence: 32 px dark render"
+      },
+      {
+        "path": "ui-improvement-plan/evidence/icon-dark-128.png",
+        "reason": "UI-0 G0-8 icon acceptance evidence: 128 px dark render"
+      },
+      {
+        "path": "ui-improvement-plan/evidence/icon-dark-512.png",
+        "reason": "UI-0 G0-8 icon acceptance evidence: 512 px dark render"
+      },
+      {
+        "path": "ui-improvement-plan/evidence/icon-light-16.png",
+        "reason": "UI-0 G0-8 icon acceptance evidence: 16 px light render"
+      },
+      {
+        "path": "ui-improvement-plan/evidence/icon-tinted-512.png",
+        "reason": "UI-0 G0-8 icon acceptance evidence: 512 px tinted render"
+      },
+      {
+        "path": "ui-improvement-plan/iris-dark.svg.png",
+        "reason": "UI-0 icon pipeline rendered master (dark) referenced by the plan docs"
+      },
+      {
+        "path": "ui-improvement-plan/iris-light.svg.png",
+        "reason": "UI-0 icon pipeline rendered master (light) referenced by the plan docs"
+      },
+      {
+        "path": "ui-improvement-plan/iris-tinted.svg.png",
+        "reason": "UI-0 icon pipeline rendered master (tinted) referenced by the plan docs"
       }
     ],
     "artifact_suffixes_forbidden_when_tracked": [
