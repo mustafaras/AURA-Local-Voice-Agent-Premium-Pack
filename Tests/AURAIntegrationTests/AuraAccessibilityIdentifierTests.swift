@@ -54,6 +54,34 @@ struct AuraAccessibilityIdentifierTests {
     #expect(Set(ids).count == ids.count)
   }
 
+  /// UI-1: the conversation experience's new addressable surfaces — draft
+  /// bubble, thinking placeholder, jump-to-latest affordance, and the Orb —
+  /// follow the same contract: unique, unlocalized, `aura.<area>.<control>`.
+  @Test("conversation experience identifiers are distinct and unlocalized")
+  func conversationExperienceIdentifiersAreDistinct() {
+    let ids = [
+      AuraAccessibilityID.conversationDraftBubble,
+      AuraAccessibilityID.conversationThinking,
+      AuraAccessibilityID.conversationJumpToLatest,
+      AuraAccessibilityID.conversationOrb,
+    ]
+    #expect(Set(ids).count == ids.count)
+    #expect(ids.allSatisfy { $0.hasPrefix("aura.conversation.") })
+    // Identifiers must never carry copy: the draft label is localized, the
+    // identifier is not.
+    for language in AuraUILanguage.allCases {
+      #expect(
+        AuraAccessibilityID.conversationDraftBubble
+          != AuraCopy.text("a11y.draftPrefix", language: language))
+      #expect(
+        AuraAccessibilityID.conversationJumpToLatest
+          != AuraCopy.text("conversation.jumpToLatest", language: language))
+      #expect(
+        AuraAccessibilityID.conversationThinking
+          != AuraCopy.text("conversation.thinking", language: language))
+    }
+  }
+
   /// Integration controls are addressed by capability ID rather than by row
   /// position or title, so the address survives retitling, translation, and
   /// rows appearing or disappearing as availability changes.

@@ -3,6 +3,14 @@ import AuraCore
 import AuraIntent
 import SwiftUI
 
+/// Scroll anchor and threshold for the transcript's honest auto-scroll
+/// (G1-4). The anchor id is stable across rebuilds; `stickiness` is the
+/// bottom-proximity epsilon (pt) inside which "at the bottom" is true.
+private enum AuraScrollAnchor {
+  static let bottom = "aura.scroll.bottom"
+  static let stickiness: CGFloat = 24
+}
+
 extension AuraMenuView {
 
   var body: some View {
@@ -188,12 +196,26 @@ extension AuraMenuView {
   }
 
   var conversationTab: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: AuraDesign.Spacing.m) {
       sectionTitle("conversation.title", symbol: "bubble.left.and.bubble.right")
-      Label(copy("conversation.local"), systemImage: "lock.fill")
-        .foregroundStyle(.secondary)
-        .accessibilityLabel(
-          "\(copy("conversation.local")). \(model.cloudContextStatusLabel)")
+      HStack(alignment: .center, spacing: AuraDesign.Spacing.m) {
+        Label(copy("conversation.local"), systemImage: "lock.fill")
+          .foregroundStyle(.secondary)
+          .accessibilityLabel(
+            "\(copy("conversation.local")). \(model.cloudContextStatusLabel)")
+        Spacer(minLength: 0)
+        // The Orb heads the conversation as its living core (13 §2): one
+        // instrument, every layer driven by real signals — status, the live
+        // mic level while listening, and the real TTS-speaking signal.
+        AuraOrb(
+          status: model.status,
+          inputLevel: model.inputLevel,
+          isSpeakingResponse: model.status == .speaking,
+          language: language,
+          restrictedReason: model.status == .restricted
+            ? model.displayStatusDetail : "")
+          .accessibilityIdentifier(AuraAccessibilityID.conversationOrb)
+      }
       if model.isVSCodeBridgeAcceptanceEnabled {
         GroupBox(copy("vscode.bridge")) {
           VStack(alignment: .leading, spacing: 8) {
@@ -236,29 +258,7 @@ extension AuraMenuView {
           .accessibilityLabel(copy("integrations.connect"))
         }
       }
-      ScrollView {
-        LazyVStack(alignment: .leading, spacing: 8) {
-          if model.conversationMessages.isEmpty {
-            Text(copy("conversation.empty"))
-              .foregroundStyle(.secondary)
-              .frame(maxWidth: .infinity, alignment: .leading)
-          }
-          ForEach(model.conversationMessages) { message in
-            conversationMessage(message)
-          }
-          if !model.partialTranscript.isEmpty {
-            GroupBox(copy("conversation.partial")) {
-              Text(model.partialTranscript)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("\(copy("conversation.partial")): \(model.partialTranscript)")
-          }
-        }
-      }
-      .frame(minHeight: 180, maxHeight: .infinity)
-      .accessibilityElement(children: .contain)
+      conversationTranscript
 
       // Composer: text and voice are the same action to the user, so they sit
       // on one row rather than stacking a full-width bar under the field.
@@ -333,6 +333,108 @@ extension AuraMenuView {
     }
   }
 
+  /// The transcript scroll (G1-4): honest stick-to-bottom auto-scroll with a
+  /// jump-to-latest affordance. Auto-scroll engages only when the user is
+  /// already at the bottom; scrolling up pauses it and shows the affordance —
+  /// the view never fights the user for the scroll position.
+  var conversationTranscript: some View {
+    ScrollViewReader { proxy in
+      ZStack(alignment: .bottomTrailing) {
+        ScrollView {
+          LazyVStack(alignment: .leading, spacing: 8) {
+            if model.conversationMessages.isEmpty, model.partialTranscript.isEmpty,
+              model.status != .thinking
+            {
+              Text(copy("conversation.empty"))
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            ForEach(model.conversationMessages) { message in
+              conversationMessage(message)
+            }
+            // The in-flight spoken input lives *in* the transcript as a
+            // draft bubble (G1-3) — where the eye already is.
+            if !model.partialTranscript.isEmpty {
+              AuraDraftBubble(language: language, text: model.partialTranscript)
+            }
+            // Pending assistant turn (G1-5), rendered from the real
+            // .thinking status where the answer will land.
+            if model.status == .thinking {
+              AuraThinkingIndicator(language: language)
+                .id(AuraAccessibilityID.conversationThinking)
+            }
+            Color.clear
+              .frame(height: 1)
+              .id(AuraScrollAnchor.bottom)
+          }
+          .padding(.bottom, AuraDesign.Spacing.s)
+        }
+        .frame(minHeight: 180, maxHeight: .infinity)
+        .background(
+          // Ambient canvas (G1-7): the conversation surface sits on the
+          // observatory base (palette.void) per the materials ladder; the
+          // window chrome around it stays native.
+          RoundedRectangle(cornerRadius: AuraDesign.Radius.large, style: .continuous)
+            .fill(AuraDesign.Palette.void)
+            .overlay(
+              RoundedRectangle(cornerRadius: AuraDesign.Radius.large, style: .continuous)
+                .stroke(AuraDesign.Palette.hairline, lineWidth: AuraDesign.Measure.hairline)))
+        .onScrollGeometryChange(for: Bool.self) { geometry in
+          // True when the user's viewport reaches the content bottom (within
+          // a small epsilon so sub-pixel rounding never breaks stickiness).
+          let bottom = geometry.contentOffset.y + geometry.containerSize.height
+          return bottom >= geometry.contentSize.height - AuraScrollAnchor.stickiness
+        } action: { _, isAtBottom in
+          isStickToBottom = isAtBottom
+          if isAtBottom {
+            // Re-engaged at the bottom: dismiss the affordance.
+            showJumpToLatest = false
+          } else {
+            showJumpToLatest = true
+          }
+        }
+        .onChange(of: model.conversationMessages.count) { _, _ in
+          scrollToLatestIfFollowing(proxy)
+        }
+        .onChange(of: model.partialTranscript) { _, _ in
+          scrollToLatestIfFollowing(proxy)
+        }
+        .onChange(of: model.status) { _, _ in
+          scrollToLatestIfFollowing(proxy)
+        }
+
+        if showJumpToLatest {
+          Button {
+            isStickToBottom = true
+            showJumpToLatest = false
+            withAnimation(AuraDesign.Motion.motion(AuraDesign.Motion.snappy)) {
+              proxy.scrollTo(AuraScrollAnchor.bottom, anchor: .bottom)
+            }
+          } label: {
+            Label(copy("conversation.jumpToLatest"), systemImage: "arrow.down.circle")
+              .font(AuraDesign.Typography.meta.weight(.semibold))
+              .padding(.horizontal, AuraDesign.Spacing.s)
+              .padding(.vertical, AuraDesign.Spacing.xs)
+              .glassEffect(.regular, in: .capsule)
+          }
+          .buttonStyle(.plain)
+          .padding(AuraDesign.Spacing.s)
+          .accessibilityLabel(copy("conversation.jumpToLatest"))
+          .accessibilityIdentifier(AuraAccessibilityID.conversationJumpToLatest)
+        }
+      }
+      .accessibilityElement(children: .contain)
+    }
+  }
+
+  /// Follow the stream only while the user is at the bottom; never scroll
+  /// while they are reading history. Partial-transcript updates use an
+  /// unanimated jump (they arrive rapidly); message arrivals ride `snappy`.
+  private func scrollToLatestIfFollowing(_ proxy: ScrollViewProxy) {
+    guard isStickToBottom else { return }
+    proxy.scrollTo(AuraScrollAnchor.bottom, anchor: .bottom)
+  }
+
   func conversationMessage(_ message: AuraConversationMessage) -> some View {
     let role: String
     switch message.role {
@@ -340,14 +442,27 @@ extension AuraMenuView {
     case .assistant: role = "AURA"
     case .system: role = language == .turkish ? "Sistem" : "System"
     }
-    return AuraMessageBubble(
-      language: language,
-      roleLabel: role,
-      text: message.text,
-      isUser: message.role == .user,
-      isDegraded: message.isDegraded,
-      sourceSummary: message.sourceSummary,
-      traceSummary: message.traceSummary)
+    if message.role == .assistant {
+      // Assistant replies carry markdown (G1-2): inline semantics primary,
+      // verbatim plain-text fallback on malformed input.
+      return AnyView(
+        AuraMarkdownMessageBubble(
+          language: language,
+          roleLabel: role,
+          text: message.text,
+          isDegraded: message.isDegraded,
+          sourceSummary: message.sourceSummary,
+          traceSummary: message.traceSummary))
+    }
+    return AnyView(
+      AuraMessageBubble(
+        language: language,
+        roleLabel: role,
+        text: message.text,
+        isUser: message.role == .user,
+        isDegraded: message.isDegraded,
+        sourceSummary: message.sourceSummary,
+        traceSummary: message.traceSummary))
   }
 
 }

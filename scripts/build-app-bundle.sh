@@ -17,28 +17,37 @@ rm -rf "$BUILD_DIR/$APP_NAME.app"
 
 # Build the SwiftPM executable in release mode.
 # We use swift build directly because swiftpm-testing-helper is only needed for tests.
+# --skip-update: dependency resolution writes into the repo root, which sits
+# under Desktop File Provider scope (see memory: build env notes); skipping
+# the update pass avoids that TCC boundary failing the build spuriously.
 swift build \
   -c release \
+  --skip-update \
   --product "$APP_NAME" \
   --build-path "$BUILD_DIR/swiftpm"
 swift build \
   -c release \
+  --skip-update \
   --product "AuraPluginHost" \
   --build-path "$BUILD_DIR/swiftpm"
 swift build \
   -c release \
+  --skip-update \
   --product "AuraAutomationHelper" \
   --build-path "$BUILD_DIR/swiftpm"
 swift build \
   -c release \
+  --skip-update \
   --product "AuraShellHelper" \
   --build-path "$BUILD_DIR/swiftpm"
 swift build \
   -c release \
+  --skip-update \
   --product "AuraSafariExtensionHandler" \
   --build-path "$BUILD_DIR/swiftpm"
 swift build \
   -c release \
+  --skip-update \
   --product "AuraChromeNativeHost" \
   --build-path "$BUILD_DIR/swiftpm"
 
@@ -86,6 +95,10 @@ cp "$REPO_ROOT/Resources/AuraAutomationHelper.entitlements" "$RESOURCES_DIR/Aura
 cp "$REPO_ROOT/Resources/AuraShellHelper.entitlements" "$RESOURCES_DIR/AuraShellHelper.entitlements"
 cp "$REPO_ROOT/Runtime/chatterbox/chatterbox_helper.py" \
   "$RESOURCES_DIR/Chatterbox/chatterbox_helper.py"
+
+# App icon (UI-0 G0-2): the .icns is generated only by
+# scripts/generate-app-icon.sh from the vector masters in Resources/brand/.
+cp "$REPO_ROOT/Resources/AURA.icns" "$RESOURCES_DIR/AURA.icns"
 
 # Assemble the Safari Web Extension. The web half (manifest + service worker)
 # ships verbatim from Resources/SafariExtension so the reviewed source is the

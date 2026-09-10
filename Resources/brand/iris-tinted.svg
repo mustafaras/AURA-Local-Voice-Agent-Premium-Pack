@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The Iris — tinted variant: monochrome glass, luminance-only, so the mark
+     survives the platform's tinted-icon appearance mode (10-icon-identity.md
+     §2). Same geometry as iris-dark.svg; every chroma is removed. Rendered
+     only by scripts/generate-app-icon.sh; PNGs are never committed. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="monoBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6E7378"/>
+      <stop offset="1" stop-color="#3E4348"/>
+    </linearGradient>
+    <radialGradient id="monoVignette" cx="0.5" cy="1.05" r="0.75">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.22"/>
+      <stop offset="0.6" stop-color="#000000" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#monoBody)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#monoVignette)"/>
+  <rect x="101.5" y="101.5" width="821" height="821" rx="183.5"
+        fill="none" stroke="#FFFFFF" stroke-opacity="0.32" stroke-width="3"/>
+
+  <circle cx="512" cy="512" r="240" fill="none" stroke="#FFFFFF" stroke-opacity="0.92" stroke-width="52"/>
+  <circle cx="600" cy="424" r="66" fill="#FFFFFF"/>
+</svg>

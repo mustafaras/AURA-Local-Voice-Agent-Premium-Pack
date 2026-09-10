@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The Iris — canonical dark variant. Vector master for Resources/AURA.icns
+     (rendered only by scripts/generate-app-icon.sh; PNGs are never committed).
+     Geometry per ui-improvement-plan/10-icon-identity.md §2: dark glass disc on
+     the platform icon grid (824/1024, centered), thin luminous iris ring
+     (#5AE6C8 → #1FB59A), core dot upper-right (the only asymmetric element),
+     and a faint radial aura field between ring and core.
+     16 px legibility gate: below 32 px the mark survives as ring + core only —
+     the sheen and aura are opacity-graded to vanish in the reduction, and the
+     only bevel is a single hairline edge stroke. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="glassBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1B222C"/>
+      <stop offset="0.55" stop-color="#10151C"/>
+      <stop offset="1" stop-color="#0B0E13"/>
+    </linearGradient>
+    <linearGradient id="irisRing" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#5AE6C8"/>
+      <stop offset="1" stop-color="#1FB59A"/>
+    </linearGradient>
+    <radialGradient id="auraField" cx="0.586" cy="0.414" r="0.46">
+      <stop offset="0" stop-color="#5AE6C8" stop-opacity="0.20"/>
+      <stop offset="0.5" stop-color="#5AE6C8" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#5AE6C8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glassSheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.10"/>
+      <stop offset="0.4" stop-color="#FFFFFF" stop-opacity="0.015"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="baseVignette" cx="0.5" cy="1.05" r="0.75">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.28"/>
+      <stop offset="0.6" stop-color="#000000" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Glass disc on the platform icon grid. -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#glassBody)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#baseVignette)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#auraField)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#glassSheen)"/>
+  <!-- Single hairline edge: the only bevel, kept hairline-thin so sizes
+       ≤ 32 px render ring + core alone (the legibility gate). -->
+  <rect x="101.5" y="101.5" width="821" height="821" rx="183.5"
+        fill="none" stroke="#FFFFFF" stroke-opacity="0.09" stroke-width="3"/>
+
+  <!-- Iris ring. -->
+  <circle cx="512" cy="512" r="240" fill="none" stroke="url(#irisRing)" stroke-width="52"/>
+  <!-- Core dot, upper-right, with its aura glow. -->
+  <circle cx="600" cy="424" r="104" fill="#5AE6C8" opacity="0.14"/>
+  <circle cx="600" cy="424" r="66" fill="#5AE6C8"/>
+</svg>

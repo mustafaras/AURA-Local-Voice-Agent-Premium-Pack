@@ -56,6 +56,18 @@ extension AuraAppModel {
         logger: logger,
         confirmationPresenter: confirmationPresenter)
       self.kernel = kernel
+      // The level bridge observes the same AudioFrameEvent stream as the
+      // pipelines, reading frames via AuraAudio.frame(sequenceIndex:). It
+      // must be subscribed before audio.start() like every other subscriber
+      // (AuraEventBus does not replay history), so it attaches to the
+      // kernel's capture actor + bus here — `kernel.start()` below starts the
+      // pipeline.
+      let bridge = levelBridge
+      let kernelAudio = await kernel.audio
+      if let kernelAudio {
+        await bridge.reattach(audio: kernelAudio, eventBus: eventBus)
+      }
+      await bridge.start()
       try await kernel.start()
       if let profile = try await kernel.preferenceProfileSnapshot() {
         memoryPreferenceProfile = profile
@@ -235,6 +247,12 @@ extension AuraAppModel {
     case .error: status = .error
     }
     statusDetail = event.reason.isEmpty ? status.title(for: .english) : event.reason
+    // The level meter mirrors the listening status exactly: set only while
+    // listening, nil the moment any other state arrives (G1-1 honest idle).
+    // Same-actor publish through the bridge's main-actor contract.
+    Task { @MainActor [weak self] in
+      self?.levelBridge.setListening(event.state == .listening)
+    }
   }
 
   func recordTask(_ event: TaskEnqueuedEvent) {

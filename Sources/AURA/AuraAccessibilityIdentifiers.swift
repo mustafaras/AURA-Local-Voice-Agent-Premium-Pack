@@ -79,4 +79,13 @@ enum AuraAccessibilityID {
   static let languageSwitch = "aura.header.language"
   static let settingsButton = "aura.header.settings"
   static let onboardingButton = "aura.header.onboarding"
+
+  // Conversation experience (UI-1). The draft bubble, the thinking
+  // placeholder, and the jump-to-latest affordance are all reachable by the
+  // live acceptance driver; the Orb carries a readout identifier so a driver
+  // leg can assert what state the instrument claims.
+  static let conversationDraftBubble = "aura.conversation.draftBubble"
+  static let conversationThinking = "aura.conversation.thinking"
+  static let conversationJumpToLatest = "aura.conversation.jumpToLatest"
+  static let conversationOrb = "aura.conversation.orb"
 }

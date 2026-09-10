@@ -2,63 +2,45 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleDevelopmentRegion</key>
-    <string>en</string>
-
-    <key>CFBundleExecutable</key>
-    <string>AURA</string>
-
-    <key>CFBundleIdentifier</key>
-    <string>ai.aura.local.agent</string>
-
-    <key>CFBundleInfoDictionaryVersion</key>
-    <string>6.0</string>
-
-    <key>CFBundleName</key>
-    <string>AURA</string>
-
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-
-    <key>CFBundleShortVersionString</key>
-    <string>0.1.0</string>
-
-    <key>CFBundleVersion</key>
-    <string>1</string>
-
-    <key>LSMinimumSystemVersion</key>
-    <string>27.0</string>
-
-    <key>LSUIElement</key>
-    <false/>
-
-    <!-- Privacy descriptions: shown in permission dialogs. -->
-    <key>NSAccessibilityUsageDescription</key>
-    <string>AURA needs Accessibility access to control applications and observe UI elements on your behalf. No data leaves your device.</string>
-
-    <key>NSCameraUsageDescription</key>
-    <string>AURA does not use the camera. This key is present only to satisfy App Store validation and is paired with a denied entitlement.</string>
-
-    <key>NSMicrophoneUsageDescription</key>
-    <string>AURA needs microphone access to transcribe commands locally after you activate Push to Talk. Audio is not sent to remote services.</string>
-
-    <key>NSSpeechRecognitionUsageDescription</key>
-    <string>AURA uses on-device speech recognition to transcribe your commands. No audio leaves your device.</string>
-
-    <key>NSScreenCaptureUsageDescription</key>
-    <string>AURA needs Screen Recording access to understand screen context for computer-use tasks. Captured frames are processed on-device and redacted before any model use.</string>
-
-    <key>NSCalendarsFullAccessUsageDescription</key>
-    <string>AURA needs Calendar access to read your agenda when you ask about your schedule. Events are read on-device and are never sent to remote services.</string>
-
-    <key>NSCalendarsUsageDescription</key>
-    <string>AURA needs Calendar access to read your agenda when you ask about your schedule. Events are read on-device and are never sent to remote services.</string>
-
-    <key>NSContactsUsageDescription</key>
-    <string>AURA needs Contacts access to resolve a name you mention into one contact. Only the matching candidates are read, on-device, and the full address book is never exposed.</string>
-
-    <!-- Hardened runtime: required for notarization and distribution. -->
-    <key>LSApplicationCategoryType</key>
-    <string>public.app-category.productivity</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>AURA</string>
+	<key>CFBundleIconFile</key>
+	<string>AURA</string>
+	<key>CFBundleIdentifier</key>
+	<string>ai.aura.local.agent</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>AURA</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>27.0</string>
+	<key>LSUIElement</key>
+	<false/>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>AURA needs Accessibility access to control applications and observe UI elements on your behalf. No data leaves your device.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>AURA needs Calendar access to read your agenda when you ask about your schedule. Events are read on-device and are never sent to remote services.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>AURA needs Calendar access to read your agenda when you ask about your schedule. Events are read on-device and are never sent to remote services.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>AURA does not use the camera. This key is present only to satisfy App Store validation and is paired with a denied entitlement.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>AURA needs Contacts access to resolve a name you mention into one contact. Only the matching candidates are read, on-device, and the full address book is never exposed.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>AURA needs microphone access to transcribe commands locally after you activate Push to Talk. Audio is not sent to remote services.</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>AURA needs Screen Recording access to understand screen context for computer-use tasks. Captured frames are processed on-device and redacted before any model use.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>AURA uses on-device speech recognition to transcribe your commands. No audio leaves your device.</string>
 </dict>
 </plist>

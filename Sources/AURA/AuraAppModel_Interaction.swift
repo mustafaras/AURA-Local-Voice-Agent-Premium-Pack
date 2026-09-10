@@ -162,6 +162,9 @@ extension AuraAppModel {
         try await kernel?.activatePushToTalk()
         status = .listening
         statusDetail = "Listening on device"
+        // The level meter is armed by the same transition the pill renders,
+        // so the meter and the pill can never disagree (G1-1 honest idle).
+        levelBridge.setListening(true)
         // Recorded only on the path that actually reached the listening
         // acknowledgement, and only when no permission prompt intervened.
         // A failure returns before this point; a *granted* prompt did not,
@@ -190,6 +193,9 @@ extension AuraAppModel {
         try await kernel?.submitText(text)
         status = .thinking
         statusDetail = "Processing typed request"
+        // A typed turn leaves the listening path; the meter follows the same
+        // transition the pill renders (nil while not listening).
+        levelBridge.setListening(false)
       } catch {
         setError(error.localizedDescription)
       }
@@ -252,6 +258,14 @@ extension AuraAppModel {
     UserDefaults.standard.set(language.rawValue, forKey: "aura.ui.language")
     persistProductUIState()
     refreshProductSnapshots()
+  }
+
+  /// UI-0 sound scaffold (G0-6): preference setter. Default off; the toggle
+  /// only arms the scaffold — no earcon channel exists yet (ADR-057 records
+  /// the adopt-later recommendation).
+  func setSoundFeedbackEnabled(_ enabled: Bool) {
+    productUIState.reduce(.setSoundFeedbackEnabled(enabled))
+    persistProductUIState()
   }
 
   func beginOnboarding() {

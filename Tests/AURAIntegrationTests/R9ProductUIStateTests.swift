@@ -416,6 +416,24 @@ struct R9ProductUIStateTests {
     _ = menu.conversationMessage(
       AuraConversationMessage(role: .user, text: "user", sourceSummary: "source"))
     _ = menu.conversationMessage(AuraConversationMessage(role: .system, text: "system"))
+    // UI-1 surfaces: markdown bubble, draft bubble, thinking placeholder, and
+    // the Orb across every status (view-construction smoke for G1-2/3/5/6).
+    _ = AuraMarkdownMessageBubble(
+      language: .english, roleLabel: "AURA", text: "**bold** answer",
+      sourceSummary: "source", traceSummary: "trace").body
+    _ = AuraMarkdownMessageBubble(
+      language: .turkish, roleLabel: "AURA", text: "[broken](").body
+    _ = AuraDraftBubble(language: .english, text: "draft text").body
+    _ = AuraThinkingIndicator(language: .turkish).body
+    for status in [
+      AuraAppStatus.starting, .idle, .listening, .thinking, .speaking, .restricted,
+      .stopped, .error,
+    ] {
+      _ = AuraOrb(
+        status: status, inputLevel: status == .listening ? 0.5 : nil,
+        isSpeakingResponse: status == .speaking, language: .english,
+        restrictedReason: status == .restricted ? "reason" : "").body
+    }
     _ = AuraConfirmationCard(model: model, challenge: challenge).body
     _ = MemoryRowView(model: model, record: row).body
     let auditRow = AuraMemoryRow(
@@ -430,6 +448,32 @@ struct R9ProductUIStateTests {
       _ = AuraOnboardingView(model: model).body
     }
     _ = AuraSettingsView(model: model).body
+  }
+
+  @Test("sound feedback scaffold defaults off, reduces, and localizes copy")
+  func soundFeedbackScaffold() {
+    // UI-0 G0-6: the scaffold is default-off and reducer-owned.
+    var state = AuraProductUIState()
+    #expect(!state.soundFeedbackEnabled)
+
+    state.reduce(.setSoundFeedbackEnabled(true))
+    #expect(state.soundFeedbackEnabled)
+
+    state.reduce(.setSoundFeedbackEnabled(false))
+    #expect(!state.soundFeedbackEnabled)
+
+    // The state stays Codable so the UserDefaults persistence round-trips.
+    let data = try! JSONEncoder().encode(state)
+    let decoded = try! JSONDecoder().decode(AuraProductUIState.self, from: data)
+    #expect(decoded == state)
+
+    // Settings copy keys exist with genuine Turkish.
+    #expect(AuraCopy.text("settings.soundFeedback", language: .english) == "Sound feedback")
+    #expect(
+      AuraCopy.text("settings.soundFeedback", language: .turkish) == "Ses geri bildirimi")
+    #expect(
+      AuraCopy.text("settings.soundFeedbackNote", language: .turkish)
+        == "Gelecekteki durum değişikliği sesleri için ayrılmıştır. Bu sürümde ses çalmaz.")
   }
 
   @Test("design typography uses scalable relative text styles for Dynamic Type")

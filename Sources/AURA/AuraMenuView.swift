@@ -6,6 +6,14 @@ struct AuraMenuView: View {
   @ObservedObject var model: AuraAppModel
   @Environment(\.openSettings) var openSettings
 
+  /// Whether the transcript viewport is at the bottom. Auto-scroll follows
+  /// the stream only while this holds; scrolling up pauses it (UI-1 G1-4).
+  /// Internal (not private): the conversation surface lives in an extension
+  /// in `AuraMenuView_Content.swift`.
+  @State var isStickToBottom = true
+  /// Whether the jump-to-latest affordance is visible (user scrolled up).
+  @State var showJumpToLatest = false
+
   var language: AuraUILanguage { model.productUIState.language }
 
 }

@@ -1,5 +1,6 @@
 import AppKit
 import AuraAgent
+import AuraAudio
 import AuraConfig
 import AuraCore
 import AuraIntent
@@ -118,6 +119,13 @@ final class AuraAppModel: ObservableObject {
   }
   @Published var conversationMessages: [AuraConversationMessage] = []
   @Published var partialTranscript = ""
+  /// Scalar mic level for display (0…1) while listening; `nil` whenever the
+  /// assistant is not listening (honest idle). Published by
+  /// `AudioLevelBridge` — a scalar only: no sample data, no history, no
+  /// persistence, no logging (06-cross-cutting-constraints.md §6). UI-1 rule:
+  /// render transform-only from this value, never `withAnimation` on it
+  /// (11-motion-system.md §5).
+  @Published var inputLevel: Double?
   @Published var lastPlanSummary: String?
   @Published var lastOperationMessage = ""
   @Published var productUIState = AuraProductUIState()
@@ -131,6 +139,10 @@ final class AuraAppModel: ObservableObject {
 
   let confirmationPresenter = UIConfirmationPresenter()
   let emergencyShortcutMonitor = EmergencyShortcutMonitor()
+  /// UI level meter for the listening state (UI-1 G1-1). Owned by the app
+  /// model; subscribed by `bootstrap()`, driven by the model's own status
+  /// transitions so `inputLevel` and the status pill can never disagree.
+  let levelBridge: AudioLevelBridge
   var confirmationContinuation: CheckedContinuation<Bool, Never>?
   var kernel: AuraKernel?
   var eventBus: AuraEventBus?
@@ -169,6 +181,20 @@ final class AuraAppModel: ObservableObject {
   }
 
   init(startRuntime: Bool = true) {
+    // The level bridge needs a bus to observe; the model constructs it on the
+    // shared bus with a placeholder capture actor, and `bootstrap()` reattaches
+    // it to the kernel's real capture actor + bus before subscribing.
+    let bridge = AudioLevelBridge(
+      audio: AuraAudio(
+        configuration: AudioConfiguration(), eventBus: .shared,
+        logger: AuraLogger(subsystem: "AURA", category: "audio")),
+      eventBus: .shared)
+    self.levelBridge = bridge
+    bridge.onLevelChange = { [weak self] level in
+      MainActor.assumeIsolated {
+        self?.inputLevel = level
+      }
+    }
     if let rawLanguage = UserDefaults.standard.string(forKey: "aura.ui.language"),
       let savedLanguage = AuraUILanguage(rawValue: rawLanguage)
     {
@@ -179,6 +205,7 @@ final class AuraAppModel: ObservableObject {
     {
       productUIState.selectedTab = savedState.selectedTab
       productUIState.onboarding = savedState.onboarding
+      productUIState.soundFeedbackEnabled = savedState.soundFeedbackEnabled
     }
     if startRuntime {
       bootTask = Task { [weak self] in

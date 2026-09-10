@@ -256,6 +256,11 @@ enum AuraProductUIAction: Equatable, Sendable {
   case closeOnboarding
   case showConfirmation
   case hideConfirmation
+  /// UI-0 sound scaffold (G0-6): toggles the sound-feedback preference.
+  /// The preference only arms the *scaffold* — no earcon channel exists yet
+  /// (the adopt-now / adopt-later / reject decision is recorded in ADR-057,
+  /// recommendation adopt-later per 12-sound-design.md §8).
+  case setSoundFeedbackEnabled(Bool)
 }
 
 struct AuraProductUIState: Codable, Equatable, Sendable {
@@ -263,6 +268,11 @@ struct AuraProductUIState: Codable, Equatable, Sendable {
   var language: AuraUILanguage = .english
   var onboarding = AuraOnboardingState()
   var confirmationNeedsFocus = false
+  /// Sound feedback preference. Default **off** (12-sound-design.md §4.3:
+  /// sound ships dark, like any new sensory surface, until evaluated live).
+  /// Reducer-owned; persisted with the rest of the product state via
+  /// UserDefaults key `aura.ui.state`.
+  var soundFeedbackEnabled = false
 
   mutating func reduce(_ action: AuraProductUIAction) {
     switch action {
@@ -287,6 +297,8 @@ struct AuraProductUIState: Codable, Equatable, Sendable {
       confirmationNeedsFocus = true
     case .hideConfirmation:
       confirmationNeedsFocus = false
+    case .setSoundFeedbackEnabled(let enabled):
+      soundFeedbackEnabled = enabled
     }
   }
 }
@@ -330,6 +342,39 @@ enum AuraCopy {
     ],
     "a11y.tracePrefix": [.english: "Trace", .turkish: "İz"],
     "a11y.diagnosticPrefix": [.english: "Diagnostic", .turkish: "Tanılama"],
+    // --- Conversation experience (UI-1) -------------------------------------
+    // The in-flight spoken input lives in the transcript as a draft bubble;
+    // one combined VoiceOver element announces it with this prefix.
+    "a11y.draftPrefix": [.english: "Draft", .turkish: "Taslak"],
+    // Pending-assistant-turn placeholder rendered while the real status is
+    // .thinking. States what is happening, no spinner cliché.
+    "conversation.thinking": [
+      .english: "AURA is thinking…", .turkish: "AURA düşünüyor…",
+    ],
+    // Jump-to-latest affordance shown when the user scrolled up and honest
+    // auto-scroll paused. Idiomatic Turkish for the "go to newest message"
+    // affordance.
+    "conversation.jumpToLatest": [
+      .english: "Jump to latest", .turkish: "En sona git",
+    ],
+    // Orb still-readout labels (13-advanced-surfaces.md §1): the state name
+    // in words, never color alone. Rest states + the four active states.
+    "a11y.orb.idle": [.english: "Idle", .turkish: "Boşta"],
+    "a11y.orb.starting": [.english: "Starting", .turkish: "Başlatılıyor"],
+    "a11y.orb.stopped": [.english: "Stopped", .turkish: "Durduruldu"],
+    "a11y.orb.listening": [
+      .english: "Listening", .turkish: "Dinleniyor",
+    ],
+    "a11y.orb.thinking": [
+      .english: "Thinking", .turkish: "Düşünülüyor",
+    ],
+    "a11y.orb.speaking": [
+      .english: "Speaking", .turkish: "Konuşuluyor",
+    ],
+    "a11y.orb.restricted": [
+      .english: "Restricted", .turkish: "Kısıtlı",
+    ],
+    "a11y.orb.error": [.english: "Error", .turkish: "Hata"],
     "a11y.correctedMemory": [
       .english: "Corrected memory statement", .turkish: "Düzeltilmiş bellek ifadesi",
     ],
@@ -547,6 +592,18 @@ enum AuraCopy {
     "settings.launchAtLoginNote": [
       .english: "Registers AURA with macOS Login Items via ServiceManagement.",
       .turkish: "AURA'yı ServiceManagement ile macOS Giriş Ögeleri'ne kaydeder.",
+    ],
+    // --- Sound feedback scaffold (UI-0 G0-6) --------------------------------
+    // The scaffold does not pre-decide adoption (ADR-057); the copy states
+    // what the preference does, not that sounds exist.
+    "settings.soundFeedback": [
+      .english: "Sound feedback", .turkish: "Ses geri bildirimi",
+    ],
+    "settings.soundFeedbackNote": [
+      .english:
+        "Reserved for future state-change sounds. No sounds play in this build.",
+      .turkish:
+        "Gelecekteki durum değişikliği sesleri için ayrılmıştır. Bu sürümde ses çalmaz.",
     ],
     "recovery.latency": [
       .english: "Observed latency (this session)", .turkish: "Gözlenen gecikme (bu oturum)",
