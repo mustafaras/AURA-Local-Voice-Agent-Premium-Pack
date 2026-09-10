@@ -1,4 +1,154 @@
 # Current State
+## 2026-09-10 — UI-0 + UI-1 delivered: committed and pushed to origin/main; release bundle built, stable-signed, verified, launch-smoked; /Applications install step in progress (deploy turn)
+
+Owner delivery instruction this turn: "push commit merge deploy" — explicit
+commit/push/merge/install go-ahead (satisfying the turn-bound go-ahead rule
+both prior phases ended on). Delivery commit `57957bc`
+(`feat(ui): land UI-0 identity foundation + UI-1 conversation experience`;
+57 files, +4614/−100: product sources, tests, ADR-057/058, icon pipeline,
+ui-improvement-plan/ plan + phase ledger + prompts + evidence, all staged by
+explicit path — never `-A`) is followed by the ledger-records commit and the
+chore(state) pointer advance (verified_head/remote_head/repository_commit
+moved to the delivery chain; see `archive/runtime-completion/state/current-state.json`).
+Merge is satisfied by the direct-`main` push — this repo has no PR/feature-branch
+workflow and no open PR. Deploy leg so far: fresh release bundle
+`/tmp/aura-deploy/AURA.app` built exit 0 (`BUILD_DIR=/tmp/aura-deploy
+./scripts/build-app-bundle.sh`, icon copied, `CFBundleIconFile` present),
+signed by `./scripts/codesign-adhoc.sh` with the stable **"AURA Stable Local
+Signing"** identity, `codesign --verify --deep --strict` → CODESIGN_OK, and a
+bounded launch smoke passed (direct `open`, alive ≥12 s pid 20440, clean
+`osascript quit`). The `/Applications/AURA.app` replace (stale pre-UI-0
+install, no icon → new bundle; old bundle moved aside to
+`/tmp/aura-old-installed-AURA.app` for rollback) is authorized under the
+standing owner authority `launch_or_install_app: true` but was not yet
+executed at this record's write time — the session's unsandboxed-command
+safety gate was unavailable (model classifier outage); this line is updated
+to the executed truth before the records commit, or the install is recorded
+honestly as pending. No signing/notarization/release claim follows
+(ADR-049 unchanged; `beta-readiness.json`/`release_candidate` remain
+blocked). UI-1's G1-4 live driver leg remains the phase's open obligation
+(host lock screen at implementation time; honestly recorded at SEQ-0023).
+
+## 2026-09-10 — UI-1 conversation experience implemented: 6 of 9 gates passed, G1-4 live leg blocked by host lock screen (uncommitted, edit/test authority)
+
+UI-1 (ui-improvement-plan) executed this session under the user's explicit
+"go apply" approval (recorded verbatim as the UI-0 → UI-1 APPROVAL line).
+**Passed with evidence** (ui-improvement-plan/ledger/PHASE_LEDGER.md
+SEQ-0017…0026): G1-1 `AudioLevelBridge` (new file; read-only
+`AudioFrameEvent` subscriber; scalar RMS→dBFS identical to
+`VoiceActivityDetector.energyDB`; 20 Hz throttle inside the 15–30 Hz budget;
+`@Published inputLevel: Double?` nil-when-not-listening; no persistence/
+logging; reattached to the kernel's capture actor in bootstrap before
+`kernel.start()`); G1-2 inline-only markdown via
+`AuraDesign.inlineMarkdownOrPlain` (`.inlineOnlyPreservingWhitespace` —
+SDK-verified member name; the prompt's `-Whitespace**s**` spelling does not
+exist in the installed Foundation; malformed input falls back to raw text
+verbatim, content never dropped); G1-3 draft bubble in the transcript
+stream (`a11y.draftPrefix` = "Draft"/"Taslak"; one combined VoiceOver
+element; in-place updates, no re-entry animation); G1-5 thinking
+placeholder driven by the real `.thinking` status (copy
+"conversation.thinking" EN/TR; static dots, no spinner); G1-6 `AuraOrb`
+(Canvas; pure `AuraOrbStateMapping.resolve` over all 6 statuses; listening
+ring = live level; thinking arc 120°/s at ≤30 fps, Reduce Motion → still
+readout, never blank; speaking ≤3 bars; restricted amber dashed + reason;
+error critical); G1-7 ambient canvas (transcript on `palette.void` +
+hairline stroke; pinned Typography counts 1/1/1/1/1 unchanged;
+`AuraConversationMessage` untouched — ProductUIState diff 57 insertions /
+0 deletions, additive copy keys only); G1-8 governance (ADR-058;
+PROJECT_LEDGER 276→277; this atomic rewrite; suite ×2).
+
+**Test evidence:** `AURAIntegrationTests` 164 tests / 27 suites / 0 failures
+(was 137/25; +27 UI-1 tests); **full 22-target `aura-test.sh` loop exit 0,
+22/22 PASSED, 0 failed bundles ×2 back-to-back**
+(/tmp/aura-ui1-full1.log, /tmp/aura-ui1-full2.log); fresh bundle
+/tmp/aura-ui1-app/AURA.app built + codesign-verified
+(`codesign --verify --deep --strict` OK).
+
+**G1-4 (auto-scroll) implemented but its live driver leg is blocked:** the
+host is on the lock screen — every System Events AX query times out or
+reports 0 windows for *every* process (Finder/Code/AURA alike); screenshot
+evidence /tmp/aura-screen.png. The stick-to-bottom + jump-to-latest logic
+is pinned by view construction and the code path compiles into the
+verified bundle; the aura-drive.applescript leg (submit → transcript read →
+scroll behavior) requires an unlocked interactive session and remains the
+phase's open obligation, recorded honestly in the phase ledger (G1-4
+`blocked`, per protocol §6 "no ledger write without evidence"). **G1-9
+(machine coherence) is also held open** because the phase cannot reach
+`awaiting-approval` with a blocked gate; `validate-continuity.sh` itself is
+OK with the honest statuses.
+
+Next safe action: unlock the host session, rerun the driver leg
+(`osascript scripts/sp011-acceptance/aura-drive.applescript window` then
+`submit`/`transcript`), record G1-4 evidence, then set G1-9
+`awaiting-approval`. No commit/push performed (no explicit go-ahead this
+turn).
+
+## 2026-09-10 — UI-0 COMPLETE: all 9 gates passed (uncommitted, edit/test authority; awaiting UI-1 approval)
+
+UI-0 finished to its full gate letter this turn. The earlier G0-7 block
+resolved when the host's audio input devices were restored: the audio target
+went 4 device-availability failures → `39 tests / 6 suites passed (2.4 s)`,
+and the full `aura-test.sh` loop ran **exit 0, 22/22 targets, 0 failed
+bundles twice back-to-back** (reruns 3 and 4 — the gate's "×2–3" letter
+satisfied). Live icon acceptance also closed: the 16 px legibility gate
+**passed visually in both variants** (ring + core reads cleanly as two
+luminous strokes), with six evidence renders persisted under
+`ui-improvement-plan/evidence/` (dark 16/32/128/512, light 16, tinted 512).
+Plan machine end-state: all 9 UI-0 gates `passed`,
+`phase_status: awaiting-approval`, `last_seq: 16`, `validate-continuity.sh`
+OK — the transition to UI-1 now requires the user's approval token
+("ONAY UI-1") per the plan's protocol; no APPROVAL line was written by the
+assistant. Everything from the entry below remains true (icon pipeline,
+tokens v2, motion gate, sound scaffold, ADR-057, repo ledger entry); full
+per-gate evidence is in `ui-improvement-plan/ledger/PHASE_LEDGER.md`
+SEQ-0004…0016. No commit/push performed (no explicit go-ahead in the turn).
+
+## 2026-09-10 — UI-0 identity foundation landed (uncommitted, edit/test authority; G0-7 blocked on pre-existing host audio)
+
+UI-0 (ui-improvement-plan Identity Foundation) executed to its machine
+boundary this session: **G0-1…G0-6 passed** with per-gate evidence in
+`ui-improvement-plan/ledger/PHASE_LEDGER.md` (SEQ-0004…0008), **G0-7
+blocked**, **G0-8 partial**, **G0-9 pending**. Landed (all uncommitted, no
+push): Iris icon pipeline (3 SVG masters in `Resources/brand/`,
+`scripts/generate-app-icon.sh` as the only path to the generated
+`Resources/AURA.icns`, `CFBundleIconFile=AURA` + copy line at
+`build-app-bundle.sh:92` + `--skip-update` on its six swift build steps to
+dodge a Desktop File Provider TCC boundary; codesign `--verify --deep
+--strict` OK on fresh `BUILD_DIR=/tmp/aura-release-app` bundle); design
+tokens v2 strictly additive in `AuraDesign.swift` (`Palette` Observatory
+neutrals + Biolume accents dark+light, `Materials` L0–L3, `Measure`,
+`Motion` — pinned Typography counts identical 1/1/1/1/1 before/after);
+`statusColor(_:)` remapped in place (idle/active→biolume, restricted→cautious,
+error→critical); WCAG contrast unit gate for both variants — the gate
+adjusted token values, never thresholds (textTertiary 38%→56% white, cautious
+light #A66A08→#8A5606); motion helper `AuraDesign.Motion.motion(_:)` returns
+nil under `NSWorkspace.shared.accessibilityDisplayShouldReduceMotion`
+(SDK-verified from `NSAccessibility.h:103`, static-readout rule in code);
+sound scaffold default-off `soundFeedbackEnabled` (reducer-owned, persisted
+via `aura.ui.state`) + honest EN/TR Settings copy; ADR-057 records the
+adopt-later sound decision. `AURAIntegrationTests` = 137 tests / 25 suites /
+0 failures (exit 0) including the new 10-test token suite.
+
+**G0-7 blocked, honestly:** full `aura-test.sh` loop ×2 → 21/22 targets both
+times; sole failure `AuraAudioTests` — 4× `SP016DeviceRecoveryTests` failing
+"capture could not start on this host … com.apple.coreaudio.avfaudio error
+35" (CoreAudio device-not-present). **Proven pre-existing:** stash-baseline
+rerun without any UI-0 change → identical failure signature; audio target
+alone ×2 → identical; zero audio files touched by UI-0 (git status: design/
+state/test files only). Per the no-evidence-no-pass rule the gate is
+`blocked`, not `passed`. Unblock paths: (a) owner restores host audio input
+availability, rerun full loop → passes honestly; (b) owner-authorized
+acceptance of the documented pre-existing-failure evidence (user token
+required as a gate-letter deviation).
+
+Remaining UI-0 work: G0-7 resolution, then G0-8's live icon acceptance
+(Dock sizes / both desktops / 16 px legibility screenshots — bundle at
+`/tmp/aura-release-app/AURA.app` is codesign-verified with the icon present),
+then G0-9 (`validate-continuity.sh` → `awaiting-approval`). No commit/push
+was performed (no explicit go-ahead in the turn). `beta-readiness.json` /
+`release_candidate` state unchanged from 2026-09-07.
+
+# Current State
 ## 2026-09-07 — Owner provisioning turn: Gmail OAuth + VS Code bridge verified; Safari trust confirmed closed; acceptance profile cleaned (uncommitted, edit/test authority)
 
 The remaining owner-side provisioning steps were completed by owner-directed
