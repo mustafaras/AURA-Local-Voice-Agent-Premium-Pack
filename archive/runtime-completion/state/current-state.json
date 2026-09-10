@@ -2,14 +2,14 @@
   "$schema": "../schemas/program-state.schema.json",
   "schema_version": "1.0.0",
   "program_version": "1.0.0",
-  "updated_at": "2026-09-08T16:40:00Z",
+  "updated_at": "2026-09-10T15:35:21Z",
   "session_id": "AURA-SP-033-SYNTHETIC-ACCEPTED-20260903",
   "repository": {
     "full_name": "mustafaras/AURA-Local-Voice-Agent-Premium-Pack",
     "default_branch": "main",
     "active_branch": "main",
-    "verified_head": "3cd3ded4b7a523bb5c9315ec6d78a1a2140661d0",
-    "remote_head": "3cd3ded4b7a523bb5c9315ec6d78a1a2140661d0",
+    "verified_head": "8a0e99cfff61d9b7e548810fb94cce48b719b79b",
+    "remote_head": "8a0e99cfff61d9b7e548810fb94cce48b719b79b",
     "working_tree_state": "clean",
     "user_owned_changes": []
   },
@@ -18,7 +18,7 @@
     "id": "SP-033",
     "file": "archive/runtime-completion/prompts/second_pass/SP-033_FINAL_CLOSEOUT_RECONCILIATION.prompt.md",
     "state": "completed",
-    "step": "SP-033 (SESSION_CLOSEOUT) terminal prompt COMPLETED under ADR-053 synthetic-accepted scope (owner-instructed 2026-09-03); chain SP-000-SP-033 complete. External release / beta-readiness / release_candidate remain out of scope and blocked (ADR-049). Follow-up (2026-09-07): ADR-055 owner-directed local enablement delivered and recorded (open computer-use allowlist, confirmation-free destructive lifecycle + task.delete, Ollama cloud, screen default-on); Safari trust/OAuth remain owner steps."
+    "step": "SP-000-SP-033 chain terminal COMPLETE under ADR-053 synthetic-accepted scope (owner-instructed 2026-09-03); release/beta-readiness/release_candidate remain blocked (ADR-049). 2026-09-10: UI-0+UI-1 (ui-improvement-plan) delivered on owner go-ahead: committed 57957bc, ledger 8a0e99c, release bundle stable-signed+verified+launch-smoked; /Applications install pending at record time; G1-4 live driver leg open."
   },
   "tracks": [
     {
@@ -631,5 +631,5 @@
     "External beta/production release remains out of scope: ADR-049 (no Developer ID/notarization) and release_or_deploy:false. beta-readiness.json readiness_status and release_candidate.status remain blocked / approved:false.",
     "Gates closed under ADR-053 use synthetic/deterministic/local-observed evidence at their true evidence class; they are not live-user, beta, signed, or notarized proof. ADR-055 (2026-09-07, owner-directed) is the explicit reopen decision for computerUse.run, the destructive lifecycle set, task.delete, Ollama cloud inference, and the screen/browser host defaults; provider OAuth/real-account flows, Safari unsigned-extension trust, and wake word remain unprovisioned and are never presented as live or enabled."
   ],
-  "next_action": "Second-pass chain SP-000-SP-033 is COMPLETE under ADR-053 synthetic-accepted scope (owner-instructed 2026-09-03): live-user acceptance not required; gates blocked solely on absent live evidence closed with synthetic/deterministic/local-observed evidence. beta-readiness.json / release_candidate remain blocked and approved:false (no externally distributable signed-notarized artifact; ADR-049; no release authority). External distribution, if ever required, needs a new ADR and cannot be derived from this closure. ADR-055 (2026-09-07): owner-directed local enablement recorded — computer use with an open allowlist (all applications), destructive lifecycle + task.delete without a confirmation challenge, Ollama cloud inference, and screen capture enabled by default; wake word, Safari extension trust, and provider OAuth remain owner provisioning steps or excluded. NOTE: `program_status` is intentionally `blocked`, not `completed`, because the program-state schema only permits planned/in_progress/blocked/beta_validation/release_candidate_verified/released/suspended. This blocked status reflects the external-release scope boundary (ADR-049/ADR-053), not an unresolved internal gap."
+  "next_action": "Second-pass chain complete under ADR-053 synthetic-accepted scope; beta-readiness/release_candidate remain blocked (ADR-049). 2026-09-10 UI delivery recorded: UI-0+UI-1 committed/pushed; /Applications install to be completed under launch_or_install_app authority; ui-improvement-plan UI-2..UI-5 await explicit user approval tokens; G1-4 live driver leg to close on an unlocked host session. No auto-start."
 }
