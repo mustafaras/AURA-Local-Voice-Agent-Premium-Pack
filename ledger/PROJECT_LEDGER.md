@@ -6828,3 +6828,17 @@ phase ledger. No commit/push (no explicit go-ahead this turn).
   recorded at SEQ-0023); UI-2..UI-5 await their own approval tokens per the
   plan protocol; `beta-readiness.json` / `release_candidate` remain
   `blocked` / `approved:false`.
+
+### 2026-09-11T16:01Z — Delivery turn started — push existing UI delivery chain, direct-main merge, and local deploy
+
+- **Objective:** push the four locally ahead commits on `main`, verify that direct-main delivery is the applicable merge route, complete the already-built and stable-signed release bundle deployment to `/Applications/AURA.app`, and record the final repository/deploy state.
+- **Assumptions:** this turn's owner instruction is a continuation of the explicit prior turn go-ahead; the existing `57957bc` delivery plus its ledger/projection commits remain the intended delivery scope; deployment means the ADR-049-compatible local `/Applications` install only.
+- **Risks:** GitHub may reject a push if the remote advanced while offline; the app may be running during replacement; `/tmp` rollback artifacts may have been removed; hosted CI must not be inferred green without observed evidence.
+- **Acceptance criteria:** fresh remote equality is proven by `git ls-remote`; any open PR is checked directly; the deployed bundle is stable-signed, strict-verified, launch-smoked, and honestly compared against the prior installed bundle; ledger and state projection are updated before the closing records commit; no beta/RC/release claim is made.
+
+### 2026-09-11T16:02Z — Delivery turn started — push UI delivery chain, verify merge route, complete local deploy
+
+- **Objective:** push the already-authored UI delivery chain on `main`, verify that direct-main delivery is the applicable merge route, complete the already-built and stable-signed release bundle deployment to `/Applications/AURA.app`, and record the final repository/deploy state.
+- **Assumptions:** this turn's owner instruction continues the explicit prior go-ahead; the existing `57957bc` delivery plus its ledger/projection commits remain the intended delivery scope; deployment means the ADR-049-compatible local `/Applications` install only.
+- **Risks:** GitHub may reject a push if the remote advanced while offline; the app may be running during replacement; `/tmp` rollback artifacts may have been removed; hosted CI must not be inferred green without observed evidence.
+- **Acceptance criteria:** fresh remote equality is proven by `git ls-remote`; any open PR is checked directly; the deployed bundle is stable-signed, strict-verified, launch-smoked, and honestly compared against the prior installed bundle; ledger and state projection are updated before the closing records commit; no beta/RC/release claim is made.
