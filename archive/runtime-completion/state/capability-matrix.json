@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/capability-matrix.schema.json",
   "schema_version": "1.0.0",
-  "updated_at": "2026-09-10T15:35:21Z",
-  "repository_commit": "8a0e99cfff61d9b7e548810fb94cce48b719b79b",
+  "updated_at": "2026-09-11T16:23:31Z",
+  "repository_commit": "a035fec49da0801ef108f54f68ec9a0af8dc612d",
   "capabilities": [
     {
       "id": "app.swiftui_shell",
@@ -325,7 +325,7 @@
         "Hardcoded app-name map, limited Turkish aliases, incomplete hide/discovery/open URL/file capabilities."
       ],
       "evidence_ids": [],
-      "notes": "One of the few end-to-end reachable tool paths. ADR-055 (2026-09-07): the destructive lifecycle subset (reset/uninstall/factory-reset/rollback/update approval/stage/safe-mode) and task.delete run without a confirmation challenge \u2014 an owner-instructed local risk acceptance recorded in ADR-055, not a transferable policy default; lifecycle.launchAtLogin keeps its confirmation challenge."
+      "notes": "One of the few end-to-end reachable tool paths. ADR-055 (2026-09-07): the destructive lifecycle subset (reset/uninstall/factory-reset/rollback/update approval/stage/safe-mode) and task.delete run without a confirmation challenge — an owner-instructed local risk acceptance recorded in ADR-055, not a transferable policy default; lifecycle.launchAtLogin keeps its confirmation challenge."
     },
     {
       "id": "shell.typed_execution",

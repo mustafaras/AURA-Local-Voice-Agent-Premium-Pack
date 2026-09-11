@@ -6842,3 +6842,9 @@ phase ledger. No commit/push (no explicit go-ahead this turn).
 - **Assumptions:** this turn's owner instruction continues the explicit prior go-ahead; the existing `57957bc` delivery plus its ledger/projection commits remain the intended delivery scope; deployment means the ADR-049-compatible local `/Applications` install only.
 - **Risks:** GitHub may reject a push if the remote advanced while offline; the app may be running during replacement; `/tmp` rollback artifacts may have been removed; hosted CI must not be inferred green without observed evidence.
 - **Acceptance criteria:** fresh remote equality is proven by `git ls-remote`; any open PR is checked directly; the deployed bundle is stable-signed, strict-verified, launch-smoked, and honestly compared against the prior installed bundle; ledger and state projection are updated before the closing records commit; no beta/RC/release claim is made.
+
+### 2026-09-11T16:21Z — Delivery completed — UI chain pushed, direct-main merge verified, local bundle deployed
+
+- **Push/merge:** the complete UI delivery chain was pushed to `origin/main` and is now synchronized through tip `3f70b70` (`docs(ledger): record deployment turn objective`). Direct-main delivery remains the applicable merge route; no separate merge commit exists.
+- **Deploy:** the stable-signed `/tmp/aura-deploy/AURA.app` bundle was verified with `codesign --verify --deep --strict`, then installed by `ditto` to `/Applications/AURA.app`. The prior install was preserved at `/tmp/aura-old-installed-AURA.app-20260911-192025`. The installed bundle re-verified as `CODESIGN_OK`, launched with bounded launch smoke PID `15174`, stayed alive, and quit cleanly.
+- **Unresolved risks:** the UI-1 G1-4 live AppleScript driver leg remains open from the prior phase; no beta, release-candidate, external-distribution, or notarization claim is made. The rollback copy lives under `/tmp` and is therefore not durable across reboot.

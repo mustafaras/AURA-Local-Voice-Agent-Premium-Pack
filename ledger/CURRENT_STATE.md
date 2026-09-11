@@ -1580,3 +1580,10 @@ still verified deterministically; production default (0.25 s) and
 `metLatencyBudget` telemetry unchanged. Full suite green locally
 (`Failed bundles: 0`). Three flake classes stabilized today, all
 test-only; no production code changed.
+
+## 2026-09-11 — Delivery completed — UI chain pushed, direct-main merge verified, local bundle deployed
+
+- The complete UI delivery chain was pushed to `origin/main` and is synchronized through tip `3f70b70` (`docs(ledger): record deployment turn objective`). Direct-main delivery remains the applicable merge route; no separate merge commit exists.
+- The stable-signed `/tmp/aura-deploy/AURA.app` bundle was verified with `codesign --verify --deep --strict`, then installed by `ditto` to `/Applications/AURA.app`. The prior install was preserved at `/tmp/aura-old-installed-AURA.app-20260911-192025`.
+- The installed bundle re-verified as `CODESIGN_OK`, launched with bounded launch smoke PID `15174`, stayed alive, and quit cleanly.
+- Unresolved risks: the UI-1 G1-4 live AppleScript driver leg remains open; no beta, release-candidate, external-distribution, or notarization claim is made. The rollback copy lives under `/tmp` and is therefore not durable across reboot.
