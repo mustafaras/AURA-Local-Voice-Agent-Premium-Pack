@@ -47,7 +47,8 @@ extension OllamaAdapter {
 
     guard
       let model = await registry.route(
-        capability: capability, allowCloudModels: configuration.allowCloudModels)
+        capability: capability, allowCloudModels: configuration.allowCloudModels,
+        preferredModel: configuration.preferredModel)
     else {
       return .degraded(.noModelForCapability)
     }

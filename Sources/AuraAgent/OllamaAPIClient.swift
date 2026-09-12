@@ -3,14 +3,30 @@ import AuraSecurity
 import Foundation
 
 private struct OllamaGenerateRequestBody: Encodable {
+  /// Ollama's per-request sampling options. Only the token budget is set —
+  /// temperature and the rest stay at the daemon's defaults so AURA is not
+  /// silently tuning sampling behaviour it has not measured.
+  struct Options: Encodable {
+    let numPredict: Int
+
+    enum CodingKeys: String, CodingKey {
+      case numPredict = "num_predict"
+    }
+  }
+
   let model: String
   let prompt: String
   let stream: Bool
   let format: OllamaFormatSchema?
   let keepAlive: Double
+  /// Reasoning effort. `nil` omits the field; synthesized `Encodable` encodes
+  /// optionals with `encodeIfPresent`, which is the same mechanism `format`
+  /// already relies on to stay absent.
+  let think: String?
+  let options: Options?
 
   enum CodingKeys: String, CodingKey {
-    case model, prompt, stream, format
+    case model, prompt, stream, format, think, options
     case keepAlive = "keep_alive"
   }
 }
@@ -33,6 +49,8 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
   private let healthCheckTimeoutSeconds: Double
   private let session: URLSession
   private let endpointPolicy: NetworkEndpointPolicy
+  private let responseTokenBudget: Int
+  private let thinkingEffort: String
 
   public init(configuration: OllamaConfiguration) throws(AuraError) {
     guard let url = URL(string: configuration.baseURL) else {
@@ -53,6 +71,8 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
     self.requestTimeoutSeconds = configuration.requestTimeoutSeconds
     self.healthCheckTimeoutSeconds = configuration.healthCheckTimeoutSeconds
     self.endpointPolicy = policy
+    self.responseTokenBudget = configuration.responseTokenBudget
+    self.thinkingEffort = configuration.thinkingEffort
     // The mandatory factory disables cookies/cache and refuses redirects, so
     // the Ollama client can never construct an ungoverned session.
     self.session = URLSessionFactory.makeSession()
@@ -76,9 +96,31 @@ public struct URLSessionOllamaAPIClient: OllamaAPIClient {
   public func generate(
     model: String, prompt: String, format: OllamaFormatSchema?, keepAliveSeconds: Double
   ) async throws -> OllamaGenerateResponse {
+    let knobs = Self.generationKnobs(
+      isSchemaConstrained: format != nil, responseTokenBudget: responseTokenBudget,
+      thinkingEffort: thinkingEffort)
     let body = OllamaGenerateRequestBody(
-      model: model, prompt: prompt, stream: false, format: format, keepAlive: keepAliveSeconds)
+      model: model, prompt: prompt, stream: false, format: format, keepAlive: keepAliveSeconds,
+      think: knobs.think,
+      options: knobs.numPredict.map(OllamaGenerateRequestBody.Options.init(numPredict:)))
     return try await post("/api/generate", body: body, timeoutSeconds: requestTimeoutSeconds)
+  }
+
+  /// Which per-request knobs apply to a given request shape.
+  ///
+  /// Budget and reasoning effort are applied to free-text answers only. A
+  /// schema-constrained request keeps exactly the shape it has always sent:
+  /// truncating a JSON document at a token cap yields an unparseable answer,
+  /// and that path is load-bearing for classification and summarization. Pure
+  /// and internal so the rule is pinned by test rather than asserted in prose.
+  static func generationKnobs(
+    isSchemaConstrained: Bool, responseTokenBudget: Int, thinkingEffort: String
+  ) -> (think: String?, numPredict: Int?) {
+    guard !isSchemaConstrained else { return (nil, nil) }
+    return (
+      thinkingEffort.isEmpty ? nil : thinkingEffort,
+      responseTokenBudget > 0 ? responseTokenBudget : nil
+    )
   }
 
   public func unload(model: String) async throws {

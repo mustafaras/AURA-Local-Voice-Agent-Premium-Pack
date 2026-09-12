@@ -49,6 +49,48 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
   /// `.agentOllamaCloudInference` confirmation challenge.
   public var allowCloudModels: Bool
 
+  /// The model AURA pins for every routed request, by its exact `/api/tags`
+  /// name (for example `glm-5.3-flash:cloud`). Empty means "no pin" — fall
+  /// back to the capability heuristic.
+  ///
+  /// A pin exists because the heuristic's last rule is "smallest
+  /// `sizeBytes`", and `:cloud` entries report a placeholder size of a few
+  /// hundred bytes while a real local model reports gigabytes. Size therefore
+  /// stopped expressing memory pressure the moment cloud models were
+  /// registered, and routing collapsed onto whichever cloud entry happened to
+  /// report the smallest placeholder. Naming the model is the honest way to
+  /// say which model should answer.
+  ///
+  /// The pin is applied **after** every policy filter, never before: pinning
+  /// a `:cloud` model while `allowCloudModels` is `false` selects nothing and
+  /// falls back, so a pin can never widen what routing is permitted to reach.
+  public var preferredModel: String
+
+  /// Upper bound on the tokens a free-text answer may consume, sent as
+  /// Ollama's `options.num_predict`. Zero omits the option and leaves the
+  /// daemon's own default in force.
+  ///
+  /// Applies to free-text generation only. Schema-constrained requests (the
+  /// ones carrying a `format`) deliberately keep sending no budget: a cap that
+  /// truncates a JSON document produces an unparseable answer, which is a
+  /// worse failure than a long one.
+  public var responseTokenBudget: Int
+
+  /// Ollama's `think` parameter for free-text answers: `"low"`, `"medium"`,
+  /// `"high"`, or empty to omit the field and accept the model's default.
+  ///
+  /// Defaults to `"low"` because the pinned reasoning model spends its whole
+  /// budget thinking otherwise. Measured against `glm-5.3-flash:cloud` with a
+  /// 4096-token budget: thinking left on produced 12,352 characters of
+  /// reasoning and an **empty** answer (`done_reason: length`); `"low"`
+  /// produced a complete 10,679-character Turkish answer and no reasoning at
+  /// all. `think: false` is deliberately not the default — on this model it
+  /// moves the reasoning *into* the answer text rather than suppressing it.
+  ///
+  /// AURA never reads Ollama's `thinking` field, so tokens spent there are
+  /// spent on output the product discards.
+  public var thinkingEffort: String
+
   /// Whether a new model load is refused while
   /// `ProcessInfo.processInfo.thermalState` is `.critical`.
   public var thermalAwarenessEnabled: Bool
@@ -61,6 +103,9 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
     estimatedResidentMemoryRatio: Double = 0.5,
     keepAliveSeconds: Double = 300.0,
     allowCloudModels: Bool = true,
+    preferredModel: String = "glm-5.3-flash:cloud",
+    responseTokenBudget: Int = 4096,
+    thinkingEffort: String = "low",
     thermalAwarenessEnabled: Bool = true
   ) {
     self.baseURL = baseURL
@@ -70,6 +115,9 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
     self.estimatedResidentMemoryRatio = estimatedResidentMemoryRatio
     self.keepAliveSeconds = keepAliveSeconds
     self.allowCloudModels = allowCloudModels
+    self.preferredModel = preferredModel
+    self.responseTokenBudget = responseTokenBudget
+    self.thinkingEffort = thinkingEffort
     self.thermalAwarenessEnabled = thermalAwarenessEnabled
   }
 
@@ -127,6 +175,16 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
         ? OllamaConfiguration().keepAliveSeconds
         : self.keepAliveSeconds,
       allowCloudModels: self.allowCloudModels,
+      // Passed through unchanged rather than defaulted-when-empty: an empty
+      // pin is a deliberate choice ("route by capability"), not a missing
+      // value, so merging must not silently re-pin it.
+      preferredModel: self.preferredModel,
+      responseTokenBudget: self.responseTokenBudget < 0
+        ? OllamaConfiguration().responseTokenBudget
+        : self.responseTokenBudget,
+      // Passed through unchanged: an empty effort is a deliberate "use the
+      // model's own default", not a missing value.
+      thinkingEffort: self.thinkingEffort,
       thermalAwarenessEnabled: self.thermalAwarenessEnabled
     )
   }
@@ -147,6 +205,13 @@ public struct OllamaConfiguration: Codable, Sendable, Equatable {
       try container.decodeIfPresent(Double.self, forKey: .keepAliveSeconds) ?? 300.0
     allowCloudModels =
       try container.decodeIfPresent(Bool.self, forKey: .allowCloudModels) ?? true
+    preferredModel =
+      try container.decodeIfPresent(String.self, forKey: .preferredModel)
+      ?? "glm-5.3-flash:cloud"
+    responseTokenBudget =
+      try container.decodeIfPresent(Int.self, forKey: .responseTokenBudget) ?? 4096
+    thinkingEffort =
+      try container.decodeIfPresent(String.self, forKey: .thinkingEffort) ?? "low"
     thermalAwarenessEnabled =
       try container.decodeIfPresent(Bool.self, forKey: .thermalAwarenessEnabled) ?? true
   }

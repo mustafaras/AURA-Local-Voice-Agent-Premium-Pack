@@ -108,15 +108,24 @@ public actor OllamaModelRegistry {
   /// 3. Cloud-proxied models (`isLocal == false`) are excluded unless
   ///    `allowCloudModels` is `true` — "Models are routed by capability, not
   ///    name" must not silently imply "routed off-device."
-  /// 4. Among remaining candidates, the smallest `sizeBytes` is chosen, to
-  ///    minimize resident-memory pressure on the documented 16 GB target
-  ///    profile.
+  /// 4. `preferredModel`, when non-empty and present among the candidates
+  ///    that survived every rule above, wins. It is matched last on purpose:
+  ///    a pin selects *within* what policy already permits and can never
+  ///    widen it, so pinning a `:cloud` model under
+  ///    `allowCloudModels == false` matches nothing and falls through.
+  /// 5. Otherwise the smallest `sizeBytes` is chosen, to minimize
+  ///    resident-memory pressure on the documented 16 GB target profile.
+  ///    Note this rule cannot distinguish cloud from local on size alone:
+  ///    `:cloud` entries report a placeholder of a few hundred bytes, so with
+  ///    cloud models registered and permitted, size always resolves to one of
+  ///    them. That is what `preferredModel` exists to make explicit.
   ///
   /// Returns `nil` when no registered model satisfies the request — the
   /// caller (`OllamaAdapter`) is responsible for entering degraded mode.
   public func route(
     capability: OllamaTaskCapability,
-    allowCloudModels: Bool
+    allowCloudModels: Bool,
+    preferredModel: String? = nil
   ) -> OllamaRegisteredModel? {
     var candidates = cachedModels.filter { $0.rawCapabilities.contains("completion") }
     if !allowCloudModels {
@@ -127,6 +136,11 @@ public actor OllamaModelRegistry {
       if !thinkingCapable.isEmpty {
         candidates = thinkingCapable
       }
+    }
+    if let preferredModel, !preferredModel.isEmpty,
+      let pinned = candidates.first(where: { $0.name == preferredModel })
+    {
+      return pinned
     }
     return candidates.min { $0.sizeBytes < $1.sizeBytes }
   }
