@@ -11,6 +11,7 @@
 --   osascript aura-drive.applescript settext <identifier> <text>
 --   osascript aura-drive.applescript submit  <text>
 --   osascript aura-drive.applescript transcript
+--   osascript aura-drive.applescript scroll   <identifier> <0.0-1.0>
 --   osascript aura-drive.applescript status
 --
 -- Every command prints one line beginning with OK or ERR, so a caller can
@@ -48,6 +49,10 @@ on run argv
 	if w is missing value then return "ERR no-window"
 
 	if cmd is "transcript" then return readTranscript(w)
+	if cmd is "scroll" then
+		if (count of argv) < 3 then return "ERR usage scroll <identifier> <0.0-1.0>"
+		return scrollTo(w, item 2 of argv, (item 3 of argv) as real)
+	end if
 	if cmd is "status" then return readStatus()
 
 	if cmd is "submit" then
@@ -267,36 +272,112 @@ on submitRequest(w, requestText)
 	return "OK submitted"
 end submitRequest
 
+-- Move a scrollable surface to a fractional position (0 = top, 1 = bottom).
+--
+-- Exists so the auto-scroll gate can be driven reproducibly: proving
+-- "stick-to-bottom does not fight the user" requires actually leaving the
+-- bottom, and an acceptance run must not depend on a human reaching for the
+-- trackpad. Addressed by identifier and by explicit descent, like every other
+-- command here — `entire contents` is documented above as unreliable on this
+-- window.
+on scrollTo(w, targetID, fraction)
+	set el to findByID(w, targetID, 0)
+	if el is missing value then return "ERR scroll not-found " & targetID
+	tell application "System Events"
+		set bars to {}
+		try
+			set bars to scroll bars of el
+		end try
+		if (count of bars) is 0 then
+			-- No scroll bar means the content fits: a real answer, not a
+			-- failure, and the caller needs to tell the two apart.
+			return "ERR scroll no-scrollbar content-fits"
+		end if
+		try
+			set value of (item 1 of bars) to fraction
+		on error errText
+			return "ERR scroll " & errText
+		end try
+		return "OK scrolled " & targetID & " to " & (value of (item 1 of bars) as string)
+	end tell
+end scrollTo
+
 -- The transcript is a SwiftUI list inside a scroll area.
+--
+-- Addressed by AXIdentifier, like every other control this driver touches.
+-- It previously descended `scroll area 1 of group 1 of w`: a positional path,
+-- the one pattern this driver's header says it exists to avoid. UI-1 rebuilt
+-- the transcript around a `ScrollViewReader`, the index stopped resolving, and
+-- the command failed with "Invalid index" — a broken *reader*, reported as if
+-- the transcript were unreadable.
 --
 -- Read by explicit descent rather than `entire contents`. That call returns an
 -- empty list for this subtree often enough to be useless — the scroll area was
 -- observed reporting six message children while `entire contents` of the same
 -- element returned nothing — and an empty transcript is indistinguishable from
 -- "the assistant has not answered yet", which is exactly the confusion a run
--- must not make.
+-- must not make. The descent is depth-bounded rather than fixed at three
+-- levels, so a future nesting change degrades into a slower read instead of a
+-- silent miss.
 on readTranscript(w)
+	set sa to findByID(w, "aura.conversation.transcript", 0)
+	if sa is missing value then
+		return "ERR transcript not-found aura.conversation.transcript"
+	end if
 	set out to "OK transcript"
-	tell application "System Events"
-		tell process "AURA"
-			try
-				set sa to scroll area 1 of group 1 of w
-				repeat with container in (UI elements of sa)
-					repeat with node in (UI elements of container)
-						set v to my valueOf(node)
-						if v is not "" then set out to out & linefeed & v
-						try
-							repeat with leaf in (UI elements of node)
-								set lv to my valueOf(leaf)
-								if lv is not "" then set out to out & linefeed & lv
-							end repeat
-						end try
-					end repeat
-				end repeat
-			on error errText
-				return "ERR transcript " & errText
-			end try
-		end tell
-	end tell
+	try
+		set out to my collectValues(sa, 0, out)
+	on error errText
+		return "ERR transcript " & errText
+	end try
 	return out
 end readTranscript
+
+-- Depth-bounded value collector.
+--
+-- The cap is deliberately deeper than `descendByID`'s six. That cap is fine
+-- for a control the driver addresses directly, but a transcript message sits
+-- far lower: scroll area -> stack -> row -> bubble -> label, and SwiftUI adds
+-- its own wrapper groups on top. A six-level read returned the empty-state
+-- line and then nothing at all once real messages existed — a *silent* miss,
+-- which is the one failure mode a transcript reader must not have.
+on collectValues(node, depth, acc)
+	if depth > 14 then return acc
+	tell application "System Events"
+		set v to my textOf(node)
+		if v is not "" then set acc to acc & linefeed & v
+		set kids to {}
+		try
+			set kids to UI elements of node
+		on error
+			return acc
+		end try
+		repeat with child in kids
+			set acc to my collectValues(child, depth + 1, acc)
+		end repeat
+	end tell
+	return acc
+end collectValues
+
+-- Readable text of a node, wherever the framework put it.
+--
+-- `valueOf` reads AXValue alone, which is correct for a text field but wrong
+-- for a transcript: the message bubbles carry their text in an accessibility
+-- *label* (`accessibilityLabel("<role>: <text>")`), so an AXValue-only read
+-- walks straight past the conversation and reports nothing. Value first —
+-- it is the most specific — then description, then title.
+on textOf(el)
+	set v to my valueOf(el)
+	if v is not "" then return v
+	tell application "System Events"
+		try
+			set d to description of el
+			if d is not missing value and d is not "" then return d as string
+		end try
+		try
+			set t to title of el
+			if t is not missing value and t is not "" then return t as string
+		end try
+	end tell
+	return ""
+end textOf
