@@ -1,5 +1,14 @@
 # Current State
-## 2026-09-12 — UI-0/UI-1 design adoption + light-variant a11y fix + Ollama routing pin + G1-4 driver repair (uncommitted, edit/test authority)
+## 2026-09-12 — UI-0/UI-1 design adoption + light-variant a11y fix + Ollama routing pin + G1-4 driver repair — COMMITTED, PUSHED, DEPLOYED
+
+Owner instruction "push commit merge deploy" was given and executed. Four
+commits (`539012e`, `55c24e4`, `a7e72d3`, `619ab88`) are on `origin/main`
+(`4b4ba4b..619ab88`, remote equality proven by fresh `ls-remote`, no open PR so
+direct-main is the merge route). The release bundle is built, stable-signed,
+strict-verified and installed to `/Applications/AURA.app` (CODESIGN_OK, launch
+smoke PID 40956, clean quit); the prior install was moved to a durable rollback
+at `~/Library/Developer/AURA/rollback/AURA.app-20260912-181509`. The narrative
+below describes the work as delivered.
 
 Owner asked for three things this turn: close the VS Code `Package.swift`
 failure for real, re-apply UI-0/UI-1 as *design*, and resolve the Ollama rate
