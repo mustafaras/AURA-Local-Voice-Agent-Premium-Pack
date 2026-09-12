@@ -1,4 +1,40 @@
 # Current State
+
+## 2026-09-12 (later) — UI-1 defect-fix pass: duplicate answer render + TR reason-string leak — VERIFIED, NOT COMMITTED
+
+Continuing from the prior "Open" list on this same date (two recorded-but-unfixed
+defects). Both are now fixed; see `ui-improvement-plan/ledger/PHASE_LEDGER.md`
+SEQ-0029 for full root-cause evidence. Summary:
+
+**Duplicate answer render (fixed):** `lastPlanSummary` mirrored every
+`ResponsePlanEvent.summary` into a second, plain-`Text` "Plan / Verification"
+panel below the composer — the exact same content the conversation transcript
+already renders correctly as a markdown-formatted assistant bubble (G1-2/G1-3).
+Removed `lastPlanSummary` entirely (`AuraAppModel.swift`, `AuraAppModel_Runtime.swift`,
+`AuraMenuView_Content.swift`) plus the orphaned `"plan.title"` copy key
+(`ProductUIState.swift`); the transcript is now the single place an answer renders.
+
+**TR reason-string leak (fixed):** `applyConversationState` forwarded every
+`Conversation` FSM transition's raw English diagnostic `reason` (e.g. "speech
+complete", "response plan has spoken response") straight into the user-visible
+`statusDetail`, bypassing `displayStatusDetail`'s translation table — which
+can't be a complete fix anyway since some reasons carry interpolated runtime
+values. Root fix: only the `.error` transition's `reason` is genuine
+user-facing content now; every other transition uses the already-localized
+`status.title(for:)` as the stable key, and `displayStatusDetail` gained a
+short-circuit onto `status.title(for: .turkish)` for that case.
+
+**Verification:** `swift build` → `Build complete!`, 0 errors (one
+sandbox-manifest false alarm, not a code defect — see SEQ-0029). `./scripts/aura-test.sh`
+×2 back-to-back: both exit 0, `PASSED` count 22, `Failed bundles: 0`. `git diff
+--stat`: exactly the 4 files both fixes touch, nothing else. Nothing committed
+— no go-ahead given this turn.
+
+**Still open:** G1-4/G1-9 (harness can't drive AX scroll into SwiftUI's
+`onScrollGeometryChange`, unchanged by this pass — see SEQ-0028); the `.icon`
+migration for macOS 27's own plate (Resources/brand/ masters ready, not started
+this pass).
+
 ## 2026-09-12 — UI-0/UI-1 design adoption + light-variant a11y fix + Ollama routing pin + G1-4 driver repair — COMMITTED, PUSHED, DEPLOYED
 
 Owner instruction "push commit merge deploy" was given and executed. Four

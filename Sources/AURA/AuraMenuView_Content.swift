@@ -324,14 +324,6 @@ extension AuraMenuView {
         AuraConfirmationCard(model: model, challenge: challenge)
           .id(challenge.requestID)
       }
-      if let plan = model.lastPlanSummary, !plan.isEmpty {
-        GroupBox(copy("plan.title")) {
-          Text(plan)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityElement(children: .combine)
-      }
       if !model.lastOperationMessage.isEmpty {
         let message = model.localizedOperationMessage(model.lastOperationMessage)
         Text(message)

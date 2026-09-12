@@ -126,7 +126,6 @@ final class AuraAppModel: ObservableObject {
   /// render transform-only from this value, never `withAnimation` on it
   /// (11-motion-system.md §5).
   @Published var inputLevel: Double?
-  @Published var lastPlanSummary: String?
   @Published var lastOperationMessage = ""
   @Published var productUIState = AuraProductUIState()
   @Published var memoryCorrectionTarget: AuraMemoryRow?
@@ -157,6 +156,14 @@ final class AuraAppModel: ObservableObject {
   var displayStatusDetail: String {
     let detail = statusDetail
     guard productUIState.language == .turkish else { return detail }
+    // Conversation FSM mirroring (`applyConversationState`) falls back to the
+    // bare English status title whenever the underlying transition reason is
+    // an internal diagnostic key, not user-facing copy. Route that through
+    // the same status-title translation the pill above already uses, so the
+    // detail line never shows the untranslated English word.
+    if detail == status.title(for: .english) {
+      return status.title(for: .turkish)
+    }
     switch detail {
     case "Starting local services": return "Yerel hizmetler başlatılıyor"
     case "Waiting for voice permissions": return "Ses izinleri bekleniyor"

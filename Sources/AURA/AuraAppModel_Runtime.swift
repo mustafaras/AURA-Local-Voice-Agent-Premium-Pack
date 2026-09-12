@@ -246,7 +246,14 @@ extension AuraAppModel {
     case .timeout: status = .restricted
     case .error: status = .error
     }
-    statusDetail = event.reason.isEmpty ? status.title(for: .english) : event.reason
+    // `event.reason` is Conversation's internal FSM diagnostic key (e.g.
+    // "speech complete", "response plan has spoken response") — meaningful
+    // for tracing, never meant as end-user copy, and untranslatable because
+    // some variants carry interpolated runtime values. Only the .error state
+    // carries a genuine, user-relevant detail (e.g. a concrete STT failure).
+    statusDetail = status == .error && !event.reason.isEmpty
+      ? event.reason
+      : status.title(for: .english)
     // The level meter mirrors the listening status exactly: set only while
     // listening, nil the moment any other state arrives (G1-1 honest idle).
     // Same-actor publish through the bridge's main-actor contract.
@@ -282,7 +289,6 @@ extension AuraAppModel {
   func applyResponsePlan(
     _ event: ResponsePlanEvent, correlationID: UUID? = nil, causationID: UUID? = nil
   ) {
-    lastPlanSummary = event.summary
     guard !event.summary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
     appendConversation(
       .init(

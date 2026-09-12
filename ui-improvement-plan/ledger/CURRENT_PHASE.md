@@ -1,10 +1,10 @@
 # UI Plan — Current Phase State
 
-updated: 2026-09-12T15:10:00Z
+updated: 2026-09-12T16:20:00Z
 active_phase: UI-1
 phase_status: in-progress
 next_phase: UI-2
-last_seq: 28
+last_seq: 29
 
 ## Gates (mirror of prompts/UI-1.prompt.md §Gates — must match 1:1)
 

@@ -524,7 +524,6 @@ enum AuraCopy {
       .english: "Read-only probe through the authenticated AURA extension bridge.",
       .turkish: "Kimliği doğrulanmış AURA uzantı köprüsü üzerinden salt okunur sonda.",
     ],
-    "plan.title": [.english: "Plan / Verification", .turkish: "Plan / Doğrulama"],
     // --- Settings window ----------------------------------------------------
     "settings.productUI": [.english: "Product UI", .turkish: "Ürün arayüzü"],
     "settings.language": [.english: "Language", .turkish: "Dil"],
