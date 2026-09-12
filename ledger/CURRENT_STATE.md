@@ -1,4 +1,53 @@
 # Current State
+## 2026-09-12 — UI-0/UI-1 design adoption + light-variant a11y fix + Ollama routing pin + G1-4 driver repair (uncommitted, edit/test authority)
+
+Owner asked for three things this turn: close the VS Code `Package.swift`
+failure for real, re-apply UI-0/UI-1 as *design*, and resolve the Ollama rate
+limit by pinning `glm-5.3-flash:cloud` with room for long answers. All three are
+done and verified; **nothing is committed** (no go-ahead given).
+
+**Package.swift:** the manifest was never broken. `.build` was a dangling
+symlink to a `/tmp` path that cleanup had removed; SwiftPM cannot create a
+scratch dir through it, `show-dependencies` failed, and vscode-swift showed its
+wrapped generic message. `.build` now points at
+`~/Library/Developer/AURA/build` (durable, outside File Provider scope,
+gitignored — no tracked file changed). Acceptance: bundle built through the
+default path exit 0, no `com.apple.FinderInfo` present, `codesign --verify
+--deep --strict` → valid + satisfies its Designated Requirement.
+
+**UI-0/UI-1:** UI-0's owned palette had never been adopted — `textPrimary`,
+`textSecondary`, `surfaceRaised` and `signal` each had **zero** usages while the
+product still painted with system colours. Panels, window base, bubbles,
+identity mark and tab pills now speak the owned vocabulary, and every remaining
+literal is a token. A real defect was fixed on the way: three neutral tokens
+were single-ink white and measured **1.01:1** on the light surface, so all meta
+and trace text was invisible in Light Appearance — and the contrast gate passed
+because it measured black ink the code never used. Tokens are appearance-dynamic
+now (6.17:1 / 4.92:1), the gate resolves the shipped tokens directly, and the
+new single-ink guard was falsified to prove it fires.
+
+**Ollama (ADR-059):** the rate limit was the default routing path. The registry
+picks the smallest `sizeBytes` and `:cloud` entries report ~293 bytes against a
+local model's 5.3 GB, so every request went to cloud. `preferredModel` now pins
+`glm-5.3-flash:cloud`, applied after every policy filter so a pin can never
+widen what policy permits; `responseTokenBudget` (4096) and `thinkingEffort`
+("low") apply to free-text answers only, on measured evidence that leaving
+reasoning on returns an empty answer.
+
+**Verification:** full suite ×2 after the design pass and again after the model
+change — every run exit 0, 22/22, 0 failed bundles; 165 integration tests; 247
+AuraAgentTests; bundle stable-signed and strict-verified at each stage; a live
+end-to-end turn produced a seven-region Turkish answer (20 s thinking, 56 s
+speaking).
+
+**Open:** G1-4's jump-to-latest half cannot be proven with this harness (AX
+scrolling does not trigger SwiftUI's scroll-geometry callback); G1-9 stays held
+behind it. Two recorded-but-unfixed defects: the answer renders twice on the
+conversation surface (the `lastOperationMessage` panel duplicates it and shows
+raw `**markdown**`), and runtime English reason strings still reach the Turkish
+UI unmapped. `beta-readiness.json` / `release_candidate` unchanged and blocked
+(ADR-049).
+
 ## 2026-09-10 — UI-0 + UI-1 delivered: committed and pushed to origin/main; release bundle built, stable-signed, verified, launch-smoked; /Applications install step in progress (deploy turn)
 
 Owner delivery instruction this turn: "push commit merge deploy" — explicit
