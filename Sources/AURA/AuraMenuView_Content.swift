@@ -34,7 +34,10 @@ extension AuraMenuView {
       }
     }
     .padding(AuraDesign.Spacing.l)
-    .background(Color(nsColor: .windowBackgroundColor))
+    // L0 — the observatory canvas. The owned neutral is the point of the
+    // palette; the window kept `windowBackgroundColor` and the identity never
+    // reached the surface behind everything.
+    .background(AuraDesign.Materials.base)
     .frame(minWidth: 680, minHeight: 720)
     .onAppear {
       model.refreshProductSnapshots()
@@ -66,12 +69,17 @@ extension AuraMenuView {
       // changes around it.
       ZStack {
         RoundedRectangle(cornerRadius: AuraDesign.Radius.medium, style: .continuous)
-          .fill(Color.accentColor.opacity(0.14))
+          .fill(AuraDesign.Palette.biolume.opacity(0.14))
         Image(systemName: model.status.symbolName)
           .font(.subheadline.weight(.semibold))
-          .foregroundStyle(.tint)
+          // The mark's field and its glyph have to be the same accent. The
+          // field was the system accent and the glyph `.tint`; once the field
+          // became biolume the two read as two different brands.
+          .foregroundStyle(AuraDesign.Palette.biolume)
       }
-      .frame(width: 34, height: 34)
+      .frame(
+        width: AuraDesign.Measure.identityMark,
+        height: AuraDesign.Measure.identityMark)
       .accessibilityHidden(true)
 
       VStack(alignment: .leading, spacing: AuraDesign.Spacing.xxs) {
@@ -100,7 +108,7 @@ extension AuraMenuView {
       }
       .pickerStyle(.segmented)
       .labelsHidden()
-      .frame(width: 84)
+      .frame(width: AuraDesign.Measure.languageSwitchWidth)
       .accessibilityLabel(language == .turkish ? "Arayüz dili" : "Interface language")
       .accessibilityIdentifier(AuraAccessibilityID.languageSwitch)
 
@@ -167,9 +175,12 @@ extension AuraMenuView {
       .padding(.vertical, AuraDesign.Spacing.xs + 1)
       .background(
         RoundedRectangle(cornerRadius: AuraDesign.Radius.small, style: .continuous)
-          .fill(isSelected ? Color.accentColor.opacity(0.18) : Color.clear)
+          .fill(
+            isSelected
+              ? AuraDesign.Palette.biolume.opacity(0.18) : Color.clear)
       )
-      .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+      .foregroundStyle(
+        isSelected ? AuraDesign.Palette.biolume : AuraDesign.Palette.textSecondary)
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
@@ -325,7 +336,9 @@ extension AuraMenuView {
         let message = model.localizedOperationMessage(model.lastOperationMessage)
         Text(message)
           .font(.callout)
-          .foregroundStyle(model.status == .error ? .red : .secondary)
+          .foregroundStyle(
+            model.status == .error
+              ? AuraDesign.Palette.critical : AuraDesign.Palette.textSecondary)
           .fixedSize(horizontal: false, vertical: true)
           .accessibilityLabel("\(copy("a11y.diagnosticPrefix")): \(message)")
       }
@@ -341,7 +354,7 @@ extension AuraMenuView {
     ScrollViewReader { proxy in
       ZStack(alignment: .bottomTrailing) {
         ScrollView {
-          LazyVStack(alignment: .leading, spacing: 8) {
+          LazyVStack(alignment: .leading, spacing: AuraDesign.Spacing.s) {
             if model.conversationMessages.isEmpty, model.partialTranscript.isEmpty,
               model.status != .thinking
             {
@@ -369,7 +382,13 @@ extension AuraMenuView {
           }
           .padding(.bottom, AuraDesign.Spacing.s)
         }
-        .frame(minHeight: 180, maxHeight: .infinity)
+        .frame(
+          minHeight: AuraDesign.Measure.transcriptMinHeight,
+          maxHeight: .infinity)
+        // The read path the acceptance driver addresses. Without it the only
+        // way to reach the transcript is by position, which is what made the
+        // G1-4 driver leg fail against the rebuilt hierarchy.
+        .accessibilityIdentifier(AuraAccessibilityID.conversationTranscript)
         .background(
           // Ambient canvas (G1-7): the conversation surface sits on the
           // observatory base (palette.void) per the materials ladder; the

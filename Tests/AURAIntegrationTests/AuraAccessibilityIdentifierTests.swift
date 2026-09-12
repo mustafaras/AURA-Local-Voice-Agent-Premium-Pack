@@ -64,6 +64,10 @@ struct AuraAccessibilityIdentifierTests {
       AuraAccessibilityID.conversationThinking,
       AuraAccessibilityID.conversationJumpToLatest,
       AuraAccessibilityID.conversationOrb,
+      // The transcript's read path. It is addressed by the acceptance driver
+      // exactly like a button, so it carries the same uniqueness and
+      // never-localized contract.
+      AuraAccessibilityID.conversationTranscript,
     ]
     #expect(Set(ids).count == ids.count)
     #expect(ids.allSatisfy { $0.hasPrefix("aura.conversation.") })

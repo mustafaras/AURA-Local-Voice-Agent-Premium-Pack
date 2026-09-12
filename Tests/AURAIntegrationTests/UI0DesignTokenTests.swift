@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 import Testing
 
@@ -6,10 +7,19 @@ import Testing
 /// UI-0 gates G0-4, G0-4a, and G0-5.
 ///
 /// The contrast gate computes WCAG 2.x relative-luminance ratios for every
-/// text-on-surface token pair in **both** appearance variants, from the token
-/// table itself (the CI host has no rendering surface — `AuraDesign` stores
-/// each token's light/dark partners explicitly, so both variants are
-/// validated from the single source of truth).
+/// text-on-surface token pair in **both** appearance variants, measured on the
+/// *shipped* `AuraDesign.Palette` values: every token is resolved through
+/// `NSAppearance.performAsCurrentDrawingAppearance` (which resolves dynamic
+/// colour providers headlessly — verified on this toolchain before the gate
+/// was written to depend on it), and translucent inks are flattened over the
+/// surface they actually sit on.
+///
+/// That binding is the whole point. This gate previously measured a
+/// hand-maintained hex table and *assumed* the light variant used dark ink,
+/// while the shipped tokens were white-only. It reported green at 6.17:1 for
+/// meta text that really measured 1.01:1 and was invisible in Light
+/// Appearance. A gate that transcribes the implementation cannot detect the
+/// implementation being wrong, so it now reads the tokens themselves.
 ///
 /// The pinned typography test in `R9ProductUIStateTests` is *extended, never
 /// mutated* by this file — new tests only; the pinned `#expect` lines stay
@@ -76,9 +86,10 @@ struct UI0DesignTokenTests {
 
   private static let tokenTable: [HexToken] = [
     HexToken(name: "textPrimary", dark: 0xECF1F4, light: 0x1A2026, opacity: 1),
-    // White @ 62% composited over the surface it sits on.
-    HexToken(name: "textSecondary", dark: 0xFFFFFF, light: 0xFFFFFF, opacity: 0.62),
-    HexToken(name: "textTertiary", dark: 0xFFFFFF, light: 0xFFFFFF, opacity: 0.56),
+    // Appearance-dynamic ink: white on the observatory surfaces, black on the
+    // Daylight Lab paper. Composited over the surface it sits on.
+    HexToken(name: "textSecondary", dark: 0xFFFFFF, light: 0x000000, opacity: 0.62),
+    HexToken(name: "textTertiary", dark: 0xFFFFFF, light: 0x000000, opacity: 0.56),
     HexToken(name: "biolume", dark: 0x5AE6C8, light: 0x0E8467, opacity: 1),
     HexToken(name: "biolumeDeep", dark: 0x1FB59A, light: 0x0A6B54, opacity: 1),
     HexToken(name: "signal", dark: 0x8AB4FF, light: 0x3D6EC0, opacity: 1),
@@ -86,70 +97,115 @@ struct UI0DesignTokenTests {
     HexToken(name: "critical", dark: 0xFF6B5E, light: 0xC93A2E, opacity: 1),
   ]
 
-  /// Resolves a table token over the given surface hex, returns its luminance.
-  ///
-  /// Opaque tokens: luminance of their own hex. Opacity tokens: composited
-  /// over the given surface (white ink on dark surfaces, dark ink on light).
-  private static func resolvedLuminance(_ token: HexToken, over surface: UInt32) -> Double {
-    guard token.opacity < 1 else { return luminance(ofHex: token.dark) }
-    let overlay = (
-      Double((token.dark >> 16) & 0xFF) / 255,
-      Double((token.dark >> 8) & 0xFF) / 255,
-      Double(token.dark & 0xFF) / 255
-    )
-    let base = (
-      Double((surface >> 16) & 0xFF) / 255,
-      Double((surface >> 8) & 0xFF) / 255,
-      Double(surface & 0xFF) / 255
-    )
-    let (r, g, b) = composite(
-      overlayRed: overlay.0, g: overlay.1, b: overlay.2, opacity: token.opacity,
-      overRed: base.0, bg: base.1, bb: base.2)
-    return luminance(red: r, green: g, blue: b)
+  // MARK: - Live token resolution (the gate's binding to the implementation)
+
+  /// sRGB components of a **production** token under an explicit appearance.
+  @MainActor
+  private static func components(
+    _ token: Color, _ appearanceName: NSAppearance.Name
+  ) -> (r: Double, g: Double, b: Double, a: Double) {
+    let base = NSColor(token)
+    var resolved: NSColor?
+    NSAppearance(named: appearanceName)?.performAsCurrentDrawingAppearance {
+      resolved = base.usingColorSpace(.sRGB)
+    }
+    let out = resolved ?? base.usingColorSpace(.sRGB) ?? base
+    return (out.redComponent, out.greenComponent, out.blueComponent, out.alphaComponent)
   }
 
+  /// Luminance of an opaque surface token in one appearance.
+  @MainActor
+  private static func luminance(
+    ofSurface surface: Color, in appearanceName: NSAppearance.Name
+  ) -> Double {
+    let c = components(surface, appearanceName)
+    return luminance(red: c.r, green: c.g, blue: c.b)
+  }
+
+  /// Luminance of an ink token flattened over a surface token, both resolved
+  /// in the same appearance — the pairing the user actually sees.
+  @MainActor
+  private static func luminance(
+    ofInk ink: Color, over surface: Color, in appearanceName: NSAppearance.Name
+  ) -> Double {
+    let f = components(ink, appearanceName)
+    let b = components(surface, appearanceName)
+    let (r, g, blue) = composite(
+      overlayRed: f.r, g: f.g, b: f.b, opacity: f.a,
+      overRed: b.r, bg: b.g, bb: b.b)
+    return luminance(red: r, green: g, blue: blue)
+  }
+
+  /// Every ink-on-surface pair the product actually renders, with the
+  /// threshold its role has to clear.
+  private static let inkTokens: [(name: String, color: Color, minimum: Double)] = [
+    ("textPrimary", AuraDesign.Palette.textPrimary, 7),
+    ("textSecondary", AuraDesign.Palette.textSecondary, 4.5),
+    ("textTertiary", AuraDesign.Palette.textTertiary, 4.5),
+    ("biolume", AuraDesign.Palette.biolume, 4.5),
+    ("biolumeDeep", AuraDesign.Palette.biolumeDeep, 4.5),
+    ("signal", AuraDesign.Palette.signal, 4.5),
+    ("cautious", AuraDesign.Palette.cautious, 4.5),
+    ("critical", AuraDesign.Palette.critical, 4.5),
+  ]
+
+  /// Tokens that must differ between appearances. A token resolving to the
+  /// same value in both is single-ink, and single-ink is how the light variant
+  /// broke.
+  private static let dynamicTokens: [(name: String, color: Color)] = [
+    ("void", AuraDesign.Palette.void),
+    ("surface", AuraDesign.Palette.surface),
+    ("surfaceRaised", AuraDesign.Palette.surfaceRaised),
+    ("hairline", AuraDesign.Palette.hairline),
+    ("textPrimary", AuraDesign.Palette.textPrimary),
+    ("textSecondary", AuraDesign.Palette.textSecondary),
+    ("textTertiary", AuraDesign.Palette.textTertiary),
+  ]
+
   @Test("owned palette meets WCAG contrast in the dark variant")
+  @MainActor
   func darkVariantContrast() {
-    let surfaceL = Self.luminance(ofHex: Self.darkSurface)
-    for token in Self.tokenTable {
-      let fg = Self.resolvedLuminance(token, over: Self.darkSurface)
-      let ratio = Self.contrastRatio(fg, surfaceL)
-      // body ≥ 7:1 (textPrimary), meta ≥ 4.5:1 (secondary/tertiary).
-      if token.name == "textPrimary" {
-        #expect(ratio >= 7, "dark \(token.name) ratio \(ratio) < 7")
-      } else {
-        #expect(ratio >= 4.5, "dark \(token.name) ratio \(ratio) < 4.5")
-      }
+    let surface = Self.luminance(ofSurface: AuraDesign.Palette.surface, in: .darkAqua)
+    for token in Self.inkTokens {
+      let ink = Self.luminance(
+        ofInk: token.color, over: AuraDesign.Palette.surface, in: .darkAqua)
+      let ratio = Self.contrastRatio(ink, surface)
+      #expect(
+        ratio >= token.minimum,
+        "dark \(token.name) ratio \(ratio) < \(token.minimum)")
     }
   }
 
   @Test("owned palette meets WCAG contrast in the light variant")
+  @MainActor
   func lightVariantContrast() {
-    let surfaceL = Self.luminance(ofHex: Self.lightSurface)
-    for token in Self.tokenTable {
-      // Light variant: opaque tokens use their light hex; opacity tokens
-      // composite dark ink over the paper surface.
-      let fg: Double
-      if token.opacity < 1 {
-        let base = (
-          Double((Self.lightSurface >> 16) & 0xFF) / 255,
-          Double((Self.lightSurface >> 8) & 0xFF) / 255,
-          Double(Self.lightSurface & 0xFF) / 255
-        )
-        let ink = (0.0, 0.0, 0.0) // light-variant text is dark ink
-        let (r, g, b) = Self.composite(
-          overlayRed: ink.0, g: ink.1, b: ink.2, opacity: token.opacity,
-          overRed: base.0, bg: base.1, bb: base.2)
-        fg = Self.luminance(red: r, green: g, blue: b)
-      } else {
-        fg = Self.luminance(ofHex: token.light)
-      }
-      let ratio = Self.contrastRatio(fg, surfaceL)
-      if token.name == "textPrimary" {
-        #expect(ratio >= 7, "light \(token.name) ratio \(ratio) < 7")
-      } else {
-        #expect(ratio >= 4.5, "light \(token.name) ratio \(ratio) < 4.5")
-      }
+    let surface = Self.luminance(ofSurface: AuraDesign.Palette.surface, in: .aqua)
+    for token in Self.inkTokens {
+      let ink = Self.luminance(
+        ofInk: token.color, over: AuraDesign.Palette.surface, in: .aqua)
+      let ratio = Self.contrastRatio(ink, surface)
+      #expect(
+        ratio >= token.minimum,
+        "light \(token.name) ratio \(ratio) < \(token.minimum)")
+    }
+  }
+
+  @Test("every neutral token is appearance-dynamic, not single-ink")
+  @MainActor
+  func neutralTokensAreAppearanceDynamic() {
+    // The regression this gate exists for: `Color.white.opacity(…)` resolves
+    // to the same white in both appearances — legible on the observatory
+    // surfaces, invisible on the Daylight Lab paper. Identical resolutions are
+    // single-ink by construction, whatever the contrast table claims.
+    for token in Self.dynamicTokens {
+      let light = Self.components(token.color, .aqua)
+      let dark = Self.components(token.color, .darkAqua)
+      let delta =
+        abs(light.r - dark.r) + abs(light.g - dark.g) + abs(light.b - dark.b)
+        + abs(light.a - dark.a)
+      #expect(
+        delta > 0.001,
+        "\(token.name) resolves identically in both appearances — single-ink token")
     }
   }
 
@@ -207,6 +263,11 @@ struct UI0DesignTokenTests {
     let _: Color = AuraDesign.Materials.hero
     let _: CGFloat = AuraDesign.Materials.blurSmall
     let _: CGFloat = AuraDesign.Materials.blurMedium
+    // L2 and L3 shipped as the same system colour, which collapsed two rungs
+    // of the ladder into one and left views nothing to adopt.
+    #expect(
+      AuraDesign.Materials.chrome != AuraDesign.Materials.hero,
+      "L2 chrome and L3 hero must be distinguishable rungs")
   }
 
   @Test("v2 Measure members exist and are typed CGFloat")
@@ -216,6 +277,9 @@ struct UI0DesignTokenTests {
     let _: CGFloat = AuraDesign.Measure.hairline
     let _: CGFloat = AuraDesign.Measure.bracket
     let _: CGFloat = AuraDesign.Measure.gridStep
+    let _: CGFloat = AuraDesign.Measure.bubbleMaxWidth
+    let _: CGFloat = AuraDesign.Measure.statusDot
+    let _: CGFloat = AuraDesign.Measure.pendingDot
   }
 
   @Test("v2 Motion members exist and are typed Animation")

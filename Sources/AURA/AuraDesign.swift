@@ -12,9 +12,11 @@ import AppKit
 /// itself. The tokens here are the only spacing, radius, and colour values the
 /// views are meant to reference.
 ///
-/// Everything resolves through semantic system colours, so light and dark
-/// appearance, increased contrast, and the user's accent colour keep working
-/// without maintaining a second palette.
+/// Colour resolves through the owned `Palette` v2 tokens, each carrying an
+/// explicit light/dark partner (`Color(light:dark:)`), so both appearances are
+/// defined at token level and validated by the contrast gate rather than
+/// inherited by accident. Interactive *controls* deliberately keep the system
+/// accent so AURA still feels native (ADR-057 §Decision).
 enum AuraDesign {
 
   // MARK: - Spacing
@@ -67,8 +69,8 @@ enum AuraDesign {
   static func panelBackground(cornerRadius: CGFloat) -> some View {
     let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
     shape
-      .fill(Color(nsColor: .controlBackgroundColor))
-      .overlay(shape.stroke(Color(nsColor: .separatorColor), lineWidth: 1))
+      .fill(Materials.panel)
+      .overlay(shape.stroke(Palette.hairline, lineWidth: Measure.hairline))
   }
 
   // MARK: - Status semantics
@@ -114,15 +116,28 @@ extension AuraDesign {
     /// Raised card fill.
     static let surfaceRaised = Color(light: Color(hex: 0xFFFFFF), dark: Color(hex: 0x181E26))
     /// Separator, grid lines, hairline strokes.
-    static let hairline = Color.white.opacity(0.08)
+    ///
+    /// Appearance-dynamic like every other neutral. The white-only form this
+    /// token shipped as measured 1.00:1 on the Daylight Lab paper surface —
+    /// every separator in the product vanished in Light Appearance.
+    static let hairline = Color(
+      light: Color.black.opacity(0.12), dark: Color.white.opacity(0.08))
     /// Body text (contrast target ≥ 7:1 on `surface`, both variants).
     static let textPrimary = Color(light: Color(hex: 0x1A2026), dark: Color(hex: 0xECF1F4))
-    /// Meta text (≥ 4.5:1).
-    static let textSecondary = Color.white.opacity(0.62)
-    /// Trace/provenance text (≥ 4.5:1). 56% white: 38% measured 3.57:1 and
-    /// 52% measured 4.25:1 (light) in the G0-4 gate — the gate adjusted the
-    /// token, not the threshold.
-    static let textTertiary = Color.white.opacity(0.56)
+    /// Meta text. Appearance-dynamic ink: white on the observatory surfaces,
+    /// black on the Daylight Lab paper — 7.48:1 dark / 6.17:1 light against
+    /// `surface`.
+    static let textSecondary = Color(
+      light: Color.black.opacity(0.62), dark: Color.white.opacity(0.62))
+    /// Trace/provenance text — 6.31:1 dark / 4.92:1 light against `surface`.
+    ///
+    /// These two tokens shipped as single-ink `Color.white.opacity(…)`, which
+    /// measures 1.01:1 on the light surface: all meta and trace text was
+    /// invisible in Light Appearance. The G0-4 gate missed it because the test
+    /// composited *black* ink the implementation never used — token and gate
+    /// are corrected together.
+    static let textTertiary = Color(
+      light: Color.black.opacity(0.56), dark: Color.white.opacity(0.56))
 
     // --- Biolume accents (owned, not system) ------------------------------
     /// Primary luminous accent: Orb core, listening state, focus rings,
@@ -149,10 +164,14 @@ extension AuraDesign {
     static let base = AuraDesign.Palette.void
     /// L1 — panel fill (`Palette.surface`) + `Palette.hairline` stroke.
     static let panel = AuraDesign.Palette.surface
-    /// L2 — floating interactive chrome (glass, `.regular`).
-    static let chrome = Color(nsColor: .controlBackgroundColor)
-    /// L3 — hero glass with luminous content (the Orb, overlays).
-    static let hero = Color(nsColor: .controlBackgroundColor)
+    /// L2 — floating interactive chrome. The material itself is
+    /// `.glassEffect(.regular)`; this token is the *tint* that chrome carries.
+    /// Both L2 and L3 shipped as `controlBackgroundColor`, which made two of
+    /// the ladder's four rungs identical and left nothing for a view to adopt.
+    static let chrome = AuraDesign.Palette.surfaceRaised
+    /// L3 — hero glass with luminous content (the Orb, overlays): the biolume
+    /// core tint, deliberately distinct from L2.
+    static let hero = AuraDesign.Palette.biolume
     /// Tokenized blur radii (single-source light model).
     static let blurSmall: CGFloat = 8
     static let blurMedium: CGFloat = 16
@@ -171,6 +190,23 @@ extension AuraDesign {
     static let bracket: CGFloat = 6
     /// Grid rhythm.
     static let gridStep: CGFloat = 8
+
+    // --- Conversation measures (these shipped as bare literals) ----------
+    /// Reading-column cap for transcript bubbles: ~70–80 characters at the
+    /// body style, the line length that reads fastest. Previously the literal
+    /// `420` repeated across three separate bubble types.
+    static let bubbleMaxWidth: CGFloat = 420
+    /// Status-pill state dot.
+    static let statusDot: CGFloat = 7
+    /// Pending-turn (thinking) dot.
+    static let pendingDot: CGFloat = 5
+    /// Header identity-mark tile.
+    static let identityMark: CGFloat = 34
+    /// EN/TR segmented language switch in the header.
+    static let languageSwitchWidth: CGFloat = 84
+    /// Floor height for the transcript scroll so a short conversation still
+    /// reads as a surface rather than collapsing to its content.
+    static let transcriptMinHeight: CGFloat = 180
   }
 
   /// Motion vocabulary (G0-3/G0-5; shared with 11-motion-system.md §3).
@@ -260,7 +296,9 @@ struct AuraStatusPill: View {
     HStack(spacing: AuraDesign.Spacing.s) {
       Circle()
         .fill(AuraDesign.statusColor(status))
-        .frame(width: 7, height: 7)
+        .frame(
+          width: AuraDesign.Measure.statusDot,
+          height: AuraDesign.Measure.statusDot)
         .accessibilityHidden(true)
       VStack(alignment: .leading, spacing: AuraDesign.Spacing.xxs) {
         Text(title)
@@ -363,16 +401,18 @@ struct AuraMessageBubble: View {
         .font(AuraDesign.Typography.body)
         .textSelection(.enabled)
         .fixedSize(horizontal: false, vertical: true)
-        .frame(maxWidth: 420, alignment: isUser ? .trailing : .leading)
+        .frame(
+          maxWidth: AuraDesign.Measure.bubbleMaxWidth,
+          alignment: isUser ? .trailing : .leading)
         .padding(.horizontal, AuraDesign.Spacing.m)
         .padding(.vertical, AuraDesign.Spacing.s)
         .background(bubbleBackground)
-        .foregroundStyle(isUser ? Color.white : Color.primary)
+        .foregroundStyle(AuraDesign.Palette.textPrimary)
 
       if isDegraded {
         Label(degradedNote, systemImage: "exclamationmark.triangle.fill")
           .font(AuraDesign.Typography.meta)
-          .foregroundStyle(.orange)
+          .foregroundStyle(AuraDesign.Palette.cautious)
       }
       if let sourceSummary {
         Text(sourceSummary)
@@ -408,11 +448,25 @@ struct AuraMessageBubble: View {
   private var bubbleBackground: some View {
     let shape = RoundedRectangle(cornerRadius: AuraDesign.Radius.bubble, style: .continuous)
     if isUser {
-      shape.fill(Color.accentColor)
+      // The operator's turn reads as a raised instrument surface with a
+      // biolume edge, not a saturated fill. The filled-accent form it shipped
+      // as forced white body text onto whatever the user's system accent
+      // happened to be — a contrast pairing the design cannot control — and it
+      // was the one place the transcript stopped speaking the observatory
+      // language.
+      shape
+        .fill(AuraDesign.Palette.surfaceRaised)
+        .overlay(
+          shape.stroke(
+            AuraDesign.Palette.biolume.opacity(0.55),
+            lineWidth: AuraDesign.Measure.hairline))
     } else {
       shape
-        .fill(Color(nsColor: .controlBackgroundColor))
-        .overlay(shape.stroke(Color(nsColor: .separatorColor), lineWidth: 1))
+        .fill(AuraDesign.Materials.panel)
+        .overlay(
+          shape.stroke(
+            AuraDesign.Palette.hairline,
+            lineWidth: AuraDesign.Measure.hairline))
     }
   }
 }
@@ -482,7 +536,8 @@ struct AuraMarkdownMessageBubble: View {
         .font(AuraDesign.Typography.body)
         .textSelection(.enabled)
         .fixedSize(horizontal: false, vertical: true)
-        .frame(maxWidth: 420, alignment: .leading)
+        .frame(
+          maxWidth: AuraDesign.Measure.bubbleMaxWidth, alignment: .leading)
         .padding(.horizontal, AuraDesign.Spacing.m)
         .padding(.vertical, AuraDesign.Spacing.s)
         .background(AuraDesign.panelBackground(cornerRadius: AuraDesign.Radius.bubble))
@@ -490,7 +545,7 @@ struct AuraMarkdownMessageBubble: View {
       if isDegraded {
         Label(AuraCopy.text("message.degraded", language: language), systemImage: "exclamationmark.triangle.fill")
           .font(AuraDesign.Typography.meta)
-          .foregroundStyle(.orange)
+          .foregroundStyle(AuraDesign.Palette.cautious)
       }
       if let sourceSummary {
         Text(sourceSummary)
@@ -529,7 +584,8 @@ struct AuraDraftBubble: View {
         .italic()
         .foregroundStyle(.secondary)
         .fixedSize(horizontal: false, vertical: true)
-        .frame(maxWidth: 420, alignment: .trailing)
+        .frame(
+          maxWidth: AuraDesign.Measure.bubbleMaxWidth, alignment: .trailing)
         .padding(.horizontal, AuraDesign.Spacing.m)
         .padding(.vertical, AuraDesign.Spacing.s)
         .background(draftBackground)
@@ -548,8 +604,12 @@ struct AuraDraftBubble: View {
   private var draftBackground: some View {
     let shape = RoundedRectangle(cornerRadius: AuraDesign.Radius.bubble, style: .continuous)
     shape
-      .fill(Color.accentColor.opacity(0.14))
-      .overlay(shape.stroke(Color.accentColor.opacity(0.4), style: StrokeStyle(lineWidth: 1, dash: [4, 3])))
+      .fill(AuraDesign.Palette.biolume.opacity(0.12))
+      .overlay(
+        shape.stroke(
+          AuraDesign.Palette.biolume.opacity(0.45),
+          style: StrokeStyle(
+            lineWidth: AuraDesign.Measure.hairline, dash: [4, 3])))
   }
 }
 
@@ -570,7 +630,9 @@ struct AuraThinkingIndicator: View {
         ForEach(0..<3, id: \.self) { _ in
           Circle()
             .fill(AuraDesign.statusColor(.thinking))
-            .frame(width: 5, height: 5)
+            .frame(
+              width: AuraDesign.Measure.pendingDot,
+              height: AuraDesign.Measure.pendingDot)
         }
       }
       .accessibilityHidden(true)

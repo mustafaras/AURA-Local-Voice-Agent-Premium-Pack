@@ -88,4 +88,11 @@ enum AuraAccessibilityID {
   static let conversationThinking = "aura.conversation.thinking"
   static let conversationJumpToLatest = "aura.conversation.jumpToLatest"
   static let conversationOrb = "aura.conversation.orb"
+  /// The transcript scroll area.
+  ///
+  /// The acceptance driver's `transcript` command addressed this surface
+  /// positionally (`scroll area 1 of group 1`) — the exact pattern this file
+  /// exists to replace — and broke silently when UI-1 rebuilt the transcript
+  /// around a `ScrollViewReader`. A read path is as much an API as a button.
+  static let conversationTranscript = "aura.conversation.transcript"
 }
