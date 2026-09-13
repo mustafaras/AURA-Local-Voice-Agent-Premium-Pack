@@ -124,6 +124,35 @@ struct AuraAccessibilityIdentifierTests {
     #expect(AuraAccessibilityID.screenObservationGrant.hasPrefix("aura.perm.screenObservation"))
     #expect(AuraAccessibilityID.screenObservationSettings.hasPrefix("aura.perm.screenObservation"))
   }
+
+  /// G1-4 completion: the acceptance-harness scroll-away scaffold's
+  /// identifier must not collide with any real, user-reachable control, and
+  /// (like every identifier) must not carry copy.
+  @Test("the debug scroll-away identifier is unique and unlocalized")
+  func debugScrollToTopIdentifierIsUniqueAndUnlocalized() {
+    let realIdentifiers: [String] = [
+      AuraAccessibilityID.composerInput, AuraAccessibilityID.composerSubmit,
+      AuraAccessibilityID.composerPushToTalk,
+      AuraAccessibilityID.conversationDraftBubble, AuraAccessibilityID.conversationThinking,
+      AuraAccessibilityID.conversationJumpToLatest, AuraAccessibilityID.conversationOrb,
+      AuraAccessibilityID.conversationTranscript,
+    ]
+    #expect(!realIdentifiers.contains(AuraAccessibilityID.debugScrollToTop))
+    for language in AuraUILanguage.allCases {
+      #expect(
+        AuraAccessibilityID.debugScrollToTop
+          != AuraCopy.text("conversation.jumpToLatest", language: language))
+    }
+  }
+
+  /// The scaffold this identifier belongs to must stay inert for every real
+  /// launch — a test run sets no `AURA_ACCEPTANCE_TEST_HOOKS` environment
+  /// variable, so the gate must read false, exactly as a real user's launch
+  /// would see it.
+  @Test("the acceptance test-hook gate defaults to disabled")
+  func acceptanceTestHooksDefaultToDisabled() {
+    #expect(!AuraAcceptanceTestHooks.isEnabled)
+  }
 }
 
 /// F-005 regression (independent review Round 3, 2026-08-30).

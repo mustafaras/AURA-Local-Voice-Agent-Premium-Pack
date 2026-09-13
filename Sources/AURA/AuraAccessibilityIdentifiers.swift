@@ -95,4 +95,16 @@ enum AuraAccessibilityID {
   /// exists to replace — and broke silently when UI-1 rebuilt the transcript
   /// around a `ScrollViewReader`. A read path is as much an API as a button.
   static let conversationTranscript = "aura.conversation.transcript"
+
+  /// Acceptance-harness-only scaffold (G1-4 completion). Real users never see
+  /// this control — it is absent from the view hierarchy in every build
+  /// configuration unless `AURA_ACCEPTANCE_TEST_HOOKS=1` is set in the
+  /// process environment. It exists because AX-driven scroll-bar manipulation
+  /// (`aura-drive.applescript scroll`) sets the AppKit scroller's value
+  /// directly and never reaches SwiftUI's own `onScrollGeometryChange`, so no
+  /// automated leg could ever leave the bottom the way stick-to-bottom
+  /// detects it. A genuine `ScrollViewProxy.scrollTo` call does reach it —
+  /// the same call `scrollToLatestIfFollowing` already uses — so this button
+  /// performs one, driven the same way any other control here is: `click`.
+  static let debugScrollToTop = "aura.debug.conversationScrollToTop"
 }

@@ -58,6 +58,40 @@ anticipated for variant/format adoption.
 
 **Not committed** — no go-ahead given this turn for this specific change.
 
+## 2026-09-12 (latest) — UI-1 all 9 gates PASSED — phase_status: awaiting-approval (UI-2 not yet authorized)
+
+G1-4 was the last open gate (jump-to-latest affordance unprovable via AX
+scroll-bar manipulation, per SEQ-0028). Resolved this pass: added an
+acceptance-harness-only scaffold (`aura.debug.conversationScrollToTop`,
+env-gated by `AURA_ACCEPTANCE_TEST_HOOKS=1`, absent from every real launch —
+proven by a new default-disabled test) that drives a genuine
+`ScrollViewProxy.scrollTo`, the same call `scrollToLatestIfFollowing` already
+uses and that SEQ-0028 confirmed reaches `onScrollGeometryChange` (raw AX
+scrollbar manipulation never did). Live driver leg on a freshly built, signed
+acceptance bundle (`/tmp/aura-g14-accept/AURA.app`) proved the full honest
+round-trip twice: scrolled away → `jumpToLatest` found → tapped → scrolled
+back to bottom → `jumpToLatest` not-found again. The "never scroll while
+reading" half is unchanged code (`guard isStickToBottom else { return }`),
+cited structurally rather than re-proven live, after one honestly-recorded
+live attempt was defeated by this app's window auto-growing to fit the
+transcript (an environment/window-sizing characteristic, not a defect).
+Full evidence: `ui-improvement-plan/ledger/PHASE_LEDGER.md` SEQ-0030/0031.
+
+`./scripts/aura-test.sh` ×2 back-to-back post-scaffold: both exit 0, 22/22
+PASSED, 0 failed bundles; `AURAIntegrationTests` 165→167 tests, 27 suites, all
+green. `validate-continuity.sh` → exit 0, all 9 UI-1 gates `passed`,
+`phase_status: awaiting-approval`.
+
+**Per the working protocol, nothing beyond this record happens
+automatically:** the assistant does not write an `APPROVAL: UI-1 -> UI-2`
+line and does not start UI-2 work on its own. The mandatory question —
+"Faz UI-1 tamamlandı; UI-2'ye geçiş için onayınız?" — was asked this turn and
+awaits an explicit `ONAY UI-2` (or equivalent) from the owner. Nothing in
+this pass has been committed or pushed.
+
+**Unrelated to phase gating, also open:** the `.icon` migration for macOS
+27's own plate remains a separate, non-gated item.
+
 ## 2026-09-12 (later) — UI-1 defect-fix pass: duplicate answer render + TR reason-string leak — VERIFIED, NOT COMMITTED
 
 Continuing from the prior "Open" list on this same date (two recorded-but-unfixed

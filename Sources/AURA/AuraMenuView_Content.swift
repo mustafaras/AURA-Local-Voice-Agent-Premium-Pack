@@ -1,6 +1,7 @@
 import AuraAgent
 import AuraCore
 import AuraIntent
+import Foundation
 import SwiftUI
 
 /// Scroll anchor and threshold for the transcript's honest auto-scroll
@@ -8,7 +9,19 @@ import SwiftUI
 /// bottom-proximity epsilon (pt) inside which "at the bottom" is true.
 private enum AuraScrollAnchor {
   static let bottom = "aura.scroll.bottom"
+  static let top = "aura.scroll.top"
   static let stickiness: CGFloat = 24
+}
+
+/// Gate for the G1-4 acceptance-harness scroll-away scaffold (see
+/// `AuraAccessibilityID.debugScrollToTop`). False for every real user launch;
+/// true only when an acceptance run explicitly sets the environment variable,
+/// exactly like `AURA_TEXT_DEMO_SCRIPT` gates the text-turn driver. Not
+/// `private` so the default-off contract is directly testable from
+/// `@testable import AURA`.
+enum AuraAcceptanceTestHooks {
+  static let isEnabled =
+    ProcessInfo.processInfo.environment["AURA_ACCEPTANCE_TEST_HOOKS"] == "1"
 }
 
 extension AuraMenuView {
@@ -347,6 +360,11 @@ extension AuraMenuView {
       ZStack(alignment: .bottomTrailing) {
         ScrollView {
           LazyVStack(alignment: .leading, spacing: AuraDesign.Spacing.s) {
+            // Top anchor for the G1-4 acceptance-harness scaffold below —
+            // stable across rebuilds, exactly like the bottom anchor.
+            Color.clear
+              .frame(height: 1)
+              .id(AuraScrollAnchor.top)
             if model.conversationMessages.isEmpty, model.partialTranscript.isEmpty,
               model.status != .thinking
             {
@@ -432,6 +450,25 @@ extension AuraMenuView {
           .padding(AuraDesign.Spacing.s)
           .accessibilityLabel(copy("conversation.jumpToLatest"))
           .accessibilityIdentifier(AuraAccessibilityID.conversationJumpToLatest)
+        }
+
+        if AuraAcceptanceTestHooks.isEnabled {
+          // Acceptance-harness-only (G1-4): a real ScrollViewProxy.scrollTo
+          // call, so onScrollGeometryChange fires and the jump-to-latest
+          // affordance becomes provable by the AX driver's existing `click`
+          // command. Never present unless AURA_ACCEPTANCE_TEST_HOOKS=1.
+          Button {
+            withAnimation(AuraDesign.Motion.motion(AuraDesign.Motion.snappy)) {
+              proxy.scrollTo(AuraScrollAnchor.top, anchor: .top)
+            }
+          } label: {
+            Image(systemName: "arrow.up.to.line")
+          }
+          .buttonStyle(.plain)
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+          .padding(AuraDesign.Spacing.s)
+          .accessibilityLabel("Debug: scroll away from bottom")
+          .accessibilityIdentifier(AuraAccessibilityID.debugScrollToTop)
         }
       }
       .accessibilityElement(children: .contain)
