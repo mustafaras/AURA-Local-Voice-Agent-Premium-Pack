@@ -1,5 +1,35 @@
 # Current State
 
+## 2026-09-13 (latest) — UI-2 G2-1..G2-4 delivered: committed, pushed, deployed to /Applications
+
+Owner approved UI-1 -> UI-2 in-conversation with `"go apply be perfect"` (this
+repo's established explicit-English-equivalent token, first used 2026-09-10
+for UI-0 -> UI-1). Implemented and verified G2-1 (status pill motion tokens),
+G2-2 (listening pulse from real `AudioLevelBridge.inputLevel`, transform-only),
+G2-3 (`isSpeakingResponse` from real TTS events + bounded equalizer), and
+G2-4 (emergency badge, `emergent` one-shot pulse, emergency-control path
+untouched) — full detail in `ui-improvement-plan/ledger/PHASE_LEDGER.md`
+SEQ-0033 through SEQ-0038, including an owner-requested "tam ve kusursuz"
+re-verification pass (SEQ-0038) that found no discrepancies.
+
+**Committed and pushed** (owner token: `"push commit merge deploy"`):
+`60a7a0a` (icon full-bleed fix), `f24ebfb` (UI-1 closure + UI-2 phase-open),
+`a210b86` (G2-1..G2-4). `origin/main` confirmed identical to local `HEAD` via
+`git ls-remote` after each push.
+
+**Deployed:** `./scripts/build-app-bundle.sh` (release) →
+`./scripts/codesign-adhoc.sh` (AURA Stable Local Signing) →
+`codesign --verify --deep --strict` → `CODESIGN_OK` → installed to
+`/Applications/AURA.app` (previous build was 2026-09-12T18:21, one phase
+behind). Launch-smoked: `open` (outside the sandbox — Launch Services needs
+that broader session access, confirmed not an app defect), process stayed
+alive, `osascript -e 'tell application "AURA" to quit'` quit it cleanly.
+Installed binary SHA-256:
+`e6436e3afcc62c87af0e26514c33c8e29e5006246fddf14fb035ffca2c19f9a7`.
+
+**Not deployed to this build:** G2-5 through G2-7 remain open — UI-2's
+`phase_status` is `in-progress`, not yet `awaiting-approval`.
+
 ## 2026-09-12 (latest+1) — Icon masters made full-bleed (macOS 27 double-plate/white-frame fix) — VERIFIED, NOT COMMITTED
 
 Not a UI-1 gate (icon work is its own item per `ui-improvement-plan/10-icon-identity.md`,
