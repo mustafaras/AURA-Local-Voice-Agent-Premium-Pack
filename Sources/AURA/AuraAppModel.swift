@@ -126,6 +126,12 @@ final class AuraAppModel: ObservableObject {
   /// render transform-only from this value, never `withAnimation` on it
   /// (11-motion-system.md §5).
   @Published var inputLevel: Double?
+  /// True only between a real `TTSStartedEvent` and its matching
+  /// `TTSStoppedEvent` (any reason) — never set from a demo/mock path
+  /// (06-cross-cutting-constraints.md §5 honesty rule, G2-3). Drives the
+  /// pill-adjacent equalizer; the speaking state is still carried by the
+  /// pill's own text and color, so this is accessibility-hidden at the view.
+  @Published var isSpeakingResponse = false
   @Published var lastOperationMessage = ""
   @Published var productUIState = AuraProductUIState()
   @Published var memoryCorrectionTarget: AuraMemoryRow?

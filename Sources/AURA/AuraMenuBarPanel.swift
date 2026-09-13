@@ -17,10 +17,20 @@ struct AuraMenuBarPanel: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: AuraDesign.Spacing.m) {
-      AuraStatusPill(
-        status: model.status,
-        title: model.status.title(for: language),
-        detail: model.displayStatusDetail)
+      HStack(spacing: AuraDesign.Spacing.xs) {
+        AuraStatusPill(
+          status: model.status,
+          title: model.status.title(for: language),
+          detail: model.displayStatusDetail,
+          inputLevel: model.inputLevel)
+        if model.isSpeakingResponse {
+          AuraEqualizer()
+            .transition(.opacity.combined(with: .scale(scale: 0.6, anchor: .bottom)))
+        }
+      }
+      // G2-3: same one-shot choreography as the main window's header.
+      .animation(
+        AuraDesign.Motion.motion(AuraDesign.Motion.snappy), value: model.isSpeakingResponse)
 
       GlassEffectContainer(spacing: AuraDesign.Spacing.s) {
         VStack(spacing: AuraDesign.Spacing.s) {
@@ -45,9 +55,11 @@ struct AuraMenuBarPanel: View {
       }
 
       if model.emergencyStopActive {
-        Label(emergencyTitle, systemImage: "hand.raised.fill")
-          .font(AuraDesign.Typography.meta)
-          .foregroundStyle(.orange)
+        AuraEmergencyBadge(title: emergencyTitle)
+          .transition(.scale(scale: 1.3).combined(with: .opacity))
+          .animation(
+            AuraDesign.Motion.motion(AuraDesign.Motion.emergent),
+            value: model.emergencyStopActive)
       }
 
       Divider()

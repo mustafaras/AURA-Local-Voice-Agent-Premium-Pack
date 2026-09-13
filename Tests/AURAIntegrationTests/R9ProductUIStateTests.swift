@@ -433,7 +433,25 @@ struct R9ProductUIStateTests {
         status: status, inputLevel: status == .listening ? 0.5 : nil,
         isSpeakingResponse: status == .speaking, language: .english,
         restrictedReason: status == .restricted ? "reason" : "").body
+      // UI-2 G2-1: the pill's motion-token adoption (.animation/.id/
+      // .transition, all keyed on `status`) must construct cleanly across
+      // every status, not just whichever one is live when the header
+      // happens to render once above.
+      _ = AuraStatusPill(status: status, title: "Title", detail: "Detail").body
     }
+    // UI-2 G2-3: the speaking equalizer, and the menu bar panel now that it
+    // also carries the pill + conditional equalizer.
+    _ = AuraEqualizer().body
+    model.isSpeakingResponse = true
+    _ = menu.header
+    _ = AuraMenuBarPanel(model: model, mainWindowID: "test-window").body
+    model.isSpeakingResponse = false
+    // UI-2 G2-4: the emergency badge, in both real chrome locations.
+    _ = AuraEmergencyBadge(title: "Emergency stop active").body
+    model.emergencyStopActive = true
+    _ = menu.header
+    _ = AuraMenuBarPanel(model: model, mainWindowID: "test-window").body
+    model.emergencyStopActive = false
     _ = AuraConfirmationCard(model: model, challenge: challenge).body
     _ = MemoryRowView(model: model, record: row).body
     let auditRow = AuraMemoryRow(

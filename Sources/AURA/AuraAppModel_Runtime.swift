@@ -184,6 +184,25 @@ extension AuraAppModel {
     await eventBus.subscribe(RuntimeHealthChangedEvent.self) { [weak self] envelope in
       await self?.applyRuntimeHealth(envelope.payload.health)
     }
+    // G2-3: the model's own speaking flag, sourced only from the real TTS
+    // lifecycle — independent of `ConversationStateEvent`'s `status`, which
+    // `applyConversationState` above continues to own unchanged.
+    await eventBus.subscribe(TTSStartedEvent.self) { [weak self] _ in
+      await self?.setSpeakingResponse(true)
+    }
+    await eventBus.subscribe(TTSStoppedEvent.self) { [weak self] _ in
+      await self?.setSpeakingResponse(false)
+    }
+  }
+
+  /// G2-3: the only writer of `isSpeakingResponse`. Every stop reason clears
+  /// it (03-live-status-feedback.md §4.3: "set true on start, false on any
+  /// stop reason") — a TTS-level failure (`TTSStopReason.error`) is not
+  /// re-routed into `status` here: that would mutate `applyConversationState`
+  /// ownership of `status`/`statusDetail`, which is out of G2-3's scope and
+  /// already the sole writer of the error-visible state.
+  func setSpeakingResponse(_ isSpeaking: Bool) {
+    isSpeakingResponse = isSpeaking
   }
 
   func refreshRuntimeHealth() async {

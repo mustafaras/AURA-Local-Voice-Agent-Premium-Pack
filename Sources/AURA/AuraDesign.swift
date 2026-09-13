@@ -291,6 +291,23 @@ struct AuraStatusPill: View {
   let status: AuraAppStatus
   let title: String
   let detail: String
+  /// Real mic level, `nil` when not listening (same contract as
+  /// `AudioLevelBridge.inputLevel`). Defaulted so every existing call site
+  /// and test compiles unchanged; the two real call sites pass the model's
+  /// live value.
+  var inputLevel: Double? = nil
+
+  /// Listening-only scale for the leading dot — 0.9…1.15×, driven purely by
+  /// the real level (G2-2). A pure function, not a view, specifically so it
+  /// is unit-testable without constructing SwiftUI machinery: **never**
+  /// animate this stream (11-motion-system.md §5) — the `body` below applies
+  /// it via a bare `.scaleEffect` with no explicit animation keyed on the
+  /// level anywhere, so every 15–30 Hz tick renders instantly, transform-only.
+  nonisolated static func listeningPulseScale(status: AuraAppStatus, inputLevel: Double?) -> CGFloat {
+    guard status == .listening, let inputLevel else { return 1.0 }
+    let clamped = min(max(inputLevel, 0), 1)
+    return 0.9 + CGFloat(clamped) * 0.25
+  }
 
   var body: some View {
     HStack(spacing: AuraDesign.Spacing.s) {
@@ -299,7 +316,14 @@ struct AuraStatusPill: View {
         .frame(
           width: AuraDesign.Measure.statusDot,
           height: AuraDesign.Measure.statusDot)
+        .scaleEffect(Self.listeningPulseScale(status: status, inputLevel: inputLevel))
         .accessibilityHidden(true)
+        // Colour-only change (11-motion-system.md §3: "only eases for
+        // colour") — this is a separate choreography step from the
+        // text swap below, not a second owner of the same moment. Keyed on
+        // `status` only, so it never fires on the inputLevel-driven scale
+        // above (G2-2's transform-only contract).
+        .animation(AuraDesign.Motion.motion(AuraDesign.Motion.smooth), value: status)
       VStack(alignment: .leading, spacing: AuraDesign.Spacing.xxs) {
         Text(title)
           .font(AuraDesign.Typography.meta.weight(.semibold))
@@ -309,6 +333,14 @@ struct AuraStatusPill: View {
           .lineLimit(2)
           .fixedSize(horizontal: false, vertical: true)
       }
+      // Status transition = geometry (11-motion-system.md §3: "only
+      // springs for geometry"): the whole text block crossfades and
+      // settles as one unit on status change, rather than the two
+      // Text views popping independently — G2-1's "one choreography
+      // owner per moment" for the pill's content swap.
+      .id(status)
+      .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .leading)))
+      .animation(AuraDesign.Motion.motion(AuraDesign.Motion.standard), value: status)
     }
     .padding(.horizontal, AuraDesign.Spacing.m)
     .padding(.vertical, AuraDesign.Spacing.s)
@@ -319,8 +351,55 @@ struct AuraStatusPill: View {
     .glassEffect(
       .regular.tint(AuraDesign.statusColor(status).opacity(0.18)),
       in: .rect(cornerRadius: AuraDesign.Radius.medium))
+    // Glass tint is colour, same rule as the dot above.
+    .animation(AuraDesign.Motion.motion(AuraDesign.Motion.smooth), value: status)
     .accessibilityElement(children: .combine)
     .accessibilityLabel("\(title). \(detail)")
+  }
+}
+
+/// TTS-state-driven equalizer glyph (G2-3). Three bars of fixed, distinct
+/// heights that rise in when `AuraAppModel.isSpeakingResponse` (real
+/// `TTSStartedEvent`/`TTSStoppedEvent`) turns true, and drop out when it
+/// clears — never a continuously looping "fake audio" animation
+/// (11-motion-system.md §2: "nothing else animates" — a value updated is the
+/// only animation; there is no real per-sample TTS level to animate
+/// continuously, so the honest choice is a one-shot entrance/exit, not a
+/// synthetic loop). Accessibility-hidden: the speaking state is still
+/// carried by the adjacent pill's own text and color.
+struct AuraEqualizer: View {
+  private static let barHeights: [CGFloat] = [6, 12, 9]
+
+  var body: some View {
+    HStack(alignment: .bottom, spacing: 2) {
+      ForEach(Array(Self.barHeights.enumerated()), id: \.offset) { _, height in
+        Capsule()
+          .fill(AuraDesign.Palette.biolume)
+          .frame(width: 3, height: height)
+      }
+    }
+    .accessibilityHidden(true)
+  }
+}
+
+/// Persistent, unmistakable emergency-stop indicator (G2-4). Never a second
+/// copy of the emergency **control** (the stop/rearm toggle in
+/// `AuraMenuView_Tabs.swift`, F-005-tested, outside UI-2's scope and
+/// untouched) — this is a passive badge shown wherever the status pill
+/// appears, carrying the state by symbol, colour, AND text together, never
+/// colour alone. Call sites wrap it in `.transition` + a single
+/// `.animation(Motion.emergent, value: emergencyStopActive)`: the badge
+/// appears with one pulse and then holds static (11-motion-system.md §4:
+/// "badge appears instantly, one single pulse, then static" — the only
+/// permitted pulse in the whole motion system); Reduce Motion resolves that
+/// animation to `nil`, so the appearance is instant with no pulse at all.
+struct AuraEmergencyBadge: View {
+  let title: String
+
+  var body: some View {
+    Label(title, systemImage: "hand.raised.fill")
+      .font(AuraDesign.Typography.meta.weight(.semibold))
+      .foregroundStyle(AuraDesign.Palette.cautious)
   }
 }
 

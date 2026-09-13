@@ -105,10 +105,32 @@ extension AuraMenuView {
 
       Spacer(minLength: AuraDesign.Spacing.s)
 
-      AuraStatusPill(
-        status: model.status,
-        title: model.status.title(for: language),
-        detail: model.displayStatusDetail)
+      HStack(spacing: AuraDesign.Spacing.xs) {
+        AuraStatusPill(
+          status: model.status,
+          title: model.status.title(for: language),
+          detail: model.displayStatusDetail,
+          inputLevel: model.inputLevel)
+        if model.isSpeakingResponse {
+          AuraEqualizer()
+            .transition(.opacity.combined(with: .scale(scale: 0.6, anchor: .bottom)))
+        }
+      }
+      // G2-3: the equalizer's one-shot rise/drop is its own choreography
+      // moment, keyed only on isSpeakingResponse — the pill's own three
+      // status-keyed animations above are unaffected.
+      .animation(
+        AuraDesign.Motion.motion(AuraDesign.Motion.snappy), value: model.isSpeakingResponse)
+
+      if model.emergencyStopActive {
+        AuraEmergencyBadge(
+          title: language == .turkish ? "Acil durdurma etkin" : "Emergency stop active"
+        )
+        .transition(.scale(scale: 1.3).combined(with: .opacity))
+        .animation(
+          AuraDesign.Motion.motion(AuraDesign.Motion.emergent),
+          value: model.emergencyStopActive)
+      }
 
       Picker(
         "Language",
