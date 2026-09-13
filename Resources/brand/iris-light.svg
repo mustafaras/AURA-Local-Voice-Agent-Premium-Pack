@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The Iris — light "Daylight Lab" variant: paper disc, deep-teal ring.
+<!-- The Iris — light "Daylight Lab" variant: paper field, deep-teal ring.
      Same geometry as iris-dark.svg (10-icon-identity.md §2); the palette
-     inverts per 09-visual-language.md §3.1. Rendered only by
-     scripts/generate-app-icon.sh; PNGs are never committed. -->
+     inverts per 09-visual-language.md §3.1. Full-bleed per the macOS 26+
+     adaptive icon contract (see iris-dark.svg for the rationale) — the
+     platform supplies its own squircle mask and edge treatment, so this
+     master fills 0,0-1024,1024 with no self-drawn margin/rounding/bevel.
+     Rendered only by scripts/generate-app-icon.sh; PNGs are never
+     committed. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
     <linearGradient id="paperBody" x1="0" y1="0" x2="0" y2="1">
@@ -20,10 +24,8 @@
     </radialGradient>
   </defs>
 
-  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#paperBody)"/>
-  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#paperShade)"/>
-  <rect x="101.5" y="101.5" width="821" height="821" rx="183.5"
-        fill="none" stroke="#1A1A1A" stroke-opacity="0.10" stroke-width="3"/>
+  <rect x="0" y="0" width="1024" height="1024" fill="url(#paperBody)"/>
+  <rect x="0" y="0" width="1024" height="1024" fill="url(#paperShade)"/>
 
   <circle cx="512" cy="512" r="240" fill="none" stroke="url(#deepTealRing)" stroke-width="52"/>
   <circle cx="600" cy="424" r="100" fill="#0E8467" opacity="0.10"/>

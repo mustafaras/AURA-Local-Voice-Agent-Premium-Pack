@@ -1,5 +1,63 @@
 # Current State
 
+## 2026-09-12 (latest+1) — Icon masters made full-bleed (macOS 27 double-plate/white-frame fix) — VERIFIED, NOT COMMITTED
+
+Not a UI-1 gate (icon work is its own item per `ui-improvement-plan/10-icon-identity.md`,
+outside the UI-0..UI-5 gate machinery) — recorded here rather than in
+`ui-improvement-plan/ledger/PHASE_LEDGER.md`.
+
+**Root cause, confirmed by reading the master art:** all three
+`Resources/brand/iris-*.svg` masters drew their own inset rounded-square
+"plate" (`x=100 y=100 width=824 height=824 rx=185` inside the 1024×1024
+canvas, plus a self-drawn hairline bevel stroke) — the pre-macOS-26
+convention, where the OS applied no automatic shape/mask of its own. macOS
+26+ ("Tahoe") introduced an adaptive icon contract where the platform now
+supplies its own squircle mask, edge bevel and specular pass over a
+full-bleed canvas. Shipping the old inset-plate art under the new
+OS-supplied plate produces two nested edges — the outer OS mask and the
+icon's own inner rounded rect, 100pt apart — which is exactly the "girintili
+.icns beyaz çerçeveli" (inset .icns, white-framed) symptom reported.
+
+**Fix:** all three masters (`iris-dark.svg`, `iris-light.svg`,
+`iris-tinted.svg`) now fill the full `0,0-1024,1024` canvas with no
+self-drawn margin, rounding, or bevel; the ring/core mark geometry
+(`cx=512 cy=512 r=240`, core at `600,424`) is unchanged since it was already
+centered on the canvas's true center, independent of the old plate.
+`Resources/AURA.icns` regenerated via the existing, unmodified
+`scripts/generate-app-icon.sh` pipeline (`qlmanage` renderer path) — no
+pipeline changes, only the source art.
+
+**Verification:** built a fresh throwaway bundle (`/tmp/aura-icon-check/AURA.app`,
+`BUILD_DIR=/tmp/aura-icon-check ./scripts/build-app-bundle.sh`, exit 0),
+signed (`./scripts/codesign-adhoc.sh`, `codesign --verify --deep --strict` →
+CODESIGN_OK). Extracted PNGs via `sips` from both the old installed icns
+(`/Applications/AURA.app`) and the new bundle's icns for a direct visual
+diff: the old render shows the dark rounded-square plate with visible
+transparent margin around it on all sides; the new render fills the frame
+edge-to-edge with no margin, at every size checked (16/32/128/512 — legible
+as ring+core at 16px, per `10-icon-identity.md §2`'s legibility gate). Light
+and tinted masters rendered directly and confirmed full-bleed too. Evidence
+PNGs saved to `/tmp/aura-icon-evidence/` (not committed — the repo's tracked
+`ui-improvement-plan/evidence/icon-*.png` files are a past SEQ entry's cited
+proof and were deliberately left untouched rather than overwritten).
+`./scripts/aura-test.sh` → exit 0, 22/22 PASSED, 0 failed bundles (no Swift
+source touched by this fix — icons/SVGs only, so this run also covers the
+combined G1-4 + icon change set together).
+
+**Considered and deferred:** migrating to Xcode 27's Icon Composer `.icon`
+bundle format (the newer, richer per-layer/depth format, vs. the flat
+full-bleed PNG approach shipped here) was investigated — Xcode 27 beta 5
+ships only blank `.icon` templates (`icon.json` with empty `groups`), no
+populated real-world example exists locally to validate a hand-authored
+schema against, and the format is undocumented enough that authoring one
+from memory risked shipping something unverifiable. The full-bleed fix
+above resolves the actual reported symptom through the existing, fully
+verified `.icns` pipeline; the richer Icon Composer format remains a
+follow-up decision point, exactly as `10-icon-identity.md §4.5` already
+anticipated for variant/format adoption.
+
+**Not committed** — no go-ahead given this turn for this specific change.
+
 ## 2026-09-12 (later) — UI-1 defect-fix pass: duplicate answer render + TR reason-string leak — VERIFIED, NOT COMMITTED
 
 Continuing from the prior "Open" list on this same date (two recorded-but-unfixed
