@@ -147,6 +147,7 @@ struct UI0DesignTokenTests {
     ("signal", AuraDesign.Palette.signal, 4.5),
     ("cautious", AuraDesign.Palette.cautious, 4.5),
     ("critical", AuraDesign.Palette.critical, 4.5),
+    ("dataVizViolet", AuraDesign.Palette.dataVizViolet, 4.5),
   ]
 
   /// Tokens that must differ between appearances. A token resolving to the
@@ -218,6 +219,7 @@ struct UI0DesignTokenTests {
       ("biolume-on-void", 0x5AE6C8, Self.darkVoid),
       ("cautious-on-surface", 0xF2B84B, Self.darkSurface),
       ("critical-on-surface", 0xFF6B5E, Self.darkSurface),
+      ("data-viz-violet-on-surface", 0xB49AFF, Self.darkSurface),
     ]
     for (name, fg, bg) in darkPairs {
       let ratio = Self.contrastRatio(Self.luminance(ofHex: fg), Self.luminance(ofHex: bg))
@@ -228,6 +230,7 @@ struct UI0DesignTokenTests {
       ("biolume-on-void", 0x0E8467, Self.lightVoid),
       ("cautious-on-surface", 0xA66A08, Self.lightSurface),
       ("critical-on-surface", 0xC93A2E, Self.lightSurface),
+      ("data-viz-violet-on-surface", 0x6D4BC2, Self.lightSurface),
     ]
     for (name, fg, bg) in lightPairs {
       let ratio = Self.contrastRatio(Self.luminance(ofHex: fg), Self.luminance(ofHex: bg))
@@ -253,6 +256,8 @@ struct UI0DesignTokenTests {
     let _: Color = AuraDesign.Palette.signal
     let _: Color = AuraDesign.Palette.cautious
     let _: Color = AuraDesign.Palette.critical
+    let _: Color = AuraDesign.Palette.dataVizViolet
+    #expect(AuraDesign.Palette.dataViz.count == 4)
   }
 
   @Test("v2 Materials ladder members exist (L0–L3 + blur radii)")

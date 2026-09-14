@@ -1,5 +1,41 @@
 # Current State
 
+## 2026-09-14 (latest) — UI-3 Information Architecture complete locally — awaiting approval
+
+**Phase status:** UI-3 is complete locally with G3-1 through G3-8 passed;
+`ui-improvement-plan/ledger/CURRENT_PHASE.md` is now
+`phase_status: awaiting-approval`, `next_phase: UI-4`, and `last_seq: 50`.
+UI-4 has not started. The next safe action is a separate explicit approval for
+the UI-3 → UI-4 transition.
+
+**What changed:** the six-pill panel navigation became a native sidebar while
+preserving every `AuraProductTab` raw value and `aura.tab.*` accessibility
+identifier; `TaskProgressEvent` payloads now populate clamped task progress
+rings; Recovery gained `AuraStatusRow`, contrast-tested data-viz colors, and a
+60-point-per-kind in-memory telemetry deck with visible provenance; and the
+static ⌘K palette reuses existing owners and the existing fail-closed
+confirmation path. Exact gate receipts and cognitive completion answers are in
+`ui-improvement-plan/ledger/PHASE_LEDGER.md` SEQ-0043 through SEQ-0050.
+
+**Verification:** the live driver leg used a temporary stable-signed bundle and
+completed the six-tab click tour, real arrow-key sidebar traversal, Recovery
+deck lookup, real ⌘K palette discovery, existing confirmation-card appearance,
+and Escape dismissal. Two fresh full runs (`/tmp/aura-ui3-g37-run1` and
+`/tmp/aura-ui3-g37-run2b`) exited 0 with 22/22 bundles and `Failed bundles: 0`;
+`AURAIntegrationTests` was 191 tests / 32 suites in both. `swift build`,
+`git diff --check`, touched-script `zsh -n`, and the continuity validator all
+passed. The validator reported `VALIDATOR: OK - machine coherent` with all
+eight gates passed.
+
+**Repository boundary:** HEAD and `origin/main` remain
+`e6f513d98d7f47423094394079d2e9ea35d84963`; the UI-3 scope is intentionally
+uncommitted and the worktree is dirty as expected. No commit, push, deploy,
+release, or `/Applications/AURA.app` replacement was performed. The Python
+governance suite ran 96 tests with 95 passes and one mismatch from the frozen
+`archive/runtime-completion` state claiming a clean worktree; that archive was
+not edited, and hosted-CI/release clearance is not claimed. ADR-061 records the
+decision and residual risks.
+
 ## 2026-09-14 (latest+2) — UI-2 G2-1..G2-7 closure committed, pushed, and locally deployed
 
 **Commit/push/merge:** the exact UI-2 closure scope was committed as

@@ -1,6 +1,7 @@
 import AuraAgent
 import AuraCore
 import AuraIntent
+import AppKit
 import Foundation
 import SwiftUI
 
@@ -27,31 +28,34 @@ enum AuraAcceptanceTestHooks {
 extension AuraMenuView {
 
   var body: some View {
-    VStack(alignment: .leading, spacing: AuraDesign.Spacing.m) {
-      header
-      tabPicker
-      // Conversation owns the window: its transcript grows and the composer
-      // stays anchored at the bottom, the way an assistant should read. The
-      // other tabs are lists of arbitrary length, so those still scroll as a
-      // whole. Wrapping conversation in the outer ScrollView too was what left
-      // a band of dead space under the composer.
-      if model.productUIState.selectedTab == .conversation {
-        tabContent
-          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-      } else {
-        ScrollView {
+    NavigationSplitView {
+      sidebar
+    } detail: {
+      VStack(alignment: .leading, spacing: AuraDesign.Spacing.m) {
+        header
+        // Conversation owns the window: its transcript grows and the composer
+        // stays anchored at the bottom, the way an assistant should read. The
+        // other tabs are lists of arbitrary length, so those still scroll as a
+        // whole. Wrapping conversation in the outer ScrollView too was what left
+        // a band of dead space under the composer.
+        if model.productUIState.selectedTab == .conversation {
           tabContent
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.bottom, AuraDesign.Spacing.s)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        } else {
+          ScrollView {
+            tabContent
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .padding(.bottom, AuraDesign.Spacing.s)
+          }
         }
       }
+      .padding(AuraDesign.Spacing.l)
     }
-    .padding(AuraDesign.Spacing.l)
     // L0 — the observatory canvas. The owned neutral is the point of the
-    // palette; the window kept `windowBackgroundColor` and the identity never
+    // palette; the window kept windowBackgroundColor and the identity never
     // reached the surface behind everything.
     .background(AuraDesign.Materials.base)
-    .frame(minWidth: 680, minHeight: 720)
+    .frame(minWidth: 820, minHeight: 720)
     .onAppear {
       model.refreshProductSnapshots()
       // A macOS privacy decision made outside this window (a TCC prompt in
@@ -60,6 +64,9 @@ extension AuraMenuView {
       // permission indicators and the row buttons honest without a manual
       // refresh click.
       model.refreshPermissions()
+    }
+    .onChange(of: model.latencySummaries) { _, summaries in
+      recordLatencyHistory(summaries)
     }
     .sheet(
       isPresented: Binding(
@@ -73,6 +80,110 @@ extension AuraMenuView {
     .sheet(item: $model.memoryCorrectionTarget) { record in
       MemoryCorrectionSheet(model: model, record: record)
     }
+    .overlay {
+      if isCommandPalettePresented {
+        AuraCommandPalette(
+          title: copy("settings.productUI"),
+          cancelLabel: copy("action.cancel"),
+          entries: commandPaletteEntries,
+          onDismiss: { isCommandPalettePresented = false },
+          onRequestDestructive: { entry in
+            entry.action()
+            isCommandPalettePresented = false
+          })
+        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+      }
+    }
+  }
+
+  /// Appends the pull result to a bounded, in-memory history. The percentile
+  /// summary remains authoritative; this history only shows how the readout
+  /// changed across explicit refreshes in this process.
+  func recordLatencyHistory(_ summaries: [LatencyPercentileSummary]) {
+    latencyHistory = Self.appendingLatencyHistory(
+      existing: latencyHistory, summaries: summaries, measuredAt: Date())
+  }
+
+  nonisolated static func appendingLatencyHistory(
+    existing: [LatencyMeasuredEvent.Kind: [AuraLatencyHistoryPoint]],
+    summaries: [LatencyPercentileSummary],
+    measuredAt: Date
+  ) -> [LatencyMeasuredEvent.Kind: [AuraLatencyHistoryPoint]] {
+    var result = existing
+    for summary in summaries {
+      var points = result[summary.kind, default: []]
+      let point = AuraLatencyHistoryPoint(
+        measuredAt: measuredAt,
+        p50Milliseconds: summary.p50Milliseconds,
+        p95Milliseconds: summary.p95Milliseconds,
+        p99Milliseconds: summary.p99Milliseconds)
+      if points.last?.p50Milliseconds != point.p50Milliseconds
+        || points.last?.p95Milliseconds != point.p95Milliseconds
+        || points.last?.p99Milliseconds != point.p99Milliseconds {
+        points.append(point)
+      }
+      result[summary.kind] = Array(points.suffix(60))
+    }
+    return result
+  }
+
+  /// The command table is static in shape. Closures only dispatch to existing
+  /// reducers, controls, or the existing confirmation-backed setting path.
+  var commandPaletteEntries: [AuraCommandPaletteEntry] {
+    let tabs = AuraProductTab.allCases.map { tab in
+      AuraCommandPaletteEntry(
+        id: "tab.\(tab.rawValue)",
+        title: copy(tab.copyKey),
+        symbol: tab.symbolName,
+        requiresConfirmation: false,
+        action: { model.selectTab(tab) })
+    }
+    return tabs + [
+      AuraCommandPaletteEntry(
+        id: "pushToTalk",
+        title: copy("conversation.pushToTalk"),
+        symbol: "mic.fill",
+        requiresConfirmation: false,
+        action: { model.pushToTalk() }),
+      AuraCommandPaletteEntry(
+        id: "settings",
+        title: copy("settings.productUI"),
+        symbol: "gearshape",
+        requiresConfirmation: false,
+        action: { openSettings() }),
+      AuraCommandPaletteEntry(
+        id: "emergencyStop",
+        title: copy("emergency.stop"),
+        symbol: "hand.raised.fill",
+        requiresConfirmation: false,
+        action: { model.triggerEmergencyStop() }),
+      AuraCommandPaletteEntry(
+        id: "launchAtLogin",
+        title: copy("settings.launchAtLogin"),
+        symbol: "power",
+        requiresConfirmation: true,
+        action: { model.setLaunchAtLogin(!model.launchAtLoginEnabled) }),
+      AuraCommandPaletteEntry(
+        id: "copyTranscript",
+        title: copy("conversation.title"),
+        symbol: "doc.on.doc",
+        requiresConfirmation: false,
+        action: copyTranscript),
+      AuraCommandPaletteEntry(
+        id: "clearComposer",
+        title: copy("conversation.input"),
+        symbol: "xmark.circle",
+        requiresConfirmation: false,
+        action: { model.textInput = "" }),
+    ]
+  }
+
+  func copyTranscript() {
+    let transcript = model.conversationMessages
+      .map { "\($0.role.rawValue): \($0.text)" }
+      .joined(separator: "\n")
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(transcript, forType: .string)
   }
 
   var header: some View {
@@ -171,62 +282,59 @@ extension AuraMenuView {
       .accessibilityHint(
         language == .turkish ? "AURA ayarlarını açar" : "Opens AURA settings")
       .accessibilityIdentifier(AuraAccessibilityID.settingsButton)
+
+      Button {
+        isCommandPalettePresented = true
+      } label: {
+        Image(systemName: "command")
+      }
+      .keyboardShortcut("k", modifiers: .command)
+      .frame(width: 1, height: 1)
+      .opacity(0.01)
+      .accessibilityHidden(true)
     }
     .accessibilityElement(children: .contain)
   }
 
-  /// Six destinations in a segmented control leave each label a few
-  /// characters wide and unreadable in Turkish, where the words are longer.
-  /// Discrete pills give every section its icon plus its full name, and make
-  /// the selected one unambiguous.
-  var tabPicker: some View {
-    GlassEffectContainer(spacing: AuraDesign.Spacing.xs) {
-      HStack(spacing: AuraDesign.Spacing.xs) {
+  /// Sidebar navigation keeps the product destinations visible without
+  /// compressing Turkish labels into a horizontal strip. Each row remains a
+  /// real button so keyboard traversal and the existing AX identifier-based
+  /// driver address the same stable compatibility anchors.
+  var sidebar: some View {
+    List(
+      selection: Binding<AuraProductTab?>(
+        get: { model.productUIState.selectedTab },
+        set: { selected in
+          if let selected { model.selectTab(selected) }
+        })
+    ) {
+      Section {
         ForEach(AuraProductTab.allCases) { tab in
-          tabButton(tab)
+          Button {
+            model.selectTab(tab)
+          } label: {
+            Label(copy(tab.copyKey), systemImage: tab.symbolName)
+              .font(
+                AuraDesign.Typography.meta.weight(
+                  model.productUIState.selectedTab == tab ? .semibold : .regular))
+              .frame(maxWidth: .infinity, alignment: .leading)
+          }
+          .buttonStyle(.plain)
+          .tag(tab)
+          .accessibilityAddTraits(
+            model.productUIState.selectedTab == tab
+              ? [.isButton, .isSelected]
+              : .isButton)
+          .accessibilityLabel(copy(tab.copyKey))
+          .accessibilityIdentifier(AuraAccessibilityID.tab(tab.rawValue))
         }
-        Spacer(minLength: 0)
       }
-      .padding(AuraDesign.Spacing.xs)
-      .glassEffect(.regular, in: .rect(cornerRadius: AuraDesign.Radius.medium))
     }
+    .listStyle(.sidebar)
+    .navigationTitle(language == .turkish ? "Bölümler" : "Sections")
+    .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 260)
     .accessibilityElement(children: .contain)
     .accessibilityLabel(language == .turkish ? "AURA bölümleri" : "AURA sections")
-  }
-
-  private func tabButton(_ tab: AuraProductTab) -> some View {
-    let isSelected = model.productUIState.selectedTab == tab
-    return Button {
-      model.selectTab(tab)
-    } label: {
-      HStack(spacing: AuraDesign.Spacing.xs) {
-        Image(systemName: tab.symbolName)
-          .font(.caption2.weight(.medium))
-        Text(copy(tab.copyKey))
-          .font(AuraDesign.Typography.meta.weight(isSelected ? .semibold : .regular))
-          .lineLimit(1)
-      }
-      .padding(.horizontal, AuraDesign.Spacing.s)
-      .padding(.vertical, AuraDesign.Spacing.xs + 1)
-      .background(
-        RoundedRectangle(cornerRadius: AuraDesign.Radius.small, style: .continuous)
-          .fill(
-            isSelected
-              ? AuraDesign.Palette.biolume.opacity(0.18) : Color.clear)
-      )
-      .foregroundStyle(
-        isSelected ? AuraDesign.Palette.biolume : AuraDesign.Palette.textSecondary)
-      .contentShape(Rectangle())
-    }
-    .buttonStyle(.plain)
-    // Selection is announced through the trait rather than only by tint, so it
-    // is conveyed without relying on colour.
-    .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
-    // The pill's label is an icon plus text inside a `.plain` button, which
-    // SwiftUI did not surface as an accessible name: every tab read as a bare
-    // "button" to VoiceOver and to the acceptance driver alike.
-    .accessibilityLabel(copy(tab.copyKey))
-    .accessibilityIdentifier(AuraAccessibilityID.tab(tab.rawValue))
   }
 
   @ViewBuilder

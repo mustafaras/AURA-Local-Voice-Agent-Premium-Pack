@@ -153,10 +153,8 @@ extension AuraAppModel {
     await eventBus.subscribe(TaskStateChangedEvent.self) { [weak self] envelope in
       await self?.updateTask(envelope.payload)
     }
-    await eventBus.subscribe(TaskProgressEvent.self) { [weak self] _ in
-      Task { @MainActor [weak self] in
-        self?.refreshProductSnapshots()
-      }
+    await eventBus.subscribe(TaskProgressEvent.self) { [weak self] envelope in
+      await self?.applyTaskProgress(envelope.payload)
     }
     await eventBus.subscribe(STTPartialEvent.self) { [weak self] envelope in
       await self?.applyPartialTranscript(envelope.payload)
@@ -293,6 +291,34 @@ extension AuraAppModel {
     guard let index = tasks.firstIndex(where: { $0.id == event.taskID }) else { return }
     tasks[index].state = event.newState.rawValue
     refreshProductSnapshots()
+  }
+
+  /// Projects the real progress payload into the already-published durable
+  /// task snapshot. The task engine owns the authoritative counts; the UI only
+  /// clamps malformed boundaries and never invents time-based progress.
+  func applyTaskProgress(_ event: TaskProgressEvent) {
+    guard let index = taskStatuses.firstIndex(where: { $0.id == event.taskID }) else {
+      // A progress event can race the first product snapshot after enqueue.
+      // Reconcile from the engine rather than retaining an orphan UI record.
+      refreshProductSnapshots()
+      return
+    }
+    let current = taskStatuses[index]
+    let totalSteps = max(0, event.totalSteps)
+    let completedSteps = min(max(0, event.completedSteps), totalSteps)
+    taskStatuses[index] = TaskStatus(
+      id: current.id,
+      state: current.state,
+      objective: current.objective,
+      priority: current.priority,
+      createdAt: current.createdAt,
+      deadline: current.deadline,
+      updatedAt: event.updatedAt,
+      completedSteps: completedSteps,
+      totalSteps: totalSteps,
+      currentStepDescription: event.currentStepDescription,
+      errorMessage: current.errorMessage,
+      scope: current.scope)
   }
 
   func applyPartialTranscript(_ event: STTPartialEvent) {

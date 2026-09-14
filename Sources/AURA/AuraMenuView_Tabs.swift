@@ -14,8 +14,11 @@ extension AuraMenuView {
         GroupBox {
           VStack(alignment: .leading, spacing: 7) {
             HStack {
-              Text(task.objective).bold().fixedSize(horizontal: false, vertical: true)
+              Text(task.objective)
+                .bold()
+                .fixedSize(horizontal: false, vertical: true)
               Spacer()
+              AuraProgressRing(progress: task.percentComplete)
               Text(taskState(task.state))
                 .foregroundStyle(task.state == .failed ? .red : .secondary)
             }
@@ -566,28 +569,13 @@ extension AuraMenuView {
       }
       GroupBox(copy("recovery.latency")) {
         VStack(alignment: .leading, spacing: 5) {
-          if model.latencySummaries.isEmpty {
-            // Deliberately says "no samples" rather than showing zeros. A zero
-            // would read as "measured, and instant" — the opposite of the truth.
-            Text(copy("recovery.latencyNone"))
-              .foregroundStyle(.secondary)
-              .fixedSize(horizontal: false, vertical: true)
-          } else {
-            ForEach(model.latencySummaries, id: \LatencyPercentileSummary.kind) { summary in
-              let line =
-                "\(summary.kind.rawValue): p50 \(Int(summary.p50Milliseconds)) ms · "
-                + "p95 \(Int(summary.p95Milliseconds)) ms · "
-                + "p99 \(Int(summary.p99Milliseconds)) ms"
-              VStack(alignment: .leading, spacing: 1) {
-                Text(line)
-                Text(
-                  "\(summary.sampleCount) \(copy("recovery.samples"))"
-                    + (summary.isMockDerived ? " · \(copy("recovery.mockDerived"))" : ""))
-                  .font(.caption2).foregroundStyle(summary.isMockDerived ? .orange : .secondary)
-              }
-              .accessibilityElement(children: .combine)
-            }
-          }
+          AuraTelemetryDeck(
+            summaries: model.latencySummaries,
+            history: latencyHistory,
+            liveProvenance: copy("recovery.latency"),
+            mockProvenance: copy("recovery.mockDerived"),
+            sampleLabel: copy("recovery.samples"),
+            emptyLabel: copy("recovery.latencyNone"))
           Button(copy("recovery.latencyRefresh")) { model.refreshLatencySummaries() }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -597,12 +585,14 @@ extension AuraMenuView {
           ForEach(model.runtimeHealth, id: \RuntimeHealth.componentID) { (health: RuntimeHealth) in
             let diagnosticLabel =
               "\(health.componentID): \(health.status.rawValue). \(health.detail)"
-            Label(
-              "\(health.componentID): \(health.status.rawValue)",
-              systemImage: health.status == .ready ? "checkmark.circle" : "exclamationmark.triangle"
-            )
-            .foregroundStyle(health.status == .ready ? Color.secondary : Color.orange)
-            .accessibilityLabel(diagnosticLabel)
+            AuraStatusRow(
+              symbol: health.status == .ready ? "checkmark.circle" : "exclamationmark.triangle",
+              title: health.componentID,
+              detail: health.detail,
+              state: health.status.rawValue,
+              tint: health.status == .ready
+                ? AuraDesign.Palette.biolume : AuraDesign.Palette.cautious)
+              .accessibilityLabel(diagnosticLabel)
           }
           ForEach(model.runtimeWarnings, id: \.self) { warning in
             Text(warning).font(.caption).foregroundStyle(.orange)
@@ -654,13 +644,13 @@ extension AuraMenuView {
   }
 
   func permissionIndicator(_ name: String, _ state: String) -> some View {
-    HStack {
-      Text(name)
-      Spacer()
-      Text(state).foregroundStyle(.secondary)
-    }
-    .accessibilityElement(children: .combine)
-    .accessibilityLabel("\(name): \(state)")
+    AuraStatusRow(
+      symbol: "checkmark.shield",
+      title: name,
+      detail: state,
+      state: state,
+      tint: AuraDesign.Palette.signal)
+      .accessibilityLabel("\(name): \(state)")
   }
 
   func copy(_ key: String) -> String {

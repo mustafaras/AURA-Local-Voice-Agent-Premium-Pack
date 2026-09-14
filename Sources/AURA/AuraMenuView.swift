@@ -2,6 +2,13 @@ import AuraAgent
 import AuraCore
 import SwiftUI
 
+struct AuraLatencyHistoryPoint: Equatable {
+  let measuredAt: Date
+  let p50Milliseconds: Double
+  let p95Milliseconds: Double
+  let p99Milliseconds: Double
+}
+
 struct AuraMenuView: View {
   @ObservedObject var model: AuraAppModel
   @Environment(\.openSettings) var openSettings
@@ -13,6 +20,10 @@ struct AuraMenuView: View {
   @State var isStickToBottom = true
   /// Whether the jump-to-latest affordance is visible (user scrolled up).
   @State var showJumpToLatest = false
+  /// Pull-cadence latency history. This remains in memory at the view layer;
+  /// it is never persisted or written to a file (UI-3 G3-3).
+  @State var latencyHistory: [LatencyMeasuredEvent.Kind: [AuraLatencyHistoryPoint]] = [:]
+  @State var isCommandPalettePresented = false
 
   var language: AuraUILanguage { model.productUIState.language }
 
@@ -71,6 +82,7 @@ struct AuraConfirmationCard: View {
     }
     .accessibilityElement(children: .contain)
     .accessibilityAddTraits(.isModal)
+    .accessibilityIdentifier(AuraCommandPaletteID.confirmationCard)
   }
 }
 

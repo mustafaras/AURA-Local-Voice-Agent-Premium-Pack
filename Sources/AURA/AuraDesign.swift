@@ -1,4 +1,5 @@
 import SwiftUI
+import AuraCore
 // UIAccessibility (Reduce Motion) — AppKit's NSWorkspace accessibility APIs
 // re-export it; importing AppKit explicitly keeps the motion helper's
 // dependency visible at the file that uses it.
@@ -54,6 +55,9 @@ enum AuraDesign {
     static let body = Font.body
     static let meta = Font.caption
     static let mono = Font.caption.monospaced()
+    /// Instrument numerals remain aligned while retaining Dynamic Type scaling.
+    static let numeric = Font.body.monospacedDigit()
+    static let numericSmall = Font.caption.monospacedDigit()
   }
 
   // MARK: - Surfaces
@@ -154,6 +158,12 @@ extension AuraDesign {
     static let cautious = Color(light: Color(hex: 0x8A5606), dark: Color(hex: 0xF2B84B))
     /// Error, emergency stop — inherits the previous `.red` semantics.
     static let critical = Color(light: Color(hex: 0xC93A2E), dark: Color(hex: 0xFF6B5E))
+    /// Fourth data-viz series; the light value is dark enough for graphical
+    /// contrast while the dark value remains legible on Observatory surfaces.
+    static let dataVizViolet = Color(
+      light: Color(hex: 0x6D4BC2), dark: Color(hex: 0xB49AFF))
+    /// Color-blind-safe chart order from 09 §7: teal, blue, amber, violet.
+    static let dataViz: [Color] = [biolume, signal, cautious, dataVizViolet]
   }
 
   /// Surface ladder L0–L3 (09-visual-language.md §4). One light source; the
@@ -204,6 +214,9 @@ extension AuraDesign {
     static let identityMark: CGFloat = 34
     /// EN/TR segmented language switch in the header.
     static let languageSwitchWidth: CGFloat = 84
+    /// Progress ring stroke and diameter.
+    static let progressRing: CGFloat = 4
+    static let progressRingSize: CGFloat = 52
     /// Floor height for the transcript scroll so a short conversation still
     /// reads as a surface rather than collapsing to its content.
     static let transcriptMinHeight: CGFloat = 180
@@ -355,6 +368,316 @@ struct AuraStatusPill: View {
     .animation(AuraDesign.Motion.motion(AuraDesign.Motion.smooth), value: status)
     .accessibilityElement(children: .combine)
     .accessibilityLabel("\(title). \(detail)")
+  }
+}
+
+/// A compact task-progress instrument driven by the real TaskStatus counts.
+/// The textual task label remains the accessible and Dynamic-Type fallback;
+/// the ring is deliberately decorative.
+struct AuraProgressRing: View {
+  let progress: Double
+
+  nonisolated static func normalizedProgress(_ value: Double) -> Double {
+    guard value.isFinite else { return 0 }
+    return min(max(value, 0), 1)
+  }
+
+  var body: some View {
+    let normalized = Self.normalizedProgress(progress)
+    ZStack {
+      Circle()
+        .stroke(AuraDesign.Palette.hairline, lineWidth: AuraDesign.Measure.hairline)
+      Circle()
+        .trim(from: 0, to: normalized)
+        .stroke(
+          AuraDesign.Palette.biolume,
+          style: StrokeStyle(
+            lineWidth: AuraDesign.Measure.progressRing,
+            lineCap: .round))
+        .rotationEffect(.degrees(-90))
+      Text("\(Int((normalized * 100).rounded()))%")
+        .font(AuraDesign.Typography.numericSmall)
+        .foregroundStyle(AuraDesign.Palette.textPrimary)
+    }
+    .frame(
+      width: AuraDesign.Measure.progressRingSize,
+      height: AuraDesign.Measure.progressRingSize)
+    .accessibilityHidden(true)
+  }
+}
+
+/// Compact status row for diagnostic surfaces. State is always text as well
+/// as color, so the badge never relies on color vision alone.
+struct AuraStatusRow: View {
+  let symbol: String
+  let title: String
+  let detail: String
+  let state: String
+  let tint: Color
+
+  var body: some View {
+    HStack(alignment: .center, spacing: AuraDesign.Spacing.s) {
+      Image(systemName: symbol)
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(tint)
+        .frame(width: 28, height: 28)
+        .background(tint.opacity(0.16), in: Circle())
+        .accessibilityHidden(true)
+      VStack(alignment: .leading, spacing: AuraDesign.Spacing.xxs) {
+        Text(title)
+          .font(AuraDesign.Typography.meta.weight(.semibold))
+        Text(detail)
+          .font(AuraDesign.Typography.meta)
+          .foregroundStyle(AuraDesign.Palette.textSecondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      Spacer(minLength: AuraDesign.Spacing.s)
+      Text(state)
+        .font(AuraDesign.Typography.numericSmall.weight(.semibold))
+        .foregroundStyle(tint)
+        .multilineTextAlignment(.trailing)
+    }
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel("\(title): \(state). \(detail)")
+  }
+}
+
+/// In-memory sparkline for pull-cadence history. The dashed budget line and
+/// breach markers preserve the instrument reading when color is removed.
+struct AuraSparkline: View {
+  let values: [Double]
+  let budgetMilliseconds: Double
+  let color: Color
+  let label: String
+  let provenance: String
+  let breachCount: Int
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: AuraDesign.Spacing.xxs) {
+      HStack(alignment: .firstTextBaseline) {
+        Text(label)
+          .font(AuraDesign.Typography.numericSmall.weight(.semibold))
+        Spacer()
+        Text(provenance)
+          .font(AuraDesign.Typography.meta)
+          .foregroundStyle(AuraDesign.Palette.textTertiary)
+      }
+      GeometryReader { geometry in
+        let maximum = Self.scaleMaximum(values: values, budget: budgetMilliseconds)
+        let points = Self.points(
+          values: values,
+          width: geometry.size.width,
+          height: geometry.size.height,
+          maximum: maximum)
+        ZStack {
+          Path { path in
+            path.move(to: CGPoint(x: 0, y: geometry.size.height / 2))
+            path.addLine(to: CGPoint(x: geometry.size.width, y: geometry.size.height / 2))
+          }
+          .stroke(AuraDesign.Palette.hairline, lineWidth: AuraDesign.Measure.hairline)
+          Path { path in
+            guard let first = points.first else { return }
+            path.move(to: first)
+            for point in points.dropFirst() { path.addLine(to: point) }
+          }
+          .stroke(color, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+          Path { path in
+            let y = Self.y(
+              value: budgetMilliseconds,
+              height: geometry.size.height,
+              maximum: maximum)
+            path.move(to: CGPoint(x: 0, y: y))
+            path.addLine(to: CGPoint(x: geometry.size.width, y: y))
+          }
+          .stroke(
+            AuraDesign.Palette.cautious,
+            style: StrokeStyle(lineWidth: AuraDesign.Measure.hairline, dash: [4, 3]))
+          ForEach(Array(values.enumerated()), id: \.offset) { index, value in
+            if value > budgetMilliseconds, index < points.count {
+              Circle()
+                .fill(AuraDesign.Palette.critical)
+                .frame(width: 6, height: 6)
+                .position(points[index])
+            }
+          }
+        }
+      }
+      .frame(height: 44)
+      .accessibilityHidden(true)
+    }
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel("\(label), \(provenance), \(breachCount) budget breaches")
+  }
+
+  nonisolated static func scaleMaximum(values: [Double], budget: Double) -> Double {
+    max(1, max(budget, values.max() ?? 0) * 1.15)
+  }
+
+  nonisolated static func y(value: Double, height: CGFloat, maximum: Double) -> CGFloat {
+    height * CGFloat(1 - min(max(value / maximum, 0), 1))
+  }
+
+  nonisolated static func points(
+    values: [Double], width: CGFloat, height: CGFloat, maximum: Double
+  ) -> [CGPoint] {
+    guard !values.isEmpty else { return [] }
+    let divisor = CGFloat(max(values.count - 1, 1))
+    return values.enumerated().map { index, value in
+      CGPoint(
+        x: width * CGFloat(index) / divisor,
+        y: y(value: value, height: height, maximum: maximum))
+    }
+  }
+}
+
+/// Gauge-scale telemetry deck for the Recovery tab. It consumes only the
+/// existing percentile summaries and the view-local pull history.
+struct AuraTelemetryDeck: View {
+  let summaries: [LatencyPercentileSummary]
+  let history: [LatencyMeasuredEvent.Kind: [AuraLatencyHistoryPoint]]
+  let liveProvenance: String
+  let mockProvenance: String
+  let sampleLabel: String
+  let emptyLabel: String
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: AuraDesign.Spacing.m) {
+      if summaries.isEmpty {
+        Text(emptyLabel)
+          .font(AuraDesign.Typography.meta)
+          .foregroundStyle(AuraDesign.Palette.textSecondary)
+      } else {
+        ForEach(Array(summaries.enumerated()), id: \.element.kind) { index, summary in
+          AuraLatencyGauge(
+            summary: summary,
+            history: history[summary.kind] ?? [],
+            color: AuraDesign.Palette.dataViz[index % AuraDesign.Palette.dataViz.count],
+            provenance: summary.isMockDerived ? mockProvenance : liveProvenance,
+            sampleLabel: sampleLabel)
+        }
+      }
+    }
+    .accessibilityIdentifier("aura.recovery.telemetryDeck")
+  }
+}
+
+struct AuraLatencyGauge: View {
+  let summary: LatencyPercentileSummary
+  let history: [AuraLatencyHistoryPoint]
+  let color: Color
+  let provenance: String
+  let sampleLabel: String
+
+  private var budgetMilliseconds: Double {
+    Self.budgetForKind(summary.kind)
+  }
+
+  var body: some View {
+    let values = history.isEmpty ? [summary.p95Milliseconds] : history.map(\.p95Milliseconds)
+    let maximum = AuraSparkline.scaleMaximum(
+      values: [summary.p99Milliseconds, summary.maxMilliseconds], budget: budgetMilliseconds)
+    VStack(alignment: .leading, spacing: AuraDesign.Spacing.xs) {
+      HStack(alignment: .firstTextBaseline) {
+        Text(summary.kind.rawValue)
+          .font(AuraDesign.Typography.numericSmall.weight(.semibold))
+        Spacer()
+        Text("p95 \(Int(summary.p95Milliseconds.rounded())) ms")
+          .font(AuraDesign.Typography.numeric)
+          .foregroundStyle(color)
+      }
+      GeometryReader { geometry in
+        ZStack {
+          Rectangle()
+            .fill(AuraDesign.Palette.hairline)
+            .frame(height: AuraDesign.Measure.hairline)
+            .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+          ForEach(0..<5, id: \.self) { index in
+            let fraction = CGFloat(index) / 4
+            Rectangle()
+              .fill(AuraDesign.Palette.hairline)
+              .frame(
+                width: AuraDesign.Measure.hairline,
+                height: index.isMultiple(of: 2)
+                  ? AuraDesign.Measure.tickMajor : AuraDesign.Measure.tickMinor)
+              .position(
+                x: geometry.size.width * fraction, y: geometry.size.height / 2)
+          }
+          Rectangle()
+            .fill(AuraDesign.Palette.cautious)
+            .frame(width: AuraDesign.Measure.hairline, height: 20)
+            .position(
+              x: geometry.size.width
+                * CGFloat(min(max(budgetMilliseconds / maximum, 0), 1)),
+              y: geometry.size.height / 2)
+          if summary.budgetBreaches > 0 {
+            DiamondMarker()
+              .fill(AuraDesign.Palette.critical)
+              .frame(width: 10, height: 10)
+              .position(
+                x: geometry.size.width
+                  * CGFloat(min(max(summary.p95Milliseconds / maximum, 0), 1)),
+                y: geometry.size.height / 2)
+          }
+        }
+      }
+      .frame(height: 24)
+      HStack {
+        Text("p50 \(Int(summary.p50Milliseconds.rounded()))")
+        Spacer()
+        Text("p95 \(Int(summary.p95Milliseconds.rounded()))")
+        Spacer()
+        Text("p99 \(Int(summary.p99Milliseconds.rounded()))")
+        Spacer()
+        Text("budget \(Int(budgetMilliseconds.rounded()))")
+      }
+      .font(AuraDesign.Typography.numericSmall)
+      .foregroundStyle(AuraDesign.Palette.textSecondary)
+      AuraSparkline(
+        values: values,
+        budgetMilliseconds: budgetMilliseconds,
+        color: color,
+        label: summary.kind.rawValue,
+        provenance: provenance,
+        breachCount: summary.budgetBreaches)
+      Text("\(summary.sampleCount) \(sampleLabel) · \(provenance)")
+        .font(AuraDesign.Typography.meta)
+        .foregroundStyle(
+          summary.isMockDerived ? AuraDesign.Palette.cautious : AuraDesign.Palette.textTertiary)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    .padding(AuraDesign.Spacing.s)
+    .background(
+      AuraDesign.Palette.surfaceRaised,
+      in: RoundedRectangle(cornerRadius: AuraDesign.Radius.small))
+    .overlay(
+      RoundedRectangle(cornerRadius: AuraDesign.Radius.small)
+        .stroke(AuraDesign.Palette.hairline, lineWidth: AuraDesign.Measure.hairline))
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(
+      "\(summary.kind.rawValue), p50 \(Int(summary.p50Milliseconds.rounded())) ms, "
+        + "p95 \(Int(summary.p95Milliseconds.rounded())) ms, "
+        + "p99 \(Int(summary.p99Milliseconds.rounded())) ms, "
+        + "budget \(Int(budgetMilliseconds.rounded())) ms, \(provenance)")
+  }
+
+  nonisolated static func budgetForKind(_ kind: LatencyMeasuredEvent.Kind) -> Double {
+    switch kind {
+    case .wakeToAck, .pushToTalkAck: return 500
+    case .simpleCommandCompletion: return 1_500
+    case .sttFirstPartial: return 1_000
+    }
+  }
+}
+
+private struct DiamondMarker: Shape {
+  func path(in rect: CGRect) -> Path {
+    var path = Path()
+    path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+    path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+    path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+    path.addLine(to: CGPoint(x: rect.minX, y: rect.midY))
+    path.closeSubpath()
+    return path
   }
 }
 

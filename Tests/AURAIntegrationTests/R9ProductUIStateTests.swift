@@ -394,13 +394,14 @@ struct R9ProductUIStateTests {
     let menu = AuraMenuView(model: model)
     _ = menu.body
     _ = menu.header
-    _ = menu.tabPicker
+    _ = menu.sidebar
     for tab in AuraProductTab.allCases {
       model.productUIState.selectedTab = tab
       _ = menu.tabContent
       _ = menu.sectionTitle(tab.copyKey, symbol: tab.symbolName)
     }
     for state in TaskState.allCases { _ = menu.taskState(state) }
+    _ = AuraProgressRing(progress: 0.5).body
     for state in [
       AgentBackendHealthState.ready,
       .degraded,
