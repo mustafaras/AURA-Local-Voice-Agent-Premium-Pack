@@ -127,6 +127,11 @@ Launch Services returned exit 0; the live driver found the window and reported
 `Boşta`; AppleScript quit completed and no AURA process remained. This is local
 stable-signing/deployment evidence only.
 
+The post-delivery Python governance rerun executed 96 tests with 95 passes and
+one archived-state error because the frozen runtime-completion `verified_head`
+predates the UI-3 source/governance commits. The archive was not rewritten; the
+dedicated UI continuity validator remained green.
+
 ## Consequences and residual risks
 
 The driver now has one native sidebar traversal surface, task rings show real

@@ -22,7 +22,10 @@ Launch Services and the live driver smoke passed (`window-already-open`,
 **Boundary:** this is local stable-signing/deployment evidence only. It is not
 Developer ID, notarization, hosted CI, beta/RC, external publication, or release
 approval. UI-3 remains `awaiting-approval` as a phase handoff state; UI-4 has
-not started and requires separate approval.
+not started and requires separate approval. A post-delivery Python governance
+rerun still reports 95/96 because the frozen runtime-completion validator's
+`verified_head` predates UI-3; the archive was not rewritten. The dedicated UI
+continuity validator remains green.
 
 ## 2026-09-14 (latest) — UI-3 Information Architecture complete locally — awaiting approval
 
