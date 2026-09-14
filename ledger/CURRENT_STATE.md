@@ -1,5 +1,41 @@
 # Current State
 
+## 2026-09-14 (latest+2) — UI-2 G2-1..G2-7 closure committed, pushed, and locally deployed
+
+**Commit/push/merge:** the exact UI-2 closure scope was committed as
+`e5f83e4f0c277d3b62c9e22feff5c84a0f104637`
+(`feat(ui): close UI-2 live status feedback phase`) and pushed to
+`origin/main`. Fresh `git ls-remote` equals that full commit; the branch is
+`0/0` ahead/behind and `gh pr list --state open` is empty. Direct-main is the
+applicable merge route; no separate merge commit exists.
+
+**Verification:** `git diff --check`, `zsh -n scripts/*.sh`, strict-concurrency
+`swift build`, repository-hygiene/supply-chain/second-pass validators, and
+`./scripts/aura-test.sh /tmp/aura-delivery-tests` all passed. The full matrix
+was 22/22 bundles with zero failures; `AURAIntegrationTests` was 176 tests /
+28 suites and `AuraAgentTests` was 247 tests / 9 suites. The broader Python
+governance unittest run executed 96 tests but has one pre-existing error in the
+archived runtime-completion surface: `program-state.json` contains
+`repository_commit`, rejected by the archived schema as an unknown property.
+The current UI diff does not touch that archive; this remains an unresolved
+hosted-CI risk and is not presented as green.
+
+**Local deploy:** release bundle built at
+`/Users/m_ras/Library/Developer/AURA/deploy-ui2-20260914/AURA.app`, signed by
+`AURA Stable Local Signing`, passed `scripts/verify-signature.sh` and
+`codesign --verify --deep --strict`, and has main executable SHA-256
+`151807cd8761f35ecffe5c4cd9dae94b163aa9264114460d375438cd62668a75`.
+The prior install was moved to
+`/Users/m_ras/Library/Developer/AURA/rollback/AURA.app-20260914-065500`, then
+the new bundle was installed at `/Applications/AURA.app`, re-verified, launch
+smoked as PID `53227`, and quit cleanly.
+
+**Boundary:** this is a local stable-signed deployment only. It is not beta,
+release-candidate, notarization, Developer ID, hosted-CI, or external-release
+approval. UI-2 is `awaiting-approval`; UI-3 has not started and still requires
+the owner's separate approval. Residual UI-2 decisions remain recorded in
+ADR-060 and the phase ledger.
+
 ## 2026-09-14 (latest+1) — UI-2 G2-1..G2-7 complete: 7/7 gates passed — awaiting approval, delivery in progress
 
 G2-5 (confirmation card entrance, five fail-closed paths re-verified),
