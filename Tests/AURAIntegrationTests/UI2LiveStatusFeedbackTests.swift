@@ -155,4 +155,52 @@ struct UI2LiveStatusFeedbackTests {
         && source?.contains("hand.raised.fill") == true,
       "the emergency badge must exist and carry the hand.raised symbol alongside its text")
   }
+
+  // MARK: - G2-5 Confirmation card entrance
+
+  @Test("the confirmation card's conversation-tab entrance uses emergent motion, fast and sober")
+  func confirmationCardEntranceUsesEmergentMotion() {
+    // UI-2.prompt.md's G2-5 procedure: "confirmation card entrance uses
+    // motion.emergent (fast, sober, no bounce)". The card's own `.transition`
+    // must never overshoot past 1.0 scale (that would read as a bouncy pop,
+    // not sober) and must never be a looping animation.
+    let sourceURL = URL(fileURLWithPath: #filePath)
+      .deletingLastPathComponent()
+      .deletingLastPathComponent()
+      .deletingLastPathComponent()
+      .appendingPathComponent("Sources/AURA/AuraMenuView_Content.swift")
+    let source = try? String(contentsOf: sourceURL, encoding: .utf8)
+    #expect(source != nil, "AuraMenuView_Content.swift must be readable from the test anchor")
+    #expect(
+      source?.contains("AuraConfirmationCard(model: model, challenge: challenge)") == true,
+      "the conversation tab must still render the confirmation card")
+    #expect(
+      source?.contains("Motion.emergent") == true,
+      "the confirmation card's entrance must use the emergent motion token")
+    #expect(
+      source?.contains("repeatForever") == false && source?.contains(".repeating(") == false,
+      "the confirmation card's entrance must never loop")
+  }
+
+  @Test("Deny remains first in both reading and tab order in the confirmation card")
+  func confirmationCardKeepsDenyFirst() {
+    // G2-5 explicitly requires this order PRESERVED, not re-verified from
+    // scratch — this pins it so a future edit to AuraConfirmationCard cannot
+    // silently reorder the safe choice behind the destructive one.
+    let sourceURL = URL(fileURLWithPath: #filePath)
+      .deletingLastPathComponent()
+      .deletingLastPathComponent()
+      .deletingLastPathComponent()
+      .appendingPathComponent("Sources/AURA/AuraMenuView.swift")
+    let source = try? String(contentsOf: sourceURL, encoding: .utf8)
+    #expect(source != nil, "AuraMenuView.swift must be readable from the test anchor")
+    let denyRange = source?.range(of: "confirmation.deny")
+    let allowRange = source?.range(of: "confirmation.allowOnce")
+    #expect(denyRange != nil && allowRange != nil, "both confirmation buttons must exist")
+    if let denyRange, let allowRange {
+      #expect(
+        denyRange.lowerBound < allowRange.lowerBound,
+        "Deny must appear before Allow in source order (reading and tab order)")
+    }
+  }
 }

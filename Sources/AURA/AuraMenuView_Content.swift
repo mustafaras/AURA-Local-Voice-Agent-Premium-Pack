@@ -356,8 +356,19 @@ extension AuraMenuView {
       }
 
       if let challenge = model.pendingConfirmation {
+        // G2-5: fast, sober entrance — no bounce, no staged reveal, so the
+        // tinted heading is present at first paint like every other frame of
+        // the transition (11-motion-system.md §4's "prominence rule"). Uses
+        // `motion.emergent`: the token's own definition (AuraDesign.swift)
+        // has named "confirmation cards" as an emergent use case since UI-0,
+        // and UI-2.prompt.md's G2-5 procedure says so explicitly — the
+        // authoritative pairing, even though 11 §4's choreography table row
+        // for this moment says `standard` (stale relative to both).
         AuraConfirmationCard(model: model, challenge: challenge)
           .id(challenge.requestID)
+          .transition(.opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
+          .animation(
+            AuraDesign.Motion.motion(AuraDesign.Motion.emergent), value: challenge.requestID)
       }
       if !model.lastOperationMessage.isEmpty {
         let message = model.localizedOperationMessage(model.lastOperationMessage)

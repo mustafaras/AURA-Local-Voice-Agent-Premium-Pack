@@ -453,6 +453,13 @@ struct R9ProductUIStateTests {
     _ = AuraMenuBarPanel(model: model, mainWindowID: "test-window").body
     model.emergencyStopActive = false
     _ = AuraConfirmationCard(model: model, challenge: challenge).body
+    // UI-2 G2-5: the conversation tab's own conditional wrapper (.id/
+    // .transition/.animation around the card) must construct cleanly with a
+    // real pending confirmation present.
+    model.productUIState.selectedTab = .conversation
+    model.pendingConfirmation = challenge
+    _ = menu.conversationTab
+    model.pendingConfirmation = nil
     _ = MemoryRowView(model: model, record: row).body
     let auditRow = AuraMemoryRow(
       id: row.id, memoryClass: "auditSecurity", subject: row.subject,

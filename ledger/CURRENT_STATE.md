@@ -1,6 +1,54 @@
 # Current State
 
-## 2026-09-13 (latest) — UI-2 G2-1..G2-4 delivered: committed, pushed, deployed to /Applications
+## 2026-09-14 (latest+1) — UI-2 G2-1..G2-7 complete: 7/7 gates passed — awaiting approval, delivery in progress
+
+G2-5 (confirmation card entrance, five fail-closed paths re-verified),
+G2-6 (full verification loop + governance), and G2-7 (machine coherence) are
+now done, on top of the already-committed/deployed G2-1..G2-4 (see the entry
+directly below). Full detail: `ui-improvement-plan/ledger/PHASE_LEDGER.md`
+SEQ-0039/0040/0041; design rationale:
+`docs/decisions/ADR-060-ui2-live-status-feedback.md`.
+
+**G2-5:** entrance motion (`.transition` + `Motion.emergent`) added only at
+the conversation-tab's confirmation-card call site
+(`AuraMenuView_Content.swift`). The card's second call site, inside
+`AuraSettingsView`, was deliberately left untouched — it carries a
+live-verified, evidence-tracked fail-closed fix
+(`EV-SP-030-20260831-R11-LIVE-GATE-02`) for a real shipped bug, and that
+record documents a still-open blocker in the same code path.
+
+**G2-6 governance, all four requirements closed:**
+- Suite ×2-3: `./scripts/aura-test.sh` full 22-bundle loop, exit 0 both
+  runs, 0 failed bundles; `AURAIntegrationTests` 167 → 176 tests / 28
+  suites.
+- a11y IDs per contract: `AuraAccessibilityIdentifiers.swift` has zero diff
+  since the UI-1 closure commit — G2-1..G2-5 introduced no new interactive
+  controls, so no new identifiers were required.
+- Live driver leg: fresh signed acceptance bundle
+  (`BUILD_DIR=/tmp/aura-g26-accept`), launched via direct exec. Sent the
+  real emergency shortcut (⌘⇧Esc) via `System Events`; an AX-tree text dump
+  of the running app confirmed the new header badge ("Acil durdurma
+  etkin") genuinely appears where none existed before. App quit cleanly.
+- G2-7 machine coherence: `bash ui-improvement-plan/validate-continuity.sh`
+  returned `VALIDATOR: OK - machine coherent`; all 7 gates are `passed`,
+  `phase_status` is `awaiting-approval`, and no blocked items remain.
+- ADR + repo ledger + this file: `docs/decisions/ADR-060-*.md` written;
+  `ledger/PROJECT_LEDGER.md` appended; this atomic rewrite.
+
+**Delivery status at turn start:** the G2-5/G2-6/G2-7 closure is verified but
+not yet committed or deployed. The current owner instruction, "push commit
+merge deploy", authorizes this delivery chain. It does not authorize starting
+UI-3; the phase remains awaiting the separate UI-2 -> UI-3 approval.
+
+**Residual decision points, recorded not dropped:** TTS-failure
+stop-reason routing into the error UI (a `Conversation`-FSM-layer change,
+outside UI-2's scope); whether the Orb's `isSpeakingResponse` source should
+ever move from the UI-1 status-derived proxy to the new TTS-event-sourced
+model property. Neither blocks UI-3.
+
+**Next:** the owner's UI-2 -> UI-3 approval question remains open.
+
+## 2026-09-13 — UI-2 G2-1..G2-4 delivered: committed, pushed, deployed to /Applications
 
 Owner approved UI-1 -> UI-2 in-conversation with `"go apply be perfect"` (this
 repo's established explicit-English-equivalent token, first used 2026-09-10
