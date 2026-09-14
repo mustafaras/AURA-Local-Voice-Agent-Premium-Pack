@@ -1,6 +1,6 @@
 # ADR-061: UI-3 Information Architecture — Sidebar, Progress Rings, Telemetry Deck, and Command Palette
 
-- Status: Accepted — local UI-3 delivery, awaiting owner approval
+- Status: Accepted — local UI-3 delivery completed; UI-4 awaiting separate approval
 - Date: 2026-09-14
 - Owners: UI track (UI-3)
 - Supersedes: none
@@ -49,8 +49,9 @@ AppleScript driver before a visual regression was obvious.
 5. **Verification boundary (G3-6/G3-7/G3-8).** The phase is considered locally
    complete only after the signed temporary bundle passes the full driver tour,
    the full 22-bundle suite passes twice, this ADR and both ledgers are current,
-   and the continuity validator reports machine coherence. No commit, push,
-   deployment, release, or hosted-CI claim is made by this decision.
+   and the continuity validator reports machine coherence. Commit, push, and
+   local deployment require the owner's separate delivery approval; this
+   decision still makes no hosted-CI, notarization, beta/RC, or release claim.
 
 ## Alternatives considered
 
@@ -110,6 +111,21 @@ does not affect persisted state or event contracts.
 - G3-8: `SEQ-0050` — continuity validator returned
   `VALIDATOR: OK - machine coherent` with all eight gates passed and
   `phase_status: awaiting-approval`.
+
+## Delivery receipt
+
+After the phase gate, the owner explicitly authorized `push commit merge deploy`.
+The implementation was committed as `ca753296b4d77f89a5d22dbc263b79735dfa98c1`
+(`feat(ui): close UI-3 information architecture phase`) and pushed directly to
+`origin/main`; remote parity was `0/0` and no open PR existed. A release bundle
+was built at `/Users/m_ras/Library/Developer/AURA/deploy-ui3-20260914/AURA.app`,
+signed with `AURA Stable Local Signing`, verified by the repository signature
+script plus `codesign --verify --deep --strict`, and installed at
+`/Applications/AURA.app`. The prior install was preserved at
+`/Users/m_ras/Library/Developer/AURA/rollback/AURA.app-20260914-191651`.
+Launch Services returned exit 0; the live driver found the window and reported
+`Boşta`; AppleScript quit completed and no AURA process remained. This is local
+stable-signing/deployment evidence only.
 
 ## Consequences and residual risks
 

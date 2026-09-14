@@ -1,5 +1,29 @@
 # Current State
 
+## 2026-09-14 (latest) — UI-3 owner-approved commit/push/direct-main merge/local deploy complete
+
+**Delivery:** after G3-8, the owner authorized `push commit merge deploy`.
+UI-3 implementation commit `ca753296b4d77f89a5d22dbc263b79735dfa98c1`
+(`feat(ui): close UI-3 information architecture phase`) was pushed directly
+from `main` to `origin/main`; remote parity was `0/0` and no open PR existed.
+The follow-on governance receipt is recorded in `PHASE_LEDGER.md` SEQ-0051 and
+`PROJECT_LEDGER.md`.
+
+**Local deploy:** release bundle
+`/Users/m_ras/Library/Developer/AURA/deploy-ui3-20260914/AURA.app` was built,
+signed by `AURA Stable Local Signing`, strict-verified, and installed at
+`/Applications/AURA.app`. Main executable SHA-256 is
+`9f6313da00f716a605702be2b593e2aad573e75301c8adbe3bf7b21da811d8aa`. The
+previous installation is recoverable at
+`/Users/m_ras/Library/Developer/AURA/rollback/AURA.app-20260914-191651`.
+Launch Services and the live driver smoke passed (`window-already-open`,
+`AURA durumu: Boşta`); AppleScript quit completed and no process remained.
+
+**Boundary:** this is local stable-signing/deployment evidence only. It is not
+Developer ID, notarization, hosted CI, beta/RC, external publication, or release
+approval. UI-3 remains `awaiting-approval` as a phase handoff state; UI-4 has
+not started and requires separate approval.
+
 ## 2026-09-14 (latest) — UI-3 Information Architecture complete locally — awaiting approval
 
 **Phase status:** UI-3 is complete locally with G3-1 through G3-8 passed;
