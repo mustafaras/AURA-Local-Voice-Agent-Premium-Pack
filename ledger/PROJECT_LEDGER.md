@@ -7011,3 +7011,28 @@ phase ledger. No commit/push (no explicit go-ahead this turn).
   does not claim or authorize Developer ID signing, notarization, hosted CI,
   beta/RC, public release, or external publication.
 - **Next action:** execute the delivery chain and append its evidence receipt.
+
+### 2026-09-15T14:12:15+03:00 — UI-5 local delivery complete
+
+- **Commit/push/merge:** `1ecc5bd55ba0bdd50a7732a35717492b52bb831d` was pushed
+  to `origin/main`; HEAD and remote matched at `1ecc5bd`, no open PR existed,
+  and direct-main is the repository's merge route, so no separate merge commit
+  was needed.
+- **Artifact:** the release bundle was built under
+  `/Users/m_ras/Library/Developer/AURA/deploy-ui5-20260915`, signed with
+  `AURA Stable Local Signing`, and passed `scripts/verify-signature.sh`.
+- **Install/rollback:** the bundle was installed at `/Applications/AURA.app`;
+  the former installation is recoverable at
+  `/Users/m_ras/Library/Developer/AURA/rollback/AURA.app-20260915-140922`.
+  The installed main executable SHA-256 is
+  `d2ccffc5e77c8751ed6d4cba3a97630f86515fd8cdb1f22c67f887765f6ae08e` and
+  matches the signed build artifact byte-for-byte.
+- **Live smoke:** launch returned `OK window-already-open` and
+  `OK AURA durumu: Boşta`; the driver found the deployed onboarding step
+  indicator and close identifiers, close completed, and AppleScript quit left
+  no AURA process. The pre-test AURA defaults export was restored semantically.
+- **Governance/boundary:** the archived Python check remains 96 tests, 95
+  passes, one frozen runtime-completion `verified_head` error; the archive was
+  not edited. This is local deployment evidence only, not Developer ID,
+  notarization, hosted-CI, beta/RC, public-release, or external-publication
+  evidence. No further UI-plan phase is authorized.

@@ -686,3 +686,28 @@ APPROVAL: UI-4 -> UI-5 — user token: "go next be perfect" — 2026-09-15 — e
   Developer ID signing, notarization, hosted-CI, beta/RC, or external
   publication claim.
 - gate: plan-closure approval → **received**; delivery chain → **authorized**.
+
+## SEQ-0073 — 2026-09-15T14:12:15+03:00 — UI-5 — LOCAL DELIVERY COMPLETE
+
+- commit/push: `1ecc5bd55ba0bdd50a7732a35717492b52bb831d` was pushed to
+  `origin/main`; HEAD and remote matched at `1ecc5bd`, with no open PR and no
+  separate merge commit under the repository's direct-main route.
+- artifact: `BUILD_DIR=/Users/m_ras/Library/Developer/AURA/deploy-ui5-20260915`
+  built the release bundle. `AURA Stable Local Signing` completed nested
+  signing; `scripts/verify-signature.sh` passed helper sandbox attestation,
+  Hardened Runtime, entitlement, designated-requirement, and strict checks.
+- install: the bundle was installed at `/Applications/AURA.app`; the prior
+  app was moved recoverably to
+  `/Users/m_ras/Library/Developer/AURA/rollback/AURA.app-20260915-140922`.
+  The installed main executable SHA-256 is
+  `d2ccffc5e77c8751ed6d4cba3a97630f86515fd8cdb1f22c67f887765f6ae08e`, with
+  byte-for-byte parity to the signed build artifact.
+- live smoke: the deployed app returned `OK window-already-open` and
+  `OK AURA durumu: Boşta`; the AppleScript driver found
+  `aura.onboarding.stepIndicator` and `aura.onboarding.close`. The close
+  action then allowed a clean AppleScript quit, and no AURA process remained.
+  The pre-test AURA defaults export was restored semantically afterward.
+- governance: the archived Python result remains 96 tests, 95 passes, and one
+  frozen runtime-completion `verified_head` error; no archive file changed.
+- gate: authorized local delivery → **complete**; UI-5 remains the final plan
+  phase with `phase_status: completed` and `next_phase: none`.

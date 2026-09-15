@@ -1,5 +1,35 @@
 # Current State
 
+## 2026-09-15T14:12:15+03:00 — UI-5 local delivery complete
+
+The authorized delivery chain completed locally. Commit
+`1ecc5bd55ba0bdd50a7732a35717492b52bb831d` was pushed to `origin/main`; HEAD
+and `origin/main` are identical, with no open PR and no separate merge commit
+because this repository uses direct-main delivery.
+
+The release bundle was built at
+`/Users/m_ras/Library/Developer/AURA/deploy-ui5-20260915/AURA.app`, signed with
+`AURA Stable Local Signing`, and strict-verified. Its main executable SHA-256
+is `d2ccffc5e77c8751ed6d4cba3a97630f86515fd8cdb1f22c67f887765f6ae08e`, which
+matches the installed `/Applications/AURA.app` executable exactly. The prior
+installation is recoverable at
+`/Users/m_ras/Library/Developer/AURA/rollback/AURA.app-20260915-140922`.
+
+Deployed live smoke passed: the app opened, the driver returned
+`OK window-already-open` and `OK AURA durumu: Boşta`, the onboarding
+`stepIndicator` and `close` identifiers were found, close then clean quit
+completed, and no AURA process remained. The pre-test AURA defaults export was
+restored semantically; no user preference or schema change was left behind.
+
+The archived Python governance mismatch remains 96 tests, 95 passes, and one
+frozen runtime-completion `verified_head` error; the archive was not edited.
+This is local stable-signing/deployment evidence only, not Developer ID,
+notarization, hosted-CI, beta/RC, public release, or external-publication
+evidence.
+
+**Next safe action:** no further UI-plan phase is authorized; any additional
+release or distribution action requires a separate explicit authorization.
+
 ## 2026-09-15T14:01:44+03:00 — UI-5 plan closure approved; delivery authorized
 
 The owner explicitly approved UI-5 plan closure and authorized the delivery
