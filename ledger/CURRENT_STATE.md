@@ -1,5 +1,177 @@
 # Current State
 
+## 2026-09-15T14:01:44+03:00 — UI-5 plan closure approved; delivery authorized
+
+The owner explicitly approved UI-5 plan closure and authorized the delivery
+chain: `push commit merge deploy`. UI-5 remains the final plan phase with all
+six gates passed; the plan ledger is being advanced to `last_seq: 72` for this
+approval receipt. The authorized delivery interpretation is repository commit
+and push to `origin/main`, direct-main merge verification, followed by a local
+stable-signed build and installation at `/Applications/AURA.app`.
+
+No archive/runtime-completion edit, public release, Developer ID signing,
+notarization, hosted-CI, beta/RC, or external-publication claim is authorized
+or implied. The archived Python governance mismatch remains frozen and must be
+reported honestly.
+
+**Next action:** execute the authorized commit, push, direct-main merge
+verification, local build/sign/install, and post-delivery evidence receipt.
+
+## 2026-09-15T13:40:20+03:00 — UI-5 Onboarding Redesign complete locally — plan closure pending approval
+
+UI-5 is complete locally with all six gates passed and
+`ui-improvement-plan/ledger/CURRENT_PHASE.md` set to `active_phase: UI-5`,
+`phase_status: completed`, `next_phase: none`, and `last_seq: 71`.
+
+The onboarding presentation now has the 13-stage guided layout, additive
+segmented `AuraStepIndicator`, exact English/Turkish AuraCopy ownership, and
+the existing AuraOrb as the Iris hero with an accessible live readout. The
+reducer-owned stage machine, optional-stage set, persistence shape, existing
+actions, and R9 stage-machine tests were not changed.
+
+G5-1 through G5-3 passed in phase-ledger SEQ-0066 through SEQ-0068. G5-4
+passed in SEQ-0069: macOS Reduce Motion was enabled through System Settings,
+the AppKit accessor was `true`, the live temporary bundle showed the static
+`Iris enstrümanı. Boşta` readout at 13/13, and the setting was restored to
+`off` with AppKit `false` after propagation. G5-5 passed in SEQ-0070: the
+AppleScript driver traversed all 13 stages, including real voice permission
+action, optional skips, Emergency Stop stop/re-arm, and final close, while
+the pre-test `aura.ui.state` defaults were restored exactly.
+
+Verification passed: `swift build`; `git diff --check`; focused
+`AURAIntegrationTests` at 202 tests / 34 suites; and full runs
+`/tmp/aura-ui5-g56-run1`, `/tmp/aura-ui5-g56-run2`, and
+`/tmp/aura-ui5-g56-run3`, each across 22 bundles with `Failed bundles: 0`.
+The continuity validator returned `VALIDATOR: OK - machine coherent` after
+the final phase state update.
+
+The archived Python governance check remains honestly reported as 96 tests,
+95 passes, and one error: frozen `archive/runtime-completion` `verified_head`
+rejects the current source/governance paths. The archive was not edited. No
+commit, push, merge, deploy, release, or install was performed; the temporary
+bundle remained outside `/Applications/AURA.app`.
+
+**Next safe action:** obtain the owner's plan-closure approval. UI-5 is the
+final phase in this improvement plan; no UI-6 or post-plan implementation is
+authorized by this state.
+
+## 2026-09-15T11:17:17+03:00 — UI-5 Onboarding Redesign opened — in progress
+
+Owner approval received as the explicit token `go next be perfect` for the
+UI-4 → UI-5 transition. The active phase is now UI-5 with G5-1 as the next
+gate. Scope is limited to the onboarding presentation, the new design-system
+step indicator, exact AuraCopy migration, the existing Orb signature surface,
+integration tests, ADR/ledger/state governance, and no delivery chain.
+
+The UI-4 handoff was rechecked immediately before opening: HEAD equals
+origin/main at `d5b8051`, the continuity validator was OK, the final focused
+suite passed 197 tests / 33 suites with zero failed bundles, and the worktree
+contains only the recorded UI-4 files. UI-5 has not yet changed source files.
+The archived runtime-completion `verified_head` mismatch remains outside scope;
+archive/runtime-completion must not be rewritten.
+
+## 2026-09-15T11:02:05+03:00 — UI-4 G4-7 final checks confirmed — awaiting approval
+
+The final post-correction checks are complete. `swift build`, `git diff --check`,
+and `bash ui-improvement-plan/validate-continuity.sh` all exited 0; the
+validator returned `VALIDATOR: OK - machine coherent` with `last_seq 63 == max
+ledger SEQ 63`. All seven UI-4 gates remain passed and
+`phase_status: awaiting-approval`, with UI-5 still requiring explicit owner
+approval.
+
+The temporary keyboard probe restored `AppleKeyboardUIMode` to its original
+value `0`, and no AURA process remains. No commit, push, deploy, release,
+install, or archive/runtime-completion edit occurred. The archived Python
+governance result remains 96 tests / 95 passes with the frozen
+`verified_head` mismatch recorded in the phase and project ledgers.
+
+## 2026-09-15T10:50:18+03:00 — UI-4 final corrected verification — awaiting approval
+
+The UI-4 card-first test contract was strengthened and re-run successfully:
+the focused AURAIntegrationTests suite passed 197 tests / 33 suites, and full
+matrix runs `/tmp/aura-ui4-g46-run4` and `/tmp/aura-ui4-g46-run5` both passed
+all 22 bundles with `Failed bundles: 0`. All seven UI-4 gates are restored to
+`passed`, pending only the final continuity command receipt.
+
+`CURRENT_PHASE.md` now records `active_phase: UI-4`,
+`phase_status: awaiting-approval`, `next_phase: UI-5`, and `last_seq: 63`.
+The live AppleScript evidence remains valid because the correction touched only
+the integration test; no production Settings code or live bundle changed.
+UI-5 has not started. No commit, push, deploy, release, install, or archive
+edit occurred; the archived 95/96 governance mismatch remains unchanged.
+
+## 2026-09-15T10:48:44+03:00 — UI-4 post-review test-contract correction — G4-7 refresh pending
+
+The final review strengthened `UI4SettingsRestructureTests` from four category
+constructions plus a shared source check to four explicit per-category
+card-order assertions. No production Settings source, confirmation behavior,
+fail-closed test, or live bundle changed. The corrected focused suite passed
+197 tests / 33 suites, and corrected-test full-suite runs
+`/tmp/aura-ui4-g46-run4` and `/tmp/aura-ui4-g46-run5` each passed all 22 bundles
+with `Failed bundles: 0`; AuraAgentTests remained 247/9.
+
+G4-1 and G4-6 are re-verified. G4-7 is temporarily pending only for a fresh
+continuity-validator receipt against this corrected test ledger state; UI-5
+remains unauthorized. The archived runtime-completion mismatch remains
+unchanged and the archive remains untouched.
+
+## 2026-09-15T10:38:58+03:00 — UI-4 Settings Restructure complete locally — awaiting approval
+
+**Phase status:** UI-4 G4-1 through G4-7 are all passed. The continuity
+validator returned `VALIDATOR: OK - machine coherent`; the phase is now
+`awaiting-approval` with `next_phase: UI-5`. UI-5 has not started and still
+requires explicit owner approval.
+
+**Completion evidence:** the four-category picker is local `@State`, every
+category keeps `aura.confirmation.card` first, Permissions uses only real
+`PermissionSnapshot` fields, and G4-3 is N/A under ADR-057's adopt-later sound
+decision. The live temporary bundle completed the category tour and real
+accept/deny/close/reopen fail-closed cycles. Full-suite runs
+`/tmp/aura-ui4-g46-run2` and `/tmp/aura-ui4-g46-run3` exited 0 with zero failed
+bundles; `AURAIntegrationTests` was 197/33 and `AuraAgentTests` was 247/9.
+
+**Governance:** ADR-062, `PROJECT_LEDGER.md`, and the UI phase ledgers contain
+the implementation, evidence, cognitive completion answers, and validator
+receipt. The archived Python governance check remains honestly at 96 tests,
+95 passes, one frozen runtime-completion `verified_head` mismatch. No archive
+file was changed.
+
+**Boundary:** no commit, push, merge, deploy, release, install, or UI-5 work
+was performed. The temporary signed bundle was outside `/Applications/AURA.app`;
+local evidence is not hosted-CI, Developer ID, notarization, beta/RC,
+external-publication, or release approval.
+
+## 2026-09-15T10:35:28+03:00 — UI-4 Settings Restructure — G4-6 complete, G4-7 pending
+
+**Phase status:** UI-4 is the active owner-approved phase. G4-1 through G4-6
+are passed; G4-7 remains pending until the post-governance continuity
+validator runs. `ui-improvement-plan/ledger/CURRENT_PHASE.md` remains
+`active_phase: UI-4`, `phase_status: in-progress`, `next_phase: UI-5`.
+
+**Implementation:** `AuraSettingsView` now has local-only General, Permissions,
+Integrations, and Privacy & Config category navigation. The existing
+confirmation card is the first element in every category. Permissions project
+only the four existing `PermissionSnapshot` fields. ADR-057's adopt-later
+sound decision is honored with no sound preference row or new Settings state.
+Category and permission-group copy uses genuine `AuraCopy` keys in English and
+Turkish. Existing confirmation behavior and fail-closed paths are unchanged.
+
+**Verification:** focused AURAIntegrationTests passed at 197 tests / 33 suites
+with zero failed bundles for G4-1 through G4-4. The temporary signed live bundle
+`/Users/m_ras/Library/Developer/AURA/aura-ui4-g44/AURA.app` passed the live
+four-category card-first tour, accept/deny cycle, close-deny cycle, and safe
+reopen. The qualifying full-suite runs
+`/tmp/aura-ui4-g46-run2` and `/tmp/aura-ui4-g46-run3` both exited 0 with
+`Failed bundles: 0`; `AuraAgentTests` passed 247 tests / 9 suites and
+`AURAIntegrationTests` passed 197 tests / 33 suites. `swift build` and
+`git diff --check` passed.
+
+**Governance and boundary:** ADR-062 and the repository ledgers now record the
+decision and evidence. The Python governance check remains 96 tests, 95 passes,
+one archived runtime-completion `verified_head` mismatch; the archive was not
+rewritten. No commit, push, deploy, release, install, archive edit, or UI-5
+work was performed. G4-7 is the next safe action.
+
 ## 2026-09-14 (latest) — UI-3 owner-approved commit/push/direct-main merge/local deploy complete
 
 **Delivery:** after G3-8, the owner authorized `push commit merge deploy`.

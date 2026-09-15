@@ -220,6 +220,10 @@ extension AuraDesign {
     /// Floor height for the transcript scroll so a short conversation still
     /// reads as a surface rather than collapsing to its content.
     static let transcriptMinHeight: CGFloat = 180
+    /// Onboarding signature scale: the Orb is a hero instrument in the setup
+    /// sheet, with a smaller entry pose for the one allowed reveal motion.
+    static let onboardingHeroOrbScale: CGFloat = 1.35
+    static let onboardingEntryOrbScale: CGFloat = 0.82
   }
 
   /// Motion vocabulary (G0-3/G0-5; shared with 11-motion-system.md §3).
@@ -403,6 +407,69 @@ struct AuraProgressRing: View {
       width: AuraDesign.Measure.progressRingSize,
       height: AuraDesign.Measure.progressRingSize)
     .accessibilityHidden(true)
+  }
+}
+
+/// Segmented onboarding progress instrument (UI-5 G5-2).
+///
+/// The segments are a visual overview only. One combined accessibility element
+/// carries the step counter so VoiceOver has a single, stable announcement and
+/// large accessibility sizes receive the text fallback instead of a row of
+/// tiny marks.
+struct AuraStepIndicator: View {
+  static let totalStepCount = 13
+
+  let currentStep: Int
+  let totalSteps: Int
+  let optionalSteps: Set<Int>
+  let accessibilityLabel: String
+
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+  init(
+    currentStep: Int,
+    totalSteps: Int = AuraStepIndicator.totalStepCount,
+    optionalSteps: Set<Int> = [],
+    accessibilityLabel: String
+  ) {
+    self.currentStep = currentStep
+    self.totalSteps = totalSteps
+    self.optionalSteps = optionalSteps
+    self.accessibilityLabel = accessibilityLabel
+  }
+
+  var body: some View {
+    Group {
+      if dynamicTypeSize.isAccessibilitySize {
+        Text(accessibilityLabel)
+          .font(AuraDesign.Typography.body.weight(.semibold))
+          .foregroundStyle(AuraDesign.Palette.textSecondary)
+      } else {
+        HStack(spacing: AuraDesign.Spacing.xs) {
+          ForEach(0..<max(totalSteps, 0), id: \.self) { index in
+            Capsule()
+              .fill(segmentColor(for: index))
+              .frame(maxWidth: .infinity)
+              .frame(height: index == currentStep ? 6 : 4)
+              .accessibilityHidden(true)
+          }
+        }
+      }
+    }
+    .frame(maxWidth: .infinity, minHeight: 20, alignment: .leading)
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(accessibilityLabel)
+    .accessibilityIdentifier("aura.onboarding.stepIndicator")
+  }
+
+  private func segmentColor(for index: Int) -> Color {
+    if index <= currentStep {
+      return AuraDesign.Palette.biolume
+    }
+    if optionalSteps.contains(index) {
+      return AuraDesign.Palette.cautious.opacity(0.7)
+    }
+    return AuraDesign.Palette.hairline
   }
 }
 

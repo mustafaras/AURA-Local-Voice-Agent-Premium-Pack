@@ -525,6 +525,26 @@ enum AuraCopy {
       .turkish: "Kimliği doğrulanmış AURA uzantı köprüsü üzerinden salt okunur sonda.",
     ],
     // --- Settings window ----------------------------------------------------
+    "settings.categoryPicker": [
+      .english: "Settings category", .turkish: "Ayar kategorisi",
+    ],
+    "settings.category.general": [.english: "General", .turkish: "Genel"],
+    "settings.category.permissions": [.english: "Permissions", .turkish: "İzinler"],
+    "settings.category.integrations": [
+      .english: "Integrations", .turkish: "Entegrasyonlar",
+    ],
+    "settings.category.privacyConfig": [
+      .english: "Privacy & Config", .turkish: "Gizlilik ve Yapılandırma",
+    ],
+    "settings.permissions.status": [
+      .english: "Current permission status", .turkish: "Geçerli izin durumu",
+    ],
+    "settings.permissions.grant": [
+      .english: "Grant from AURA", .turkish: "AURA'dan izin ver",
+    ],
+    "settings.permissions.systemSettings": [
+      .english: "Open System Settings", .turkish: "Sistem Ayarlarını aç",
+    ],
     "settings.productUI": [.english: "Product UI", .turkish: "Ürün arayüzü"],
     "settings.language": [.english: "Language", .turkish: "Dil"],
     "settings.openGuidedSetup": [
@@ -742,6 +762,73 @@ enum AuraCopy {
     "onboarding.next": [.english: "Continue", .turkish: "Devam et"],
     "onboarding.skip": [.english: "Skip optional step", .turkish: "İsteğe bağlı adımı geç"],
     "onboarding.close": [.english: "Close setup", .turkish: "Kurulumu kapat"],
+    "onboarding.iris": [.english: "Iris instrument", .turkish: "Iris enstrümanı"],
+    "onboarding.stepCounter": [.english: "Step %d of %d", .turkish: "%d / %d adım"],
+    "onboarding.stepAccessibilityLabel": [
+      .english: "Setup step %d of %d", .turkish: "Kurulum adımı %d / %d",
+    ],
+    "onboarding.optionalChip": [.english: "Optional", .turkish: "İsteğe bağlı"],
+    "onboarding.explain.privacy": [
+      .english: "Cloud context is disabled by machine policy",
+      .turkish: "Bulut bağlamı makine politikasıyla devre dışı",
+    ],
+    "onboarding.explain.health": [
+      .english: "Compatibility and health are shown from the live runtime evidence available to this process.",
+      .turkish: "Uyumluluk ve sağlık göstergeleri bu pencerede gerçek runtime kanıtıyla gösterilir.",
+    ],
+    "onboarding.explain.voicePermissions": [
+      .english: "Only Microphone and Speech Recognition are requested here. If denied, AURA remains safely restricted.",
+      .turkish: "Yalnızca mikrofon ve Konuşma Tanıma izni istenir. Reddederseniz güvenli kısıtlı mod korunur.",
+    ],
+    "onboarding.explain.voiceTest": [
+      .english: "Use Push to Talk for one local speech-recognition turn; partial and final transcripts appear in Conversation.",
+      .turkish: "Push to Talk ile tek bir yerel konuşma tanıma turu başlatın; kısmi ve kesin döküm Konuşma sekmesinde görünür.",
+    ],
+    "onboarding.explain.ttsTest": [
+      .english: "Spoken responses use the configured local TTS pipeline. This setup step does not invent a separate success result.",
+      .turkish: "Sesli yanıt, yapılandırılmış yerel TTS hattından gelir. Ayrı bir sahte başarı sonucu gösterilmez.",
+    ],
+    "onboarding.explain.wakeWord": [
+      .english: "Wake word is optional; no acoustic model is installed in this configuration, so Push to Talk remains available.",
+      .turkish: "Uyandırma sözcüğü isteğe bağlıdır; mevcut kurulumda akustik model yoktur ve Bas Konuş kullanılabilir.",
+    ],
+    "onboarding.explain.privilegedAccess": [
+      .english: "Accessibility and Screen Recording are requested only by explicit user action; denied capabilities remain disabled.",
+      .turkish: "Erişilebilirlik ve Ekran Kaydı yalnızca açık kullanıcı eylemiyle istenir; verilmezse yetenekler devre dışı kalır.",
+    ],
+    "onboarding.explain.localModel": [
+      .english: "Authentication and model availability are unverified",
+      .turkish: "Kimlik doğrulama ve model kullanılabilirliği doğrulanmadı",
+    ],
+    "onboarding.explain.integrations": [
+      .english: "Browser, mail, and calendar integrations are optional; no account scope is granted by this step.",
+      .turkish: "Tarayıcı, posta ve takvim entegrasyonları isteğe bağlıdır; bu turda kapsam verilmez.",
+    ],
+    "onboarding.explain.emergencyStop": [
+      .english: "Emergency stop disables generated input. Test the stop first, then explicitly re-arm it.",
+      .turkish: "Acil durdurma tüm oluşturulan girdileri kapatır. Önce durdurmayı, sonra açıkça yeniden kurmayı deneyin.",
+    ],
+    "onboarding.explain.safeCommand": [
+      .english: "Use a read-only help or explanation request as the safe first command; side effects are not authorized here.",
+      .turkish: "Güvenli başlangıç komutu olarak yalnızca açıklama/yardım isteği kullanın; yan etkili işlem yetkilendirilmez.",
+    ],
+    "onboarding.explain.launchAtLogin": [
+      .english: "Launch at login belongs to R11; this step does not change that setting.",
+      .turkish: "Girişte başlatma R11 kapsamındadır; bu adım ayarı değiştirmez.",
+    ],
+    "onboarding.explain.complete": [
+      .english: "Setup is complete.", .turkish: "Kurulum tamamlandı.",
+    ],
+    "onboarding.primary.voicePermissions": [
+      .english: "Request permissions", .turkish: "İzinleri iste",
+    ],
+    "onboarding.primary.voiceTest": [
+      .english: "Continue to test", .turkish: "Teste geç",
+    ],
+    "onboarding.primary.emergencyStop": [
+      .english: "Stop / re-arm", .turkish: "Durdur / yeniden kur",
+    ],
+    "onboarding.primary.complete": [.english: "Close", .turkish: "Kapat"],
     "onboarding.stage.0": [
       .english: "Privacy and local processing", .turkish: "Gizlilik ve yerel işleme",
     ],

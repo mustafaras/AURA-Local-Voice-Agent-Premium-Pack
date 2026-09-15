@@ -410,3 +410,279 @@ APPROVAL: UI-2 -> UI-3 — user token: "go apply be perfect" — 2026-09-14 — 
 - evidence: `python3 -m unittest discover -s scripts/tests` ran 96 tests with 95 passes and one error in `test_current_repository_state_is_valid`. The frozen runtime-completion validator rejects the live UI-3 source/governance commits because its archived `verified_head` still predates UI-3; the archived state was not rewritten. This is an archived-governance mismatch, not a UI-3 build, test, signature, or deployment failure.
 - current state: the dedicated UI continuity validator still returns `VALIDATOR: OK - machine coherent`; all eight UI-3 gates remain passed and `phase_status` remains `awaiting-approval`.
 - gate: no gate regression; this receipt closes the post-delivery governance recheck without opening UI-4.
+
+APPROVAL: UI-3 -> UI-4 — user token: "go apply be perfect" — 2026-09-15 — execute UI-4 Settings Restructure only; no UI-5, delivery, deployment, release, or archive changes.
+
+## SEQ-0053 — 2026-09-15T09:37:20+03:00 — UI-4 — PHASE OPENED (explicit owner approval; pre-edit objective and scope record)
+
+- objective: restructure the Settings scene into General, Permissions, Integrations, and Privacy & Config categories while keeping the existing confirmation card as the first element in every category; preserve the real permission-state model and fail-closed behavior; provide mandatory live AppleScript confirmation evidence.
+- assumptions: the existing `AuraConfirmationCard`, `ProductUIState` persistence, permission projections, integration rows, accessibility identifiers, and `AuraCopy` table remain authoritative; the UI-0 sound decision is `adopt-later`, so G4-3 is expected to be N/A; the category picker is local `@State` only and is not persisted.
+- risks: category switching could displace the confirmation card or alter keyboard focus; permission grouping could invent a state absent from the model; a Settings-window dismissal could regress fail-closed denial; live driver traversal could expose AX ordering or confirmation visibility defects.
+- acceptance: G4-1 through G4-7 pass with exact evidence in this ledger; only the authorized Settings view, optional real Settings preference state, component additions, integration tests, and plan-ledger files change; focused tests, `swift build`, full `aura-test.sh` loop ×2–3, `git diff --check`, live AppleScript driver evidence, and continuity validation execute; ADR, `PROJECT_LEDGER.md`, and `CURRENT_STATE.md` are updated; no commit, push, deploy, release, or archive edit occurs.
+- verified-before-edit: `git status --short --branch` was clean; `HEAD == origin/main == d5b8051ed0375aedbc34bd9c05de6a3bad854f49`; `bash ui-improvement-plan/validate-continuity.sh` returned `VALIDATOR: OK - machine coherent`; UI-3 had all eight gates passed with `phase_status: awaiting-approval`; the owner supplied the current scoped UI-4 execution request.
+
+## SEQ-0054 — 2026-09-15T09:46:42+03:00 — UI-4 — G4-1 PASSED (local category navigation and card-first invariant)
+
+- implementation: `Sources/AURA/AuraMenuView.swift:313-570` adds four `AuraSettingsCategory` cases, a local `@State private var selectedCategory`, a segmented picker with stable category identifiers, and a shared `categoryContent` builder that emits the inline confirmation card before the selected category branch. The existing scroll-to-card and window-close fail-closed hooks remain on the same Settings surface.
+- copy: `ProductUIState.swift` adds genuine EN/TR keys for the four category labels and the permission-group headings; no persisted category field or new Settings preference was added.
+- evidence: `UI4SettingsRestructureTests` constructed `AuraSettingsView` with a pending confirmation for each of the four categories and asserted the source-order/card-first contract for all four branches. `./scripts/aura-test.sh /tmp/aura-ui4-g41b AURAIntegrationTests` exited 0; `AURAIntegrationTests` reported 197 tests / 33 suites and `Failed bundles: 0`. `swift build` and `git diff --check` also exited 0.
+- gate: G4-1 → passed.
+
+## SEQ-0055 — 2026-09-15T09:48:18+03:00 — UI-4 — G4-2 PASSED (real permission-state grouping)
+
+- implementation: `Sources/AURA/AuraMenuView.swift:458-503,569-579` renders the four actual `PermissionSnapshot` fields through `PermissionState.title(for:)`, then separates grant actions from the four System Settings deep links and the refresh action. No new permission enum, state, or persistence was introduced.
+- evidence: the focused view-construction/source-contract test asserted all four `model.permissions.*` fields and rejected `.pending`, `.authorized`, and `.unknown` invented states. `rg` over the Settings source returned only the four real fields and the three permission-group copy keys. `./scripts/aura-test.sh /tmp/aura-ui4-g42 AURAIntegrationTests` exited 0; `AURAIntegrationTests` reported 197 tests / 33 suites and `Failed bundles: 0`.
+- gate: G4-2 → passed.
+
+## SEQ-0056 — 2026-09-15T09:49:30+03:00 — UI-4 — G4-3 PASSED (N/A — sound adoption remains deferred)
+
+- decision: `docs/decisions/ADR-057-ui0-identity-foundation.md:55-63` records **Sound: adopt-later**. The existing default-off scaffold and its honest EN/TR copy remain unchanged; no sound preference row is rendered in the UI-4 Settings source, so no new Settings preference or behavior was added.
+- evidence: category copy and scope tests passed, and the existing copy-table guard ran within `./scripts/aura-test.sh /tmp/aura-ui4-g43 AURAIntegrationTests`, which exited 0 with `AURAIntegrationTests` at 197 tests / 33 suites and `Failed bundles: 0`. The Settings-source grep found no `settings.soundFeedback` or `soundFeedbackEnabled` usage.
+- gate: G4-3 → passed as `N/A (ADR decision: adopt-later)`.
+
+## SEQ-0057 — 2026-09-15T09:57:42+03:00 — UI-4 — G4-4 PASSED (live keyboard traversal and fail-closed regression)
+
+- live evidence bundle: `/Users/m_ras/Library/Developer/AURA/aura-ui4-g44/AURA.app` was built from the current sources, signed with `AURA Stable Local Signing`, passed `scripts/verify-signature.sh`, and passed `codesign --verify --deep --strict`. It was launched as a temporary app instance; `/Applications/AURA.app` was not replaced.
+- driver evidence: the existing `aura-drive.applescript` found the category picker as `AXRadioGroup` and all four category controls as `AXRadioButton` identifiers: `aura.settings.category.general`, `aura.settings.category.permissions`, `aura.settings.category.integrations`, and `aura.settings.category.privacyConfig`. Real System Events traversal returned `ARROW-RIGHT-1 aura.settings.category.permissions`, `ARROW-RIGHT-2 aura.settings.category.integrations`, `ARROW-RIGHT-3 aura.settings.category.privacyConfig`, then `ARROW-LEFT-1 aura.settings.category.integrations`, `ARROW-LEFT-2 aura.settings.category.permissions`, `ARROW-LEFT-3 aura.settings.category.general`.
+- fail-closed evidence: `./scripts/aura-test.sh /tmp/aura-ui4-g44 AURAIntegrationTests` exited 0 with `AURAIntegrationTests` 197 tests / 33 suites and `Failed bundles: 0`; the existing confirmation/window-close test files were not modified (`git diff --stat -- Tests/AURAIntegrationTests/ConfirmationSheetFailClosedTests.swift Tests/AURAIntegrationTests/RuntimeUIRemediationTests.swift` produced no diff).
+- gate: G4-4 → passed.
+
+## SEQ-0058 — 2026-09-15T10:01:41+03:00 — UI-4 — G4-5 PASSED (mandatory live AppleScript confirmation acceptance)
+
+- evidence bundle: `/Users/m_ras/Library/Developer/AURA/aura-ui4-g44/AURA.app` was the temporary current-source bundle; it was stable-signed and strict-verified, launched with `open -n`, and never installed over `/Applications/AURA.app`.
+- category tour via `scripts/sp011-acceptance/aura-drive.applescript`:
+  ```text
+  OK clicked aura.settings.category.general
+  OK found aura.settings.category.general role=AXRadioButton value=1
+  OK clicked aura.settings.category.permissions
+  OK found aura.settings.category.permissions role=AXRadioButton value=1
+  OK clicked aura.settings.category.integrations
+  OK found aura.settings.category.integrations role=AXRadioButton value=1
+  OK clicked aura.settings.category.privacyConfig
+  OK found aura.settings.category.privacyConfig role=AXRadioButton value=1
+  ```
+- card-first checks while the same live confirmation was pending:
+  ```text
+  OK clicked aura.settings.category.general
+  OK found aura.confirmation.card role=AXGroup value=
+  FIRST-FORM role=AXGroup id=aura.confirmation.card
+  OK clicked aura.settings.category.permissions
+  OK found aura.confirmation.card role=AXGroup value=
+  FIRST-FORM role=AXGroup id=aura.confirmation.card
+  OK clicked aura.settings.category.integrations
+  OK found aura.confirmation.card role=AXGroup value=
+  FIRST-FORM role=AXGroup id=aura.confirmation.card
+  OK clicked aura.settings.category.privacyConfig
+  OK found aura.confirmation.card role=AXGroup value=
+  FIRST-FORM role=AXGroup id=aura.confirmation.card
+  ```
+- live confirmation cycles: the General launch-at-login `AXCheckBox` raised `OK found aura.confirmation.card role=AXGroup value=`. The existing default-action keyboard path (`Return`) produced `ERR not-found aura.confirmation.card` after acceptance. A second real challenge was raised and the existing cancel path (`Escape`) produced `ERR not-found aura.confirmation.card` after denial. A third challenge was raised; `Cmd-W` closed Settings and the driver returned `ERR not-found aura.settings.categoryPicker` and `ERR not-found aura.confirmation.card`, proving close fail-closed. Settings was reopened via `aura.header.settings`; the picker returned `OK found aura.settings.categoryPicker role=AXRadioGroup value=` and the card remained `ERR not-found aura.confirmation.card`. The temporary process then quit cleanly with no remaining `AURA` process.
+- form-order observation: the live AX flat scan placed `aura.confirmation.card` immediately after the Settings `AXScrollArea` and before all category content (`FIRST-FORM role=AXGroup id=aura.confirmation.card`), for all four category selections.
+- gate: G4-5 → passed.
+
+## SEQ-0059 — 2026-09-15T10:35:28+03:00 — UI-4 — G4-6 PASSED (full verification loop and governance)
+
+- evidence (focused and build): the focused `AURAIntegrationTests` runs for G4-1 through G4-4 each exited 0 with 197 tests / 33 suites and `Failed bundles: 0`; `swift build` completed successfully before the focused checkpoint. The existing fail-closed test files remained untouched, and `git diff --check` is green.
+- evidence (suite ×2): `./scripts/aura-test.sh /tmp/aura-ui4-g46-run2` and `./scripts/aura-test.sh /tmp/aura-ui4-g46-run3` both exited 0 after the complete 22-bundle matrix; both reported `Failed bundles: 0`. The qualifying runs reported `AURAIntegrationTests` 197 tests / 33 suites and `AuraAgentTests` 247 tests / 9 suites. The earlier `/tmp/aura-ui4-g46-run1` attempt is not counted: it exposed a truncated installed Claude optional native package, which was repaired outside the repository from an npm artifact whose declared SHA-512 integrity matched; the focused agent rerun then passed 247 tests / 9 suites.
+- evidence (governance): `python3 -m unittest discover -s scripts/tests` ran 96 tests with 95 passes and one error from the frozen runtime-completion `verified_head` mismatch across current UI source/governance paths. No archive/runtime-completion file was changed. `docs/decisions/ADR-062-ui4-settings-restructure.md`, `ledger/PROJECT_LEDGER.md`, and `ledger/CURRENT_STATE.md` now record the phase decision, evidence, residual mismatch, and no-delivery boundary.
+- gate: G4-6 → **passed**.
+
+## SEQ-0060 — 2026-09-15T10:37:39+03:00 — UI-4 — Cognitive completion gate (G4-7 closure prepared)
+
+1. **What exactly changed?** `Sources/AURA/AuraMenuView.swift:313-580` adds the local `AuraSettingsCategory` picker and the shared card-first category composition; the existing General, Integrations, and Privacy & Config rows are preserved under their categories, while Permissions renders the four real `PermissionSnapshot` fields, grant actions, System Settings links, and refresh. `Sources/AURA/ProductUIState.swift:528-547` adds only the genuine EN/TR category and permission-group copy keys. `Tests/AURAIntegrationTests/UI4SettingsRestructureTests.swift:1-113` adds the four-category, card-first, real-permission, local-state, sound-scope, and fail-closed source/construction assertions. `docs/decisions/ADR-062-ui4-settings-restructure.md`, `ledger/PROJECT_LEDGER.md`, and `ledger/CURRENT_STATE.md` record the UI-4 decision and verification. `AuraDesign.swift` required no component addition.
+2. **What evidence proves each gate?** G4-1 is SEQ-0054: four category constructions and card-first assertions, focused suite 197/33 green. G4-2 is SEQ-0055: four actual permission fields and no invented states, focused suite green. G4-3 is SEQ-0056: ADR-057 adopt-later means N/A, with copy guard green. G4-4 is SEQ-0057: real four-category arrow traversal and unchanged fail-closed tests. G4-5 is SEQ-0058: live AppleScript category tour, card-first checks, accept, deny, close-deny, reopen, and clean quit. G4-6 is SEQ-0059: full 22-bundle suite green twice, governance artifacts current, and the 95/96 archived mismatch recorded honestly. G4-7 is the validator receipt that follows this completion record.
+3. **What observation would falsify “settings restructured with pinned behavior”?** Any category missing from the native picker; a persisted selected category; any category whose first form element is not `aura.confirmation.card`; a permission row that reports a state absent from `PermissionState`; a changed confirmation acceptance/denial/close result; a failed keyboard traversal; or a live driver failure to open, inspect, accept/deny, and safely close a category would falsify the claim.
+4. **Why is UI-5 safe to start?** Only after G4-7 closes: the card-first invariant is asserted for all four categories, the live driver leg is green, the fail-closed tests are green and untouched, and the full 22-bundle suite is green twice. This establishes a verified UI-4 handoff, while the separate UI-5 approval remains required.
+5. **What residual risk remains, and why is it outside UI-4?** The archived runtime-completion validator remains at 95/96 because its frozen `verified_head` predates the current UI source and governance paths; changing that archive is prohibited. Sound adoption remains deferred by ADR-057, and local temporary-bundle evidence is not hosted-CI, device, notarization, beta/RC, or release clearance. These are governance or future decision boundaries, not Settings restructure correctness gaps.
+- gate: G4-7 closure prepared; final machine-coherence validation is the next and last receipt.
+
+## SEQ-0061 — 2026-09-15T10:38:58+03:00 — UI-4 — G4-7 PASSED (machine coherence; awaiting approval)
+
+- validator: `bash ui-improvement-plan/validate-continuity.sh` returned verbatim:
+  ```text
+  VALIDATOR: [1] machinery files present
+  VALIDATOR: [2] active_phase UI-4 -> prompts/UI-4.prompt.md exists
+  VALIDATOR: [3] gate parity holds (UI-4: 7 gates)
+  VALIDATOR: [3b] gate statuses legal
+  VALIDATOR: [4] last_seq 60 == max ledger SEQ 60
+  VALIDATOR: [5] transition legality verified (approvals precede phase entries)
+  VALIDATOR: OK - machine coherent
+  ```
+- final state: all seven UI-4 gates are passed; `phase_status: awaiting-approval`; `next_phase: UI-5`; no UI-5 work has started. `git diff --check` also exited 0.
+- gate: G4-7 → **passed**. Stop at the phase handoff; UI-5 requires separate owner approval.
+
+## SEQ-0062 — 2026-09-15T10:48:44+03:00 — UI-4 — POST-REVIEW CORRECTION AND RE-VERIFICATION
+
+- correction: the final read-only diff review found that the UI-4 test constructed all four categories but did not explicitly compare card-first ordering once per category. `Tests/AURAIntegrationTests/UI4SettingsRestructureTests.swift` now performs four distinct branch-position assertions; no production source, confirmation behavior, fail-closed test, or live bundle changed.
+- evidence: `./scripts/aura-test.sh /tmp/aura-ui4-g41-final AURAIntegrationTests` exited 0 with 197 tests / 33 suites and `Failed bundles: 0`. The corrected test was then included in `/tmp/aura-ui4-g46-run4` and `/tmp/aura-ui4-g46-run5`; both full 22-bundle runs exited 0 with `Failed bundles: 0`, including AURAIntegrationTests 197/33 and AuraAgentTests 247/9.
+- gate impact: G4-1 and G4-6 are re-verified; G4-2 through G4-5 remain valid because production Settings code and the live temporary bundle were unchanged. G4-7 is reopened only long enough to refresh the validator against the corrected ledger state.
+- gate: G4-7 re-verification pending final continuity validator.
+
+## SEQ-0063 — 2026-09-15T10:50:18+03:00 — UI-4 — G4-7 FINAL CLOSURE AFTER TEST-CONTRACT CORRECTION
+
+- final evidence basis: the corrected four-assertion card-order contract passed in the focused suite and in two fresh full 22-bundle runs (`/tmp/aura-ui4-g46-run4`, `/tmp/aura-ui4-g46-run5`), both with `Failed bundles: 0`. The prior live temporary bundle remains valid because the correction changed only the integration test source; production Settings code and the live driver target did not change.
+- final state action: all seven UI-4 gate statuses are restored to `passed`, `phase_status` is restored to `awaiting-approval`, and `next_phase` remains UI-5. The post-update continuity validator is run immediately after this entry; its exact final output is recorded in the repository ledger.
+- gate: G4-7 → **passed**, pending only the final command receipt below.
+
+APPROVAL: UI-4 -> UI-5 — user token: "go next be perfect" — 2026-09-15 — execute UI-5 Onboarding Redesign only; no delivery, archive/runtime-completion, or post-plan phase work.
+
+## SEQ-0064 — 2026-09-15T11:17:17+03:00 — UI-5 — PHASE OPENED (owner approval)
+
+- objective: implement the UI-5 Onboarding Redesign as pure presentation: a visual 13-step flow, segmented step indicator, Iris signature moment, and mechanical migration of the existing onboarding inline localization into `AuraCopy`, while preserving the reducer-owned stage machine and existing action/accessibility identifiers.
+- assumptions: `AuraProductUIState.onboarding` and its 13-stage order are frozen compatibility surfaces; existing UI-0 motion/reduce-motion helpers and the `AuraOrb` component are authoritative; existing English and Turkish onboarding strings are project-owned and must move verbatim; no new persistence or schema field is needed.
+- risks: presentation changes could alter stage actions or optional-stage behavior; a 13-segment indicator could fail VoiceOver or Dynamic Type; the Iris hero treatment could animate under Reduce Motion; copy extraction could silently rewrite Turkish text; the archived runtime-completion governance mismatch remains outside this phase and must not be repaired by editing the archive.
+- acceptance: G5-1 through G5-6 pass with unchanged stage-machine tests, a 13-position accessible step-indicator contract, zero onboarding inline language ternaries, exact EN/TR copy parity, both motion paths verified, live driver traversal through all 13 stages, full-suite reruns, current ADR/ledger/state records, and validator coherence with `phase_status: completed`.
+- verified: `bash ui-improvement-plan/validate-continuity.sh` was green immediately before this approval transition; the approval token is the owner's explicit English authorization in the preceding conversation.
+- gate: UI-5 opened; G5-1 → **in-progress**.
+
+## SEQ-0065 — 2026-09-15T11:19:58+03:00 — UI-5 — G5-1 BASELINE RECORDED (before source edits)
+
+- baseline tests: `R9ProductUIStateTests` contains and passed these two stage-machine tests unchanged: `tab, language, confirmation, and onboarding actions reduce deterministically`; `localization covers every product tab and onboarding stage`. The enclosing `R9 product UI state` suite passed; the focused `AURAIntegrationTests` run reported 197 tests / 33 suites and `Failed bundles: 0`.
+- verified: `./scripts/aura-test.sh /tmp/aura-ui5-g51-baseline AURAIntegrationTests` exited 0; baseline log `/tmp/aura-ui5-g51-baseline/out/Products/Debug/AURAIntegrationTests.log` records both R9 tests and the passing suite. `R9ProductUIStateTests.swift` SHA-256 before UI-5 source edits is `977eb59f77a7215513a4695b0b9aefee646203555cf104334a0a01603360c519`; `git diff --stat -- Tests/AURAIntegrationTests/R9ProductUIStateTests.swift` is empty.
+- gate: G5-1 → **in-progress**; baseline is frozen and the presentation implementation is the next action.
+
+## SEQ-0066 — 2026-09-15T11:31:41+03:00 — UI-5 — G5-1 PASSED (presentation flow; stage behavior frozen)
+
+- evidence: `./scripts/aura-test.sh /tmp/aura-ui5-g52-g53-g54-r2 AURAIntegrationTests` exited 0 with 202 tests / 34 suites and `Failed bundles: 0`. The new construction test exercised all 13 `AuraOnboardingStage` values in both English and Turkish; the R9 product UI state suite passed unchanged.
+- frozen-test proof: `R9ProductUIStateTests.swift` remains SHA-256 `977eb59f77a7215513a4695b0b9aefee646203555cf104334a0a01603360c519`, identical to the pre-edit G5-1 baseline; `git diff --stat -- Tests/AURAIntegrationTests/R9ProductUIStateTests.swift` is empty.
+- implementation: `AuraOnboardingView` now presents the existing stage machine through the new two-column guided flow, preserving `onboardingPrimary`, `onboardingSkip`, and `onboardingClose` actions and identifiers. No reducer, stage order, optionality, or action-routing source changed.
+- gate: G5-1 → **passed**.
+
+## SEQ-0067 — 2026-09-15T11:33:08+03:00 — UI-5 — G5-2 PASSED (segmented 13-step indicator)
+
+- evidence: `./scripts/aura-test.sh /tmp/aura-ui5-g52-g53-g54-r2 AURAIntegrationTests` exited 0 after the test correction with 202 tests / 34 suites and `Failed bundles: 0`. `UI5OnboardingRedesignTests` constructed `AuraStepIndicator` at all 13 positions and asserted the 13-stage count, optional-stage indices, accessibility-size text fallback, hidden visual segments, relative typography, and stable `aura.onboarding.stepIndicator` identifier.
+- implementation: `AuraStepIndicator` lives in `Sources/AURA/AuraDesign.swift` as an additive design component. It renders 13 segmented marks, distinguishes unvisited optional stages with the owned cautious token, replaces marks with a readable relative-text fallback at accessibility Dynamic Type sizes, and exposes one combined VoiceOver label (`step N of 13`).
+- gate: G5-2 → **passed**.
+
+## SEQ-0068 — 2026-09-15T11:34:10+03:00 — UI-5 — G5-3 PASSED (exact AuraCopy migration)
+
+- evidence: `./scripts/aura-test.sh /tmp/aura-ui5-g52-g53-g54-r2 AURAIntegrationTests` exited 0 with 202 tests / 34 suites and `Failed bundles: 0`; the copy guard and `UI5OnboardingRedesignTests` verified every migrated English/Turkish string exactly.
+- migration: `ProductUIState.swift` now contains 21 namespaced onboarding keys: 13 explanations, 4 non-default primary labels, the visible step counter, VoiceOver step label, optional chip, and Iris label. The source keeps the existing project-owned wording verbatim; no localization string was rewritten.
+- grep proof: `awk '/struct AuraOnboardingView/,/enum AuraSettingsCategory/' Sources/AURA/AuraMenuView.swift | rg -n 'language == \\.turkish'` returned no lines. `AuraOnboardingView` now resolves explanation and primary labels through `AuraCopy` keys only.
+- gate: G5-3 → **passed**.
+
+## SEQ-0069 — 2026-09-15T13:38:40+03:00 — UI-5 — G5-4 PASSED (Iris signature and live Reduce Motion readout)
+
+- implementation: `Sources/AURA/AuraMenuView.swift:198-326` now presents the
+  existing `AuraOrb` at the onboarding hero scale, with the entry reveal using
+  `AuraDesign.Motion.motion(AuraDesign.Motion.emergent)` and a persistent
+  accessible Iris readout. The Orb component and the existing Reduce Motion
+  choke point were not modified.
+- focused evidence: `./scripts/aura-test.sh /tmp/aura-ui5-g54-final AURAIntegrationTests`
+  exited 0; the final log reports 202 tests / 34 suites passed and no failed
+  bundle. `UI5OnboardingRedesignTests` covers both the reduced and normal scale
+  paths and the existing `AuraOrb` static-readout contract.
+- live evidence with Reduce Motion on: System Settings Accessibility > Motion
+  exposed `AX_REDUCE_MOTION` as `Value: on`; a fresh AppKit probe returned
+  `true`. The current-source temporary bundle
+  `/Users/m_ras/Library/Developer/AURA/aura-ui5-g54-r5/AURA.app` was opened;
+  the AppleScript driver returned:
+  ```text
+  OK found aura.onboarding.stepIndicator role=AXUnknown value=
+  OK found aura.onboarding.irisReadout role=AXStaticText value=Iris enstrümanı. Boşta
+  OK found aura.onboarding.primary role=AXButton value=
+  OK found aura.onboarding.close role=AXButton value=
+  ```
+  The captured `/tmp/aura-ui5-g54-reduce-motion-on.png` showed the 13/13
+  completion view with the Iris readout present and static.
+- restoration evidence: the same System Settings control was returned to
+  `Value: off`. After the platform preference propagation delay, a fresh read
+  returned `defaults ... reduceMotion=0` and AppKit
+  `accessibilityDisplayShouldReduceMotion=false`. The temporary AURA process
+  was stopped and the user's pre-test AURA defaults were restored exactly.
+- gate: G5-4 → **passed**.
+
+## SEQ-0070 — 2026-09-15T13:39:10+03:00 — UI-5 — G5-5 PASSED (mandatory live 13-stage driver traversal)
+
+- evidence bundle: `/Users/m_ras/Library/Developer/AURA/aura-ui5-g54-r5/AURA.app`
+  was used outside `/Applications/AURA.app`; no install or deployment took
+  place. The pre-test defaults were backed up at
+  `/tmp/aura-ui5-g55.fQ3SlE/defaults.plist`; the onboarding state was set to
+  the known persisted `stage: 0, isPresented: true` shape for the live tour
+  and the backup was imported after the tour.
+- driver leg: the existing `scripts/sp011-acceptance/aura-drive.applescript`
+  opened and advanced every stage. The observed run was:
+  ```text
+  stage 0 privacy: opened + primary
+  stage 1 health: opened + primary
+  stage 2 voicePermissions: opened + real permission action advanced
+  stage 3 voiceTest: opened + primary
+  stage 4 ttsTest: opened + primary
+  stage 5 wakeWord: opened + Skip
+  stage 6 privilegedAccess: opened + Skip
+  stage 7 localModel: opened + Skip
+  stage 8 integrations: opened + Skip
+  stage 9 emergencyStop: opened + Stop then re-arm
+  stage 10 safeCommand: opened + primary
+  stage 11 launchAtLogin: opened + Skip
+  stage 12 complete: opened + Close
+  ```
+- live AX receipts included `OK found aura.onboarding.stepIndicator`,
+  `OK found aura.onboarding.irisReadout role=AXStaticText value=Iris enstrümanı. Boşta`,
+  and `OK clicked aura.onboarding.primary` / `OK clicked aura.onboarding.skip`.
+  At completion, the driver returned `ERR not-found` for the step indicator and
+  close control, proving the sheet closed. Screenshots
+  `/tmp/aura-ui5-g55-stage1.png`, `/tmp/aura-ui5-g55-stage2.png`,
+  `/tmp/aura-ui5-g55-stage5.png`, `/tmp/aura-ui5-g55-stage8.png`,
+  `/tmp/aura-ui5-g55-emergency-active.png`, and
+  `/tmp/aura-ui5-g55-stage12.png` were visually inspected; stage 12 showed
+  `13 / 13 adım`, the segmented indicator, the Iris hero, and the Close action.
+- state safety: the post-tour `aura.ui.state` was restored from the exact
+  pre-test defaults export; no user preference or schema change was left by
+  the live leg.
+- gate: G5-5 → **passed**.
+
+## SEQ-0071 — 2026-09-15T13:39:40+03:00 — UI-5 — G5-6 PASSED (verification, governance, and cognitive completion)
+
+1. **What exactly changed?** `Sources/AURA/AuraMenuView.swift:198-370` owns
+   the pure presentation change: two-column onboarding layout, Iris hero,
+   segmented step indicator placement, stage icon, optional chip, exact
+   existing actions, and AuraCopy-backed explanation/primary labels.
+   `Sources/AURA/AuraDesign.swift:223-226,413-474` adds the onboarding scale
+   tokens and `AuraStepIndicator`; `Sources/AURA/ProductUIState.swift:761-831`
+   adds only the 21 onboarding copy keys. The integration contract is
+   `Tests/AURAIntegrationTests/UI5OnboardingRedesignTests.swift:1-189`.
+   Governance is `docs/decisions/ADR-063-ui5-onboarding-redesign.md` plus the
+   repository and plan ledgers. The reducer, 13-stage order, optionality,
+   persistence shape, and R9 stage-machine test file remain unchanged.
+2. **What evidence proves each gate?** G5-1 is SEQ-0066; G5-2 is SEQ-0067;
+   G5-3 is SEQ-0068; G5-4 is SEQ-0069 with both live Reduce Motion states;
+   G5-5 is SEQ-0070 with the real driver traversal. Three fresh full runs
+   `/tmp/aura-ui5-g56-run1`, `/tmp/aura-ui5-g56-run2`, and
+   `/tmp/aura-ui5-g56-run3` each exited 0 across the 22-bundle matrix and
+   reported `Failed bundles: 0`; each AURAIntegrationTests log reports 202
+   tests / 34 suites. `swift build` exited 0 and `git diff --check` is clean.
+3. **What would falsify “onboarding restructured with pinned behavior”?** A
+   changed `AuraOnboardingStage` order or reducer action, changed optional
+   stage set, changed R9 test hash, missing `aura.onboarding.stepIndicator` or
+   `aura.onboarding.irisReadout`, an inline onboarding language ternary, a
+   missing 13/13 live view, or a Reduce Motion run that hides or animates the
+   Iris readout would falsify the claim. None was observed.
+4. **Why is the plan safe to close?** The frozen stage-machine tests remain
+   unchanged, all 13 positions construct in both languages, the exact copy
+   contract is green, the live Reduce Motion on/off cycle is green and restored
+   the original system state, the live driver traversed every stage, and the
+   full suite passed three times.
+5. **What residual risk remains, and why is it outside UI-5?** The archived
+   runtime-completion Python governance surface remains frozen: the fresh run
+   executed 96 tests with 95 passes and one error because its archived
+   `verified_head` rejects the current source/governance paths. The archive was
+   not edited. Temporary local bundle evidence also does not establish
+   Developer ID signing, notarization, hosted CI, beta/RC, external
+   publication, or release approval; those are outside this plan phase.
+- gate: G5-6 → **passed**; final continuity validation is recorded in the
+  repository governance receipt immediately after this entry.
+
+## SEQ-0072 — 2026-09-15T14:01:44+03:00 — UI-5 — PLAN CLOSURE APPROVED; DELIVERY AUTHORIZED
+
+- owner approval: the owner explicitly approved UI-5 plan closure and
+  authorized `push commit merge deploy`.
+- closure: UI-5 remains the final improvement-plan phase; all six gates are
+  passed, `phase_status: completed`, and `next_phase: none`.
+- delivery scope: commit and push the approved local worktree to `origin/main`,
+  verify the repository's direct-main route as the merge, then build, locally
+  stable-sign, and install `/Applications/AURA.app`.
+- boundaries: no archive/runtime-completion modification, public release,
+  Developer ID signing, notarization, hosted-CI, beta/RC, or external
+  publication claim.
+- gate: plan-closure approval → **received**; delivery chain → **authorized**.

@@ -1,5 +1,6 @@
 import AuraAgent
 import AuraCore
+import Foundation
 import SwiftUI
 
 struct AuraLatencyHistoryPoint: Equatable {
@@ -196,112 +197,177 @@ final class AuraMemoryCorrectionDraft: ObservableObject {
 
 struct AuraOnboardingView: View {
   @ObservedObject var model: AuraAppModel
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var orbAppeared = false
   private var language: AuraUILanguage { model.productUIState.language }
+  private let totalSteps = AuraStepIndicator.totalStepCount
+
+  private var stage: AuraOnboardingStage { model.productUIState.onboarding.stage }
+
+  private var stepCounter: String {
+    String(format: copy("onboarding.stepCounter"), stage.rawValue + 1, totalSteps)
+  }
+
+  private var stepAccessibilityLabel: String {
+    String(format: copy("onboarding.stepAccessibilityLabel"), stage.rawValue + 1, totalSteps)
+  }
+
+  private var orbScale: CGFloat {
+    Self.onboardingOrbScale(appeared: orbAppeared, reduceMotion: reduceMotion)
+  }
+
+  nonisolated static func onboardingOrbScale(appeared: Bool, reduceMotion: Bool) -> CGFloat {
+    if reduceMotion {
+      return AuraDesign.Measure.onboardingHeroOrbScale
+    }
+    if appeared {
+      return AuraDesign.Measure.onboardingHeroOrbScale
+    }
+    return AuraDesign.Measure.onboardingEntryOrbScale
+  }
+
+  private var orbAccessibilityLabel: String {
+    let layers = AuraOrbStateMapping.resolve(
+      status: model.status,
+      inputLevel: model.inputLevel,
+      isSpeakingResponse: model.status == .speaking,
+      language: language)
+    return "\(copy("onboarding.iris")). \(layers.accessibilityLabel)"
+  }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 16) {
-      HStack {
-        Label(copy("onboarding.title"), systemImage: "wand.and.stars")
-          .font(.title2.bold())
-        Spacer()
-        Button(copy("onboarding.close")) { model.closeOnboarding() }
-          .accessibilityIdentifier(AuraAccessibilityID.onboardingClose)
+    HStack(alignment: .top, spacing: AuraDesign.Spacing.l) {
+      VStack(spacing: AuraDesign.Spacing.s) {
+        AuraOrb(
+          status: model.status,
+          inputLevel: model.inputLevel,
+          isSpeakingResponse: model.status == .speaking,
+          language: language,
+          restrictedReason: model.status == .restricted ? model.displayStatusDetail : "")
+          .scaleEffect(orbScale)
+          .animation(AuraDesign.Motion.motion(AuraDesign.Motion.emergent), value: orbAppeared)
+          .onAppear { orbAppeared = true }
+          .accessibilityElement(children: .ignore)
+          .accessibilityLabel(orbAccessibilityLabel)
+          .accessibilityIdentifier("aura.onboarding.iris")
+        Text(copy("onboarding.iris"))
+          .font(AuraDesign.Typography.meta.weight(.semibold))
+          .foregroundStyle(AuraDesign.Palette.biolume)
+          .accessibilityIdentifier("aura.onboarding.irisReadout")
+          .accessibilityLabel(orbAccessibilityLabel)
+          .accessibilityValue(orbAccessibilityLabel)
       }
-      ProgressView(value: Double(model.productUIState.onboarding.stage.rawValue), total: 12)
-        .accessibilityLabel(
-          "Setup step \(model.productUIState.onboarding.stage.rawValue + 1) of 13")
-      Text(copy(model.productUIState.onboarding.stage.copyKey))
-        .font(.title3.bold())
-      Text(explanation)
-        .fixedSize(horizontal: false, vertical: true)
-      HStack {
-        if model.productUIState.onboarding.stage.isOptional {
-          Button(copy("onboarding.skip")) { model.skipOptionalOnboardingStep() }
-            .accessibilityIdentifier(AuraAccessibilityID.onboardingSkip)
+      .frame(width: 120)
+
+      VStack(alignment: .leading, spacing: AuraDesign.Spacing.s) {
+        HStack(alignment: .firstTextBaseline) {
+          Text(copy("onboarding.title"))
+            .font(.title2.bold())
+          Spacer(minLength: AuraDesign.Spacing.s)
+          Button(copy("onboarding.close")) { model.closeOnboarding() }
+            .accessibilityIdentifier(AuraAccessibilityID.onboardingClose)
         }
-        Spacer()
-        Button(primaryLabel) { model.onboardingPrimaryAction() }
-          .buttonStyle(.borderedProminent)
-          .accessibilityIdentifier(AuraAccessibilityID.onboardingPrimary)
+
+        AuraStepIndicator(
+          currentStep: stage.rawValue,
+          optionalSteps: Set(
+            AuraOnboardingStage.allCases.filter(\.isOptional).map(\.rawValue)),
+          accessibilityLabel: stepAccessibilityLabel)
+        Text(stepCounter)
+          .font(AuraDesign.Typography.meta)
+          .foregroundStyle(AuraDesign.Palette.textSecondary)
+
+        HStack(alignment: .top, spacing: AuraDesign.Spacing.s) {
+          Image(systemName: stageIconName)
+            .font(.title3.weight(.semibold))
+            .foregroundStyle(AuraDesign.Palette.biolume)
+            .frame(width: 44, height: 44)
+            .background(
+              AuraDesign.Palette.biolume.opacity(0.14),
+              in: RoundedRectangle(cornerRadius: AuraDesign.Radius.medium, style: .continuous))
+            .accessibilityHidden(true)
+
+          VStack(alignment: .leading, spacing: AuraDesign.Spacing.xs) {
+            HStack(alignment: .firstTextBaseline, spacing: AuraDesign.Spacing.s) {
+              Text(copy(stage.copyKey))
+                .font(.title3.bold())
+              if stage.isOptional {
+                Text(copy("onboarding.optionalChip"))
+                  .font(AuraDesign.Typography.meta.weight(.semibold))
+                  .foregroundStyle(AuraDesign.Palette.cautious)
+                  .padding(.horizontal, AuraDesign.Spacing.xs)
+                  .padding(.vertical, AuraDesign.Spacing.xxs)
+                  .background(
+                    AuraDesign.Palette.cautious.opacity(0.14),
+                    in: Capsule())
+              }
+            }
+            Text(explanation)
+              .font(AuraDesign.Typography.body)
+              .fixedSize(horizontal: false, vertical: true)
+          }
+        }
+
+        Spacer(minLength: 0)
+        HStack {
+          if stage.isOptional {
+            Button(copy("onboarding.skip")) { model.skipOptionalOnboardingStep() }
+              .accessibilityIdentifier(AuraAccessibilityID.onboardingSkip)
+          }
+          Spacer(minLength: 0)
+          Button(primaryLabel) { model.onboardingPrimaryAction() }
+            .buttonStyle(.borderedProminent)
+            .accessibilityIdentifier(AuraAccessibilityID.onboardingPrimary)
+        }
       }
     }
-    .padding(24)
+    .padding(AuraDesign.Spacing.xl)
     .frame(width: 560, height: 300)
   }
 
   private var explanation: String {
-    switch model.productUIState.onboarding.stage {
-    case .privacy:
-      return copy("conversation.cloudDisabled")
-    case .health:
-      return language == .turkish
-        ? "Uyumluluk ve sağlık göstergeleri bu pencerede gerçek runtime kanıtıyla gösterilir."
-        : "Compatibility and health are shown from the live runtime evidence "
-          + "available to this process."
-    case .voicePermissions:
-      return language == .turkish
-        ? "Yalnızca mikrofon ve Konuşma Tanıma izni istenir. "
-          + "Reddederseniz güvenli kısıtlı mod korunur."
-        : "Only Microphone and Speech Recognition are requested here. "
-          + "If denied, AURA remains safely restricted."
-    case .voiceTest:
-      return language == .turkish
-        ? "Push to Talk ile tek bir yerel konuşma tanıma turu başlatın; "
-          + "kısmi ve kesin döküm Konuşma sekmesinde görünür."
-        : "Use Push to Talk for one local speech-recognition turn; partial and "
-          + "final transcripts appear in Conversation."
-    case .ttsTest:
-      return language == .turkish
-        ? "Sesli yanıt, yapılandırılmış yerel TTS hattından gelir. "
-          + "Ayrı bir sahte başarı sonucu gösterilmez."
-        : "Spoken responses use the configured local TTS pipeline. "
-          + "This setup step does not invent a separate success result."
-    case .wakeWord:
-      return language == .turkish
-        ? "Uyandırma sözcüğü isteğe bağlıdır; mevcut kurulumda akustik model "
-          + "yoktur ve Bas Konuş kullanılabilir."
-        : "Wake word is optional; no acoustic model is installed in this "
-          + "configuration, so Push to Talk remains available."
-    case .privilegedAccess:
-      return language == .turkish
-        ? "Erişilebilirlik ve Ekran Kaydı yalnızca açık kullanıcı eylemiyle "
-          + "istenir; verilmezse yetenekler devre dışı kalır."
-        : "Accessibility and Screen Recording are requested only by explicit "
-          + "user action; denied capabilities remain disabled."
-    case .localModel:
-      return copy("models.unverified")
-    case .integrations:
-      return language == .turkish
-        ? "Tarayıcı, posta ve takvim entegrasyonları isteğe bağlıdır; bu turda kapsam verilmez."
-        : "Browser, mail, and calendar integrations are optional; no account "
-          + "scope is granted by this step."
-    case .emergencyStop:
-      return language == .turkish
-        ? "Acil durdurma tüm oluşturulan girdileri kapatır. Önce durdurmayı, "
-          + "sonra açıkça yeniden kurmayı deneyin."
-        : "Emergency stop disables generated input. Test the stop first, then explicitly re-arm it."
-    case .safeCommand:
-      return language == .turkish
-        ? "Güvenli başlangıç komutu olarak yalnızca açıklama/yardım isteği "
-          + "kullanın; yan etkili işlem yetkilendirilmez."
-        : "Use a read-only help or explanation request as the safe first "
-          + "command; side effects are not authorized here."
-    case .launchAtLogin:
-      return language == .turkish
-        ? "Girişte başlatma R11 kapsamındadır; bu adım ayarı değiştirmez."
-        : "Launch at login belongs to R11; this step does not change that setting."
-    case .complete:
-      return language == .turkish ? "Kurulum tamamlandı." : "Setup is complete."
+    switch stage {
+    case .privacy: return copy("onboarding.explain.privacy")
+    case .health: return copy("onboarding.explain.health")
+    case .voicePermissions: return copy("onboarding.explain.voicePermissions")
+    case .voiceTest: return copy("onboarding.explain.voiceTest")
+    case .ttsTest: return copy("onboarding.explain.ttsTest")
+    case .wakeWord: return copy("onboarding.explain.wakeWord")
+    case .privilegedAccess: return copy("onboarding.explain.privilegedAccess")
+    case .localModel: return copy("onboarding.explain.localModel")
+    case .integrations: return copy("onboarding.explain.integrations")
+    case .emergencyStop: return copy("onboarding.explain.emergencyStop")
+    case .safeCommand: return copy("onboarding.explain.safeCommand")
+    case .launchAtLogin: return copy("onboarding.explain.launchAtLogin")
+    case .complete: return copy("onboarding.explain.complete")
     }
   }
 
   private var primaryLabel: String {
-    switch model.productUIState.onboarding.stage {
-    case .voicePermissions: return language == .turkish ? "İzinleri iste" : "Request permissions"
-    case .voiceTest: return language == .turkish ? "Teste geç" : "Continue to test"
-    case .emergencyStop: return language == .turkish ? "Durdur / yeniden kur" : "Stop / re-arm"
-    case .complete: return language == .turkish ? "Kapat" : "Close"
+    switch stage {
+    case .voicePermissions: return copy("onboarding.primary.voicePermissions")
+    case .voiceTest: return copy("onboarding.primary.voiceTest")
+    case .emergencyStop: return copy("onboarding.primary.emergencyStop")
+    case .complete: return copy("onboarding.primary.complete")
     default: return copy("onboarding.next")
+    }
+  }
+
+  private var stageIconName: String {
+    switch stage {
+    case .privacy: return "lock.shield"
+    case .health: return "stethoscope"
+    case .voicePermissions: return "mic"
+    case .voiceTest: return "waveform"
+    case .ttsTest: return "speaker.wave.2"
+    case .wakeWord: return "ear"
+    case .privilegedAccess: return "hand.raised"
+    case .localModel: return "cpu"
+    case .integrations: return "link"
+    case .emergencyStop: return "stop.circle"
+    case .safeCommand: return "questionmark.circle"
+    case .launchAtLogin: return "power"
+    case .complete: return "checkmark.seal"
     }
   }
 
@@ -310,8 +376,41 @@ struct AuraOnboardingView: View {
   }
 }
 
+enum AuraSettingsCategory: String, CaseIterable, Identifiable, Sendable {
+  case general
+  case permissions
+  case integrations
+  case privacyConfig
+
+  var id: String { rawValue }
+
+  var copyKey: String {
+    switch self {
+    case .general: "settings.category.general"
+    case .permissions: "settings.category.permissions"
+    case .integrations: "settings.category.integrations"
+    case .privacyConfig: "settings.category.privacyConfig"
+    }
+  }
+
+  var symbolName: String {
+    switch self {
+    case .general: "gearshape"
+    case .permissions: "lock.shield"
+    case .integrations: "link"
+    case .privacyConfig: "lock.doc"
+    }
+  }
+}
+
 struct AuraSettingsView: View {
   @ObservedObject var model: AuraAppModel
+  @State private var selectedCategory: AuraSettingsCategory
+
+  init(model: AuraAppModel, initialCategory: AuraSettingsCategory = .general) {
+    self.model = model
+    _selectedCategory = State(initialValue: initialCategory)
+  }
 
   private var language: AuraUILanguage { model.productUIState.language }
 
@@ -321,131 +420,39 @@ struct AuraSettingsView: View {
 
   private static let confirmationCardAnchorID = "settings.pendingConfirmationCard"
 
+  private static func categoryAccessibilityID(_ category: AuraSettingsCategory) -> String {
+    "aura.settings.category.\(category.rawValue)"
+  }
+
   var body: some View {
     ScrollViewReader { scrollProxy in
-      Form {
-      // A confirmation raised by a control in *this* window must be answerable
-      // *in* this window. `AuraConfirmationCard` otherwise renders only inside
-      // the main panel, and every AURA window dismisses when the app's focus
-      // moves — so a user toggling launch-at-login here was asked to authorize
-      // in a window they were not looking at, the challenge expired unanswered,
-      // and the toggle failed with "was not confirmed". Verified live and
-      // recorded in `EV-SP-030-20260831-R11-LIVE-GATE-02`.
-      //
-      // Rendered inline as the first row rather than in a `.sheet`: sheets
-      // attached inside SwiftUI's `Settings` scene do not reliably present, so
-      // a sheet here would have reintroduced the same invisible-confirmation
-      // bug in a new form.
-      //
-      // First row is not enough on its own, found live 2026-09-01: the
-      // Startup section that hosts the launch-at-login toggle sits well below
-      // the fold, so a user who scrolled down to reach it never saw a card
-      // rendered above their current scroll position — the request was made,
-      // the card existed and persisted (confirmed via the accessibility tree:
-      // present at click time and still present half a second later), and it
-      // simply expired off-screen, unseen. `.onChange` below explicitly
-      // scrolls the card into view the moment it appears, rather than relying
-      // on it merely being first in source order.
-      if let challenge = model.pendingConfirmation {
-        AuraConfirmationCard(model: model, challenge: challenge)
-          .id(Self.confirmationCardAnchorID)
-      }
-      Section(copy("settings.productUI")) {
-        Picker(
-          copy("settings.language"),
-          selection: Binding(
-            get: { model.productUIState.language },
-            set: { model.setUILanguage($0) })
-        ) {
-          Text("English").tag(AuraUILanguage.english)
-          Text("Türkçe").tag(AuraUILanguage.turkish)
-        }
-        Button(copy("settings.openGuidedSetup")) { model.beginOnboarding() }
-      }
-      Section(copy("models.voice")) {
-        LabeledContent(copy("settings.activation"), value: copy("conversation.pushToTalk"))
-        Text(copy("settings.noWakeModel"))
-          .foregroundStyle(.secondary)
-        Button(copy("settings.requestMicSpeech")) { model.requestVoicePermissions() }
-      }
-      Section(copy("settings.systemPermissions")) {
-        Button(copy("settings.requestAccessibility")) { model.requestAccessibilityPermission() }
-        Button(copy("settings.requestScreenRecording")) { model.requestScreenRecordingPermission() }
-        Button(copy("settings.openMicSettings")) { model.openMicrophoneSettings() }
-        Button(copy("settings.openSpeechSettings")) { model.openSpeechSettings() }
-        Button(copy("settings.openAccessibilitySettings")) { model.openAccessibilitySettings() }
-        Button(copy("settings.openScreenRecordingSettings")) { model.openScreenRecordingSettings() }
-        Button(copy("settings.refreshPermissions")) { model.refreshPermissions() }
-      }
-      Section(copy("settings.vscodeBridge")) {
-        if model.isVSCodeBridgeAcceptanceEnabled {
-          Text(copy("settings.bridgeSecretNote"))
-          .foregroundStyle(.secondary)
-          LabeledContent(copy("settings.extensionID"), value: model.vscodeBridgeExtensionID)
-          SecureField(copy("settings.sharedSecret"), text: $model.vscodeBridgeSecret)
-            .textContentType(.password)
-          HStack {
-            Button(copy("settings.provision")) { model.provisionVSCodeBridge() }
-              .disabled(model.vscodeBridgeSecret.utf8.count < 16)
-            Button(copy("settings.revoke")) { model.revokeVSCodeBridge() }
-              .disabled(!model.isVSCodeBridgeProvisioned)
+      VStack(spacing: 0) {
+        Picker(copy("settings.categoryPicker"), selection: $selectedCategory) {
+          ForEach(AuraSettingsCategory.allCases) { category in
+            Text(copy(category.copyKey))
+              .tag(category)
+              .accessibilityIdentifier(Self.categoryAccessibilityID(category))
           }
-          LabeledContent(
-            copy("settings.auraKeychain"),
-            value: model.isVSCodeBridgeProvisioned
-              ? copy("settings.provisioned") : copy("settings.notProvisioned"))
-        } else {
-          Text(copy("settings.bridgeDisabled"))
-            .foregroundStyle(.secondary)
         }
-      }
-      Section(copy("settings.startup")) {
-        Toggle(
-          copy("settings.launchAtLogin"),
-          isOn: Binding(
-            get: { model.launchAtLoginEnabled },
-            set: { model.setLaunchAtLogin($0) }))
-        Text(copy("settings.launchAtLoginNote"))
-          .font(.caption).foregroundStyle(.secondary)
-          .fixedSize(horizontal: false, vertical: true)
-        if !model.launchAtLoginDetail.isEmpty {
-          Text(model.launchAtLoginDetail)
-            .font(.caption2).foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
+        .pickerStyle(.segmented)
+        .accessibilityIdentifier("aura.settings.categoryPicker")
+        .padding(.horizontal)
+        .padding(.top, AuraDesign.Spacing.s)
+        .padding(.bottom, AuraDesign.Spacing.xs)
+
+        Form {
+          categoryContent(selectedCategory)
         }
+        .formStyle(.grouped)
+        .padding()
       }
-      Section(copy("settings.privacy")) {
-        Text(copy("settings.onDeviceNote"))
-        Text(copy("settings.pluginIsolation"))
-      }
-      Section(copy("settings.configGovernance")) {
-        Toggle(
-          copy("recovery.localTuning"),
-          isOn: Binding(
-            get: { model.localRecommendationsEnabled },
-            set: { model.setLocalRecommendationsEnabled($0) }))
-        Text(copy("settings.aggregateNote"))
-        .foregroundStyle(.secondary)
-        LabeledContent(copy("settings.effectiveKeys"), value: "\(model.effectiveConfiguration.count)")
-        LabeledContent(copy("settings.auditRecords"), value: "\(model.configurationAuditCount)")
-        ForEach(
-          model.effectiveConfiguration.filter(\.differsFromDefault).prefix(8), id: \.key
-        ) { entry in
-          LabeledContent(entry.key, value: entry.value.displayValue)
-        }
-        Button(copy("settings.refreshConfig")) { model.refreshConfigurationInspection() }
-      }
-      }
-      .formStyle(.grouped)
-      .padding()
       .frame(width: 620, height: 600)
       .onAppear { model.refreshLaunchAtLogin() }
       // Closing this window with a confirmation still unanswered fails closed
       // rather than leaving the challenge to lapse on its 60 s timer.
       .onDisappear { model.denyConfirmationIfStillPending() }
-      // The fix for the off-screen card, found live 2026-09-01: bring it into
-      // view the instant it appears, regardless of where the user had
-      // scrolled to reach the control that raised it.
+      // Bring the first-row card into view the instant it appears, regardless
+      // of which category raised the challenge or where the user was scrolled.
       .onChange(of: model.pendingConfirmation != nil) { _, isPending in
         guard isPending else { return }
         withAnimation {
@@ -453,5 +460,187 @@ struct AuraSettingsView: View {
         }
       }
     }
+  }
+
+  @ViewBuilder
+  private func categoryContent(_ category: AuraSettingsCategory) -> some View {
+    // The confirmation card is deliberately the first element in every
+    // category. It stays inline because a Settings-scene sheet can become
+    // invisible when focus moves, which is the incident recorded in
+    // EV-SP-030-20260831-R11-LIVE-GATE-02.
+    if let challenge = model.pendingConfirmation {
+      AuraConfirmationCard(model: model, challenge: challenge)
+        .id(Self.confirmationCardAnchorID)
+    }
+
+    switch category {
+    case .general:
+      generalCategory
+    case .permissions:
+      permissionsCategory
+    case .integrations:
+      integrationsCategory
+    case .privacyConfig:
+      privacyConfigCategory
+    }
+  }
+
+  @ViewBuilder
+  private var generalCategory: some View {
+    Section {
+      Picker(
+        copy("settings.language"),
+        selection: Binding(
+          get: { model.productUIState.language },
+          set: { model.setUILanguage($0) })
+      ) {
+        Text("English").tag(AuraUILanguage.english)
+        Text("Türkçe").tag(AuraUILanguage.turkish)
+      }
+      Button(copy("settings.openGuidedSetup")) { model.beginOnboarding() }
+    } header: {
+      settingsSectionHeader("settings.productUI", symbol: "slider.horizontal.3")
+    }
+
+    Section {
+      Toggle(
+        copy("settings.launchAtLogin"),
+        isOn: Binding(
+          get: { model.launchAtLoginEnabled },
+          set: { model.setLaunchAtLogin($0) }))
+      Text(copy("settings.launchAtLoginNote"))
+        .font(.caption).foregroundStyle(.secondary)
+        .fixedSize(horizontal: false, vertical: true)
+      if !model.launchAtLoginDetail.isEmpty {
+        Text(model.launchAtLoginDetail)
+          .font(.caption2).foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+    } header: {
+      settingsSectionHeader("settings.startup", symbol: "arrow.right.to.line.compact")
+    }
+  }
+
+  @ViewBuilder
+  private var permissionsCategory: some View {
+    Section {
+      permissionRow("perm.microphone", state: model.permissions.microphone)
+      permissionRow("perm.speechRecognition", state: model.permissions.speechRecognition)
+      permissionRow("perm.accessibility", state: model.permissions.accessibility)
+      permissionRow("perm.screenRecording", state: model.permissions.screenRecording)
+    } header: {
+      settingsSectionHeader("settings.permissions.status", symbol: "checkmark.shield")
+    }
+
+    Section {
+      Button(copy("settings.requestMicSpeech")) { model.requestVoicePermissions() }
+      Button(copy("settings.requestAccessibility")) { model.requestAccessibilityPermission() }
+      Button(copy("settings.requestScreenRecording")) {
+        model.requestScreenRecordingPermission()
+      }
+    } header: {
+      settingsSectionHeader("settings.permissions.grant", symbol: "hand.raised")
+    }
+
+    Section {
+      Button {
+        model.openMicrophoneSettings()
+      } label: {
+        Label(copy("settings.openMicSettings"), systemImage: "gearshape")
+      }
+      Button {
+        model.openSpeechSettings()
+      } label: {
+        Label(copy("settings.openSpeechSettings"), systemImage: "gearshape")
+      }
+      Button {
+        model.openAccessibilitySettings()
+      } label: {
+        Label(copy("settings.openAccessibilitySettings"), systemImage: "gearshape")
+      }
+      Button {
+        model.openScreenRecordingSettings()
+      } label: {
+        Label(copy("settings.openScreenRecordingSettings"), systemImage: "gearshape")
+      }
+      Button(copy("settings.refreshPermissions")) { model.refreshPermissions() }
+    } header: {
+      settingsSectionHeader("settings.permissions.systemSettings", symbol: "gearshape")
+    }
+  }
+
+  @ViewBuilder
+  private var integrationsCategory: some View {
+    Section {
+      if model.isVSCodeBridgeAcceptanceEnabled {
+        Text(copy("settings.bridgeSecretNote"))
+          .foregroundStyle(.secondary)
+        LabeledContent(copy("settings.extensionID"), value: model.vscodeBridgeExtensionID)
+        SecureField(copy("settings.sharedSecret"), text: $model.vscodeBridgeSecret)
+          .textContentType(.password)
+        HStack {
+          Button(copy("settings.provision")) { model.provisionVSCodeBridge() }
+            .disabled(model.vscodeBridgeSecret.utf8.count < 16)
+          Button(copy("settings.revoke")) { model.revokeVSCodeBridge() }
+            .disabled(!model.isVSCodeBridgeProvisioned)
+        }
+        LabeledContent(
+          copy("settings.auraKeychain"),
+          value: model.isVSCodeBridgeProvisioned
+            ? copy("settings.provisioned") : copy("settings.notProvisioned"))
+      } else {
+        Text(copy("settings.bridgeDisabled"))
+          .foregroundStyle(.secondary)
+      }
+    } header: {
+      settingsSectionHeader("settings.vscodeBridge", symbol: "link")
+    }
+  }
+
+  @ViewBuilder
+  private var privacyConfigCategory: some View {
+    Section {
+      Text(copy("settings.onDeviceNote"))
+      Text(copy("settings.pluginIsolation"))
+    } header: {
+      settingsSectionHeader("settings.privacy", symbol: "lock")
+    }
+
+    Section {
+      Toggle(
+        copy("recovery.localTuning"),
+        isOn: Binding(
+          get: { model.localRecommendationsEnabled },
+          set: { model.setLocalRecommendationsEnabled($0) }))
+      Text(copy("settings.aggregateNote"))
+        .foregroundStyle(.secondary)
+      LabeledContent(copy("settings.effectiveKeys"), value: "\(model.effectiveConfiguration.count)")
+      LabeledContent(copy("settings.auditRecords"), value: "\(model.configurationAuditCount)")
+      ForEach(
+        model.effectiveConfiguration.filter(\.differsFromDefault).prefix(8), id: \.key
+      ) { entry in
+        LabeledContent(entry.key, value: entry.value.displayValue)
+      }
+      Button(copy("settings.refreshConfig")) { model.refreshConfigurationInspection() }
+    } header: {
+      settingsSectionHeader("settings.configGovernance", symbol: "checklist")
+    }
+  }
+
+  private func settingsSectionHeader(_ key: String, symbol: String) -> some View {
+    AuraSectionHeader(title: copy(key), symbol: symbol)
+      .accessibilityAddTraits(.isHeader)
+  }
+
+  private func permissionRow(_ key: String, state: PermissionState) -> some View {
+    let title = copy(key)
+    let localizedState = state.title(for: language)
+    return AuraStatusRow(
+      symbol: "checkmark.shield",
+      title: title,
+      detail: localizedState,
+      state: localizedState,
+      tint: AuraDesign.Palette.signal)
+      .accessibilityLabel("\(title): \(localizedState)")
   }
 }

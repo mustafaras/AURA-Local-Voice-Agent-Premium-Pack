@@ -1,28 +1,32 @@
 # UI Plan — Current Phase State
 
-updated: 2026-09-14T19:29:00+03:00
-active_phase: UI-3
-phase_status: awaiting-approval
-next_phase: UI-4
-last_seq: 52
+updated: 2026-09-15T14:01:44+03:00
+active_phase: UI-5
+phase_status: completed
+next_phase: none
+last_seq: 72
 
-## Gates (mirror of prompts/UI-3.prompt.md §Gates — must match 1:1)
+## Gates (mirror of prompts/UI-5.prompt.md §Gates — must match 1:1)
 
 | Gate | Description (short) | Status | Evidence |
 | --- | --- | --- | --- |
-| G3-1 | Sidebar navigation preserving AuraProductTab rawValues + identifiers; full keyboard traversal verified live | passed | SEQ-0043: source/test contract plus live AX driver traversal across all six identifiers |
-| G3-2 | Task progress rings driven by TaskProgressEvent payload; payload no longer discarded | passed | SEQ-0044: payload projection, clamping, EventBus and ring tests; focused suite green |
-| G3-3 | In-memory latency sparklines + telemetry deck with scales, ticks, breaches, provenance | passed | SEQ-0045: bounded history, deck mapping and focused suite green |
-| G3-4 | AuraStatusRow + data-viz palette adopted in Recovery; contrast gate green | passed | SEQ-0046: Recovery construction plus violet contrast coverage green |
-| G3-5 | ⌘K static palette; destructive entries use existing fail-closed card; Escape/Cancel and a11y IDs verified | passed | SEQ-0047: static table, IDs, confirmation hand-off and focused suite green |
-| G3-6 | Full AppleScript driver leg over every tab, sidebar, palette, and confirmation path | passed | SEQ-0048: temporary signed bundle, six-tab tour, palette, card, Escape dismissal |
-| G3-7 | Full verification loop + governance: suite ×2–3, ADR, repo ledger, CURRENT_STATE | passed | SEQ-0049: full suite ×2, ADR and ledgers updated |
-| G3-8 | Machine coherence: validator OK, all gates passed, awaiting-approval | passed | SEQ-0050: continuity validator OK; all 8 gates passed |
+| G5-1 | Visual stage flow for the existing stage machine; behavior unchanged | passed | SEQ-0066: 13-stage construction green; R9 tests unchanged and focused suite 202/34 green |
+| G5-2 | Segmented 13-step AuraStepIndicator with accessibility contract | passed | SEQ-0067: all 13 positions construct; Dynamic Type fallback and AX contract asserted |
+| G5-3 | Onboarding copy migration into AuraCopy with exact EN/TR strings | passed | SEQ-0068: 21 migrated keys exact in both languages; zero onboarding language ternaries |
+| G5-4 | Iris hero Orb signature moment with Reduce Motion still readout | passed | SEQ-0069: live on/off Reduce Motion readout and restoration |
+| G5-5 | Full verification loop and live 13-step onboarding driver pass | passed | SEQ-0070: temporary-bundle driver traversal through all 13 stages |
+| G5-6 | Machine coherence and plan completion | passed | SEQ-0071: three full runs, governance, and cognitive completion |
 
 ## Blocked items
 
 - none
 
+## Plan closure
+
+- owner approval: received 2026-09-15 as explicit authorization for UI-5 plan closure and the delivery chain (`push commit merge deploy`).
+- delivery interpretation: commit and push the approved local worktree to `origin/main`, use the repository's direct-main route as the merge, then build, locally stable-sign, and install `/Applications/AURA.app`.
+- boundaries: no archive/runtime-completion edit, no public release, Developer ID, notarization, hosted-CI, beta/RC, or external publication claim.
+
 ## Next gate
 
-No next gate — UI-3 complete locally; awaiting explicit approval to UI-4.
+None — UI-5 is the final plan phase; stop at the plan-closure approval boundary.
