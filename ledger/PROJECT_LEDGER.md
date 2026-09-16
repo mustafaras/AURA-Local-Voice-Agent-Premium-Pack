@@ -7118,3 +7118,11 @@ phase ledger. No commit/push (no explicit go-ahead this turn).
 - **Boundary:** owner-instructed, non-transferable local posture (ADR-064 §6; ADR-049 local-only unchanged). No release, notarization, beta, or distribution evidence. `AutoAllowConfirmationPresenter` remains demo-only; no manifest `confirmationRule` changed.
 - **Gate state at this record:** G0-1…G0-5 passed; G0-6 in-progress (three driver turns done; the owner's `owner-attested` line outstanding); G0-7 evidence complete with this record; G0-8 follows the attestation. Plan ledger `personal-assistant-plan/ledger/PHASE_LEDGER.md` SEQ-0003…0010.
 - **Next action:** owner types the attestation line; then G0-6/G0-8 pass, `phase_status: awaiting-approval`, and PA-1 opens only on `ONAY PA-1`. Commit/push/deploy of this record follows the owner's explicit go-ahead of this turn.
+
+### 2026-09-16T15:09:12+03:00 — PA-0 delivered to origin/main; deploy delegated to the owner
+
+- **Objective:** execute the owner's go-ahead ("push commit merge deploy").
+- **Evidence:** explicit-path staging (50 files); commit `9537514`; `git push origin main` → `04839cb..9537514`. No feature branch, so "merge" is the push to `main`.
+- **Deploy:** not executed by the assistant — the permission classifier denied replacing `/Applications/AURA.app`. Commands for the owner are in `personal-assistant-plan/ledger/PHASE_LEDGER.md` SEQ-0012; the bundle is built, signed, and verified.
+- **Boundary:** no PA phase transition; G0-6 attestation and G0-8 outstanding.
+- **Next action:** owner deploys + attests; then `ONAY PA-1`.

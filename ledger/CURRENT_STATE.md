@@ -1,5 +1,24 @@
 # Current State
 
+## 2026-09-16T15:09:12+03:00 — PA-0 committed and pushed (`9537514`); deployment handed to the owner
+
+Commit `9537514` (`feat(policy): PA-0 owner trust posture …`) is on
+`origin/main` (`04839cb..9537514`); working tree clean apart from this
+entry. Deployment of `~/Library/Developer/AURA/pa0-20260916/AURA.app`
+(SHA-256 `2c5b8f07…5dd4`) to `/Applications` was **not** performed by the
+assistant: the Claude Code permission classifier refused the install step
+(replacing the installed app with a build that lifts security guards). The
+installed `/Applications/AURA.app` therefore remains the UI-5 build
+(`d2ccffc5…6ae08e`) until the owner runs the deploy commands recorded in the
+plan ledger (SEQ-0012). Note from the live legs: launching that old build
+rewrites the seed set back to the pre-PA-0 posture until the PA-0 build is
+launched again, so deploying is what makes the posture stick.
+
+**Next safe action:** (1) owner runs the deploy commands and the
+`owner-attested` line for G0-6; (2) assistant records both, passes G0-6 and
+G0-8, sets `phase_status: awaiting-approval`; (3) PA-1 opens only on
+`ONAY PA-1`.
+
 ## 2026-09-16T15:04:23+03:00 — PA-0 Owner Trust Posture delivered locally (ADR-064); awaiting owner attestation, then `ONAY PA-1`
 
 PA-0 of `personal-assistant-plan/` is implemented and verified. `OwnerTrustPosture.isEnabled`

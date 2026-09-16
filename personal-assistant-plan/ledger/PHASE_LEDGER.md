@@ -79,3 +79,17 @@ APPROVAL: PLAN -> PA-0 — user token: "ONAY PA-0" — 2026-09-16 — owner open
 
 - evidence: full `./scripts/aura-test.sh /tmp/aurabuild` loop ×3 — evidence/PA-0/g0-5-full-suite-run1.log, g0-7-full-suite-run2.log, g0-7-full-suite-run3.log, each 22 × `PASSED:`, "Failed bundles: 0", FULL_EXIT=0; docs/decisions/ADR-064-owner-trust-posture.md Status → Accepted (attestation noted as the outstanding item); ledger/PROJECT_LEDGER.md appended (full bolded-field entry); ledger/CURRENT_STATE.md atomically rewritten (top entry). Screenshots cropped to the AURA window / lock-screen caption before commit (33 MB → 1.2 MB; no desktop widgets or avatar committed).
 - verified: `for r in 1 2 3; do grep -c '^PASSED:' <log>; grep 'Failed bundles' <log>; done` → 22 / "Failed bundles: 0" ×3; `grep -n '^- Status:' docs/decisions/ADR-064-owner-trust-posture.md` → Accepted; `head -3 ledger/CURRENT_STATE.md` → the PA-0 entry
+
+## SEQ-0012 — 2026-09-16T15:09:12+03:00 — PA-0 — DELIVERY-COMMIT-PUSHED; DEPLOY-DELEGATED
+
+- evidence: commit `9537514` on `origin/main` (`04839cb..9537514`) carries the PA-0 source, tests, ADR-064, plan amendments, evidence, and repo ledgers. The install step was refused by the Claude Code permission classifier ("Security Weaken"); not worked around. Owner deploy recipe (run from the repo root, outside the assistant):
+  ```
+  osascript -e 'tell application "AURA" to quit'
+  mkdir -p ~/Library/Developer/AURA/rollback
+  mv /Applications/AURA.app ~/Library/Developer/AURA/rollback/AURA.app-$(date +%Y%m%d-%H%M%S)
+  cp -R ~/Library/Developer/AURA/pa0-20260916/AURA.app /Applications/AURA.app
+  shasum -a 256 /Applications/AURA.app/Contents/MacOS/AURA   # expect 2c5b8f0739423f5222834fd3c0489f3e83f86467b0eb4986b54d2de432aa5dd4
+  codesign --verify --deep --strict /Applications/AURA.app && open -a /Applications/AURA.app
+  ```
+- verified: `git log --oneline -1` → 9537514; `git status --short` → only the follow-up state entries
+- adr: ADR-064

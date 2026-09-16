@@ -1,10 +1,10 @@
 # PA Plan — Current Phase State
 
-updated: 2026-09-16T15:05:06+03:00
+updated: 2026-09-16T15:09:12+03:00
 active_phase: PA-0
 phase_status: in-progress
 next_phase: PA-1
-last_seq: 11
+last_seq: 12
 
 ## Gates (mirror of prompts/PA-0.prompt.md §Gates — must match 1:1)
 
