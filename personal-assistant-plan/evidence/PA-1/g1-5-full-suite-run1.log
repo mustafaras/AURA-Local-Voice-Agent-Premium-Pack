@@ -1,0 +1,879 @@
+==> Running Chrome extension behavior tests
+✔ publishes an empty bounded observation when page injection is refused (1.250666ms)
+✔ publishes visible text from an injectable page (0.3585ms)
+✔ publishes an empty observation from the extension-owned bootstrap page (0.290042ms)
+✔ reports a native host rejection instead of claiming connection (0.257417ms)
+✔ rejects bootstrap messages from any other sender URL (0.568834ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 91.71025
+==> Cleaning build path: /tmp/aurabuild
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1400]
+[Planning deferred tasks]
+[1 / 428]
+[199 / 428]
+[200 / 429] AuraCore
+[210 / 477]
+[218 / 477]
+[220 / 477]
+[224 / 477]
+[227 / 477]
+[233 / 477]
+[235 / 477]
+[236 / 477]
+[248 / 477] AuraCore
+[258 / 481]
+[258 / 481] AuraStore
+[265 / 503] AuraAutomation
+[267 / 558]
+[273 / 558] AuraShell
+[294 / 558]
+[302 / 558]
+[308 / 558]
+[313 / 558]
+[320 / 558] AuraPolicy
+[326 / 562] AuraConfig
+[328 / 562]
+[335 / 590] AuraTasks
+[340 / 599] AuraTasks
+[357 / 599] AuraMemory
+[367 / 599] AuraTasks
+[371 / 599] AuraMemory-product
+[379 / 599] AuraConfig
+[388 / 599] AuraContext
+[393 / 599] AuraMemory
+[400 / 599] AuraAudio
+[416 / 599] AuraAutomation-product
+[421 / 599] AuraAutomation
+[426 / 599] AuraAudio
+[430 / 599] AuraAudio
+[430 / 599] AuraAutomation
+[433 / 602] AuraSTT
+[434 / 613] AuraSecurity
+[435 / 627]
+[437 / 638] AuraSecurity
+[440 / 638]
+[447 / 638] AuraSecurity
+[449 / 638] AuraSTT
+[457 / 638] AuraAutomation
+[464 / 638] AuraSTT
+[467 / 638] AuraSpeechQualityProbe-product
+[472 / 638] AuraProductivity
+[479 / 638] AuraScreen
+[481 / 638] AuraSTT
+[496 / 638] AuraShellHelper-product
+[503 / 643] AuraContext
+[505 / 647] AuraLifecycle
+[507 / 660] AuraShellHelper-product
+[509 / 679] AuraContext
+[516 / 701]
+[521 / 713]
+[533 / 713] AuraVSCode
+[541 / 715]
+[551 / 726] AuraAutomationHelper-product
+[555 / 726] AuraVSCode
+[559 / 726] AuraProductivity
+[578 / 726] AuraLifecycle
+[588 / 726] AuraProductivity
+[591 / 726] AuraPlugins
+[594 / 726] AuraPlugins-product
+[598 / 726] AuraPlugins
+[602 / 726] AuraPluginHost-product
+[606 / 726] AuraLifecycle
+[607 / 726] AuraProductivity
+[610 / 726] AuraLifecycle
+[611 / 726] AuraLifecycle
+[614 / 726] AuraLifecycle
+[617 / 726] AuraContext
+[621 / 726] AuraContext-product
+[625 / 726] AuraContext
+[628 / 726] AuraComputerUse
+[632 / 726] AuraChromeNativeHost-product
+[646 / 728] AuraAudio
+[652 / 730] AuraMemory
+[654 / 730]
+[659 / 732] AuraPlugins
+[662 / 732]
+[669 / 734]
+[676 / 739] AuraAgent
+[680 / 750] AuraShellHelper-product
+[688 / 750] AuraAgent
+[690 / 750] AuraAutomationHelper-product
+[691 / 750] AuraSafariExtensionHandler-product
+[697 / 750] AuraChromeNativeHost-product
+[701 / 750] AuraSTT
+[707 / 750] AuraProductivity-product
+[712 / 750] AuraPlugins-product
+[726 / 750] AuraSafariExtensionHandler-product
+[732 / 751] AuraChromeNativeHost-product
+[732 / 751] AuraAgent
+[734 / 751] AuraAgent
+[735 / 751] AuraIntent
+[746 / 762] AuraIntent
+[755 / 763] AuraIntent
+[758 / 763] AURA-product
+[770 / 775] AURA-product
+[771 / 775] AURA-product
+[773 / 775] AURA-product
+Build complete! (24,09 secs)
+==> Building test targets
+--- AuraCoreTests
+Building for debugging...
+[Pre-planning 1 / 65]
+[Planning deferred tasks]
+[15 / 26] AuraCoreTests-product
+[16 / 39]
+[28 / 39] AuraCoreTests-product
+[33 / 39] AuraCoreTests-product
+[35 / 39] AuraCoreTests-product
+Build complete! (2,53 secs)
+--- AuraStoreTests
+Building for debugging...
+[Pre-planning 1 / 94]
+[Planning deferred tasks]
+[15 / 26] AuraStoreTests-product
+[18 / 29] AuraStoreTests-product
+[23 / 29] AuraStoreTests-product
+[25 / 29] AuraStoreTests-product
+Build complete! (1,50 secs)
+--- AURAIntegrationTests
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 732]
+[Planning deferred tasks]
+[24 / 55] AuraSafariExtensionHandler
+[35 / 70] AURA
+[36 / 70] AuraSafariExtensionHandler
+[38 / 70] AuraSafariExtensionHandler
+[46 / 70] AURA
+[46 / 70]
+[47 / 70] AURA
+[55 / 70] AURA
+[60 / 71] AURAIntegrationTests-product
+[63 / 85]
+[74 / 85] AURAIntegrationTests-product
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AURAIntegrationTests/SP019MemoryUIStateTests.swift:47:29: [1;33mwarning: [1;39m'#require(_:_:)' is redundant because 'model.lastMemoryDeletionReceipt' never equals 'nil' (from macro 'require')[0;0m
+[0;36m45 |[0;0m     model.lastMemoryDeletionReceipt = AuraMemoryDeletionReceiptRow(receipt: receipt)
+[0;36m46 |[0;0m 
+[0;36m47 |[0;0m     let row = try? #require([4;39mmodel.lastMemoryDeletionReceipt[0;0m)
+   [0;36m|[0;0m                             `- [1;33mwarning: [1;39m'#require(_:_:)' is redundant because 'model.lastMemoryDeletionReceipt' never equals 'nil' (from macro 'require')[0;0m
+[0;36m48 |[0;0m     #expect(row?.id == recordID)
+[0;36m49 |[0;0m     #expect(row?.memoryClass == MemoryClass.workingConversation.rawValue)
+[79 / 85] AURAIntegrationTests-product
+[81 / 85] AURAIntegrationTests-product
+Build complete! (8,79 secs)
+--- AuraAudioTests
+Building for debugging...
+[Pre-planning 1 / 94]
+[Planning deferred tasks]
+[10 / 31]
+[15 / 26] AuraAudioTests-product
+[25 / 36] AuraAudioTests-product
+[30 / 36] AuraAudioTests-product
+[32 / 36] AuraAudioTests-product
+Build complete! (2,02 secs)
+--- AuraAutomationTests
+Building for debugging...
+[Pre-planning 1 / 94]
+[Planning deferred tasks]
+[15 / 26] AuraAutomationTests-product
+[20 / 31] AuraAutomationTests-product
+[25 / 31] AuraAutomationTests-product
+[27 / 31] AuraAutomationTests-product
+Build complete! (2,38 secs)
+--- AuraAgentTests
+Building for debugging...
+[Pre-planning 1 / 327]
+[Planning deferred tasks]
+[13 / 49]
+[19 / 30] AuraAgentTests-product
+[30 / 41] AuraAgentTests-product
+[35 / 41] AuraAgentTests-product
+[37 / 41] AuraAgentTests-product
+Build complete! (5,78 secs)
+--- AuraSTTTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Planning deferred tasks]
+[10 / 33]
+[15 / 26] AuraSTTTests-product
+[21 / 32] AuraSTTTests-product
+[26 / 32] AuraSTTTests-product
+[28 / 32] AuraSTTTests-product
+[31 / 32] AuraSTTTests-product
+Build complete! (5,46 secs)
+--- AuraPolicyTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Planning deferred tasks]
+[15 / 26] AuraPolicyTests-product
+[21 / 32] AuraPolicyTests-product
+[26 / 32] AuraPolicyTests-product
+[28 / 32] AuraPolicyTests-product
+[31 / 32] AuraPolicyTests-product
+Build complete! (2,75 secs)
+--- AuraShellTests
+Building for debugging...
+[Pre-planning 1 / 94]
+[Planning deferred tasks]
+[10 / 31]
+[15 / 26] AuraShellTests-product
+[19 / 30] AuraShellTests-product
+[24 / 30] AuraShellTests-product
+[26 / 30] AuraShellTests-product
+Build complete! (2,88 secs)
+--- AuraComputerUseTests
+Building for debugging...
+[Pre-planning 1 / 210]
+[Planning deferred tasks]
+[15 / 26] AuraComputerUseTests-product
+[26 / 37] AuraComputerUseTests-product
+[31 / 37] AuraComputerUseTests-product
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AuraComputerUseTests/R4ProductizationTests.swift:429:9: [1;33mwarning: [1;39minitialization of immutable value 'plan' was never used; consider replacing with assignment to '_' or removing it[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m427 |[0;0m   for bundle in [finderBundle, terminalBundle, notesBundle] {
+[0;36m428 |[0;0m     let observation = makeObservation(bundleID: bundle)
+[0;36m429 |[0;0m     let plan = await planner.propose(
+    [0;36m|[0;0m         `- [1;33mwarning: [1;39minitialization of immutable value 'plan' was never used; consider replacing with assignment to '_' or removing it[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m430 |[0;0m       observation: observation, objective: "focus_search_field", previousSteps: [])
+[0;36m431 |[0;0m     // At least one of the three apps' first objective key is focus_search_field;
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[33 / 37] AuraComputerUseTests-product
+Build complete! (3,63 secs)
+--- AuraSecurityTests
+Building for debugging...
+[Pre-planning 1 / 152]
+[Planning deferred tasks]
+[15 / 26] AuraSecurityTests-product
+[24 / 35] AuraSecurityTests-product
+[29 / 35] AuraSecurityTests-product
+[31 / 35] AuraSecurityTests-product
+Build complete! (1,51 secs)
+--- AuraPluginsTests
+Building for debugging...
+[Pre-planning 1 / 152]
+[Planning deferred tasks]
+[15 / 26] AuraPluginsTests-product
+[23 / 34] AuraPluginsTests-product
+[28 / 34] AuraPluginsTests-product
+[30 / 34] AuraPluginsTests-product
+Build complete! (1,86 secs)
+--- AuraIntentTests
+Building for debugging...
+[Constructing description]
+[Pre-planning 1 / 413]
+[Planning deferred tasks]
+[15 / 26] AuraIntentTests-product
+[26 / 37] AuraIntentTests-product
+[31 / 37] AuraIntentTests-product
+[33 / 37] AuraIntentTests-product
+Build complete! (4,14 secs)
+--- AuraConfigTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Planning deferred tasks]
+[15 / 26] AuraConfigTests-product
+[18 / 29] AuraConfigTests-product
+[23 / 29] AuraConfigTests-product
+[25 / 29] AuraConfigTests-product
+Build complete! (1,63 secs)
+--- AuraVSCodeTests
+Building for debugging...
+[Pre-planning 1 / 210]
+[Planning deferred tasks]
+[15 / 26] AuraVSCodeTests-product
+[21 / 32] AuraVSCodeTests-product
+[26 / 32] AuraVSCodeTests-product
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AuraVSCodeTests/AuraVSCodeLiveAcceptanceTests.swift:49:9: [1;33mwarning: [1;39minitialization of immutable value 'bridge' was never used; consider replacing with assignment to '_' or removing it[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m47 |[0;0m   func liveSignedEnvelopeAuthenticates() async throws {
+ [0;36m48 |[0;0m     let dir = AuraVSCodeLiveAcceptance.bridgeDirectory()
+ [0;36m49 |[0;0m     let bridge = try await AuraVSCodeLiveAcceptance.makeLiveBridge(dir: dir)
+    [0;36m|[0;0m         `- [1;33mwarning: [1;39minitialization of immutable value 'bridge' was never used; consider replacing with assignment to '_' or removing it[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m50 |[0;0m     let stateURL = dir.appendingPathComponent("vscode-state.json")
+ [0;36m51 |[0;0m     do {
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[28 / 32] AuraVSCodeTests-product
+Build complete! (2,15 secs)
+--- AuraTasksTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Planning deferred tasks]
+[15 / 26] AuraTasksTests-product
+[19 / 30] AuraTasksTests-product
+[24 / 30] AuraTasksTests-product
+[26 / 30] AuraTasksTests-product
+Build complete! (1,75 secs)
+--- AuraMemoryTests
+Building for debugging...
+[Pre-planning 1 / 123]
+[Planning deferred tasks]
+[15 / 26] AuraMemoryTests-product
+[20 / 31] AuraMemoryTests-product
+[25 / 31] AuraMemoryTests-product
+[27 / 31] AuraMemoryTests-product
+Build complete! (2,11 secs)
+--- AuraContextTests
+Building for debugging...
+[Pre-planning 1 / 152]
+[Planning deferred tasks]
+[15 / 26] AuraContextTests-product
+[22 / 33] AuraContextTests-product
+[27 / 33] AuraContextTests-product
+[29 / 33] AuraContextTests-product
+Build complete! (2,02 secs)
+--- AuraScreenTests
+Building for debugging...
+[Pre-planning 1 / 152]
+[Planning deferred tasks]
+[10 / 35]
+[15 / 26] AuraScreenTests-product
+[21 / 32] AuraScreenTests-product
+[26 / 32] AuraScreenTests-product
+[28 / 32] AuraScreenTests-product
+Build complete! (2,60 secs)
+--- AuraAdversarialTests
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 471]
+[Planning deferred tasks]
+[10 / 49] AuraTasks
+[15 / 26] AuraAdversarialTests-product
+[26 / 37] AuraAdversarialTests-product
+[31 / 37] AuraAdversarialTests-product
+[33 / 37] AuraAdversarialTests-product
+Build complete! (3,20 secs)
+--- AuraProductivityTests
+Building for debugging...
+[Pre-planning 1 / 442]
+[Planning deferred tasks]
+[15 / 26] AuraProductivityTests-product
+[22 / 33] AuraProductivityTests-product
+[27 / 33] AuraProductivityTests-product
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AuraProductivityTests/AuraProductivityTests.swift:520:7: [1;33mwarning: [1;39minitialization of immutable value 'signer' was never used; consider replacing with assignment to '_' or removing it[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m518 |[0;0m func safariBridgeTransportFailsClosedOnUnavailableStaleMismatchAndRevocation() async throws {
+[0;36m519 |[0;0m   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
+[0;36m520 |[0;0m   let signer = try await provisionSafariBridge(secretStore)
+    [0;36m|[0;0m       `- [1;33mwarning: [1;39minitialization of immutable value 'signer' was never used; consider replacing with assignment to '_' or removing it[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m521 |[0;0m   let container = makeSafariContainerURL()
+[0;36m522 |[0;0m   defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
+
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AuraProductivityTests/AuraProductivityTests.swift:565:7: [1;33mwarning: [1;39minitialization of immutable value 'signer' was never used; consider replacing with assignment to '_' or removing it[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m563 |[0;0m func safariBridgeTransportRejectsIdentityMismatchAndTamperedEnvelope() async throws {
+[0;36m564 |[0;0m   let secretStore = SafariBridgeSecretStore(secretStore: ProductivitySecretStoreFake())
+[0;36m565 |[0;0m   let signer = try await provisionSafariBridge(secretStore)
+    [0;36m|[0;0m       `- [1;33mwarning: [1;39minitialization of immutable value 'signer' was never used; consider replacing with assignment to '_' or removing it[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m566 |[0;0m   let container = makeSafariContainerURL()
+[0;36m567 |[0;0m   defer { try? FileManager.default.removeItem(at: container.deletingLastPathComponent()) }
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[29 / 33] AuraProductivityTests-product
+[33 / 33] AuraProductivityTests-product
+Build complete! (4,36 secs)
+--- AuraLifecycleTests
+Building for debugging...
+[Pre-planning 1 / 210]
+[Planning deferred tasks]
+[10 / 39]
+[15 / 26] AuraLifecycleTests-product
+[26 / 37] AuraLifecycleTests-product
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AuraLifecycleTests/UpdateEngineTests.swift:69:35: [1;33mwarning: [1;39mresult of call to 'apply(_:actor:)' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m67 |[0;0m     let config = MemoryConfigurationStore()
+ [0;36m68 |[0;0m     let configurationEngine = try await ConfigurationEngine.load(store: config)
+ [0;36m69 |[0;0m     try await configurationEngine.apply(
+    [0;36m|[0;0m                                   `- [1;33mwarning: [1;39mresult of call to 'apply(_:actor:)' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m70 |[0;0m       ConfigurationPatch(layer: .userSettings, values: ["lifecycle.automaticUpdateChecksEnabled": .boolean(true)], source: "test"),
+ [0;36m71 |[0;0m       actor: .user)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AuraLifecycleTests/UpdateEngineTests.swift:69:35: [1;33mwarning: [1;39mresult of call to 'apply(_:actor:)' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m67 |[0;0m     let config = MemoryConfigurationStore()
+ [0;36m68 |[0;0m     let configurationEngine = try await ConfigurationEngine.load(store: config)
+ [0;36m69 |[0;0m     try await configurationEngine.apply(
+    [0;36m|[0;0m                                   `- [1;33mwarning: [1;39mresult of call to 'apply(_:actor:)' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m70 |[0;0m       ConfigurationPatch(layer: .userSettings, values: ["lifecycle.automaticUpdateChecksEnabled": .boolean(true)], source: "test"),
+ [0;36m71 |[0;0m       actor: .user)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[31 / 37] AuraLifecycleTests-product
+[33 / 37] AuraLifecycleTests-product
+Build complete! (3,20 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AuraCoreTests ===
+✔ Test preferenceQuietHoursValidate() passed after 0.002 seconds.
+✔ Test "derivation is pure: same inputs, same output" passed after 0.002 seconds.
+✔ Test pluginConfigurationValidateMergeAndDecode() passed after 0.002 seconds.
+✔ Test taskConfigurationValidateAndDecode() passed after 0.002 seconds.
+✔ Test "the two namespaces never collide" passed after 0.002 seconds.
+✔ Test privacyConfigurationValidateAndDecode() passed after 0.002 seconds.
+✔ Test screenContextConfigurationValidateAndDecode() passed after 0.002 seconds.
+✔ Test configurationLoadingMergesDefaults() passed after 0.002 seconds.
+✔ Test "any non-stable identity is routed to the .dev namespace" passed after 0.001 seconds.
+✔ Test configurationDefaultsValidate() passed after 0.002 seconds.
+✔ Test expiryPlanChangeAndReplayFailClosed() passed after 0.001 seconds.
+✔ Test newStoreCannotReplayPriorAuthorization() passed after 0.001 seconds.
+✔ Test "stable identity keeps the configured production service name" passed after 0.002 seconds.
+✔ Test "budget breaches are counted per kind" passed after 0.002 seconds.
+✔ Test ollamaConfigurationValidateMergeAndDecode() passed after 0.002 seconds.
+✔ Test appConfigurationValidateAndDecode() passed after 0.002 seconds.
+✔ Test authorizedTransactionExecutesAndVerifiesExactlyOnce() passed after 0.001 seconds.
+✔ Test wakeWordConfigurationValidate() passed after 0.002 seconds.
+✔ Test clientFailsClosedWhenHelperCrashes() passed after 0.057 seconds.
+✔ Test run with 84 tests in 9 suites passed after 0.058 seconds.
+PASSED: AuraCoreTests
+=== AuraStoreTests ===
+✔ Test storeOpensAndMigrates() passed after 0.039 seconds.
+✔ Test storePersistsOnlyRedactedTraceColumns() passed after 0.040 seconds.
+✔ Test storePersistsEvent() passed after 0.041 seconds.
+✔ Test storeAppendsLedgerEntry() passed after 0.042 seconds.
+✔ Test storeDeleteMemoryRecordRemovesRow() passed after 0.042 seconds.
+✔ Test storeAppendsImmutablePluginAuditHistory() passed after 0.042 seconds.
+✔ Test entriesRespectsSinceAndLimit() passed after 0.042 seconds.
+✔ Test storeAppendsAndQueriesMemoryRecord() passed after 0.042 seconds.
+✔ Test storeAppendsAndUpdatesMemoryConflictResolution() passed after 0.043 seconds.
+✔ Test storeMemoryRecordsExcludesSupersededByDefault() passed after 0.044 seconds.
+✔ Test run with 10 tests in 1 suite passed after 0.044 seconds.
+PASSED: AuraStoreTests
+=== AURAIntegrationTests ===
+✔ Test "palette view constructs with stable panel and cancel IDs" passed after 1.580 seconds.
+✔ Test "every category constructs with the confirmation card first" passed after 1.858 seconds.
+✔ Test "dismissing with nothing pending is a no-op" passed after 2.140 seconds.
+✔ Test "dismissing an unanswered confirmation denies it" passed after 2.140 seconds.
+✔ Test "an already-answered confirmation is not re-denied" passed after 2.141 seconds.
+✔ Test "RMS→dBFS math matches the VAD's energy computation" passed after 2.138 seconds.
+✔ Test "scalar-only shape: the bridge exposes no sample accessors" passed after 2.139 seconds.
+✔ Test "normalization clamps silence and full scale into 0…1" passed after 2.139 seconds.
+✔ Test "bridge starts honest-idle: nil until listening" passed after 2.139 seconds.
+✔ Test "listening transition to off publishes nil immediately (honest idle)" passed after 2.139 seconds.
+✔ Test "bridge publishes a scalar level only while listening" passed after 2.139 seconds.
+✔ Test "stale sequence index is skipped (exact lookup, mirroring AudioSampleBridge)" passed after 2.139 seconds.
+✔ Test "throttle with deterministic clock: interval boundary publishes" passed after 2.140 seconds.
+✔ Test "throttle cadence: burst inside the interval publishes once" passed after 2.140 seconds.
+✔ Test "progress subscription consumes the payload instead of discarding it" passed after 2.142 seconds.
+✔ Test "a real TTSStartedEvent sets isSpeakingResponse; every TTSStoppedEvent reason clears it" passed after 2.141 seconds.
+✔ Test "emergency stop cancels a pending confirmation and persists redacted trace" passed after 2.145 seconds.
+✔ Test "window close dismisses a pending confirmation and persists only redacted trace" passed after 2.145 seconds.
+✔ Test "confirmation lifecycle persists redacted terminal outcomes" passed after 2.177 seconds.
+✔ Test run with 210 tests in 35 suites passed after 2.181 seconds.
+PASSED: AURAIntegrationTests
+=== AuraAudioTests ===
+✔ Test unconfiguredRuntimeUsesSystemFallbackContract() passed after 0.010 seconds.
+✔ Test configuredHelperWarmsAndSynthesizesLocally() passed after 0.015 seconds.
+✔ Test promptLengthIsBoundedBeforeHelperInvocation() passed after 0.017 seconds.
+✔ Test helperCannotEscapePrivateOutputDirectory() passed after 0.017 seconds.
+✔ Test helperTimeoutFallsBackAndStopsTheHelper() passed after 0.032 seconds.
+✔ Test privacyModeRequiresShortcut() passed after 0.053 seconds.
+✔ Test antiTriggerSuppressesWakeDuringOutput() passed after 0.113 seconds.
+✔ Test wakePipelineAcceptsWakeAndReportsMetrics() passed after 0.220 seconds.
+✔ Test explicitPreferredVoiceOverridesQualityRanking() passed after 0.294 seconds.
+✔ Test bestTurkishVoiceUsesHighestInstalledQuality() passed after 0.329 seconds.
+✔ Test startReportsReadyWhenVoicesExist() passed after 0.335 seconds.
+✔ Test healthAfterStartIsReady() passed after 0.464 seconds.
+✔ Test "A device configuration change recovers capture rather than wedging" passed after 2.482 seconds.
+✔ Test "A configuration change after stop never reopens the microphone" passed after 1.710 seconds.
+✔ Test "Sleep suspends capture and wake resumes it" passed after 1.238 seconds.
+✔ Test "Wake never reopens the microphone after an explicit user stop" passed after 1.042 seconds.
+✔ Test stateTransitionsThroughStartAndStop() passed after 0.461 seconds.
+✔ Test startIgnoredWhenNotIdle() passed after 1.242 seconds.
+✔ Test privacyControlsUpdateEmitsIndicatorEvent() passed after 0.001 seconds.
+✔ Test run with 39 tests in 6 suites passed after 8.179 seconds.
+PASSED: AuraAudioTests
+=== AuraAutomationTests ===
+✔ Test "a refused target is never handed to LaunchServices" passed after 0.009 seconds.
+✔ Test "refuses every scheme outside the allowlist" with 7 test cases passed after 0.007 seconds.
+✔ Test "accepts a directory for open_folder and rejects it for open_file" passed after 0.007 seconds.
+✔ Test "accepts a plain regular file and returns its canonical path" passed after 0.007 seconds.
+✔ Test "refuses a sensitive location spelled with different case (APFS is case-insensitive)" passed after 0.007 seconds.
+✔ Test "reveal accepts both a file and a directory, since revealing never runs anything" passed after 0.007 seconds.
+✔ Test "rejects a file carrying the executable bit even with a harmless extension" passed after 0.007 seconds.
+✔ Test "does not treat a sibling root with a shared prefix as contained" passed after 0.007 seconds.
+✔ Test "rejects a target that escapes the approved roots via .." passed after 0.007 seconds.
+✔ Test "rejects a symlink whose destination is an executable target" passed after 0.007 seconds.
+✔ Test "refuses a malformed or scheme-less URL" passed after 0.007 seconds.
+✔ Test "a task cancelled before the handoff opens nothing" passed after 0.009 seconds.
+✔ Test "accepts a file for open_file and rejects it for open_folder" passed after 0.007 seconds.
+✔ Test "resolves a symlink to its canonical destination rather than opening the link" passed after 0.007 seconds.
+✔ Test "refuses credential and privacy-state locations" passed after 0.007 seconds.
+✔ Test "accepts a target inside an approved root" passed after 0.007 seconds.
+✔ Test "rejects executable and location-forwarding extensions that LaunchServices would run" with 8 test cases passed after 0.007 seconds.
+✔ Test "rejects a symlink inside an approved root that points outside it" passed after 0.008 seconds.
+✔ Test "rejects an application bundle for both open_file and open_folder" passed after 0.010 seconds.
+✔ Test run with 42 tests in 3 suites passed after 0.013 seconds.
+PASSED: AuraAutomationTests
+=== AuraAgentTests ===
+✔ Test scannerDetectsPrivateKeyHeader() passed after 0.001 seconds.
+✔ Test scannerFindsFilesInInstructionsAgentsAndPromptsDirectories() passed after 0.005 seconds.
+✔ Test reviewVerdictParserRecognizesApprove() passed after 0.001 seconds.
+✔ Test reviewVerdictParserIsCaseInsensitive() passed after 0.001 seconds.
+✔ Test reviewVerdictParserRecognizesRequestChangesWithReason() passed after 0.001 seconds.
+✔ Test reviewVerdictParserTreatsMissingMarkerAsUnparseable() passed after 0.001 seconds.
+✔ Test reviewVerdictParserTreatsEmptyTextAsUnparseable() passed after 0.001 seconds.
+✔ Test reviewVerdictParserTreatsNonTrailingMarkerAsUnparseable() passed after 0.001 seconds.
+✔ Test reviewVerdictParserIgnoresApproveMentionedMidProse() passed after 0.001 seconds.
+✔ Test reviewVerdictParserRequestChangesWithEmptyReasonFallsBackToPlaceholder() passed after 0.001 seconds.
+✔ Test reviewVerdictParserTrimsTrailingWhitespaceAfterApprove() passed after 0.001 seconds.
+✔ Test typedTurnEntersThinkingAndEmitsContext() passed after 0.023 seconds.
+✔ Test worktreeManagerCreatesIsolatedWorktree() passed after 0.221 seconds.
+✔ Test worktreeManagerRejectsDuplicateTaskID() passed after 0.183 seconds.
+✔ Test worktreeManagerDenyPathNeverTouchesGit() passed after 0.134 seconds.
+✔ Test worktreeManagerRemovesCleanWorktreeWithoutForce() passed after 0.247 seconds.
+✔ Test worktreeManagerRemovalRequiresForceWhenDirty() passed after 0.256 seconds.
+✔ Test worktreeManagerRemoveUnknownTaskThrowsNotFound() passed after 0.111 seconds.
+✔ Test worktreeManagerDiffReflectsWorktreeChanges() passed after 0.282 seconds.
+✔ Test run with 247 tests in 9 suites passed after 9.245 seconds.
+PASSED: AuraAgentTests
+=== AuraSTTTests ===
+✔ Test "entity error rate detects missing code-switch term" passed after 0.001 seconds.
+✔ Test "matches deterministic Turkish/English early commands" passed after 0.001 seconds.
+✔ Test "WER matches reference words within insertions and substitutions" passed after 0.001 seconds.
+✔ Test "provides technical terms as contextual hints" passed after 0.001 seconds.
+✔ Test "health reflects ready and cancelled states" passed after 0.001 seconds.
+✔ Test "cancellation does not leak further results" passed after 0.001 seconds.
+✔ Test selectsTheFirstReadyLocalEngineAndAnnotatesResults() passed after 0.001 seconds.
+✔ Test "emits partial then stable segment for scripted frames" passed after 0.001 seconds.
+✔ Test resourceDenialFailsClosedBeforeStartingCandidates() passed after 0.001 seconds.
+✔ Test "engineID and locale are exposed correctly" passed after 0.008 seconds.
+✔ Test "vocabulary hints are accepted without crashing" passed after 0.008 seconds.
+✔ Test "cancel moves health to cancelled without crashing" passed after 0.009 seconds.
+✔ Test "health is idle before start" passed after 0.009 seconds.
+✔ Test "cancel stops the session without emitting a stable result" passed after 0.021 seconds.
+✔ Test "start returns not authorized when speech recognition is not denied" passed after 0.040 seconds.
+✔ Test "ingest before start is safe when recognizer is unavailable" passed after 0.250 seconds.
+✔ Test run with 19 tests in 4 suites passed after 0.251 seconds.
+PASSED: AuraSTTTests
+=== AuraPolicyTests ===
+✔ Test "ADR-055/ADR-064: computerUseRun and agentOllamaCloudInference are seeded" passed after 0.007 seconds.
+✔ Test "ADR-055: the destructive lifecycle capabilities are seeded without confirmation" passed after 0.007 seconds.
+✔ Test "RISK-SP-006-DEFAULT-GRANT-BREADTH: a path outside every declared root is denied" passed after 0.007 seconds.
+✔ Test "appActivate stays allowed without confirmation" passed after 0.006 seconds.
+✔ Test "SP-030: reading launch-at-login status needs no confirmation" passed after 0.007 seconds.
+✔ Test "url.open grant is scheme-scoped, never .any" passed after 0.006 seconds.
+✔ Test "shellExec is allowed without confirmation under the owner posture" passed after 0.006 seconds.
+✔ Test "reconciliation is idempotent — repeated seeding cannot grow the grant set" passed after 0.007 seconds.
+✔ Test "SP-030: the read/write split kept the write a distinct mutation-tier capability" passed after 0.007 seconds.
+✔ Test "appTerminate is allowed without confirmation under the owner posture" passed after 0.006 seconds.
+✔ Test "ungranted destructive capability is still denied by default" passed after 0.006 seconds.
+✔ Test "SP-030: launch at login is reachable — ADR-064: without confirmation" passed after 0.006 seconds.
+✔ Test "ungranted reversible capability outside the seeded set is still denied" passed after 0.006 seconds.
+✔ Test "url.open is scoped to the adapter's scheme allowlist" passed after 0.007 seconds.
+✔ Test "SP-006: filesystem/URL capabilities are allowed for in-scope targets" passed after 0.006 seconds.
+✔ Test denyRuleOverridesAllowByDefault() passed after 0.031 seconds.
+✔ Test removeDenyRuleRestoresDefault() passed after 0.032 seconds.
+✔ Test grantsPersistAcrossReloads() passed after 0.033 seconds.
+✔ Test confirmationExpiryDenies() passed after 0.033 seconds.
+✔ Test run with 51 tests in 2 suites passed after 0.034 seconds.
+PASSED: AuraPolicyTests
+=== AuraShellTests ===
+✔ Test redactorMasksDefaultPatterns() passed after 0.007 seconds.
+✔ Test commandRejectsTimeoutOutOfBounds() passed after 0.007 seconds.
+✔ Test commandRejectsShellString() passed after 0.006 seconds.
+✔ Test redactorCanPassthrough() passed after 0.007 seconds.
+✔ Test evidenceSnapshotListsFiles() passed after 0.011 seconds.
+✔ Test evidenceDiffDetectsChange() passed after 0.013 seconds.
+✔ Test streamingDeliversTrailingArgumentContainingMetacharacters() passed after 0.014 seconds.
+✔ Test streamingDeliversSemicolonLadenPromptSafely() passed after 0.028 seconds.
+✔ Test streamingDeliversStdinAndLinesInOrder() passed after 0.028 seconds.
+✔ Test streamingEnforcesOutputLineBound() passed after 0.028 seconds.
+✔ Test auraShellExecutesEcho() passed after 0.039 seconds.
+✔ Test runnerReportsNonzeroExitAsFailed() passed after 0.039 seconds.
+✔ Test runnerRedactsOutput() passed after 0.039 seconds.
+✔ Test runnerEchoesStdout() passed after 0.040 seconds.
+✔ Test runnerBoundsOutput() passed after 0.040 seconds.
+✔ Test streamingCancelTerminatesInFlightProcess() passed after 0.116 seconds.
+✔ Test runnerCancelsInFlightCommand() passed after 0.128 seconds.
+✔ Test runnerTimesOut() passed after 0.300 seconds.
+✔ Test runnerDoesNotHangWhenChildInheritsPipe() passed after 1.605 seconds.
+✔ Test run with 24 tests in 0 suites passed after 1.606 seconds.
+PASSED: AuraShellTests
+=== AuraComputerUseTests ===
+✔ Test "ownerTrust: a focused secure field no longer blocks a step in the loop" passed after 0.013 seconds.
+✔ Test "ownerTrust: an indeterminate secure-field probe no longer fails the loop" passed after 0.012 seconds.
+✔ Test "ownerTrust: a mandatory-confirmation intent executes on a bare .allow" passed after 0.010 seconds.
+✔ Test "ownerTrust: a plan longer than maxStepsPerPlan executes in full" passed after 0.011 seconds.
+✔ Test "structural: identical observations still escalate to noProgress" passed after 0.011 seconds.
+✔ Test "A destructive-intent step is blocked by default deny without any grant" passed after 0.012 seconds.
+✔ Test "Identical observations across consecutive iterations escalate to noProgress" passed after 0.011 seconds.
+✔ Test "The step outcome reports the anchoring mode used" passed after 0.011 seconds.
+✔ Test "Loop stops at the configured iteration ceiling and never runs unbounded" passed after 0.012 seconds.
+✔ Test "Only an explicit reset lets a stopped session restart and execute" passed after 0.012 seconds.
+✔ Test "A completed negative answer still lets the session proceed" passed after 0.011 seconds.
+✔ Test "ownerTrust: identical observations never escalate to noProgress; maxIterations bounds the run" passed after 0.012 seconds.
+✔ Test "A step requiring confirmation halts the loop and surfaces the challenge" passed after 0.013 seconds.
+✔ Test waitActionSucceedsWithoutRequiringAccessibilityTrust() passed after 0.014 seconds.
+✔ Test "The secure-field guard is scoped to generated input and still permits waiting" passed after 0.014 seconds.
+✔ Test clickActionDegradesSafelyWithoutGeneratingInput() passed after 0.017 seconds.
+✔ Test "The real secure-field detector's boolean answer is its probe, failing closed" passed after 0.019 seconds.
+✔ Test modalDetectorReturnsNilWithoutAccessibilityTrust() passed after 0.037 seconds.
+✔ Test "ownerTrust: the executor no longer refuses input while a secure field is focused" passed after 0.044 seconds.
+✔ Test run with 125 tests in 0 suites passed after 0.046 seconds.
+PASSED: AuraComputerUseTests
+=== AuraSecurityTests ===
+✔ Test exactHostMatchIsAllowed() passed after 0.004 seconds.
+✔ Test inMemoryStoreDeleteRemovesValue() passed after 0.004 seconds.
+✔ Test classifierBlocksInstructionOverrideInWebContent() passed after 0.004 seconds.
+✔ Test emptyAllowlistDeniesEverything() passed after 0.004 seconds.
+✔ Test classifierReturnsCleanForEmptyText() passed after 0.004 seconds.
+✔ Test classifierReturnsCleanForBenignRepositoryContent() passed after 0.004 seconds.
+✔ Test classifierBlocksExfiltrationRequestInScreenOCR() passed after 0.004 seconds.
+✔ Test "a missing path is unsigned, never stable" passed after 0.001 seconds.
+✔ Test "the fixed probe returns exactly what it was given" passed after 0.001 seconds.
+✔ Test "the stable requirement names the certificate by subject CN" passed after 0.001 seconds.
+✔ Test "the test host itself never claims the stable identity" passed after 0.001 seconds.
+✔ Test factorySessionRefusesRedirectsByDefault() passed after 0.010 seconds.
+✔ Test factorySessionDisablesCookiesAndCache() passed after 0.010 seconds.
+✔ Test keychainStoreReturnsNilForMissingKey() passed after 0.010 seconds.
+✔ Test "an unsigned file is unsigned" passed after 0.047 seconds.
+✔ Test "the installed stable-signed bundle, when present on this Mac, is stable" passed after 0.068 seconds.
+✔ Test keychainStoreRoundTripsAValue() passed after 0.090 seconds.
+✔ Test keychainStoreOverwritesExistingValue() passed after 0.091 seconds.
+✔ Test "an Apple-signed bundle is a foreign identity, not stable" passed after 0.121 seconds.
+✔ Test run with 51 tests in 1 suite passed after 0.125 seconds.
+PASSED: AuraSecurityTests
+=== AuraPluginsTests ===
+✔ Test verifierRejectsUntrustedVendor() passed after 0.006 seconds.
+✔ Test manifestValidatesWellFormedFixture() passed after 0.006 seconds.
+✔ Test expiredPluginGrantCannotFallThroughToPermissiveDefaults() passed after 0.006 seconds.
+✔ Test enableDisableRoundTrip() passed after 0.006 seconds.
+✔ Test installAcceptsAVerifiedPluginAndIssuesGrants() passed after 0.007 seconds.
+✔ Test uninstallIsIdempotent() passed after 0.007 seconds.
+✔ Test verifierRejectsForgedSignatureFromWrongKey() passed after 0.006 seconds.
+✔ Test "Unapproved marketplace source and unknown vendor root never install" passed after 0.003 seconds.
+✔ Test "Quarantine revokes grants and blocks all execution" passed after 0.003 seconds.
+✔ Test artifactTamperBlocksEnableBeforeRuntime() passed after 0.007 seconds.
+✔ Test "A tampered installed artifact blocks enable and execute" passed after 0.004 seconds.
+✔ Test disabledAndQuarantinedPluginsNeverReachRuntime() passed after 0.007 seconds.
+✔ Test "A compromised plugin helper fails closed before launch" passed after 0.004 seconds.
+✔ Test "An update from an untrusted vendor root is refused" passed after 0.004 seconds.
+✔ Test "A tampered update bundle is refused" passed after 0.004 seconds.
+✔ Test "A tampered retained artifact blocks rollback" passed after 0.005 seconds.
+✔ Test pluginGrantsAreScopedToPluginActorAndHaveExpiry() passed after 0.033 seconds.
+✔ Test registryPersistsAndReloadsFromStore() passed after 0.035 seconds.
+✔ Test updateRollbackUninstallPreserveAuditAndRemoveArtifacts() passed after 0.046 seconds.
+✔ Test run with 44 tests in 1 suite passed after 0.047 seconds.
+PASSED: AuraPluginsTests
+=== AuraIntentTests ===
+✔ Test "classifies 'show /path/to/file' as fileReveal" passed after 0.315 seconds.
+✔ Test "fileOpen, fileReveal, and urlOpen are all .reversible risk tier" passed after 0.315 seconds.
+✔ Test "classifies bare 'https://example.com' as urlOpen without prefix" passed after 0.315 seconds.
+✔ Test "classifies 'open ~/Documents/' as fileOpen with folderPath slot" passed after 0.314 seconds.
+✔ Test "IntentSemanticCategory has the new cases" passed after 0.314 seconds.
+✔ Test "planner accepts fileReveal with a valid path argument" passed after 0.314 seconds.
+✔ Test "a successful command yields a verified observation keyed by the command" passed after 0.503 seconds.
+✔ Test "an observation is evidence for one write only" passed after 0.503 seconds.
+✔ Test "a verified tool observation is retained as an observed project fact" passed after 0.325 seconds.
+✔ Test routerExecutesNonDestructiveShellCommand() passed after 0.503 seconds.
+✔ Test "re-observing the same answer is not a contradiction" passed after 0.328 seconds.
+✔ Test "a failing command is not treated as evidence about the project" passed after 0.507 seconds.
+✔ Test "observations of different facts never collide" passed after 0.333 seconds.
+✔ Test "a changed answer for the same fact raises a contradiction" passed after 0.356 seconds.
+✔ Test "an answer naming nothing offered leaves the question standing" passed after 0.666 seconds.
+✔ Test "naming one of the offered candidates resolves the reference next turn" passed after 0.669 seconds.
+✔ Test "an answer that fits both candidates is not treated as a confirmation" passed after 0.674 seconds.
+✔ Test "a stale question is not answered by a much later turn" passed after 0.676 seconds.
+✔ Test "the real classifier drives a full ambiguity-then-answer round trip" passed after 0.588 seconds.
+✔ Test run with 157 tests in 10 suites passed after 0.769 seconds.
+PASSED: AuraIntentTests
+=== AuraConfigTests ===
+✔ Test migrationCanReverseWithinCompatibilityWindow() passed after 0.002 seconds.
+✔ Test reversibleMigrationRenamesKeysAndPreservesCompatibilitySnapshot() passed after 0.003 seconds.
+✔ Test persistenceFailureNeverMakesCandidateEffective() passed after 0.002 seconds.
+✔ Test featureFlagsRequireCompleteFutureDatedGovernanceMetadata() passed after 0.002 seconds.
+✔ Test registryMayExplicitlyPermitOrdinaryProjectOptIn() passed after 0.002 seconds.
+✔ Test telemetryIsAggregateOnlyAndRequiresExplicitOptIn() passed after 0.002 seconds.
+✔ Test unknownKeysAreRejectedWarnedAndAudited() passed after 0.002 seconds.
+✔ Test projectOverrideCannotEnableGovernedOffFlag() passed after 0.002 seconds.
+✔ Test rolloutAssignmentIsStableAndBounded() passed after 0.002 seconds.
+✔ Test projectConfigurationMayStrengthenConfirmationBoundary() passed after 0.003 seconds.
+✔ Test projectConfigurationCannotWeakenHigherRiskPolicy() passed after 0.003 seconds.
+✔ Test sessionOverridesExpireOnRestartButRemainAudited() passed after 0.003 seconds.
+✔ Test expiredFlagAndKillSwitchOverrideEveryOtherDecision() passed after 0.003 seconds.
+✔ Test layersResolveInNormativeOrderAndCanBeRevoked() passed after 0.003 seconds.
+✔ Test machinePolicySecurityBoundCannotBeRelaxedByUserOrSession() passed after 0.003 seconds.
+✔ Test recommendationIsExplainableAndNeverAppliesWithoutAcceptance() passed after 0.003 seconds.
+✔ Test rollbackSurvivesStoreAndEngineRestart() passed after 0.020 seconds.
+✔ Test run with 17 tests in 0 suites passed after 0.020 seconds.
+PASSED: AuraConfigTests
+=== AuraVSCodeTests ===
+✔ Test "static bridge returns injected editor state" passed after 0.003 seconds.
+✔ Test "adapter denies dirty editor command when confirmation denies" passed after 0.003 seconds.
+✔ Test "CLI arguments for openWorkspace include path" passed after 0.003 seconds.
+✔ Test "bridge health disconnected maps to disabled availability" passed after 0.003 seconds.
+✔ Test "CLI arguments for openFile include --goto with line and column" passed after 0.003 seconds.
+✔ Test "authenticator fails tampered response envelope" passed after 0.003 seconds.
+✔ Test "workspace resolver marks multiple candidates ambiguous" passed after 0.003 seconds.
+✔ Test "authenticated bridge command envelope binds the typed command and request nonce" passed after 0.003 seconds.
+✔ Test "adapter fails closed when PolicyEngine denies an action" passed after 0.003 seconds.
+✔ Test "static bridge exposes typed command results without a raw command escape hatch" passed after 0.003 seconds.
+✔ Test "workspace resolver follows explicit, active, durable, then candidate precedence" passed after 0.003 seconds.
+✔ Test "a response that omits empty collection fields still decodes" passed after 0.001 seconds.
+✔ Test "the authentication tag covers the transmitted payload bytes" passed after 0.001 seconds.
+✔ Test "Swift authenticates an envelope produced by the TypeScript extension" passed after 0.001 seconds.
+✔ Test "a tampered payload body is rejected" passed after 0.001 seconds.
+✔ Test "authenticated bridge accepts a signed fresh snapshot" passed after 0.004 seconds.
+✔ Test "adapter fails closed when policy requires confirmation" passed after 0.004 seconds.
+✔ Test "file bridge reads snapshot JSON" passed after 0.005 seconds.
+✔ Test "authenticated bridge rejects tampering and nonce replay" passed after 0.005 seconds.
+✔ Test run with 47 tests in 5 suites passed after 0.006 seconds.
+PASSED: AuraVSCodeTests
+=== AuraTasksTests ===
+✔ Test cancelUnknownTaskThrowsNotFound() passed after 0.093 seconds.
+✔ Test taskStatusHasNilScopeWhenContextLacksCodingKeys() passed after 0.095 seconds.
+✔ Test deleteRemovesTaskAndData() passed after 0.099 seconds.
+✔ Test taskStatusCarriesScopeDerivedFromLaunchContext() passed after 0.101 seconds.
+✔ Test queueCapacityRejectsExcessTasks() passed after 0.143 seconds.
+✔ Test cancellationMovesTaskToCancelled() passed after 0.215 seconds.
+✔ Test manualRetryOnNonFailedStateThrows() passed after 0.231 seconds.
+✔ Test enqueueReturnsPendingStatus() passed after 0.233 seconds.
+✔ Test maxConcurrentTasksLimitsActiveRunners() passed after 0.235 seconds.
+✔ Test pauseAndResumeRunningTask() passed after 0.237 seconds.
+✔ Test priorityQueueOrdersHighBeforeNormal() passed after 0.247 seconds.
+✔ Test checkpointPersistsAndCanBeLoaded() passed after 0.288 seconds.
+✔ Test expiredTaskFailsWithoutRetry() passed after 0.324 seconds.
+✔ Test retryExhaustionFailsTask() passed after 0.393 seconds.
+✔ Test inactiveTaskFailsWithoutRetry() passed after 0.436 seconds.
+✔ Test manualRetryReRunsFailedTaskWithoutReArmedBudget() passed after 0.701 seconds.
+✔ Test run with 16 tests in 0 suites passed after 0.702 seconds.
+PASSED: AuraTasksTests
+=== AuraMemoryTests ===
+✔ Test memoryEngineActiveBeliefsExcludeShadowedRecords() passed after 0.190 seconds.
+✔ Test memoryEngineCorrectAppendsSupersedingRecordAndEmitsEvent() passed after 0.190 seconds.
+✔ Test memoryEngineDeleteRejectsAuditRecords() passed after 0.190 seconds.
+✔ Test r8PreferenceProfilePersistsAndCannotWeakenLocalOnlyPolicy() passed after 0.190 seconds.
+✔ Test memoryEngineSupersessionCreatesProvenanceEdge() passed after 0.190 seconds.
+✔ Test r8SecretLikeContentIsRejectedEvenWhenMarkedInternal() passed after 0.190 seconds.
+✔ Test memoryEngineAppendCreatesProvenanceNode() passed after 0.190 seconds.
+✔ Test memoryEngineSupersessionSkipsConflictDetection() passed after 0.190 seconds.
+✔ Test memoryEngineEnforceRetentionPurgesSessionScopedRecordsForEndedSessions() passed after 0.190 seconds.
+✔ Test memoryEngineAppendsFactWithEvidence() passed after 0.190 seconds.
+✔ Test memoryEngineContradictionCreatesConflictsWithEdge() passed after 0.197 seconds.
+✔ Test r8WritePolicyRejectsRawUntrustedAndModelContent() passed after 0.199 seconds.
+✔ Test memoryEngineResolveConflictPersistsResolution() passed after 0.202 seconds.
+✔ Test r8VerifiedToolFactsRequireEvidenceAndRetainPurpose() passed after 0.206 seconds.
+✔ Test memoryEngineActiveBeliefsRespectAuthorityTieBreaker() passed after 0.211 seconds.
+✔ Test memoryEngineExportWithProvenanceIncludesSubgraphs() passed after 0.218 seconds.
+✔ Test memoryEngineCorrectRejectsAuditRecords() passed after 0.219 seconds.
+✔ Test memoryEngineCurrentStateMostRecentWinsOnUnresolvedConflict() passed after 0.220 seconds.
+✔ Test memoryEngineEnforceRetentionPurgesExpiredEphemeralRecords() passed after 0.223 seconds.
+✔ Test run with 30 tests in 0 suites passed after 0.224 seconds.
+PASSED: AuraMemoryTests
+=== AuraContextTests ===
+✔ Test r8ContextBundleCarriesPurposeProvenanceAndBoundedBudget() passed after 0.161 seconds.
+✔ Test ambiguousReferenceNeverGuessesBetweenTwoStrongFiles() passed after 0.161 seconds.
+✔ Test bundleSurfacesRecentLedgerEntriesAndDecisions() passed after 0.161 seconds.
+✔ Test productionAssemblerIsolatesCandidatesOutsideTheActiveWorkspace() passed after 0.161 seconds.
+✔ Test bundleAlwaysIncludesUtteranceAndConversationState() passed after 0.161 seconds.
+✔ Test bundleIncludesActiveWorkspaceWhenProvided() passed after 0.161 seconds.
+✔ Test deepPipelineIsInspectableAndBlocksWeakDestructiveReference() passed after 0.161 seconds.
+✔ Test recentLowConfidenceInjectedCandidateCannotSilentlyWinADestructiveResolution() passed after 0.161 seconds.
+✔ Test injectedCandidateAloneWithoutCompetitionIsBlockedNotResolved() passed after 0.161 seconds.
+✔ Test productionAssemblerOmitsExpiredAndFutureCandidates() passed after 0.161 seconds.
+✔ Test r8ContextSurfacesUnresolvedContradictionButUsesAuthorityWinner() passed after 0.170 seconds.
+✔ Test secretOrNonInjectableOverrideCannotEnterBundle() passed after 0.173 seconds.
+✔ Test userCanInspectExcludeAndExplicitlyIncludeContext() passed after 0.198 seconds.
+✔ Test scopeMatchingPreferenceOutranksMismatchedScopePreference() passed after 0.213 seconds.
+✔ Test trueMostRecentLedgerEntrySurfacesEvenWithManyOlderEntries() passed after 0.214 seconds.
+✔ Test semanticRetrievalMatchesRelevantFactAndSkipsUnrelatedOne() passed after 0.222 seconds.
+✔ Test multiHopFileTaskDecisionPreferenceLineageIsInjected() passed after 0.235 seconds.
+✔ Test bundleIsBoundedByConfiguredBudgetEvenWithManyCandidates() passed after 0.392 seconds.
+✔ Test tokenBudgetRetainsMandatoryContextAndDropsOptionalTail() passed after 0.615 seconds.
+✔ Test run with 37 tests in 0 suites passed after 0.615 seconds.
+PASSED: AuraContextTests
+=== AuraScreenTests ===
+✔ Test captureBlockedForNegativeOriginRegion() passed after 0.009 seconds.
+✔ Test regionsRelativeToCaptureClipsAndTranslatesOverlappingRegion() passed after 0.008 seconds.
+✔ Test captureBlockedForAssistantSelfExclusion() passed after 0.008 seconds.
+✔ Test captureBlockedForOutOfBoundsRegionAndNeverCallsCaptureSource() passed after 0.009 seconds.
+✔ Test captureBlockedForZeroSizedRegion() passed after 0.009 seconds.
+✔ Test doesNotFalsePositiveOnShortOrdinaryNumbers() passed after 0.008 seconds.
+✔ Test doesNotRedactWhenNoConfiguredPatternMatches() passed after 0.008 seconds.
+✔ Test captureBlockedForSensitiveApplication() passed after 0.009 seconds.
+✔ Test captureBlockedWhenPolicyDenies() passed after 0.009 seconds.
+✔ Test retainedRawFramesExpireAfterConfiguredRetentionWindow() passed after 0.009 seconds.
+✔ Test captureNeverRetainsRawFrameByDefault() passed after 0.009 seconds.
+✔ Test captureWithValidRegionRecordsRegionAndForwardsItToCaptureSource() passed after 0.009 seconds.
+✔ Test redactsFinancialDataShapedText() passed after 0.009 seconds.
+✔ Test captureRetainsRawFrameOnlyWhenExplicitlyOptedIn() passed after 0.009 seconds.
+✔ Test captureSucceedsAndRedactsRecognizedFinancialData() passed after 0.008 seconds.
+✔ Test absoluteSourceRectTranslatesWindowRelativeRegionToDisplaySpace() passed after 0.009 seconds.
+✔ Test sensitiveWindowTitleIsRedactedInObservation() passed after 0.009 seconds.
+✔ Test captureRespectsSecureFieldFocusAndMasksEntireFrame() passed after 0.009 seconds.
+✔ Test freshnessDeadlineReflectsConfiguredWindowAndObservationStartsFresh() passed after 0.009 seconds.
+✔ Test run with 37 tests in 0 suites passed after 0.010 seconds.
+PASSED: AuraScreenTests
+=== AuraAdversarialTests ===
+✔ Test ambiguousReferenceDoesNotAutoResolve() passed after 0.067 seconds.
+✔ Test pluginVerifierDetectsMissingSignatureWhenManifestIsUnsigned() passed after 0.067 seconds.
+✔ Test indirectInjectionMailBodyBlocked() passed after 0.067 seconds.
+✔ Test roleHijackBlockedInAgentToolOutput() passed after 0.067 seconds.
+✔ Test mandatoryConfirmationCannotBeBypassedByDenyRule() passed after 0.066 seconds.
+✔ Test routerRejectsDestructiveShellIntentWithoutConfirmation() passed after 0.069 seconds.
+✔ Test pluginPolicyDeniesInstallWithoutExplicitGrant() passed after 0.067 seconds.
+✔ Test projectLayerMayNotIncreaseConcurrencyCap() passed after 0.067 seconds.
+✔ Test adversarialIncidentResponsePlaybooksReferenced() passed after 0.067 seconds.
+✔ Test pluginManifestRejectsInvalidVersionClaim() passed after 0.067 seconds.
+✔ Test disabledClassifierReturnsCleanEvenForAttack() passed after 0.067 seconds.
+✔ Test confirmationChallengeExpiryEnforced() passed after 0.076 seconds.
+✔ Test memoryRejectsPoisonedPreferenceFromUntrustedSource() passed after 0.093 seconds.
+✔ Test shellDestructivePatternEscalatesAndRequiresConfirmation() passed after 0.093 seconds.
+✔ Test unknownToolIntentIsAmbiguous() passed after 0.093 seconds.
+✔ Test appActivationWithoutBundleIdentifierFails() passed after 0.093 seconds.
+✔ Test routerDoesNotActivateAppFromConverseIntent() passed after 0.094 seconds.
+✔ Test routerRejectsOutOfSchemaBundleSlotOnShellExecute() passed after 0.101 seconds.
+✔ Test memoryConflictDetectedWhenPoisonContradictsUserPreference() passed after 0.101 seconds.
+✔ Test run with 68 tests in 0 suites passed after 0.103 seconds.
+PASSED: AuraAdversarialTests
+=== AuraProductivityTests ===
+✔ Test "profile ambiguity and invalid input drop their private detail too" passed after 0.004 seconds.
+✔ Test "the diagnostic drops the candidate addresses that errorDescription leaks" passed after 0.004 seconds.
+✔ Test "the display label masks the local part but keeps the domain legible" passed after 0.004 seconds.
+✔ Test safariBridgeTransportRefusesAnEnvelopeFromAnUnpinnedKey() passed after 0.010 seconds.
+✔ Test "a fingerprint is stable, distinguishing, and does not contain the address" passed after 0.004 seconds.
+✔ Test "bounded text collapses newlines, truncates, and scrubs secret shapes" passed after 0.004 seconds.
+✔ Test "two approved accounts with no stated account is ambiguous, never a guess" passed after 0.003 seconds.
+✔ Test "a malformed provider payload is an outage, never a half-built message" passed after 0.006 seconds.
+✔ Test "being offline is reported as a network failure, not a bad credential" passed after 0.006 seconds.
+✔ Test "a revoked credential stops reads at the adapter" passed after 0.002 seconds.
+✔ Test "the bearer token travels in a header and never in the URL" passed after 0.006 seconds.
+✔ Test "each provider status maps to its own distinct failure" passed after 0.006 seconds.
+✔ Test "a recorded thread decodes headers and a base64url plain-text body" passed after 0.006 seconds.
+✔ Test "an enrollment record never carries token material, even when described" passed after 0.013 seconds.
+✔ Test gmailOAuthRejectsStateMismatchBeforeTokenExchange() passed after 0.039 seconds.
+✔ Test gmailOAuthKeepsDesktopClientSecretOutOfAuthorizationURL() passed after 0.039 seconds.
+✔ Test gmailOAuthUsesLoopbackPKCEAndEntersKeychainBoundary() passed after 0.040 seconds.
+✔ Test gmailOAuthClassifiesTokenRejectionWithoutProviderDescription() passed after 0.040 seconds.
+✔ Test gmailOAuthClassifiesRequiredClientSecretWithoutEchoingDescription() passed after 0.040 seconds.
+✔ Test run with 75 tests in 8 suites passed after 0.041 seconds.
+PASSED: AuraProductivityTests
+=== AuraLifecycleTests ===
+✔ Test stagedUpdateEmitsEventAndStoresRow() passed after 0.144 seconds.
+✔ Test factoryResetRemovesAllScopedItems() passed after 0.077 seconds.
+✔ Test disableAndPurgeClearsAllAggregates() passed after 0.082 seconds.
+✔ Test retentionPurgeRemovesOldDays() passed after 0.083 seconds.
+✔ Test rollbackStagedUpdateMarksRolledBack() passed after 0.151 seconds.
+✔ Test latencyIsBucketedNotRaw() passed after 0.089 seconds.
+✔ Test recordsConfirmationAndRecoveryOutcomes() passed after 0.103 seconds.
+✔ Test recordsSessionOutcomeCountWhenOptedIn() passed after 0.105 seconds.
+✔ Test "A clean shutdown prevents crash recovery on the next launch" passed after 0.028 seconds.
+✔ Test "Sleep and wake heartbeats are recorded and persisted" passed after 0.020 seconds.
+✔ Test "Safe mode can be requested, persisted, and cleared" passed after 0.001 seconds.
+✔ Test "Safe mode records a health status entry" passed after 0.001 seconds.
+✔ Test "Migration preflight passes on a fresh database" passed after 0.020 seconds.
+✔ Test "Migration preflight database check reads the latest schema version" passed after 0.019 seconds.
+✔ Test "Support bundle export creates summary and health files" passed after 0.020 seconds.
+✔ Test "Support bundle export redacts secret-like content" passed after 0.019 seconds.
+✔ Test "Update stages, then rolls back with a recovery checkpoint" passed after 0.028 seconds.
+✔ Test "Reset plan records a recovery checkpoint and enumerates scoped items" passed after 0.018 seconds.
+✔ Test "Uninstall assistant executes a reset plan against throwaway temp files" passed after 0.021 seconds.
+✔ Test run with 60 tests in 11 suites passed after 0.345 seconds.
+PASSED: AuraLifecycleTests
+==> Done. Failed bundles: 0
+FULL_EXIT=0

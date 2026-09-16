@@ -436,6 +436,18 @@ enum AuraCopy {
     "perm.accessibility": [.english: "Accessibility", .turkish: "Erişilebilirlik"],
     "perm.screenRecording": [.english: "Screen Recording", .turkish: "Ekran Kaydı"],
     "perm.screenObservation": [.english: "Screen observation", .turkish: "Ekran gözlemi"],
+    "perm.calendar": [.english: "Calendars", .turkish: "Takvimler"],
+    "perm.contacts": [.english: "Contacts", .turkish: "Kişiler"],
+    "perm.onePass": [
+      .english: "Granted once; never asked again.",
+      .turkish: "Bir kez verilir; yeniden sorulmaz.",
+    ],
+    "onboarding.privilegedAccess.incomplete": [
+      .english:
+        "Some permissions are still missing. Use the row's System Settings button, then Continue — or Skip for now.",
+      .turkish:
+        "Bazı izinler hâlâ eksik. Satırdaki Sistem Ayarları düğmesini kullanıp Devam edin — ya da şimdilik Atlayın.",
+    ],
     "perm.openPrivacySettings": [
       .english: "Open macOS Privacy Settings", .turkish: "macOS Gizlilik Ayarlarını aç",
     ],
@@ -793,8 +805,8 @@ enum AuraCopy {
       .turkish: "Uyandırma sözcüğü isteğe bağlıdır; mevcut kurulumda akustik model yoktur ve Bas Konuş kullanılabilir.",
     ],
     "onboarding.explain.privilegedAccess": [
-      .english: "Accessibility and Screen Recording are requested only by explicit user action; denied capabilities remain disabled.",
-      .turkish: "Erişilebilirlik ve Ekran Kaydı yalnızca açık kullanıcı eylemiyle istenir; verilmezse yetenekler devre dışı kalır.",
+      .english: "One pass for every macOS permission AURA uses — Microphone, Speech Recognition, Accessibility, Screen Recording, Calendars, Contacts. Granted once; never asked again.",
+      .turkish: "AURA'nın kullandığı tüm macOS izinleri tek geçişte — Mikrofon, Konuşma Tanıma, Erişilebilirlik, Ekran Kaydı, Takvimler, Kişiler. Bir kez verilir; yeniden sorulmaz.",
     ],
     "onboarding.explain.localModel": [
       .english: "Authentication and model availability are unverified",

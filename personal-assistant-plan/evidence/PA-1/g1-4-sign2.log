@@ -1,0 +1,14 @@
+Signing isolated plugin helper with identity 'AURA Stable Local Signing' and /Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Resources/AuraPluginHost.entitlements
+/Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/Helpers/AuraPluginHost.app: replacing existing signature
+Signing automation helper with identity 'AURA Stable Local Signing' and /Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Resources/AuraAutomationHelper.entitlements
+/Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/Helpers/AuraAutomationHelper.app: replacing existing signature
+Signing shell helper with identity 'AURA Stable Local Signing' and /Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Resources/AuraShellHelper.entitlements
+/Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/Helpers/AuraShellHelper.app: replacing existing signature
+Signing Chrome native host with identity 'AURA Stable Local Signing'
+/Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/Helpers/AuraChromeNativeHost: replacing existing signature
+Signing Safari extension with identity 'AURA Stable Local Signing' and /Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Resources/AuraSafariExtension.entitlements
+/Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/PlugIns/AuraSafariExtension.appex: replacing existing signature
+Signing /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app with identity 'AURA Stable Local Signing' and entitlements /Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Resources/AURA.entitlements
+/Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app: replacing existing signature
+Local signing complete.
+SIGN_EXIT=0

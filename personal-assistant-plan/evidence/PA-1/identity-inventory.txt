@@ -1,0 +1,41 @@
+# Identity inventory — /Applications/AURA.app (PA-1 G1-1, 2026-09-16)
+certificate: CN=AURA Stable Local Signing, O=AURA Local
+notAfter=Jul 26 06:19:58 2036 GMT
+sha1: 25:F0:F2:E4:D6:1E:97:D6:7E:10:8F:F5:39:95:3E:C9:C1:D6:AE:A3
+
+## AURA.app
+Identifier=ai.aura.local.agent
+Authority=AURA Stable Local Signing
+TeamIdentifier=not set
+designated => identifier "ai.aura.local.agent" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+
+## AURA.app/Contents/Helpers/AuraPluginHost.app
+Identifier=ai.aura.local.agent.plugin-host
+Authority=AURA Stable Local Signing
+TeamIdentifier=not set
+designated => identifier "ai.aura.local.agent.plugin-host" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+
+## AURA.app/Contents/Helpers/AuraAutomationHelper.app
+Identifier=ai.aura.local.agent.automation-helper
+Authority=AURA Stable Local Signing
+TeamIdentifier=not set
+designated => identifier "ai.aura.local.agent.automation-helper" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+
+## AURA.app/Contents/Helpers/AuraShellHelper.app
+Identifier=ai.aura.local.agent.shell-helper
+Authority=AURA Stable Local Signing
+TeamIdentifier=not set
+designated => identifier "ai.aura.local.agent.shell-helper" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+
+## AURA.app/Contents/Helpers/AuraChromeNativeHost
+Identifier=AuraChromeNativeHost
+Authority=AURA Stable Local Signing
+TeamIdentifier=not set
+designated => identifier AuraChromeNativeHost and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+
+## AURA.app/Contents/PlugIns/AuraSafariExtension.appex
+Identifier=ai.aura.local.agent.SafariExtension
+Authority=AURA Stable Local Signing
+TeamIdentifier=not set
+designated => identifier "ai.aura.local.agent.SafariExtension" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+

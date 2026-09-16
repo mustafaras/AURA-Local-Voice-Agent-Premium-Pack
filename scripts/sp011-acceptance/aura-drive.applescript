@@ -23,7 +23,7 @@
 -- list. Unbounded, that hangs the run; bounded, it is a reported failure the
 -- caller can act on.
 property scanTimeout : 40
-property scanLimit : 150
+property scanLimit : 400 -- PA-1: the Privacy tab's six indicator rows sit past 150
 
 on run argv
 	if (count of argv) < 1 then return "ERR usage"

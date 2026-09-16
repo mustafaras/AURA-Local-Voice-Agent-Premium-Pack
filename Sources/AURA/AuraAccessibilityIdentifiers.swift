@@ -73,6 +73,24 @@ enum AuraAccessibilityID {
   static let onboardingSkip = "aura.onboarding.skip"
   static let onboardingClose = "aura.onboarding.close"
 
+  /// ADR-065 §3 (PA-1): one live row per permission in the single consent
+  /// pass, plus its System Settings fallback. Addressed by `PermissionKind`
+  /// raw value so the identifier survives retitling and translation.
+  static func onboardingPermissionRow(_ kind: String) -> String {
+    "aura.onboarding.perm.\(kind)"
+  }
+  static func onboardingPermissionSettings(_ kind: String) -> String {
+    "aura.onboarding.perm.\(kind).settings"
+  }
+  /// Privacy-tab indicator per permission (ADR-065 G1-4 reads these live);
+  /// the element's accessibility value is the localized state.
+  static func permissionIndicator(_ kind: String) -> String { "aura.perm.indicator.\(kind)" }
+  /// Privacy-tab rows for the two permissions ADR-065 added to the snapshot.
+  static let calendarGrant = "aura.perm.calendar.grant"
+  static let calendarSettings = "aura.perm.calendar.settings"
+  static let contactsGrant = "aura.perm.contacts.grant"
+  static let contactsSettings = "aura.perm.contacts.settings"
+
   // Conversation composer + language switch. The language switch is the one
   // control that must stay reachable regardless of which tab is selected, so
   // it gets a stable identifier too.

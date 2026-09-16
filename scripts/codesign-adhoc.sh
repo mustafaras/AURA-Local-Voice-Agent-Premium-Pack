@@ -2,10 +2,13 @@
 set -euo pipefail
 
 # Code-sign AURA.app for local development.
-# Prefer the stable, locally trusted Keychain identity so TCC grants survive
-# rebuilds. Fall back to ad-hoc signing on machines where that identity has not
-# been provisioned. A real Developer ID certificate is still required for
-# notarized distribution.
+# Sign with the stable, locally trusted Keychain identity so TCC grants and
+# Keychain ACLs survive rebuilds (ADR-030). ADR-065 (PA-1): the ad-hoc
+# fallback is opt-in only — an ad-hoc bundle carries a fresh identity on every
+# build, and installing one is exactly what restarts the macOS permission and
+# Keychain-password cycle. Without `AURA_ALLOW_ADHOC=1`, a missing stable
+# identity is a hard error that prints the provisioning instruction. A real
+# Developer ID certificate is still required for notarized distribution.
 
 SCRIPT_DIR="$(cd "$(dirname "${(%):-%N}")" && pwd)"
 APP_PATH="${1:-$SCRIPT_DIR/../.build/release-app/AURA.app}"
@@ -25,9 +28,21 @@ SIGNING_IDENTITY="${AURA_CODESIGN_IDENTITY:-}"
 if [[ -z "$SIGNING_IDENTITY" ]]; then
   if security find-identity -v -p codesigning | grep -Fq "\"$LOCAL_IDENTITY\""; then
     SIGNING_IDENTITY="$LOCAL_IDENTITY"
-  else
+  elif [[ "${AURA_ALLOW_ADHOC:-0}" == "1" ]]; then
+    echo "WARNING: '$LOCAL_IDENTITY' not found; ad-hoc signing because AURA_ALLOW_ADHOC=1." >&2
+    echo "WARNING: an ad-hoc bundle must not be installed to /Applications — macOS will re-prompt for every permission." >&2
     SIGNING_IDENTITY="-"
+  else
+    echo "FAILED: signing identity '$LOCAL_IDENTITY' is not in the login keychain." >&2
+    echo "Provision it per docs/decisions/ADR-030-stable-local-signing-natural-system-tts.md (owner action)," >&2
+    echo "or set AURA_ALLOW_ADHOC=1 for a throwaway development bundle that must never be installed." >&2
+    exit 2
   fi
+fi
+
+if [[ "$SIGNING_IDENTITY" == "-" && "${AURA_ALLOW_ADHOC:-0}" != "1" ]]; then
+  echo "FAILED: ad-hoc signing ('-') requires AURA_ALLOW_ADHOC=1 (ADR-065)." >&2
+  exit 2
 fi
 
 if [[ ! -d "$APP_PATH" ]]; then

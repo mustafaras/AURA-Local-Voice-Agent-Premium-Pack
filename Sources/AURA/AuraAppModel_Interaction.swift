@@ -311,17 +311,41 @@ extension AuraAppModel {
     }
   }
 
+  /// ADR-065 §3: the `privilegedAccess` stage is the single consent pass —
+  /// every not-yet-decided permission is requested here, in order, once.
+  /// The stage machine is untouched (behavior-frozen since UI-5): the stage
+  /// advances when all six are granted and otherwise stays, with the live
+  /// rows and their System Settings fallbacks visible, and the optional
+  /// "skip" still available.
   private func handlePrivilegedAccessOnboarding() {
-    requestAccessibilityPermission()
-    requestScreenRecordingPermission()
-    refreshPermissions()
-    guard permissions.accessibility == .granted && permissions.screenRecording == .granted else {
-      lastOperationMessage =
-        "Accessibility and Screen Recording remain optional; grant them in "
-        + "macOS Settings, then continue."
-      return
+    Task {
+      permissions = await PermissionCoordinator.requestAllPermissions()
+      guard permissions.allGranted else {
+        lastOperationMessage = AuraCopy.text(
+          "onboarding.privilegedAccess.incomplete", language: productUIState.language)
+        return
+      }
+      advanceOnboarding()
     }
-    advanceOnboarding()
+  }
+
+  func requestCalendarPermission() {
+    Task { permissions = await PermissionCoordinator.requestCalendarPermission() }
+  }
+
+  func requestContactsPermission() {
+    Task { permissions = await PermissionCoordinator.requestContactsPermission() }
+  }
+
+  /// One request entry point per permission, for the stage rows.
+  func requestPermission(_ kind: PermissionKind) {
+    switch kind {
+    case .microphone, .speechRecognition: requestVoicePermissions()
+    case .accessibility: requestAccessibilityPermission()
+    case .screenRecording: requestScreenRecordingPermission()
+    case .calendar: requestCalendarPermission()
+    case .contacts: requestContactsPermission()
+    }
   }
 
   private func handleEmergencyStopOnboarding() {

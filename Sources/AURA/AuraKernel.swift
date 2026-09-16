@@ -37,6 +37,12 @@ actor AuraKernel {
   let logger: AuraLogger
   let confirmationPresenter: any AuraConfirmationPresenting
   let sessionID = UUID()
+  /// ADR-065 §2: evaluated once at construction from the running code's own
+  /// signature (`CodeIdentityProbe`). `true` only for a bundle signed by
+  /// `AURA Stable Local Signing`; every Keychain service name the kernel
+  /// composes is derived from it through `AppConfiguration.effectiveServiceName`.
+  let codeIdentity: CodeIdentity
+  var isStableIdentity: Bool { codeIdentity == .stable }
 
   var runtimeHealthRegistry: RuntimeHealthRegistry?
   var policyEngine: PolicyEngine?
@@ -113,12 +119,14 @@ actor AuraKernel {
     store: AuraStore,
     eventBus: AuraEventBus,
     logger: AuraLogger,
-    confirmationPresenter: any AuraConfirmationPresenting? = nil
+    confirmationPresenter: any AuraConfirmationPresenting? = nil,
+    codeIdentityProbe: any CodeIdentityProbing = CodeIdentityProbe()
   ) {
     self.configuration = configuration
     self.store = store
     self.eventBus = eventBus
     self.logger = logger
+    self.codeIdentity = codeIdentityProbe.identity()
     // For unattended text-only evidence runs (AURA_TEXT_DEMO_SCRIPT), use an
     // auto-allow confirmation presenter so the typed-input path can exercise
     // side-effecting intents without a GUI. Production default remains safe-deny.

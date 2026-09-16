@@ -1,0 +1,182 @@
+==> Running Chrome extension behavior tests
+✔ publishes an empty bounded observation when page injection is refused (1.064209ms)
+✔ publishes visible text from an injectable page (0.301459ms)
+✔ publishes an empty observation from the extension-owned bootstrap page (0.267625ms)
+✔ reports a native host rejection instead of claiming connection (0.318667ms)
+✔ rejects bootstrap messages from any other sender URL (0.279041ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 66.133875
+==> Cleaning build path: /tmp/aurabuild
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1400]
+[Planning deferred tasks]
+[88 / 428] AuraProductivity
+[199 / 428]
+[200 / 429] AuraCore
+[210 / 477]
+[218 / 477]
+[220 / 477]
+[224 / 477]
+[227 / 477]
+[233 / 477]
+[234 / 477]
+[235 / 477]
+[236 / 477]
+[248 / 477] AuraCore
+[249 / 477] AuraCore
+[258 / 481]
+[258 / 481] AuraCore
+[258 / 481] AuraShell
+[264 / 501] AuraShell
+[267 / 537]
+[276 / 558] AuraStore
+[292 / 558]
+[299 / 558] AuraStore
+[306 / 558] AuraTasks
+[311 / 558] AuraShell
+[315 / 558] AuraShell
+[322 / 558] AuraShell
+[327 / 559]
+[331 / 562]
+[331 / 562] AuraShell
+[337 / 573] AuraTasks
+[340 / 599] AuraConfig
+[353 / 599] AuraPolicy
+[369 / 599] AuraPolicy
+[374 / 599] AuraAudio
+[376 / 599] AuraMemory-product
+[395 / 599] AuraContext
+[402 / 599] AuraConfig-product
+[409 / 599] AuraAudio
+[416 / 599] AuraAutomation-product
+[419 / 599] AuraAutomation
+[423 / 599] AuraAutomation
+[427 / 599] AuraAudio
+[431 / 599] AuraAudio
+[432 / 599]
+[435 / 602] AuraSTT
+[435 / 602]
+[436 / 613] AuraScreen
+[438 / 627] AuraSTT
+[445 / 638] AuraSecurity
+[449 / 638] AuraSTT
+[452 / 638] AuraAudio
+[459 / 638] AuraSecurity
+[464 / 638] AuraSTT
+[473 / 638] AuraSpeechQualityProbe-product
+[481 / 638] AuraScreen
+[490 / 638] AuraLifecycle
+[505 / 644]
+[506 / 645]
+[511 / 677] AuraShellHelper-product
+[516 / 711]
+[527 / 711] AuraVSCode
+[547 / 711] AuraSpeechQualityProbe-product
+[553 / 711] AuraSpeechQualityProbe-product
+[556 / 711] AuraShellHelper-product
+[560 / 711] AuraProductivity
+[565 / 711] AuraProductivity
+[580 / 711] AuraProductivity
+[586 / 711] AuraPlugins
+[589 / 711] AuraPlugins
+[592 / 711] AuraPlugins
+[595 / 711] AuraLifecycle
+[599 / 711] AuraLifecycle
+[602 / 711] AuraLifecycle
+[606 / 711] AuraContext
+[609 / 711] AuraContext-product
+[610 / 711] AuraContext
+[617 / 714]
+[627 / 715] AuraPolicy
+[636 / 715]
+[639 / 715] AuraVSCode
+[641 / 715]
+[645 / 717]
+[648 / 719]
+[651 / 732] AuraComputerUse
+[657 / 737]
+[661 / 739] AuraChromeNativeHost-product
+[668 / 739] AuraSafariExtensionHandler-product
+[678 / 750] AuraComputerUse
+[684 / 750] AuraComputerUse-product
+[690 / 750] AuraAgent
+[691 / 750] AuraAgent
+[692 / 750] AuraSafariExtensionHandler-product
+[694 / 750] AuraAgent
+[700 / 750] AuraProductivity-product
+[709 / 750]
+[714 / 751] AuraAutomation
+[720 / 751] AuraAudio-product
+[726 / 751] AuraAgent
+[726 / 751] AuraChromeNativeHost-product
+[728 / 751] AuraAgent
+[739 / 762] AuraIntent
+[741 / 762] AuraIntent
+[745 / 762]
+[746 / 762] AuraIntent
+[755 / 763] AuraIntent
+[758 / 763] AURA-product
+[770 / 775] AURA-product
+[771 / 775] AURA-product
+[773 / 775] AURA-product
+Build complete! (22,09 secs)
+==> Building test targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 732]
+[Planning deferred tasks]
+[22 / 99] AuraCore
+[24 / 55] AuraSafariExtensionHandler
+[35 / 70] AURA
+[39 / 70] AuraSafariExtensionHandler
+[46 / 70]
+[47 / 70] AURA
+[55 / 70] AURA
+[60 / 71] AURAIntegrationTests-product
+[61 / 87]
+[65 / 87]
+[76 / 87] AURAIntegrationTests-product
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AURAIntegrationTests/SP019MemoryUIStateTests.swift:47:29: [1;33mwarning: [1;39m'#require(_:_:)' is redundant because 'model.lastMemoryDeletionReceipt' never equals 'nil' (from macro 'require')[0;0m
+[0;36m45 |[0;0m     model.lastMemoryDeletionReceipt = AuraMemoryDeletionReceiptRow(receipt: receipt)
+[0;36m46 |[0;0m 
+[0;36m47 |[0;0m     let row = try? #require([4;39mmodel.lastMemoryDeletionReceipt[0;0m)
+   [0;36m|[0;0m                             `- [1;33mwarning: [1;39m'#require(_:_:)' is redundant because 'model.lastMemoryDeletionReceipt' never equals 'nil' (from macro 'require')[0;0m
+[0;36m48 |[0;0m     #expect(row?.id == recordID)
+[0;36m49 |[0;0m     #expect(row?.memoryClass == MemoryClass.workingConversation.rawValue)
+[81 / 87] AURAIntegrationTests-product
+[83 / 87] AURAIntegrationTests-product
+[86 / 87] AURAIntegrationTests-product
+Build complete! (9,13 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AURAIntegrationTests ===
+✔ Test "the receipt survives after the transient status line is replaced" passed after 1.027 seconds.
+✔ Test "a deletion receipt proves the deletion without preserving its content" passed after 1.062 seconds.
+✔ Test "RMS→dBFS math matches the VAD's energy computation" passed after 1.262 seconds.
+✔ Test "normalization clamps silence and full scale into 0…1" passed after 1.262 seconds.
+✔ Test "scalar-only shape: the bridge exposes no sample accessors" passed after 1.262 seconds.
+✔ Test "an already-answered confirmation is not re-denied" passed after 1.260 seconds.
+✔ Test "dismissing an unanswered confirmation denies it" passed after 1.260 seconds.
+✔ Test "dismissing with nothing pending is a no-op" passed after 1.260 seconds.
+✔ Test "bridge starts honest-idle: nil until listening" passed after 1.262 seconds.
+✔ Test "stale sequence index is skipped (exact lookup, mirroring AudioSampleBridge)" passed after 1.262 seconds.
+✔ Test "listening transition to off publishes nil immediately (honest idle)" passed after 1.262 seconds.
+✔ Test "bridge publishes a scalar level only while listening" passed after 1.262 seconds.
+✔ Test "throttle with deterministic clock: interval boundary publishes" passed after 1.262 seconds.
+✔ Test "throttle cadence: burst inside the interval publishes once" passed after 1.262 seconds.
+✔ Test "progress subscription consumes the payload instead of discarding it" passed after 1.261 seconds.
+✔ Test "a real TTSStartedEvent sets isSpeakingResponse; every TTSStoppedEvent reason clears it" passed after 1.261 seconds.
+✔ Test "window close dismisses a pending confirmation and persists only redacted trace" passed after 1.262 seconds.
+✔ Test "emergency stop cancels a pending confirmation and persists redacted trace" passed after 1.263 seconds.
+✔ Test "confirmation lifecycle persists redacted terminal outcomes" passed after 1.295 seconds.
+✔ Test run with 210 tests in 35 suites passed after 1.301 seconds.
+PASSED: AURAIntegrationTests
+==> Done. Failed bundles: 0

@@ -95,6 +95,59 @@ echo ""
 echo "=== Designated requirement ==="
 codesign -d -r- "$APP_PATH"
 
+# ADR-065 (PA-1) identity invariant: every nested code object must be signed
+# by the stable local identity, whose designated requirement pins the
+# certificate root hash. An ad-hoc signature has no certificate at all
+# (`Signature=adhoc`, DR pins a cdhash), so it fails here — unless the caller
+# is knowingly verifying a throwaway bundle with AURA_ALLOW_ADHOC=1.
+echo ""
+echo "=== Identity invariant (ADR-065) ==="
+LOCAL_IDENTITY="AURA Stable Local Signing"
+STABLE_SHA1="$(security find-certificate -c "$LOCAL_IDENTITY" -p 2>/dev/null \
+  | openssl x509 -noout -fingerprint -sha1 2>/dev/null \
+  | sed -e 's/^.*=//' -e 's/://g' | tr 'A-F' 'a-f')"
+if [[ -z "$STABLE_SHA1" && "${AURA_ALLOW_ADHOC:-0}" != "1" ]]; then
+  echo "FAILED: '$LOCAL_IDENTITY' certificate not found in the keychain; cannot verify the identity invariant (ADR-030 provisioning is an owner action)."
+  exit 1
+fi
+IDENTITY_FAILED=0
+for code_object in \
+  "$APP_PATH" \
+  "$APP_PATH/Contents/Helpers/AuraPluginHost.app" \
+  "$APP_PATH/Contents/Helpers/AuraAutomationHelper.app" \
+  "$APP_PATH/Contents/Helpers/AuraShellHelper.app" \
+  "$APP_PATH/Contents/Helpers/AuraChromeNativeHost" \
+  "$APP_PATH/Contents/PlugIns/AuraSafariExtension.appex"; do
+  details="$(codesign -dvv "$code_object" 2>&1)"
+  requirement="$(codesign -d -r- "$code_object" 2>/dev/null | grep '^designated' || true)"
+  if [[ "$details" == *"Signature=adhoc"* ]]; then
+    if [[ "${AURA_ALLOW_ADHOC:-0}" == "1" ]]; then
+      echo "ad-hoc (allowed by AURA_ALLOW_ADHOC=1): $code_object"
+      continue
+    fi
+    echo "FAILED identity invariant: ad-hoc signature on $code_object"
+    IDENTITY_FAILED=1
+    continue
+  fi
+  if [[ "$details" != *"Authority=$LOCAL_IDENTITY"* ]]; then
+    echo "FAILED identity invariant: $code_object is not signed by '$LOCAL_IDENTITY'"
+    IDENTITY_FAILED=1
+    continue
+  fi
+  if [[ -n "$STABLE_SHA1" && "$requirement" != *"certificate root = H\"$STABLE_SHA1\""* ]]; then
+    echo "FAILED identity invariant: designated requirement of $code_object does not pin the stable certificate ($STABLE_SHA1)"
+    echo "  $requirement"
+    IDENTITY_FAILED=1
+    continue
+  fi
+  echo "stable identity OK: $code_object"
+  echo "  $requirement"
+done
+if [[ "$IDENTITY_FAILED" != "0" ]]; then
+  echo "Identity invariant FAILED (ADR-065): an unstable identity restarts the macOS permission and Keychain-password cycle."
+  exit 1
+fi
+
 echo ""
 echo "=== Strict validation ==="
 codesign --verify --deep --strict "$APP_PATH"

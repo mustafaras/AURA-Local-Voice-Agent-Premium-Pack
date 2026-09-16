@@ -357,15 +357,11 @@ extension AuraMenuView {
       sectionTitle("privacy.title", symbol: "lock.shield")
       GroupBox(copy("perm.indicators")) {
         VStack(alignment: .leading, spacing: 5) {
-          permissionIndicator(
-            copy("perm.microphone"), model.permissions.microphone.title(for: language))
-          permissionIndicator(
-            copy("perm.activeSpeechRecognition"),
-            model.permissions.speechRecognition.title(for: language))
+          permissionIndicator(.microphone)
+          permissionIndicator(.speechRecognition)
+          permissionIndicator(.accessibility)
           HStack {
-            permissionIndicator(
-              copy("perm.screenObservation"),
-              model.permissions.screenRecording.title(for: language))
+            permissionIndicator(.screenRecording)
             // Both remediations stay reachable in every state: before a TCC
             // decision the button raises the real macOS prompt; after a
             // recorded decision the prompt can never reappear, so the row
@@ -389,6 +385,42 @@ extension AuraMenuView {
               "\(copy("integrations.systemSettings")): \(copy("perm.screenObservation"))"
             )
             .accessibilityIdentifier(AuraAccessibilityID.screenObservationSettings)
+          }
+          // ADR-065 §3: the two permissions added to the snapshot, with the
+          // same grant / System Settings pair as screen observation.
+          HStack {
+            permissionIndicator(.calendar)
+            Button {
+              model.requestCalendarPermission()
+            } label: {
+              Label(copy("integrations.grantAccess"), systemImage: "lock.open")
+            }
+            .accessibilityLabel("\(copy("integrations.grantAccess")): \(copy("perm.calendar"))")
+            .accessibilityIdentifier(AuraAccessibilityID.calendarGrant)
+            Button {
+              model.openCalendarSettings()
+            } label: {
+              Label(copy("integrations.systemSettings"), systemImage: "gearshape")
+            }
+            .accessibilityLabel("\(copy("integrations.systemSettings")): \(copy("perm.calendar"))")
+            .accessibilityIdentifier(AuraAccessibilityID.calendarSettings)
+          }
+          HStack {
+            permissionIndicator(.contacts)
+            Button {
+              model.requestContactsPermission()
+            } label: {
+              Label(copy("integrations.grantAccess"), systemImage: "lock.open")
+            }
+            .accessibilityLabel("\(copy("integrations.grantAccess")): \(copy("perm.contacts"))")
+            .accessibilityIdentifier(AuraAccessibilityID.contactsGrant)
+            Button {
+              model.openContactsSettings()
+            } label: {
+              Label(copy("integrations.systemSettings"), systemImage: "gearshape")
+            }
+            .accessibilityLabel("\(copy("integrations.systemSettings")): \(copy("perm.contacts"))")
+            .accessibilityIdentifier(AuraAccessibilityID.contactsSettings)
           }
           if !model.isCloudContextPolicyAllowed {
             Label(copy("conversation.cloudDisabled"), systemImage: "icloud.slash")
@@ -563,6 +595,10 @@ extension AuraMenuView {
           permissionIndicator(
             copy("perm.screenRecording"),
             model.permissions.screenRecording.title(for: language))
+          permissionIndicator(
+            copy("perm.calendar"), model.permissions.calendar.title(for: language))
+          permissionIndicator(
+            copy("perm.contacts"), model.permissions.contacts.title(for: language))
           Button(copy("perm.openPrivacySettings")) { model.openMicrophoneSettings() }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -651,6 +687,20 @@ extension AuraMenuView {
       state: state,
       tint: AuraDesign.Palette.signal)
       .accessibilityLabel("\(name): \(state)")
+  }
+
+  /// ADR-065: the same row, addressable by `PermissionKind` so a live
+  /// acceptance run can read every state (`accessibilityValue`) by identifier.
+  func permissionIndicator(_ kind: PermissionKind) -> some View {
+    let state = model.permissions.state(for: kind).title(for: language)
+    return permissionIndicator(copy(kind.copyKey), state)
+      // One accessibility element per row: the label already carries
+      // "name: state", so the children add nothing for VoiceOver and only
+      // inflate the tree the acceptance driver scans.
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel("\(copy(kind.copyKey)): \(state)")
+      .accessibilityValue(state)
+      .accessibilityIdentifier(AuraAccessibilityID.permissionIndicator(kind.rawValue))
   }
 
   func copy(_ key: String) -> String {

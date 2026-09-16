@@ -349,8 +349,11 @@ extension AuraKernel {
         fileURLWithPath: configuration.productivity.resolvedSafariSharedContainerPath)
       let secretStore = SafariBridgeSecretStore(
         secretStore: KeychainSecretStore(
-          serviceName: configuration.productivity.safariSecretServiceName),
-        serviceName: configuration.productivity.safariSecretServiceName)
+          serviceName: AppConfiguration.effectiveServiceName(
+            configuration.productivity.safariSecretServiceName,
+            isStableIdentity: isStableIdentity)),
+        serviceName: AppConfiguration.effectiveServiceName(
+          configuration.productivity.safariSecretServiceName, isStableIdentity: isStableIdentity))
       let bridge = SafariBridgeRuntime(
         profile: profile,
         extensionID: configuration.productivity.safariExtensionID,
@@ -399,7 +402,9 @@ extension AuraKernel {
     let productivity = ProductivityRuntime.make(
       configuration: configuration.productivity,
       safariBridge: safariBridgeRuntime,
-      secretStore: KeychainSecretStore(serviceName: configuration.app.serviceName),
+      secretStore: KeychainSecretStore(
+        serviceName: AppConfiguration.effectiveServiceName(
+          configuration.app.serviceName, isStableIdentity: isStableIdentity)),
       gmailOAuthClientSecret: gmailOAuthClientSecret,
       fetcher: providerFetcher,
       injectionClassifier: injectionClassifier ?? PromptInjectionClassifier(),
@@ -572,9 +577,13 @@ extension AuraKernel {
     shell: AuraShell,
     policyEngine: PolicyEngine?
   ) async -> VSCodeAdapter {
+    // ADR-065 §2: same Keychain-namespace derivation as the productivity and
+    // Safari stores — a non-stable identity gets `<name>.dev`.
+    let vscodeServiceName = AppConfiguration.effectiveServiceName(
+      configuration.secretServiceName, isStableIdentity: isStableIdentity)
     let secretStore = VSCodeBridgeSecretStore(
-      secretStore: KeychainSecretStore(serviceName: configuration.secretServiceName),
-      serviceName: configuration.secretServiceName)
+      secretStore: KeychainSecretStore(serviceName: vscodeServiceName),
+      serviceName: vscodeServiceName)
     self.vscodeBridgeSecretStore = secretStore
 
     let bridge: any VSCodeExtensionBridge

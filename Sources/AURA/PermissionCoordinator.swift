@@ -1,6 +1,8 @@
 import AVFAudio
 import AppKit
 @preconcurrency import ApplicationServices
+import Contacts
+import EventKit
 import Foundation
 import Speech
 
@@ -26,14 +28,74 @@ enum PermissionState: String, Sendable {
   }
 }
 
-struct PermissionSnapshot: Sendable {
+/// The six macOS permissions the product needs, in the order the single
+/// consent pass requests them (ADR-065 §3). All six belong to the main app
+/// process — see `personal-assistant-plan/evidence/PA-1/permission-map.md`.
+enum PermissionKind: String, CaseIterable, Sendable {
+  case microphone
+  case speechRecognition
+  case accessibility
+  case screenRecording
+  case calendar
+  case contacts
+
+  var copyKey: String {
+    switch self {
+    case .microphone: "perm.microphone"
+    case .speechRecognition: "perm.speechRecognition"
+    case .accessibility: "perm.accessibility"
+    case .screenRecording: "perm.screenRecording"
+    case .calendar: "perm.calendar"
+    case .contacts: "perm.contacts"
+    }
+  }
+
+  /// The `x-apple.systempreferences` Privacy anchor for the fallback button.
+  var settingsAnchor: String {
+    switch self {
+    case .microphone: "Microphone"
+    case .speechRecognition: "SpeechRecognition"
+    case .accessibility: "Accessibility"
+    case .screenRecording: "ScreenCapture"
+    case .calendar: "Calendars"
+    case .contacts: "Contacts"
+    }
+  }
+}
+
+struct PermissionSnapshot: Sendable, Equatable {
   var microphone: PermissionState
   var speechRecognition: PermissionState
   var accessibility: PermissionState
   var screenRecording: PermissionState
+  /// ADR-065 §3: Calendars and Contacts join the snapshot so the consent pass
+  /// and the indicators cover every permission the product uses.
+  var calendar: PermissionState = .notDetermined
+  var contacts: PermissionState = .notDetermined
 
   var speechReady: Bool {
     microphone == .granted && speechRecognition == .granted
+  }
+
+  func state(for kind: PermissionKind) -> PermissionState {
+    switch kind {
+    case .microphone: microphone
+    case .speechRecognition: speechRecognition
+    case .accessibility: accessibility
+    case .screenRecording: screenRecording
+    case .calendar: calendar
+    case .contacts: contacts
+    }
+  }
+
+  /// Every permission granted — the state the single consent pass aims for.
+  var allGranted: Bool {
+    PermissionKind.allCases.allSatisfy { state(for: $0) == .granted }
+  }
+
+  /// Permissions macOS will still prompt for (never asked yet).
+  var undetermined: [PermissionKind] {
+    PermissionKind.allCases.filter { state(for: $0) == .notDetermined }
   }
 }
 
@@ -43,7 +105,42 @@ enum PermissionCoordinator {
       microphone: microphoneState(),
       speechRecognition: speechState(),
       accessibility: AXIsProcessTrusted() ? .granted : .denied,
-      screenRecording: CGPreflightScreenCaptureAccess() ? .granted : .denied)
+      screenRecording: CGPreflightScreenCaptureAccess() ? .granted : .denied,
+      calendar: calendarState(),
+      contacts: contactsState())
+  }
+
+  /// ADR-065 §3 — the single consent pass. Requests, in order, every
+  /// permission macOS has not yet decided: Microphone, Speech Recognition,
+  /// Accessibility, Screen Recording, Calendars, Contacts. Already-decided
+  /// permissions are never re-requested (macOS would not prompt anyway; the
+  /// UI hands the user the System Settings pane instead). Each request is
+  /// awaited before the next so the prompts arrive one at a time.
+  static func requestAllPermissions() async -> PermissionSnapshot {
+    _ = await requestVoicePermissions()
+    if !AXIsProcessTrusted() {
+      _ = requestAccessibilityPermission()
+    }
+    if !CGPreflightScreenCaptureAccess() {
+      _ = CGRequestScreenCaptureAccess()
+    }
+    _ = await requestCalendarPermission()
+    _ = await requestContactsPermission()
+    return snapshot()
+  }
+
+  static func requestCalendarPermission() async -> PermissionSnapshot {
+    if EKEventStore.authorizationStatus(for: .event) == .notDetermined {
+      _ = try? await EKEventStore().requestFullAccessToEvents()
+    }
+    return snapshot()
+  }
+
+  static func requestContactsPermission() async -> PermissionSnapshot {
+    if CNContactStore.authorizationStatus(for: .contacts) == .notDetermined {
+      _ = try? await CNContactStore().requestAccess(for: .contacts)
+    }
+    return snapshot()
   }
 
   static func requestVoicePermissions() async -> PermissionSnapshot {
@@ -114,6 +211,27 @@ enum PermissionCoordinator {
     case .granted: .granted
     case .denied: .denied
     case .undetermined: .notDetermined
+    @unknown default: .unavailable
+    }
+  }
+
+  private static func calendarState() -> PermissionState {
+    switch EKEventStore.authorizationStatus(for: .event) {
+    case .fullAccess, .authorized: .granted
+    case .writeOnly: .restricted
+    case .denied: .denied
+    case .notDetermined: .notDetermined
+    case .restricted: .restricted
+    @unknown default: .unavailable
+    }
+  }
+
+  private static func contactsState() -> PermissionState {
+    switch CNContactStore.authorizationStatus(for: .contacts) {
+    case .authorized, .limited: .granted
+    case .denied: .denied
+    case .notDetermined: .notDetermined
+    case .restricted: .restricted
     @unknown default: .unavailable
     }
   }

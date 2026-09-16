@@ -1,0 +1,69 @@
+
+=== AuraPluginHost sandbox ===
+AuraPluginHost OK
+
+=== AuraAutomationHelper sandbox ===
+AuraAutomationHelper OK
+
+=== AuraShellHelper sandbox ===
+AuraShellHelper OK
+=== Signature verification ===
+Executable=/Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/MacOS/AURA
+Identifier=ai.aura.local.agent
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20500 size=45972 flags=0x10000(runtime) hashes=1426+7 location=embedded
+VersionPlatform=1
+VersionMin=1769472
+VersionSDK=1769472
+Hash type=sha256 size=32
+CandidateCDHash sha256=6d4207b96eac642b6b386c6684668398a9fcd6fc
+CandidateCDHashFull sha256=6d4207b96eac642b6b386c6684668398a9fcd6fcc1cecea4aa19089ed251dac4
+Hash choices=sha256
+CMSDigest=6d4207b96eac642b6b386c6684668398a9fcd6fcc1cecea4aa19089ed251dac4
+CMSDigestType=2
+Executable Segment base=0
+Executable Segment limit=8077312
+Executable Segment flags=0x1
+Page size=16384
+CDHash=6d4207b96eac642b6b386c6684668398a9fcd6fc
+Signature size=2194
+Authority=AURA Stable Local Signing
+Signed Time=16 Sep 2026 at 17:49:44
+Info.plist entries=20
+TeamIdentifier=not set
+Runtime Version=27.0.0
+Sealed Resources version=2 rules=13 files=17
+Internal requirements count=1 size=96
+Total signatures=1
+Chosen signature=1
+
+=== Entitlements ===
+{
+  "com.apple.security.device.audio-input" => true
+  "com.apple.security.personal-information.addressbook" => true
+  "com.apple.security.personal-information.calendars" => true
+}
+Main app sandbox: intentionally disabled; TCC and policy enforce protected capabilities
+
+=== Designated requirement ===
+Executable=/Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/MacOS/AURA
+designated => identifier "ai.aura.local.agent" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+
+=== Identity invariant (ADR-065) ===
+stable identity OK: /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app
+  designated => identifier "ai.aura.local.agent" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+stable identity OK: /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/Helpers/AuraPluginHost.app
+  designated => identifier "ai.aura.local.agent.plugin-host" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+stable identity OK: /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/Helpers/AuraAutomationHelper.app
+  designated => identifier "ai.aura.local.agent.automation-helper" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+stable identity OK: /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/Helpers/AuraShellHelper.app
+  designated => identifier "ai.aura.local.agent.shell-helper" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+stable identity OK: /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/Helpers/AuraChromeNativeHost
+  designated => identifier AuraChromeNativeHost and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+stable identity OK: /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app/Contents/PlugIns/AuraSafariExtension.appex
+  designated => identifier "ai.aura.local.agent.SafariExtension" and certificate root = H"25f0f2e4d61e97d67e108ff539953ec9c1d6aea3"
+
+=== Strict validation ===
+
+Signature OK: /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app
+VERIFY_EXIT=0

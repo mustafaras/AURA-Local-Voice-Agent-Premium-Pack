@@ -1,0 +1,112 @@
+warning: '--skip-update' option is deprecated and will be removed in a future release
+Building for production...
+[Provisioning 1 / 21]
+[Pre-planning 1 / 616]
+[Planning deferred tasks]
+[136 / 281]
+[137 / 282] AuraCore
+[148 / 320]
+[153 / 320]
+[157 / 320]
+[158 / 320]
+[162 / 320]
+[165 / 320]
+[171 / 320]
+[173 / 320]
+[174 / 320]
+[176 / 320] AuraCore
+[186 / 324] AuraShell
+[191 / 327] AuraAutomation
+[206 / 365]
+[211 / 365]
+[216 / 365]
+[221 / 365]
+[225 / 365]
+[228 / 365]
+[229 / 365]
+[231 / 365] AuraStore
+[241 / 369] AuraTasks
+[249 / 373] AuraAutomation
+[255 / 373] AuraShell
+[261 / 373] AuraAudio
+[268 / 374] AuraTasks
+[274 / 374] AuraSTT
+[277 / 376] AuraPolicy
+[286 / 379] AuraPlugins
+[290 / 381] AuraScreen
+[295 / 387]
+[296 / 387] AuraMemory
+[303 / 388]
+[306 / 389] AuraSecurity
+[314 / 391] AuraSecurity
+[314 / 391] AuraVSCode
+[320 / 399]
+[329 / 399]
+[330 / 399] AuraConfig
+[337 / 400] AuraLifecycle
+[340 / 402] AuraScreen
+[347 / 403] AuraComputerUse
+[349 / 404] AuraContext
+[355 / 404] AuraVSCode
+[362 / 405] AuraPlugins
+[368 / 405] AuraAgent
+[370 / 406] AuraComputerUse
+[376 / 406] AuraProductivity
+[382 / 406] AuraLifecycle
+[388 / 406] AuraAgent
+[395 / 407] AuraIntent
+[397 / 408] AuraIntent
+[404 / 409] AURA-product
+[407 / 411] AURA-product
+[409 / 411] AURA-product
+[410 / 411] AURA-product
+Build complete! (44,20 secs)
+warning: '--skip-update' option is deprecated and will be removed in a future release
+Building for production...
+[Pre-planning 1 / 152]
+[Planning deferred tasks]
+[6 / 11] AuraPluginHost-product
+[8 / 12] AuraPluginHost-product
+[10 / 12] AuraPluginHost-product
+[11 / 12] AuraPluginHost-product
+Build complete! (1,37 secs)
+warning: '--skip-update' option is deprecated and will be removed in a future release
+Building for production...
+[Pre-planning 1 / 181]
+[Creating build graph]
+[6 / 11] AuraAutomationHelper-product
+[8 / 12] AuraAutomationHelper-product
+[10 / 12] AuraAutomationHelper-product
+[11 / 12] AuraAutomationHelper-product
+Build complete! (1,47 secs)
+warning: '--skip-update' option is deprecated and will be removed in a future release
+Building for production...
+[Pre-planning 1 / 181]
+[Planning deferred tasks]
+[5 / 22]
+[6 / 11] AuraShellHelper-product
+[8 / 12] AuraShellHelper-product
+[10 / 12] AuraShellHelper-product
+[11 / 12] AuraShellHelper-product
+Build complete! (1,56 secs)
+warning: '--skip-update' option is deprecated and will be removed in a future release
+Building for production...
+[Pre-planning 1 / 181]
+[Planning deferred tasks]
+[6 / 11] AuraSafariExtensionHandler-product
+[9 / 13] AuraSafariExtensionHandler-product
+[11 / 13] AuraSafariExtensionHandler-product
+[12 / 13] AuraSafariExtensionHandler-product
+Build complete! (1,74 secs)
+warning: '--skip-update' option is deprecated and will be removed in a future release
+Building for production...
+[Pre-planning 1 / 181]
+[Planning deferred tasks]
+[6 / 11] AuraChromeNativeHost-product
+[8 / 12] AuraChromeNativeHost-product
+[10 / 12] AuraChromeNativeHost-product
+[11 / 12] AuraChromeNativeHost-product
+Build complete! (2,07 secs)
+Built /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app
+Next step: ./scripts/codesign-adhoc.sh /Users/m_ras/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app
+BUILD_EXIT=0

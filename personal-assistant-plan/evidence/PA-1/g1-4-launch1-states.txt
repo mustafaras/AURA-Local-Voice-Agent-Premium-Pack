@@ -1,0 +1,6 @@
+  microphone: Verildi
+  speechRecognition: ERR not-found aura.perm.indicator.speechRecognition
+  accessibility: ERR not-found aura.perm.indicator.accessibility
+  screenRecording: ERR not-found aura.perm.indicator.screenRecording
+  calendar: ERR not-found aura.perm.indicator.calendar
+  contacts: ERR not-found aura.perm.indicator.contacts

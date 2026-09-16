@@ -106,6 +106,19 @@ extension AuraAppModel {
     PermissionCoordinator.openPrivacySettings(anchor: "ScreenCapture")
   }
 
+  func openCalendarSettings() {
+    PermissionCoordinator.openPrivacySettings(anchor: "Calendars")
+  }
+
+  func openContactsSettings() {
+    PermissionCoordinator.openPrivacySettings(anchor: "Contacts")
+  }
+
+  /// ADR-065 §3: the System Settings fallback for any permission row.
+  func openPrivacySettings(for kind: PermissionKind) {
+    PermissionCoordinator.openPrivacySettings(anchor: kind.settingsAnchor)
+  }
+
   func refreshConfigurationInspection() {
     Task {
       guard let kernel else { return }

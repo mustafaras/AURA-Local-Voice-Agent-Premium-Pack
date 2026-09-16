@@ -1,0 +1,146 @@
+==> Cleaning build path: /tmp/aurabuild
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1400]
+[Planning deferred tasks]
+[197 / 428] AURA_AuraAgentTests
+[199 / 428]
+[200 / 429] AuraCore
+[210 / 477]
+[218 / 477]
+[220 / 477]
+[224 / 477]
+[227 / 477]
+[233 / 477]
+[234 / 477]
+[235 / 477]
+[236 / 477]
+[248 / 477] AuraCore
+[258 / 481]
+[258 / 481] AuraCore
+[258 / 481] AuraStore
+[259 / 490] AuraShell
+[266 / 537]
+[270 / 558]
+[283 / 558]
+[301 / 558]
+[305 / 558] AuraStore
+[309 / 558] AuraShell-product
+[317 / 558] AuraShell
+[322 / 558] AuraStore
+[327 / 559]
+[332 / 562]
+[338 / 562]
+[346 / 580] AuraMemory
+[353 / 599] AuraTasks
+[361 / 599] AuraPolicy
+[375 / 599] AuraTasks
+[384 / 599] AuraConfig
+[394 / 599] AuraMemory
+[400 / 599] AuraConfig
+[403 / 599] AuraAutomation
+[412 / 599] AuraAutomation
+[417 / 599] AuraAudio
+[427 / 599] AuraAudio
+[431 / 599] AuraConfig
+[434 / 599] AuraSTT
+[437 / 599] AuraAudio
+[438 / 599]
+[442 / 600] AuraPolicy
+[445 / 602]
+[447 / 613] AuraSecurity
+[449 / 627] AuraSTT
+[455 / 638]
+[460 / 638]
+[463 / 638]
+[470 / 638] AuraSTT
+[476 / 638] AuraSTT
+[484 / 638] AuraSpeechQualityProbe-product
+[502 / 641] AuraScreen
+[507 / 641] AuraScreen
+[518 / 654] AuraVSCode
+[523 / 659] AuraVSCode
+[533 / 659] AuraVSCode
+[536 / 659] AuraVSCode
+[542 / 661] AuraAutomation
+[545 / 664] AuraAutomationHelper-product
+[547 / 664] AuraScreen
+[552 / 683] AuraPlugins
+[555 / 712]
+[565 / 712]
+[580 / 714]
+[584 / 714] AuraPlugins
+[589 / 714] AuraPlugins
+[592 / 714] AuraProductivity
+[603 / 714] AuraProductivity
+[612 / 714] AuraProductivity
+[616 / 714] AuraLifecycle
+[619 / 714] AuraProductivity
+[622 / 714] AuraLifecycle
+[625 / 714] AuraContext
+[628 / 714] AuraContext-product
+[639 / 716]
+[643 / 718] AuraAutomation-product
+[646 / 718] AuraConfig-product
+[649 / 720] AuraLifecycle
+[652 / 720] AuraAutomationHelper-product
+[663 / 737] AuraShellHelper-product
+[668 / 748] AuraSafariExtensionHandler-product
+[676 / 748] AuraPluginHost-product
+[687 / 750] AuraComputerUse
+[692 / 750] AuraComputerUse
+[694 / 750] AuraAgent
+[698 / 750] AuraComputerUse
+[700 / 750] AuraChromeNativeHost-product
+[706 / 750] AuraSTT-product
+[717 / 750] AuraProductivity-product
+[720 / 751] AuraLifecycle-product
+[726 / 751] AuraSpeechQualityProbe-product
+[729 / 751] AuraSafariExtensionHandler-product
+[732 / 751] AuraAgent
+[740 / 762] AuraIntent
+[741 / 762] AuraIntent
+[743 / 762] AuraIntent
+[745 / 762] AuraIntent
+[755 / 763] AuraIntent
+[758 / 763] AURA-product
+[770 / 775] AURA-product
+[771 / 775] AURA-product
+[773 / 775] AURA-product
+Build complete! (23,34 secs)
+==> Building test targets
+Building for debugging...
+[Pre-planning 1 / 152]
+[Planning deferred tasks]
+[15 / 26] AuraSecurityTests-product
+[16 / 37]
+[26 / 37] AuraSecurityTests-product
+[31 / 37] AuraSecurityTests-product
+[33 / 37] AuraSecurityTests-product
+Build complete! (1,81 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AuraSecurityTests ===
+✔ Test unlistedHostIsDenied() passed after 0.004 seconds.
+✔ Test scannerReportsEmptyForEmptyInput() passed after 0.004 seconds.
+✔ Test scannerReportsNoMatchesForBenignText() passed after 0.004 seconds.
+✔ Test emptyIPAllowlistDeniesEverything() passed after 0.004 seconds.
+✔ Test endpointPolicyRejectsUserInfoAndRedirectEscape() passed after 0.005 seconds.
+✔ Test classifierProducesSuspiciousBelowBlockThreshold() passed after 0.004 seconds.
+✔ Test classifierNeverScansSystemPolicy() passed after 0.004 seconds.
+✔ Test "the stable requirement names the certificate by subject CN" passed after 0.001 seconds.
+✔ Test "the fixed probe returns exactly what it was given" passed after 0.001 seconds.
+✔ Test "a missing path is unsigned, never stable" passed after 0.001 seconds.
+✔ Test "the test host itself never claims the stable identity" passed after 0.001 seconds.
+✔ Test keychainStoreReturnsNilForMissingKey() passed after 0.009 seconds.
+✔ Test factorySessionRefusesRedirectsByDefault() passed after 0.011 seconds.
+✔ Test factorySessionDisablesCookiesAndCache() passed after 0.011 seconds.
+✔ Test "an unsigned file is unsigned" passed after 0.039 seconds.
+✔ Test "the installed stable-signed bundle, when present on this Mac, is stable" passed after 0.046 seconds.
+✔ Test "an Apple-signed bundle is a foreign identity, not stable" passed after 0.063 seconds.
+✔ Test keychainStoreRoundTripsAValue() passed after 0.069 seconds.
+✔ Test keychainStoreOverwritesExistingValue() passed after 0.069 seconds.
+✔ Test run with 51 tests in 1 suite passed after 0.069 seconds.
+PASSED: AuraSecurityTests
+==> Done. Failed bundles: 0

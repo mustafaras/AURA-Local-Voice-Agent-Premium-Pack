@@ -1,5 +1,28 @@
 # Current State
 
+## 2026-09-16T18:01:38+03:00 — PA-1 One Identity, One Consent complete (ADR-065); awaiting owner deploy + `ONAY PA-2`
+
+All PA-1 gates are `passed` except the machine-coherence checkpoint that
+follows this record. The bundle identity is now an invariant at build and
+verify time (ad-hoc opt-in only; per-executable designated-requirement
+check), non-stable binaries use a `.dev` Keychain namespace, and the
+`privilegedAccess` onboarding stage is the single consent pass for
+Microphone, Speech Recognition, Accessibility, Screen Recording, Calendars,
+Contacts. Verified: full suite 22/22 ×3; five stable-signed launches
+(fresh path, relaunch ×3, clean rebuild with an empty DR diff) each showing
+six × `Verildi` with no dialog — owner-attested. Evidence under
+`personal-assistant-plan/evidence/PA-1/`.
+
+Installed `/Applications/AURA.app` is still the PA-0 build (`2c5b8f07…`)
+until the owner copies `~/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app`
+(SHA-256 `d9763febdd979093…`) into place; the deploy command is in the plan
+ledger. Commit/push of this record follows the owner's go-ahead.
+
+**Next safe action:** owner deploy; then PA-2 (launch at login by default,
+ADR-066) opens only on `ONAY PA-2`. Carried forward: coding-agent NLU route
+supplies no workspace (PA-3); login item points at a stale bundle (PA-2 will
+replace it); SP006 opt-in pins stale (out of plan).
+
 ## 2026-09-16T16:18:29+03:00 — PA-0 complete and deployed; `phase_status: awaiting-approval` — next token `ONAY PA-1`
 
 All eight PA-0 gates are `passed` (plan ledger SEQ-0003…0014; validator OK).

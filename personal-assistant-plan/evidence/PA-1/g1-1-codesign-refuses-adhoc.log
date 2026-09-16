@@ -1,0 +1,1 @@
+FAILED: ad-hoc signing ('-') requires AURA_ALLOW_ADHOC=1 (ADR-065).

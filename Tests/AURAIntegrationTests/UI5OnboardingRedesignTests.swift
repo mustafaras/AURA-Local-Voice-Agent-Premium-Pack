@@ -31,10 +31,10 @@ struct UI5OnboardingRedesignTests {
       "onboarding.explain.wakeWord",
       "Wake word is optional; no acoustic model is installed in this configuration, so Push to Talk remains available.",
       "Uyandırma sözcüğü isteğe bağlıdır; mevcut kurulumda akustik model yoktur ve Bas Konuş kullanılabilir."),
-    (
+    (  // ADR-065 (PA-1): the stage became the single consent pass for all six permissions
       "onboarding.explain.privilegedAccess",
-      "Accessibility and Screen Recording are requested only by explicit user action; denied capabilities remain disabled.",
-      "Erişilebilirlik ve Ekran Kaydı yalnızca açık kullanıcı eylemiyle istenir; verilmezse yetenekler devre dışı kalır."),
+      "One pass for every macOS permission AURA uses — Microphone, Speech Recognition, Accessibility, Screen Recording, Calendars, Contacts. Granted once; never asked again.",
+      "AURA'nın kullandığı tüm macOS izinleri tek geçişte — Mikrofon, Konuşma Tanıma, Erişilebilirlik, Ekran Kaydı, Takvimler, Kişiler. Bir kez verilir; yeniden sorulmaz."),
     (
       "onboarding.explain.localModel",
       "Authentication and model availability are unverified",

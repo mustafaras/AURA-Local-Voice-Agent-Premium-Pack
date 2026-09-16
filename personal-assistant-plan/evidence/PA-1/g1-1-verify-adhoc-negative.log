@@ -1,0 +1,57 @@
+
+=== AuraPluginHost sandbox ===
+AuraPluginHost OK
+
+=== AuraAutomationHelper sandbox ===
+AuraAutomationHelper OK
+
+=== AuraShellHelper sandbox ===
+AuraShellHelper OK
+=== Signature verification ===
+Executable=/Users/m_ras/Library/Developer/AURA/pa1-adhoc-negative/AURA.app/Contents/MacOS/AURA
+Identifier=ai.aura.local.agent
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20500 size=45684 flags=0x10002(adhoc,runtime) hashes=1417+7 location=embedded
+VersionPlatform=1
+VersionMin=1769472
+VersionSDK=1769472
+Hash type=sha256 size=32
+CandidateCDHash sha256=f0c1ceebb80e424dbd30d763d44d9b765b7a7cfc
+CandidateCDHashFull sha256=f0c1ceebb80e424dbd30d763d44d9b765b7a7cfca749831148ac6f876b15de1b
+Hash choices=sha256
+CMSDigest=f0c1ceebb80e424dbd30d763d44d9b765b7a7cfca749831148ac6f876b15de1b
+CMSDigestType=2
+Executable Segment base=0
+Executable Segment limit=8028160
+Executable Segment flags=0x1
+Page size=16384
+CDHash=f0c1ceebb80e424dbd30d763d44d9b765b7a7cfc
+Signature=adhoc
+Info.plist entries=20
+TeamIdentifier=not set
+Runtime Version=27.0.0
+Sealed Resources version=2 rules=13 files=17
+Internal requirements count=0 size=12
+Total signatures=1
+Chosen signature=1
+
+=== Entitlements ===
+{
+  "com.apple.security.device.audio-input" => true
+  "com.apple.security.personal-information.addressbook" => true
+  "com.apple.security.personal-information.calendars" => true
+}
+Main app sandbox: intentionally disabled; TCC and policy enforce protected capabilities
+
+=== Designated requirement ===
+Executable=/Users/m_ras/Library/Developer/AURA/pa1-adhoc-negative/AURA.app/Contents/MacOS/AURA
+# designated => cdhash H"f0c1ceebb80e424dbd30d763d44d9b765b7a7cfc"
+
+=== Identity invariant (ADR-065) ===
+FAILED identity invariant: ad-hoc signature on /Users/m_ras/Library/Developer/AURA/pa1-adhoc-negative/AURA.app
+FAILED identity invariant: ad-hoc signature on /Users/m_ras/Library/Developer/AURA/pa1-adhoc-negative/AURA.app/Contents/Helpers/AuraPluginHost.app
+FAILED identity invariant: ad-hoc signature on /Users/m_ras/Library/Developer/AURA/pa1-adhoc-negative/AURA.app/Contents/Helpers/AuraAutomationHelper.app
+FAILED identity invariant: ad-hoc signature on /Users/m_ras/Library/Developer/AURA/pa1-adhoc-negative/AURA.app/Contents/Helpers/AuraShellHelper.app
+FAILED identity invariant: ad-hoc signature on /Users/m_ras/Library/Developer/AURA/pa1-adhoc-negative/AURA.app/Contents/Helpers/AuraChromeNativeHost
+FAILED identity invariant: ad-hoc signature on /Users/m_ras/Library/Developer/AURA/pa1-adhoc-negative/AURA.app/Contents/PlugIns/AuraSafariExtension.appex
+Identity invariant FAILED (ADR-065): an unstable identity restarts the macOS permission and Keychain-password cycle.

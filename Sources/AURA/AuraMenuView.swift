@@ -305,6 +305,9 @@ struct AuraOnboardingView: View {
             Text(explanation)
               .font(AuraDesign.Typography.body)
               .fixedSize(horizontal: false, vertical: true)
+            if stage == .privilegedAccess {
+              consentPassRows
+            }
           }
         }
 
@@ -323,6 +326,48 @@ struct AuraOnboardingView: View {
     }
     .padding(AuraDesign.Spacing.xl)
     .frame(width: 560, height: 300)
+  }
+
+  /// ADR-065 §3: the single consent pass — one live row per permission, in
+  /// request order, with a System Settings fallback once macOS will no
+  /// longer prompt for it (any decided, non-granted state). Presentation
+  /// only; the stage machine and its actions are unchanged.
+  private var consentPassRows: some View {
+    LazyVGrid(
+      columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)],
+      alignment: .leading, spacing: AuraDesign.Spacing.xxs
+    ) {
+      ForEach(PermissionKind.allCases, id: \.rawValue) { kind in
+        let state = model.permissions.state(for: kind)
+        HStack(spacing: AuraDesign.Spacing.xs) {
+          Image(systemName: state == .granted ? "checkmark.circle.fill" : "circle")
+            .foregroundStyle(
+              state == .granted ? AuraDesign.Palette.signal : AuraDesign.Palette.cautious)
+            .accessibilityHidden(true)
+          Text(copy(kind.copyKey))
+            .font(AuraDesign.Typography.meta)
+          Text(state.title(for: language))
+            .font(AuraDesign.Typography.meta)
+            .foregroundStyle(.secondary)
+          if state != .granted && state != .notDetermined {
+            Button {
+              model.openPrivacySettings(for: kind)
+            } label: {
+              Image(systemName: "gearshape")
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(
+              "\(copy("integrations.systemSettings")): \(copy(kind.copyKey))")
+            .accessibilityIdentifier(
+              AuraAccessibilityID.onboardingPermissionSettings(kind.rawValue))
+          }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(copy(kind.copyKey)): \(state.title(for: language))")
+        .accessibilityIdentifier(AuraAccessibilityID.onboardingPermissionRow(kind.rawValue))
+      }
+    }
+    .padding(.top, AuraDesign.Spacing.xxs)
   }
 
   private var explanation: String {

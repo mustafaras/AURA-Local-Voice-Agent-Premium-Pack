@@ -1,32 +1,31 @@
 # PA Plan — Current Phase State
 
-updated: 2026-09-16T16:17:32+03:00
-active_phase: PA-0
+updated: 2026-09-16T18:01:58+03:00
+active_phase: PA-1
 phase_status: awaiting-approval
-next_phase: PA-1
-last_seq: 14
+next_phase: PA-2
+last_seq: 24
 
-## Gates (mirror of prompts/PA-0.prompt.md §Gates — must match 1:1)
+## Gates (mirror of prompts/PA-1.prompt.md §Gates — must match 1:1)
 
 | Gate | Description (short) | Status | Evidence |
 | --- | --- | --- | --- |
-| G0-1 | [policy] ADR-064 written; D-1…D-6 DECISION lines present | passed | SEQ-0004; docs/decisions/ADR-064-owner-trust-posture.md |
-| G0-2 | [policy] OwnerTrustPosture switch; seven grants derive .none; posture tests | passed | SEQ-0005; AuraPolicyTests 51/51 (eight governed seeds) |
-| G0-3 | [policy] Grant coverage test: every registered capability allows for owner with no challenge | passed | SEQ-0006; 9 gaps found and seeded; AuraIntentTests 157/157, AuraPolicyTests 51/51 |
-| G0-4 | [policy] ComputerUseGuardPosture: A/B/C guards lifted under .ownerTrust, refused under .structural; emergency stop both | passed | SEQ-0007; AuraComputerUseTests 125/125, AuraScreenTests 37/37; kept list clean by diff |
-| G0-5 | Pinned-test updates deliberate and ADR-064-cited; mechanics fixtures only gain explicit .structural | passed | SEQ-0008; diff reviewed; full loop 22/22 |
-| G0-6 | Live: shell, coding-agent, app-terminate turns with no confirmation card; owner attestation | passed | SEQ-0010 + SEQ-0013; owner-attested line recorded; deployed to /Applications (SHA 2c5b8f07…5dd4) |
-| G0-7 | Full verification + governance (suite ×2–3, ADR, repo ledgers, CURRENT_STATE) | passed | SEQ-0011; suite ×3 22/22; ADR-064 Accepted; repo ledgers written |
-| G0-8 | Machine coherence: validator OK, all gates passed, awaiting-approval | passed | SEQ-0014; validator OK; installed-app smoke OK |
+| G1-0 | Process→permission map with file:line per call site | passed | SEQ-0016; evidence/PA-1/permission-map.md; one TCC subject |
+| G1-1 | [policy] Identity invariant: ad-hoc opt-in only; verifier checks every nested DR; negative test; identity inventory incl. notAfter | passed | SEQ-0017; verify 0/1 positive/negative; inventory + notAfter 2036-07-26 |
+| G1-2 | [policy] Keychain isolation: non-stable runs derive <serviceName>.dev; unit + live | passed | SEQ-0018 + SEQ-0021; owner-attested |
+| G1-3 | Single consent pass: six-field snapshot; privilegedAccess stage requests all six; Privacy/Recovery rows; EN/TR copy | passed | SEQ-0019; AURAIntegrationTests 210/210 |
+| G1-4 | Persistence: fresh install → one pass → relaunch ×3 → rebuild+reinstall → zero dialogs; TCC log excerpt | passed | SEQ-0020 + SEQ-0022; owner-attested |
+| G1-5 | Full verification + governance (suite ×2–3, ADR-065, repo ledgers, CURRENT_STATE) | passed | SEQ-0023; suite ×3 22/22; ADR-065 Accepted |
+| G1-6 | Machine coherence: validator OK, all gates passed, awaiting-approval | passed | SEQ-0024 |
 
 ## Blocked items
 
-- none (lock-screen blocker cleared 2026-09-16 13:05)
+- none
 
 ## Open owner decisions (README §7)
 
-- none open — D-1…D-6 recorded in PHASE_LEDGER.md (SEQ-0003 block); D-2 resolved as lifted guards A/B/C with emergency stop kept.
+- none open — D-1…D-6 recorded (SEQ-0003).
 
 ## Next gate
 
-PA-0 complete; PA-1 opens only on the owner token `ONAY PA-1` (APPROVAL: PA-0 -> PA-1).
+PA-1 complete; owner deploy of the rebuild bundle pending; PA-2 opens only on `ONAY PA-2`.
