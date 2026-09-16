@@ -1,5 +1,44 @@
 # Current State
 
+## 2026-09-15T19:04:04+03:00 — UI plan archived (closed); Personal Assistant plan proposed — awaiting owner approval
+
+The `UI-` track is closed and archived: `ui-improvement-plan/` now lives at
+`docs/archive/ui-improvement-plan/` (moved with `git mv`, history intact) with
+its README marked CLOSED and a `CLOSED.md` closure record (ADR-057…063,
+final machine state `UI-5` / `completed` / `next_phase: none` /
+`last_seq: 73`, deployed SHA-256
+`d2ccffc5e77c8751ed6d4cba3a97630f86515fd8cdb1f22c67f887765f6ae08e`). Its
+validator still reports OK from the archive path. `AGENTS.md` carries the
+archive note. In-repo references to `ui-improvement-plan/…` resolve to the
+archive path and were deliberately left untouched.
+
+The active successor program is `personal-assistant-plan/` (`PA-` track,
+phases PA-0…PA-6), a **proposal** created on the owner's 2026-09-15
+instruction: end the in-app confirmation loop (owner trust posture, ADR-064
+planned), end macOS re-prompts and Keychain password dialogs (one identity,
+one consent, ADR-065), launch at login by default (ADR-066), compose and
+provision every integration on a normal launch so nothing reads "Devre dışı"
+/ "Bağlı değil" / "Kısıtlı" (ADR-067), a real on-device "Hey AURA" wake word
+via Apple Speech (ADR-068, amending ADR-042 §5), and a provably correct
+Privacy & Memory Center including the correction-sheet defect at
+`Sources/AURA/AuraMenuView.swift:147-156,190-196` (ADR-069). Every root
+cause is cited to file:line in the plan README §2. The plan machine
+(`ledger/CURRENT_PHASE.md`: `active_phase: PA-0`, `phase_status: pending`,
+7 gates `pending`, `last_seq: 2`; `validate-continuity.sh` → OK) is
+initialized; no implementation has started.
+
+Repository state: working tree carries the uncommitted rename set, the new
+plan folder, and edits to `AGENTS.md` and the two repo ledgers. HEAD remains
+`773cea7` = `origin/main`. No source file changed; no build or test run was
+required. The archived Python governance mismatch (96 tests / 95 passes / 1
+frozen `verified_head` error) is unchanged. No policy, security, or
+capability posture changed in this turn.
+
+**Next safe action:** the owner decides D-1…D-6 (`personal-assistant-plan/README.md` §7),
+approves or reorders `08-rollout.md`, and issues `ONAY PA-0`. Committing the
+archive move and the plan folder requires an explicit go-ahead. No UI-plan
+phase, release, or distribution action is authorized.
+
 ## 2026-09-15T14:12:15+03:00 — UI-5 local delivery complete
 
 The authorized delivery chain completed locally. Commit

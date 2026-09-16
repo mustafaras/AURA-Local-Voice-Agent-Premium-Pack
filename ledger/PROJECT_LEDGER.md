@@ -7036,3 +7036,56 @@ phase ledger. No commit/push (no explicit go-ahead this turn).
   not edited. This is local deployment evidence only, not Developer ID,
   notarization, hosted-CI, beta/RC, public-release, or external-publication
   evidence. No further UI-plan phase is authorized.
+
+### 2026-09-15T19:04:04+03:00 — UI plan archived as closed; Personal Assistant plan (PA- track) proposed
+
+- **Objective:** Per the owner's 2026-09-15 instruction (quoted verbatim in
+  `personal-assistant-plan/README.md`), plan — not implement — a program
+  that ends the recurring in-app approval and macOS permission/Keychain-password
+  loops, launches AURA at login, keeps every capability enabled, adds the exact
+  wake word "Hey AURA", and makes the Privacy/Memory Center provably correct;
+  and archive the fully applied UI improvement plan as closed under `docs/`.
+- **Archive:** `ui-improvement-plan/` moved with `git mv` to
+  `docs/archive/ui-improvement-plan/` (history intact); README status set to
+  CLOSED; `CLOSED.md` records ADR-057…063, the final plan-machine state
+  (`UI-5` / `completed` / `next_phase: none` / `last_seq: 73`), the deployed
+  SHA-256, and the path note. Its validator still reports
+  `VALIDATOR: OK - machine coherent` from the archive path. `AGENTS.md` gained
+  an "Archived UI improvement plan (2026-09-15)" section mirroring the
+  runtime-completion archive note. No source, ADR, or ledger-history edit.
+- **Plan created:** `personal-assistant-plan/` — README (root causes R1–R7
+  with file:line evidence, principles, phases, owner decisions D-1…D-6),
+  `00-working-protocol.md` (PA- machine with a new policy-change gate A7 and
+  evidence classes), design docs 01–06 (owner trust posture; one identity/one
+  consent; launch at login; integrations always connected; "Hey AURA"; Privacy
+  & Memory Center), `07-cross-cutting-constraints.md`, `08-rollout.md`,
+  frozen prompts `PA-0…PA-6`, `ledger/CURRENT_PHASE.md` (PA-0, all 7 gates
+  `pending`, `phase_status: pending`), `ledger/PHASE_LEDGER.md` (SEQ-0001,
+  SEQ-0002), `validate-continuity.sh` (checks 1–6; negative and positive
+  behaviour of the A7 check and the PA-0 opening-approval check proven in a
+  scratch copy).
+- **Key evidence behind the plan (this session's scan):** confirmations seeded
+  `.always`/`.forRiskTier(.mutation)` on seven grants
+  (`Sources/AuraPolicy/DefaultPolicyGrants.swift`); deny-by-default tiers
+  (`PolicyTypes_PolicyConfiguration.swift:31`, `PolicyEngine_Evaluation.swift:44`);
+  six separately signed TCC subjects and a silent ad-hoc signing fallback
+  (`Resources/*-Info.plist`, `scripts/codesign-adhoc.sh:25-31`); integrations
+  composed only under `AURA_SP011_LIVE_ACCEPTANCE` / `AURA_SP012_LIVE_ACCEPTANCE`
+  (`AuraConfigurationLoading.swift:68-76`, `AuraKernel_Construction.swift:388-390`,
+  `AuraAppModel_Settings.swift:11-13`); `DisabledWakeWordDetector()` composed at
+  `AuraKernel_Construction.swift:492` while the installed macOS 27 SDK exposes
+  on-device `SpeechAnalyzer`/`SpeechTranscriber`/`DictationTranscriber`;
+  memory-correction sheet re-creates its draft on every re-render
+  (`AuraMenuView.swift:147-156,190-196`); untranslated Privacy-tab literals
+  (`AuraMenuView_Tabs.swift:412,420,425,436-438,469,510-511`).
+- **Verification:** `bash personal-assistant-plan/validate-continuity.sh` →
+  OK (7 gates, last_seq 2); `bash docs/archive/ui-improvement-plan/validate-continuity.sh`
+  → OK; `git status --short` shows the rename set, the new folder, and edits to
+  `AGENTS.md`, `ledger/`. No build or test run was needed (no source change).
+- **Boundary:** planning turn only. No source edit, no policy change, no
+  commit, push, install, or release. The archived Python governance mismatch
+  (96 tests / 95 passes / 1 frozen `verified_head` error) is unchanged.
+- **Next action:** owner reviews `personal-assistant-plan/README.md` §7
+  (D-1…D-6) and `08-rollout.md`; on the token `ONAY PA-0` the assistant records
+  the APPROVAL and DECISION lines and starts PA-0 G0-1. Commit of the archive
+  move and the plan folder awaits an explicit go-ahead.

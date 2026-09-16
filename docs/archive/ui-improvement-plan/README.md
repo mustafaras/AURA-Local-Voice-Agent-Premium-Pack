@@ -1,6 +1,6 @@
 # AURA UI Improvement Plan
 
-**Status:** Proposal — awaiting user approval of scope and sequencing.
+**Status:** CLOSED — fully applied and delivered (UI-0 → UI-5, 2026-09-10 → 2026-09-15). Archived under `docs/archive/` on 2026-09-15; see [CLOSED.md](CLOSED.md). Historical reference only — no phase in this plan may be reopened by editing these files.
 **Date:** 2026-09-09
 **Owners:** UI track (this plan proposes a `UI-` prefixed phase track, separate from the master roadmap numbering in `prompts/implementation/AURA_PREMIUM_UNIFIED_MASTER.prompt.md` §6).
 **Authority basis:** Direct source scan of `Sources/AURA/*.swift` (all view, app-model, and design-system files), `Sources/AuraCore` / `Sources/AuraAudio` / `Sources/AuraTasks` / `Sources/AuraIntent` signal surfaces, the test suites in `Tests/AURAIntegrationTests/`, `scripts/aura-test.sh`, `scripts/sp011-acceptance/`, `AGENTS.md`, `TOOLCHAIN.md`, `ledger/`, `docs/decisions/ADR_TEMPLATE.md`, and `docs/decisions/ADR-029-swiftui-runtime-shell.md`. Every claim below cites file:line evidence gathered in that scan.

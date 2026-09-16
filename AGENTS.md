@@ -69,3 +69,15 @@ risk history continue to resolve.
 - Re-point any in-repo reference from `AURA_RUNTIME_COMPLETION/…` to
   `archive/runtime-completion/…` (or treat it as frozen history).
 - Re-opening requires a new ADR (see ADR-049/ADR-053), not a file edit.
+
+## Archived UI improvement plan (2026-09-15)
+
+The `UI-` phase track (`UI-0`–`UI-5`, ADR-057…ADR-063) is **complete,
+delivered, and archived** under `docs/archive/ui-improvement-plan/` (moved
+with `git mv`; history intact). See its `CLOSED.md` for the closure record.
+
+- Do **not** start a new `UI-*` phase in that folder; its `next_phase` is
+  `none`. New UI work belongs to a new plan with its own ADRs.
+- Treat in-repo references to `ui-improvement-plan/…` as resolving to
+  `docs/archive/ui-improvement-plan/…` (frozen history).
+- The active successor program is `personal-assistant-plan/` (`PA-` track).
