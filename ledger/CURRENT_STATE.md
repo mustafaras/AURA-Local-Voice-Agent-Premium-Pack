@@ -1,5 +1,38 @@
 # Current State
 
+## 2026-09-16T15:04:23+03:00 — PA-0 Owner Trust Posture delivered locally (ADR-064); awaiting owner attestation, then `ONAY PA-1`
+
+PA-0 of `personal-assistant-plan/` is implemented and verified. `OwnerTrustPosture.isEnabled`
+(`Sources/AuraPolicy/OwnerTrustPosture.swift`) derives every seeded grant to `.none`
+(eight formerly challenging seeds plus nine newly seeded registered capabilities
+found by `OwnerGrantCoverageTests`), and `ComputerUseGuardPosture.production`
+lifts the computer-use structural guards (mandatory-confirmation intents,
+secure-field refusal, sensitive-application exclusion, modal / no-progress /
+per-plan-step halts) for the owner while the emergency stop, identity-change
+detection, `maxIterations`, and the rate limit stay untouched (owner decision
+D-2 as resolved 2026-09-16). ADR-064 is Accepted.
+
+Verification: full `scripts/aura-test.sh` loop ×3 → 22/22 bundles, 0 failed.
+Live on the stable-signed PA-0 bundle (`~/Library/Developer/AURA/pa0-20260916/AURA.app`,
+main executable SHA-256 `2c5b8f07…5dd4`): seed reconcile 32 → 41 grants all
+`.none`; `run date` and `quit Notes` completed with **no confirmation card**;
+`claude say hello` raised no card but failed before policy on a missing
+workspace (pre-existing, PA-3). Evidence under
+`personal-assistant-plan/evidence/PA-0/`.
+
+Repository state at this record: PA-0 source, tests, ADR-064, plan
+amendments (D-2), plan ledger SEQ-0003…0010, and this entry are uncommitted;
+HEAD `04839cb` = `origin/main`. Commit, push, and local deployment of this
+bundle follow the owner's explicit go-ahead of this turn and are recorded in
+the next `chore(state)` entry. The installed `/Applications/AURA.app` is still
+the UI-5 build (`d2ccffc5…6ae08e`) until that deployment.
+
+**Next safe action:** the owner records the G0-6 `owner-attested` line
+("no confirmation card appeared" in their own words); the assistant then
+passes G0-6 and G0-8 and sets `phase_status: awaiting-approval`. PA-1 (one
+identity, one consent — TCC / Keychain re-prompt elimination) opens only on
+the token `ONAY PA-1`. No release or distribution action is authorized.
+
 ## 2026-09-16T11:04:48+03:00 — UI-plan archive and PA proposal committed and pushed
 
 Commit `ffe48ee` (`chore(plan): archive closed UI plan; propose Personal

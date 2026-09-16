@@ -222,7 +222,8 @@ func executorRefusesTextEntryWhileSecureFieldFocused() async {
   let executor = AXCGEventActionExecutor(
     emergencyStop: EmergencyStopController(eventBus: .shared),
     secureFieldDetector: ScriptedSecureFieldDetector(
-      focusedBundleIdentifiers: ["com.example.app"]))
+      focusedBundleIdentifiers: ["com.example.app"]),
+    guardPosture: .structural)  // ADR-064
 
   await #expect(throws: AuraError.self) {
     _ = try await executor.execute(
@@ -238,7 +239,8 @@ func executorRefusesPointerActionWhileSecureFieldFocused() async {
   let executor = AXCGEventActionExecutor(
     emergencyStop: EmergencyStopController(eventBus: .shared),
     secureFieldDetector: ScriptedSecureFieldDetector(
-      focusedBundleIdentifiers: ["com.example.app"]))
+      focusedBundleIdentifiers: ["com.example.app"]),
+    guardPosture: .structural)  // ADR-064
 
   // A click can dismiss or confirm a credential sheet, so the executor-level
   // guard is deliberately not limited to text-entry kinds.
@@ -255,7 +257,8 @@ func executorStillPermitsWaitingWhileSecureFieldFocused() async throws {
   let executor = AXCGEventActionExecutor(
     emergencyStop: EmergencyStopController(eventBus: .shared),
     secureFieldDetector: ScriptedSecureFieldDetector(
-      focusedBundleIdentifiers: ["com.example.app"]))
+      focusedBundleIdentifiers: ["com.example.app"]),
+    guardPosture: .structural)  // ADR-064
 
   // Falsifier for an over-broad guard: waiting generates no input, and is how
   // a caller yields to the user while a credential prompt is on screen.
@@ -474,7 +477,8 @@ func emergencyStopAtExecutorStage() async {
   let emergencyStop = EmergencyStopController(eventBus: .shared)
   await emergencyStop.trigger(source: .userInterface, reason: "panic")
   let executor = AXCGEventActionExecutor(
-    emergencyStop: emergencyStop, secureFieldDetector: ScriptedSecureFieldDetector())
+    emergencyStop: emergencyStop, secureFieldDetector: ScriptedSecureFieldDetector(),
+    guardPosture: .structural)  // ADR-064
 
   // A direct caller that skipped every `ComputerUseControlLoop` check still
   // cannot synthesize a real keystroke.

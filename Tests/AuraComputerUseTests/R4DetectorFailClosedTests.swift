@@ -152,7 +152,8 @@ func executorRefusesWhenSecureFieldStateIsUnreadable() async {
   let executor = AXCGEventActionExecutor(
     emergencyStop: EmergencyStopController(eventBus: .shared),
     secureFieldDetector: ScriptedSecureFieldDetector(
-      probeOverride: .indeterminate("subrole read failed: cannotComplete")))
+      probeOverride: .indeterminate("subrole read failed: cannotComplete")),
+    guardPosture: .structural)  // ADR-064
 
   await #expect(throws: AuraError.self) {
     _ = try await executor.execute(
@@ -168,7 +169,8 @@ func executorStillPermitsWaitingWhenStateIsUnreadable() async throws {
   let executor = AXCGEventActionExecutor(
     emergencyStop: EmergencyStopController(eventBus: .shared),
     secureFieldDetector: ScriptedSecureFieldDetector(
-      probeOverride: .indeterminate("accessibility not trusted")))
+      probeOverride: .indeterminate("accessibility not trusted")),
+    guardPosture: .structural)  // ADR-064
 
   // `.wait` generates no input, and it is how a caller yields to the user
   // while a credential prompt is on screen — blocking it would turn a safety

@@ -36,6 +36,12 @@ public actor ScreenContextEngine {
   private let policyEngine: PolicyEngine
   private let eventBus: AuraEventBus
   private let configuration: ScreenContextConfiguration
+  /// ADR-064 (D-2, B): whether `configuration.sensitiveApplicationBundleIdentifiers`
+  /// excludes windows. Production inherits `!OwnerTrustPosture.isEnabled`;
+  /// the configured list is retained for the disabled posture. Assistant
+  /// self-exclusion, off-screen refusal, redaction, and zero retention are
+  /// not governed by this value.
+  private let sensitiveApplicationExclusionEnabled: Bool
   private let assistantBundleIdentifier: String
   private let redactionPipeline: RedactionPipeline
 
@@ -60,7 +66,8 @@ public actor ScreenContextEngine {
     eventBus: AuraEventBus = .shared,
     configuration: ScreenContextConfiguration = ScreenContextConfiguration(),
     assistantBundleIdentifier: String,
-    screenshotRetentionDays: Int = PrivacyConfiguration().screenshotRetentionDays
+    screenshotRetentionDays: Int = PrivacyConfiguration().screenshotRetentionDays,
+    sensitiveApplicationExclusionEnabled: Bool = !OwnerTrustPosture.isEnabled
   ) {
     self.windowSource = windowSource
     self.textRecognizer = textRecognizer
@@ -71,6 +78,7 @@ public actor ScreenContextEngine {
     self.assistantBundleIdentifier = assistantBundleIdentifier
     self.redactionPipeline = RedactionPipeline()
     self.screenshotRetentionDays = screenshotRetentionDays
+    self.sensitiveApplicationExclusionEnabled = sensitiveApplicationExclusionEnabled
   }
 
   // MARK: - Window listing
@@ -252,7 +260,9 @@ public actor ScreenContextEngine {
     guard descriptor.isOnScreen else { return .windowNotVisible }
     guard let bundleID = descriptor.applicationBundleIdentifier else { return nil }
     if bundleID == assistantBundleIdentifier { return .assistantSelfExclusion }
-    if configuration.sensitiveApplicationBundleIdentifiers.contains(bundleID) {
+    if sensitiveApplicationExclusionEnabled,
+      configuration.sensitiveApplicationBundleIdentifiers.contains(bundleID)
+    {
       return .sensitiveApplication
     }
     return nil

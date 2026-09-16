@@ -1,0 +1,142 @@
+==> Cleaning build path: /tmp/aurabuild
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1400]
+[Planning deferred tasks]
+[31 / 428] AuraStore
+[199 / 428]
+[200 / 429] AuraCore
+[210 / 477]
+[215 / 477]
+[220 / 477]
+[225 / 477]
+[229 / 477]
+[233 / 477]
+[235 / 477]
+[236 / 477]
+[248 / 477] AuraCore
+[258 / 481]
+[258 / 481] AuraStore
+[265 / 501] AuraShell
+[268 / 501] AuraStore
+[270 / 558] AuraShell
+[292 / 558]
+[299 / 558]
+[306 / 558] AuraStore
+[309 / 558]
+[312 / 558] AuraStore
+[319 / 558] AuraShell
+[326 / 560]
+[330 / 562] AuraShell
+[335 / 562] AuraTasks
+[344 / 590]
+[356 / 599] AuraTasks
+[368 / 599] AuraMemory
+[379 / 599] AuraMemory
+[391 / 599] AuraAudio
+[395 / 599] AuraAutomation
+[406 / 599] AuraConfig
+[410 / 599] AuraConfig
+[415 / 599] AuraAudio
+[427 / 599] AuraAudio
+[431 / 599] AuraAudio-product
+[434 / 599] AuraAudio
+[436 / 599]
+[442 / 600] AuraConfig
+[445 / 602]
+[446 / 612] AuraSecurity
+[447 / 612] AuraScreen
+[457 / 637]
+[460 / 637]
+[469 / 637] AuraSTT
+[481 / 637] AuraSTT
+[488 / 637]
+[500 / 641] AuraScreen
+[502 / 641] AuraScreen
+[511 / 671] AuraScreen
+[517 / 676] AuraVSCode
+[534 / 676] AuraPlugins
+[543 / 676] AuraSpeechQualityProbe-product
+[550 / 676] AuraScreen
+[558 / 676] AuraPlugins
+[560 / 676] AuraScreen
+[565 / 676] AuraContext
+[570 / 676] AuraComputerUse
+[573 / 678] AuraPluginHost-product
+[586 / 681]
+[592 / 683]
+[598 / 685] AuraSTT-product
+[602 / 685] AuraPluginHost-product
+[604 / 687] AuraProductivity
+[607 / 716]
+[617 / 718] AuraPluginHost-product
+[625 / 740] AuraPluginHost-product
+[630 / 740] AuraProductivity
+[633 / 740] AuraComputerUse
+[639 / 740] AuraLifecycle
+[654 / 740] AuraSafariExtensionHandler-product
+[656 / 740] AuraProductivity
+[660 / 740] AuraLifecycle
+[662 / 740] AuraComputerUse
+[667 / 740] AuraAgent
+[678 / 740] AuraComputerUse
+[683 / 740] AuraLifecycle
+[688 / 740] AuraAgent
+[691 / 740] AuraAgent
+[693 / 740] AuraComputerUse
+[697 / 740]
+[703 / 741] AuraComputerUse
+[708 / 742] AuraProductivity-product
+[714 / 743] AuraAgent
+[717 / 750] AuraIntent
+[728 / 761] AuraSafariExtensionHandler-product
+[732 / 761] AuraIntent
+[738 / 761] AuraAgent
+[748 / 762]
+[750 / 762] AuraChromeNativeHost-product
+[752 / 762] AuraIntent
+[753 / 762] AuraSafariExtensionHandler-product
+[757 / 774] AuraIntent
+[768 / 774] AuraIntent-product
+[769 / 774]
+[769 / 774] AURA-product
+[770 / 774] AURA-product
+[772 / 774] AURA-product
+Build complete! (21,53 secs)
+==> Building test targets
+Building for debugging...
+[Pre-planning 1 / 413]
+[Planning deferred tasks]
+[13 / 25] AuraIntentTests-product
+[15 / 26] AuraIntentTests-product
+[16 / 39]
+[28 / 39] AuraIntentTests-product
+[33 / 39] AuraIntentTests-product
+[35 / 39] AuraIntentTests-product
+Build complete! (3,93 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AuraIntentTests ===
+✔ Test "a ready capability with no wired reader refuses instead of answering empty" passed after 0.209 seconds.
+✔ Test "an agenda request without the slot still reads the agenda" passed after 0.209 seconds.
+✔ Test "distinctive tokens exclude anything two candidates share" passed after 0.168 seconds.
+✔ Test "a thread-summary intent reaches only the typed thread reader" passed after 0.209 seconds.
+✔ Test "secret-looking tool output is refused rather than retained" passed after 0.172 seconds.
+✔ Test "routePlan executes a two-step dependent plan through policy and adapters" passed after 0.215 seconds.
+✔ Test "an observation is evidence for one write only" passed after 0.257 seconds.
+✔ Test "a verified tool observation is retained as an observed project fact" passed after 0.172 seconds.
+✔ Test "a successful command yields a verified observation keyed by the command" passed after 0.256 seconds.
+✔ Test "re-observing the same answer is not a contradiction" passed after 0.172 seconds.
+✔ Test routerExecutesNonDestructiveShellCommand() passed after 0.260 seconds.
+✔ Test "a failing command is not treated as evidence about the project" passed after 0.263 seconds.
+✔ Test "observations of different facts never collide" passed after 0.186 seconds.
+✔ Test "a changed answer for the same fact raises a contradiction" passed after 0.202 seconds.
+✔ Test "the real classifier drives a full ambiguity-then-answer round trip" passed after 0.367 seconds.
+✔ Test "an answer that fits both candidates is not treated as a confirmation" passed after 0.364 seconds.
+✔ Test "an answer naming nothing offered leaves the question standing" passed after 0.366 seconds.
+✔ Test "a stale question is not answered by a much later turn" passed after 0.367 seconds.
+✔ Test "naming one of the offered candidates resolves the reference next turn" passed after 0.367 seconds.
+✔ Test run with 157 tests in 10 suites passed after 0.457 seconds.
+PASSED: AuraIntentTests
+==> Done. Failed bundles: 0

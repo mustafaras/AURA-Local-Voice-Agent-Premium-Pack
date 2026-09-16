@@ -1,0 +1,186 @@
+==> Running Chrome extension behavior tests
+✔ publishes an empty bounded observation when page injection is refused (1.042916ms)
+✔ publishes visible text from an injectable page (0.300459ms)
+✔ publishes an empty observation from the extension-owned bootstrap page (0.259291ms)
+✔ reports a native host rejection instead of claiming connection (0.50125ms)
+✔ rejects bootstrap messages from any other sender URL (0.254584ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 66.435333
+==> Cleaning build path: /tmp/aurabuild
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1400]
+[Planning deferred tasks]
+[29 / 428] AuraStore-product
+[199 / 428]
+[200 / 429] AuraCore
+[210 / 477]
+[218 / 477]
+[220 / 477]
+[225 / 477]
+[229 / 477]
+[233 / 477]
+[235 / 477]
+[236 / 477]
+[248 / 477] AuraCore
+[249 / 477] AuraCore
+[258 / 481]
+[258 / 481] AuraCore
+[265 / 501] AuraShell
+[268 / 537]
+[289 / 558]
+[299 / 558]
+[307 / 558]
+[311 / 558] AuraShell-product
+[317 / 559]
+[322 / 559] AuraStore
+[328 / 562]
+[335 / 573] AuraTasks
+[337 / 573] AuraTasks
+[349 / 599] AuraConfig
+[353 / 599] AuraPolicy
+[370 / 599] AuraTasks
+[377 / 599] AuraMemory
+[386 / 599] AuraMemory
+[401 / 599] AuraConfig-product
+[408 / 599] AuraAudio
+[418 / 599] AuraAutomation-product
+[424 / 599] AuraConfig
+[429 / 599] AuraSTT
+[432 / 599]
+[434 / 601] AuraCore
+[435 / 602]
+[437 / 612] AuraSecurity
+[440 / 626] AuraSecurity
+[448 / 637]
+[450 / 637] AuraSTT
+[459 / 637] AuraSTT
+[464 / 637] AuraSTT
+[474 / 637] AuraSTT
+[484 / 640] AuraContext
+[488 / 641] AuraScreen
+[491 / 652] AuraVSCode
+[494 / 671] AuraScreen
+[505 / 671] AuraVSCode
+[526 / 671] AuraVSCode
+[529 / 676] AuraScreen
+[534 / 676] AuraScreen
+[539 / 676] AuraSTT
+[548 / 676] AuraVSCode
+[551 / 676] AuraPlugins
+[557 / 676] AuraComputerUse
+[565 / 680]
+[572 / 680] AuraPolicy
+[578 / 683] AuraAgent
+[581 / 687] AuraShell
+[585 / 716] AuraShell-product
+[589 / 716] AuraPluginHost-product
+[595 / 718]
+[607 / 729] AuraLifecycle
+[609 / 740] AuraProductivity
+[626 / 740] AuraLifecycle
+[631 / 740] AuraProductivity
+[639 / 740] AuraProductivity
+[643 / 740] AuraComputerUse
+[648 / 740] AuraAgent
+[657 / 740] AuraChromeNativeHost-product
+[661 / 740] AuraComputerUse
+[664 / 740] AuraAutomationHelper-product
+[670 / 740] AuraAgent
+[682 / 742]
+[692 / 743] AuraProductivity
+[697 / 743] AuraSTT
+[699 / 743] AuraSTT-product
+[705 / 750]
+[715 / 761] AuraSafariExtensionHandler-product
+[718 / 761] AuraSafariExtensionHandler-product
+[724 / 761] AuraIntent
+[725 / 761] AuraContext
+[739 / 761] AuraIntent-product
+[742 / 761]
+[750 / 762] AuraChromeNativeHost-product
+[757 / 762] AuraSafariExtensionHandler-product
+[757 / 762] AURA-product
+[769 / 774] AURA-product
+[770 / 774] AURA-product
+[772 / 774] AURA-product
+Build complete! (19,41 secs)
+==> Building test targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 732]
+[Planning deferred tasks]
+[22 / 99]
+[24 / 55] AuraSafariExtensionHandler
+[35 / 70] AURA
+[37 / 70] AuraSafariExtensionHandler
+[39 / 70] AuraSafariExtensionHandler
+[46 / 70] AURA
+[47 / 70] AURA
+[55 / 70] AURA
+[60 / 71] AURAIntegrationTests-product
+[61 / 87]
+[65 / 87]
+[76 / 87] AURAIntegrationTests-product
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AURAIntegrationTests/SP019MemoryUIStateTests.swift:47:29: [1;33mwarning: [1;39m'#require(_:_:)' is redundant because 'model.lastMemoryDeletionReceipt' never equals 'nil' (from macro 'require')[0;0m
+[0;36m45 |[0;0m     model.lastMemoryDeletionReceipt = AuraMemoryDeletionReceiptRow(receipt: receipt)
+[0;36m46 |[0;0m 
+[0;36m47 |[0;0m     let row = try? #require([4;39mmodel.lastMemoryDeletionReceipt[0;0m)
+   [0;36m|[0;0m                             `- [1;33mwarning: [1;39m'#require(_:_:)' is redundant because 'model.lastMemoryDeletionReceipt' never equals 'nil' (from macro 'require')[0;0m
+[0;36m48 |[0;0m     #expect(row?.id == recordID)
+[0;36m49 |[0;0m     #expect(row?.memoryClass == MemoryClass.workingConversation.rawValue)
+[81 / 87] AURAIntegrationTests-product
+[83 / 87] AURAIntegrationTests-product
+Build complete! (8,15 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AURAIntegrationTests ===
+✔ Test "bridge publishes a scalar level only while listening" passed after 0.788 seconds.
+✔ Test "stale sequence index is skipped (exact lookup, mirroring AudioSampleBridge)" passed after 0.788 seconds.
+✔ Test "throttle with deterministic clock: interval boundary publishes" passed after 0.788 seconds.
+✔ Test "throttle cadence: burst inside the interval publishes once" passed after 0.788 seconds.
+✔ Test "progress subscription consumes the payload instead of discarding it" passed after 0.789 seconds.
+✔ Suite AudioLevelBridgeTests passed after 0.792 seconds.
+✔ Suite UI3TaskProgressTests passed after 0.792 seconds.
+✔ Test "a real TTSStartedEvent sets isSpeakingResponse; every TTSStoppedEvent reason clears it" passed after 0.789 seconds.
+✔ Suite UI2LiveStatusFeedbackTests passed after 0.792 seconds.
+✔ Test "emergency stop cancels a pending confirmation and persists redacted trace" passed after 0.792 seconds.
+✔ Test "window close dismisses a pending confirmation and persists only redacted trace" passed after 0.806 seconds.
+✔ Test "confirmation lifecycle persists redacted terminal outcomes" passed after 0.827 seconds.
+✔ Suite "R9 product UI state" passed after 0.829 seconds.
+✘ Test "Live model proposals stay registry-bounded (unavailable + malformed plan)" recorded an issue at SP006LiveCapabilityScenarios.swift:272:4: Caught error: .ollamaError("OllamaNLUResult: failed to decode structured response: DecodingError.dataCorrupted: Data was corrupted. Debug description: The given data was not valid JSON.. Underlying error: Error Domain=NSCocoaErrorDomain Code=3840 \"Unexpected character \'`\' around line 1, column 1.\" UserInfo={NSDebugDescription=Unexpected character \'`\' around line 1, column 1., NSJSONSerializationErrorIndex=0}")
+✘ Test "Live model proposals stay registry-bounded (unavailable + malformed plan)" failed after 24.961 seconds with 2 issues.
+✘ Suite "SP-006 live capability scenarios" failed after 24.963 seconds with 6 issues.
+↳ /// SP-006 / OPEN-04 (forwarded live-gate bullet) — the live halves of the
+↳ /// seven R3 capability scenarios that need a real process, real policy, real
+↳ /// adapters, and (for two of them) the real local model.
+↳ ///
+↳ /// These are **not** contract tests over fakes. Every scenario drives the
+↳ /// real production objects: a `PolicyEngine` built from the unmodified
+↳ /// production `PolicyConfiguration()` seeded with `DefaultPolicyGrants.all`
+↳ /// (the exact `AuraKernel` posture), the real `AuraAutomation` /
+↳ /// `FileSystemURLOpener` (real `NSWorkspace` through `SystemLaunchServices`),
+↳ /// the real `CapabilityRegistry` contents (`InitialCapabilitySet.registerAll`),
+↳ /// the real `CapabilityPlanner`, and the real `ToolRouter`. The only seam
+↳ /// doubles are the confirmation presenter (a scripted stand-in for the UI
+↳ /// card — the policy challenge/hash/one-time flow underneath it is real) and
+↳ /// the never-exercised coding-agent process executor (`NoOpAdapterProcessExecutor`
+↳ /// from this target's `Fakes.swift`).
+↳ ///
+↳ /// Deliberately excluded from the default sweep: the run opens real Finder /
+↳ /// editor / browser windows in the `/tmp/aura-sp006-*` sandbox and loads a
+↳ /// multi-gigabyte local model. Opt in explicitly with
+↳ /// `AURA_ENABLE_LIVE_CAPABILITY_SCENARIOS=1`. `AURA_SP006_ARTIFACT_DIR`
+↳ /// overrides where the machine-readable transcript is written;
+↳ /// `AURA_SP006_SANDBOX` overrides the sandbox root (must keep the
+↳ /// `/tmp/aura-sp006-` prefix — anything else fails closed).
+✘ Test run with 202 tests in 34 suites failed after 24.963 seconds with 6 issues.
+FAILED: AURAIntegrationTests (test helper exit 1)
+==> Done. Failed bundles: 1

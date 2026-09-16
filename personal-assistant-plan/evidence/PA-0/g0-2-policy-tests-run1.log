@@ -1,0 +1,157 @@
+==> Cleaning build path: /tmp/aurabuild
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1400]
+[Planning deferred tasks]
+[7 / 428]
+[199 / 428]
+[200 / 429] AuraCore
+[210 / 477]
+[218 / 477]
+[220 / 477]
+[225 / 477]
+[229 / 477]
+[233 / 477]
+[235 / 477]
+[236 / 477]
+[248 / 477] AuraCore
+[258 / 481]
+[258 / 481] AuraCore
+[265 / 501] AuraShell
+[266 / 501] AuraStore
+[268 / 537]
+[282 / 558]
+[299 / 558] AuraStore
+[306 / 558] AuraStore
+[310 / 558]
+[315 / 558] AuraShell
+[323 / 559]
+[326 / 561]
+[333 / 573] AuraTasks
+[338 / 590]
+[350 / 590] AuraConfig
+[358 / 599] AuraMemory
+[372 / 599] AuraAutomation
+[379 / 599] AuraConfig
+[395 / 599] AuraContext
+[399 / 599] AuraPolicy
+[405 / 599] AuraCore
+[418 / 599] AuraAutomation
+[421 / 599] AuraAutomation
+[425 / 599] AuraAudio
+[428 / 599] AuraAutomation
+[431 / 599] AuraAudio
+[432 / 599]
+[433 / 600]
+[435 / 602]
+[436 / 612] AuraSecurity
+[444 / 637] AuraSecurity
+[446 / 637]
+[449 / 637]
+[453 / 637] AuraVSCode
+[460 / 637] AuraSTT
+[466 / 637] AuraSTT
+[475 / 637] AuraSpeechQualityProbe-product
+[480 / 637] AuraScreen
+[494 / 638] AuraScreen
+[501 / 641]
+[505 / 644]
+[508 / 659] AuraShellHelper-product
+[509 / 670] AuraPlugins
+[515 / 695] AuraProductivity
+[517 / 712]
+[522 / 712] AuraVSCode
+[546 / 723] AuraAutomationHelper-product
+[551 / 725] AuraVSCode
+[555 / 725] AuraSpeechQualityProbe-product
+[559 / 725] AuraVSCode
+[582 / 725] AuraProductivity
+[588 / 725] AuraShellHelper-product
+[590 / 725] AuraProductivity
+[591 / 725] AuraProductivity
+[597 / 725] AuraSpeechQualityProbe-product
+[601 / 725] AuraPluginHost-product
+[608 / 725] AuraLifecycle
+[610 / 725] AuraLifecycle
+[614 / 725] AuraLifecycle
+[621 / 725] AuraComputerUse
+[626 / 725] AuraLifecycle
+[630 / 725] AuraContext
+[639 / 725] AuraCore-product
+[661 / 727] AuraShellHelper-product
+[674 / 729] AuraAudio-product
+[678 / 729] AuraAutomationHelper-product
+[685 / 731] AuraPluginHost-product
+[687 / 731] AuraChromeNativeHost-product
+[695 / 738] AuraSpeechQualityProbe-product
+[701 / 749] AuraChromeNativeHost-product
+[707 / 749] AuraSafariExtensionHandler-product
+[712 / 749] AuraChromeNativeHost-product
+[715 / 749] AuraSafariExtensionHandler-product
+[717 / 749] AuraAutomationHelper-product
+[721 / 749] AuraAgent
+[729 / 750] AuraSafariExtensionHandler-product
+[731 / 750] AuraAgent
+[745 / 761] AuraIntent
+[754 / 762] AuraIntent
+[757 / 762] AURA-product
+[769 / 774] AURA-product
+[770 / 774] AURA-product
+[772 / 774] AURA-product
+Build complete! (21,07 secs)
+==> Building test targets
+Building for debugging...
+[Pre-planning 1 / 123]
+[Planning deferred tasks]
+[15 / 26] AuraPolicyTests-product
+[16 / 34]
+[23 / 34] AuraPolicyTests-product
+[28 / 34] AuraPolicyTests-product
+[30 / 34] AuraPolicyTests-product
+Build complete! (2,13 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AuraPolicyTests ===
+✔ Test "shellExec is allowed without confirmation under the owner posture" passed after 0.006 seconds.
+✔ Test confirmationTamperIsDenied() passed after 0.008 seconds.
+✔ Test "filesystem grants are root-scoped, never .any" passed after 0.006 seconds.
+✔ Test "no seeded grant uses an unrestricted .any pattern on a targetable capability" passed after 0.006 seconds.
+✔ Test confirmedPolicyRequestHasOneTimeExecutionAndVerificationLifecycle() passed after 0.008 seconds.
+✔ Test "local Ollama inference stays allowed; cloud inference is seeded without confirmation (ADR-064)" passed after 0.006 seconds.
+✘ Test "SP-030: the read/write split kept the write behind confirmation" failed after 0.006 seconds with 1 issue.
+↳ /// The other half: splitting the read out must not have weakened the write.
+✔ Test changedPlanCannotReuseConfirmationApproval() passed after 0.008 seconds.
+✘ Test "ADR-055: computerUseRun and agentOllamaCloudInference are seeded" failed after 0.006 seconds with 1 issue.
+↳ /// ADR-055: computer use and Ollama cloud inference join the seed set.
+↳ /// Computer use carries a mutation-tier confirmation on mutation actions;
+↳ /// cloud inference always confirms (it proxies prompts to a third-party
+↳ /// backend), matching the other coding-agent capabilities.
+✔ Test "every seeded grant carries the marker, so none can escape reconciliation" passed after 0.006 seconds.
+✔ Test "RISK-SP-006-DEFAULT-GRANT-BREADTH: a path outside every declared root is denied" passed after 0.006 seconds.
+✔ Test "SP-006: filesystem/URL capabilities are allowed for in-scope targets" passed after 0.006 seconds.
+✔ Test "reconciliation leaves grants outside the seed signature untouched" passed after 0.006 seconds.
+✔ Test "ungranted reversible capability outside the seeded set is still denied" passed after 0.006 seconds.
+✔ Test "url.open grant is scheme-scoped, never .any" passed after 0.006 seconds.
+✔ Test "appTerminate is allowed without confirmation under the owner posture" passed after 0.006 seconds.
+✔ Test "a file request carrying no path matches no scoped grant" passed after 0.006 seconds.
+✘ Test "SP-030: launch at login is reachable, and asks for confirmation" failed after 0.007 seconds with 1 issue.
+↳ /// `EV-SP-030-20260831-R11-POLICY-BLOCK-01`. The launch-at-login toggle was
+↳ /// denied before reaching `SMAppService`, and the whole 1317-test suite
+↳ /// passed with that defect present, because nothing asserted that a
+↳ /// lifecycle capability is reachable at all. That absence is what let a
+↳ /// registered, implemented, composition-root-wired control ship unusable.
+✔ Suite "OwnerTrustPosture (ADR-064)" passed after 0.009 seconds.
+✘ Suite "DefaultPolicyGrants (production posture)" failed after 0.009 seconds with 3 issues.
+↳ /// SP-006: pins the production default grant posture. `AuraKernel` seeds
+↳ /// `DefaultPolicyGrants.all` into a `PolicyEngine` built from the unmodified
+↳ /// production `PolicyConfiguration()`; these tests construct exactly that
+↳ /// combination so the live-path policy decision for every seeded capability
+↳ /// is verified without launching the app (which no test bundle can import).
+✔ Test denyRuleOverridesAllowByDefault() passed after 0.015 seconds.
+✔ Test grantsPersistAcrossReloads() passed after 0.015 seconds.
+✔ Test confirmationExpiryDenies() passed after 0.015 seconds.
+✔ Test removeDenyRuleRestoresDefault() passed after 0.015 seconds.
+✘ Test run with 51 tests in 2 suites failed after 0.015 seconds with 3 issues.
+FAILED: AuraPolicyTests (test helper exit 1)
+==> Done. Failed bundles: 1

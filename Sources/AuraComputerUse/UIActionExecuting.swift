@@ -89,14 +89,21 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
   /// the guard cannot be omitted by wiring.
   private let secureFieldDetector: any SecureFieldDetecting
 
+  /// ADR-064 (D-2): whether the secure-field guard above is enforced. Only
+  /// `refusesSecureFields` is consulted here; the emergency-stop check is
+  /// unconditional and not governed by the posture.
+  private let guardPosture: ComputerUseGuardPosture
+
   public init(
     emergencyStop: EmergencyStopController,
     secureFieldDetector: any SecureFieldDetecting,
-    maxTraversedElements: Int = 500
+    maxTraversedElements: Int = 500,
+    guardPosture: ComputerUseGuardPosture = .production
   ) {
     self.emergencyStop = emergencyStop
     self.secureFieldDetector = secureFieldDetector
     self.maxTraversedElements = maxTraversedElements
+    self.guardPosture = guardPosture
   }
 
   public func execute(
@@ -124,8 +131,12 @@ public actor AXCGEventActionExecutor: UIActionExecuting {
     // a credential surface, and this mirrors the control loop, which blocks
     // the whole step regardless of kind. Divergence between the two layers
     // would itself be the defect.
-    switch await secureFieldDetector.probeSecureField(
-      applicationBundleIdentifier: applicationBundleIdentifier)
+    // ADR-064 (B): under `.ownerTrust` the probe is skipped here exactly as
+    // in the control loop, so the two layers cannot diverge.
+    switch guardPosture.refusesSecureFields
+      ? await secureFieldDetector.probeSecureField(
+        applicationBundleIdentifier: applicationBundleIdentifier)
+      : .notFocused
     {
     case .focused:
       throw AuraError.computerUseError(

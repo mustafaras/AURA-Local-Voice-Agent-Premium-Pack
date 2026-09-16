@@ -1,0 +1,16 @@
+total grants: 41 | seed-marked: 41
+app.terminate                    {"none": {}}           id=640377CA
+shell.exec                       {"none": {}}           id=63506D6E
+agent.codexRun                   {"none": {}}           id=D8E0E989
+agent.claudeRun                  {"none": {}}           id=DDF05342
+agent.copilotRun                 {"none": {}}           id=32A66670
+lifecycle.launchAtLogin          {"none": {}}           id=7147F702
+computerUse.run                  {"none": {}}           id=4D5F3126
+agent.ollamaCloudInference       {"none": {}}           id=31D16F08
+agent.run                        {"none": {}}           id=6D7891BC
+app.hide                         {"none": {}}           id=F90A4871
+vscode.runTask                   {"none": {}}           id=95FC69F1
+computerUse.interact             {"none": {}}           id=89EA8F34
+computerUse.mutate               {"none": {}}           id=6E784B43
+computerUse.destructiveAct       {"none": {}}           id=9413D0BE
+seed grants NOT .none: []

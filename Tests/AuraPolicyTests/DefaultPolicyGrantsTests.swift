@@ -130,28 +130,31 @@ struct DefaultPolicyGrantsTests {
     }
   }
 
-  @Test("appTerminate requires confirmation under the seeded grant")
-  func appTerminateConfirms() async throws {
+  // ADR-064 (PA-0): the owner posture derives these seeds to `.none`. The
+  // pre-PA-0 `.confirm` expectation lives on in `OwnerTrustPostureTests`
+  // against `grants(ownerTrustEnabled: false)`.
+  @Test("appTerminate is allowed without confirmation under the owner posture")
+  func appTerminateAllowed() async throws {
     let engine = try await makeProductionEngine()
     let decision = await evaluate(.appTerminate, engine: engine)
-    guard case .confirm = decision else {
-      Issue.record("Expected .confirm for appTerminate, got \(decision)")
+    guard case .allow = decision else {  // ADR-064
+      Issue.record("Expected .allow for appTerminate, got \(decision)")
       return
     }
   }
 
-  @Test("shellExec requires confirmation on every request")
-  func shellExecConfirms() async throws {
+  @Test("shellExec is allowed without confirmation under the owner posture")
+  func shellExecAllowed() async throws {
     let engine = try await makeProductionEngine()
     let decision = await evaluate(.shellExec, engine: engine)
-    guard case .confirm = decision else {
-      Issue.record("Expected .confirm for shellExec, got \(decision)")
+    guard case .allow = decision else {  // ADR-064
+      Issue.record("Expected .allow for shellExec, got \(decision)")
       return
     }
   }
 
   @Test(
-    "local Ollama inference stays allowed; cloud inference is seeded with an always confirmation"
+    "local Ollama inference stays allowed; cloud inference is seeded without confirmation (ADR-064)"
   )
   func ollamaGrants() async throws {
     let engine = try await makeProductionEngine()
@@ -162,13 +165,13 @@ struct DefaultPolicyGrantsTests {
     }
     #expect(
       DefaultPolicyGrants.all.contains { $0.capability == .agentOllamaLocalInference })
-    // ADR-055 ("Etkinleştir"): cloud inference joins the seed set. The prompt
-    // is proxied to Ollama's hosted backend, so the grant always requires the
-    // confirmation challenge, like the other third-party-bound agents.
+    // ADR-055 ("Etkinleştir"): cloud inference joins the seed set. Under
+    // ADR-055 it always required the confirmation challenge; ADR-064 (D-1)
+    // derives it from the owner posture, so the production seed is `.none`.
     let cloudGrant = DefaultPolicyGrants.all.first { $0.capability == .agentOllamaCloudInference }
     #expect(cloudGrant != nil)
-    guard case .always? = cloudGrant?.confirmationRequirement else {
-      Issue.record("agent.ollamaCloudInference must confirm on every request (ADR-055)")
+    guard case .none? = cloudGrant?.confirmationRequirement else {  // ADR-064
+      Issue.record("agent.ollamaCloudInference must not challenge the owner (ADR-064)")
       return
     }
   }
@@ -186,11 +189,12 @@ struct DefaultPolicyGrantsTests {
   @Test("ungranted reversible capability outside the seeded set is still denied")
   func ungrantedReversibleDenied() async throws {
     let engine = try await makeProductionEngine()
-    // .appHide is reversible-tier but intentionally not seeded; deny-by-default
-    // must still hold for reversible capabilities with no grant.
-    let decision = await evaluate(.appHide, engine: engine)
+    // ADR-064: `.appHide` is now seeded (it is a registered capability). The
+    // deny-by-default wall must still hold for a reversible capability that
+    // no manifest registers and nothing seeds — `.vscodeOpen` is one.
+    let decision = await evaluate(.vscodeOpen, engine: engine)  // ADR-064
     guard case .deny = decision else {
-      Issue.record("Expected .deny for ungranted appHide, got \(decision)")
+      Issue.record("Expected .deny for ungranted vscodeOpen, got \(decision)")
       return
     }
   }
@@ -378,6 +382,17 @@ struct DefaultPolicyGrantsTests {
         Capability.lifecycleReset.identifier,
         Capability.lifecycleUninstall.identifier,
         Capability.lifecycleFactoryReset.identifier,
+        // ADR-064 G0-3: the nine registered-but-unseeded capabilities the
+        // owner-grant coverage scan found (`OwnerGrantCoverageTests`).
+        Capability.agentRun.identifier,  // ADR-064
+        Capability.appHide.identifier,  // ADR-064
+        Capability.vscodeRunTask.identifier,  // ADR-064
+        Capability.vscodeCancelTask.identifier,  // ADR-064
+        Capability.vscodeRunTests.identifier,  // ADR-064
+        Capability.vscodeCancelTests.identifier,  // ADR-064
+        Capability.computerUseInteract.identifier,  // ADR-064
+        Capability.computerUseMutate.identifier,  // ADR-064
+        Capability.computerUseDestructiveAct.identifier,  // ADR-064
       ])
   }
 
@@ -406,15 +421,16 @@ struct DefaultPolicyGrantsTests {
   /// passed with that defect present, because nothing asserted that a
   /// lifecycle capability is reachable at all. That absence is what let a
   /// registered, implemented, composition-root-wired control ship unusable.
-  @Test("SP-030: launch at login is reachable, and asks for confirmation")
+  @Test("SP-030: launch at login is reachable — ADR-064: without confirmation")
   func launchAtLoginIsReachable() async throws {
     let engine = try await makeProductionEngine()
     let decision = await evaluate(.lifecycleLaunchAtLogin, engine: engine)
-    // `.confirm`, not `.allow`: this writes a persistent system-level login
-    // item, so the user confirms the effect. What must never recur is
-    // `.deny` — the toggle failing before it reaches the OS.
-    guard case .confirm = decision else {
-      Issue.record("Expected .confirm for lifecycle.launchAtLogin, got \(decision)")
+    // Pre-ADR-064 this was `.confirm` (the user confirmed the persistent
+    // login item). ADR-064 derives the seed from the owner posture, so the
+    // owner build answers `.allow`. What must never recur is `.deny` — the
+    // toggle failing before it reaches the OS.
+    guard case .allow = decision else {  // ADR-064
+      Issue.record("Expected .allow for lifecycle.launchAtLogin, got \(decision)")
       return
     }
   }
@@ -457,16 +473,23 @@ struct DefaultPolicyGrantsTests {
     #expect(Capability.lifecycleLaunchAtLoginStatus.riskTier == .observation)
   }
 
-  /// The other half: splitting the read out must not have weakened the write.
-  @Test("SP-030: the read/write split kept the write behind confirmation")
-  func writeStillRequiresConfirmationAfterSplit() async throws {
+  /// The other half: splitting the read out must not have changed the
+  /// write's identity or tier. ADR-064 removed the confirmation for the
+  /// owner; the split's invariant is that the write is a distinct,
+  /// mutation-tier capability whose seed is governed by the posture switch.
+  @Test("SP-030: the read/write split kept the write a distinct mutation-tier capability")
+  func writeStillDistinctAfterSplit() async throws {
     let engine = try await makeProductionEngine()
     #expect(Capability.lifecycleLaunchAtLogin != Capability.lifecycleLaunchAtLoginStatus)
     #expect(Capability.lifecycleLaunchAtLogin.riskTier == .mutation)
-    guard case .confirm = await evaluate(.lifecycleLaunchAtLogin, engine: engine) else {
-      Issue.record("the write must still require confirmation")
+    guard case .allow = await evaluate(.lifecycleLaunchAtLogin, engine: engine) else {  // ADR-064
+      Issue.record("the write must be allowed without confirmation under the owner posture")
       return
     }
+    #expect(  // ADR-064: the pre-PA-0 requirement survives behind the switch
+      DefaultPolicyGrants.grants(ownerTrustEnabled: false)
+        .first { $0.capability == .lifecycleLaunchAtLogin }?.confirmationRequirement
+        == .forRiskTier(.mutation))
   }
 
   /// Pins the *scope* of the seed change, so a future edit that widens the
@@ -486,22 +509,30 @@ struct DefaultPolicyGrantsTests {
   }
 
   /// ADR-055: computer use and Ollama cloud inference join the seed set.
-  /// Computer use carries a mutation-tier confirmation on mutation actions;
-  /// cloud inference always confirms (it proxies prompts to a third-party
-  /// backend), matching the other coding-agent capabilities.
-  @Test("ADR-055: computerUseRun and agentOllamaCloudInference are seeded")
+  /// Under ADR-055 computer use carried a mutation-tier confirmation and
+  /// cloud inference always confirmed. ADR-064 derives both from the owner
+  /// posture: the production seed is `.none`, and the ADR-055 requirement
+  /// survives behind `grants(ownerTrustEnabled: false)`.
+  @Test("ADR-055/ADR-064: computerUseRun and agentOllamaCloudInference are seeded")
   func computerUseAndOllamaCloudAreSeeded() {
     let computerUseGrant = DefaultPolicyGrants.all.first { $0.capability == .computerUseRun }
-    guard case .forRiskTier(.mutation)? = computerUseGrant?.confirmationRequirement else {
-      Issue.record("computerUseRun must be seeded with a mutation-tier confirmation")
+    guard case .none? = computerUseGrant?.confirmationRequirement else {  // ADR-064
+      Issue.record("computerUseRun must be seeded without confirmation under the owner posture")
       return
     }
     let cloudGrant = DefaultPolicyGrants.all.first {
       $0.capability == .agentOllamaCloudInference
     }
-    guard case .always? = cloudGrant?.confirmationRequirement else {
-      Issue.record("agentOllamaCloudInference must always require confirmation")
+    guard case .none? = cloudGrant?.confirmationRequirement else {  // ADR-064
+      Issue.record("agentOllamaCloudInference must not challenge the owner")
       return
     }
+    let legacy = DefaultPolicyGrants.grants(ownerTrustEnabled: false)
+    #expect(  // ADR-064: ADR-055's requirements are preserved behind the switch
+      legacy.first { $0.capability == .computerUseRun }?.confirmationRequirement
+        == .forRiskTier(.mutation))
+    #expect(
+      legacy.first { $0.capability == .agentOllamaCloudInference }?.confirmationRequirement
+        == .always)
   }
 }

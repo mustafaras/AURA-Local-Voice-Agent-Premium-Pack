@@ -25,6 +25,13 @@ public actor ComputerUseControlLoop {
   let emergencyStop: EmergencyStopController
   let eventBus: AuraEventBus
   let configuration: ComputerUseConfiguration
+  /// ADR-064 (D-2): which structural guards this loop enforces. Production
+  /// inherits `.production` (derived from `OwnerTrustPosture`); tests pass
+  /// `.structural` to prove the guards still refuse, or `.ownerTrust` to
+  /// prove they are lifted. The emergency stop, identity-change detection,
+  /// invalid-anchor rejection, `maxIterations`, and the rate limit are not
+  /// governed by this value.
+  let guardPosture: ComputerUseGuardPosture
 
   public init(
     screenEngine: ScreenContextEngine,
@@ -34,7 +41,8 @@ public actor ComputerUseControlLoop {
     secureFieldDetector: any SecureFieldDetecting,
     emergencyStop: EmergencyStopController,
     eventBus: AuraEventBus = .shared,
-    configuration: ComputerUseConfiguration = ComputerUseConfiguration()
+    configuration: ComputerUseConfiguration = ComputerUseConfiguration(),
+    guardPosture: ComputerUseGuardPosture = .production
   ) {
     self.screenEngine = screenEngine
     self.policyEngine = policyEngine
@@ -44,6 +52,7 @@ public actor ComputerUseControlLoop {
     self.emergencyStop = emergencyStop
     self.eventBus = eventBus
     self.configuration = configuration
+    self.guardPosture = guardPosture
   }
 
 }

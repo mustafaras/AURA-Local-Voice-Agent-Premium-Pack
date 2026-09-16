@@ -143,23 +143,30 @@ struct SP006LiveCapabilityScenarios {
     }
 
     // ---------------------------------------------------------------------
-    // No unauthorized delivery — `shell.execute_typed` carries an `.always`
-    // confirmation grant; with the presenter denying, the router must block
-    // and no process may be spawned (no ToolInvokedEvent for the shell).
+    // ADR-064 (owner posture): `shell.execute_typed` used to carry an
+    // `.always` confirmation grant, and this leg proved a denying presenter
+    // blocked delivery. The production seed is now `.none`, so the presenter
+    // is never consulted: the same deny-presenter router must run the
+    // command, record no `confirmationDenied` block, and invoke the shell
+    // tool. (The presenter-denial mechanics themselves stay proven by the
+    // ADR-037 confirmation tests in AuraPolicyTests / AuraIntentTests.)
     // ---------------------------------------------------------------------
     let shellIntent = fixture.intent(
       kind: .shellExecute, category: .shellExecute,
       slots: [
         IntentSlot(name: IntentSlotName.executable, value: "/bin/echo"),
-        IntentSlot(name: IntentSlotName.arguments, value: "sp006-unauthorized"),
+        IntentSlot(name: IntentSlotName.arguments, value: "sp006-owner-posture"),
       ])
     let denialOutcome = await fixture.denyRouter.route(
       shellIntent, context: fixture.newContext(), dialogueContext: [])
-    #expect(denialOutcome.isBlockedPendingConfirmationDenied)
+    #expect(!denialOutcome.isBlockedPendingConfirmationDenied)  // ADR-064
     let invocations = await fixture.recorder.toolInvocations()
-    #expect(!invocations.contains { $0.toolID == "shell.execute_typed" })
+    // The router emits `toolID: "shell.execute"` (ToolRouter_Handlers.swift);
+    // the pre-ADR-064 negative assertion looked for "shell.execute_typed"
+    // and was therefore vacuous — it could never have observed a shell run.
+    #expect(invocations.contains { $0.toolID == "shell.execute" })  // ADR-064
     let blocked = await fixture.recorder.blockedReasons()
-    #expect(blocked.contains("confirmationDenied"))
+    #expect(!blocked.contains("confirmationDenied"))  // ADR-064
 
     // ---------------------------------------------------------------------
     // Scenario 6 (deterministic leg) — the planner rejects a malformed or
@@ -259,7 +266,7 @@ struct SP006LiveCapabilityScenarios {
         "twoStepPlanFingerprint=\(plan.fingerprint)",
         "partialPlanFingerprint=\(partialPlan.fingerprint)",
         "cancellation=typed CancellationError before LaunchServices handoff",
-        "shellDenial=blockedPendingConfirmationDenied; no tool.invoked for shell.execute_typed",
+        "shellOwnerPosture=allowed; tool.invoked for shell.execute (ADR-064)",
       ])
   }
 

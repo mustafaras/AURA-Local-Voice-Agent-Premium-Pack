@@ -5,7 +5,10 @@ import Foundation
 /// limiting. Confirmation requirements for destructive intents are
 /// deliberately *not* configurable here — see
 /// `ComputerUseSemanticIntent.mandatoryConfirmationIntents`, a fixed
-/// constant no configuration can relax.
+/// constant no configuration can relax. (Whether that gate — and the
+/// no-progress and per-plan step guards below — is *enforced* is decided
+/// by `ComputerUseGuardPosture`, derived from the ADR-064 owner posture,
+/// not by this configuration; `maxIterations` holds under both postures.)
 public struct ComputerUseConfiguration: Codable, Sendable, Equatable {
   /// Hard ceiling on observe-plan-policy-act-verify iterations per session.
   public var maxIterations: Int

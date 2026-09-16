@@ -11,8 +11,9 @@ These constraints are derived from `AGENTS.md`, the accepted ADRs, the pinned te
 | The policy engine evaluates and audits every capability call | `AGENTS.md` "Never bypass the permission engine for convenience"; `PolicyEngine_Evaluation.swift` | Posture changes go through seeded grants + ADR (PA-0). No call path skips `PolicyEngine`; `AutoAllowConfirmationPresenter` stays demo-only |
 | Security policy never changes silently | `AGENTS.md` "Never silently change architecture, security policy, data schema…" | One ADR per phase that widens capability (ADR-064…069); protocol rule A7 blocks a `[policy]` gate without an ADR citation |
 | Local-only, no Developer ID, no external distribution | ADR-049, ADR-051, ADR-052 | Nothing here is release evidence; every ledger entry says so where relevant |
-| Emergency stop and computer-use structural guards | ADR-019, ADR-039, ADR-055 §1 | Untouched (D-2). They are halts, not prompts |
-| Screen-context sensitive-app exclusion, redaction, zero retention | ADR-018 (Phase 17) | Untouched |
+| Emergency stop | ADR-019, ADR-039, ADR-055 §1 | Untouched (D-2 as resolved 2026-09-16). It is a kill switch, not a prompt |
+| Computer-use structural guards (mandatory-confirmation intents, secure-field refusal, unexpected-modal halt, no-progress halt, per-plan step ceiling) and the screen-context sensitive-application exclusion | ADR-019, ADR-039, ADR-018 | **Lifted for the owner posture by D-2 (resolved 2026-09-16) via ADR-064**, derived from `OwnerTrustPosture` so the disabled posture and the tests keep the mechanism. Identity-change detection, `maxIterations`, and the action rate limit remain as bounds |
+| Screen-context redaction and zero retention | ADR-018 (Phase 17) | Untouched. (The sensitive-application *exclusion* is lifted for the owner posture — see the row above) |
 | Prompt-injection classifier, network allowlist fail-closed | ADR-020, ADR-055 §6 | Untouched |
 | Privilege separation across helpers | ADR-034, ADR-044 | Helpers are not merged; PA-1 minimises *prompts*, not processes |
 | Ledger history is never rewritten | `AGENTS.md`; memory rule "corrections are new entries" | Plan ledger and repo ledger are append-only |

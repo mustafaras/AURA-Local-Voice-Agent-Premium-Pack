@@ -24,7 +24,10 @@ func makeEngine(
   secureFieldDetector: ScriptedSecureFieldDetector = ScriptedSecureFieldDetector(),
   policyEngine: PolicyEngine? = nil,
   assistantBundleIdentifier: String = "ai.aura.local",
-  screenshotRetentionDays: Int = PrivacyConfiguration().screenshotRetentionDays
+  screenshotRetentionDays: Int = PrivacyConfiguration().screenshotRetentionDays,
+  // ADR-064: exclusion tests assert the refusal, so fixtures run with the
+  // exclusion explicitly on; `ComputerUseGuardPostureTests` covers it off.
+  sensitiveApplicationExclusionEnabled: Bool = true
 ) async throws -> (ScreenContextEngine, ScriptedWindowSource) {
   let windowSource = ScriptedWindowSource(windows: windows)
   let policy: PolicyEngine
@@ -38,7 +41,8 @@ func makeEngine(
     windowSource: windowSource, textRecognizer: textRecognizer,
     secureFieldDetector: secureFieldDetector, policyEngine: policy, eventBus: bus,
     configuration: configuration, assistantBundleIdentifier: assistantBundleIdentifier,
-    screenshotRetentionDays: screenshotRetentionDays)
+    screenshotRetentionDays: screenshotRetentionDays,
+    sensitiveApplicationExclusionEnabled: sensitiveApplicationExclusionEnabled)
   return (engine, windowSource)
 }
 

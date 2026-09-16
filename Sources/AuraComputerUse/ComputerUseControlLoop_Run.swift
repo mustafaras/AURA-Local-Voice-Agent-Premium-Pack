@@ -116,7 +116,12 @@ extension ComputerUseControlLoop {
         runID: context.runID, iteration: state.iteration, progressed: progressed,
         consecutiveNoProgressCount: nextState.consecutiveNoProgress),
       correlationID: correlationID, actor: context.actor)
-    guard nextState.consecutiveNoProgress < configuration.noProgressIterationThreshold else {
+    // ADR-064 (C): under `.ownerTrust` the counter is still computed and
+    // emitted above, but never terminates the run; `maxIterations` is then
+    // the only automatic stop for a planner that never converges.
+    if guardPosture.haltsOnNoProgress,
+      nextState.consecutiveNoProgress >= configuration.noProgressIterationThreshold
+    {
       return ComputerUseIterationResult(
         state: nextState, outcome: .noProgress(iterations: state.iteration))
     }
@@ -140,7 +145,9 @@ extension ComputerUseControlLoop {
       return ComputerUseIterationResult(
         state: state, outcome: .completed(iterations: state.iteration))
     }
-    guard plan.steps.count <= configuration.maxStepsPerPlan else {
+    // ADR-064 (C): the per-plan step ceiling is a structural guard; under
+    // `.ownerTrust` a longer plan executes in full.
+    if guardPosture.enforcesMaxStepsPerPlan, plan.steps.count > configuration.maxStepsPerPlan {
       let reason =
         "plan step count \(plan.steps.count) exceeds configured maximum "
         + "\(configuration.maxStepsPerPlan)"
@@ -192,6 +199,9 @@ extension ComputerUseControlLoop {
         runID: context.runID, iteration: context.iteration,
         observationID: observation.id, contentHash: observation.contentHash),
       correlationID: correlationID, actor: context.actor)
+    // ADR-064 (C): under `.ownerTrust` the modal probe is skipped entirely —
+    // a dialog is then just part of the next observation the planner sees.
+    guard guardPosture.haltsOnUnexpectedModal else { return .captured(observation) }
     switch await modalDetector.probeModal(
       expectedBundleIdentifier: context.target.appBundleIdentifier)
     {
@@ -302,7 +312,12 @@ extension ComputerUseControlLoop {
         .confirmationRequired(
           challenge: challenge, iterations: context.iteration))
     case .allow:
-      if step.semanticIntent.requiresMandatoryConfirmation {
+      // ADR-064 (A): under `.ownerTrust` a step in
+      // `mandatoryConfirmationIntents` executes on a bare `.allow` like any
+      // other step. The engine's own `.confirm` branch above is untouched.
+      if guardPosture.enforcesMandatoryConfirmation,
+        step.semanticIntent.requiresMandatoryConfirmation
+      {
         await emit(
           ComputerUseConfirmationBlockedEvent(
             runID: context.runID, iteration: context.iteration,
@@ -351,8 +366,13 @@ extension ComputerUseControlLoop {
         .invalidPlan(
           reason: "step \(step.id) has an invalid anchor", iterations: iteration))
     }
-    switch await secureFieldDetector.probeSecureField(
-      applicationBundleIdentifier: context.target.appBundleIdentifier)
+    // ADR-064 (B): under `.ownerTrust` the probe is skipped, so neither
+    // `.focused` nor `.indeterminate` refuses the step. The executor mirrors
+    // this through the same posture value.
+    switch guardPosture.refusesSecureFields
+      ? await secureFieldDetector.probeSecureField(
+        applicationBundleIdentifier: context.target.appBundleIdentifier)
+      : .notFocused
     {
     case .focused:
       await emitStepBlocked(

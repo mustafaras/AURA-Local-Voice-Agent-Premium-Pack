@@ -1,0 +1,175 @@
+==> Cleaning build path: /tmp/aurabuild
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1400]
+[Planning deferred tasks]
+[199 / 428]
+[200 / 429] AuraCore
+[210 / 477]
+[218 / 477]
+[220 / 477]
+[224 / 477]
+[227 / 477]
+[233 / 477]
+[234 / 477]
+[235 / 477]
+[236 / 477]
+[247 / 477] AuraCore
+[248 / 477] AuraCore
+[256 / 479]
+[258 / 481] AuraCore
+[258 / 481] AuraStore
+[263 / 501] AuraShell
+[265 / 537] AuraShell
+[269 / 558]
+[272 / 558] AuraStore
+[291 / 558]
+[298 / 558] AuraStore
+[302 / 558] AuraStore
+[305 / 558]
+[309 / 558] AuraShell
+[314 / 558]
+[319 / 558]
+[322 / 558] AuraPolicy
+[323 / 559] AuraShell
+[327 / 562]
+[328 / 562] AuraShell
+[332 / 579] AuraPolicy
+[336 / 599] AuraTasks
+[346 / 599] AuraTasks
+[359 / 599] AuraMemory
+[366 / 599] AuraTasks
+[368 / 599] AuraSecurity
+[373 / 599] AuraConfig
+[380 / 599] AuraMemory
+[386 / 599] AuraMemory
+[389 / 599] AuraPolicy
+[390 / 599] AuraMemory
+[394 / 599] AuraMemory
+[396 / 599] AuraConfig
+[407 / 599] AuraAutomation
+[408 / 599] AuraAutomation-product
+[413 / 599] AuraAudio
+[420 / 599] AuraConfig
+[423 / 599] AuraAudio
+[427 / 599] AuraAudio
+[428 / 599] AuraAudio
+[431 / 600]
+[432 / 601] AuraSecurity
+[434 / 611] AuraSecurity
+[435 / 625] AuraSecurity
+[437 / 625]
+[443 / 625]
+[446 / 625] AuraSecurity
+[448 / 625] AuraSecurity
+[449 / 625] AuraVSCode
+[452 / 625]
+[460 / 625] AuraScreen
+[465 / 625]
+[467 / 626] AuraScreen
+[480 / 629] AuraScreen-product
+[482 / 631] AuraCore
+[484 / 632]
+[488 / 663] AuraVSCode
+[490 / 688] AuraProductivity
+[494 / 705] AuraLifecycle
+[497 / 705]
+[502 / 707] AuraPlugins
+[517 / 707]
+[523 / 707] AuraVSCode
+[536 / 707] AuraVSCode
+[540 / 707] AuraPlugins
+[546 / 707] AuraProductivity
+[556 / 707] AuraSTT
+[564 / 707] AuraProductivity
+[564 / 707] AuraSTT
+[568 / 707] AuraProductivity
+[573 / 707] AuraProductivity
+[574 / 707] AuraPlugins
+[577 / 707] AuraProductivity
+[579 / 707] AuraPlugins-product
+[583 / 707] AuraPlugins
+[587 / 707] AuraLifecycle
+[588 / 707] AuraLifecycle
+[592 / 707] AuraLifecycle
+[593 / 707] AuraLifecycle
+[598 / 707] AuraPlugins
+[602 / 707] AuraContext
+[608 / 708] AuraSafariExtensionHandler-product
+[613 / 709]
+[616 / 712] AuraLifecycle
+[616 / 712] AuraPluginHost-product
+[622 / 714] AuraCore-product
+[629 / 732] AuraChromeNativeHost-product
+[630 / 737]
+[634 / 737] AuraPluginHost-product
+[640 / 737] AuraSafariExtensionHandler-product
+[643 / 737] AuraSafariExtensionHandler-product
+[654 / 737] AuraComputerUse
+[657 / 737] AuraChromeNativeHost-product
+[660 / 738] AuraAudio
+[665 / 738] AuraMemory
+[668 / 738] AuraCore-product
+[678 / 738] AuraScreen
+[682 / 738] AuraMemory-product
+[685 / 738]
+[692 / 738]
+[696 / 738] AuraPluginHost-product
+[702 / 749] AuraAgent
+[703 / 749] AuraSafariExtensionHandler-product
+[705 / 749] AuraSafariExtensionHandler-product
+[707 / 749] AuraChromeNativeHost-product
+[709 / 749] AuraSafariExtensionHandler-product
+[712 / 749] AuraAgent
+[714 / 749] AuraAgent
+[715 / 749] AuraPluginHost-product
+[717 / 749] AuraSafariExtensionHandler-product
+[721 / 749]
+[724 / 749] AuraAgent
+[731 / 750] AuraAgent
+[734 / 750] AuraIntent
+[745 / 761] AuraIntent
+[754 / 762] AuraIntent
+[757 / 762] AURA-product
+[768 / 774] AURA-product
+[769 / 774] AURA-product
+[770 / 774] AURA-product
+[772 / 774] AURA-product
+Build complete! (33,87 secs)
+==> Building test targets
+Building for debugging...
+[Pre-planning 1 / 152]
+[Planning deferred tasks]
+[15 / 26] AuraScreenTests-product
+[16 / 35]
+[24 / 35] AuraScreenTests-product
+[29 / 35] AuraScreenTests-product
+[31 / 35] AuraScreenTests-product
+[34 / 35] AuraScreenTests-product
+Build complete! (3,68 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AuraScreenTests ===
+✔ Test redactsConfiguredPatternMatchedSecret() passed after 0.012 seconds.
+✔ Test scaledDimensionsCapsToMaxDimensionPreservingAspectRatio() passed after 0.012 seconds.
+✔ Test multipleRegionsProduceIndependentMatchesAtTheirOwnBoundingBoxes() passed after 0.012 seconds.
+✔ Test regionsRelativeToCaptureDropsNonOverlappingRegion() passed after 0.012 seconds.
+✔ Test captureBlockedForAssistantSelfExclusion() passed after 0.012 seconds.
+✔ Test captureBlockedWhenPolicyDenies() passed after 0.012 seconds.
+✔ Test captureBlockedForSensitiveApplication() passed after 0.012 seconds.
+✔ Test captureBlockedForOutOfBoundsRegionAndNeverCallsCaptureSource() passed after 0.013 seconds.
+✔ Test captureWithValidRegionRecordsRegionAndForwardsItToCaptureSource() passed after 0.013 seconds.
+✔ Test sensitiveWindowTitleIsRedactedInObservation() passed after 0.012 seconds.
+✔ Test captureSucceedsAndRedactsRecognizedFinancialData() passed after 0.013 seconds.
+✔ Test captureRespectsSecureFieldFocusAndMasksEntireFrame() passed after 0.013 seconds.
+✔ Test doesNotRedactWhenNoConfiguredPatternMatches() passed after 0.012 seconds.
+✔ Test freshnessDeadlineReflectsConfiguredWindowAndObservationStartsFresh() passed after 0.012 seconds.
+✔ Test captureRetainsRawFrameOnlyWhenExplicitlyOptedIn() passed after 0.012 seconds.
+✔ Test captureBlockedForNotificationCenterApplication() passed after 0.013 seconds.
+✔ Test captureBlockedForNegativeOriginRegion() passed after 0.012 seconds.
+✔ Test retainedRawFramesExpireAfterConfiguredRetentionWindow() passed after 0.013 seconds.
+✔ Test captureNeverRetainsRawFrameByDefault() passed after 0.012 seconds.
+✔ Test run with 37 tests in 0 suites passed after 0.013 seconds.
+PASSED: AuraScreenTests
+==> Done. Failed bundles: 0

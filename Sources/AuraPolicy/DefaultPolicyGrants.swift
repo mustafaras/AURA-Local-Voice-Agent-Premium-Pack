@@ -49,27 +49,48 @@ public enum DefaultPolicyGrants {
   /// set instead of appending to it, and to prune the legacy shape.
   public static let seedPurpose = "aura.default-seed"
 
+  /// ADR-064 (PA-0, 2026-09-16): the owner posture. When
+  /// `OwnerTrustPosture.isEnabled` the eight grants that used to challenge
+  /// the owner — `.always` on `shell.exec` and the four agent/cloud runs,
+  /// `.forRiskTier(.mutation)` on `app.terminate`, `lifecycle.launchAtLogin`,
+  /// `computerUse.run` — resolve to `.none`. The engine still evaluates and
+  /// audits every request; the grant is what changes its answer. This is an
+  /// owner-instructed, non-transferable local risk acceptance (ADR-064 §6),
+  /// not a policy default. `grants(ownerTrustEnabled:)` exists so a test can
+  /// prove the switch is the only difference between the two postures.
+  static func ownerConfirmation(ownerTrustEnabled: Bool) -> ConfirmationRequirement {
+    ownerTrustEnabled ? .none : .always
+  }
+
+  static func ownerMutationConfirmation(ownerTrustEnabled: Bool) -> ConfirmationRequirement {
+    ownerTrustEnabled ? .none : .forRiskTier(.mutation)
+  }
+
   /// Grants whose capability has no path/URL target to narrow, or where a
   /// mandatory confirmation is the control rather than a pattern.
-  private static let unscoped: [Grant] = [
+  private static func unscoped(ownerTrustEnabled: Bool) -> [Grant] {
+    let ownerConfirmation = ownerConfirmation(ownerTrustEnabled: ownerTrustEnabled)
+    let ownerMutationConfirmation = ownerMutationConfirmation(
+      ownerTrustEnabled: ownerTrustEnabled)
+    return [
     Grant(
       capability: .appActivate, patterns: [.any], confirmationRequirement: .none,
       purpose: seedPurpose),
     Grant(
       capability: .appTerminate, patterns: [.any],
-      confirmationRequirement: .forRiskTier(.mutation), purpose: seedPurpose),
+      confirmationRequirement: ownerMutationConfirmation, purpose: seedPurpose),
     Grant(
-      capability: .shellExec, patterns: [.any], confirmationRequirement: .always,
+      capability: .shellExec, patterns: [.any], confirmationRequirement: ownerConfirmation,
       purpose: seedPurpose),
     Grant(
-      capability: .agentCodexRun, patterns: [.any], confirmationRequirement: .always,
+      capability: .agentCodexRun, patterns: [.any], confirmationRequirement: ownerConfirmation,
       purpose: seedPurpose),
     Grant(
-      capability: .agentClaudeRun, patterns: [.any], confirmationRequirement: .always,
+      capability: .agentClaudeRun, patterns: [.any], confirmationRequirement: ownerConfirmation,
       purpose: seedPurpose),
     Grant(
-      capability: .agentCopilotRun, patterns: [.any], confirmationRequirement: .always,
-      purpose: seedPurpose),
+      capability: .agentCopilotRun, patterns: [.any],
+      confirmationRequirement: ownerConfirmation, purpose: seedPurpose),
     // Local Ollama is reversible and has no side effects. The policy adapter
     // only maps a model to this grant when its /api/tags entry is local.
     Grant(
@@ -113,11 +134,12 @@ public enum DefaultPolicyGrants {
     // toggle failed with "No matching grant and tier mutation is denied by
     // default" and `SMAppService` was never reached.
     //
-    // `.forRiskTier(.mutation)` rather than `.none`, matching `.appTerminate`
-    // above: this writes a persistent, system-level login item, so the user
-    // confirms the effect rather than the grant silently standing in for their
-    // intent. It resolves to a confirmation for this capability, which is why
-    // `evaluateDirectCapability` had to learn to present one.
+    // Pre-ADR-064 this was `.forRiskTier(.mutation)`, matching `.appTerminate`
+    // above: writing a persistent, system-level login item asked the user to
+    // confirm the effect (which is why `evaluateDirectCapability` learned to
+    // present one). ADR-064 derives it from the owner posture instead — PA-2
+    // makes launch at login the default, so a challenge here would be the
+    // "second password" the owner rejected.
     //
     // The other eight denied lifecycle capabilities — safe mode, reset,
     // rollback, uninstall, factory reset, update check/stage/approve — stayed
@@ -131,7 +153,7 @@ public enum DefaultPolicyGrants {
     // external-distribution build must not inherit it.
     Grant(
       capability: .lifecycleLaunchAtLogin, patterns: [.any],
-      confirmationRequirement: .forRiskTier(.mutation), purpose: seedPurpose),
+      confirmationRequirement: ownerMutationConfirmation, purpose: seedPurpose),
     Grant(
       capability: .lifecycleCheckUpdate, patterns: [.any],
       confirmationRequirement: .none, purpose: seedPurpose),
@@ -160,18 +182,76 @@ public enum DefaultPolicyGrants {
     // requirement `.appActivate`/`.appTerminate` carry — a mutation-tier
     // confirmation on mutation actions, none on observation. The allowlist
     // gate itself (ADR-055 open mode) is structural; this grant is the
-    // policy-engine gate.
+    // policy-engine gate. ADR-064 derives the requirement from the owner
+    // posture; the loop's own structural guards are governed separately by
+    // `ComputerUseGuardPosture` (same switch, D-2).
     Grant(
       capability: .computerUseRun, patterns: [.any],
-      confirmationRequirement: .forRiskTier(.mutation), purpose: seedPurpose),
+      confirmationRequirement: ownerMutationConfirmation, purpose: seedPurpose),
     // ADR-055: Ollama cloud inference ("Etkinleştir"). The prompt is proxied
-    // to Ollama's hosted backend, so this grant always requires the
-    // confirmation challenge — matching `.agentCodexRun`/`.agentClaudeRun`/
+    // to Ollama's hosted backend, so pre-ADR-064 this grant always required
+    // the confirmation challenge — matching `.agentCodexRun`/`.agentClaudeRun`/
     // `.agentCopilotRun` above, the other third-party-bound capabilities.
+    // ADR-064 derives all five from the owner posture (D-1 names cloud
+    // inference and the coding agents explicitly).
     Grant(
       capability: .agentOllamaCloudInference, patterns: [.any],
-      confirmationRequirement: .always, purpose: seedPurpose),
-  ]
+      confirmationRequirement: ownerConfirmation, purpose: seedPurpose),
+    // ADR-064 G0-3 (`OwnerGrantCoverageTests`, 2026-09-16): the coverage
+    // scan over `InitialCapabilitySet.manifests()` and
+    // `Capability.forComputerUse(intent:)` found nine registered capabilities
+    // with no seeded grant at all — the SP-006/SP-030 class, again. None of
+    // them carries a path/URL target, so `.any` is the narrowest honest
+    // pattern (the same shape `.appActivate` / `.appTerminate` use).
+    //
+    // `agent.run` (destructive): named by the `agent.coding_run` manifest as
+    // its `requiredCapability`; the backends evaluate their own
+    // `agent.*Run` capability internally, so this seed makes the manifest's
+    // declared requirement true for the owner rather than a dead letter.
+    Grant(
+      capability: .agentRun, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    // `app.hide` (reversible): registered `.ready` since SP-005 and reachable
+    // through the direct `AuraKernel` path, but denied before the adapter
+    // because nothing seeded it.
+    Grant(
+      capability: .appHide, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    // VS Code task/test controls (reversible): the four mutation-side bridge
+    // capabilities the manifests name; the observation-tier ones allow by
+    // default already.
+    Grant(
+      capability: .vscodeRunTask, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    Grant(
+      capability: .vscodeCancelTask, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    Grant(
+      capability: .vscodeRunTests, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    Grant(
+      capability: .vscodeCancelTests, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    // Computer-use *step* capabilities. `computerUse.run` above is the
+    // session capability; the loop evaluates every step under
+    // `Capability.forComputerUse(intent:)`, and before ADR-064 none of the
+    // three non-observation step capabilities had a grant — so even under
+    // ADR-055's "confirm on mutation" posture every navigate/fill/submit/
+    // send step was `.deny` → the loop stopped before acting. The owner
+    // posture grants all three without a challenge (D-1, D-2); the
+    // structural guards on the destructive intents are governed by
+    // `ComputerUseGuardPosture` (same switch).
+    Grant(
+      capability: .computerUseInteract, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    Grant(
+      capability: .computerUseMutate, patterns: [.any], confirmationRequirement: .none,
+      purpose: seedPurpose),
+    Grant(
+      capability: .computerUseDestructiveAct, patterns: [.any],
+      confirmationRequirement: .none, purpose: seedPurpose),
+    ]
+  }
 
   /// The filesystem capabilities SP-004/SP-005 delivered, confined to the
   /// declared roots. One grant per (capability, root) pair: a grant matches
@@ -197,7 +277,14 @@ public enum DefaultPolicyGrants {
     confirmationRequirement: .none,
     purpose: seedPurpose)
 
-  public static let all: [Grant] = unscoped + fileRootGrants + [urlGrant]
+  /// The full seed set for a given posture. Production uses
+  /// `OwnerTrustPosture.isEnabled`; `OwnerTrustPostureTests` calls both
+  /// branches to prove they differ only in the eight derived requirements.
+  public static func grants(ownerTrustEnabled: Bool) -> [Grant] {
+    unscoped(ownerTrustEnabled: ownerTrustEnabled) + fileRootGrants + [urlGrant]
+  }
+
+  public static let all: [Grant] = grants(ownerTrustEnabled: OwnerTrustPosture.isEnabled)
 
   /// Capabilities the seeded set governs. `reconcileSeededGrants` prunes the
   /// legacy unmarked `.any` grants for exactly these, and nothing else.

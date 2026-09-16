@@ -57,10 +57,14 @@ public enum ComputerUseSemanticIntent: String, Codable, Sendable, Equatable, Cas
   }
 
   /// The exact set named by the normative spec as never executable without
-  /// explicit confirmation. Fixed and non-configurable: no `Grant`, however
-  /// permissively configured, can cause a step with one of these intents to
-  /// execute on a bare `.allow` decision — see
-  /// `ComputerUseControlLoop`'s mandatory-confirmation gate.
+  /// explicit confirmation. Fixed and non-configurable through `Grant`: no
+  /// grant, however permissively configured, can by itself cause a step with
+  /// one of these intents to execute on a bare `.allow` decision — see
+  /// `ComputerUseControlLoop`'s mandatory-confirmation gate. ADR-064 (D-2,
+  /// 2026-09-16): that gate is enforced only under
+  /// `ComputerUseGuardPosture.structural`; the owner posture (`.ownerTrust`,
+  /// the production default while `OwnerTrustPosture.isEnabled`) lifts it,
+  /// and these intents then execute like any other allowed step.
   public static let mandatoryConfirmationIntents: Set<ComputerUseSemanticIntent> = [
     .send, .publish, .purchase, .delete, .deploy, .acceptLegalTerms,
     .authenticateOrChangeCredential,

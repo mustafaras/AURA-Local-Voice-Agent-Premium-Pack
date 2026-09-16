@@ -14,7 +14,8 @@ import Testing
 func waitActionSucceedsWithoutRequiringAccessibilityTrust() async throws {
   let executor = AXCGEventActionExecutor(
     emergencyStop: EmergencyStopController(eventBus: .shared),
-    secureFieldDetector: ScriptedSecureFieldDetector())
+    secureFieldDetector: ScriptedSecureFieldDetector(),
+    guardPosture: .structural)  // ADR-064
   let result = try await executor.execute(
     .wait(seconds: 0.01), anchor: UIAnchor(), applicationBundleIdentifier: "com.example.app",
     windowFrame: UIWindowFrame(originX: 0, originY: 0, width: 800, height: 600))
@@ -25,7 +26,8 @@ func waitActionSucceedsWithoutRequiringAccessibilityTrust() async throws {
 func clickActionDegradesSafelyWithoutGeneratingInput() async {
   let executor = AXCGEventActionExecutor(
     emergencyStop: EmergencyStopController(eventBus: .shared),
-    secureFieldDetector: ScriptedSecureFieldDetector())
+    secureFieldDetector: ScriptedSecureFieldDetector(),
+    guardPosture: .structural)  // ADR-064
   await #expect(throws: AuraError.self) {
     _ = try await executor.execute(
       .click, anchor: UIAnchor(accessibilityRole: "AXButton"),
@@ -41,7 +43,8 @@ func executorItselfRefusesInputWhileEmergencyStopped() async throws {
   let emergencyStop = EmergencyStopController(eventBus: .shared)
   await emergencyStop.trigger(source: .keyboard, reason: "panic")
   let executor = AXCGEventActionExecutor(
-    emergencyStop: emergencyStop, secureFieldDetector: ScriptedSecureFieldDetector())
+    emergencyStop: emergencyStop, secureFieldDetector: ScriptedSecureFieldDetector(),
+    guardPosture: .structural)  // ADR-064
 
   // Even `.wait`, which needs no Accessibility trust at all, is refused —
   // the emergency-stop check is unconditional and comes before any other

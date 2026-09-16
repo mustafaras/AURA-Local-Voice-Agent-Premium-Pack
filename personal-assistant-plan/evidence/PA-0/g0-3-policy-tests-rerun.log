@@ -1,0 +1,147 @@
+==> Cleaning build path: /tmp/aurabuild
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1400]
+[Planning deferred tasks]
+[29 / 428] AuraTasks-product
+[199 / 428]
+[200 / 429] AuraCore
+[210 / 477]
+[218 / 477]
+[220 / 477]
+[225 / 477]
+[229 / 477]
+[233 / 477]
+[235 / 477]
+[236 / 477]
+[248 / 477] AuraCore
+[257 / 480] AuraCore
+[258 / 481] AuraShell
+[265 / 501]
+[277 / 537]
+[284 / 537]
+[290 / 558] AuraStore
+[303 / 558] AuraStore
+[310 / 558] AuraShell
+[316 / 558] AuraShell
+[319 / 558] AuraStore
+[328 / 560]
+[330 / 562]
+[335 / 562]
+[344 / 579] AuraTasks
+[356 / 599] AuraTasks
+[368 / 599] AuraMemory
+[375 / 599] AuraPlugins
+[383 / 599] AuraMemory
+[395 / 599] AuraContext
+[400 / 599] AuraAutomation
+[410 / 599] AuraAutomation
+[416 / 599] AuraAutomation
+[425 / 599] AuraAutomation
+[426 / 599] AuraAutomation
+[430 / 599] AuraSTT
+[434 / 599] AuraAudio
+[436 / 599]
+[441 / 600]
+[445 / 602]
+[446 / 612] AuraSecurity
+[451 / 637] AuraSecurity
+[458 / 637] AuraAutomation
+[464 / 637]
+[472 / 637] AuraSTT
+[479 / 637] AuraSTT
+[485 / 637] AuraAudio
+[492 / 637] AuraAudio
+[494 / 639] AuraPolicy
+[501 / 641] AuraScreen
+[504 / 652] AuraSTT
+[514 / 663] AuraPlugins
+[519 / 670] AuraVSCode
+[524 / 670] AuraVSCode
+[532 / 670] AuraSpeechQualityProbe-product
+[543 / 670] AuraScreen-product
+[551 / 670] AuraShellHelper-product
+[556 / 670] AuraVSCode
+[562 / 671]
+[567 / 672] AuraSecurity-product
+[574 / 674]
+[576 / 676] AuraConfig-product
+[583 / 702]
+[586 / 704] AuraPluginHost-product
+[590 / 716] AuraContext
+[593 / 718] AuraComputerUse
+[605 / 729] AuraProductivity
+[609 / 729] AuraScreen
+[612 / 740] AuraAgent
+[626 / 740] AuraSafariExtensionHandler-product
+[631 / 740] AuraPlugins
+[642 / 740] AuraLifecycle
+[646 / 740] AuraLifecycle-product
+[648 / 740] AuraContext
+[651 / 740] AuraContext-product
+[661 / 740] AuraComputerUse
+[663 / 740] AuraLifecycle
+[669 / 740] AuraLifecycle
+[674 / 740] AuraAgent
+[676 / 740] AuraComputerUse
+[680 / 740] AuraAgent
+[684 / 740] AuraAutomationHelper-product
+[688 / 740]
+[690 / 741]
+[701 / 742] AuraSTT
+[704 / 742] AuraLifecycle
+[708 / 743] AuraAutomationHelper-product
+[711 / 743] AuraPluginHost-product
+[712 / 743] AuraSafariExtensionHandler-product
+[720 / 748] AuraAgent
+[729 / 761] AuraChromeNativeHost-product
+[732 / 761] AuraSafariExtensionHandler-product
+[735 / 761] AuraChromeNativeHost-product
+[737 / 761] AuraChromeNativeHost-product
+[737 / 761] AuraSafariExtensionHandler-product
+[748 / 762] AuraIntent
+[748 / 762] AuraSafariExtensionHandler-product
+[754 / 762] AuraChromeNativeHost-product
+[755 / 762] AURA-product
+[766 / 774] AuraChromeNativeHost-product
+[767 / 774]
+[769 / 774] AURA-product
+[770 / 774] AURA-product
+[772 / 774] AURA-product
+Build complete! (21,62 secs)
+==> Building test targets
+Building for debugging...
+[Pre-planning 1 / 123]
+[Planning deferred tasks]
+[15 / 26] AuraPolicyTests-product
+[16 / 34]
+[23 / 34] AuraPolicyTests-product
+[28 / 34] AuraPolicyTests-product
+[30 / 34] AuraPolicyTests-product
+Build complete! (2,12 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AuraPolicyTests ===
+✔ Test "ADR-055/ADR-064: computerUseRun and agentOllamaCloudInference are seeded" passed after 0.005 seconds.
+✔ Test "reconciliation is idempotent — repeated seeding cannot grow the grant set" passed after 0.005 seconds.
+✔ Test "ungranted destructive capability is still denied by default" passed after 0.005 seconds.
+✔ Test "ungranted reversible capability outside the seeded set is still denied" passed after 0.005 seconds.
+✔ Test "RISK-SP-006-DEFAULT-GRANT-BREADTH: a path outside every declared root is denied" passed after 0.005 seconds.
+✔ Test "no seeded grant uses an unrestricted .any pattern on a targetable capability" passed after 0.005 seconds.
+✔ Test "appTerminate is allowed without confirmation under the owner posture" passed after 0.005 seconds.
+✔ Test "filesystem grants are root-scoped, never .any" passed after 0.005 seconds.
+✔ Test "url.open grant is scheme-scoped, never .any" passed after 0.005 seconds.
+✔ Test "ADR-055: nine lifecycle capabilities are seeded" passed after 0.005 seconds.
+✔ Test "SP-030: reading launch-at-login status needs no confirmation" passed after 0.005 seconds.
+✔ Test "SP-006: filesystem/URL capabilities are allowed for in-scope targets" passed after 0.005 seconds.
+✔ Test "task lifecycle grants including task.delete are seeded" passed after 0.005 seconds.
+✔ Test "shellExec is allowed without confirmation under the owner posture" passed after 0.005 seconds.
+✔ Test "url.open is scoped to the adapter's scheme allowlist" passed after 0.005 seconds.
+✔ Test grantsPersistAcrossReloads() passed after 0.017 seconds.
+✔ Test confirmationExpiryDenies() passed after 0.017 seconds.
+✔ Test denyRuleOverridesAllowByDefault() passed after 0.017 seconds.
+✔ Test removeDenyRuleRestoresDefault() passed after 0.018 seconds.
+✔ Test run with 51 tests in 2 suites passed after 0.018 seconds.
+PASSED: AuraPolicyTests
+==> Done. Failed bundles: 0

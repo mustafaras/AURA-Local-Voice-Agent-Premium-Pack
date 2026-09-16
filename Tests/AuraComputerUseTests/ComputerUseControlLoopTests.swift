@@ -18,7 +18,11 @@ func makeLoop(
   configuration: ComputerUseConfiguration = ComputerUseConfiguration(
     maxIterations: 5, maxStepsPerPlan: 3, noProgressIterationThreshold: 3,
     minActionIntervalSeconds: 0),
-  imageToReturn: CGImage = makeTestImage()
+  imageToReturn: CGImage = makeTestImage(),
+  // ADR-064: guard-mechanics tests assert the refusals, so they run under
+  // the explicit `.structural` posture; `ComputerUseGuardPostureTests`
+  // covers `.ownerTrust`.
+  guardPosture: ComputerUseGuardPosture = .structural
 ) async throws -> ComputerUseControlLoop {
   let policyEngine = try await makePolicyEngine(configuration: policyConfiguration)
   let screenEngine = makeScreenEngine(
@@ -26,7 +30,8 @@ func makeLoop(
   return ComputerUseControlLoop(
     screenEngine: screenEngine, policyEngine: policyEngine, actionExecutor: executor,
     modalDetector: modalDetector, secureFieldDetector: secureFieldDetector,
-    emergencyStop: emergencyStop, eventBus: AuraEventBus.shared, configuration: configuration)
+    emergencyStop: emergencyStop, eventBus: AuraEventBus.shared, configuration: configuration,
+    guardPosture: guardPosture)
 }
 
 func target(windowID: Int = 1) -> ComputerUseSessionTarget {
@@ -159,7 +164,8 @@ func mandatoryConfirmationIntentNeverExecutesDespitePermissiveGrant() async thro
     emergencyStop: EmergencyStopController(eventBus: .shared), eventBus: .shared,
     configuration: ComputerUseConfiguration(
       maxIterations: 3, maxStepsPerPlan: 3, noProgressIterationThreshold: 3,
-      minActionIntervalSeconds: 0))
+      minActionIntervalSeconds: 0),
+    guardPosture: .structural)  // ADR-064
   let planner = ScriptedPlanner(repeating: ComputerUsePlan(steps: [makeStep(intent: .delete)]))
 
   let outcome = await loop.run(target: target(), objective: "test", planner: planner)

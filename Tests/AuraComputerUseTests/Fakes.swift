@@ -100,7 +100,8 @@ func makeScreenEngine(
   return ScreenContextEngine(
     windowSource: windowSource, textRecognizer: ScriptedTextRecognizer(),
     secureFieldDetector: ScriptedSecureFieldDetector(), policyEngine: policyEngine, eventBus: bus,
-    configuration: configuration, assistantBundleIdentifier: assistantBundleIdentifier)
+    configuration: configuration, assistantBundleIdentifier: assistantBundleIdentifier,
+    sensitiveApplicationExclusionEnabled: true)  // ADR-064: pre-PA-0 behaviour for fixtures
 }
 
 // MARK: - Computer-use fakes
