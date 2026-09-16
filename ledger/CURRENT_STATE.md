@@ -1,5 +1,15 @@
 # Current State
 
+## 2026-09-16T18:06:30+03:00 — PA-1 deployed by the owner; `/Applications/AURA.app` = PA-1 rebuild
+
+`/Applications/AURA.app` main executable SHA-256
+`d9763febdd9790933a81ba78afd44268b044da03c07ba13571e729f5f564a059`
+(stable-signed, strict verify OK, launched through LaunchServices); the PA-0
+install is recoverable at `~/Library/Developer/AURA/rollback/AURA.app-20260916-pa1`.
+PA-1 remains `awaiting-approval`.
+
+**Next safe action:** `ONAY PA-2` (launch at login by default, ADR-066).
+
 ## 2026-09-16T18:04:55+03:00 — PA-1 committed and pushed (`eb8809c`); deploy handed to the owner
 
 Commit `eb8809c` (`feat(identity): PA-1 one identity, one consent …`) is on

@@ -185,3 +185,9 @@ APPROVAL: PA-0 -> PA-1 — user token: "ONAY PA-1" — 2026-09-16 — owner clos
   shasum -a 256 /Applications/AURA.app/Contents/MacOS/AURA && codesign --verify --deep --strict /Applications/AURA.app && open -a /Applications/AURA.app
   ```
 - verified: `git log --oneline -1` → eb8809c; `git status --short` → only the follow-up state entries
+
+## SEQ-0026 — 2026-09-16T18:06:30+03:00 — PA-1 — DEPLOYED-BY-OWNER
+
+- evidence: owner-run deploy (verbatim output): `d9763febdd9790933a81ba78afd44268b044da03c07ba13571e729f5f564a059  /Applications/AURA.app/Contents/MacOS/AURA` / `DEPLOYED` (codesign strict verify passed, app launched via LaunchServices). Previous PA-0 install recoverable at `~/Library/Developer/AURA/rollback/AURA.app-20260916-pa1`. Smoke: installed process path `/Applications/AURA.app/Contents/MacOS/AURA`, driver `window`/`status` above.
+- verified: owner message of 2026-09-16 quoted above
+- executable: ai.aura.local.agent (/Applications/AURA.app, PA-1 rebuild)

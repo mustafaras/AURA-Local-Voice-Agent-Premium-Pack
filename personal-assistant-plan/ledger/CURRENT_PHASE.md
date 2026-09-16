@@ -1,10 +1,10 @@
 # PA Plan — Current Phase State
 
-updated: 2026-09-16T18:04:55+03:00
+updated: 2026-09-16T18:06:30+03:00
 active_phase: PA-1
 phase_status: awaiting-approval
 next_phase: PA-2
-last_seq: 25
+last_seq: 26
 
 ## Gates (mirror of prompts/PA-1.prompt.md §Gates — must match 1:1)
 
@@ -28,4 +28,4 @@ last_seq: 25
 
 ## Next gate
 
-PA-1 complete; owner deploy of the rebuild bundle pending; PA-2 opens only on `ONAY PA-2`.
+PA-1 complete and deployed; PA-2 opens only on `ONAY PA-2`.
