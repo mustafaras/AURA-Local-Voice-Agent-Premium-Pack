@@ -7143,3 +7143,10 @@ phase ledger. No commit/push (no explicit go-ahead this turn).
 - **Scope exceptions recorded:** `AuraAppModel_Interaction.swift` / `AuraAppModel_Settings.swift` (the stage handler and Settings openers live there), `AuraKernel.swift` (probe injection), driver `scanLimit`.
 - **Boundary:** no TCC database write, no consent reset, no helper merge, no bundle-ID change, no Full Disk Access. Local-only (ADR-049). Deployment of the rebuild bundle to `/Applications` is the owner's action (the assistant cannot write `/Applications` under the permission classifier).
 - **Next action:** owner deploys `~/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app`; then `ONAY PA-2`.
+
+### 2026-09-16T18:04:55+03:00 — PA-1 delivered to origin/main; deploy delegated to the owner
+
+- **Objective:** execute the owner's go-ahead ("push commit merge deploy") for PA-1.
+- **Evidence:** explicit-path staging (48 files); commit `eb8809c`; `git push origin main` → `22f3b22..eb8809c`; no feature branch, so merge = push.
+- **Deploy:** not executed by the assistant (permission classifier refuses writes to `/Applications`); the owner runs the recorded command; bundle built, signed, verified (`pa1-20260916-rebuild`, SHA `d9763feb…`).
+- **Next action:** owner deploy; `ONAY PA-2`.

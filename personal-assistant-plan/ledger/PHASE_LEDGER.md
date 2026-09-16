@@ -173,3 +173,15 @@ APPROVAL: PA-0 -> PA-1 — user token: "ONAY PA-1" — 2026-09-16 — owner clos
 
 - evidence: gate table G1-0…G1-5 `passed`; validator OK. Cognitive completion gate: (1) Which executables does macOS see, and which prompted, exactly once? — six code objects are signed and inventoried, but only `ai.aura.local.agent` (the main app) executes TCC-protected calls; on this host its six grants pre-existed the phase (decided under the same stable identity in earlier SP phases), so zero prompts appeared across five launches; a fresh Mac would prompt six times, once each, in the `privilegedAccess` stage. (2) What proves a `swift build` binary can no longer trigger the Keychain dialog? — `CodeIdentityProbe` returns `.foreign` for the ad-hoc debug binary (unit: test host never `.stable`; live: `Signature=adhoc`), the kernel derives all three service names through `effectiveServiceName` → `.dev` (unit: derivation tests; wiring at the three composition lines), and the 20 s debug launch left production item counts unchanged with no SecurityAgent activity; owner attested no password dialog. (3) Which permission may macOS still ask about again, and where is it documented? — Screen Recording, if macOS enforces a periodic re-approval (D-6; ADR-065 §4; design doc §3.4); not observed on this host. Any re-created stable certificate is a documented one-time re-consent (ADR-065 Operational impact).
 - verified: `bash personal-assistant-plan/validate-continuity.sh` → OK; `grep -c '| passed |' ledger/CURRENT_PHASE.md` → 7 after this checkpoint
+
+## SEQ-0025 — 2026-09-16T18:04:55+03:00 — PA-1 — DELIVERY-COMMIT-PUSHED; DEPLOY-DELEGATED
+
+- evidence: commit `eb8809c` on `origin/main` (`22f3b22..eb8809c`). Owner deploy recipe (rebuild bundle, verifier 6/6, SHA-256 `d9763febdd979093…`):
+  ```
+  osascript -e 'tell application "AURA" to quit'
+  mkdir -p ~/Library/Developer/AURA/rollback
+  mv /Applications/AURA.app ~/Library/Developer/AURA/rollback/AURA.app-20260916-pa1
+  cp -R ~/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app /Applications/AURA.app
+  shasum -a 256 /Applications/AURA.app/Contents/MacOS/AURA && codesign --verify --deep --strict /Applications/AURA.app && open -a /Applications/AURA.app
+  ```
+- verified: `git log --oneline -1` → eb8809c; `git status --short` → only the follow-up state entries

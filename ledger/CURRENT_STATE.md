@@ -1,5 +1,18 @@
 # Current State
 
+## 2026-09-16T18:04:55+03:00 — PA-1 committed and pushed (`eb8809c`); deploy handed to the owner
+
+Commit `eb8809c` (`feat(identity): PA-1 one identity, one consent …`) is on
+`origin/main` (`22f3b22..eb8809c`). PA-1 is `awaiting-approval` (all 7 gates
+passed). The installed `/Applications/AURA.app` is still the PA-0 build until
+the owner copies `~/Library/Developer/AURA/pa1-20260916-rebuild/AURA.app`
+(SHA-256 `d9763febdd979093…`, stable-signed, verifier 6/6) into place — the
+assistant cannot write `/Applications` under the permission classifier; the
+command is in the plan ledger (SEQ-0025).
+
+**Next safe action:** owner deploy; then `ONAY PA-2` (launch at login by
+default, ADR-066).
+
 ## 2026-09-16T18:01:38+03:00 — PA-1 One Identity, One Consent complete (ADR-065); awaiting owner deploy + `ONAY PA-2`
 
 All PA-1 gates are `passed` except the machine-coherence checkpoint that
