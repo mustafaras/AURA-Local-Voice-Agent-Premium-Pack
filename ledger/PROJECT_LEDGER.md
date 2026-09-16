@@ -7126,3 +7126,10 @@ phase ledger. No commit/push (no explicit go-ahead this turn).
 - **Deploy:** not executed by the assistant — the permission classifier denied replacing `/Applications/AURA.app`. Commands for the owner are in `personal-assistant-plan/ledger/PHASE_LEDGER.md` SEQ-0012; the bundle is built, signed, and verified.
 - **Boundary:** no PA phase transition; G0-6 attestation and G0-8 outstanding.
 - **Next action:** owner deploys + attests; then `ONAY PA-1`.
+
+### 2026-09-16T16:18:29+03:00 — PA-0 closed: deployed by the owner, all gates passed, awaiting `ONAY PA-1`
+
+- **Objective:** close PA-0 after the owner's deploy and attestation.
+- **Evidence:** owner-run `cp -R … /Applications/AURA.app` → SHA-256 `2c5b8f07…5dd4`, CODESIGN_OK; owner attestation verbatim: "onaylıyorum: PA-0 build'inde run date, claude say hello ve quit Notes turlarında hiçbir onay kartı çıkmadı"; installed-app smoke (PID 20973, window OK, `Boşta`, 41 seed grants all `.none`); `validate-continuity.sh` OK; `CURRENT_PHASE.md` → 8 × `passed`, `phase_status: awaiting-approval`. Cognitive completion gate answered in SEQ-0014.
+- **Boundary:** no PA-1 work started; the assistant never writes the APPROVAL line.
+- **Next action:** `ONAY PA-1`.

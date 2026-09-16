@@ -1,5 +1,30 @@
 # Current State
 
+## 2026-09-16T16:18:29+03:00 — PA-0 complete and deployed; `phase_status: awaiting-approval` — next token `ONAY PA-1`
+
+All eight PA-0 gates are `passed` (plan ledger SEQ-0003…0014; validator OK).
+The owner deployed the PA-0 bundle themselves (the assistant's install
+attempts were refused by the Claude Code permission classifier):
+`/Applications/AURA.app` main executable SHA-256
+`2c5b8f0739423f5222834fd3c0489f3e83f86467b0eb4986b54d2de432aa5dd4`, signed
+`AURA Stable Local Signing`, `codesign --verify --deep --strict` OK; the
+previous UI-5 install is recoverable at
+`~/Library/Developer/AURA/rollback/AURA.app-20260916-pa0`. Launched through
+LaunchServices: PID 20973, window OK, status `Boşta`, store seed set 41
+grants with no confirmation requirement. Owner attestation for G0-6 recorded
+verbatim in SEQ-0013. Delivery commits: `9537514` (feature), `31ba250`
+(state); this entry's commit follows.
+
+Local-only, non-transferable posture (ADR-064 §6, ADR-049). Not release,
+notarization, beta, or distribution evidence.
+
+**Next safe action:** PA-1 (one identity, one consent — stable identity on
+all six executables, dev/prod Keychain isolation, a single TCC consent pass
+incl. Calendar/Contacts; ADR-065) opens only on the owner token `ONAY PA-1`.
+Carried-forward findings for later phases: coding-agent NLU route supplies no
+workspace (PA-3); login item points at a stale bundle (PA-2); SP006 opt-in
+pins stale (out of plan).
+
 ## 2026-09-16T15:09:12+03:00 — PA-0 committed and pushed (`9537514`); deployment handed to the owner
 
 Commit `9537514` (`feat(policy): PA-0 owner trust posture …`) is on
