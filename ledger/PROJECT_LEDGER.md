@@ -7089,3 +7089,21 @@ phase ledger. No commit/push (no explicit go-ahead this turn).
   (D-1…D-6) and `08-rollout.md`; on the token `ONAY PA-0` the assistant records
   the APPROVAL and DECISION lines and starts PA-0 G0-1. Commit of the archive
   move and the plan folder awaits an explicit go-ahead.
+
+### 2026-09-16T11:04:48+03:00 — Archive + PA proposal delivered to origin/main
+
+- **Objective:** Execute the owner's explicit go-ahead ("push commit merge
+  deploy") for the 2026-09-15 archive move and the `personal-assistant-plan/`
+  proposal.
+- **Evidence:** `bash personal-assistant-plan/validate-continuity.sh` → OK;
+  `bash docs/archive/ui-improvement-plan/validate-continuity.sh` → OK. Explicit
+  path staging (`AGENTS.md`, `ledger/CURRENT_STATE.md`,
+  `ledger/PROJECT_LEDGER.md`, `docs/archive/ui-improvement-plan`,
+  `personal-assistant-plan`); commit `ffe48ee`; `git push origin main` →
+  `773cea7..ffe48ee`. Repo has no feature branch, so "merge" is satisfied by
+  the push to `main`.
+- **Deploy:** none — no source or build change in this commit; the installed
+  `/Applications/AURA.app` from `1ecc5bd` remains current.
+- **Boundary:** no PA phase opened; no policy, security, or capability
+  posture changed.
+- **Next action:** owner DECISION lines D-1…D-6 + `ONAY PA-0`.

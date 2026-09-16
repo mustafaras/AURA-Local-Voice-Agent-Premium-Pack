@@ -1,5 +1,26 @@
 # Current State
 
+## 2026-09-16T11:04:48+03:00 — UI-plan archive and PA proposal committed and pushed
+
+Commit `ffe48ee` (`chore(plan): archive closed UI plan; propose Personal
+Assistant (PA-) plan`) is on `origin/main` (`773cea7..ffe48ee`). It carries
+the `git mv` of `ui-improvement-plan/` to `docs/archive/ui-improvement-plan/`
+with `CLOSED.md`, the `AGENTS.md` archive note, the `personal-assistant-plan/`
+proposal (PA-0…PA-6, machine at PA-0 / pending / 7 gates / `last_seq: 2`),
+and the previous ledger entries. Both continuity validators reported OK
+immediately before the commit.
+
+No source, policy, build, or deployment change: the installed
+`/Applications/AURA.app` (SHA-256 `d2ccffc5…6ae08e`, commit `1ecc5bd`) is
+unchanged and remains the current deployed artifact — there was nothing to
+redeploy. The archived Python governance mismatch (96 / 95 / 1 frozen
+`verified_head` error) is unchanged.
+
+**Next safe action:** the owner records DECISION lines D-1…D-6
+(`personal-assistant-plan/README.md` §7) and issues `ONAY PA-0`; then PA-0
+G0-1 starts per `prompts/PA-0.prompt.md`. No implementation is authorized
+before that token.
+
 ## 2026-09-15T19:04:04+03:00 — UI plan archived (closed); Personal Assistant plan proposed — awaiting owner approval
 
 The `UI-` track is closed and archived: `ui-improvement-plan/` now lives at
