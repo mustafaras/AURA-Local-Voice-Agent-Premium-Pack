@@ -7161,3 +7161,10 @@ phase ledger. No commit/push (no explicit go-ahead this turn).
 - **Scope exceptions recorded:** `AuraAppModel_Interaction.swift` / `AuraAppModel_Settings.swift` / `AuraAppModel.swift` (stage handler, Settings opener, state refresh), `UI5OnboardingRedesignTests.swift` and `LaunchAtLoginTests.swift` (pinned copy / raw-value contract updated for ADR-066).
 - **Boundary:** no LaunchAgent plist, no second identity, no TCC change, no session-override write, no `.requiresApproval` retry loop. Local-only (ADR-049). Deploy was the owner's action.
 - **Next action:** G2-6 machine coherence → `awaiting-approval`; commit/push of PA-2 follows the owner's explicit go-ahead; PA-3 opens only on `ONAY PA-3`.
+
+### 2026-09-17T11:01:31+03:00 — PA-2 delivered to origin/main
+
+- **Objective:** execute the owner's go-ahead ("önce push commit merge") for PA-2.
+- **Evidence:** explicit-path staging (37 files); commit `9ffc685`; `git push origin main` → `fe0d9ba..9ffc685`; no feature branch, so merge = push.
+- **Deploy:** none required — `/Applications/AURA.app` is already the PA-2 bundle (SHA `07e93d01…`), installed by the owner before G2-4 and proven across a real logout → login.
+- **Next action:** `ONAY PA-3`.

@@ -1,10 +1,10 @@
 # PA Plan — Current Phase State
 
-updated: 2026-09-17T10:57:44+03:00
+updated: 2026-09-17T11:01:31+03:00
 active_phase: PA-2
 phase_status: awaiting-approval
 next_phase: PA-3
-last_seq: 34
+last_seq: 35
 
 ## Gates (mirror of prompts/PA-2.prompt.md §Gates — must match 1:1)
 
@@ -27,4 +27,4 @@ last_seq: 34
 
 ## Next gate
 
-none — PA-2 closed (G2-1…G2-6 passed). Awaiting owner: commit/push go-ahead for PA-2, then `ONAY PA-3` to open PA-3.
+none — PA-2 closed (G2-1…G2-6 passed) and delivered (`9ffc685` on origin/main; installed bundle current). Awaiting `ONAY PA-3`.

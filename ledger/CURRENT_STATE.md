@@ -1,5 +1,15 @@
 # Current State
 
+## 2026-09-17T11:01:31+03:00 — PA-2 committed and pushed (`9ffc685`); installed bundle already current
+
+Commit `9ffc685` (`feat(lifecycle): PA-2 launch at login by default, always on …`)
+is on `origin/main` (`fe0d9ba..9ffc685`). PA-2 is `awaiting-approval` (all 6
+gates passed, ADR-066 Accepted). No deploy step remains: `/Applications/AURA.app`
+is the PA-2 bundle (SHA-256 `07e93d01acdd1e7a…`), installed by the owner before
+G2-4 and proven across a real logout → login.
+
+**Next safe action:** `ONAY PA-3` (Integrations Always Connected, ADR-067).
+
 ## 2026-09-17T10:56:46+03:00 — PA-2 Launch at Login by Default complete (ADR-066); awaiting `ONAY PA-3`
 
 All PA-2 gates G2-1…G2-5 are `passed`; the machine-coherence checkpoint
