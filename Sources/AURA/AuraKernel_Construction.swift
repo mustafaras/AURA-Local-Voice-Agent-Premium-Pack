@@ -159,7 +159,10 @@ extension AuraKernel {
       service: MainAppLaunchAtLoginService(),
       configurationEngine: configurationEngine,
       eventBus: eventBus,
-      healthRegistry: runtime)
+      healthRegistry: runtime,
+      // PA-2 / ADR-066: the owner build starts at login by default. The
+      // posture crosses into AuraLifecycle as a value, not an import.
+      defaultEnabled: OwnerTrustPosture.isEnabled)
     self.lifecycleController = launchController
     await runtime.recordReady(
       "lifecycle.launch-at-login",

@@ -308,6 +308,9 @@ struct AuraOnboardingView: View {
             if stage == .privilegedAccess {
               consentPassRows
             }
+            if stage == .launchAtLogin {
+              launchAtLoginStatusRow
+            }
           }
         }
 
@@ -368,6 +371,45 @@ struct AuraOnboardingView: View {
       }
     }
     .padding(.top, AuraDesign.Spacing.xxs)
+  }
+
+  /// ADR-066 (PA-2): the `launchAtLogin` stage is informational — one live
+  /// status row (on / awaiting approval / off) and, in the approval state,
+  /// the Login Items deep link verified in G2-1. Presentation only; the
+  /// stage machine, its optionality, and its actions are unchanged.
+  private var launchAtLoginStatus: String {
+    if model.launchAtLoginRequiresApproval { return copy("onboarding.launchAtLogin.awaitingApproval") }
+    return copy(model.launchAtLoginEnabled ? "onboarding.launchAtLogin.on" : "onboarding.launchAtLogin.off")
+  }
+
+  private var launchAtLoginStatusRow: some View {
+    VStack(alignment: .leading, spacing: AuraDesign.Spacing.xxs) {
+      HStack(spacing: AuraDesign.Spacing.xs) {
+        Image(systemName: model.launchAtLoginEnabled ? "checkmark.circle.fill" : "circle")
+          .foregroundStyle(
+            model.launchAtLoginEnabled ? AuraDesign.Palette.signal : AuraDesign.Palette.cautious)
+          .accessibilityHidden(true)
+        Text(copy("settings.launchAtLogin"))
+          .font(AuraDesign.Typography.meta)
+        Text(launchAtLoginStatus)
+          .font(AuraDesign.Typography.meta)
+          .foregroundStyle(.secondary)
+      }
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel("\(copy("settings.launchAtLogin")): \(launchAtLoginStatus)")
+      .accessibilityValue(launchAtLoginStatus)
+      .accessibilityIdentifier(AuraAccessibilityID.onboardingLaunchAtLoginStatus)
+      if model.launchAtLoginRequiresApproval {
+        Text(copy("settings.launchAtLoginRequiresApproval"))
+          .font(AuraDesign.Typography.meta)
+          .foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+        Button(copy("settings.openLoginItems")) { model.openLoginItemsSettings() }
+          .accessibilityIdentifier(AuraAccessibilityID.onboardingLaunchAtLoginOpenLoginItems)
+      }
+    }
+    .padding(.top, AuraDesign.Spacing.xxs)
+    .onAppear { model.refreshLaunchAtLogin() }
   }
 
   private var explanation: String {
@@ -553,9 +595,20 @@ struct AuraSettingsView: View {
         isOn: Binding(
           get: { model.launchAtLoginEnabled },
           set: { model.setLaunchAtLogin($0) }))
+        .accessibilityIdentifier(AuraAccessibilityID.launchAtLoginToggle)
       Text(copy("settings.launchAtLoginNote"))
         .font(.caption).foregroundStyle(.secondary)
         .fixedSize(horizontal: false, vertical: true)
+      if model.launchAtLoginRequiresApproval {
+        // PA-2 / ADR-066: `.requiresApproval` is macOS's decision — shown,
+        // not worked around. The link is the anchor verified in G2-1.
+        Label(copy("settings.launchAtLoginRequiresApproval"), systemImage: "exclamationmark.triangle")
+          .font(.caption).foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+          .accessibilityIdentifier(AuraAccessibilityID.launchAtLoginRequiresApproval)
+        Button(copy("settings.openLoginItems")) { model.openLoginItemsSettings() }
+          .accessibilityIdentifier(AuraAccessibilityID.launchAtLoginOpenLoginItems)
+      }
       if !model.launchAtLoginDetail.isEmpty {
         Text(model.launchAtLoginDetail)
           .font(.caption2).foregroundStyle(.secondary)

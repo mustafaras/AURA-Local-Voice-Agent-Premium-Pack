@@ -39,6 +39,28 @@ extension AuraKernel {
     await intentDispatchCoordinator.start()
     await conversationEventBridge.start()
     await audioSampleBridge.start()
+    registerLaunchAtLoginAfterStart()
+  }
+
+  /// PA-2 / ADR-066 — post-start login-item registration.
+  ///
+  /// Runs after the pipeline is up and off the start path: `SMAppService`
+  /// talks to `backgroundtaskmanagementd` over XPC, and the app's first
+  /// render waits on `start()`, so the window must not wait on that round
+  /// trip (same reasoning as `probeExternalAvailability`). The controller
+  /// call is idempotent — a second launch records `changed: false` — and it
+  /// registers the *running* bundle, which is why the installed
+  /// `/Applications/AURA.app` must be the one launched (G2-4).
+  func registerLaunchAtLoginAfterStart() {
+    guard let lifecycleController else { return }
+    let logger = logger
+    Task.detached {
+      let result = await lifecycleController.ensureRegisteredAtLaunch()
+      await logger.info(
+        "launch-at-login post-start: enabled=\(result.enabled) status=\(result.serviceStatus) "
+          + "changed=\(result.changed) (\(result.detail))",
+        actor: .lifecycle)
+    }
   }
 
   func shutdownPipeline() async {

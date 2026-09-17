@@ -67,10 +67,16 @@ public protocol LaunchAtLoginService: Sendable {
 #endif
 
 /// In-memory service for testing. Simulates enable/disable and status changes.
+/// Raw values follow `SMAppService.Status` (0 notRegistered, 1 enabled,
+/// 2 requiresApproval, 3 notFound) — the same contract `LaunchAtLoginStatus`
+/// decodes.
 public final class InMemoryLaunchAtLoginService: LaunchAtLoginService, @unchecked Sendable {
   private let lock = NSLock()
   public private(set) var registered = false
+  public private(set) var registerCallCount = 0
   public var simulateRegisterError: Error?
+  private var simulatedStatusRawValue: Int?
+  private var statusRawValueAfterRegister: Int?
 
   public init(registered: Bool = false) {
     self.registered = registered
@@ -78,7 +84,8 @@ public final class InMemoryLaunchAtLoginService: LaunchAtLoginService, @unchecke
 
   public var statusRawValue: Int {
     lock.lock(); defer { lock.unlock() }
-    return registered ? 1 : 3  // enabled / notRegistered
+    if let simulatedStatusRawValue { return simulatedStatusRawValue }
+    return registered ? 1 : 0  // enabled / notRegistered
   }
 
   public func setSimulateRegisterError(_ error: Error?) {
@@ -86,16 +93,35 @@ public final class InMemoryLaunchAtLoginService: LaunchAtLoginService, @unchecke
     self.simulateRegisterError = error
   }
 
+  /// Force the reported status regardless of `registered` (e.g. 2 to model
+  /// macOS holding the item in `.requiresApproval`).
+  public func setSimulatedStatusRawValue(_ rawValue: Int?) {
+    lock.lock(); defer { lock.unlock() }
+    self.simulatedStatusRawValue = rawValue
+  }
+
+  /// Status to report once `register()` succeeds (e.g. 2 when macOS accepts
+  /// the registration but requires the user's approval).
+  public func setStatusRawValueAfterRegister(_ rawValue: Int?) {
+    lock.lock(); defer { lock.unlock() }
+    self.statusRawValueAfterRegister = rawValue
+  }
+
   public func register() throws {
     lock.lock(); defer { lock.unlock() }
+    registerCallCount += 1
     if let error = simulateRegisterError {
       throw error
     }
     registered = true
+    if let statusRawValueAfterRegister {
+      simulatedStatusRawValue = statusRawValueAfterRegister
+    }
   }
 
   public func unregister() throws {
     lock.lock(); defer { lock.unlock() }
     registered = false
+    simulatedStatusRawValue = nil
   }
 }

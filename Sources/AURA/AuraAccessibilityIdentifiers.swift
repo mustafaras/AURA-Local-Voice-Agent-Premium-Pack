@@ -90,6 +90,15 @@ enum AuraAccessibilityID {
   static let calendarSettings = "aura.perm.calendar.settings"
   static let contactsGrant = "aura.perm.contacts.grant"
   static let contactsSettings = "aura.perm.contacts.settings"
+  /// PA-2 / ADR-066: Startup section — the launch-at-login toggle, the
+  /// `.requiresApproval` notice, and its Login Items deep link.
+  static let launchAtLoginToggle = "aura.startup.launchAtLogin.toggle"
+  static let launchAtLoginRequiresApproval = "aura.startup.launchAtLogin.requiresApproval"
+  static let launchAtLoginOpenLoginItems = "aura.startup.launchAtLogin.openLoginItems"
+  /// PA-2 / ADR-066: the live status row on the onboarding `launchAtLogin`
+  /// stage; the element's accessibility value is the localized state.
+  static let onboardingLaunchAtLoginStatus = "aura.onboarding.launchAtLogin.status"
+  static let onboardingLaunchAtLoginOpenLoginItems = "aura.onboarding.launchAtLogin.openLoginItems"
 
   // Conversation composer + language switch. The language switch is the one
   // control that must stay reachable regardless of which tab is selected, so

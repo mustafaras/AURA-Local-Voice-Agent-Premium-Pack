@@ -1,0 +1,161 @@
+==> Cleaning build path: /tmp/aurabuild
+==> Building production targets
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 1400]
+[Planning deferred tasks]
+[1 / 428]
+[199 / 428]
+[200 / 429] AuraCore
+[210 / 477]
+[218 / 477]
+[220 / 477]
+[225 / 477]
+[229 / 477]
+[233 / 477]
+[235 / 477]
+[236 / 477]
+[248 / 477] AuraCore
+[255 / 478]
+[258 / 481] AuraCore
+[258 / 481] AuraStore
+[265 / 502] AuraAutomation
+[269 / 558]
+[274 / 558] AuraStore
+[294 / 558] AuraStore
+[302 / 558]
+[305 / 558] AuraStore-product
+[312 / 558] AuraShell
+[316 / 558]
+[322 / 559]
+[328 / 562]
+[331 / 562]
+[332 / 562] AuraTasks
+[340 / 599] AuraConfig
+[356 / 599] AuraTasks-product
+[368 / 599] AuraSecurity
+[374 / 599] AuraMemory
+[385 / 599] AuraTasks
+[389 / 599] AuraContext
+[397 / 599] AuraAutomation
+[405 / 599] AuraAutomation
+[409 / 599] AuraAutomation
+[422 / 599] AuraAudio
+[424 / 599] AuraAudio
+[426 / 599] AuraAudio
+[430 / 599] AuraAudio
+[432 / 601]
+[433 / 612] AuraSecurity
+[443 / 626]
+[445 / 626]
+[454 / 626] AuraSecurity
+[461 / 627]
+[470 / 634]
+[474 / 634] AuraCore-product
+[476 / 634] AuraStore
+[480 / 634] AuraPolicy
+[482 / 634] AuraScreen
+[487 / 666] AuraVSCode
+[492 / 689] AuraScreen
+[511 / 708] AuraVSCode
+[529 / 708] AuraVSCode-product
+[534 / 708] AuraSTT
+[542 / 708] AuraVSCode
+[553 / 708] AuraShellHelper-product
+[561 / 708] AuraProductivity
+[569 / 708] AuraSTT
+[571 / 708] AuraScreen
+[577 / 708] AuraSTT
+[581 / 708] AuraProductivity
+[585 / 708] AuraPlugins
+[589 / 708] AuraPlugins-product
+[594 / 708] AuraPlugins
+[600 / 708] AuraLifecycle
+[603 / 708] AuraPlugins
+[609 / 708] AuraContext-product
+[614 / 708] AuraTasks
+[631 / 711]
+[635 / 711] AuraVSCode
+[640 / 712] AuraMemory-product
+[642 / 714] AuraPluginHost-product
+[645 / 716] AuraShellHelper-product
+[651 / 716] AuraAutomation-product
+[658 / 726] AuraSpeechQualityProbe-product
+[660 / 739] AuraComputerUse
+[665 / 739] AuraSafariExtensionHandler-product
+[674 / 750] AuraComputerUse
+[679 / 750] AuraComputerUse
+[688 / 750] AuraComputerUse-product
+[695 / 750] AuraAudio-product
+[699 / 750] AuraAgent
+[701 / 750] AuraComputerUse
+[703 / 750] AuraComputerUse
+[708 / 750] AuraAgent
+[719 / 750] AuraSafariExtensionHandler-product
+[723 / 751] AuraLifecycle-product
+[728 / 751] AuraChromeNativeHost-product
+[730 / 751] AuraSpeechQualityProbe-product
+[732 / 751] AuraAgent
+[742 / 762] AuraIntent
+[744 / 762] AuraAgent
+[746 / 762] AuraAgent-product
+[746 / 762] AuraIntent
+[755 / 763] AuraIntent
+[758 / 763] AURA-product
+[770 / 775] AURA-product
+[771 / 775] AURA-product
+[773 / 775] AURA-product
+Build complete! (21,60 secs)
+==> Building test targets
+Building for debugging...
+[Pre-planning 1 / 210]
+[Planning deferred tasks]
+[15 / 26] AuraLifecycleTests-product
+[16 / 39]
+[28 / 39] AuraLifecycleTests-product
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AuraLifecycleTests/UpdateEngineTests.swift:69:35: [1;33mwarning: [1;39mresult of call to 'apply(_:actor:)' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m67 |[0;0m     let config = MemoryConfigurationStore()
+ [0;36m68 |[0;0m     let configurationEngine = try await ConfigurationEngine.load(store: config)
+ [0;36m69 |[0;0m     try await configurationEngine.apply(
+    [0;36m|[0;0m                                   `- [1;33mwarning: [1;39mresult of call to 'apply(_:actor:)' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m70 |[0;0m       ConfigurationPatch(layer: .userSettings, values: ["lifecycle.automaticUpdateChecksEnabled": .boolean(true)], source: "test"),
+ [0;36m71 |[0;0m       actor: .user)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+/Users/m_ras/Desktop/AURA-Local-Voice-Agent-Premium-Pack/Tests/AuraLifecycleTests/UpdateEngineTests.swift:69:35: [1;33mwarning: [1;39mresult of call to 'apply(_:actor:)' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m67 |[0;0m     let config = MemoryConfigurationStore()
+ [0;36m68 |[0;0m     let configurationEngine = try await ConfigurationEngine.load(store: config)
+ [0;36m69 |[0;0m     try await configurationEngine.apply(
+    [0;36m|[0;0m                                   `- [1;33mwarning: [1;39mresult of call to 'apply(_:actor:)' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m70 |[0;0m       ConfigurationPatch(layer: .userSettings, values: ["lifecycle.automaticUpdateChecksEnabled": .boolean(true)], source: "test"),
+ [0;36m71 |[0;0m       actor: .user)
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[33 / 39] AuraLifecycleTests-product
+[35 / 39] AuraLifecycleTests-product
+Build complete! (2,39 secs)
+==> Preparing Testing.framework symlinks
+==> Running tests
+=== AuraLifecycleTests ===
+✔ Test doesNotRecordWhenOptInOff() passed after 0.080 seconds.
+✔ Test cleanShutdownHeartbeatPreventsCrashRecovery() passed after 0.083 seconds.
+✔ Test disableAndPurgeClearsAllAggregates() passed after 0.087 seconds.
+✔ Test retentionPurgeRemovesOldDays() passed after 0.088 seconds.
+✔ Test recordsSessionOutcomeCountWhenOptedIn() passed after 0.089 seconds.
+✔ Test latencyIsBucketedNotRaw() passed after 0.089 seconds.
+✔ Test "A synthetic crash (no clean shutdown) is detected as crash recovery" passed after 0.091 seconds.
+✔ Test recordsConfirmationAndRecoveryOutcomes() passed after 0.091 seconds.
+✔ Test "A clean shutdown prevents crash recovery on the next launch" passed after 0.008 seconds.
+✔ Test "Sleep and wake heartbeats are recorded and persisted" passed after 0.010 seconds.
+✔ Test "Safe mode can be requested, persisted, and cleared" passed after 0.001 seconds.
+✔ Test "Safe mode records a health status entry" passed after 0.001 seconds.
+✔ Test "Migration preflight passes on a fresh database" passed after 0.010 seconds.
+✔ Test "Migration preflight database check reads the latest schema version" passed after 0.007 seconds.
+✔ Test "Support bundle export creates summary and health files" passed after 0.009 seconds.
+✔ Test "Support bundle export redacts secret-like content" passed after 0.010 seconds.
+✔ Test "Update stages, then rolls back with a recovery checkpoint" passed after 0.011 seconds.
+✔ Test "Reset plan records a recovery checkpoint and enumerates scoped items" passed after 0.007 seconds.
+✔ Test "Uninstall assistant executes a reset plan against throwaway temp files" passed after 0.007 seconds.
+✔ Test run with 70 tests in 12 suites passed after 0.179 seconds.
+PASSED: AuraLifecycleTests
+==> Done. Failed bundles: 0

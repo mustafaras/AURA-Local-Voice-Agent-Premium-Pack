@@ -114,6 +114,16 @@ extension AuraAppModel {
     PermissionCoordinator.openPrivacySettings(anchor: "Contacts")
   }
 
+  /// PA-2 / ADR-066: System Settings › General › Login Items. Anchor verified
+  /// on this machine on 2026-09-16 (macOS 27): opens the "Login Items" pane
+  /// (`personal-assistant-plan/evidence/PA-2/g2-1-deep-link-anchor.txt`).
+  static let loginItemsSettingsURL = "x-apple.systempreferences:com.apple.LoginItems-Settings.extension"
+
+  func openLoginItemsSettings() {
+    guard let url = URL(string: Self.loginItemsSettingsURL) else { return }
+    NSWorkspace.shared.open(url)
+  }
+
   /// ADR-065 §3: the System Settings fallback for any permission row.
   func openPrivacySettings(for kind: PermissionKind) {
     PermissionCoordinator.openPrivacySettings(anchor: kind.settingsAnchor)

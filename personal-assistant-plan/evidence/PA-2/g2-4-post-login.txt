@@ -1,0 +1,45 @@
+# G2-4 — post real logout → login observation (assistant-captured, read-only)
+captured: 2026-09-17T10:43:42+03:00 (process/BTM read), 10:45 (driver/AX read)
+
+## console session
+last -1 m_ras console → "m_ras  console  Thu Sep 17 10:40  still logged in"
+(previous assistant session ended 2026-09-16T19:10 at SEQ-0031; the owner logged out and back in.)
+
+## process (pgrep -x AURA / ps)
+PID 732, PPID 1 (launchd), STARTED Thu Sep 17 10:41:01 2026
+COMMAND /Applications/AURA.app/Contents/MacOS/AURA
+→ started 61 s after the console session opened, parented by launchd, not by a shell or `open`.
+
+## installed bundle
+sha256 07e93d01acdd1e7a6c99f8afa7b1f7224491ab3c98c93f7268748719654593da  /Applications/AURA.app/Contents/MacOS/AURA
+(unchanged from SEQ-0031 deploy)
+
+## sfltool dumpbtm (AURA entry only; unrelated entries redacted)
+                 Type: app (0x2)
+          Disposition: [enabled, allowed, notified] (0xb)
+           Identifier: 2.ai.aura.local.agent
+                  URL: /Applications/AURA.app
+           Generation: 25
+    Bundle Identifier: ai.aura.local.agent
+
+## dialogs / sheets (System Events, per-process window counts)
+SecurityAgent=0 UserNotificationCenter=0 CoreServicesUIAgent=0 AURA=1
+AURA windows: [AURA | AXWindow | AXStandardWindow]  (main panel only)
+driver find aura.onboarding.primary → ERR not-found            (no onboarding sheet)
+driver find aura.startup.launchAtLogin.requiresApproval → ERR not-found  (no approval row)
+
+## driver status
+osascript scripts/sp011-acceptance/aura-drive.applescript window → OK window-already-open
+osascript scripts/sp011-acceptance/aura-drive.applescript status → OK AURA durumu: Boşta
+
+## toggle leg
+Proven pre-logout in SEQ-0031 (off → Disposition 0xa disabled, on → 0xb enabled); BTM record post-login is 0xb enabled at /Applications/AURA.app, i.e. the "on" state survived the session boundary.
+
+## screenshot
+g2-4-post-login-panel.png
+
+## screenshot (re-captured 10:46 after `tell application "AURA" to activate`; window at 100,60 1100x1300)
+g2-4-post-login-panel.png (cropped to the AURA window, 1130×1320; no third-party windows or personal content) — main panel, status pill "Boşta / Hazır — Bas Konuş'u kullanın", Kurtarma tab.
+Health rows visible: `launch-at-login  enabled=true, status=1, already registered` (idempotent post-start path, no register() call),
+`lifecycle.launch-at-login  launch-at-login controller constructed  ready`. No sheet, no dialog, desktop otherwise empty.
+driver status after activate → OK AURA durumu: Boşta (second read).

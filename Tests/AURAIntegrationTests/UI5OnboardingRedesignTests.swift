@@ -51,10 +51,10 @@ struct UI5OnboardingRedesignTests {
       "onboarding.explain.safeCommand",
       "Use a read-only help or explanation request as the safe first command; side effects are not authorized here.",
       "Güvenli başlangıç komutu olarak yalnızca açıklama/yardım isteği kullanın; yan etkili işlem yetkilendirilmez."),
-    (
+    (  // ADR-066 (PA-2): the stage became a statement — launch at login is on by default
       "onboarding.explain.launchAtLogin",
-      "Launch at login belongs to R11; this step does not change that setting.",
-      "Girişte başlatma R11 kapsamındadır; bu adım ayarı değiştirmez."),
+      "AURA starts automatically when you log in. You can turn this off in Settings.",
+      "AURA giriş yaptığınızda otomatik başlar. Ayarlar'dan kapatabilirsiniz."),
     (
       "onboarding.explain.complete",
       "Setup is complete.",

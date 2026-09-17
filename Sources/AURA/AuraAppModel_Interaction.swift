@@ -50,6 +50,8 @@ extension AuraAppModel {
     Task {
       do {
         launchAtLoginEnabled = try await kernel?.isLaunchAtLoginEnabled() ?? false
+        launchAtLoginRequiresApproval =
+          try await kernel?.launchAtLoginRequiresApproval() ?? false
         launchAtLoginDetail = preservingDetail ?? ""
       } catch {
         // Reported, never swallowed: a silent false here would read as
@@ -74,7 +76,8 @@ extension AuraAppModel {
       defer { isSettingLaunchAtLogin = false }
       do {
         guard let result = try await kernel?.setLaunchAtLoginEnabled(enabled) else { return }
-        launchAtLoginEnabled = result.enabled
+        launchAtLoginEnabled = result.enabled && result.serviceStatus == .enabled
+        launchAtLoginRequiresApproval = result.serviceStatus == .requiresApproval
         launchAtLoginDetail = result.detail
       } catch {
         let message = error.localizedDescription

@@ -16,6 +16,11 @@ public actor LaunchAtLoginController {
   private let healthRegistry: RuntimeHealthRegistry?
   private let logger: AuraLogger?
   private let now: @Sendable () -> Date
+  /// What `userPreferenceEnabled()` answers while the user has not decided.
+  /// PA-2 / ADR-066: the composition passes `OwnerTrustPosture.isEnabled`
+  /// here so the owner build starts at login by default; `AuraLifecycle`
+  /// never imports `AuraPolicy`.
+  private let defaultEnabled: Bool
 
   public init(
     service: any LaunchAtLoginService,
@@ -24,7 +29,8 @@ public actor LaunchAtLoginController {
     eventBus: AuraEventBus? = nil,
     healthRegistry: RuntimeHealthRegistry? = nil,
     logger: AuraLogger? = nil,
-    now: @escaping @Sendable () -> Date = Date.init
+    now: @escaping @Sendable () -> Date = Date.init,
+    defaultEnabled: Bool = false
   ) {
     self.service = service
     self.configurationEngine = configurationEngine
@@ -33,6 +39,7 @@ public actor LaunchAtLoginController {
     self.healthRegistry = healthRegistry
     self.logger = logger
     self.now = now
+    self.defaultEnabled = defaultEnabled
   }
 
   /// Current ServiceManagement registration status.
@@ -40,12 +47,87 @@ public actor LaunchAtLoginController {
     LaunchAtLoginStatus(rawValue: service.statusRawValue) ?? .unknown
   }
 
-  /// User preference as stored in configuration. Defaults to false.
+  /// User preference as stored in configuration. While no layer above the
+  /// schema default carries the key, the answer is `defaultEnabled` — the
+  /// schema's `false` is a placeholder, not a decision the user made.
   public func userPreferenceEnabled() async -> Bool {
-    guard let engine = configurationEngine else { return false }
-    guard case .boolean(let value) = await engine.effectiveValue(for: Self.userPreferenceKey)
-    else { return false }
+    guard let engine = configurationEngine else { return defaultEnabled }
+    guard
+      let entry = await engine.inspect().entries.first(where: { $0.key == Self.userPreferenceKey }),
+      entry.sourceLayer != .secureDefaults,
+      case .boolean(let value) = entry.value
+    else { return defaultEnabled }
     return value
+  }
+
+  /// Post-start registration (PA-2 / ADR-066). Registers the running bundle
+  /// as a login item when the preference is on and macOS does not already
+  /// list it. Idempotent: a second launch answers `changed: false`. It never
+  /// writes a preference layer (the default already supplies `true`, and a
+  /// session override would outrank the user's later `false`), never throws
+  /// (a launch must not fail on ServiceManagement), and never works around
+  /// `.requiresApproval` — that state is recorded for the Settings row and
+  /// left to the owner's switch in System Settings › Login Items.
+  @discardableResult
+  public func ensureRegisteredAtLaunch() async -> LaunchAtLoginResult {
+    let preference = await userPreferenceEnabled()
+    let status = serviceStatus()
+
+    guard preference else {
+      let detail = "preference off; not registered at launch"
+      await recordHealth(enabled: false, status: status, detail: detail)
+      return LaunchAtLoginResult(
+        enabled: false, serviceStatus: status, changed: false, detail: detail)
+    }
+
+    switch status {
+    case .enabled:
+      let detail = "already registered"
+      await recordHealth(enabled: true, status: status, detail: detail)
+      return LaunchAtLoginResult(
+        enabled: true, serviceStatus: status, changed: false, detail: detail)
+    case .requiresApproval:
+      let detail = "registered; awaiting approval in System Settings > Login Items"
+      await recordHealth(enabled: true, status: status, detail: detail)
+      return LaunchAtLoginResult(
+        enabled: true, serviceStatus: status, changed: false, detail: detail)
+    case .notRegistered, .notFound, .unknown:
+      break
+    }
+
+    await emit(
+      LaunchAtLoginRequestedEvent(enabled: true, actor: .system),
+      sensitivity: .internalLevel)
+    do {
+      try service.register()
+    } catch {
+      let detail = "launch registration failed: \(error.localizedDescription)"
+      await logger?.error(detail, actor: .lifecycle)
+      await healthRegistry?.record(
+        componentID: "launch-at-login", status: .failed,
+        detail: "enabled=true, status=\(status.rawValue), \(detail)")
+      return LaunchAtLoginResult(
+        enabled: true, serviceStatus: status, changed: false, detail: detail)
+    }
+
+    let newStatus = serviceStatus()
+    let changed = newStatus == .enabled
+    let detail: String
+    switch newStatus {
+    case .enabled:
+      detail = "registered at launch"
+    case .requiresApproval:
+      detail = "registered; awaiting approval in System Settings > Login Items"
+    case .notRegistered, .notFound, .unknown:
+      detail = "register returned but service status is \(newStatus.rawValue)"
+    }
+    await emit(
+      LaunchAtLoginChangedEvent(
+        enabled: true, statusRawValue: newStatus.rawValue, actor: .system),
+      sensitivity: .internalLevel)
+    await recordHealth(enabled: true, status: newStatus, detail: detail)
+    return LaunchAtLoginResult(
+      enabled: true, serviceStatus: newStatus, changed: changed, detail: detail)
   }
 
   /// Persist the user's preference and, if it differs from the service state,
@@ -150,7 +232,7 @@ public actor LaunchAtLoginController {
     switch status {
     case .enabled:
       healthStatus = enabled ? .ready : .disabledByConfiguration
-    case .notRegistered, .notFound:
+    case .notRegistered, .notFound, .requiresApproval:
       healthStatus = enabled ? .requiresUserAction : .disabledByConfiguration
     case .unknown:
       healthStatus = .unsupported
@@ -180,9 +262,17 @@ public struct LaunchAtLoginResult: Codable, Sendable, Equatable {
   public let detail: String
 }
 
+/// Mirrors `SMAppService.Status` raw values exactly (ServiceManagement,
+/// `SMAppService.h` NS_ENUM order) so `LaunchAtLoginStatus(rawValue:
+/// service.statusRawValue)` is a faithful read. Before PA-2 the raw values
+/// were shuffled: macOS's `notRegistered` (0) read as `.unknown` and
+/// `requiresApproval` (2) read as `.notFound`, so the health surface called
+/// an unregistered login item "unsupported" and the approval state was
+/// invisible. `.unknown` is reserved for values outside the SDK enum.
 public enum LaunchAtLoginStatus: Int, Codable, Sendable, Equatable {
+  case notRegistered = 0
   case enabled = 1
-  case notRegistered = 3
-  case notFound = 2
-  case unknown = 0
+  case requiresApproval = 2
+  case notFound = 3
+  case unknown = -1
 }

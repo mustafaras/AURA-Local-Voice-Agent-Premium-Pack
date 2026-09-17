@@ -65,6 +65,9 @@ final class AuraAppModel: ObservableObject {
   /// is not shipped, and the R11 gate asks for a live enable/disable.
   @Published var launchAtLoginEnabled = false
   @Published var launchAtLoginDetail = ""
+  /// PA-2 / ADR-066: macOS lists the item but wants the owner's approval in
+  /// Login Items. The Settings row shows this state honestly with a deep link.
+  @Published var launchAtLoginRequiresApproval = false
   /// Guards against a double-fire of `setLaunchAtLogin`. Found live 2026-09-01:
   /// the Settings `Toggle`'s inline `Binding(get:set:)` re-invoked `set` a
   /// second time before `launchAtLoginEnabled` had caught up (it only updates

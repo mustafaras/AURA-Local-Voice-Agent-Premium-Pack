@@ -22,7 +22,7 @@ struct LaunchAtLoginTests {
     let enabled = InMemoryLaunchAtLoginService(registered: true)
     #expect(enabled.statusRawValue == 1)
     let disabled = InMemoryLaunchAtLoginService(registered: false)
-    #expect(disabled.statusRawValue == 3)
+    #expect(disabled.statusRawValue == 0)  // SMAppService.Status.notRegistered (PA-2 fix)
   }
 
   @Test

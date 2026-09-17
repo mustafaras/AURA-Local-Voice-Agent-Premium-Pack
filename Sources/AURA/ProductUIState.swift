@@ -624,6 +624,14 @@ enum AuraCopy {
       .english: "Registers AURA with macOS Login Items via ServiceManagement.",
       .turkish: "AURA'yı ServiceManagement ile macOS Giriş Ögeleri'ne kaydeder.",
     ],
+    // --- PA-2 / ADR-066: honest .requiresApproval row -----------------------
+    "settings.launchAtLoginRequiresApproval": [
+      .english: "macOS is holding this item until you approve it in System Settings › General › Login Items.",
+      .turkish: "macOS bu ögeyi Sistem Ayarları › Genel › Giriş Ögeleri'nde onaylayana kadar bekletiyor.",
+    ],
+    "settings.openLoginItems": [
+      .english: "Open Login Items", .turkish: "Giriş Ögeleri'ni Aç",
+    ],
     // --- Sound feedback scaffold (UI-0 G0-6) --------------------------------
     // The scaffold does not pre-decide adoption (ADR-057); the copy states
     // what the preference does, not that sounds exist.
@@ -824,9 +832,16 @@ enum AuraCopy {
       .english: "Use a read-only help or explanation request as the safe first command; side effects are not authorized here.",
       .turkish: "Güvenli başlangıç komutu olarak yalnızca açıklama/yardım isteği kullanın; yan etkili işlem yetkilendirilmez.",
     ],
+    // ADR-066 (PA-2): the stage is a statement, not an opt-in — launch at
+    // login is on by default under the owner posture; Settings holds the switch.
     "onboarding.explain.launchAtLogin": [
-      .english: "Launch at login belongs to R11; this step does not change that setting.",
-      .turkish: "Girişte başlatma R11 kapsamındadır; bu adım ayarı değiştirmez.",
+      .english: "AURA starts automatically when you log in. You can turn this off in Settings.",
+      .turkish: "AURA giriş yaptığınızda otomatik başlar. Ayarlar'dan kapatabilirsiniz.",
+    ],
+    "onboarding.launchAtLogin.on": [.english: "On", .turkish: "Açık"],
+    "onboarding.launchAtLogin.off": [.english: "Off", .turkish: "Kapalı"],
+    "onboarding.launchAtLogin.awaitingApproval": [
+      .english: "Awaiting approval", .turkish: "Onay bekliyor",
     ],
     "onboarding.explain.complete": [
       .english: "Setup is complete.", .turkish: "Kurulum tamamlandı.",

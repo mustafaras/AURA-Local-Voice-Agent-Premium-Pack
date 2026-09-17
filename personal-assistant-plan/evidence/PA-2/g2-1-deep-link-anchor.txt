@@ -1,0 +1,15 @@
+# G2-1 — Login Items deep-link anchor verification (this machine, macOS 27, 2026-09-16 18:36+03:00)
+
+command:  open "x-apple.systempreferences:com.apple.LoginItems-Settings.extension"
+result:   System Settings opened; window title (AX name of window 1) = "Login Items"
+          current pane id (AppleScript) = com.apple.systempreferences.GeneralSettings
+          pane content: "Open at Login" table (AURA, ElevenLabs, Git Streaks) + "Background App Activity"
+          screenshot: g2-1-login-items-anchor.png (cropped to the pane; sidebar removed)
+
+note:     first attempt from inside the command sandbox failed with LaunchServices -10810
+          (kLSUnknownErr, RunningBoard helper connection refused) — a sandbox artifact, not an
+          anchor failure; the retry outside the sandbox resolved the pane above.
+
+baseline (before PA-2 code): `sfltool dumpbtm` lists the AURA login item as
+          Identifier 2.ai.aura.local.agent, Disposition [enabled, allowed, notified] (0xb),
+          URL /Users/501/Library/Developer/AURA/aura-ui4-g44/AURA.app   <- stale build path (G2-4 target)

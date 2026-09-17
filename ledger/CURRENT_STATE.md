@@ -1,5 +1,34 @@
 # Current State
 
+## 2026-09-17T10:56:46+03:00 — PA-2 Launch at Login by Default complete (ADR-066); awaiting `ONAY PA-3`
+
+All PA-2 gates G2-1…G2-5 are `passed`; the machine-coherence checkpoint
+(G2-6) follows this record. Under the owner posture the installed AURA
+registers itself as a login item by default and idempotently (no preference
+write, no confirmation card, no re-`register()` while macOS holds
+`.requiresApproval`), the onboarding `launchAtLogin` stage is informational
+with a live status row, and Settings › Startup shows the honest state with a
+verified Login Items deep link. Verified: full suite 22/22 ×3, 0 failed;
+readiness `Boşta` in 4.69 s from a LaunchServices launch; the owner's real
+logout → login brought AURA up by itself (PID 732 by launchd at 10:41:01,
+61 s after the console session opened, from `/Applications/AURA.app`,
+`Boşta`, zero dialogs, no sheet); `sfltool dumpbtm` lists the item enabled
+at `/Applications/AURA.app` — owner-attested. Evidence under
+`personal-assistant-plan/evidence/PA-2/`.
+
+Installed `/Applications/AURA.app` is the PA-2 build (main executable
+SHA-256 `07e93d01acdd1e7a6c99f8afa7b1f7224491ab3c98c93f7268748719654593da`,
+stable-signed, strict verify OK); the PA-1 install is recoverable at
+`~/Library/Developer/AURA/rollback/AURA.app-20260916-pa2`. The stale
+build-path login item carried since UI-4 is closed: BTM follows the last
+launched location, and the installed bundle was launched after deploy.
+Commit/push of this record follows the owner's go-ahead.
+
+**Next safe action:** PA-3 opens only on `ONAY PA-3`. Carried forward:
+coding-agent NLU route supplies no workspace (PA-3); SP006 opt-in pins
+stale (out of plan). Recorded, not worked around: on this macOS 27 host
+`unregister()` leaves a *disabled* BTM record instead of deleting it.
+
 ## 2026-09-16T18:06:30+03:00 — PA-1 deployed by the owner; `/Applications/AURA.app` = PA-1 rebuild
 
 `/Applications/AURA.app` main executable SHA-256

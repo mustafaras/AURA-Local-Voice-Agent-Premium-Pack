@@ -689,6 +689,18 @@ extension AuraKernel {
     return status == .enabled && preference
   }
 
+  /// Whether macOS holds the login item in `SMAppService.Status.requiresApproval`
+  /// (PA-2 / ADR-066): registered by AURA, but the owner must flip the switch
+  /// in System Settings › Login Items. Same observation-tier gate as
+  /// `isLaunchAtLoginEnabled()`.
+  func launchAtLoginRequiresApproval() async throws(AuraError) -> Bool {
+    guard started, let lifecycleController else {
+      throw AuraError.invalidConfiguration("AURA runtime is not started")
+    }
+    try await evaluateDirectCapability(.lifecycleLaunchAtLoginStatus)
+    return await lifecycleController.serviceStatus() == .requiresApproval
+  }
+
   /// Request safe mode for the next launch.
   func requestSafeMode(reason: String) async throws(AuraError) {
     guard started, let safeModeController else {
